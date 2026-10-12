@@ -1,0 +1,123 @@
+{
+  "baselineCommit": "21777db37c0284308b8c69eb2cc92ab0b012cd9b",
+  "coverageMeaning": "Each production file individually read and assessed against actual input dimensions; no-candidate is scoped static review, not a performance guarantee.",
+  "entries": [
+    {
+      "path": "src/package-tools/admission-policy/define-admission-policy.ts",
+      "group": "package-tools",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/package-tools/cache/cache-json-by-key.ts",
+      "group": "package-tools",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Key hash and whole payload read/parse/canonical snapshot/write; compute/parser trusted unknown. No directory scan; no single-flight is explicit contract."
+    },
+    {
+      "path": "src/package-tools/change-flag-debugging/change-flag-debugging.ts",
+      "group": "package-tools",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C05"
+      ],
+      "notes": "Dynamic region key table triggers shared closed exact-key Θ(R²); then one batch collection/final rebuild and indexed lookups, full text output sensitive."
+    },
+    {
+      "path": "src/package-tools/finding-presentation/finding-presentation.ts",
+      "group": "package-tools",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Bounded preview but omitted callback receives full copied tail; Θ(F) by public callback contract; messages append copy per actual call."
+    },
+    {
+      "path": "src/package-tools/finding-waivers/reconciliation.ts",
+      "group": "package-tools",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Waiver canonical identity map and one finding pass: not F×W scan. Identity hashing/canonical text plus full audit output dimensions."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/critical-path-ranking.ts",
+      "group": "package-tools",
+      "status": "confirmed_static",
+      "findingIds": [
+        "T01"
+      ],
+      "notes": "Memo DFS edges linear but each task searches complete prediction array; score reads search complete scores, used inside candidate comparator; ranking count verified."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/bounded-history.ts",
+      "group": "package-tools",
+      "status": "bounded",
+      "findingIds": [
+        "T01"
+      ],
+      "notes": "History series find O(H) with H≤4096, frozen samples W≤32; canonical series ordering required; no claim of unlimited history growth."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/prediction.ts",
+      "group": "package-tools",
+      "status": "confirmed_static",
+      "findingIds": [
+        "T01"
+      ],
+      "notes": "T history lookup find with H≤4096/W≤32; public snapshot array task read find; canonical identity plus median/snapshot sort required payload work."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/preparation.ts",
+      "group": "package-tools",
+      "status": "confirmed_static",
+      "findingIds": [
+        "T01"
+      ],
+      "notes": "Single load/predict and terminal record closure; forwards known table lookup costs; no independent graph/collection algorithm."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/recording.ts",
+      "group": "package-tools",
+      "status": "confirmed_static",
+      "findingIds": [
+        "T01"
+      ],
+      "notes": "One prediction find per valid admission O(A T), otherwise keyed merged history; temporary H+A before pruning; W≤32 per sample."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/storage.ts",
+      "group": "package-tools",
+      "status": "bounded",
+      "findingIds": [],
+      "notes": "Accepted H≤4096/W≤32 envelope parse/freeze; reads whole bytes and shallow array before invalid-size rejection; trusted local I/O/canonical output not measured."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/selection-layers.ts",
+      "group": "package-tools",
+      "status": "conditional_static",
+      "findingIds": [
+        "T02"
+      ],
+      "notes": "Rebuild static maps every decision; per-candidate activationTaskIds.includes creates O(k a_max), shared inactive-scope a=k yields Θ(k²); no real-scope probe."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/static-decision.ts",
+      "group": "package-tools",
+      "status": "conditional_static",
+      "findingIds": [
+        "T02"
+      ],
+      "notes": "Layers costs inherited; sorting k items to select first O(k log k), no measured bottleneck or changed order contract."
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/strategy.ts",
+      "group": "package-tools",
+      "status": "confirmed_static",
+      "findingIds": [
+        "T01",
+        "T02"
+      ],
+      "notes": "Prepared prediction/score tables then score find in each candidate comparison; repeated layers projection; callback identity/observer arbitrary cost unknown."
+    }
+  ]
+}

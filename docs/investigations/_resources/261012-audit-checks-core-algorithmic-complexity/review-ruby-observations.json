@@ -1,0 +1,38 @@
+{
+  "baseline": "21777db37c0284308b8c69eb2cc92ab0b012cd9b",
+  "runtime": {
+    "node": "24.18.0"
+  },
+  "command": "timeout --signal=KILL 20s mise exec bun@1.3.14 node@24.18.0 -- node docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/review-ruby-probe.ts",
+  "method": "Complete analyzeLizardSource facade; successful quoted tokenizer match-width counts, not regex engine steps or elapsed time",
+  "samples": [
+    {
+      "interpolationCount": 16,
+      "bytes": 70,
+      "quotedMatches": 16,
+      "quotedMatchedCharacters": 576,
+      "functionCount": 0
+    },
+    {
+      "interpolationCount": 32,
+      "bytes": 134,
+      "quotedMatches": 32,
+      "quotedMatchedCharacters": 2176,
+      "functionCount": 0
+    },
+    {
+      "interpolationCount": 64,
+      "bytes": 262,
+      "quotedMatches": 64,
+      "quotedMatchedCharacters": 8448,
+      "functionCount": 0
+    },
+    {
+      "interpolationCount": 128,
+      "bytes": 518,
+      "quotedMatches": 128,
+      "quotedMatchedCharacters": 33280,
+      "functionCount": 0
+    }
+  ]
+}

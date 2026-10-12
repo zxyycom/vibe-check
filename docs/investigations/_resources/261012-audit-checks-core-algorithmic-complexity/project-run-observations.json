@@ -1,0 +1,205 @@
+{
+  "runtime": "Bun 1.3.14",
+  "samples": [
+    {
+      "inputKind": "chain",
+      "n": 16,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 1240,
+      "scopeFindPredicates": 0,
+      "graphStringifyCalls": 34,
+      "graphStringifiedCharacters": 69700,
+      "raceInputPromises": 16
+    },
+    {
+      "inputKind": "chain",
+      "n": 32,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 10416,
+      "scopeFindPredicates": 0,
+      "graphStringifyCalls": 66,
+      "graphStringifiedCharacters": 269412,
+      "raceInputPromises": 32
+    },
+    {
+      "inputKind": "chain",
+      "n": 64,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 85344,
+      "scopeFindPredicates": 0,
+      "graphStringifyCalls": 130,
+      "graphStringifiedCharacters": 1058980,
+      "raceInputPromises": 64
+    },
+    {
+      "inputKind": "chain",
+      "n": 128,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 690880,
+      "scopeFindPredicates": 0,
+      "graphStringifyCalls": 258,
+      "graphStringifiedCharacters": 4212882,
+      "raceInputPromises": 128
+    },
+    {
+      "inputKind": "independent-singleton-scopes",
+      "n": 16,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 5712,
+      "graphStringifyCalls": 34,
+      "graphStringifiedCharacters": 117912,
+      "raceInputPromises": 16
+    },
+    {
+      "inputKind": "independent-singleton-scopes",
+      "n": 32,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 44704,
+      "graphStringifyCalls": 66,
+      "graphStringifiedCharacters": 458040,
+      "raceInputPromises": 32
+    },
+    {
+      "inputKind": "independent-singleton-scopes",
+      "n": 64,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 353600,
+      "graphStringifyCalls": 130,
+      "graphStringifiedCharacters": 1804920,
+      "raceInputPromises": 64
+    },
+    {
+      "inputKind": "independent-singleton-scopes",
+      "n": 128,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 2812544,
+      "graphStringifyCalls": 258,
+      "graphStringifiedCharacters": 7201296,
+      "raceInputPromises": 128
+    },
+    {
+      "inputKind": "independent-parallel",
+      "n": 16,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 0,
+      "graphStringifyCalls": 34,
+      "graphStringifiedCharacters": 65450,
+      "raceInputPromises": 136
+    },
+    {
+      "inputKind": "independent-parallel",
+      "n": 32,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 0,
+      "graphStringifyCalls": 66,
+      "graphStringifiedCharacters": 251658,
+      "raceInputPromises": 528
+    },
+    {
+      "inputKind": "independent-parallel",
+      "n": 64,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 0,
+      "graphStringifyCalls": 130,
+      "graphStringifiedCharacters": 986570,
+      "raceInputPromises": 2080
+    },
+    {
+      "inputKind": "independent-parallel",
+      "n": 128,
+      "graphDtoFreezes": 1,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 0,
+      "graphStringifyCalls": 258,
+      "graphStringifiedCharacters": 3913602,
+      "raceInputPromises": 8256
+    },
+    {
+      "inputKind": "public-chain",
+      "n": 16,
+      "graphDtoFreezes": 4,
+      "settlementFindPredicates": 1240,
+      "scopeFindPredicates": 272,
+      "graphStringifyCalls": 34,
+      "graphStringifiedCharacters": 127602,
+      "raceInputPromises": 16
+    },
+    {
+      "inputKind": "public-chain",
+      "n": 32,
+      "graphDtoFreezes": 4,
+      "settlementFindPredicates": 10416,
+      "scopeFindPredicates": 1056,
+      "graphStringifyCalls": 66,
+      "graphStringifiedCharacters": 496914,
+      "raceInputPromises": 32
+    },
+    {
+      "inputKind": "public-chain",
+      "n": 64,
+      "graphDtoFreezes": 4,
+      "settlementFindPredicates": 85344,
+      "scopeFindPredicates": 4160,
+      "graphStringifyCalls": 130,
+      "graphStringifiedCharacters": 1960530,
+      "raceInputPromises": 64
+    },
+    {
+      "inputKind": "public-chain",
+      "n": 128,
+      "graphDtoFreezes": 4,
+      "settlementFindPredicates": 690880,
+      "scopeFindPredicates": 16512,
+      "graphStringifyCalls": 258,
+      "graphStringifiedCharacters": 7830816,
+      "raceInputPromises": 128
+    },
+    {
+      "inputKind": "public-independent",
+      "n": 16,
+      "graphDtoFreezes": 4,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 5712,
+      "graphStringifyCalls": 34,
+      "graphStringifiedCharacters": 123352,
+      "raceInputPromises": 16
+    },
+    {
+      "inputKind": "public-independent",
+      "n": 32,
+      "graphDtoFreezes": 4,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 44704,
+      "graphStringifyCalls": 66,
+      "graphStringifiedCharacters": 479160,
+      "raceInputPromises": 32
+    },
+    {
+      "inputKind": "public-independent",
+      "n": 64,
+      "graphDtoFreezes": 4,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 353600,
+      "graphStringifyCalls": 130,
+      "graphStringifiedCharacters": 1888120,
+      "raceInputPromises": 64
+    },
+    {
+      "inputKind": "public-independent",
+      "n": 128,
+      "graphDtoFreezes": 4,
+      "settlementFindPredicates": 0,
+      "scopeFindPredicates": 2812544,
+      "graphStringifyCalls": 258,
+      "graphStringifiedCharacters": 7531536,
+      "raceInputPromises": 128
+    }
+  ]
+}

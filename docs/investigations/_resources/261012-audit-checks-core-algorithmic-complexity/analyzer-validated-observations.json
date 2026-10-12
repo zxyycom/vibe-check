@@ -1,0 +1,290 @@
+{
+  "runtime": {
+    "node": "24.18.0",
+    "acorn": "8.16.0",
+    "ada": "3.4.4",
+    "amaro": "1.1.9",
+    "ares": "1.34.6",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.3",
+    "llhttp": "9.4.2",
+    "merve": "1.2.2",
+    "modules": "137",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.69.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "3.5.7",
+    "simdjson": "4.6.4",
+    "simdutf": "6.4.0",
+    "sqlite": "3.53.1",
+    "tz": "2026b",
+    "undici": "7.28.0",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "13.6.233.17-node.50",
+    "zlib": "1.3.1-e00f703",
+    "zstd": "1.5.7"
+  },
+  "method": "instrumented production operations; no wall-time measurements",
+  "observations": [
+    {
+      "label": "long-python-signature",
+      "n": 16,
+      "bytes": 68,
+      "functionCount": 1,
+      "parameterCounts": [
+        16
+      ],
+      "longCalls": 33,
+      "longCharacters": 1349,
+      "consumeCalls": 37,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-go-blocks",
+      "n": 16,
+      "bytes": 151,
+      "functionCount": 1,
+      "parameterCounts": [
+        0
+      ],
+      "longCalls": 0,
+      "longCharacters": 0,
+      "consumeCalls": 1483,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-ts-parentheses",
+      "n": 16,
+      "bytes": 44,
+      "functionCount": 0,
+      "parameterCounts": [],
+      "longCalls": 17,
+      "longCharacters": 289,
+      "consumeCalls": 40,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-cpp-no-functions",
+      "n": 16,
+      "bytes": 432,
+      "functionCount": 0,
+      "parameterCounts": [],
+      "longCalls": 0,
+      "longCharacters": 0,
+      "consumeCalls": 464,
+      "namespaceCalls": 80,
+      "namespaceSlots": 1008
+    },
+    {
+      "label": "ruby-flat-interpolations",
+      "n": 16,
+      "bytes": 70,
+      "tokens": 69,
+      "quotedMatches": 16,
+      "quotedMatchedCharacters": 576
+    },
+    {
+      "label": "long-python-signature",
+      "n": 32,
+      "bytes": 132,
+      "functionCount": 1,
+      "parameterCounts": [
+        32
+      ],
+      "longCalls": 65,
+      "longCharacters": 5669,
+      "consumeCalls": 69,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-go-blocks",
+      "n": 32,
+      "bytes": 279,
+      "functionCount": 1,
+      "parameterCounts": [
+        0
+      ],
+      "longCalls": 0,
+      "longCharacters": 0,
+      "consumeCalls": 5515,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-ts-parentheses",
+      "n": 32,
+      "bytes": 76,
+      "functionCount": 0,
+      "parameterCounts": [],
+      "longCalls": 33,
+      "longCharacters": 1089,
+      "consumeCalls": 72,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-cpp-no-functions",
+      "n": 32,
+      "bytes": 864,
+      "functionCount": 0,
+      "parameterCounts": [],
+      "longCalls": 0,
+      "longCharacters": 0,
+      "consumeCalls": 928,
+      "namespaceCalls": 160,
+      "namespaceSlots": 4064
+    },
+    {
+      "label": "ruby-flat-interpolations",
+      "n": 32,
+      "bytes": 134,
+      "tokens": 133,
+      "quotedMatches": 32,
+      "quotedMatchedCharacters": 2176
+    },
+    {
+      "label": "long-python-signature",
+      "n": 64,
+      "bytes": 260,
+      "functionCount": 1,
+      "parameterCounts": [
+        64
+      ],
+      "longCalls": 129,
+      "longCharacters": 23525,
+      "consumeCalls": 133,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-go-blocks",
+      "n": 64,
+      "bytes": 535,
+      "functionCount": 1,
+      "parameterCounts": [
+        0
+      ],
+      "longCalls": 0,
+      "longCharacters": 0,
+      "consumeCalls": 21259,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-ts-parentheses",
+      "n": 64,
+      "bytes": 140,
+      "functionCount": 0,
+      "parameterCounts": [],
+      "longCalls": 65,
+      "longCharacters": 4225,
+      "consumeCalls": 136,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-cpp-no-functions",
+      "n": 64,
+      "bytes": 1728,
+      "functionCount": 0,
+      "parameterCounts": [],
+      "longCalls": 0,
+      "longCharacters": 0,
+      "consumeCalls": 1856,
+      "namespaceCalls": 320,
+      "namespaceSlots": 16320
+    },
+    {
+      "label": "ruby-flat-interpolations",
+      "n": 64,
+      "bytes": 262,
+      "tokens": 261,
+      "quotedMatches": 64,
+      "quotedMatchedCharacters": 8448
+    },
+    {
+      "label": "long-python-signature",
+      "n": 128,
+      "bytes": 544,
+      "functionCount": 1,
+      "parameterCounts": [
+        128
+      ],
+      "longCalls": 257,
+      "longCharacters": 96885,
+      "consumeCalls": 261,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-go-blocks",
+      "n": 128,
+      "bytes": 1047,
+      "functionCount": 1,
+      "parameterCounts": [
+        0
+      ],
+      "longCalls": 0,
+      "longCharacters": 0,
+      "consumeCalls": 83467,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-ts-parentheses",
+      "n": 128,
+      "bytes": 268,
+      "functionCount": 0,
+      "parameterCounts": [],
+      "longCalls": 129,
+      "longCharacters": 16641,
+      "consumeCalls": 264,
+      "namespaceCalls": 1,
+      "namespaceSlots": 0
+    },
+    {
+      "label": "nested-cpp-no-functions",
+      "n": 128,
+      "bytes": 3456,
+      "functionCount": 0,
+      "parameterCounts": [],
+      "longCalls": 0,
+      "longCharacters": 0,
+      "consumeCalls": 3712,
+      "namespaceCalls": 640,
+      "namespaceSlots": 65408
+    },
+    {
+      "label": "ruby-flat-interpolations",
+      "n": 128,
+      "bytes": 518,
+      "tokens": 517,
+      "quotedMatches": 128,
+      "quotedMatchedCharacters": 33280
+    },
+    {
+      "label": "legal-cpp-array-parameter",
+      "n": 64,
+      "bytes": 81,
+      "functionCount": 1,
+      "parameterCounts": [
+        0
+      ],
+      "longCalls": 6,
+      "longCharacters": 228,
+      "consumeCalls": 34,
+      "namespaceCalls": 2,
+      "namespaceSlots": 0
+    }
+  ]
+}

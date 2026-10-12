@@ -1,0 +1,62 @@
+{
+  "runtime": {
+    "bun": "1.3.14",
+    "bunReportedNodeCompatibility": "v24.3.0"
+  },
+  "scope": "bounded actual callback/property visits; not timings; SCC n stays inside fixed 28000 ceiling",
+  "observations": [
+    {
+      "n": 32,
+      "selectedFiles": 32,
+      "directoryComparisons": 1024,
+      "areaComparisons": 528,
+      "slugVisits": 1024,
+      "argvVisits": 622,
+      "sccBatchCount": 1
+    },
+    {
+      "n": 64,
+      "selectedFiles": 64,
+      "directoryComparisons": 4096,
+      "areaComparisons": 2080,
+      "slugVisits": 4096,
+      "argvVisits": 2270,
+      "sccBatchCount": 1
+    },
+    {
+      "n": 128,
+      "selectedFiles": 128,
+      "directoryComparisons": 16384,
+      "areaComparisons": 8256,
+      "slugVisits": 16384,
+      "argvVisits": 8638,
+      "sccBatchCount": 1
+    }
+  ],
+  "maintenance": {
+    "reminderCount": 3,
+    "firstParentHistoryLength": 4,
+    "baseIndex": 3,
+    "totalProcessCalls": 14,
+    "diffTreeCalls": 9,
+    "expectedFormula": "2 + R + sum(baseIndex_i)",
+    "calls": [
+      "rev-parse --verify HEAD^{commit}",
+      "rev-list --first-parent HEAD",
+      "rev-parse --verify 0000000000000000000000000000000000000004^{commit}",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000001^ 0000000000000000000000000000000000000001",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000002^ 0000000000000000000000000000000000000002",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000003^ 0000000000000000000000000000000000000003",
+      "rev-parse --verify 0000000000000000000000000000000000000004^{commit}",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000001^ 0000000000000000000000000000000000000001",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000002^ 0000000000000000000000000000000000000002",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000003^ 0000000000000000000000000000000000000003",
+      "rev-parse --verify 0000000000000000000000000000000000000004^{commit}",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000001^ 0000000000000000000000000000000000000001",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000002^ 0000000000000000000000000000000000000002",
+      "diff-tree --no-commit-id --numstat -r 0000000000000000000000000000000000000003^ 0000000000000000000000000000000000000003"
+    ],
+    "status": "passed",
+    "note": "Fake Git, actual execute hook; no real Git history or Git writes; all reminders have commits-only limits, yet changedLines remains mandatory final-data evidence."
+  }
+}

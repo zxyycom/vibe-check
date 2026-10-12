@@ -1,0 +1,1661 @@
+{
+  "baselineCommit": "21777db37c0284308b8c69eb2cc92ab0b012cd9b",
+  "coverageMeaning": "201 production Check source paths individually inventoried.155 wrapper/shared production files runtime/type reviewed here;46 analyzer entries preliminary and intentionally overlapped with independent analyzer-coverage final owner. No-candidate is scoped static review, not performance guarantee.",
+  "scopeExclusions": [
+    ".test.ts",
+    ".type-test.ts",
+    ".test-support.ts",
+    "test-support/",
+    "fixtures/"
+  ],
+  "counts": {
+    "entries": 201,
+    "complete": 155,
+    "preliminary": 46
+  },
+  "entries": [
+    {
+      "path": "src/package-checks/check-authoring.ts",
+      "group": "shared-entry",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed descriptor-safe authored options and ordinary Check field projection; fixed domain key grammar, list/text work delegates to Core validation. No independent growing nested search."
+    },
+    {
+      "path": "src/package-checks/code-quality-findings/finding-waiver-authoring.ts",
+      "group": "code-quality-findings",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Authoring validates/makes detached waiver objects; actual materialization and identity grammar costs are Non-Core package-tools owner, not duplicated here."
+    },
+    {
+      "path": "src/package-checks/code-quality-findings/finding-waiver-evidence.ts",
+      "group": "code-quality-findings",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Audit field projection and one loop reporting all waiver audit Records; required O(W) result work; tool reconciliation is separately owned."
+    },
+    {
+      "path": "src/package-checks/code-quality-findings/policy.ts",
+      "group": "code-quality-findings",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Named area own-key traversal O(A), fixed two-policy catalog; two finding filters O(R) serve distinct counts. No independent superlinear search."
+    },
+    {
+      "path": "src/package-checks/command-check/command-check.ts",
+      "group": "command-check",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Ordinary defineCheck authoring with closed options and prepare revalidation; native Core integration, no standalone scanner/CLI."
+    },
+    {
+      "path": "src/package-checks/command-check/contract.ts",
+      "group": "command-check",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/command-check/execution.ts",
+      "group": "command-check",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One child per execute plus trusted before/after/environment callbacks, bounded capturedoutput and optional running/closed transcript; callback/command CPU unknown."
+    },
+    {
+      "path": "src/package-checks/command-check/options.ts",
+      "group": "command-check",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed closed command/environment/output/transcript grammar; args/env list+text copies O(input), constant passes and noShell enforcement."
+    },
+    {
+      "path": "src/package-checks/command-check/transcript.ts",
+      "group": "command-check",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Atomic owned artifact transcript write; total stdout/stderr byte-sensitive, no directory walk or repeated output-prefix rewrite loop."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/area-policy.ts",
+      "group": "duplicate-detection",
+      "status": "confirmed_static",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K04"
+      ],
+      "notes": "One path->policy index O(M), fragment common area filter nested some causes K04 O(R(L-1)a²); stable area sort and strictest shared minima preserved."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/cache/cache-contract.ts",
+      "group": "duplicate-detection/cache",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Raw cache version constants and type contract only; no cache traversal."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/cache/identity.ts",
+      "group": "duplicate-detection/cache",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed shallow identity including scanner policy, current commit and exact input fingerprint; full hash work occurs upstream."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/cache/key.ts",
+      "group": "duplicate-detection/cache",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Recursive stable canonical stringify/hash, current identity grammar shallow with truncated fileList<=200; no actual arbitrary-depth input candidate claimed."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/cache/payload.ts",
+      "group": "duplicate-detection/cache",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Whole raw cached metrics validation and canonical identity equality; output-sensitive, calls fragment validator whose L² shape is K11 but default backend L=2."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/cache/store.ts",
+      "group": "duplicate-detection/cache",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Best-effort whole JSON raw cache read/write with guarded ownership; no directory enumeration, no per-file cache byte cap; area annotation not persisted."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/default-check.ts",
+      "group": "duplicate-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Public ordinary Check constructor and closed domain options -> native defineCheck hooks; constant field grammar plus declared options/list work, domain execution owner reviewed separately."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/execution.ts",
+      "group": "duplicate-detection",
+      "status": "bounded_or_constant_risk",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K10"
+      ],
+      "notes": "Batch area collection/union then fingerprint+Git before disabled-cache/<2 branching (K10); full candidate/waiver/Record work required, scanner once union."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/final-data.ts",
+      "group": "duplicate-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed final count/data parser and scalar safeinteger checks; no input-list processing except explicitly modeled reported entries; no independent superlinear root."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/finding-messages.ts",
+      "group": "duplicate-detection",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Full finding/waiver projection and count O(R+W) before bounded detailpresentation; detail cap does not cap Records; shared Non-Core presentation cost separately reviewed."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/finding-waiver-identity.ts",
+      "group": "duplicate-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Identity grammar sorts locations and uses adjacent comparisons rather than pairwise distinct; O(LlogL+text), no K11 duplication."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/availability.ts",
+      "group": "duplicate-detection/jscpd",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One async version probe per measurement; command resolution manifest reads constant-small, external version process work unknown."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/command-path.ts",
+      "group": "duplicate-detection/jscpd",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed exact contained command path check; proportional to path text, no candidate scan."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/command-resolution.ts",
+      "group": "duplicate-detection/jscpd",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Resolve installed manifest/contained bin and fixed command kind, constant small reads; no global scanner registry or independent repeated area work."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/json-report.ts",
+      "group": "duplicate-detection/jscpd",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Whole JSON report parse and output conversion/sort; parseJscpdLocations always firstFile+secondFile L=2 even custom command. Output-sensitive, third-party token work unknown."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/scanner-contract.ts",
+      "group": "duplicate-detection/jscpd",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/scanner.ts",
+      "group": "duplicate-detection/jscpd",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Write exact absolute path config, one union scan child with 600s/64MiB process limits, read whole report JSON without report byte cap. jscpd internal CPU/candidate generation unknown."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/scoped-fragments.ts",
+      "group": "duplicate-detection/jscpd",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Each scanner fragment sourcePaths passed to common exact Set guard; proportional to output locations, whole rejection not partial publication."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/measurement-model.ts",
+      "group": "duplicate-detection",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/measurement.ts",
+      "group": "duplicate-detection",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Availability, cache key/load/fresh scanner, exactSet and raw fragment acceptance, then current area annotation. Same raw scan union, no per-area scanner loop; K04/K11 inherited."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/options-resolution.ts",
+      "group": "duplicate-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed-shape domain options with per-area/pattern/schema/binding/rule/waiver array processing and detached snapshots; costs linear own input fields plus imported Core/tools validation; no independent dynamic nested scan."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/options-validation.ts",
+      "group": "duplicate-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed resolved-option key grammar, per-area/list membership and scalar checks; linear declared option arrays/text, Core closed exact-key helper has fixed key count here; no independent scalable key-table candidate."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/options.ts",
+      "group": "duplicate-detection",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/project-revision.ts",
+      "group": "duplicate-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One Git SHA helper even before no-input/cache-disabled execution branches; external Git cost unknown; associated caller cost K10."
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/records.ts",
+      "group": "duplicate-detection",
+      "status": "latent_input_quadratic",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K11"
+      ],
+      "notes": "Stable fragment IDs via shallow canonical paths/hash and occurrence Map plus Rsort; distinct locations nested suffix comparison K11, latent L>2 cache shape."
+    },
+    {
+      "path": "src/package-checks/file-metrics/constructor.ts",
+      "group": "file-metrics",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Public ordinary Check constructor and closed domain options -> native defineCheck hooks; constant field grammar plus declared options/list work, domain execution owner reviewed separately."
+    },
+    {
+      "path": "src/package-checks/file-metrics/execution.ts",
+      "group": "file-metrics",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Batch collection -> Core pure file-region index -> unique exact union, scanner once logical scan; policy and record output match memberships, no metric-by-all-files rediscovery."
+    },
+    {
+      "path": "src/package-checks/file-metrics/final-data.ts",
+      "group": "file-metrics",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed final count/data parser and scalar safeinteger checks; no input-list processing except explicitly modeled reported entries; no independent superlinear root."
+    },
+    {
+      "path": "src/package-checks/file-metrics/finding-messages.ts",
+      "group": "file-metrics",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Full finding/waiver projection and count O(R+W) before bounded detailpresentation; detail cap does not cap Records; shared Non-Core presentation cost separately reviewed."
+    },
+    {
+      "path": "src/package-checks/file-metrics/measurement-model.ts",
+      "group": "file-metrics",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/file-metrics/measurement.ts",
+      "group": "file-metrics",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One SCC logical scan followed by approved exact-set guard; output-sensitive conversion; no repeated per-area scan."
+    },
+    {
+      "path": "src/package-checks/file-metrics/options-resolution.ts",
+      "group": "file-metrics",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed-shape domain options with per-area/pattern/schema/binding/rule/waiver array processing and detached snapshots; costs linear own input fields plus imported Core/tools validation; no independent dynamic nested scan."
+    },
+    {
+      "path": "src/package-checks/file-metrics/options-validation.ts",
+      "group": "file-metrics",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed resolved-option key grammar, per-area/list membership and scalar checks; linear declared option arrays/text, Core closed exact-key helper has fixed key count here; no independent scalable key-table candidate."
+    },
+    {
+      "path": "src/package-checks/file-metrics/options.ts",
+      "group": "file-metrics",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/file-metrics/records.ts",
+      "group": "file-metrics",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Metric dedupe Set, direct file-region area lookup and per-area thresholds O(rows+matched memberships), stable candidate sort O(RlogR), complete Record/waiver output."
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/availability.ts",
+      "group": "file-metrics/scc",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One SCC version4.0.0 probe per logical scan; child engine unknown, no area-multiplied availability."
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/batch-planner.ts",
+      "group": "file-metrics/scc",
+      "status": "bounded_or_constant_risk",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K07"
+      ],
+      "notes": "K07 candidate argv prefix copy and reduce; within batch Θ(b²) but fixed28,000 budget implies globally O(F*b_max) with fixed b_max, not unbounded F²."
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/logical-scan-resources.ts",
+      "group": "file-metrics/scc",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One shared deadline and cumulative output-byte accounting across sequential batches; fixed-size state, constant cost per budget check."
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/parser.ts",
+      "group": "file-metrics/scc",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed10 header fields, each CSV row numeric/path checks, once stable row sort; O(output+NlogN) wrapper, CSV engine unknown."
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/scanner.ts",
+      "group": "file-metrics/scc",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Sequential transport batches each exact and non-overlapping, per-batch parse/sort plus final merged sort and Set guard; sum b logb+FlogF, external SCC scan unknown."
+    },
+    {
+      "path": "src/package-checks/final-data-parsing.ts",
+      "group": "shared-entry",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed count grammar and shared final-data parsing; text/own-key costs, no configurable-key nested scan."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analysis.ts",
+      "group": "function-metrics/wrapper",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Group by file+name Map then stable within-group sort/canonical ordinal; contributor-prefix comparison only ties, output-sensitive strings/metrics. No independently confirmed wrapper quadratic root."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-adapter.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Per approved source analyzer call and mapping functions/contributors; required O(metric/contributor output), analyzer private port only; Axx deep audit owns internal costs."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-worker-contract.ts",
+      "group": "function-metrics/wrapper",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-worker-port.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One worker batch structured clone, response shape/metric exact membership checks then termination. Parent+clone retained bytes, cancellation semantics separate; no old timer-loop finding."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-worker.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Worker request guard, one adapter batch, result/error transport; output-sensitive validation/clone, internal analyzer cost delegated."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/analysis-context.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/analysis-model.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/contracts.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extension-output.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/extension-base.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/protocol.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/registry.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/pipeline.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/port-facade.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/reader-registry.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/csharp.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/fortran.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/gdscript.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/go.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/java-body-states.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/java.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/javascript.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/kotlin.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/lua.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/objc.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/perl.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/php-states.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/php.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/plsql.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/python.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/r.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/ruby.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/rust.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/scala.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/solidity.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/st.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/swift.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/ttcn.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/vue.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/zig.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/clike.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/golike.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/js-style-regex.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/rubylike.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/script-language.ts",
+      "group": "function-metrics/analyzer",
+      "status": "delegated_preliminary",
+      "reviewLevel": "preliminary",
+      "findingIds": [],
+      "notes": "Preliminary source grouping/token-loop inspection only; final semantic reviewLevel/status/findingIds belong to analyzer-coverage.json (Axx). Not counted among155 completed Check wrapper/shared reviews."
+    },
+    {
+      "path": "src/package-checks/function-metrics/constructor.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Public ordinary Check constructor and closed domain options -> native defineCheck hooks; constant field grammar plus declared options/list work, domain execution owner reviewed separately."
+    },
+    {
+      "path": "src/package-checks/function-metrics/execution.ts",
+      "group": "function-metrics/wrapper",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Batch areas/eligibility -> accepted/rejected area index -> accepted union once -> measurement; complete rejected Records and waiver reconciliation, no per-area analyzer reread."
+    },
+    {
+      "path": "src/package-checks/function-metrics/final-data.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed final count/data parser and scalar safeinteger checks; no input-list processing except explicitly modeled reported entries; no independent superlinear root."
+    },
+    {
+      "path": "src/package-checks/function-metrics/finding-messages.ts",
+      "group": "function-metrics/wrapper",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Full finding/waiver projection and count O(R+W) before bounded detailpresentation; detail cap does not cap Records; shared Non-Core presentation cost separately reviewed."
+    },
+    {
+      "path": "src/package-checks/function-metrics/finding-waiver-identity.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed function identity grammar and path/name validation; trusted Core closed snapshot costs, no configurable nested policy search."
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement-model.ts",
+      "group": "function-metrics/wrapper",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement.ts",
+      "group": "function-metrics/wrapper",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Per-file8MiB aggregate64MiB accepted-byte bounds, <=32KiB chunks with production setImmediate yield, once concat; invalid UTF8 decode append runtime rope cost unknown. One worker after full admitted inputs, no setTimeout."
+    },
+    {
+      "path": "src/package-checks/function-metrics/options-resolution.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed-shape domain options with per-area/pattern/schema/binding/rule/waiver array processing and detached snapshots; costs linear own input fields plus imported Core/tools validation; no independent dynamic nested scan."
+    },
+    {
+      "path": "src/package-checks/function-metrics/options-validation.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed resolved-option key grammar, per-area/list membership and scalar checks; linear declared option arrays/text, Core closed exact-key helper has fixed key count here; no independent scalable key-table candidate."
+    },
+    {
+      "path": "src/package-checks/function-metrics/options.ts",
+      "group": "function-metrics/wrapper",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/function-metrics/records.ts",
+      "group": "function-metrics/wrapper",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Path->area index O(M), per-function copies/sorts matching area IDs O(U a loga) and fixed4 thresholds. Output memberships required; same-file immutable policy context can share, function-dependent allowance must remain."
+    },
+    {
+      "path": "src/package-checks/function-metrics/target-files.ts",
+      "group": "function-metrics/wrapper",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed registry suffix catalog drives patterns and eligibility; case/extension path transformations linear text, not glob-times-token quadratic."
+    },
+    {
+      "path": "src/package-checks/host-environment/csv.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Delegates csv-parse then checks string cells/rows; O(parsed output/cells) wrapper, external parser internals unknown."
+    },
+    {
+      "path": "src/package-checks/host-environment/error-message.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed error/protocol projection into safe string; cost scales with supplied text, no repeated collection search."
+    },
+    {
+      "path": "src/package-checks/host-environment/filesystem.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Whole JSON cache read/parse/write and fixed stat/path operations; output-byte-sensitive, no independent recursive walker; no added cache byte limit."
+    },
+    {
+      "path": "src/package-checks/host-environment/git.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One command per helper and linear stdout parsing/path processing; Git calculation unknown, caller owns repeated command count."
+    },
+    {
+      "path": "src/package-checks/host-environment/path.ts",
+      "group": "host-environment",
+      "status": "reexport",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Node path re-exports, no local loop; native path normalization cost scales with path text."
+    },
+    {
+      "path": "src/package-checks/host-environment/process.ts",
+      "group": "host-environment",
+      "status": "reexport",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Process capability re-exports only; runner/env/result/failure own actual execution and transformation."
+    },
+    {
+      "path": "src/package-checks/host-environment/process/contract.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Type contracts plus fixed default output budget 64MiB, no execution loop."
+    },
+    {
+      "path": "src/package-checks/host-environment/process/env.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Descriptor-safe environment snapshot/merge O(variable entries+text); inherited environment explicitly included, no scalable nested identity search."
+    },
+    {
+      "path": "src/package-checks/host-environment/process/failure.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed subprocess failure categories/result projection, output text lengths where retained; process engine unknown."
+    },
+    {
+      "path": "src/package-checks/host-environment/process/result.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed stdout/stderr/exit/signal mapping and exact result validation; output-sensitive text, no repeated scanner."
+    },
+    {
+      "path": "src/package-checks/host-environment/process/runner.ts",
+      "group": "host-environment",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Single execa call per invocation with timeout/maxBuffer/signal, external child work unknown; caller controls total invocations."
+    },
+    {
+      "path": "src/package-checks/json-document/strict-document.ts",
+      "group": "json-document",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Bounded size/identity read, fatal UTF8/Momoa parse, duplicate-key Set walk then detached strict tree materialization. Wrapper O(bytes+AST); Momoa internal unknown, recursion-depth stack risk not proved time quadratic."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/default-check.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Public ordinary Check constructor and closed domain options -> native defineCheck hooks; constant field grammar plus declared options/list work, domain execution owner reviewed separately."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/execution-stages.ts",
+      "group": "json-schema-validation",
+      "status": "design_or_capacity_risk",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K08"
+      ],
+      "notes": "Explicit schema read/register once; each binding rereads instance (K08), duplicate(path,schemaId) forbidden but same instance+different schemas valid. Required schema validation unknown; freshness decision precedes memo."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/final-data.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed nested count/issue record parsing with fixed fields and bounded reported issue cap; O(reported entries+text), no dynamic-key quadratic."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/issue-collector.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Always increment complete issue count but retain/hash/report first100 issues; constant cost per issue, does not cap upstream Ajv errors/normalization work."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Serial schema/reference/compile/binding stages, per-invocation collector, complete issue count; only first100 Records retained, not raw Ajv error bound."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/options-resolution.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed-shape domain options with per-area/pattern/schema/binding/rule/waiver array processing and detached snapshots; costs linear own input fields plus imported Core/tools validation; no independent dynamic nested scan."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/options-validation.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed resolved-option key grammar, per-area/list membership and scalar checks; linear declared option arrays/text, Core closed exact-key helper has fixed key count here; no independent scalable key-table candidate."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/options.ts",
+      "group": "json-schema-validation",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/reference-resolver.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "URI->Promise memo once per normalized URI, serial queue and explicit allowlist search; O(V*allowlist+document bytes) wrapper, no total V cap; no undocumented network discovery."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/remote-response.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Single5s/1MiB bounded remote response chunks and once join, UTF8/strict JSON parse; no retained unbounded response stream, total unique URI budget not enforced here."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/schema-engine.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fresh Ajv allErrors engine per Check, add/compile each schema; Ajv internals unknown. Normalize all E errors then stable sort O(ElogE), pointer text bounded256 but E raw unbounded by100 report cap."
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/schema-policy.ts",
+      "group": "json-schema-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Traverse only recognized schema-bearing keyword tree, fixed keyword catalogs and URI policy checks; O(schemaAST) local traversal, own authoritative top-level clone."
+    },
+    {
+      "path": "src/package-checks/json-validation/default-check.ts",
+      "group": "json-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Public ordinary Check constructor and closed domain options -> native defineCheck hooks; constant field grammar plus declared options/list work, domain execution owner reviewed separately."
+    },
+    {
+      "path": "src/package-checks/json-validation/final-data.ts",
+      "group": "json-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed final count/data parser and scalar safeinteger checks; no input-list processing except explicitly modeled reported entries; no independent superlinear root."
+    },
+    {
+      "path": "src/package-checks/json-validation/json-validation.ts",
+      "group": "json-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Collect/eligibility then each accepted JSON strict read once; full invalid/rejected evidence O(F+bytes+AST), no reparse by every finding."
+    },
+    {
+      "path": "src/package-checks/json-validation/options-resolution.ts",
+      "group": "json-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed-shape domain options with per-area/pattern/schema/binding/rule/waiver array processing and detached snapshots; costs linear own input fields plus imported Core/tools validation; no independent dynamic nested scan."
+    },
+    {
+      "path": "src/package-checks/json-validation/options-validation.ts",
+      "group": "json-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed resolved-option key grammar, per-area/list membership and scalar checks; linear declared option arrays/text, Core closed exact-key helper has fixed key count here; no independent scalable key-table candidate."
+    },
+    {
+      "path": "src/package-checks/json-validation/options.ts",
+      "group": "json-validation",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/local-cache-options.ts",
+      "group": "shared-entry",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed enabled/directory fixed-shape resolution. No cache history traversal here; consumers own persistence."
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/assessment-results.ts",
+      "group": "maintenance-reminders",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Ordered assessments, map/filter/flatMap full reminder outputs O(r+message text); no cross-reminder historical lookup."
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/final-data.ts",
+      "group": "maintenance-reminders",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Ordered assessment array strict shape validation, O(r+text), fixed per-entry count/exceeded grammar."
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/maintenance-reminders.ts",
+      "group": "maintenance-reminders",
+      "status": "confirmed_static",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K06"
+      ],
+      "notes": "K06 HEAD+history once then reminders awaited serially; normal process count 2+r+sum k_i, no run-local base/commit cache."
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/maintenance-support.ts",
+      "group": "maintenance-reminders",
+      "status": "confirmed_static",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K06"
+      ],
+      "notes": "Actual spawn wrapper used K06 times;64MiB per-command stdout limit, no per-command timeout (caller signal); stdout rope flattening runtime cost unknown."
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/measurement.ts",
+      "group": "maintenance-reminders",
+      "status": "confirmed_static",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K06"
+      ],
+      "notes": "K06 each reminder resolves base, history indexOf, slices prefix and diff-tree eachcommit serially; same ranges remeasured. Output parse O(numstat bytes), final changedLines required even commits-only limits."
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/options-validation.ts",
+      "group": "maintenance-reminders",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed reminder fields and Set duplicate IDs; full array O(r+strings), no arbitrary reminder/history cap."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/default-check.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Public ordinary Check constructor and closed domain options -> native defineCheck hooks; constant field grammar plus declared options/list work, domain execution owner reviewed separately."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/execution.ts",
+      "group": "markdown-link-validation",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Serial accepted source parse/facts then all occurrences and fullRecords; limits checked after source facts constructed, same-doc anchors skip target read budget. K05/K09/K13 inherited."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+      "group": "markdown-link-validation",
+      "status": "confirmed_static",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K03",
+        "K13"
+      ],
+      "notes": "K03 rest pending segment copy Θ(D²) slots per walk; bounded symlink rewrite; K13 allocmaxBytes+1 per read then actual slice. Live authorization must not be memo-suppressed."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/final-data.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed final count/data parser and scalar safeinteger checks; no input-list processing except explicitly modeled reported entries; no independent superlinear root."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/finding-messages.ts",
+      "group": "markdown-link-validation",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Full finding/waiver projection and count O(R+W) before bounded detailpresentation; detail cap does not cap Records; shared Non-Core presentation cost separately reviewed."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/local-resolution.ts",
+      "group": "markdown-link-validation",
+      "status": "confirmed_static",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K05"
+      ],
+      "notes": "Destination/URI/path transformations proportional to text; K05 each anchor query linear headings.some, QH missing/lastslug visits."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/local-resolver.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Facade creates one private resolver with cache lifecycle; no separate scanning or recursive graph traversal."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/markdown-parser.ts",
+      "group": "markdown-link-validation",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "External mdast/GFM parse unknown; validate text and two local AST traversals (definitions Map + facts). Recursive heading markdownText map/join could copy depth*payload, input attainability unknown; not confirmed runtime quadratic."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/options-resolution.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed-shape domain options with per-area/pattern/schema/binding/rule/waiver array processing and detached snapshots; costs linear own input fields plus imported Core/tools validation; no independent dynamic nested scan."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/options-validation.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed resolved-option key grammar, per-area/list membership and scalar checks; linear declared option arrays/text, Core closed exact-key helper has fixed key count here; no independent scalable key-table candidate."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/options.ts",
+      "group": "markdown-link-validation",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/parse-facts-cache-payload.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed-depth closed JSON envelope/payload canonicalization, up to100k facts/doc and16MiB text checks; no arbitrary nested stringify claim, no total cache-file bound (K09 owner)."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+      "group": "markdown-link-validation",
+      "status": "design_or_capacity_risk",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K09"
+      ],
+      "notes": "K09 restore entire append-only JSONL, retain valid historic identities, append one dirty block; default disabled, O(cachebytes+historic facts) each run, no total capacity/compaction."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/records.ts",
+      "group": "markdown-link-validation",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One safe finding/target projection and hashing per occurrence; complete Records O(R+identity text), no secondary all-headings scan."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/resolver-engine.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Each target live-authorized, contained successful parsed target facts Promise-memoized by path+limit; failed memo removed. Same-doc/crossdoc K05, cacheK09 and file probesK03/K13; explicit budgets, external roots policy controls IO."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/source-reader.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Contained source authorization and bounded Markdown byte read, cache parse/facts protocol; security IO necessary each source, K03/K13 inherited."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/target-descriptor.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed safe descriptor projection and relative path transformations, O(path text), no source-byte/public-secret retention."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/traversal-result.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed success/failure descriptor shape constructors, constant fields; no recursive link graph crawl."
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/unavailable-reasons.ts",
+      "group": "markdown-link-validation",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed reason code/type/messages catalog, no input-dependent loop beyond text projection."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/adapter.ts",
+      "group": "markdown-lint",
+      "status": "unconfirmed_engine_risk",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K12"
+      ],
+      "notes": "K12 frontMatter multiline expression called by markdownlint before match.index check; potential model quadratic on repeated unclosed {, runtime unconfirmed. Fixed9-rule catalog and full backend DTO/lines adaptation output-sensitive."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/default-check.ts",
+      "group": "markdown-lint",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Public ordinary Check constructor and closed domain options -> native defineCheck hooks; constant field grammar plus declared options/list work, domain execution owner reviewed separately."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/execution.ts",
+      "group": "markdown-lint",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Serial selected Markdown read/backend or cache, accumulate raw findings then limit check, global record candidates/waiver; K03/K13 inherited, backend work unknown and raw result cap not preemptive."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/final-data.ts",
+      "group": "markdown-lint",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed final count/data parser and scalar safeinteger checks; no input-list processing except explicitly modeled reported entries; no independent superlinear root."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/finding-messages.ts",
+      "group": "markdown-lint",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Full finding/waiver projection and count O(R+W) before bounded detailpresentation; detail cap does not cap Records; shared Non-Core presentation cost separately reviewed."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/finding-waiver-identity.ts",
+      "group": "markdown-lint",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed path/rule/range identity, fixed9 catalog and numeric positional validation; O(path/rule text), no duplicate location quadratic."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/findings-cache.ts",
+      "group": "markdown-lint",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Currentbytes digest+fixedpolicy key, private payload parser traverses all findings; delegates local-payload-cache ownership to Non-Core tools. Hit still securityreads current source bytes."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/options-resolution.ts",
+      "group": "markdown-lint",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed-shape domain options with per-area/pattern/schema/binding/rule/waiver array processing and detached snapshots; costs linear own input fields plus imported Core/tools validation; no independent dynamic nested scan."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/options-validation.ts",
+      "group": "markdown-lint",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed resolved-option key grammar, per-area/list membership and scalar checks; linear declared option arrays/text, Core closed exact-key helper has fixed key count here; no independent scalable key-table candidate."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/options.ts",
+      "group": "markdown-lint",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Types plus fixed9-rule catalog runtime const; rules cardinality is fixed, not a growing P dimension."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/records.ts",
+      "group": "markdown-lint",
+      "status": "bounded_or_constant_risk",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K14"
+      ],
+      "notes": "K14 comparator creates frozen range+points eachcomparison then again publishing; stable sort O(RlogR) required, allocation volume O(RlogR) unnecessary candidate."
+    },
+    {
+      "path": "src/package-checks/markdown-lint/unavailable-reasons.ts",
+      "group": "markdown-lint",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed reason/category mappings, no variable-size scan."
+    },
+    {
+      "path": "src/package-checks/project-files/collection.ts",
+      "group": "project-files",
+      "status": "confirmed_static",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K01",
+        "K02"
+      ],
+      "notes": "One fast-glob candidate superset per local batch; per selection ordered Core matcher and fixed excludes, stable Set+sort, O(A F P matcher + sum F_a log F_a), M membership retained. K01/K02 adapter costs inherited."
+    },
+    {
+      "path": "src/package-checks/project-files/config-glob.ts",
+      "group": "project-files",
+      "status": "reexport",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Re-export of Core matcher only; ordered glob evaluation/compilation costs owned by Core, not an independent Check root cause."
+    },
+    {
+      "path": "src/package-checks/project-files/configuration.ts",
+      "group": "project-files",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed 20 default excludes and closed policy snapshot/resolve; pattern list copies/validation O(P) for constant number of passes, preserve native reinclude and per-area options."
+    },
+    {
+      "path": "src/package-checks/project-files/exact-input-measurement.ts",
+      "group": "project-files",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Build approved path Set once, walk every measurement sourcePaths; O(F+reported locations) membership, reject whole batch if any external path."
+    },
+    {
+      "path": "src/package-checks/project-files/file-fingerprint.ts",
+      "group": "project-files",
+      "status": "bounded_or_constant_risk",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K10"
+      ],
+      "notes": "Stable path sort, whole UTF8 read, LF normalize and SHA256 per input; O(FlogF+B), peak largest file; returned fileList<=200 does not cap hashing. K10 unconditional caller/no byte budget."
+    },
+    {
+      "path": "src/package-checks/project-files/filesystem-collection.ts",
+      "group": "project-files",
+      "status": "confirmed_static",
+      "reviewLevel": "complete",
+      "findingIds": [
+        "K01",
+        "K02"
+      ],
+      "notes": "Directory byte entries cached, lazy lstat per entry; targetEntry filters every sibling name (K01) and pruner rebuilds all prefixes per policy (K02). External fast-glob traversal internals unknown."
+    },
+    {
+      "path": "src/package-checks/project-files/input-eligibility.ts",
+      "group": "project-files",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One input loop partitions accepted/rejected, freezes arrays; O(F) necessary exact coverage; predicate costs owned by consumer."
+    },
+    {
+      "path": "src/package-checks/project-files/public-collection.ts",
+      "group": "project-files",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed detached public request validation, shared trusted collection call and once frozen copy; O(P+F) facade only, collection and Core matcher costs inherited."
+    },
+    {
+      "path": "src/package-checks/project-files/reported-path.ts",
+      "group": "project-files",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Windows/native resolution and slash transformation O(path characters); no filesystem rediscovery or nested input loop."
+    },
+    {
+      "path": "src/package-checks/secret-detection/classification.ts",
+      "group": "secret-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "One bytes.includes(NUL) pass plus fatalUTF8 decode on accepted bounded bytes; O(B), safe coverage gap on binary/invalid encoding."
+    },
+    {
+      "path": "src/package-checks/secret-detection/default-check.ts",
+      "group": "secret-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Public ordinary Check constructor and closed domain options -> native defineCheck hooks; constant field grammar plus declared options/list work, domain execution owner reviewed separately."
+    },
+    {
+      "path": "src/package-checks/secret-detection/execution.ts",
+      "group": "secret-detection",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Serial approved text privatekey detector, safe issues; reconciliation and complete finding/gap/audit Records O(R+F+W) plus Non-Core tool work. No raw secret content/messages output."
+    },
+    {
+      "path": "src/package-checks/secret-detection/final-data.ts",
+      "group": "secret-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed final count/data parser and scalar safeinteger checks; no input-list processing except explicitly modeled reported entries; no independent superlinear root."
+    },
+    {
+      "path": "src/package-checks/secret-detection/finding-waiver-identity.ts",
+      "group": "secret-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed safe path/ordinal/rule/structuralClass validation and identity, no raw source matching; Non-Core reconciliation cost separate."
+    },
+    {
+      "path": "src/package-checks/secret-detection/input-preparation.ts",
+      "group": "secret-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Identitychecked no-follow regular-file reads sized actualbytes, file/total/count limits before detector; remainingpaths slice/map once into required gaps O(F), acceptedtexts totalbytebounded."
+    },
+    {
+      "path": "src/package-checks/secret-detection/options-resolution.ts",
+      "group": "secret-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Closed fixed-shape domain options with per-area/pattern/schema/binding/rule/waiver array processing and detached snapshots; costs linear own input fields plus imported Core/tools validation; no independent dynamic nested scan."
+    },
+    {
+      "path": "src/package-checks/secret-detection/options-validation.ts",
+      "group": "secret-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed resolved-option key grammar, per-area/list membership and scalar checks; linear declared option arrays/text, Core closed exact-key helper has fixed key count here; no independent scalable key-table candidate."
+    },
+    {
+      "path": "src/package-checks/secret-detection/options.ts",
+      "group": "secret-detection",
+      "status": "type_only",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Interfaces/type aliases/import type/export type only; no local executable statement or algorithm. Consumer/implementation coverage recorded separately."
+    },
+    {
+      "path": "src/package-checks/secret-detection/records.ts",
+      "group": "secret-detection",
+      "status": "output_sensitive",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed safe finding/coveragegap/audit identity and projection per record; O(output/text); no detector rerun or secret material retention."
+    },
+    {
+      "path": "src/package-checks/secret-detection/secretlint/adapter.ts",
+      "group": "secret-detection",
+      "status": "constant_or_linear",
+      "reviewLevel": "complete",
+      "findingIds": [],
+      "notes": "Fixed privatekey Secretlint rule called once per approved source; engine matching unknown. One loop safe allowlisted DTO messages, descriptor-safe copies; no raw values escape."
+    }
+  ]
+}

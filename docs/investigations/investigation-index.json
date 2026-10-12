@@ -1534,6 +1534,48 @@
         "typescript"
       ],
       "title": "TypeScript 函数指标修复实施与验收"
+    },
+    "261012-audit-checks-core-algorithmic-complexity": {
+      "formedAt": "2026-10-12T01:50:11Z",
+      "name": "audit-checks-core-algorithmic-complexity",
+      "question": "当前全部随包 Check 与 Core 的各生产模块存在哪些可达算法复杂度风险，哪些只是合理成本或待测量热点，应优先验证什么？",
+      "relations": [],
+      "resourceIds": [
+        "261012-audit-checks-core-algorithmic-complexity/analyzer-coverage.json",
+        "261012-audit-checks-core-algorithmic-complexity/analyzer-observations.json",
+        "261012-audit-checks-core-algorithmic-complexity/analyzer-probe.ts",
+        "261012-audit-checks-core-algorithmic-complexity/analyzer-validated-observations.json",
+        "261012-audit-checks-core-algorithmic-complexity/analyzer.md",
+        "261012-audit-checks-core-algorithmic-complexity/checks-coverage.json",
+        "261012-audit-checks-core-algorithmic-complexity/checks-observations.json",
+        "261012-audit-checks-core-algorithmic-complexity/checks-probe.ts",
+        "261012-audit-checks-core-algorithmic-complexity/checks.md",
+        "261012-audit-checks-core-algorithmic-complexity/core-foundations-coverage.json",
+        "261012-audit-checks-core-algorithmic-complexity/core-foundations-observations-locked.json",
+        "261012-audit-checks-core-algorithmic-complexity/core-foundations-observations.json",
+        "261012-audit-checks-core-algorithmic-complexity/core-foundations-probe.ts",
+        "261012-audit-checks-core-algorithmic-complexity/core-foundations.md",
+        "261012-audit-checks-core-algorithmic-complexity/coverage-summary.json",
+        "261012-audit-checks-core-algorithmic-complexity/project-run-coverage.json",
+        "261012-audit-checks-core-algorithmic-complexity/project-run-observations.json",
+        "261012-audit-checks-core-algorithmic-complexity/project-run-probe.ts",
+        "261012-audit-checks-core-algorithmic-complexity/project-run.md",
+        "261012-audit-checks-core-algorithmic-complexity/review-observations.json",
+        "261012-audit-checks-core-algorithmic-complexity/review-probe.ts",
+        "261012-audit-checks-core-algorithmic-complexity/review-ruby-observations.json",
+        "261012-audit-checks-core-algorithmic-complexity/review-ruby-probe.ts",
+        "261012-audit-checks-core-algorithmic-complexity/source-inventory.json",
+        "261012-audit-checks-core-algorithmic-complexity/tools-coverage.json",
+        "261012-audit-checks-core-algorithmic-complexity/tools.md"
+      ],
+      "sourcePath": "audit-checks-core-algorithmic-complexity.md",
+      "tags": [
+        "algorithmic-complexity",
+        "checks",
+        "core",
+        "performance"
+      ],
+      "title": "Check 与 Core 算法复杂度逐模块调查"
     }
   },
   "metadata": {},
@@ -1607,7 +1649,8 @@
       "261011-project-file-region-index-readiness": "sha256:eec8745461486fb48b36858697b7bcb2402912af4bcb98803b48174a331c3859",
       "261011-verify-function-metrics-admission-implementation": "sha256:23fb194a518a0a626a30ffd432810c9de17407abe7846dd10a6779da1094bfab",
       "261011-verify-lizard-1-24-1-implementation": "sha256:0ccbf36d3dd6432d94bb9826e50943b325987b57b8ceeff5c4c4fe70dfac559a",
-      "261011-verify-typescript-metrics-implementation": "sha256:43f33409310f08d0c99ea9b02e318692073c9dd1796739fe760a2e53d7a9509d"
+      "261011-verify-typescript-metrics-implementation": "sha256:43f33409310f08d0c99ea9b02e318692073c9dd1796739fe760a2e53d7a9509d",
+      "261012-audit-checks-core-algorithmic-complexity": "sha256:cca0cbdee4d833369c2d84c0309aeeb08f743a5c594ec16594d8b629d254029a"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

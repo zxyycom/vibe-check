@@ -1,0 +1,462 @@
+{
+  "baselineCommit": "21777db37c0284308b8c69eb2cc92ab0b012cd9b",
+  "reviewedFiles": 46,
+  "coverageMeaning": "Every file body and inherited/shared algorithm reviewed. A01-A04 are independent confirmed roots with bounded counts; inherited IDs describe reachable mechanisms, not per-language timing proof. U-A01..03 remain explicitly unconfirmed. No-candidate is not a complexity guarantee.",
+  "entries": [
+    {
+      "path": "src/package-checks/function-metrics/analyzer/analysis-context.ts",
+      "sha256": "6ae2295e511a4da9c6b5dd3a280bdc16d5cbbfdd822d71823a4314834fe70ea4",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A03"
+      ],
+      "notes": "NestingStack qualification and lastFunction search, bare/pending/function pop lifecycle, decorator adapter fallback/visited set and constant surface validation, context counters/function stack/name bridges reviewed; A01 bridge present but owned model."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/analysis-model.ts",
+      "sha256": "cbd6d9d8bba3163b5c3a54e32d64d949190844544c527ad1da8b6e8fdcd47193",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01"
+      ],
+      "notes": "Mutable FunctionInfo aliases, fullParameters/parameters regex, longName Unicode expansion, file averages and reductions reviewed; U-A01 parameter regex failure unmeasured."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/contracts.ts",
+      "sha256": "340e3b555a2317edacf52bd3f48b302677530cfc4460138e42181f69bd2f3c4f",
+      "group": "function-metrics-analyzer",
+      "status": "declarations_only",
+      "findingIds": [],
+      "notes": "Type-only erased reader/token/processor composition contracts; no runtime algorithm."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extension-output.ts",
+      "sha256": "0ea205ae5b848d70821bc5c61eaf22aaa2488056aa87c81558ac5996f5e1688e",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Schema/metadata hooks, fixed-column captions/rendering, Unicode width, averages O(F) per requested attribute; private reporting not selected facade token path."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/extension-base.ts",
+      "sha256": "54047375d98f4e342609d5b0b52ceabe4720847aaf3c61a82a5b3a4ab8101b76",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Current-state invocation per token/context rebinding; inherited base substate cost only if installed, no independent repeated data scan."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts",
+      "sha256": "839293cfaffcc1d451855b0a4d378d468aee407aa9bfe5ba538cea2b65f9a8f2",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "One condition Set test and lazy tag push per token, post-yield lifecycle retained; O(contributors) necessary retained output."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
+      "sha256": "465623b0d433cc17374ae528858ed53420ac28f7f673d0b155babb90d2c480df",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Fixed loops Set, reader-local alternatives, counters and condition/hidden bracket resets per token; no depth-stack iteration."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/protocol.ts",
+      "sha256": "57c2f498ce34ba214bb6657191155e5924055a605eb40f4b5ccc63ec99ad7ecc",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Instance/static attribute precedence and special-call prototype walkers, bound hooks, metadata validation/copy; inheritance depth variable privately, fixed selected extensions in production."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/registry.ts",
+      "sha256": "4becc0d44a6dce327c44c900eb956bd189ac66a2c4f3ee2fc61402823b933548",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Fixed20 body registry, deferred fail, extension insertion and Python index normalization; theoretical O(E²) private ordering list not user Product extension surface; facade E=2."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/pipeline.ts",
+      "sha256": "8a62d80fcc0021cf66ed51dff567935d8abe447954aaefe75476d37e8df46098",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Five core streaming passes, comment/directive stripping, line split, iterator drain, cross-file hooks, recursion-limit catch and in-memory file mapping; fixed selected pass count, regex/reader costs inherited."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/port-facade.ts",
+      "sha256": "64c7bd169737c743bac8ddaf2f23b71e599c78ce529364d83816bc56c368a5e3",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Fixed source-order ASCII suffix index and fallback, source analysis, immutable per-function/contributor projection; O(F+contributors) necessary output, fallback regex risk U-A01."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/reader-registry.ts",
+      "sha256": "cfb188cc06ca6eeca9f17d4c947966332a6c35da6d5b6f8f2472d706d3431285",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "27 fixed readers, source-order suffix lookup; constant reader cardinality, filename regex runtime remains U-A01."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/csharp.ts",
+      "sha256": "32de4c28236fa656a72ef8ec8511fabde22522fdebc4f06597bcfd63d74052c6",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A03"
+      ],
+      "notes": "CLike-derived primary constructors/class naming/expression bodies; integer bracket counters and parallel namespace state, no generic deep-body clone claim."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
+      "sha256": "db8bc33fa71a0a0055033c5c578c9b387f974d9839283b9861950b9ff6d3477d",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "All sticky Pygments-compatible lexer branches, whitespace/directive/atom/record/number/string/escape progression and source function/nested-fun states reviewed; failed atom regex complexity unknown."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/fortran.ts",
+      "sha256": "fe293d6a2e7332608a2fe8a61db52ad5b0e33bab62c8f588775c56a7c385ab8f",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01"
+      ],
+      "notes": "Fixed END block list regex, macros/newlines/case conversion, reader-local consume lifecycle, interface/function/namespace/bracket states and context nesting; no deep clone family inferred."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/gdscript.ts",
+      "sha256": "6e0f1b6499b16410a13f9884b314c277c6a2e4cd4a6a16e7217572c79178ea8c",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01"
+      ],
+      "notes": "Python tokenizer/indent/state reuse with GDScript definition and func dispatch; Python f-string legal syntax not automatically transferable."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/go.ts",
+      "sha256": "051eeebadbbf3ab3575c095b9ab79077c4a82e930966ca61dcfae146ff5a7d2e",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "GoLike state selection, raw-string tokenizer and __call__ fanout; nested block family A02 directly operation-counted."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/java-body-states.ts",
+      "sha256": "7b8d3cc83c150c64c045d4b6f1cb12facde567873bb921c0518c18008612fd35",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A02"
+      ],
+      "notes": "Factory avoids ESM cycle; method/class/static initializer/anonymous bodies and cloned nested states; brace bookkeeping does not remove ancestor dispatch."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/java.ts",
+      "sha256": "0b000eb94431fd58c271e7bfc40a2edee29eb0f9e6d95a2e7e91f533b6ab67be",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02",
+        "A03"
+      ],
+      "notes": "CLike declaration overrides, class/record/annotation/new expression, nested class/function body installation; fixed keyword Sets, generic token character counts."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/javascript.ts",
+      "sha256": "724401301b1df853ab670295c827d270b4a9521a3014ea72b0f54fd27765c4c5",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Thin TS reader inheritance, suffix/language-only override; inherits TS state/tokenizer mechanisms including conditional suffix U-A02."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/kotlin.ts",
+      "sha256": "c57116a3d9e5be387d07a84e58684e53923c94c8e7aabcb5c1369a7a67b5a7b2",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Shared fixed label passes, expression-body boundaries, when child states, snapshots/reset and template skip; local line/NLOC deviation retained."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/lua.ts",
+      "sha256": "3725baa8955fb60e56367bc3fc19f9a856633df1f2b7cb6d4a64ef771e45b497",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Rubylike function/assignment/anonymous overrides, Lua long-string/comment regex; no Ruby restart mechanism."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/objc.ts",
+      "sha256": "0a2ef916a4a55f43fb829f522db644277a399d89ef9a7579fd7d1a5ea7532f18",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A03"
+      ],
+      "notes": "CLike overrides, selector/parameter type bracket depth and name concatenation, typedef suppression, namespace state."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/perl.ts",
+      "sha256": "fba39f4317825bf8a5fa8065c9916b8532e5daf09ea0c5237b96ac41ab67d8fd",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Comment aggregation, package/sub/variable/prototype/call/nested brace counters, fixed token classifications; no arbitrary recursive cloned state or full signature append introduced."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/php-states.ts",
+      "sha256": "74b97e5b14cc186f603a4947da72caa7679ba0ee0a832a0991185a083681b670",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01"
+      ],
+      "notes": "Class/trait/functions, argument append, brace/condition/match counters and assignments stack; match arm loop amortized over arm input, no whole-stack search."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/php.ts",
+      "sha256": "41e6b6a23fc611c8236101173ac409420f66cf1021c198a87b43bfd5d3d8fa1f",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01"
+      ],
+      "notes": "Code-block matchAll partitions, outside-block literal emission, tokenizer heredoc backreference/additions; signature handled PHPLanguageStates. Regex failure costs U-A01 unknown."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/plsql.ts",
+      "sha256": "2c952ecb783b301f945e17e889811e5df30560bb1dd8b0dcd5b131362c06faea",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01"
+      ],
+      "notes": "Streaming END/EXIT transformation and pending whitespace, declarations/dotted names/params, nested functions and begin/end counters; buffers drained once."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/python.ts",
+      "sha256": "1950cbb29afe84b64bfae6884d5a78dd19a509c1b457eede9b95886f337729d2",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01"
+      ],
+      "notes": "Indent stack amortized pops, soft-keyword consuming lookahead, triple quote NLOC handling, params/type annotations, recursive f-string body/end/quoted scanners; U-A03 arbitrary legal nesting not proved."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/r.ts",
+      "sha256": "ed090ddccbf1b7fe585b7b588f9728b5e361c0e50b69c838b08cb1953cdaccaa",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01"
+      ],
+      "notes": "Preserved whitespace stream, parameter append, body/right-assignment lifecycle; recentTokens cap10 bounds search/reverse/name extraction and additional assignment functions."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/ruby.ts",
+      "sha256": "4dce947f31231c2bded9fe7758f806260e01b0864821843ef6bb3a2da2469f27",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02",
+        "A04"
+      ],
+      "notes": "Rubylike reader plus MyToken original-relative offsets and restart suffix loop; A04 flat interpolation repeatedly successful whole quoted matches counted."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/rust.ts",
+      "sha256": "5e49869499a05300851447acac67b53cc5f3f555a2319b4fafaaa5297757f32a",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "GoLike fn, match-subject nesting/child arms, source-order CCN tags and lifetimes tokenizer; local contributor deviation retained."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/scala.ts",
+      "sha256": "630381cd5c8f322f900b45fd12092652164af39c5217f7c79c3ab6c0c9230c18",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "GoLike def and expression/body overrides, newline end and cloned nested braces; fixed condition Sets."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/solidity.ts",
+      "sha256": "5786beda11839c3f029b2f10a72948634040c9407c29dcf06eb3d2a2af94a526",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Fixed keyword definition and GoLikeStates function spelling; delegated parameter/clone state algorithm reviewed in shared owner."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/st.ts",
+      "sha256": "27035e64b7ed47741bafb969592ffd1b1ed82764ea8d7ea55e947c2f3b74e29d",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Fixed blocks/functions/loops and END preprocess, macros/comment line handling, reader-local consume callback lifecycle and bare nesting; no signature append/root beyond shared token engine."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/swift.ts",
+      "sha256": "2f111f3346840de15fb3bd9148ced5046ae79bcca3ef845a9630c5abda9bedbf",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "SwiftReplaceLabel materialize/filter and 2 scans per fixed condition; Swift init/subscript/property/protocol overrides; fixed C*T passes not quadratic from T alone."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "sha256": "6fa5e80755b38beb3f1027312b010bfaf96ae08178ff73e44b4ae424888d6255",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Independent regex+JSX tokenization, XML cache abort/flush partition, nested XML/embedded expression tokenizers and inherited TS reader states; does not invoke TS template splitter."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/ttcn.ts",
+      "sha256": "5b8494c36caa8eea44154c494e89abaff88b66cd8089e90cef0a01a4cd6f0425",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A03"
+      ],
+      "notes": "CLike declaration bracket override, testcase/control/function naming, tokenizer additions and continuation signature append; inherits candidate/qualification mechanisms where reached."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "29a4ce11038c1a787a72d23f405c72de2933903db7003f589a3bb551c84206f0",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Template splitter, Tokenizer/JSTokenizer chain, global/object/function states, type skip and annotation callback replay, computed-name one-time buffer join; U-A02 suffix allocation conditional, no all-reader linear assertion."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/vue.ts",
+      "sha256": "25b1c7f95e00ddac23debc43cd3b5087ba60958e0ab7650a6c9b598c992d90ec",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "TypeScript tokenizer/tag addition and single streaming script-block filter; TS state/suffix costs inherited only for emitted script stream."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/zig.ts",
+      "sha256": "19175e1f408f8c736720a318c89ee5ad49bb018cd9bde7d3e78181d5f9c81deb",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Fixed condition definitions and GoLike fn/type override; delegated signature/deep-block roots reviewed."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/clike.ts",
+      "sha256": "7171b802eee8e158f4f1b0caca6f00fc187ad1c44ac8de476c9fe29ac5593afe",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A03"
+      ],
+      "notes": "Raw strings/macros/tilde/preprocessing, independent namespace stack, candidate declarations, old-C buffered replay, typedef one-time filter, lambdas/bracket counters reviewed; signatures call A01; ordinary body does not clone each brace."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "sha256": "f1eeaf2ca231f266ada2091715fca0faff2fa6ebad84156b7a69e02b99adb7db",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A02"
+      ],
+      "notes": "Tokenizer pattern construction, macros, Unicode whitespace/splitlines, constant parallel fanout, saved state/callback/replay, readUntil/bracket buffers reviewed. A02 consume chain; regex failures U-A01 unknown, not linear certification."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/golike.ts",
+      "sha256": "ee6b9962629cf520adefe0bfa03f180eb041b01bfb46c6ac888c33aa22c6aafa",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Type skips/bracket counters, function/member/parameter paths, clone-subState nested blocks and end callbacks; cumulative signature and depth dispatch are inherited family roots."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/js-style-regex.ts",
+      "sha256": "5908bdde0ee7638dc1b9a0031a0c4bba30d72887e53ff37454894f56562992bb",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Streaming literal regex wrapper, whitespace-prefix scan and disjoint prefix splitting, original generator order; regex matching success != failed-regex worst-case proof."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/rubylike.ts",
+      "sha256": "d236ee5f03943921e94c9bfcd5f7244859f8897ff26bd482b921119b5d77bfb7",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [
+        "A01",
+        "A02"
+      ],
+      "notes": "Function/block/if/loop clone chain, parameter append, receiver-bound callback transitions and source FUNC_KEYWORD lookup reviewed; Ruby tokenizer restart separate A04."
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/script-language.ts",
+      "sha256": "248356c1c52fe37e8b048aa5ff192e80824cc6ace75e18f591fb715bb3eb03d1",
+      "group": "function-metrics-analyzer",
+      "status": "reviewed_deep_static",
+      "findingIds": [],
+      "notes": "Comment stripping/directive prefix checks and shared tokenizer composition; input text passes, no independent growing search loop; common regex failure still unmeasured."
+    }
+  ]
+}

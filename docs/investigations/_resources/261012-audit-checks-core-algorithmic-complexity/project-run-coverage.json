@@ -1,0 +1,647 @@
+{
+  "baselineCommit": "21777db37c0284308b8c69eb2cc92ab0b012cd9b",
+  "slice": "src/project-run/**",
+  "coveredProductionFiles": 81,
+  "method": "Current CodeGraph node source plus owner/call-chain/shape review; file membership alone is not audit evidence.",
+  "evidence": "R01/R02/R03/R06 and R04 graph preparation count have bounded actual-operation samples in Bun1.3.14; others static review only.",
+  "entries": [
+    {
+      "path": "src/project-run/admission-strategy-provider/custom-strategy-preparation.ts",
+      "group": "admission-strategy-provider",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "prepare once; bounded closed strategy record; trusted callback work excluded."
+    },
+    {
+      "path": "src/project-run/admission-strategy-provider/prepared-admission-strategy.ts",
+      "group": "admission-strategy-provider",
+      "status": "type-only",
+      "findingIds": [],
+      "notes": "Types only; completion capability has no runtime traversal."
+    },
+    {
+      "path": "src/project-run/admission-strategy-provider/provider.ts",
+      "group": "admission-strategy-provider",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One invocation-local static/custom dispatch and closure; no per-task model/history work."
+    },
+    {
+      "path": "src/project-run/aggregation.ts",
+      "group": "aggregation.ts",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One Set-based effective filter and default fold O(V); custom callback black box excluded."
+    },
+    {
+      "path": "src/project-run/changes/git.ts",
+      "group": "changes",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Fixed five synchronous Git commands; NUL parsing linear bytes; dedup/sort once; region-index cost belongs to Core."
+    },
+    {
+      "path": "src/project-run/check-execution/admitted-check-execution.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One admitted preparation then execution or contained blocked settlement; no whole-run scan."
+    },
+    {
+      "path": "src/project-run/check-execution/callback.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One author callback and reporter lifetime; per-Record diagnostics attachment; settlement cost owned by Core."
+    },
+    {
+      "path": "src/project-run/check-execution/console-capture.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One AsyncLocalStorage context per phase; snapshot once; chunk += not asserted quadratic without engine evidence."
+    },
+    {
+      "path": "src/project-run/check-execution/dependencies.ts",
+      "group": "check-execution",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R08"
+      ],
+      "notes": "Direct authorization includes O(d) per get; list necessarily O(d); canonical outcome/handoff references not reparsed."
+    },
+    {
+      "path": "src/project-run/check-execution/execution-finalization.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Terminal assertions linear V; by-ID Map summaries O(V+messages); cancelled unresolved loop linear apart from Core owner."
+    },
+    {
+      "path": "src/project-run/check-execution/execution-settlement.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Per Check settlement/message parsing once, references commit after acceptance; Core session candidates separately owned."
+    },
+    {
+      "path": "src/project-run/check-execution/flag-controls.ts",
+      "group": "check-execution",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R08"
+      ],
+      "notes": "Set(flags) rebuilt per flagged Check; shared expanded closure avoids per-root DAG expansion; recursion depth remains."
+    },
+    {
+      "path": "src/project-run/check-execution/lifecycle.ts",
+      "group": "check-execution",
+      "status": "type-only",
+      "findingIds": [],
+      "notes": "Types only; lifecycle facts own Records/messages but no runtime code."
+    },
+    {
+      "path": "src/project-run/check-execution/messages.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Closed array/message validation linear attachment size and constant field grammar; constant-number flat combination."
+    },
+    {
+      "path": "src/project-run/check-execution/plan.ts",
+      "group": "check-execution",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R02"
+      ],
+      "notes": "One Task and singleton scope per normalized Check; S=V is critical cross-layer scale fact."
+    },
+    {
+      "path": "src/project-run/check-execution/preparation-result.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Fixed closed result branches plus one message attachment scan; no repeated cross-Check history."
+    },
+    {
+      "path": "src/project-run/check-execution/preparation.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Options detach once per admitted preparation (authored/prepared fallback); bounded diagnostics preparation; trusted callback excluded."
+    },
+    {
+      "path": "src/project-run/check-execution/ready-check-execution.ts",
+      "group": "check-execution",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R08"
+      ],
+      "notes": "One dependency ID Set/sort per executing Check; requests artifact path through linear seam; execution callback/settlement owner split."
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.ts",
+      "group": "check-execution",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R04"
+      ],
+      "notes": "Redundant prepareTaskGraph before selection; one session and finally release handoffs; no per-Check Git."
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-execution-result.ts",
+      "group": "check-execution",
+      "status": "type-only",
+      "findingIds": [],
+      "notes": "Types only; immutable execution result shape."
+    },
+    {
+      "path": "src/project-run/check-execution/scheduled-check-run.ts",
+      "group": "check-execution",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R04"
+      ],
+      "notes": "Once builds Check ID Map/graph/options; actual Scheduler validation fourth public stage."
+    },
+    {
+      "path": "src/project-run/check-execution/terminal-result.ts",
+      "group": "check-execution",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Fixed terminal grammar plus messages; handoff is reference only; malformed diagnostic path may parse constant extra times."
+    },
+    {
+      "path": "src/project-run/completion/completion.ts",
+      "group": "completion",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Final output and candidate priority; one O(V) status summary; machine implementation delegated to its owner."
+    },
+    {
+      "path": "src/project-run/completion/machine-publication.ts",
+      "group": "completion",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Guarded publication call once; no local payload traversal; machine-output owner separately audited."
+    },
+    {
+      "path": "src/project-run/completion/result-resolver.ts",
+      "group": "completion",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Constant branch/status wrappers share already sealed facts."
+    },
+    {
+      "path": "src/project-run/controls/contract.ts",
+      "group": "controls",
+      "status": "type-only",
+      "findingIds": [],
+      "notes": "Types only; no runtime input work."
+    },
+    {
+      "path": "src/project-run/controls/outputs-override-validation.ts",
+      "group": "controls",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Constant output fields/closed objects; progress grammar delegated to Definition; no repeated cross-run scan."
+    },
+    {
+      "path": "src/project-run/controls/validation-result.ts",
+      "group": "controls",
+      "status": "type-only",
+      "findingIds": [],
+      "notes": "Types only; closed validation result vocabulary."
+    },
+    {
+      "path": "src/project-run/controls/validation.ts",
+      "group": "controls",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Once validates keys/flags; flag canonical dedup and sort O(F log F); fixed field grammar."
+    },
+    {
+      "path": "src/project-run/diagnostic-logging/diagnostic-detail-rendering.ts",
+      "group": "diagnostic-logging",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R10"
+      ],
+      "notes": "Depth/value/width/character budgets; JSON.stringify scalar and ownKeys can consume full input before rejecting."
+    },
+    {
+      "path": "src/project-run/diagnostic-logging/logger.ts",
+      "group": "diagnostic-logging",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Disabled logger inert; enabled writer renders/writes event bytes once; fixed two-channel statuses/correlation."
+    },
+    {
+      "path": "src/project-run/diagnostic-logging/observation-rendering.ts",
+      "group": "diagnostic-logging",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Budgeted safe JSON then fact flattening; nested array stringify depth bounded16; line chunk loop constant capacity."
+    },
+    {
+      "path": "src/project-run/invocation/candidate.ts",
+      "group": "invocation",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One mapping of resolved terminal facts; effective aggregation and final counts once."
+    },
+    {
+      "path": "src/project-run/invocation/candidates.ts",
+      "group": "invocation",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Constant pre-work/planning/execution candidate wrappers."
+    },
+    {
+      "path": "src/project-run/invocation/creation.ts",
+      "group": "invocation",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One path/fingerprint/output initialization; by-Check artifact catalog created once if configured."
+    },
+    {
+      "path": "src/project-run/invocation/execution.ts",
+      "group": "invocation",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R04"
+      ],
+      "notes": "One changes snapshot/strategy lifecycle; repeats prepare graph for strategy context after initial validation."
+    },
+    {
+      "path": "src/project-run/invocation/paths.ts",
+      "group": "invocation",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R08"
+      ],
+      "notes": "Once encodes/builds artifact paths; artifactDirectoryForCheck array.find multiplies by executing Check count if base enabled."
+    },
+    {
+      "path": "src/project-run/invocation/progress.ts",
+      "group": "invocation",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One terminal outcomeCounts scan O(V); scalar elapsed calculation."
+    },
+    {
+      "path": "src/project-run/invocation/run.ts",
+      "group": "invocation",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R04"
+      ],
+      "notes": "Public validated invocation; complete static graph validation before Git and four-stage path begins here."
+    },
+    {
+      "path": "src/project-run/invocation/scheduler.ts",
+      "group": "invocation",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Explicit collector demand gate; no collector for plain static/no diagnostics/effects/prepared demand."
+    },
+    {
+      "path": "src/project-run/outputs/configuration.ts",
+      "group": "outputs",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Fixed-field output overlays; no recursive arbitrary merge."
+    },
+    {
+      "path": "src/project-run/outputs/status.ts",
+      "group": "outputs",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Fixed four participants and two channels; constant priority/status snapshot."
+    },
+    {
+      "path": "src/project-run/progress-rendering/presentation.ts",
+      "group": "progress-rendering",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Disabled inert; enabled one renderer/tee/5s heartbeat; row output and byte write costs not callback work."
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-formatting.ts",
+      "group": "progress-rendering",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R10"
+      ],
+      "notes": "Count preview slices early; selected record/text fully serialized/escaped before codepoint truncation."
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-lifecycle.ts",
+      "group": "progress-rendering",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "TTY full running-row redraw O(P) per event/refresh is required displayed output; nonTTY skips running region."
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer.ts",
+      "group": "progress-rendering",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Constant renderer facade and runtime clock; no payload-wide traversal."
+    },
+    {
+      "path": "src/project-run/project-context.ts",
+      "group": "project-context.ts",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Constant capability wrapper shares frozen flags/path facts."
+    },
+    {
+      "path": "src/project-run/result.ts",
+      "group": "result.ts",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Mostly types plus constant result/status constructors; snapshot not recopied."
+    },
+    {
+      "path": "src/project-run/run.ts",
+      "group": "run.ts",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Public definition/control validation once then invocation; Definition cost belongs to Core other slice."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/compiled-graph-lookup.ts",
+      "group": "admission-core",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Required dense array accessors O(1); no searches."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/compiled-graph.ts",
+      "group": "admission-core",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R04"
+      ],
+      "notes": "One static dense/reverse graph compile; lexical task sort O(V log V); scope activation includes conditional multiplicative input."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/core.ts",
+      "group": "admission-core",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Shared reducer transitions; forced reconciliation visits reverse-ready heap and dependency output once; lazy public getter payload costs."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/input.ts",
+      "group": "admission-core",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Standalone exact boundary conversion once then prepared compile; closed constant field grammar."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/projection.ts",
+      "group": "admission-core",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R05"
+      ],
+      "notes": "Scheduler inspection scans all statuses every decision; public full catalog/inspection output cost and optional reads separately bounded by consumer."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection-index.ts",
+      "group": "admission-core",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R07"
+      ],
+      "notes": "Persistent indexed Immutable.List and leftist heap; old parent+delta chain problem no longer present; aggregated deltas update tree."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection-query.ts",
+      "group": "admission-core",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R05"
+      ],
+      "notes": "Indexed blocker counters avoid relation payload in candidate sieve, but every candidate pass scans V and claims; rejected public payload filters/sorts direct IDs."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection-seed.ts",
+      "group": "admission-core",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Initial seed scans statuses/relations/claims once; active scope insert copies/sorts active slots; forced frontier heap not full-resorted per transition."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection-transition.ts",
+      "group": "admission-core",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R07"
+      ],
+      "notes": "Relation reverse deltas total O(E) occurrences; mutex acquire/release touches all reverse mutex occurrences, sum fanout squared."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection.ts",
+      "group": "admission-core",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Status/index successors structural sharing; snapshot seed only at construction/fallback, not parent chain traversal."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/trace.ts",
+      "group": "admission-core",
+      "status": "private-test-oracle-no-public-run-path",
+      "findingIds": [],
+      "notes": "Tracked private test oracle only; no public Run import path; full action/effect projections match requested trace output."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-scope-layers.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R02"
+      ],
+      "notes": "graph.scopes.find per candidate/comparator; activation/active IDs include scans."
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-selection-policy.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R02",
+        "R05"
+      ],
+      "notes": "Static tightening/continuation filters and sorts scopes, ordinary ready fold; no sticky reservations."
+    },
+    {
+      "path": "src/project-run/task-scheduler/custom-admission-policy.ts",
+      "group": "task-scheduler",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Trusted policy callback excluded; captured context deepFreeze skips already frozen graph/measurement/handle and does not evaluate lazy handle getters."
+    },
+    {
+      "path": "src/project-run/task-scheduler/execution-state.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R05"
+      ],
+      "notes": "Every boundary shell snapshot copies full state; pre-admission pending findIndex/splice; cancellation shift engine-cost caveat."
+    },
+    {
+      "path": "src/project-run/task-scheduler/forced-block-effect-replay.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R01",
+        "R03"
+      ],
+      "notes": "Blocked canonical effects replay once; diagnostics-demand context rebuilding repeats R01/R03/R05 work conditionally."
+    },
+    {
+      "path": "src/project-run/task-scheduler/graph-validation.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R04"
+      ],
+      "notes": "Per-scope all-task scans, repeated reachability query, dependsOn×observes includes; cycle traversal linear work but recursive depth."
+    },
+    {
+      "path": "src/project-run/task-scheduler/graph.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R04"
+      ],
+      "notes": "Normalization/DTO snapshot once per prepare; public Run calls prepare four times; resource key sorting once per prepare."
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/diagnostics.ts",
+      "group": "scheduler-measurement",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R09"
+      ],
+      "notes": "Demand collector lifetime; captured tail copies running IDs; terminal admissions table once sorted; policy cumulative prefix constant."
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/integrals.ts",
+      "group": "scheduler-measurement",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R09"
+      ],
+      "notes": "Every state install/interval multi-pass pending classification and per-Task delay writes; fixed scalar totals."
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/policy.ts",
+      "group": "scheduler-measurement",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Append observations; snapshot O(1) captured end-count reader; no full history copy per callback."
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/summary.ts",
+      "group": "scheduler-measurement",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "One terminal summary scans admissions and fullsort top3; optional linear topK lower-priority, no per-decision repeated sort."
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/timing.ts",
+      "group": "scheduler-measurement",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R09"
+      ],
+      "notes": "Scalar clock/sample invariants; boundary delegates pending integral scans; no extra event ledger."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-admission-decision.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R05"
+      ],
+      "notes": "Full candidate map and fact copy per boundary; candidate ID find; hard-guard fixed grammar."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R01"
+      ],
+      "notes": "Pending relations use settledTasks.find, locks.includes and resource.find; sparse chain actual cubic count."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R01"
+      ],
+      "notes": "Unconditionally builds blocker summary and scans scopes with activeScopeIds.includes; default no logger still pays."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-decision-model.ts",
+      "group": "task-scheduler",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Types and constant freeze wrappers; cancelled/blocked lists copy only decision-owned list."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-decision.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R01"
+      ],
+      "notes": "Actual shared core passed from shell; does not recompile per cycle; full inspection/context before policy and terminal selection."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-observation.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R03",
+        "R09"
+      ],
+      "notes": "Graph stringify/hash every decision before logger; demand-enabled performanceState scans pending and materializes rejection payload."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-task-lifecycle.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R05",
+        "R06"
+      ],
+      "notes": "pending array membership/removal and repeated running Promise.race; terminal static-order output linear."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-terminal-measurement.ts",
+      "group": "task-scheduler",
+      "status": "reviewed-no-additional-candidate",
+      "findingIds": [],
+      "notes": "Once sealed terminal context and ordered delivery; same context identity; caller effects black box excluded."
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler.ts",
+      "group": "task-scheduler",
+      "status": "confirmed-static-candidate",
+      "findingIds": [
+        "R01",
+        "R03",
+        "R04",
+        "R05"
+      ],
+      "notes": "One actual compiled graph, O(V) finite lifecycle boundaries; collects repeated snapshots/decision/observations; forced effects shared core."
+    }
+  ]
+}

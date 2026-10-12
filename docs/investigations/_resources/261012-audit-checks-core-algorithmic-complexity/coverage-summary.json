@@ -1,0 +1,49 @@
+{
+  "baselineCommit": "21777db37c0284308b8c69eb2cc92ab0b012cd9b",
+  "verifiedAt": "2026-10-12T02:16:55.893Z",
+  "headUnchanged": true,
+  "scope": "Tracked production TypeScript; file identity plus final per-file semantic coverage. No proof that unflagged files have bounded performance.",
+  "productionTotal": 347,
+  "finalUniqueCoverage": 347,
+  "excludedTotal": 255,
+  "groupCounts": {
+    "public-entry": 1,
+    "check": 9,
+    "project-definition": 16,
+    "project-run": 81,
+    "check-settlement": 6,
+    "data-boundary": 7,
+    "machine-output": 12,
+    "package-checks": 201,
+    "package-tools": 14
+  },
+  "slices": [
+    {
+      "resource": "core-foundations-coverage.json",
+      "finalEntries": 51
+    },
+    {
+      "resource": "project-run-coverage.json",
+      "finalEntries": 81
+    },
+    {
+      "resource": "tools-coverage.json",
+      "finalEntries": 14
+    },
+    {
+      "resource": "checks-coverage.json",
+      "finalEntries": 155
+    },
+    {
+      "resource": "analyzer-coverage.json",
+      "finalEntries": 46
+    }
+  ],
+  "preliminaryEntriesSuperseded": 46,
+  "missing": [],
+  "extra": [],
+  "duplicateFinalOwners": [],
+  "sourceHashDrift": [],
+  "preliminaryNotReplaced": [],
+  "finalOwnerRule": "Use all core/run/tools/analyzer entries and only checks reviewLevel=complete; never count the 46 preliminary Check entries twice."
+}

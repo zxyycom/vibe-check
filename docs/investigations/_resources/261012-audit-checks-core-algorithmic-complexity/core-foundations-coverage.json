@@ -1,0 +1,385 @@
+{
+  "baselineCommit": "21777db37c0284308b8c69eb2cc92ab0b012cd9b",
+  "coverageMeaning": "Each production file individually read and assessed against actual input dimensions; no-candidate is scoped static review, not a performance guarantee.",
+  "entries": [
+    {
+      "path": "src/check-settlement/fact-validation.ts",
+      "group": "check-settlement",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "One set/map-indexed Check/Record pass and canonical data copies; payload cost inherited; no growing includes in reason reference validation."
+    },
+    {
+      "path": "src/check-settlement/facts.ts",
+      "group": "check-settlement",
+      "status": "declarations_only",
+      "findingIds": [],
+      "notes": "Static interfaces/types and type reexports; no runtime traversal algorithm."
+    },
+    {
+      "path": "src/check-settlement/outcome-normalization.ts",
+      "group": "check-settlement",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C03"
+      ],
+      "notes": "Product blocker reason uses growing includes; Θ(b²); ordinary success branch does not execute this loop; bounded operation counts."
+    },
+    {
+      "path": "src/check-settlement/reason-shape.ts",
+      "group": "check-settlement",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/check-settlement/record-store.ts",
+      "group": "check-settlement",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Nested Maps avoid record rescans; canonical payload cost plus canonical read/freeze ordering; repeated reads and duplicate invalid payload are workload-dependent constants."
+    },
+    {
+      "path": "src/check-settlement/session.ts",
+      "group": "check-settlement",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C02"
+      ],
+      "notes": "Ordered slots Array.find plus all-known-ID Set rebuilt per terminal; normal valid successful Run Θ(C²); bounded operation counts."
+    },
+    {
+      "path": "src/check/check.ts",
+      "group": "check",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/check/descriptor-validation.ts",
+      "group": "check",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/check/descriptor.ts",
+      "group": "check",
+      "status": "declarations_only",
+      "findingIds": [],
+      "notes": "Static interfaces/types and type reexports; no runtime traversal algorithm."
+    },
+    {
+      "path": "src/check/flag-enablement.ts",
+      "group": "check",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/check/handoff-provider-identity.ts",
+      "group": "check",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/check/inherited-collection.ts",
+      "group": "check",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/check/options-snapshot.ts",
+      "group": "check",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Detached JSON alias expansion proportional to expanded value tree; ancestor cycle guard; unbounded depth; no independent quadratic candidate."
+    },
+    {
+      "path": "src/check/project-changes.ts",
+      "group": "check",
+      "status": "declarations_only",
+      "findingIds": [],
+      "notes": "Static interfaces/types and type reexports; no runtime traversal algorithm."
+    },
+    {
+      "path": "src/check/project-context.ts",
+      "group": "check",
+      "status": "declarations_only",
+      "findingIds": [],
+      "notes": "Static interfaces/types and type reexports; no runtime traversal algorithm."
+    },
+    {
+      "path": "src/data-boundary/canonical-data.ts",
+      "group": "data-boundary",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Canonical clone sorts keys and expands noncyclic aliases; output tree explains exponential in distinct graph objects. Recursive string assembly/stack depth remain host-dependent hotspot boundaries."
+    },
+    {
+      "path": "src/data-boundary/canonical-json.ts",
+      "group": "data-boundary",
+      "status": "declarations_only",
+      "findingIds": [],
+      "notes": "Static interfaces/types and type reexports; no runtime traversal algorithm."
+    },
+    {
+      "path": "src/data-boundary/closed-values.ts",
+      "group": "data-boundary",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C05"
+      ],
+      "notes": "Fixed schemas usually constant; dynamic exact key list Θ(K²) includes; public snapshot and debug regions can use unbounded K; bounded operation counts."
+    },
+    {
+      "path": "src/data-boundary/config-glob.ts",
+      "group": "data-boundary",
+      "status": "external_unknown",
+      "findingIds": [],
+      "notes": "Copies complete paths/patterns and delegates native list semantics to micromatch; no general regexp/glob worst-case guarantee inferred."
+    },
+    {
+      "path": "src/data-boundary/project-file-region-index.ts",
+      "group": "data-boundary",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Batch matching per rule, sorted unique file/region/membership snapshots; F/R/E and matcher dimensions explicit; append intentionally full independent rebuild."
+    },
+    {
+      "path": "src/data-boundary/project-path.ts",
+      "group": "data-boundary",
+      "status": "linear",
+      "findingIds": [],
+      "notes": "Per-path slash replacement/normalization character scanning and split; no graph/index search."
+    },
+    {
+      "path": "src/data-boundary/value-shapes.ts",
+      "group": "data-boundary",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/index.ts",
+      "group": "public-entry",
+      "status": "reexports_only",
+      "findingIds": [],
+      "notes": "Complete root export inventory read; no own runtime algorithm. Public canonical/closed/index and Non-core/Check entry reachability recorded in owning findings."
+    },
+    {
+      "path": "src/machine-output/v4/atomic-publication.ts",
+      "group": "machine-output",
+      "status": "external_unknown",
+      "findingIds": [],
+      "notes": "Two-file candidate write/rename; cleanup directory scan D plus owned-temp sorting/removal; filesystem costs not measured."
+    },
+    {
+      "path": "src/machine-output/v4/freeze-publication-value.ts",
+      "group": "machine-output",
+      "status": "linear",
+      "findingIds": [],
+      "notes": "Recursively freezes new/parsed plain data and short-circuits already frozen values; plain JSON payload depth remains stack boundary."
+    },
+    {
+      "path": "src/machine-output/v4/projection.ts",
+      "group": "machine-output",
+      "status": "hotspot_only",
+      "findingIds": [],
+      "notes": "One Check/Record projection plus complete records canonical fingerprint and freeze; no nested Check×Record scan."
+    },
+    {
+      "path": "src/machine-output/v4/publication-invariants.ts",
+      "group": "machine-output",
+      "status": "hotspot_only",
+      "findingIds": [],
+      "notes": "Separate ordering/owner/Core-validation passes use Set/Map; full projected Core clone plus fingerprint repeats complete payload work."
+    },
+    {
+      "path": "src/machine-output/v4/publication-model.ts",
+      "group": "machine-output",
+      "status": "constant",
+      "findingIds": [],
+      "notes": "Fixed invocation validation/schema regex, shallow snapshot wrapper; no traversal of full facts."
+    },
+    {
+      "path": "src/machine-output/v4/publish.ts",
+      "group": "machine-output",
+      "status": "hotspot_only",
+      "findingIds": [],
+      "notes": "Projection→serialize→byte decode/parse/schema→invariant/canonical clone/hash→freeze→write; constant number complete passes, peak copies unmeasured."
+    },
+    {
+      "path": "src/machine-output/v4/records-fingerprint.ts",
+      "group": "machine-output",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Canonical bytes for complete ordered records then SHA256; inherited canonical text costs, full payload omission not allowed."
+    },
+    {
+      "path": "src/machine-output/v4/schema-identities.ts",
+      "group": "machine-output",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/machine-output/v4/schema.ts",
+      "group": "machine-output",
+      "status": "external_unknown",
+      "findingIds": [],
+      "notes": "Fixed schema definitions; TypeBox runtime validator internals excluded, broad data fields canonically checked by Core."
+    },
+    {
+      "path": "src/machine-output/v4/serializers.ts",
+      "group": "machine-output",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Complete JSON/NDJSON output; map/join all rows; O(output bytes) necessary, copy constants unmeasured."
+    },
+    {
+      "path": "src/machine-output/v4/validation-result.ts",
+      "group": "machine-output",
+      "status": "constant",
+      "findingIds": [],
+      "notes": "Fixed-size success/failure wrappers and diagnostic shapes."
+    },
+    {
+      "path": "src/machine-output/v4/validation.ts",
+      "group": "machine-output",
+      "status": "external_unknown",
+      "findingIds": [],
+      "notes": "Whole-byte decode/JSON.parse and split NDJSON once; fixed schema Value.Check/Errors library internals uninspected; no per-record prior-row rescans."
+    },
+    {
+      "path": "src/project-definition/check-tree/authoring.ts",
+      "group": "project-definition",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C04"
+      ],
+      "notes": "Shared DAG with executable leaf expands before duplicate task ID rejection, confirmed by parser counts and independent public Run. Shared non-executable containers may succeed and emit expanded warnings; that case is output-sensitive, not an extra exponential bug."
+    },
+    {
+      "path": "src/project-definition/check-tree/check-fields-authoring.ts",
+      "group": "project-definition",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Fixed Check field grammar; options snapshot recursive value cost; flag parser has depth/node controls."
+    },
+    {
+      "path": "src/project-definition/check-tree/collection-authoring.ts",
+      "group": "project-definition",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C01"
+      ],
+      "notes": "Per-identifier includes performs Θ(m²) comparisons for distinct legal inputs; preserves first occurrence order; operation-count verified."
+    },
+    {
+      "path": "src/project-definition/check-tree/flag-conditions.ts",
+      "group": "project-definition",
+      "status": "bounded",
+      "findingIds": [],
+      "notes": "Accepted expression depth≤16 and nodes≤256; shallow children/unknown-record snapshot cost still scales with presented invalid structure."
+    },
+    {
+      "path": "src/project-definition/check-tree/materialization.ts",
+      "group": "project-definition",
+      "status": "linear",
+      "findingIds": [],
+      "notes": "One recursive node reconstruction; arrays share already accepted values; total expanded parsed nodes incl invalid DAG inherited from C04 owner."
+    },
+    {
+      "path": "src/project-definition/check-tree/resolution.ts",
+      "group": "project-definition",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C06"
+      ],
+      "notes": "Inherited no-edit arrays share references; per-layer edits filter/copy/Set/sort full prefix; legal container chain yields Θ(n²) element work for O(n) final output; operation-count verified."
+    },
+    {
+      "path": "src/project-definition/check-tree/scheduling-authoring.ts",
+      "group": "project-definition",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C01"
+      ],
+      "notes": "Exact and inherit add/remove all call growing-array deduplicator; resource mapping and numeric schema work otherwise bounded by actual fields."
+    },
+    {
+      "path": "src/project-definition/declarative-snapshot.ts",
+      "group": "project-definition",
+      "status": "hotspot_only",
+      "findingIds": [],
+      "notes": "Sort executable declarations O(C log C), shallow runtime stripping then deep freeze with frozen short-circuit; fingerprint covers complete payload and recursive map/join is host-string-dependent."
+    },
+    {
+      "path": "src/project-definition/output-defaults.ts",
+      "group": "project-definition",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/project-definition/output-validation.ts",
+      "group": "project-definition",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/project-definition/progress-rendering-output.ts",
+      "group": "project-definition",
+      "status": "constant_or_linear",
+      "findingIds": [],
+      "notes": "Runtime fixed-grammar validation/builders/identity wrappers, with input-string/own-key/array length costs where present; no independent growing search loop."
+    },
+    {
+      "path": "src/project-definition/project-changes.ts",
+      "group": "project-definition",
+      "status": "linear",
+      "findingIds": [],
+      "notes": "Closed fixed region schema plus one flag/each pattern traversal and detached array copies; no matching or Git I/O here."
+    },
+    {
+      "path": "src/project-definition/project-definition-validation.ts",
+      "group": "project-definition",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C01",
+        "C04",
+        "C06"
+      ],
+      "notes": "Closed definition parsing calls covered tree parser/resolution; fixed field table constant; known change-reference pass bounded per accepted flag AST."
+    },
+    {
+      "path": "src/project-definition/project-definition.ts",
+      "group": "project-definition",
+      "status": "confirmed_static",
+      "findingIds": [
+        "C01",
+        "C04",
+        "C06"
+      ],
+      "notes": "defineConfig fixed outer defaults; normalization re-parses tree then maps leaves; transmitted candidate costs not independent duplicate finding."
+    },
+    {
+      "path": "src/project-definition/resource-unit-mapping.ts",
+      "group": "project-definition",
+      "status": "output_sensitive",
+      "findingIds": [],
+      "notes": "Own-key sort, numeric validation and mapping snapshot; inherited capacities scan by claims is explicit input work."
+    },
+    {
+      "path": "src/project-definition/scheduler-policy.ts",
+      "group": "project-definition",
+      "status": "declarations_only",
+      "findingIds": [],
+      "notes": "Static interfaces/types and type reexports; no runtime traversal algorithm."
+    }
+  ]
+}
