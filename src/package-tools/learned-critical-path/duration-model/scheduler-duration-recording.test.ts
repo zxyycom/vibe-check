@@ -131,6 +131,27 @@ describe("scheduler duration recording", () => {
       taskId: "float-duration"
     });
     assert.equal(floatRecorded.observation.acceptedSampleCount, 1);
+    const sharedIdentityInput = inputs[0];
+    assert(sharedIdentityInput !== undefined);
+    const sharedPrediction = createSchedulerPredictionSnapshot(emptySchedulerHistory(), [
+      { ...sharedIdentityInput, taskId: "first" },
+      { ...sharedIdentityInput, taskId: "second" }
+    ]);
+    const merged = recordSchedulerHistory({
+      history: emptySchedulerHistory(),
+      prediction: sharedPrediction,
+      rawMeasurement: availableMeasurement([
+        { admittedAtMonotonicMs: 0, settledAtMonotonicMs: 2, taskId: "first" },
+        { admittedAtMonotonicMs: 2, settledAtMonotonicMs: 5, taskId: "second" }
+      ]),
+      settledTasks: [settled("first"), settled("second", "failed")]
+    });
+    assert.equal(merged.observation.acceptedSampleCount, 2);
+    assert.equal(merged.history.series.length, 1);
+    assert.deepEqual(merged.history.series[0]?.samples, [
+      { durationMs: 2, observationSequence: 1, settlementKind: "completed" },
+      { durationMs: 3, observationSequence: 2, settlementKind: "failed" }
+    ]);
   });
 
   it("does not create samples when timing is unavailable", () => {

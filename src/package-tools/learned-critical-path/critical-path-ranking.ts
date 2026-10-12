@@ -36,12 +36,21 @@ export function createSchedulerCriticalPathSnapshot(
   }
 
   const scoreByTaskId = new Map<string, number>();
+  const predictionByTaskId = new Map<
+    string,
+    SchedulerCriticalPathPredictionSnapshot["predictions"][number]
+  >();
+  for (const taskPrediction of prediction.predictions) {
+    if (!predictionByTaskId.has(taskPrediction.taskId)) {
+      predictionByTaskId.set(taskPrediction.taskId, taskPrediction);
+    }
+  }
   const visitingTaskIds = new Set<string>();
   const scoreFor = (taskId: string): number => {
     const existing = scoreByTaskId.get(taskId);
     if (existing !== undefined) return existing;
     if (visitingTaskIds.has(taskId)) throw new TypeError("critical path graph must be acyclic");
-    const taskPrediction = prediction.predictions.find((entry) => entry.taskId === taskId);
+    const taskPrediction = predictionByTaskId.get(taskId);
     if (taskPrediction === undefined)
       throw new TypeError(`critical path prediction missing task ${taskId}`);
     visitingTaskIds.add(taskId);

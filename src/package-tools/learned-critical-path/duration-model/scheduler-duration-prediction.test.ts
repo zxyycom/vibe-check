@@ -49,6 +49,18 @@ describe("scheduler duration prediction", () => {
     assert.equal(Object.isFrozen(current.predictions), true);
     assert.equal(JSON.stringify(current).includes("author-secret-check"), false);
     assert.equal(JSON.stringify(current).includes("flag-secret"), false);
+    const duplicateIdentityHistory = freezeSchedulerHistoryModel({
+      latestObservationSequence: 33,
+      series: [
+        ...history.series,
+        {
+          identityDigest: createSchedulerHistoryIdentity(input),
+          latestObservationSequence: 33,
+          samples: [{ durationMs: 999, observationSequence: 33, settlementKind: "completed" }]
+        }
+      ]
+    });
+    assert.deepEqual(createSchedulerPredictionSnapshot(duplicateIdentityHistory, inputs), current);
   });
 
   it("uses learned means before a median project prior and cold start", () => {

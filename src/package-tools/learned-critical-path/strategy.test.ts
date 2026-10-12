@@ -30,6 +30,20 @@ describe("public learned critical-path strategy", () => {
       assert.deepEqual(tightening, { kind: "select", taskId: "activate" });
       const wait = prepared.decide(context([{ canAdmit: false, taskId: "ordinary" }]));
       assert.deepEqual(wait, { kind: "wait" });
+      const changingBoundary = context([
+        { canAdmit: true, taskId: "ordinary" },
+        { canAdmit: true, taskId: "activate" }
+      ]);
+      assert.deepEqual(prepared.decide(changingBoundary), { kind: "select", taskId: "activate" });
+      assert.deepEqual(
+        prepared.decide({
+          ...changingBoundary,
+          activeScopeIds: ["limited"],
+          capacity: { effectiveMaxParallel: 1, maxParallel: 1, running: 0 }
+        }),
+        { kind: "select", taskId: "ordinary" }
+      );
+      assert.deepEqual(prepared.decide(changingBoundary), { kind: "select", taskId: "activate" });
     } finally {
       await rm(stateDirectory, { force: true, recursive: true });
     }

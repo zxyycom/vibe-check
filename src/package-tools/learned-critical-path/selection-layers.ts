@@ -7,17 +7,30 @@ type Candidate = AdmissionPolicyContext["candidates"][number];
 type Task = SchedulerGraphSnapshot["tasks"][number];
 type Scope = SchedulerGraphSnapshot["scopes"][number];
 
-export interface LearnedSelectionLayers {
-  readonly continuation: readonly Candidate[];
+export interface LearnedSelectionGraph {
   readonly scopeById: ReadonlyMap<string, Scope>;
   readonly taskById: ReadonlyMap<string, Task>;
+}
+
+export interface LearnedSelectionLayers extends LearnedSelectionGraph {
+  readonly continuation: readonly Candidate[];
   readonly tightening: readonly Candidate[];
 }
 
+/** Indexes the immutable public graph separately from each decision's boundary facts. */
+export function createLearnedSelectionGraph(graph: SchedulerGraphSnapshot): LearnedSelectionGraph {
+  return Object.freeze({
+    scopeById: new Map(graph.scopes.map((scope) => [scope.id, scope] as const)),
+    taskById: new Map(graph.tasks.map((task) => [task.taskId, task] as const))
+  });
+}
+
 /** Projects the public graph and boundary facts into the Scheduler's two constrained selection layers. */
-export function learnedSelectionLayers(context: AdmissionPolicyContext): LearnedSelectionLayers {
-  const taskById = new Map(context.graph.tasks.map((task) => [task.taskId, task] as const));
-  const scopeById = new Map(context.graph.scopes.map((scope) => [scope.id, scope] as const));
+export function learnedSelectionLayers(
+  context: AdmissionPolicyContext,
+  graph: LearnedSelectionGraph = createLearnedSelectionGraph(context.graph)
+): LearnedSelectionLayers {
+  const { taskById, scopeById } = graph;
   const activeScopeIds = new Set(context.activeScopeIds);
   return Object.freeze({
     continuation: Object.freeze(

@@ -12,16 +12,19 @@ import type {
   SchedulerMeasurementContext
 } from "../../project-definition/project-definition.ts";
 import { prepareSchedulerDurationModel } from "./duration-model/preparation.ts";
-import { learnedSelectionLayers } from "./selection-layers.ts";
+import {
+  createLearnedSelectionGraph,
+  learnedSelectionLayers,
+  type LearnedSelectionGraph
+} from "./selection-layers.ts";
 import { staticDecision } from "./static-decision.ts";
 import {
-  predictionForTask,
   type SchedulerPredictionInput,
-  type SchedulerPredictionSnapshot
+  type SchedulerPredictionSnapshot,
+  type SchedulerTaskPrediction
 } from "./duration-model/prediction.ts";
 import {
   createSchedulerCriticalPathSnapshot,
-  criticalPathScoreForTask,
   type SchedulerCriticalPathSnapshot
 } from "./critical-path-ranking.ts";
 
@@ -87,16 +90,21 @@ export function createLearnedCriticalPathStrategy(
         observe(options, { kind: "history-unavailable", reason: "setup-failed" });
         return Object.freeze({ decide: staticDecision });
       }
-      let criticalPath: SchedulerCriticalPathSnapshot;
+      let decisionIndexes: LearnedDecisionIndexes;
       try {
-        criticalPath = createSchedulerCriticalPathSnapshot(graph, durationModel.prediction);
+        const criticalPath = createSchedulerCriticalPathSnapshot(graph, durationModel.prediction);
+        decisionIndexes = createLearnedDecisionIndexes(
+          graph,
+          durationModel.prediction,
+          criticalPath
+        );
       } catch {
         observe(options, { kind: "history-unavailable", reason: "setup-failed" });
         return Object.freeze({ decide: staticDecision });
       }
       return Object.freeze({
         decide: (context: AdmissionPolicyContext) =>
-          learnedDecision(context, durationModel.prediction, criticalPath, options),
+          learnedDecision(context, decisionIndexes, options),
         terminalEffect: async (context: SchedulerMeasurementContext) => {
           const recorded = await durationModel.record(context);
           if (recorded.kind === "failed" || recorded.writeObservation === "failed") {
@@ -105,6 +113,34 @@ export function createLearnedCriticalPathStrategy(
         }
       });
     }
+  });
+}
+
+interface LearnedDecisionIndexes {
+  readonly graph: LearnedSelectionGraph;
+  readonly predictionByTaskId: ReadonlyMap<string, SchedulerTaskPrediction>;
+  readonly scoreByTaskId: ReadonlyMap<string, number>;
+}
+
+function createLearnedDecisionIndexes(
+  graph: SchedulerGraphSnapshot,
+  prediction: SchedulerPredictionSnapshot,
+  criticalPath: SchedulerCriticalPathSnapshot
+): LearnedDecisionIndexes {
+  const predictionByTaskId = new Map<string, SchedulerTaskPrediction>();
+  for (const taskPrediction of prediction.predictions) {
+    if (!predictionByTaskId.has(taskPrediction.taskId)) {
+      predictionByTaskId.set(taskPrediction.taskId, taskPrediction);
+    }
+  }
+  const scoreByTaskId = new Map<string, number>();
+  for (const score of criticalPath.scores) {
+    if (!scoreByTaskId.has(score.taskId)) scoreByTaskId.set(score.taskId, score.criticalPathScore);
+  }
+  return Object.freeze({
+    graph: createLearnedSelectionGraph(graph),
+    predictionByTaskId,
+    scoreByTaskId
   });
 }
 
@@ -164,14 +200,13 @@ function predictionInputsFor(
 
 function learnedDecision(
   context: AdmissionPolicyContext,
-  prediction: SchedulerPredictionSnapshot,
-  criticalPath: SchedulerCriticalPathSnapshot,
+  indexes: LearnedDecisionIndexes,
   options: LearnedCriticalPathStrategyOptions
 ): AdmissionProposal {
-  const selected = selectLearnedCandidate(context, criticalPath);
+  const selected = selectLearnedCandidate(context, indexes);
   if (!selected.canAdmit) return Object.freeze({ kind: "wait" });
-  const taskPrediction = predictionForTask(prediction, selected.taskId);
-  const score = criticalPathScoreForTask(criticalPath, selected.taskId);
+  const taskPrediction = indexes.predictionByTaskId.get(selected.taskId);
+  const score = indexes.scoreByTaskId.get(selected.taskId);
   if (taskPrediction !== undefined && score !== undefined) {
     observe(
       options,
@@ -190,45 +225,37 @@ function learnedDecision(
 
 function selectLearnedCandidate(
   context: AdmissionPolicyContext,
-  criticalPath: SchedulerCriticalPathSnapshot
+  indexes: LearnedDecisionIndexes
 ): AdmissionPolicyContext["candidates"][number] {
-  const layers = learnedSelectionLayers(context);
+  const layers = learnedSelectionLayers(context, indexes.graph);
   if (layers.tightening.length > 0)
     return requiredFirst(
-      sortConstrained(layers.tightening, layers.taskById, layers.scopeById, criticalPath)
+      sortConstrained(layers.tightening, layers.taskById, layers.scopeById, indexes.scoreByTaskId)
     );
   if (layers.continuation.length > 0)
     return requiredFirst(
-      sortConstrained(layers.continuation, layers.taskById, layers.scopeById, criticalPath)
+      sortConstrained(layers.continuation, layers.taskById, layers.scopeById, indexes.scoreByTaskId)
     );
   return requiredFirst(
-    [...context.candidates].sort(learnedCandidateComparator(layers.taskById, criticalPath))
+    [...context.candidates].sort((left, right) =>
+      compareLearnedTasks(layers.taskById, indexes.scoreByTaskId, left.taskId, right.taskId)
+    )
   );
-}
-
-function learnedCandidateComparator(
-  taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
-  criticalPath: SchedulerCriticalPathSnapshot
-): (
-  left: AdmissionPolicyContext["candidates"][number],
-  right: AdmissionPolicyContext["candidates"][number]
-) => number {
-  return (left, right) => compareLearnedTasks(taskById, criticalPath, left.taskId, right.taskId);
 }
 
 function sortConstrained(
   candidates: readonly AdmissionPolicyContext["candidates"][number][],
   taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
   scopeById: ReadonlyMap<string, SchedulerGraphSnapshot["scopes"][number]>,
-  criticalPath: SchedulerCriticalPathSnapshot
+  scoreByTaskId: ReadonlyMap<string, number>
 ): AdmissionPolicyContext["candidates"][number][] {
-  return [...candidates].sort(learnedConstrainedComparator(taskById, scopeById, criticalPath));
+  return [...candidates].sort(learnedConstrainedComparator(taskById, scopeById, scoreByTaskId));
 }
 
 function learnedConstrainedComparator(
   taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
   scopeById: ReadonlyMap<string, SchedulerGraphSnapshot["scopes"][number]>,
-  criticalPath: SchedulerCriticalPathSnapshot
+  scoreByTaskId: ReadonlyMap<string, number>
 ): (
   left: AdmissionPolicyContext["candidates"][number],
   right: AdmissionPolicyContext["candidates"][number]
@@ -238,7 +265,7 @@ function learnedConstrainedComparator(
     const rightScope = requiredLearnedScope(right, taskById, scopeById);
     return (
       leftScope.maxParallel - rightScope.maxParallel ||
-      compareLearnedTasks(taskById, criticalPath, left.taskId, right.taskId) ||
+      compareLearnedTasks(taskById, scoreByTaskId, left.taskId, right.taskId) ||
       compareText(leftScope.id, rightScope.id) ||
       compareText(left.taskId, right.taskId)
     );
@@ -258,7 +285,7 @@ function requiredLearnedScope(
 }
 function compareLearnedTasks(
   taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
-  criticalPath: SchedulerCriticalPathSnapshot,
+  scoreByTaskId: ReadonlyMap<string, number>,
   leftId: string,
   rightId: string
 ): number {
@@ -266,8 +293,8 @@ function compareLearnedTasks(
   const right = taskById.get(rightId);
   if (left === undefined || right === undefined)
     throw new Error("learned candidate is missing from graph");
-  const leftScore = criticalPathScoreForTask(criticalPath, leftId);
-  const rightScore = criticalPathScoreForTask(criticalPath, rightId);
+  const leftScore = scoreByTaskId.get(leftId);
+  const rightScore = scoreByTaskId.get(rightId);
   if (leftScore === undefined || rightScore === undefined)
     throw new Error("learned scheduler score is missing");
   return (

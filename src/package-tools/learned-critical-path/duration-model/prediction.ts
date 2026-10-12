@@ -6,8 +6,8 @@ import {
 } from "../../../data-boundary/canonical-data.ts";
 import {
   SCHEDULER_HISTORY_MODEL_VERSION,
-  schedulerHistorySeries,
-  type SchedulerHistoryModel
+  type SchedulerHistoryModel,
+  type SchedulerHistorySeries
 } from "./bounded-history.ts";
 
 export type SchedulerPredictionSource = "learned" | "project-prior" | "cold-start";
@@ -57,7 +57,13 @@ export function createSchedulerPredictionSnapshot(
   inputs: readonly SchedulerPredictionInput[],
   coldStartDurationMs = 1
 ): SchedulerPredictionSnapshot {
-  const learned = inputs.map((input) => learnedPrediction(history, input));
+  const historyByIdentity = new Map<string, SchedulerHistorySeries>();
+  for (const series of history.series) {
+    if (!historyByIdentity.has(series.identityDigest)) {
+      historyByIdentity.set(series.identityDigest, series);
+    }
+  }
+  const learned = inputs.map((input) => learnedPrediction(historyByIdentity, input));
   const projectPrior = median(
     learned.flatMap((prediction) =>
       prediction.source === "learned" ? [prediction.estimatedDurationMs] : []
@@ -97,11 +103,11 @@ export function predictionForTask(
 }
 
 function learnedPrediction(
-  history: SchedulerHistoryModel,
+  historyByIdentity: ReadonlyMap<string, SchedulerHistorySeries>,
   input: SchedulerPredictionInput
 ): SchedulerTaskPrediction {
   const identityDigest = createSchedulerHistoryIdentity(input);
-  const samples = schedulerHistorySeries(history, identityDigest)?.samples ?? [];
+  const samples = historyByIdentity.get(identityDigest)?.samples ?? [];
   if (samples.length === 0) {
     return Object.freeze({
       estimatedDurationMs: 0,

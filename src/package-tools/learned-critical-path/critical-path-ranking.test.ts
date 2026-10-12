@@ -35,5 +35,26 @@ describe("critical-path ranking", () => {
     assert.equal(criticalPathScoreForTask(score, "source"), 9);
     assert.equal(Object.isFrozen(score), true);
     assert.equal(Object.isFrozen(score.scores), true);
+    assert.deepEqual(
+      createSchedulerCriticalPathSnapshot(graph, {
+        predictions: [...prediction.predictions, { estimatedDurationMs: 99, taskId: "source" }]
+      }),
+      score
+    );
+    assert.throws(
+      () => {
+        createSchedulerCriticalPathSnapshot(
+          schedulerGraphSnapshot([schedulerGraphTask("source", { dependsOn: ["missing"] })]),
+          { predictions: [] }
+        );
+      },
+      { message: "critical path graph has unknown task missing" }
+    );
+    assert.throws(
+      () => {
+        createSchedulerCriticalPathSnapshot(graph, { predictions: [] });
+      },
+      { message: "critical path prediction missing task source" }
+    );
   });
 });

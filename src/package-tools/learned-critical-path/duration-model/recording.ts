@@ -8,7 +8,7 @@ import {
   type SchedulerHistoryModel,
   type SchedulerHistorySeries
 } from "./bounded-history.ts";
-import { predictionForTask, type SchedulerPredictionSnapshot } from "./prediction.ts";
+import type { SchedulerPredictionSnapshot, SchedulerTaskPrediction } from "./prediction.ts";
 
 type SchedulerMeasurementAdmission = NonNullable<
   SchedulerRawMeasurement["timingFacts"]
@@ -105,10 +105,16 @@ function mergeVerifiedAdmissionSamples(input: {
   const seriesByIdentity = new Map(
     input.history.series.map((series) => [series.identityDigest, series] as const)
   );
+  const predictionByTaskId = new Map<string, SchedulerTaskPrediction>();
+  for (const prediction of input.prediction.predictions) {
+    if (!predictionByTaskId.has(prediction.taskId)) {
+      predictionByTaskId.set(prediction.taskId, prediction);
+    }
+  }
   let latestObservationSequence = input.history.latestObservationSequence;
   let acceptedSampleCount = 0;
   for (const admission of input.admissions) {
-    const sample = sampleForAdmission(admission, input.prediction, input.settledByTaskId);
+    const sample = sampleForAdmission(admission, predictionByTaskId, input.settledByTaskId);
     if (sample === undefined || latestObservationSequence === Number.MAX_SAFE_INTEGER) continue;
     latestObservationSequence += 1;
     appendSampleToIdentityHistory(
@@ -159,7 +165,7 @@ function sampleForAdmission(
     readonly settledAtMonotonicMs: number | null;
     readonly taskId: string;
   }>,
-  prediction: SchedulerPredictionSnapshot,
+  predictionByTaskId: ReadonlyMap<string, SchedulerTaskPrediction>,
   settledByTaskId: ReadonlyMap<string, SchedulerDurationSettlementKind>
 ): AdmissionSample | undefined {
   if (
@@ -173,7 +179,7 @@ function sampleForAdmission(
   }
   const durationMs = admission.settledAtMonotonicMs - admission.admittedAtMonotonicMs;
   if (!isBoundedDurationMs(durationMs)) return undefined;
-  const taskPrediction = predictionForTask(prediction, admission.taskId);
+  const taskPrediction = predictionByTaskId.get(admission.taskId);
   const settlementKind = settledByTaskId.get(admission.taskId);
   if (taskPrediction === undefined || settlementKind === undefined) return undefined;
   return Object.freeze({
