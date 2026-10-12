@@ -33,6 +33,24 @@ describe("Project Definition", () => {
     assert.deepEqual(checks[0]?.dependsOn, ["compile", "prepare"]);
     assert.deepEqual(checks[0]?.mutex, ["compiler", "shared"]);
     assert.deepEqual(checks[0]?.observes, ["audit", "release"]);
+    const exactCollections = normalizeProjectDefinition(
+      defineConfig({
+        checks: [
+          defineCheck({
+            checkId: "exact-collections",
+            displayName: "Exact collections",
+            dependsOn: ["zeta", "alpha", "zeta", "__proto__", "alpha"],
+            observes: ["observer", "observer"],
+            mutex: ["shared", "shared"],
+            execute: passed
+          })
+        ]
+      })
+    ).checks[0];
+    assert.deepEqual(exactCollections?.dependsOn, ["__proto__", "alpha", "zeta"]);
+    assert.deepEqual(exactCollections?.observes, ["observer"]);
+    assert.deepEqual(exactCollections?.mutex, ["shared"]);
+    assert.equal(Object.isFrozen(exactCollections?.dependsOn), true);
     assert.equal(
       validateProjectDefinition({
         ...defineConfig({}),

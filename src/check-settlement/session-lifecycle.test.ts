@@ -26,6 +26,7 @@ describe("check-record Core Check session", () => {
     assert.equal(validateCoreSnapshot(snapshot).ok, true);
     assert.strictEqual(session.freeze(), snapshot);
     assertRegisteredProductReason();
+    assertOrderedProductBlockers();
   });
 
   it("maps unresolved scopes to Product unavailable outcomes while retaining accepted Records", () => {
@@ -62,6 +63,38 @@ describe("check-record Core Check session", () => {
     );
   });
 });
+
+function assertOrderedProductBlockers() {
+  for (const { checkIds, expectedReason } of [
+    {
+      checkIds: ["zeta", "alpha"],
+      expectedReason: { code: "dependency-not-passed", checkIds: ["zeta", "alpha"] }
+    },
+    {
+      checkIds: ["zeta", "alpha", "zeta"],
+      expectedReason: { code: "invalid-execution-result" }
+    },
+    { checkIds: ["zeta", "missing"], expectedReason: { code: "invalid-execution-result" } },
+    { checkIds: ["zeta", ""], expectedReason: { code: "invalid-execution-result" } }
+  ]) {
+    const session = createCoreCheckSession(
+      ["consumer", "alpha", "zeta"].map((checkId) => ({ definition: definition(checkId) }))
+    );
+    const outcome = session.openCheckScope("consumer").settleProduct({
+      status: "unavailable",
+      reason: { code: "dependency-not-passed", checkIds }
+    });
+    assert.deepEqual(outcome, {
+      status: "unavailable",
+      reason: expectedReason
+    });
+    assert(outcome.status === "unavailable");
+    assert.equal(Object.isFrozen(outcome.reason), true);
+    if (outcome.reason?.checkIds !== undefined) {
+      assert.equal(Object.isFrozen(outcome.reason.checkIds), true);
+    }
+  }
+}
 
 function assertRegisteredProductReason() {
   const session = createCoreCheckSession([

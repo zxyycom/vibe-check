@@ -128,6 +128,22 @@ export async function assertCheckArtifactPathContext(root: string): Promise<void
     new Set(observations.map(({ artifactDirectory }) => artifactDirectory)).size,
     checkIds.length
   );
+  const firstArtifactDirectories = observations.map(({ artifactDirectory }) => artifactDirectory);
+  observations.length = 0;
+  const differentArtifactBase = await run(source, {
+    checkArtifactBaseDirectory: "artifacts/other-checks",
+    projectRoot: root
+  });
+  assert.equal(differentArtifactBase.kind, "completed");
+  assert.equal(observations.length, checkIds.length);
+  for (const [index, observation] of observations.entries()) {
+    assert(observation.artifactDirectory !== null);
+    assert.notEqual(observation.artifactDirectory, firstArtifactDirectories[index]);
+    assert.equal(
+      resolvePath(observation.artifactDirectory, ".."),
+      resolvePath(root, "artifacts/other-checks")
+    );
+  }
 }
 
 type CapturedArtifactContext = Readonly<{

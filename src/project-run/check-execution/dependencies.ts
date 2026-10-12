@@ -27,6 +27,13 @@ export function createCheckDependencies(
     readonly session: CoreCheckSession;
   }>
 ): CheckDependencies {
+  const directRelationCheckIds = new Set(input.directRelationCheckIds);
+  const directDependsOnCheckIds = new Set(input.directDependsOnCheckIds);
+  const handoffReadInput = {
+    directDependsOnCheckIds,
+    handoffsByCheckId: input.handoffsByCheckId,
+    session: input.session
+  };
   function get<Id extends string, Handoff extends object>(
     dependency: CheckHandoffProvider<Id, Handoff>
   ): DependencyHandoffReadResult<Id, Handoff>;
@@ -34,7 +41,7 @@ export function createCheckDependencies(
   function get(dependency: unknown): DependencyReadResult | RuntimeDependencyHandoffReadResult;
   function get(dependency: unknown): DependencyReadResult | RuntimeDependencyHandoffReadResult {
     if (dependency === null || typeof dependency !== "object") {
-      const result = readDirectRelation(input.session, input.directRelationCheckIds, dependency);
+      const result = readDirectRelation(input.session, directRelationCheckIds, dependency);
       input.diagnosticLogger?.observe({
         event: "dependency.read",
         tags: diagnosticTags(`CHECK:${input.checkId}`, "EXECUTION", "DEPENDENCY-READ"),
@@ -42,7 +49,7 @@ export function createCheckDependencies(
       });
       return result;
     }
-    const result = readDirectDependencyHandoff(input, dependency);
+    const result = readDirectDependencyHandoff(handoffReadInput, dependency);
     input.diagnosticLogger?.observe({
       event: "dependency.read",
       tags: diagnosticTags(`CHECK:${input.checkId}`, "EXECUTION", "DEPENDENCY-READ"),
@@ -69,7 +76,7 @@ export function createCheckDependencies(
 
 function readDirectDependencyHandoff(
   input: Readonly<{
-    readonly directDependsOnCheckIds: readonly string[];
+    readonly directDependsOnCheckIds: ReadonlySet<string>;
     readonly handoffsByCheckId: ReadonlyMap<string, ParsedCheckTerminalHandoff>;
     readonly session: CoreCheckSession;
   }>,
@@ -78,7 +85,7 @@ function readDirectDependencyHandoff(
   const providerIdentity = handoffProviderIdentity(provider);
   if (
     providerIdentity === undefined ||
-    !input.directDependsOnCheckIds.includes(providerIdentity.checkId)
+    !input.directDependsOnCheckIds.has(providerIdentity.checkId)
   ) {
     return handoffDependencyNotDeclared(providerIdentity?.checkId ?? handoffCheckId(provider));
   }
@@ -191,10 +198,10 @@ function handoffDependencyReadDetails(
 
 function readDirectRelation(
   session: CoreCheckSession,
-  directRelationCheckIds: readonly string[],
+  directRelationCheckIds: ReadonlySet<string>,
   checkId: unknown
 ): DependencyReadResult {
-  if (typeof checkId !== "string" || !directRelationCheckIds.includes(checkId)) {
+  if (typeof checkId !== "string" || !directRelationCheckIds.has(checkId)) {
     return dependencyNotDeclared(checkId);
   }
   return dependencyReadResult(checkId, session.readSettledCheckOutcome(checkId));

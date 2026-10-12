@@ -85,15 +85,17 @@ function normalizedSessionReasonCheckIds(
   const rawCheckIds = snapshotClosedArray(value);
   if (!allowCheckIds || rawCheckIds === undefined || rawCheckIds.length === 0) return undefined;
   const checkIds: string[] = [];
+  const seenCheckIds = new Set<string>();
   for (const checkId of rawCheckIds) {
     if (
       typeof checkId !== "string" ||
       checkId.length === 0 ||
       !knownCheckIds.has(checkId) ||
-      checkIds.includes(checkId)
+      seenCheckIds.has(checkId)
     ) {
       return undefined;
     }
+    seenCheckIds.add(checkId);
     checkIds.push(checkId);
   }
   return Object.freeze(checkIds);

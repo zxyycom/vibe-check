@@ -113,11 +113,19 @@ function validateTaskRelationCycles(
 function validateScopes(input: PreparedTaskGraphValidationInput): void {
   validateRootMaxParallel(input.rootMaxParallel);
   validateTaskScopeMembership(input.tasks, input.scopeById);
+  if (input.scopes.length === 0) return;
+  const tasksByScopeId = new Map<string, PlannedTask[]>();
+  for (const task of input.tasks) {
+    if (task.scopeId === undefined) continue;
+    const scopedTasks = tasksByScopeId.get(task.scopeId);
+    if (scopedTasks === undefined) tasksByScopeId.set(task.scopeId, [task]);
+    else scopedTasks.push(task);
+  }
   for (const scope of input.scopes) {
     validateScopeCap(scope, input.rootMaxParallel);
     validateScopeTerminal(scope, input.taskById);
     validateScopeActivation(scope, input.taskById);
-    validateScopeTerminalReachability(scope, input.tasks, input.taskById);
+    validateScopeTerminalReachability(scope, tasksByScopeId.get(scope.id) ?? [], input.taskById);
   }
 }
 
@@ -180,7 +188,7 @@ function validateScopeTerminalReachability(
   taskById: ReadonlyMap<string, PlannedTask>
 ): void {
   for (const task of tasks) {
-    if (task.scopeId !== scope.id || task.id === scope.terminalTaskId) continue;
+    if (task.id === scope.terminalTaskId) continue;
     if (
       !isRelatedToTask({ requiredRelatedTaskId: task.id, taskById, taskId: scope.terminalTaskId })
     ) {

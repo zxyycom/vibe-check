@@ -7,6 +7,8 @@ import type {
   DependencyReadResult
 } from "../../check/check.ts";
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
+import { CoreInvariantFailure, createCoreCheckSession } from "../../check-settlement/session.ts";
+import { createCheckDependencies } from "./dependencies.ts";
 import { executeResolvedChecks } from "./resolved-checks.ts";
 import {
   PROJECT,
@@ -26,7 +28,39 @@ describe("Package Run direct Check execution", () => {
     await assertDirectDependencyReads();
     await assertDirectDependencyLists();
     await assertEmptyDependencyList();
+    assertDependencyReaderTracksSettlement();
   });
+
+  function assertDependencyReaderTracksSettlement(): void {
+    const session = createCoreCheckSession([
+      { definition: { checkId: "source", displayName: "Source" } }
+    ]);
+    const dependencies = createCheckDependencies({
+      checkId: "consumer",
+      diagnosticLogger: undefined,
+      directDependsOnCheckIds: [],
+      directRelationCheckIds: ["source"],
+      handoffsByCheckId: new Map(),
+      session
+    });
+    assert.deepEqual(dependencies.get("ambient"), {
+      ok: false,
+      error: { code: "dependency-not-declared", checkId: "ambient" }
+    });
+    assert.throws(() => dependencies.get("source"), CoreInvariantFailure);
+    assert.throws(() => dependencies.list(), CoreInvariantFailure);
+    session.openCheckScope("source").settle({ status: "passed", data: { settled: true } });
+    const outcome = session.readSettledCheckOutcome("source");
+    const read = dependencies.get("source");
+    assert.deepEqual(read, {
+      ok: true,
+      checkId: "source",
+      status: "passed",
+      data: { settled: true }
+    });
+    assert.strictEqual(dependencies.list()[0]?.outcome, outcome);
+    if (read.ok && outcome.status === "passed") assert.strictEqual(read.data, outcome.data);
+  }
 
   async function assertSettledDependencyReads(): Promise<void> {
     for (const upstreamCase of upstreamReadCases()) {

@@ -23,6 +23,7 @@ export function selectEffectiveCheckIds(
   checks: readonly NormalizedCheck[],
   flags: readonly string[]
 ): readonly string[] {
+  const runFlags = new Set(flags);
   const expandedCheckIds = new Set<string>();
   const selectedCheckIds = new Set<string>();
   const checksByCheckId = new Map(
@@ -31,7 +32,7 @@ export function selectEffectiveCheckIds(
 
   for (const check of checks) {
     const enablement = check.enabledByFlags;
-    if (enablement !== undefined && !matchesFlagEnablement(enablement, flags)) continue;
+    if (enablement !== undefined && !matchesFlagEnablement(enablement, runFlags)) continue;
 
     if (enablement?.propagateDependsOn === true) {
       selectCheckAndDependsOnClosure(check, checksByCheckId, expandedCheckIds, selectedCheckIds);
@@ -117,9 +118,9 @@ function selectCheckAndDependsOnClosure(
 
 function matchesFlagEnablement(
   enablement: NonNullable<NormalizedCheck["enabledByFlags"]>,
-  runFlags: readonly string[]
+  runFlags: ReadonlySet<string>
 ): boolean {
-  return matchesFlagCondition(enablement.when, new Set(runFlags));
+  return matchesFlagCondition(enablement.when, runFlags);
 }
 
 function matchesFlagCondition(

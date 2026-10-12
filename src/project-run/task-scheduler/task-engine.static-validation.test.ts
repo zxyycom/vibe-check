@@ -129,6 +129,7 @@ describe("static task engine", () => {
         ]
       });
     });
+    assertInterleavedScopeValidation();
     await assert.rejects(
       () =>
         runTaskGraph({
@@ -150,3 +151,53 @@ describe("static task engine", () => {
     );
   });
 });
+
+function assertInterleavedScopeValidation(): void {
+  const scopes = [
+    {
+      id: "zeta",
+      maxParallel: 1,
+      activationTaskIds: ["zeta-work"],
+      terminalTaskId: "zeta-terminal"
+    },
+    {
+      id: "alpha",
+      maxParallel: 1,
+      activationTaskIds: ["alpha-work"],
+      terminalTaskId: "alpha-terminal"
+    }
+  ];
+  const tasks = [
+    { id: "alpha-work", scopeId: "alpha" },
+    { id: "zeta-second", scopeId: "zeta" },
+    { id: "zeta-work", scopeId: "zeta" },
+    { id: "bridge", observes: ["zeta-work", "zeta-second"] },
+    { id: "alpha-terminal", scopeId: "alpha", dependsOn: ["alpha-work"] },
+    { id: "zeta-terminal", scopeId: "zeta", observes: ["bridge"] }
+  ];
+  assert.doesNotThrow(() => {
+    validateTaskGraph({ tasks, scopes });
+  });
+  assert.throws(
+    () => {
+      validateTaskGraph({
+        tasks: tasks.map((task) =>
+          task.id === "zeta-terminal" ? { id: task.id, scopeId: task.scopeId } : task
+        ),
+        scopes
+      });
+    },
+    { message: "task scope zeta terminal task must relate to scoped task zeta-second" }
+  );
+  assert.throws(
+    () => {
+      validateTaskGraph({
+        tasks,
+        scopes: scopes.map((scope) =>
+          scope.id === "zeta" ? { ...scope, activationTaskIds: ["missing"] } : scope
+        )
+      });
+    },
+    { message: "task scope zeta activation task must belong to the scope: missing" }
+  );
+}

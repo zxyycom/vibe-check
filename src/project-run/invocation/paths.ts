@@ -12,7 +12,7 @@ import type { ProjectOutputs } from "../../project-definition/project-definition
  */
 export type ResolvedInvocationPaths = Readonly<{
   /** Check-local absolute directories；保持私有，避免披露 sibling capability。 */
-  readonly checkArtifactDirectories: readonly ResolvedCheckArtifactDirectory[];
+  readonly checkArtifactDirectories: ResolvedCheckArtifactDirectoryIndex;
   /** caller 选择的 Check-owned invocation artifact absolute base；未配置时为 `null`。 */
   readonly checkArtifactBaseDirectory: string | null;
   /** 按 owner channel 分开的 diagnostic absolute targets。 */
@@ -108,9 +108,8 @@ function diagnosticReadbackFiles(
   });
 }
 
-type ResolvedCheckArtifactDirectory = Readonly<{
-  readonly checkId: string;
-  readonly directory: string;
+type ResolvedCheckArtifactDirectoryIndex = Readonly<{
+  readonly get: (checkId: string) => string | undefined;
 }>;
 
 /** 只返回当前 Check-local artifact directory，不向 callback 暴露 sibling directories。 */
@@ -118,31 +117,27 @@ export function artifactDirectoryForCheck(
   paths: ResolvedInvocationPaths,
   checkId: string
 ): string | null {
-  return (
-    paths.checkArtifactDirectories.find((entry) => entry.checkId === checkId)?.directory ?? null
-  );
+  return paths.checkArtifactDirectories.get(checkId) ?? null;
 }
 
 function resolveCheckArtifactDirectories(
   checkArtifactBaseDirectory: string | null,
   checkIds: readonly string[]
-): readonly ResolvedCheckArtifactDirectory[] {
-  if (checkArtifactBaseDirectory === null) return Object.freeze([]);
-
-  const directories: ResolvedCheckArtifactDirectory[] = [];
+): ResolvedCheckArtifactDirectoryIndex {
+  const directories = new Map<string, string>();
   const checkIdByEncodedDirectory = new Map<string, string>();
-  for (const checkId of checkIds) {
-    const encodedDirectory = encodeCheckArtifactDirectory(checkId);
-    const priorCheckId = checkIdByEncodedDirectory.get(encodedDirectory);
-    if (priorCheckId !== undefined && priorCheckId !== checkId) {
-      throw new Error("Distinct Check IDs resolved to one artifact directory");
+  if (checkArtifactBaseDirectory !== null) {
+    for (const checkId of checkIds) {
+      const encodedDirectory = encodeCheckArtifactDirectory(checkId);
+      const priorCheckId = checkIdByEncodedDirectory.get(encodedDirectory);
+      if (priorCheckId !== undefined && priorCheckId !== checkId) {
+        throw new Error("Distinct Check IDs resolved to one artifact directory");
+      }
+      checkIdByEncodedDirectory.set(encodedDirectory, checkId);
+      directories.set(checkId, join(checkArtifactBaseDirectory, encodedDirectory));
     }
-    checkIdByEncodedDirectory.set(encodedDirectory, checkId);
-    directories.push(
-      Object.freeze({ checkId, directory: join(checkArtifactBaseDirectory, encodedDirectory) })
-    );
   }
-  return Object.freeze(directories);
+  return Object.freeze({ get: (checkId: string) => directories.get(checkId) });
 }
 
 /**
