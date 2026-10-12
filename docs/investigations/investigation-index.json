@@ -1577,6 +1577,54 @@
       ],
       "title": "Check 与 Core 算法复杂度逐模块调查"
     },
+    "261012-audit-function-metrics-pathological-input-cost": {
+      "formedAt": "2026-10-12T09:44:01Z",
+      "name": "audit-function-metrics-pathological-input-cost",
+      "question": "在当前源码公开 API 中，极小未闭合模板和重复注释起点为何产生显著耗时增长，现有输入上限与取消机制分别能约束什么？",
+      "relations": [],
+      "resourceIds": [
+        "261012-audit-function-metrics-pathological-input-cost/comment-scaling.json",
+        "261012-audit-function-metrics-pathological-input-cost/scaling.ts",
+        "261012-audit-function-metrics-pathological-input-cost/template-scaling.json"
+      ],
+      "sourcePath": "audit-function-metrics-pathological-input-cost.md",
+      "tags": [
+        "algorithm-complexity",
+        "cancellation",
+        "function-metrics",
+        "performance",
+        "source-alignment"
+      ],
+      "title": "函数指标未闭合输入的性能退化与取消边界调查"
+    },
+    "261012-measure-product-performance-baseline": {
+      "formedAt": "2026-10-12T10:16:26Z",
+      "name": "measure-product-performance-baseline",
+      "question": "当前整个 Product 在支持运行时与有界代表负载上的性能表现如何，哪些边界已有测量、只有静态依据或仍待取证？",
+      "relations": [],
+      "resourceIds": [
+        "261012-measure-product-performance-baseline/COVERAGE.md",
+        "261012-measure-product-performance-baseline/METHODS.md",
+        "261012-measure-product-performance-baseline/assemble.ts",
+        "261012-measure-product-performance-baseline/bun-check-evidence.json",
+        "261012-measure-product-performance-baseline/bun-scheduler-evidence.json",
+        "261012-measure-product-performance-baseline/checks.ts",
+        "261012-measure-product-performance-baseline/combined-evidence.json",
+        "261012-measure-product-performance-baseline/core-tools.ts",
+        "261012-measure-product-performance-baseline/node-evidence.json",
+        "261012-measure-product-performance-baseline/node-four-native.ts",
+        "261012-measure-product-performance-baseline/node-four.ts",
+        "261012-measure-product-performance-baseline/selection-isolation.ts",
+        "261012-measure-product-performance-baseline/summary.json"
+      ],
+      "sourcePath": "measure-product-performance-baseline.md",
+      "tags": [
+        "checks",
+        "core",
+        "performance"
+      ],
+      "title": "全产品性能基线与覆盖边界"
+    },
     "261012-profile-post-optimization-run-stages": {
       "formedAt": "2026-10-12T05:47:46Z",
       "name": "profile-post-optimization-run-stages",
@@ -1683,6 +1731,35 @@
         "project-run"
       ],
       "title": "优化后公共 Run 的阶段耗时与图准备成本"
+    },
+    "261012-review-product-algorithmic-complexity": {
+      "formedAt": "2026-10-12T10:16:23Z",
+      "name": "review-product-algorithmic-complexity",
+      "question": "当前整个 Product 的算法复杂度覆盖是否闭合，旧候选哪些已消除、仍有条件成立或尚待补证，新线索落在哪些责任边界？",
+      "relations": [
+        {
+          "summary": "在当前源码与调用边界上复核全量覆盖及39组旧线索",
+          "target": "261012-audit-checks-core-algorithmic-complexity",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261012-review-product-algorithmic-complexity/bounded-operation-counts.json",
+        "261012-review-product-algorithmic-complexity/candidate-status.json",
+        "261012-review-product-algorithmic-complexity/candidate-status.md",
+        "261012-review-product-algorithmic-complexity/coverage-matrix.md",
+        "261012-review-product-algorithmic-complexity/delta-review.md",
+        "261012-review-product-algorithmic-complexity/operation-count-probe.ts",
+        "261012-review-product-algorithmic-complexity/source-inventory.json"
+      ],
+      "sourcePath": "review-product-algorithmic-complexity.md",
+      "tags": [
+        "algorithmic-complexity",
+        "checks",
+        "core",
+        "performance"
+      ],
+      "title": "当前全产品算法复杂度复查"
     },
     "261012-verify-priority-complexity-optimizations": {
       "formedAt": "2026-10-12T02:56:38Z",
@@ -1841,7 +1918,10 @@
       "261011-verify-lizard-1-24-1-implementation": "sha256:0ccbf36d3dd6432d94bb9826e50943b325987b57b8ceeff5c4c4fe70dfac559a",
       "261011-verify-typescript-metrics-implementation": "sha256:43f33409310f08d0c99ea9b02e318692073c9dd1796739fe760a2e53d7a9509d",
       "261012-audit-checks-core-algorithmic-complexity": "sha256:cca0cbdee4d833369c2d84c0309aeeb08f743a5c594ec16594d8b629d254029a",
+      "261012-audit-function-metrics-pathological-input-cost": "sha256:25531da916fe75b83789364206943c9c58a08839cdaf1708c338920b42141673",
+      "261012-measure-product-performance-baseline": "sha256:b87dc559349cb9552d1a89b9d6fc782188ec54be6c9536a96f542d450f6817a2",
       "261012-profile-post-optimization-run-stages": "sha256:f4439e5a85e0e366aa599f70475fd4889aa0e24ac6377e628f031a2a6bbf46b4",
+      "261012-review-product-algorithmic-complexity": "sha256:640d5bc0ede06d31f27feb63d6e7b6b08da4bfde6f1bc305ecba31fb1b0270b5",
       "261012-verify-priority-complexity-optimizations": "sha256:d1cbc2171cbccbece597fdfc2f05dcfc0a689066e5b230fc80e48935beed30a6"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"

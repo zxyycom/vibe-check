@@ -1,0 +1,531 @@
+{
+  "mode": "template",
+  "warning": "synthetic investigation only; no real-world speedup claimed; same-process warm repeated operations, each functionMetrics call still creates fresh Worker",
+  "runtime": {
+    "node": "24.3.0",
+    "bun": "1.3.14",
+    "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+    "openssl": "1.1.0",
+    "llhttp": "9.3.0",
+    "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+    "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+    "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+    "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+    "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+    "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+    "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+    "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+    "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+    "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+    "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+    "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+    "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+    "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+    "v8": "13.6.233.10-node.18",
+    "uv": "1.48.0",
+    "napi": "10",
+    "icu": "75.1",
+    "unicode": "15.1",
+    "modules": "137"
+  },
+  "samples": [
+    {
+      "mode": "template",
+      "n": 8,
+      "diagnostics": false,
+      "repetition": 0,
+      "temperature": "warmup",
+      "elapsedMs": 47.912891,
+      "cpuMs": 84.799,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 148180992
+    },
+    {
+      "mode": "template",
+      "n": 8,
+      "diagnostics": false,
+      "repetition": 1,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 22.947891000000027,
+      "cpuMs": 44.387,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 151416832
+    },
+    {
+      "mode": "template",
+      "n": 8,
+      "diagnostics": false,
+      "repetition": 2,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 19.141650000000027,
+      "cpuMs": 41.302,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 154345472
+    },
+    {
+      "mode": "template",
+      "n": 8,
+      "diagnostics": false,
+      "repetition": 3,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 18.653913999999986,
+      "cpuMs": 39.543,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 155910144
+    },
+    {
+      "mode": "template",
+      "n": 8,
+      "diagnostics": false,
+      "repetition": 4,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 18.693129,
+      "cpuMs": 39.971,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 158007296
+    },
+    {
+      "mode": "template",
+      "n": 8,
+      "diagnostics": false,
+      "repetition": 5,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 20.742255999999998,
+      "cpuMs": 46.147,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 160759808
+    },
+    {
+      "mode": "template",
+      "n": 12,
+      "diagnostics": false,
+      "repetition": 0,
+      "temperature": "warmup",
+      "elapsedMs": 20.131058999999993,
+      "cpuMs": 42.008,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 161075200
+    },
+    {
+      "mode": "template",
+      "n": 12,
+      "diagnostics": false,
+      "repetition": 1,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 20.957752000000028,
+      "cpuMs": 45.113,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 162807808
+    },
+    {
+      "mode": "template",
+      "n": 12,
+      "diagnostics": false,
+      "repetition": 2,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 21.124120000000005,
+      "cpuMs": 46.199,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 163852288
+    },
+    {
+      "mode": "template",
+      "n": 12,
+      "diagnostics": false,
+      "repetition": 3,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 20.680864999999983,
+      "cpuMs": 42.205,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 165163008
+    },
+    {
+      "mode": "template",
+      "n": 12,
+      "diagnostics": false,
+      "repetition": 4,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 19.141414999999995,
+      "cpuMs": 40.017,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 166121472
+    },
+    {
+      "mode": "template",
+      "n": 12,
+      "diagnostics": false,
+      "repetition": 5,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 20.294196999999997,
+      "cpuMs": 44.577,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 166543360
+    },
+    {
+      "mode": "template",
+      "n": 16,
+      "diagnostics": false,
+      "repetition": 0,
+      "temperature": "warmup",
+      "elapsedMs": 32.15898900000002,
+      "cpuMs": 54.716,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 167272448
+    },
+    {
+      "mode": "template",
+      "n": 16,
+      "diagnostics": false,
+      "repetition": 1,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 31.130637999999976,
+      "cpuMs": 53.17,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 168714240
+    },
+    {
+      "mode": "template",
+      "n": 16,
+      "diagnostics": false,
+      "repetition": 2,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 32.56627100000003,
+      "cpuMs": 58.392,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 167170048
+    },
+    {
+      "mode": "template",
+      "n": 16,
+      "diagnostics": false,
+      "repetition": 3,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 64.64727800000003,
+      "cpuMs": 64.66,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 167829504
+    },
+    {
+      "mode": "template",
+      "n": 16,
+      "diagnostics": false,
+      "repetition": 4,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 32.04643800000008,
+      "cpuMs": 59.976,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 166993920
+    },
+    {
+      "mode": "template",
+      "n": 16,
+      "diagnostics": false,
+      "repetition": 5,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 31.261668999999983,
+      "cpuMs": 55.617,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 168017920
+    },
+    {
+      "mode": "template",
+      "n": 20,
+      "diagnostics": false,
+      "repetition": 0,
+      "temperature": "warmup",
+      "elapsedMs": 213.121754,
+      "cpuMs": 249.145,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 164052992
+    },
+    {
+      "mode": "template",
+      "n": 20,
+      "diagnostics": false,
+      "repetition": 1,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 213.8958500000001,
+      "cpuMs": 244.397,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 160301056
+    },
+    {
+      "mode": "template",
+      "n": 20,
+      "diagnostics": false,
+      "repetition": 2,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 216.3449210000001,
+      "cpuMs": 250.451,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 161374208
+    },
+    {
+      "mode": "template",
+      "n": 20,
+      "diagnostics": false,
+      "repetition": 3,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 217.35076800000002,
+      "cpuMs": 263.775,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 161738752
+    },
+    {
+      "mode": "template",
+      "n": 20,
+      "diagnostics": false,
+      "repetition": 4,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 222.117209,
+      "cpuMs": 255.782,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 159875072
+    },
+    {
+      "mode": "template",
+      "n": 20,
+      "diagnostics": false,
+      "repetition": 5,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 216.2314080000001,
+      "cpuMs": 250.769,
+      "kind": "completed",
+      "statuses": [
+        "passed"
+      ],
+      "reasons": [
+        null
+      ],
+      "count": 1,
+      "rssBytes": 158269440
+    },
+    {
+      "mode": "template",
+      "n": 24,
+      "diagnostics": false,
+      "repetition": 0,
+      "temperature": "warmup",
+      "elapsedMs": 1007.21929,
+      "cpuMs": 1060.247,
+      "kind": "cancelled",
+      "rssBytes": 155725824
+    },
+    {
+      "mode": "template",
+      "n": 24,
+      "diagnostics": false,
+      "repetition": 1,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 1002.5919309999999,
+      "cpuMs": 2061.221,
+      "kind": "cancelled",
+      "rssBytes": 158277632
+    },
+    {
+      "mode": "template",
+      "n": 24,
+      "diagnostics": false,
+      "repetition": 2,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 1002.2476649999999,
+      "cpuMs": 2026.882,
+      "kind": "cancelled",
+      "rssBytes": 155586560
+    },
+    {
+      "mode": "template",
+      "n": 24,
+      "diagnostics": false,
+      "repetition": 3,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 1002.0594940000001,
+      "cpuMs": 2055.776,
+      "kind": "cancelled",
+      "rssBytes": 157102080
+    },
+    {
+      "mode": "template",
+      "n": 24,
+      "diagnostics": false,
+      "repetition": 4,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 1001.8653780000004,
+      "cpuMs": 2050.755,
+      "kind": "cancelled",
+      "rssBytes": 155463680
+    },
+    {
+      "mode": "template",
+      "n": 24,
+      "diagnostics": false,
+      "repetition": 5,
+      "temperature": "same-process-repeated-operation",
+      "elapsedMs": 1002.741951,
+      "cpuMs": 2009.975,
+      "kind": "cancelled",
+      "rssBytes": 155742208
+    }
+  ]
+}

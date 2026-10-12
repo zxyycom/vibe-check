@@ -1,0 +1,1478 @@
+[
+  {
+    "label": "node-checks",
+    "workload": "file",
+    "totalSamples": 4,
+    "firstOperationMs": 226.19264499999997,
+    "warmSamples": 3,
+    "medianMs": 144.95463199999995,
+    "p95NearestRankMs": 147.71891700000015,
+    "rangeMs": [
+      134.53065300000003,
+      147.71891700000015
+    ],
+    "files": 1085,
+    "bytes": 6017537,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-checks",
+    "workload": "json",
+    "totalSamples": 4,
+    "firstOperationMs": 546.928864,
+    "warmSamples": 3,
+    "medianMs": 476.58485199999996,
+    "p95NearestRankMs": 496.7494649999999,
+    "rangeMs": [
+      473.028237,
+      496.7494649999999
+    ],
+    "files": 289,
+    "bytes": 18932905,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-checks",
+    "workload": "schema",
+    "totalSamples": 4,
+    "firstOperationMs": 93.5002800000002,
+    "warmSamples": 3,
+    "medianMs": 40.15064900000016,
+    "p95NearestRankMs": 54.468185000000176,
+    "rangeMs": [
+      36.68500200000017,
+      54.468185000000176
+    ],
+    "files": 9,
+    "bytes": 69205,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-checks",
+    "workload": "secret",
+    "totalSamples": 4,
+    "firstOperationMs": 10.663715000000138,
+    "warmSamples": 3,
+    "medianMs": 5.501585999999861,
+    "p95NearestRankMs": 5.843190999999933,
+    "rangeMs": [
+      5.1217609999998785,
+      5.843190999999933
+    ],
+    "files": 100,
+    "bytes": 416900,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-checks",
+    "workload": "maintenance",
+    "totalSamples": 4,
+    "firstOperationMs": 420.4734080000003,
+    "warmSamples": 3,
+    "medianMs": 389.60773599999993,
+    "p95NearestRankMs": 409.9726609999998,
+    "rangeMs": [
+      384.3056400000005,
+      409.9726609999998
+    ],
+    "files": 0,
+    "bytes": 0,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-checks",
+    "workload": "command",
+    "totalSamples": 4,
+    "firstOperationMs": 30.58548299999984,
+    "warmSamples": 3,
+    "medianMs": 29.234969000000092,
+    "p95NearestRankMs": 33.3276249999999,
+    "rangeMs": [
+      29.07575100000031,
+      33.3276249999999
+    ],
+    "files": 0,
+    "bytes": 0,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "bun-checks",
+    "workload": "file",
+    "totalSamples": 4,
+    "firstOperationMs": 468.101353,
+    "warmSamples": 3,
+    "medianMs": 261.370101,
+    "p95NearestRankMs": 266.829332,
+    "rangeMs": [
+      253.14500399999997,
+      266.829332
+    ],
+    "files": 1085,
+    "bytes": 6017537,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "bun-checks",
+    "workload": "json",
+    "totalSamples": 4,
+    "firstOperationMs": 1052.9936240000002,
+    "warmSamples": 3,
+    "medianMs": 857.6168729999999,
+    "p95NearestRankMs": 862.5125559999997,
+    "rangeMs": [
+      834.2223020000001,
+      862.5125559999997
+    ],
+    "files": 289,
+    "bytes": 18932905,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "bun-checks",
+    "workload": "schema",
+    "totalSamples": 4,
+    "firstOperationMs": 123.49999600000046,
+    "warmSamples": 3,
+    "medianMs": 75.9801239999997,
+    "p95NearestRankMs": 76.5060370000001,
+    "rangeMs": [
+      71.42107399999986,
+      76.5060370000001
+    ],
+    "files": 9,
+    "bytes": 69205,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "bun-checks",
+    "workload": "secret",
+    "totalSamples": 4,
+    "firstOperationMs": 13.683359000000564,
+    "warmSamples": 3,
+    "medianMs": 7.500197000000298,
+    "p95NearestRankMs": 11.461734999999862,
+    "rangeMs": [
+      7.334791000000223,
+      11.461734999999862
+    ],
+    "files": 100,
+    "bytes": 416900,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "bun-checks",
+    "workload": "maintenance",
+    "totalSamples": 4,
+    "firstOperationMs": 376.355775,
+    "warmSamples": 3,
+    "medianMs": 243.04190300000027,
+    "p95NearestRankMs": 248.33338600000025,
+    "rangeMs": [
+      240.13781899999958,
+      248.33338600000025
+    ],
+    "files": 0,
+    "bytes": 0,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "bun-checks",
+    "workload": "command",
+    "totalSamples": 4,
+    "firstOperationMs": 126.41640999999981,
+    "warmSamples": 3,
+    "medianMs": 24.123626999999942,
+    "p95NearestRankMs": 25.677590999999666,
+    "rangeMs": [
+      23.662671000000046,
+      25.677590999999666
+    ],
+    "files": 0,
+    "bytes": 0,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-four",
+    "workload": "function",
+    "totalSamples": 3,
+    "firstOperationMs": 1449.502868,
+    "warmSamples": 2,
+    "medianMs": 1184.6374695,
+    "p95NearestRankMs": 1185.9843919999998,
+    "rangeMs": [
+      1183.290547,
+      1185.9843919999998
+    ],
+    "files": 526,
+    "bytes": 2417957,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-four",
+    "workload": "links",
+    "totalSamples": 3,
+    "firstOperationMs": 2341.16291,
+    "warmSamples": 2,
+    "medianMs": 2228.3823540000003,
+    "p95NearestRankMs": 2259.123625,
+    "rangeMs": [
+      2197.6410830000004,
+      2259.123625
+    ],
+    "files": 322,
+    "bytes": 2605551,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-four",
+    "workload": "lint",
+    "totalSamples": 3,
+    "firstOperationMs": 2643.2711390000004,
+    "warmSamples": 2,
+    "medianMs": 2626.5580610000006,
+    "p95NearestRankMs": 2644.318831999999,
+    "rangeMs": [
+      2608.7972900000022,
+      2644.318831999999
+    ],
+    "files": 558,
+    "bytes": 3398961,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-four",
+    "workload": "duplicate",
+    "totalSamples": 3,
+    "firstOperationMs": 3497.469517999998,
+    "warmSamples": 2,
+    "medianMs": 3402.5859285000006,
+    "p95NearestRankMs": 3405.6653149999984,
+    "rangeMs": [
+      3399.506542000003,
+      3405.6653149999984
+    ],
+    "files": 853,
+    "bytes": 4111410,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-four-native",
+    "workload": "function",
+    "totalSamples": 4,
+    "firstOperationMs": 579.1425239999999,
+    "warmSamples": 3,
+    "medianMs": 543.7734069999999,
+    "p95NearestRankMs": 557.3172810000001,
+    "rangeMs": [
+      512.822185,
+      557.3172810000001
+    ],
+    "files": 526,
+    "bytes": 2417957,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-four-native",
+    "workload": "links",
+    "totalSamples": 4,
+    "firstOperationMs": 1926.1836670000002,
+    "warmSamples": 3,
+    "medianMs": 1612.776113,
+    "p95NearestRankMs": 1675.1349499999997,
+    "rangeMs": [
+      1612.4121319999995,
+      1675.1349499999997
+    ],
+    "files": 323,
+    "bytes": 2613736,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-four-native",
+    "workload": "lint",
+    "totalSamples": 4,
+    "firstOperationMs": 1325.428406000001,
+    "warmSamples": 3,
+    "medianMs": 1345.346098,
+    "p95NearestRankMs": 1426.153443000001,
+    "rangeMs": [
+      1274.3862879999997,
+      1426.153443000001
+    ],
+    "files": 559,
+    "bytes": 3407146,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-four-native",
+    "workload": "duplicate",
+    "totalSamples": 4,
+    "firstOperationMs": 1492.7013819999993,
+    "warmSamples": 3,
+    "medianMs": 1463.389869999999,
+    "p95NearestRankMs": 1483.2744999999995,
+    "rangeMs": [
+      1463.1594919999989,
+      1483.2744999999995
+    ],
+    "files": 853,
+    "bytes": 4111410,
+    "status": [
+      "passed"
+    ]
+  },
+  {
+    "label": "node-core",
+    "workload": "run-output-off",
+    "totalSamples": 4,
+    "firstOperationMs": 26.53194700000006,
+    "warmSamples": 3,
+    "medianMs": 6.602000999999973,
+    "p95NearestRankMs": 9.069956999999931,
+    "rangeMs": [
+      6.068857999999977,
+      9.069956999999931
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 10.00506699999994,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "run-output-machine",
+    "totalSamples": 4,
+    "firstOperationMs": 55.04878000000008,
+    "warmSamples": 3,
+    "medianMs": 31.568533000000002,
+    "p95NearestRankMs": 46.71227099999999,
+    "rangeMs": [
+      27.746759999999995,
+      46.71227099999999
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 5.944188000000054,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "run-output-diagnostic",
+    "totalSamples": 4,
+    "firstOperationMs": 24.562680999999998,
+    "warmSamples": 3,
+    "medianMs": 15.376072000000022,
+    "p95NearestRankMs": 15.97010499999999,
+    "rangeMs": [
+      14.949729999999931,
+      15.97010499999999
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 19.168076000000042,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": true,
+              "file": "tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/3/diagnostic/core-20261012T101317.762Z-d09576f7-2d56-4873-b6c9-5e599bab0553.log",
+              "status": "succeeded"
+            },
+            "scheduler": {
+              "enabled": true,
+              "file": "tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/3/diagnostic/scheduler-20261012T101317.762Z-d09576f7-2d56-4873-b6c9-5e599bab0553.log",
+              "status": "succeeded"
+            }
+          },
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "run-output-progress",
+    "totalSamples": 4,
+    "firstOperationMs": 8.149242999999956,
+    "warmSamples": 3,
+    "medianMs": 4.529210000000035,
+    "p95NearestRankMs": 5.413583000000017,
+    "rangeMs": [
+      4.477654999999913,
+      5.413583000000017
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 5.193463999999949,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "run-output-all",
+    "totalSamples": 4,
+    "firstOperationMs": 38.14504099999999,
+    "warmSamples": 3,
+    "medianMs": 36.380494999999996,
+    "p95NearestRankMs": 37.191777,
+    "rangeMs": [
+      35.84395500000005,
+      37.191777
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 18.468813999999725,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "progressRendering": {
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": true,
+              "file": "tmp/product-wide-investigation-20261012/performance/outputs/node/all/3/diagnostic/core-20261012T101317.912Z-12da5614-eaf0-409c-bae0-2349f6357fcc.log",
+              "status": "succeeded"
+            },
+            "scheduler": {
+              "enabled": true,
+              "file": "tmp/product-wide-investigation-20261012/performance/outputs/node/all/3/diagnostic/scheduler-20261012T101317.912Z-12da5614-eaf0-409c-bae0-2349f6357fcc.log",
+              "status": "succeeded"
+            }
+          },
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "run-changes",
+    "totalSamples": 4,
+    "firstOperationMs": 57.25287400000002,
+    "warmSamples": 3,
+    "medianMs": 31.537260999999944,
+    "p95NearestRankMs": 33.16580699999997,
+    "rangeMs": [
+      29.890685000000076,
+      33.16580699999997
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "failed",
+      "checks": 1,
+      "records": 0,
+      "checkDurationSumMs": 0,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "collect-files",
+    "totalSamples": 4,
+    "firstOperationMs": 18.58847199999991,
+    "warmSamples": 3,
+    "medianMs": 7.883268000000044,
+    "p95NearestRankMs": 9.50240400000007,
+    "rangeMs": [
+      5.97553199999993,
+      9.50240400000007
+    ],
+    "value": {
+      "files": 603
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "debug-change-flags",
+    "totalSamples": 4,
+    "firstOperationMs": 10.119050000000016,
+    "warmSamples": 3,
+    "medianMs": 7.11526200000003,
+    "p95NearestRankMs": 9.860760000000028,
+    "rangeMs": [
+      6.966766999999891,
+      9.860760000000028
+    ],
+    "value": {
+      "files": 603,
+      "textBytes": 143561
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "region-build",
+    "totalSamples": 4,
+    "firstOperationMs": 17.258557999999994,
+    "warmSamples": 3,
+    "medianMs": 15.875909999999976,
+    "p95NearestRankMs": 23.609721000000036,
+    "rangeMs": [
+      11.419595000000072,
+      23.609721000000036
+    ],
+    "value": {
+      "files": 5000,
+      "regions": 32
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "region-append",
+    "totalSamples": 4,
+    "firstOperationMs": 8.961058999999977,
+    "warmSamples": 3,
+    "medianMs": 12.002467999999908,
+    "p95NearestRankMs": 12.254205000000184,
+    "rangeMs": [
+      9.880468000000064,
+      12.254205000000184
+    ],
+    "value": {
+      "files": 5100
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "region-query",
+    "totalSamples": 4,
+    "firstOperationMs": 3.913275999999996,
+    "warmSamples": 3,
+    "medianMs": 1.940012999999908,
+    "p95NearestRankMs": 3.4248000000000047,
+    "rangeMs": [
+      1.185991999999942,
+      3.4248000000000047
+    ],
+    "value": {
+      "lookups": 10000,
+      "hits": 10640
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "canonical-data",
+    "totalSamples": 4,
+    "firstOperationMs": 17.673418000000083,
+    "warmSamples": 3,
+    "medianMs": 14.574763000000075,
+    "p95NearestRankMs": 28.603604000000132,
+    "rangeMs": [
+      13.890949999999975,
+      28.603604000000132
+    ],
+    "value": {
+      "bytes": 552781,
+      "canonicalArray": true,
+      "closedArray": 5000,
+      "closedRecord": true
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "finding-tools",
+    "totalSamples": 4,
+    "firstOperationMs": 3.7197879999998804,
+    "warmSamples": 3,
+    "medianMs": 1.1637910000001739,
+    "p95NearestRankMs": 1.4222359999998844,
+    "rangeMs": [
+      1.00979499999994,
+      1.4222359999998844
+    ],
+    "value": {
+      "waived": 100,
+      "messages": 11
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "json-cache",
+    "totalSamples": 4,
+    "firstOperationMs": 12.768530000000055,
+    "warmSamples": 3,
+    "medianMs": 7.393465000000106,
+    "p95NearestRankMs": 7.590760000000046,
+    "rangeMs": [
+      6.668623000000025,
+      7.590760000000046
+    ],
+    "value": {
+      "source": "cache",
+      "read": "hit",
+      "write": "not-attempted",
+      "computes": 1
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "admission-simulation",
+    "totalSamples": 4,
+    "firstOperationMs": 7.840345000000013,
+    "warmSamples": 3,
+    "medianMs": 2.1632850000000303,
+    "p95NearestRankMs": 2.5634299999999826,
+    "rangeMs": [
+      1.5395480000000248,
+      2.5634299999999826
+    ],
+    "value": {
+      "settled": 128
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "scheduler-static-100",
+    "totalSamples": 4,
+    "firstOperationMs": 50.492372000000046,
+    "warmSamples": 3,
+    "medianMs": 21.382950999999935,
+    "p95NearestRankMs": 30.798689999999965,
+    "rangeMs": [
+      17.75495500000011,
+      30.798689999999965
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 100,
+      "records": 0,
+      "checkDurationSumMs": 16.99084899999923,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      },
+      "eventCounts": {}
+    }
+  },
+  {
+    "label": "node-core",
+    "workload": "scheduler-learned-100",
+    "totalSamples": 4,
+    "firstOperationMs": 55.361215000000016,
+    "warmSamples": 3,
+    "medianMs": 39.32827099999997,
+    "p95NearestRankMs": 47.939936999999986,
+    "rangeMs": [
+      36.53740700000003,
+      47.939936999999986
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 100,
+      "records": 0,
+      "checkDurationSumMs": 28.565604000000235,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": true,
+          "status": "succeeded"
+        }
+      },
+      "eventCounts": {
+        "selection-proposed": 100
+      }
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "run-output-off",
+    "totalSamples": 4,
+    "firstOperationMs": 30.822922000000005,
+    "warmSamples": 3,
+    "medianMs": 14.280297000000019,
+    "p95NearestRankMs": 16.115363000000002,
+    "rangeMs": [
+      10.765950999999973,
+      16.115363000000002
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 9.002173999999968,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "run-output-machine",
+    "totalSamples": 4,
+    "firstOperationMs": 53.92834799999997,
+    "warmSamples": 3,
+    "medianMs": 31.591813000000002,
+    "p95NearestRankMs": 37.55385700000005,
+    "rangeMs": [
+      29.63460900000001,
+      37.55385700000005
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 7.845154999999977,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "run-output-diagnostic",
+    "totalSamples": 4,
+    "firstOperationMs": 31.519659999999988,
+    "warmSamples": 3,
+    "medianMs": 22.70555200000001,
+    "p95NearestRankMs": 32.13674200000003,
+    "rangeMs": [
+      22.602841999999896,
+      32.13674200000003
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 27.742785000000026,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": true,
+              "file": "tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/3/diagnostic/core-20261012T101452.126Z-b28bcad5-17e6-457e-8eda-ece3d79dc6b6.log",
+              "status": "succeeded"
+            },
+            "scheduler": {
+              "enabled": true,
+              "file": "tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/3/diagnostic/scheduler-20261012T101452.126Z-b28bcad5-17e6-457e-8eda-ece3d79dc6b6.log",
+              "status": "succeeded"
+            }
+          },
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "run-output-progress",
+    "totalSamples": 4,
+    "firstOperationMs": 11.84179000000006,
+    "warmSamples": 3,
+    "medianMs": 7.3252599999999575,
+    "p95NearestRankMs": 7.547694999999976,
+    "rangeMs": [
+      7.119060999999988,
+      7.547694999999976
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 9.095076999999833,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "run-output-all",
+    "totalSamples": 4,
+    "firstOperationMs": 52.623617999999965,
+    "warmSamples": 3,
+    "medianMs": 44.47185999999999,
+    "p95NearestRankMs": 45.665436,
+    "rangeMs": [
+      43.278245000000084,
+      45.665436
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 10,
+      "records": 1000,
+      "checkDurationSumMs": 23.417224000000033,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "progressRendering": {
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": true,
+              "file": "tmp/product-wide-investigation-20261012/performance/outputs/bun/all/3/diagnostic/core-20261012T101452.326Z-4be6c64f-4965-4417-b956-f09cb5cc94d5.log",
+              "status": "succeeded"
+            },
+            "scheduler": {
+              "enabled": true,
+              "file": "tmp/product-wide-investigation-20261012/performance/outputs/bun/all/3/diagnostic/scheduler-20261012T101452.326Z-4be6c64f-4965-4417-b956-f09cb5cc94d5.log",
+              "status": "succeeded"
+            }
+          },
+          "enabled": true,
+          "status": "succeeded"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "run-changes",
+    "totalSamples": 4,
+    "firstOperationMs": 28.74802299999999,
+    "warmSamples": 3,
+    "medianMs": 19.464259999999967,
+    "p95NearestRankMs": 20.128760000000057,
+    "rangeMs": [
+      18.372916999999916,
+      20.128760000000057
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "failed",
+      "checks": 1,
+      "records": 0,
+      "checkDurationSumMs": 0,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      }
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "collect-files",
+    "totalSamples": 4,
+    "firstOperationMs": 40.634725,
+    "warmSamples": 3,
+    "medianMs": 28.39754199999993,
+    "p95NearestRankMs": 31.881753000000003,
+    "rangeMs": [
+      24.733176999999955,
+      31.881753000000003
+    ],
+    "value": {
+      "files": 603
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "debug-change-flags",
+    "totalSamples": 4,
+    "firstOperationMs": 30.20818399999996,
+    "warmSamples": 3,
+    "medianMs": 30.46566100000007,
+    "p95NearestRankMs": 31.429342000000133,
+    "rangeMs": [
+      27.185580999999956,
+      31.429342000000133
+    ],
+    "value": {
+      "files": 603,
+      "textBytes": 143561
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "region-build",
+    "totalSamples": 4,
+    "firstOperationMs": 33.61847799999987,
+    "warmSamples": 3,
+    "medianMs": 30.979013000000123,
+    "p95NearestRankMs": 31.69056599999999,
+    "rangeMs": [
+      26.824153000000024,
+      31.69056599999999
+    ],
+    "value": {
+      "files": 5000,
+      "regions": 32
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "region-append",
+    "totalSamples": 4,
+    "firstOperationMs": 24.568802000000005,
+    "warmSamples": 3,
+    "medianMs": 16.659493999999995,
+    "p95NearestRankMs": 16.814482999999882,
+    "rangeMs": [
+      15.27802100000008,
+      16.814482999999882
+    ],
+    "value": {
+      "files": 5100
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "region-query",
+    "totalSamples": 4,
+    "firstOperationMs": 5.04342500000007,
+    "warmSamples": 3,
+    "medianMs": 3.9361189999999624,
+    "p95NearestRankMs": 9.052689999999984,
+    "rangeMs": [
+      2.1669839999999567,
+      9.052689999999984
+    ],
+    "value": {
+      "lookups": 10000,
+      "hits": 10640
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "canonical-data",
+    "totalSamples": 4,
+    "firstOperationMs": 17.39815999999996,
+    "warmSamples": 3,
+    "medianMs": 19.178483000000142,
+    "p95NearestRankMs": 19.65642899999989,
+    "rangeMs": [
+      17.511434999999892,
+      19.65642899999989
+    ],
+    "value": {
+      "bytes": 552781,
+      "canonicalArray": true,
+      "closedArray": 5000,
+      "closedRecord": true
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "finding-tools",
+    "totalSamples": 4,
+    "firstOperationMs": 2.9089010000000144,
+    "warmSamples": 3,
+    "medianMs": 1.344966999999997,
+    "p95NearestRankMs": 1.607093999999961,
+    "rangeMs": [
+      1.2996729999999843,
+      1.607093999999961
+    ],
+    "value": {
+      "waived": 100,
+      "messages": 11
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "json-cache",
+    "totalSamples": 4,
+    "firstOperationMs": 12.716633999999885,
+    "warmSamples": 3,
+    "medianMs": 6.684685000000172,
+    "p95NearestRankMs": 9.620515000000069,
+    "rangeMs": [
+      6.666797999999972,
+      9.620515000000069
+    ],
+    "value": {
+      "source": "cache",
+      "read": "hit",
+      "write": "not-attempted",
+      "computes": 1
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "admission-simulation",
+    "totalSamples": 4,
+    "firstOperationMs": 5.188413999999966,
+    "warmSamples": 3,
+    "medianMs": 2.6839030000001003,
+    "p95NearestRankMs": 3.057777999999871,
+    "rangeMs": [
+      2.5684499999999844,
+      3.057777999999871
+    ],
+    "value": {
+      "settled": 128
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "scheduler-static-100",
+    "totalSamples": 4,
+    "firstOperationMs": 44.58300599999984,
+    "warmSamples": 3,
+    "medianMs": 40.09078599999998,
+    "p95NearestRankMs": 40.62645900000007,
+    "rangeMs": [
+      35.39193999999998,
+      40.62645900000007
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 100,
+      "records": 0,
+      "checkDurationSumMs": 34.6179189999998,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      },
+      "eventCounts": {}
+    }
+  },
+  {
+    "label": "bun-core",
+    "workload": "scheduler-learned-100",
+    "totalSamples": 4,
+    "firstOperationMs": 96.7265930000001,
+    "warmSamples": 3,
+    "medianMs": 75.5953669999999,
+    "p95NearestRankMs": 82.59953100000007,
+    "rangeMs": [
+      73.00692299999992,
+      82.59953100000007
+    ],
+    "value": {
+      "kind": "completed",
+      "aggregate": "passed",
+      "checks": 100,
+      "records": 0,
+      "checkDurationSumMs": 58.556419000000005,
+      "outputStatuses": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": true,
+          "status": "succeeded"
+        }
+      },
+      "eventCounts": {
+        "selection-proposed": 100
+      }
+    }
+  }
+]

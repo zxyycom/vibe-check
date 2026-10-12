@@ -1,0 +1,101 @@
+{
+  "kind": "Current bounded deterministic count rerun after relocatable import adaptation; not timing",
+  "head": "5cb448b23453edc90e02b25d003efd57dcdd3509",
+  "observations": {
+    "capacityCounts": [
+      {
+        "size": 8,
+        "arrayIndexReads": 168,
+        "expectedReads": 168
+      },
+      {
+        "size": 16,
+        "arrayIndexReads": 1360,
+        "expectedReads": 1360
+      },
+      {
+        "size": 32,
+        "arrayIndexReads": 10912,
+        "expectedReads": 10912
+      },
+      {
+        "size": 64,
+        "arrayIndexReads": 87360,
+        "expectedReads": 87360
+      }
+    ],
+    "graphCounts": [
+      {
+        "size": 16,
+        "mapGetCount": 137,
+        "expectedCount": 137
+      },
+      {
+        "size": 32,
+        "mapGetCount": 529,
+        "expectedCount": 529
+      },
+      {
+        "size": 64,
+        "mapGetCount": 2081,
+        "expectedCount": 2081
+      },
+      {
+        "size": 128,
+        "mapGetCount": 8257,
+        "expectedCount": 8257
+      }
+    ],
+    "dagCounts": [
+      {
+        "depth": 6,
+        "uniqueInputObjects": 7,
+        "ownKeyReads": 127,
+        "expectedReads": 127,
+        "outputRootFrozen": true,
+        "outputAliasesRetained": false
+      },
+      {
+        "depth": 8,
+        "uniqueInputObjects": 9,
+        "ownKeyReads": 511,
+        "expectedReads": 511,
+        "outputRootFrozen": true,
+        "outputAliasesRetained": false
+      },
+      {
+        "depth": 10,
+        "uniqueInputObjects": 11,
+        "ownKeyReads": 2047,
+        "expectedReads": 2047,
+        "outputRootFrozen": true,
+        "outputAliasesRetained": false
+      },
+      {
+        "depth": 12,
+        "uniqueInputObjects": 13,
+        "ownKeyReads": 8191,
+        "expectedReads": 8191,
+        "outputRootFrozen": true,
+        "outputAliasesRetained": false
+      }
+    ],
+    "fileIndex": {
+      "count": 32,
+      "serialFinalMatchesBatch": true,
+      "relationEdges": 0,
+      "conceptualSerialMatcherCandidates": 528,
+      "conceptualBatchMatcherCandidates": 32
+    }
+  },
+  "interpretation": "Capacity includes exact (N^3-N)/3 subterm; standalone multi-task graph repeated terminal reachability; canonical alias expansion and append batch equality/count model. Matcher candidates are conceptual source-derived operations, not instrumented micromatch calls. None estimates actual production peak memory or optimization benefit.",
+  "execution": "bun run tmp/product-wide-investigation-20261012/algorithm/operation-count-probe.ts",
+  "runtimeVersion": "1.4.2",
+  "matchesPriorRoundObservations": true,
+  "priorResultOriginalPath": "/workspace/vibe-check/tmp/complexity-investigation-20261012/operation-count-results.json",
+  "priorResultSha256": "7a8e0320332be63613fc3fcf900af173bd4bf5feec37a54b45618268e24e0c36",
+  "originalProbePath": "/workspace/vibe-check/tmp/complexity-investigation-20261012/operation-count-probe.ts",
+  "originalProbeSha256": "46569333841ee4eb4709d11394f161a77accf7a2b94f6b32b506676540709cb4",
+  "currentProbePath": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/algorithm/operation-count-probe.ts",
+  "currentProbeSha256": "b4c23bddbbb57caa39e5b6d6966c99bef442745a20cf096756450013594ec985"
+}

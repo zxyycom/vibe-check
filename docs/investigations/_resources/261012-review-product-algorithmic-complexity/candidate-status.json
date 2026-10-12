@@ -1,0 +1,1307 @@
+{
+  "head": "5cb448b23453edc90e02b25d003efd57dcdd3509",
+  "count": 39,
+  "statusCounts": {
+    "resolved": 7,
+    "resolved-seven-groups": 7,
+    "remaining-robustness": 1,
+    "remaining-growth": 12,
+    "partial": 2,
+    "remaining-bounded-extra": 2,
+    "remaining-repetition": 1,
+    "remaining-capacity": 1,
+    "remaining-linear-extra": 1,
+    "remaining-conditional": 1,
+    "uncertain": 3,
+    "partial-confirmed-malformed": 1
+  },
+  "entries": [
+    {
+      "id": "C01",
+      "currentStatus": "resolved",
+      "title": "Identifier deduplication",
+      "timeComplexity": "Expected O(m) membership plus string hashing",
+      "spaceComplexity": "O(m)",
+      "triggerAndCommonBoundary": "Distinct or duplicate relation names; accepted order preserved",
+      "necessaryOutputLowerBound": "Omega(unique names)",
+      "currentReason": "Current Set eliminates the old m(m-1)/2 comparisons.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-definition/check-tree/collection-authoring.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-definition/check-tree/collection-authoring.ts",
+          "lines": [
+            8,
+            11,
+            12
+          ],
+          "sha256": "0de884e6ac4edb88c22a2aef9f988292c73f643da31ec458cdf662126477c5a4",
+          "ownByteIdentity": "changed",
+          "anchor": "seenIdentifiers"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "C02",
+      "currentStatus": "resolved-seven-groups",
+      "title": "Settlement session indexes",
+      "timeComplexity": "O(C) construction; expected O(1) slot/known-ID lookup",
+      "spaceComplexity": "O(C)",
+      "triggerAndCommonBoundary": "All normal opens/reads/terminals still reach session",
+      "necessaryOutputLowerBound": "Omega(C) slots/results",
+      "currentReason": "Map/Set initialized once, old per-terminal rebuilding and slot find removed; Record sort/canonical payload costs separate.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/check-settlement/session.ts",
+          "absolutePath": "/workspace/vibe-check/src/check-settlement/session.ts",
+          "lines": [
+            110,
+            117,
+            118,
+            191
+          ],
+          "sha256": "0ecd76754a1ec2fc214ec2deb9ba12669186dd7a55f148c81fe168cdf3c10d85",
+          "ownByteIdentity": "changed",
+          "anchor": "#slotsByCheckId"
+        },
+        {
+          "path": "src/check-settlement/session.ts",
+          "absolutePath": "/workspace/vibe-check/src/check-settlement/session.ts",
+          "lines": [
+            111,
+            118,
+            210,
+            231
+          ],
+          "sha256": "0ecd76754a1ec2fc214ec2deb9ba12669186dd7a55f148c81fe168cdf3c10d85",
+          "ownByteIdentity": "changed",
+          "anchor": "#knownCheckIds"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "C03",
+      "currentStatus": "resolved",
+      "title": "Blocker ID duplicate validation",
+      "timeComplexity": "Expected O(b)",
+      "spaceComplexity": "O(b)",
+      "triggerAndCommonBoundary": "Product unavailable reason references; authored rejects same duplicates",
+      "necessaryOutputLowerBound": "Omega(b) emitted references",
+      "currentReason": "Per-array duplicate Set removes old b squared comparisons; dense reason output may still itself be C squared.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/check-settlement/outcome-normalization.ts",
+          "absolutePath": "/workspace/vibe-check/src/check-settlement/outcome-normalization.ts",
+          "lines": [
+            88
+          ],
+          "sha256": "0fa3946a36e3000ebb614deb166d0c6cd0b2db0ad8895f41ef2a9121ff2e7c7c",
+          "ownByteIdentity": "changed",
+          "anchor": "new Set"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "C04",
+      "currentStatus": "remaining-robustness",
+      "title": "Recursive declaration aliases/cycles",
+      "timeComplexity": "Shared executable binary DAG depth d can expand Theta(2^d) before duplicate task-ID rejection; cycles host-stack limited",
+      "spaceComplexity": "Expanded tree Theta(2^d), recursive O(d) stack",
+      "triggerAndCommonBoundary": "Invalid shared executable leaves; ordinary tree linear in actual appearances. Shared container-only DAG can be accepted",
+      "necessaryOutputLowerBound": "Container-only warnings can themselves be Theta(2^d)",
+      "currentReason": "C01 change only relation parsing; authoring still no early ancestor/object/known-executable guard. Do not globally reject aliases or call legal warning output an extra exponential defect.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-definition/check-tree/authoring.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-definition/check-tree/authoring.ts",
+          "lines": [
+            112
+          ],
+          "sha256": "42536fbdb68f155a413162cec01b89dc37eb9531d48af07b6c79e9256a29c6a5",
+          "ownByteIdentity": "unchanged",
+          "anchor": "function parseChildren"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "C05",
+      "currentStatus": "remaining-growth",
+      "title": "Dynamic exact closed keys",
+      "timeComplexity": "Theta(K^2) equality probes for K exact dynamic keys; fixed schemas constant",
+      "spaceComplexity": "O(K) snapshot/key list",
+      "triggerAndCommonBoundary": "Public snapshotExactClosedRecord and change-flag-debugging dynamic regions; most Core schemas small fixed K",
+      "necessaryOutputLowerBound": "Omega(K)",
+      "currentReason": "hasExactPlainRecordKeys still actualKeys.every(keys.includes); no affected delta removes dynamic consumer.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/data-boundary/closed-values.ts",
+          "absolutePath": "/workspace/vibe-check/src/data-boundary/closed-values.ts",
+          "lines": [
+            140
+          ],
+          "sha256": "289d49d3fc3b9faf7ddb0147fae920bb8e1fa6a709f8be728020d78dd7fc9c11",
+          "ownByteIdentity": "unchanged",
+          "anchor": "keys.includes"
+        },
+        {
+          "path": "src/package-tools/change-flag-debugging/change-flag-debugging.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/change-flag-debugging/change-flag-debugging.ts",
+          "lines": [
+            190
+          ],
+          "sha256": "beae86e00a1c9e6f1d1ff40f4d1eb3ae8a233ed8036fca7534c634be08390a08",
+          "ownByteIdentity": "unchanged",
+          "anchor": "Object.getOwnPropertyNames"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "C06",
+      "currentStatus": "remaining-growth",
+      "title": "Inherited prefix edits",
+      "timeComplexity": "Theta(n^2) element materialization; comparison-sort upper sum O(k log k)",
+      "spaceComplexity": "O(n^2) growing prefixes may remain in recursive frames; final leaf O(n); actual peak heap unmeasured",
+      "triggerAndCommonBoundary": "n deep containers add unique mutex, one leaf; absent edits reuse arrays; flat definitions do not trigger",
+      "necessaryOutputLowerBound": "Omega(n) final leaf mutex list",
+      "currentReason": "C01 dedup now linear but resolution still filters/copies/canonicalizes every growing inherited prefix.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-definition/check-tree/resolution.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-definition/check-tree/resolution.ts",
+          "lines": [
+            162
+          ],
+          "sha256": "95df77949953623e2e368c099db6592ef37a8c3ec3db8f5bd3600b00c02edaaf",
+          "ownByteIdentity": "unchanged",
+          "anchor": "function canonicalize"
+        },
+        {
+          "path": "src/project-definition/check-tree/resolution.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-definition/check-tree/resolution.ts",
+          "lines": [
+            98
+          ],
+          "sha256": "95df77949953623e2e368c099db6592ef37a8c3ec3db8f5bd3600b00c02edaaf",
+          "ownByteIdentity": "unchanged",
+          "anchor": "function resolveScheduling"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R01",
+      "currentStatus": "resolved-seven-groups",
+      "title": "Blocker summary searches",
+      "timeComplexity": "Expected O(settled + held + resources + inspected pending relations) per boundary",
+      "spaceComplexity": "O(V+resources+mutexes) transient",
+      "triggerAndCommonBoundary": "Default static summary remains reachable; chain no longer performs settled-list finds",
+      "necessaryOutputLowerBound": "Omega(inspected fact references) per consumer boundary, not Omega(V^3)",
+      "currentReason": "Current boundary maps remove old sparse-chain cubic settled lookup. Remaining rebuild/projection grouped under R05.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+          "lines": [
+            9,
+            13
+          ],
+          "sha256": "b6b8e4e346e69357414d973ec59b49eab0d5645e2d6416144db0a362775b52da",
+          "ownByteIdentity": "changed",
+          "anchor": "new Map"
+        },
+        {
+          "path": "src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+          "lines": [
+            12
+          ],
+          "sha256": "b6b8e4e346e69357414d973ec59b49eab0d5645e2d6416144db0a362775b52da",
+          "ownByteIdentity": "changed",
+          "anchor": "new Set"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R02",
+      "currentStatus": "resolved-seven-groups",
+      "title": "Static scope lookup and ranking",
+      "timeComplexity": "Expected O(active scopes + candidates) selection, compiled indexes one-time",
+      "spaceComplexity": "O(V+S) compiled plus O(active/candidates) boundary",
+      "triggerAndCommonBoundary": "Public plan singleton scopes S=V still present",
+      "necessaryOutputLowerBound": "Omega(candidate inspection) for current selection contract",
+      "currentReason": "Compiled scope map/task slots/activation boolean and fold remove old per-candidate scope find and constrained comparator sort.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/task-scheduler/admission-scope-layers.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-scope-layers.ts",
+          "lines": [
+            9
+          ],
+          "sha256": "4a492588ae0f66dd8494cf1ef8db86e36351611f4b68f96b61289b6805a32a8b",
+          "ownByteIdentity": "changed",
+          "anchor": "scopesById"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-selection-policy.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-selection-policy.ts",
+          "lines": [
+            46
+          ],
+          "sha256": "d74d94081bd18ce30a8e35858cf79b7c5bc5bfdb32f99559ffb7e73243f1f1c8",
+          "ownByteIdentity": "changed",
+          "anchor": "new Set"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R03",
+      "currentStatus": "resolved-seven-groups",
+      "title": "Repeated graph fingerprint",
+      "timeComplexity": "O(G) graph stringify/hash once invocation, not once decision",
+      "spaceComplexity": "O(G) string/encoding plus cached digest",
+      "triggerAndCommonBoundary": "Enabled or disabled diagnostics; lazy details still request once",
+      "necessaryOutputLowerBound": "Omega(G) complete fingerprint when produced",
+      "currentReason": "Current invocation cache field and ??= remove repeated D*G work; output-off one initial fingerprint remains a linear constant-cost question.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/task-scheduler/scheduler-observation.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-observation.ts",
+          "lines": [
+            61
+          ],
+          "sha256": "5f80420897b8d8de5fc0b63681adb89e0343940cce1b11ffd91b467e20e69d22",
+          "ownByteIdentity": "changed",
+          "anchor": "state.graphFingerprint ??="
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R04",
+      "currentStatus": "partial",
+      "title": "Graph preparation/validation",
+      "timeComplexity": "Grouped scope membership O(V+S); residual sum over scoped nonterminal queries q of O(V_q+E_q), worst O(V*(V+E)), plus sum d_i*o_i; four preparations constant factor; public singleton reachability term zero",
+      "spaceComplexity": "O(V+E+S) per preparation; O(V) visited per DFS",
+      "triggerAndCommonBoundary": "Public singleton scope avoids repeated reachability. Standalone multi-task chain one scope gives Theta(V^2) visits",
+      "necessaryOutputLowerBound": "Omega(V+E+S) graph; four DTOs not four asymptotic factors",
+      "currentReason": "Old public singleton Theta(SV) removed. Current reachability loops and four ordered validation/setup boundaries remain; prepare semantics cannot silently skip Git/cancel/setup boundaries.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/task-scheduler/graph-validation.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/graph-validation.ts",
+          "lines": [
+            185
+          ],
+          "sha256": "6caf1608a350741c929dde78bb6ee671cbe8be32ae337e5ea8e2720c56dacaa9",
+          "ownByteIdentity": "changed",
+          "anchor": "function validateScopeTerminalReachability"
+        },
+        {
+          "path": "src/project-run/task-scheduler/graph-validation.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/graph-validation.ts",
+          "lines": [
+            62
+          ],
+          "sha256": "6caf1608a350741c929dde78bb6ee671cbe8be32ae337e5ea8e2720c56dacaa9",
+          "ownByteIdentity": "changed",
+          "anchor": "task.observes.includes"
+        },
+        {
+          "path": "src/project-run/task-scheduler/scheduler.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+          "lines": [
+            52
+          ],
+          "sha256": "73e543f4cc6507df13a9aa5c0e07c42a25b30e59054d07446b7ce3cf5606b8e4",
+          "ownByteIdentity": "unchanged",
+          "anchor": "prepareTaskGraph(options.graph"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R05",
+      "currentStatus": "remaining-growth",
+      "title": "Whole-state decision projection",
+      "timeComplexity": "At least Omega(V^2) default independent/chain runs with Theta(V) boundaries. Capacity includes subterm Theta(N^3) when S=N and P=N; List reads add log-index cost",
+      "spaceComplexity": "O(V+E) transient DTOs, Omega(V^2) cumulative projected entries; heap retention unmeasured",
+      "triggerAndCommonBoundary": "Default P=4 quadratic extra scan; P=N independent no-op admits N before yielding, active scope set grows. Not all runs cubic",
+      "necessaryOutputLowerBound": "Omega(V+E) input/final facts; no required V^2 internal output",
+      "currentReason": "Current re-evaluation of old R05. Capacity loop S*A uses activeScopeIds.includes: exact comparisons (N^3-N)/3 for bounded independent shape. No whole-scheduler tight Theta(N^3) claim.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/task-scheduler/execution-state.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+          "lines": [
+            194
+          ],
+          "sha256": "572d25e379c4c5aa374c709f3fd3ae11956d7e3308ceafad2a43039a06f2447e",
+          "ownByteIdentity": "changed",
+          "anchor": "export function snapshotSchedulerState"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/projection.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+          "lines": [
+            26,
+            42,
+            98,
+            103
+          ],
+          "sha256": "6fd1d49fe6ef20b8148362910873bb3a0d1a2d55172e17175eee2eb9abb6eb93",
+          "ownByteIdentity": "unchanged",
+          "anchor": "for (const"
+        },
+        {
+          "path": "src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+          "lines": [
+            54
+          ],
+          "sha256": "3796948d01902588b197ed0dd516751d0002ab596a2f5609abf7d475657f28af",
+          "ownByteIdentity": "unchanged",
+          "anchor": "state.activeScopeIds.includes"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/selection-query.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+          "lines": [
+            228
+          ],
+          "sha256": "b7d577c0baf0ae82c6c7b1937be1337ec6a1fcecfb25736fe36aa77b8f8b8d5a",
+          "ownByteIdentity": "unchanged",
+          "anchor": "function admissionCandidatesForCore"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R06",
+      "currentStatus": "remaining-growth",
+      "title": "Drain Promise.race subscriptions",
+      "timeComplexity": "O(sum running_at_drain) <= O(VP), Theta(V^2) attainable P=V",
+      "spaceComplexity": "O(P) immediate inputs; long-lived reaction retention possible, not heap-measured",
+      "triggerAndCommonBoundary": "High parallel long task alongside short completions; fixed P=4 bounds multiplier",
+      "necessaryOutputLowerBound": "Omega(V) completion facts",
+      "currentReason": "Source unchanged, current scheduler still calls drain and maps all running completions per await. Cancellation/task lifecycle unaffected by index deltas.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/task-scheduler/scheduler-task-lifecycle.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-task-lifecycle.ts",
+          "lines": [
+            79
+          ],
+          "sha256": "44afeda766c2c1882e02b0e4e2be5c5d0a5803fdddd425d1f74fc631af7d4ccc",
+          "ownByteIdentity": "unchanged",
+          "anchor": "Promise.race"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R07",
+      "currentStatus": "remaining-growth",
+      "title": "Mutex reverse fanout",
+      "timeComplexity": "Theta(sum mutex f_m^2) occurrence visits attainable, plus persistent List updates O(log V)",
+      "spaceComplexity": "O(V+mutex occurrences) indexes; transition delta buffers by fanout",
+      "triggerAndCommonBoundary": "Many tasks declare same mutex; mutex occurrence dedup still first-seen; fixed fanout lower",
+      "necessaryOutputLowerBound": "Omega(mutex occurrences + V) inputs/facts",
+      "currentReason": "Current compiled reverse index persists; each acquire/release walks every declaring task. It is not E dependency transition cost.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/task-scheduler/admission-core/selection-transition.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-transition.ts",
+          "lines": [
+            4,
+            171
+          ],
+          "sha256": "5af52538aa0762146805433d51b6357710874368b979c266e3ba3edd2191cc49",
+          "ownByteIdentity": "unchanged",
+          "anchor": "requiredReverseMutexOccurrencesForCompiled"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R08",
+      "currentStatus": "resolved",
+      "title": "Callback/local invocation lookups",
+      "timeComplexity": "O(flags + condition nodes), expected O(1) dependency get; O(V) artifact directory indexing",
+      "spaceComplexity": "O(F+d+V) invocation/callback indexes",
+      "triggerAndCommonBoundary": "Flags, direct dependency reads, artifact base configured; no base trivial",
+      "necessaryOutputLowerBound": "Omega(d) dependency list output",
+      "currentReason": "All three old multiplicative roots changed: one runFlags Set, callback-owned direct relation Sets, per-invocation artifact directory Map. Session C02 resolved separately.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/check-execution/dependencies.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/check-execution/dependencies.ts",
+          "lines": [
+            30,
+            31
+          ],
+          "sha256": "c9648d502e0b33e8714c6ce784b00fd62aac31b435fcf5ffedb660428316210a",
+          "ownByteIdentity": "changed",
+          "anchor": "new Set"
+        },
+        {
+          "path": "src/project-run/check-execution/flag-controls.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/check-execution/flag-controls.ts",
+          "lines": [
+            26,
+            27,
+            28,
+            59
+          ],
+          "sha256": "3a941b186c6bf58f367c5f80e70d07703144e7d7566fc2522151ed15f247258b",
+          "ownByteIdentity": "changed",
+          "anchor": "new Set"
+        },
+        {
+          "path": "src/project-run/invocation/paths.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/invocation/paths.ts",
+          "lines": [
+            127,
+            128
+          ],
+          "sha256": "cd8091ee6132501b50846ee8c6f2ed07db6f5d7e4ed7722ca8c625e541cf901b",
+          "ownByteIdentity": "changed",
+          "anchor": "new Map"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R09",
+      "currentStatus": "remaining-growth",
+      "title": "Demand-enabled measurement",
+      "timeComplexity": "O(sum pending across measured boundaries) may Theta(V^2); rejection payload filter/sort additional by relation output",
+      "spaceComplexity": "O(V+measurement facts) current state; allocation not measured",
+      "triggerAndCommonBoundary": "Only demanded diagnostics/custom measurement, disabled default does not pay this entire path",
+      "necessaryOutputLowerBound": "Omega(V) terminal measurement facts, not Omega(V^2) internal classification",
+      "currentReason": "R03 cached fingerprint does not remove measurementProjection all pending/public-shaped validation or repeated integral pending scans.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/task-scheduler/scheduler-observation.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-observation.ts",
+          "lines": [
+            93
+          ],
+          "sha256": "5f80420897b8d8de5fc0b63681adb89e0343940cce1b11ffd91b467e20e69d22",
+          "ownByteIdentity": "changed",
+          "anchor": "pendingTasks"
+        },
+        {
+          "path": "src/project-run/task-scheduler/measurement/integrals.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/measurement/integrals.ts",
+          "lines": [
+            38,
+            43,
+            47,
+            51,
+            55,
+            58,
+            59,
+            60,
+            89,
+            123,
+            125,
+            126,
+            128,
+            141,
+            144,
+            147,
+            165,
+            172,
+            173,
+            176
+          ],
+          "sha256": "a0ba62a69ecc1d04fbf45e93d260cbb5c86105f693299da43c22399c75ef4623",
+          "ownByteIdentity": "unchanged",
+          "anchor": "pending"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "R10",
+      "currentStatus": "remaining-bounded-extra",
+      "title": "Preview preprocessing",
+      "timeComplexity": "O(B) complete serialize/escape/codepoint scan before short preview; no confirmed quadratic engine cost",
+      "spaceComplexity": "O(B) temporary text; output preview smaller",
+      "triggerAndCommonBoundary": "Enabled progress large payload or scalar, even preview limit zero; custom formatter full text contract",
+      "necessaryOutputLowerBound": "Omega(B) retained RunResult data, not necessarily full preview preprocess",
+      "currentReason": "R03 graph caching unrelated. Character/depth limits restrict accepted detail but not every input-preprocessing byte or ownKey enumeration.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/project-run/progress-rendering/renderer-formatting.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/progress-rendering/renderer-formatting.ts",
+          "lines": [
+            215
+          ],
+          "sha256": "e4c0e0cf042a90fbdca536eb663ae77c59c78ea6d920d3c80451b4d17ee2b085",
+          "ownByteIdentity": "unchanged",
+          "anchor": "function boundedTerminalText"
+        },
+        {
+          "path": "src/project-run/diagnostic-logging/diagnostic-detail-rendering.ts",
+          "absolutePath": "/workspace/vibe-check/src/project-run/diagnostic-logging/diagnostic-detail-rendering.ts",
+          "lines": [
+            136,
+            173
+          ],
+          "sha256": "114ba07601259e54fc9aac1207c6ea7a9962b4988409cc8a567854b000fea412",
+          "ownByteIdentity": "unchanged",
+          "anchor": "Reflect.ownKeys"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "T01",
+      "currentStatus": "resolved",
+      "title": "Learned ranking/prediction/recording indexes",
+      "timeComplexity": "Normal preparation expected O(V+E+H) indexing/DFS plus median/history sorting; selection sum O(k log k), not old per-comparison V search",
+      "spaceComplexity": "O(V+E+H) prepared indexes; H<=4096/W<=32 accepted history",
+      "triggerAndCommonBoundary": "Opt-in learned strategy; task identity callbacks arbitrary; fallback separate T02",
+      "necessaryOutputLowerBound": "Omega(V+E+bounded history+output)",
+      "currentReason": "Current normal paths use prediction/score/history/task Maps. Private exported module helpers with .find remain but have no production callers; do not mistake source presence for public runtime risk.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-tools/learned-critical-path/critical-path-ranking.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/critical-path-ranking.ts",
+          "lines": [
+            39,
+            44,
+            45,
+            53
+          ],
+          "sha256": "4b03e232815d3b798789f9f26600943bfdf3ec49837cf89dfbdbc07207abd8ae",
+          "ownByteIdentity": "changed",
+          "anchor": "predictionByTaskId"
+        },
+        {
+          "path": "src/package-tools/learned-critical-path/duration-model/prediction.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/duration-model/prediction.ts",
+          "lines": [
+            60,
+            62,
+            63,
+            66,
+            106,
+            110
+          ],
+          "sha256": "c0eae3e7b8dbc2968941b871f616ed7d80a372f7e6902029455712366c787ad6",
+          "ownByteIdentity": "changed",
+          "anchor": "historyByIdentity"
+        },
+        {
+          "path": "src/package-tools/learned-critical-path/duration-model/recording.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/duration-model/recording.ts",
+          "lines": [
+            108,
+            110,
+            111,
+            117,
+            168,
+            182
+          ],
+          "sha256": "71e2b110bb3412cdde5554c86fcd3201071e863333e74fb814727d783ad84412",
+          "ownByteIdentity": "changed",
+          "anchor": "predictionByTaskId"
+        },
+        {
+          "path": "src/package-tools/learned-critical-path/strategy.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/strategy.ts",
+          "lines": [
+            209,
+            233,
+            237,
+            241
+          ],
+          "sha256": "9181ba236727314c2137d1b50348c85ba5d3e9d7e726cdd2b837cff5e405c9ff",
+          "ownByteIdentity": "changed",
+          "anchor": "indexes.scoreByTaskId"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "T02",
+      "currentStatus": "partial",
+      "title": "Learned layers and static fallback",
+      "timeComplexity": "Normal graph indexes once; layers O(active+k*a_max); fallback O(V+S) graph maps each decision; selected-first sorts O(k log k)",
+      "spaceComplexity": "O(V+S) prepared/fallback maps and O(k+active) boundary arrays",
+      "triggerAndCommonBoundary": "Opt-in learned; public singleton a_max=1. Multi-task activation lists enlarge includes. Invalid identity/setup activates staticDecision",
+      "necessaryOutputLowerBound": "Omega(k) layer facts, no required per-decision full graph copy",
+      "currentReason": "Prepared strategy supplies indexes.graph. staticDecision omits argument -> default createLearnedSelectionGraph still per-boundary; activation includes and full sort remain. No claim current normal path retains old rebuild.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-tools/learned-critical-path/selection-layers.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/selection-layers.ts",
+          "lines": [
+            31
+          ],
+          "sha256": "33520291cf2fee7b94d59b98d30a1965dede6b1d4c2998ae4c7adf207d2b5c93",
+          "ownByteIdentity": "changed",
+          "anchor": "createLearnedSelectionGraph(context.graph)"
+        },
+        {
+          "path": "src/package-tools/learned-critical-path/selection-layers.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/selection-layers.ts",
+          "lines": [
+            60
+          ],
+          "sha256": "33520291cf2fee7b94d59b98d30a1965dede6b1d4c2998ae4c7adf207d2b5c93",
+          "ownByteIdentity": "changed",
+          "anchor": "activationTaskIds.includes"
+        },
+        {
+          "path": "src/package-tools/learned-critical-path/static-decision.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/static-decision.ts",
+          "lines": [
+            14
+          ],
+          "sha256": "b2e4a4a9670dc3f003a9955748b7b8a6fd9f071acfaeed3e5ebb7e482fe63d31",
+          "ownByteIdentity": "unchanged",
+          "anchor": "learnedSelectionLayers(context)"
+        },
+        {
+          "path": "src/package-tools/learned-critical-path/strategy.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/strategy.ts",
+          "lines": [
+            230
+          ],
+          "sha256": "9181ba236727314c2137d1b50348c85ba5d3e9d7e726cdd2b837cff5e405c9ff",
+          "ownByteIdentity": "changed",
+          "anchor": "learnedSelectionLayers(context, indexes.graph)"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K01",
+      "currentStatus": "resolved-seven-groups",
+      "title": "Filesystem directory name lookup",
+      "timeComplexity": "O(sum directory entries + queries + matched raw collision candidates) expected indexed lookup, plus path/matcher/I/O",
+      "spaceComplexity": "O(directory entries + name indexes) operation-local",
+      "triggerAndCommonBoundary": "Wide directory exact patterns; many raw names decode same spelling still all checked",
+      "necessaryOutputLowerBound": "Omega(enumerated entries + selected files)",
+      "currentReason": "Current entriesByName replaces full entries.filter on every name. Necessary raw-byte collision list/fidelity validation retained; full-collector timing benefit historical not proven.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/project-files/filesystem-collection.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts",
+          "lines": [
+            122,
+            177
+          ],
+          "sha256": "bddbbcb441910d705e1d19c4ea6d0fa9c3e5815afb2af95310d5c1f085b412eb",
+          "ownByteIdentity": "changed",
+          "anchor": "entriesByName.get"
+        },
+        {
+          "path": "src/package-checks/project-files/filesystem-collection.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts",
+          "lines": [
+            175
+          ],
+          "sha256": "bddbbcb441910d705e1d19c4ea6d0fa9c3e5815afb2af95310d5c1f085b412eb",
+          "ownByteIdentity": "changed",
+          "anchor": "entriesByName = new Map"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K02",
+      "currentStatus": "remaining-growth",
+      "title": "Subtree exclusion prefixes",
+      "timeComplexity": "Theta(D^2) slot/character copies per worst consultation plus matcher/policy work",
+      "spaceComplexity": "O(D) live prefix; Theta(D^2) cumulative copies",
+      "triggerAndCommonBoundary": "Deep path, no early matching exclude; constrained by host path length, not generic F squared",
+      "necessaryOutputLowerBound": "Omega(D) path consultation/security information",
+      "currentReason": "Same module changed K01, but current pruner still parts.slice(0,index+1).join; changed lookup does not remove this root.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/project-files/filesystem-collection.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts",
+          "lines": [
+            251
+          ],
+          "sha256": "bddbbcb441910d705e1d19c4ea6d0fa9c3e5815afb2af95310d5c1f085b412eb",
+          "ownByteIdentity": "changed",
+          "anchor": "parts.slice(0, index + 1)"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K03",
+      "currentStatus": "remaining-growth",
+      "title": "Contained Markdown path suffix copying",
+      "timeComplexity": "Theta(D^2) rest-array slot copies per D-step ordinary walk; symlink rewrites additional bounded follows",
+      "spaceComplexity": "O(D) immediate path state; Theta(D^2) cumulative copies",
+      "triggerAndCommonBoundary": "Deep Markdown source/local targets; repeated Q live authorization checks independent",
+      "necessaryOutputLowerBound": "Omega(D) live probes required by security",
+      "currentReason": "K05 facts cache does not bypass live walk. Source unchanged, both markdown link/lint use same containment reader.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/filesystem-probes.ts",
+          "lines": [
+            57,
+            113
+          ],
+          "sha256": "91cb7e29cec852ed335e0b995643eaaf7c0e037c58b9ab871ffc0cc84f9334d9",
+          "ownByteIdentity": "unchanged",
+          "anchor": "...remainingSegments"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K04",
+      "currentStatus": "resolved",
+      "title": "Duplicate area intersections",
+      "timeComplexity": "Expected O(M+R*L*a+R*a log a) instead old R*(L-1)*a^2",
+      "spaceComplexity": "O(M+R*L+R*a)",
+      "triggerAndCommonBoundary": "Overlapping areas; default a=1; all locations must share area",
+      "necessaryOutputLowerBound": "Omega(M+R*L+emitted area lists)",
+      "currentReason": "Current area-ID Set lookup replaces pathPolicies.some; sorting and minimum threshold across common areas necessary.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/duplicate-detection/area-policy.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/duplicate-detection/area-policy.ts",
+          "lines": [
+            102
+          ],
+          "sha256": "7f9d69aa80adf0acd48d2dfe3908a135d06676853dd16b69430cc0fe6a368ba3",
+          "ownByteIdentity": "changed",
+          "anchor": "codeAreaIds.has"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K05",
+      "currentStatus": "resolved-seven-groups",
+      "title": "Markdown heading anchors",
+      "timeComplexity": "O(H+Q) expected per reused facts instance instead Q*H",
+      "spaceComplexity": "O(H) slug Set + Q result facts",
+      "triggerAndCommonBoundary": "Same/memoized target facts, missing/end anchors; direct live probes still distinct",
+      "necessaryOutputLowerBound": "Omega(H+Q) parsed/output facts",
+      "currentReason": "WeakMap per engine plus Set.has; no persisted cache/API shape change.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/markdown-link-validation/local-resolution.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/local-resolution.ts",
+          "lines": [
+            211
+          ],
+          "sha256": "8e3a50b361b2b024bf13785eaa166bba60e748cb6196d7252380631c63526062",
+          "ownByteIdentity": "changed",
+          "anchor": "headingSlugs.has"
+        },
+        {
+          "path": "src/package-checks/markdown-link-validation/resolver-engine.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/resolver-engine.ts",
+          "lines": [
+            38
+          ],
+          "sha256": "1570f472d9062fe71c791b84d0b8531a8ef9a4b000592794c85447b142e73302",
+          "ownByteIdentity": "changed",
+          "anchor": "WeakMap"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K06",
+      "currentStatus": "resolved-seven-groups",
+      "title": "Reminder overlapping Git history",
+      "timeComplexity": "Normal successful commands 2+distinct bases+max baseIndex; local O(H+r+maxIndex+stdout); Git internal cost unknown",
+      "spaceComplexity": "O(H+distinct bases+maxIndex+assessments+max stdout)",
+      "triggerAndCommonBoundary": "Shared/successful bases reuse; failed resolution/diff intentionally retried; ordered cancellation preserved",
+      "necessaryOutputLowerBound": "Omega(r) assessments and required changed-line evidence",
+      "currentReason": "Current invocation session proves normal overlap resolved, not zero repeat on failure. No concurrent or range-diff semantic replacement.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/maintenance-reminders/measurement.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/maintenance-reminders/measurement.ts",
+          "lines": [
+            34,
+            80,
+            82,
+            84,
+            91,
+            93
+          ],
+          "sha256": "34a5f8fb42d6523b8b207e63b7374a0755894f32f96965c946a38ff6c76238ea",
+          "ownByteIdentity": "changed",
+          "anchor": "#changedLinePrefixes"
+        },
+        {
+          "path": "src/package-checks/maintenance-reminders/measurement.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/maintenance-reminders/measurement.ts",
+          "lines": [
+            33,
+            60,
+            74
+          ],
+          "sha256": "34a5f8fb42d6523b8b207e63b7374a0755894f32f96965c946a38ff6c76238ea",
+          "ownByteIdentity": "changed",
+          "anchor": "#resolvedBases"
+        },
+        {
+          "path": "src/package-checks/maintenance-reminders/maintenance-reminders.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/maintenance-reminders/maintenance-reminders.ts",
+          "lines": [
+            28,
+            287
+          ],
+          "sha256": "5c5390c9a5562548a6dd137e454f467ace2eeb775a0caba85a56156e480f2db4",
+          "ownByteIdentity": "changed",
+          "anchor": "MaintenanceReminderMeasurementSession"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K07",
+      "currentStatus": "resolved",
+      "title": "SCC rolling argv budget",
+      "timeComplexity": "O(fixed arguments + F) budget accounting, plus output batches",
+      "spaceComplexity": "O(max batch size) live batch/output refs",
+      "triggerAndCommonBoundary": "Budget remains 28000 code units; prior b squared was already fixed-budget bounded",
+      "necessaryOutputLowerBound": "Omega(F) argument references",
+      "currentReason": "Current fixedCodeUnits/currentBatchCodeUnits rolling accounting removes growing prefix construction/reduce.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/file-metrics/scc/batch-planner.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/file-metrics/scc/batch-planner.ts",
+          "lines": [
+            16,
+            31,
+            33,
+            36,
+            37,
+            44,
+            47,
+            50
+          ],
+          "sha256": "8286ff4dbff0a76db2b90e165e503c723a6c60b44e86303cded9c816ac149e81",
+          "ownByteIdentity": "changed",
+          "anchor": "CodeUnits"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K08",
+      "currentStatus": "remaining-repetition",
+      "title": "Same JSON instance multiple schema bindings",
+      "timeComplexity": "sum binding B_instance read/strict parse + each distinct schema validation; latter external unknown",
+      "spaceComplexity": "Per binding O(B+AST) live, result facts by bindings",
+      "triggerAndCommonBoundary": "Repeated instance filename across bindings; freshness semantics undecided, not default unconditional bug",
+      "necessaryOutputLowerBound": "Omega(distinct schema validations + output)",
+      "currentReason": "No current delta affects JSON schema owner. Invocation-local instance reuse needs an explicit filesystem freshness judgment.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/json-schema-validation/execution-stages.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/json-schema-validation/execution-stages.ts",
+          "lines": [
+            4,
+            69,
+            160
+          ],
+          "sha256": "904916de2e553f43513d1a52e86941a643b1de68855849966f24debf9f2983a0",
+          "ownByteIdentity": "unchanged",
+          "anchor": "readStrictJsonDocument"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K09",
+      "currentStatus": "remaining-capacity",
+      "title": "Optional Markdown parse cache history restore",
+      "timeComplexity": "Each run O(C+historical facts); V runs adding distinct content digests can grow C linearly and cumulative Theta(V^2) bytes restore; same frozen warm corpus does not reappend",
+      "spaceComplexity": "O(C+facts) restore; no heap measurement",
+      "triggerAndCommonBoundary": "Optional cache disabled by default; growing trusted disposable JSONL state",
+      "necessaryOutputLowerBound": "Omega(useful cache facts), not historical duplicate lines forever",
+      "currentReason": "K05 anchor Set is invocation-local; no compaction/TTL delta. Entries deduplicate content digests: unchanged frozen warm repeats do not append; distinct new digests are necessary for the stated cross-run quadratic volume. Accepted fact caps do not bound invalid file bytes.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+          "lines": [
+            2,
+            82
+          ],
+          "sha256": "1b58bd3abaa4de92b76afa454208b316697b0a1406f271682a819ca6723f08f5",
+          "ownByteIdentity": "unchanged",
+          "anchor": "readFile"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K10",
+      "currentStatus": "remaining-linear-extra",
+      "title": "Duplicate fingerprint even cache off",
+      "timeComplexity": "O(B+F log F) complete fingerprint then scan; extra I/O linear, no proven superlinear",
+      "spaceComplexity": "Largest file buffers/full decoded text plus normalized inputs",
+      "triggerAndCommonBoundary": "Cache disabled or selected fewer than2 still before branch; potentially large files uncapped here",
+      "necessaryOutputLowerBound": "Omega(scanner selected bytes) when scan required; no-cache fingerprint may not be needed",
+      "currentReason": "Area Set K04 unrelated; fingerprint ordering unchanged. Measure before proposing skip; exact identity still required when cache enabled.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/duplicate-detection/execution.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/duplicate-detection/execution.ts",
+          "lines": [
+            9,
+            132
+          ],
+          "sha256": "277d371c63566249680fc69bf99d9074769e6321bd666477e78f10ef00e83aad",
+          "ownByteIdentity": "unchanged",
+          "anchor": "fingerprintProjectFiles"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K11",
+      "currentStatus": "remaining-conditional",
+      "title": "Duplicate distinct location validation",
+      "timeComplexity": "Theta(L^2) duplicate comparisons/suffix copies in general fragment",
+      "spaceComplexity": "O(L) live normalized locations; cumulative O(L^2) copies",
+      "triggerAndCommonBoundary": "Default jscpd fragments L=2 fixed; trusted raw-cache/private multi-location seam can enlarge L",
+      "necessaryOutputLowerBound": "Omega(L) accepted locations",
+      "currentReason": "No current delta alters fragment normalization; do not call default scanner output unbounded quadratic.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/duplicate-detection/records.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/duplicate-detection/records.ts",
+          "lines": [
+            150
+          ],
+          "sha256": "9ae4ba3de637693fbb86fd753f44dbb49695ff3a08d5418ad28b6fdfb20078eb",
+          "ownByteIdentity": "unchanged",
+          "anchor": "slice"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K12",
+      "currentStatus": "uncertain",
+      "title": "Markdownlint malformed front matter",
+      "timeComplexity": "Unclosed multiline repeated opening braces may trigger superlinear search; no current engine step/order proof",
+      "spaceComplexity": "Unknown engine allocations, bounded input file bytes",
+      "triggerAndCommonBoundary": "Malformed front matter; default1MiB/hard16MiB byte caps not intrinsic CPU bound",
+      "necessaryOutputLowerBound": "Omega(B) input scan",
+      "currentReason": "Unchanged markdownlint boundary and local library pattern; prior static hypothesis retained as uncertain, not proven ReDoS.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/markdown-lint/adapter.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-lint/adapter.ts",
+          "lines": [
+            37
+          ],
+          "sha256": "1ba82ca838841115d650a6501700605eaa44a4b0867e5f522fb023f3bb19c755",
+          "ownByteIdentity": "unchanged",
+          "anchor": "frontMatter"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K13",
+      "currentStatus": "remaining-bounded-extra",
+      "title": "Markdown read preallocation",
+      "timeComplexity": "sum reads(maxBytes+1) allocation, maxBytes fixed configured cap",
+      "spaceComplexity": "Per current read O(maxBytes), concurrent pressure depends caller; not cumulative RSS",
+      "triggerAndCommonBoundary": "Tiny files default1MiB/hard16MiB; cannot equate allocated bytes with resident peak",
+      "necessaryOutputLowerBound": "Omega(actual file bytes), cap buffer overhead additional",
+      "currentReason": "Reader unchanged; K03 containment still paid before safe open. No heap evidence or memory-leak claim.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/filesystem-probes.ts",
+          "lines": [
+            163
+          ],
+          "sha256": "91cb7e29cec852ed335e0b995643eaaf7c0e037c58b9ab871ffc0cc84f9334d9",
+          "ownByteIdentity": "unchanged",
+          "anchor": "new Uint8Array(maxBytes"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "K14",
+      "currentStatus": "resolved",
+      "title": "MarkdownLint comparator DTO allocation",
+      "timeComplexity": "O(R log R) deterministic sort compares raw fields, O(R) DTO publication",
+      "spaceComplexity": "O(R) records/sort refs",
+      "triggerAndCommonBoundary": "Many lint records; necessary ordering remains",
+      "necessaryOutputLowerBound": "Omega(R) final DTOs; sort ordering cost by implementation",
+      "currentReason": "Current comparator no longer forms frozen publicRange per comparison. Old sort-constant allocation root resolved, no claim sort itself removed.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/markdown-lint/records.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-lint/records.ts",
+          "lines": [
+            118
+          ],
+          "sha256": "f2384873d23fbb83859e8f1142cd6c5579e492fa6d335f351c780dbf79adbf8d",
+          "ownByteIdentity": "changed",
+          "anchor": "left.finding.range?.[0]"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "A01",
+      "currentStatus": "remaining-growth",
+      "title": "Function signature last code point",
+      "timeComplexity": "Theta(sum current signature length), quadratic attainable many short appends",
+      "spaceComplexity": "O(final signature) live plus full Array.from transient; cumulative quadratic codepoints",
+      "triggerAndCommonBoundary": "Valid many parameters/declarator tokens; fixed-width signature not trigger",
+      "necessaryOutputLowerBound": "Omega(final signature characters)",
+      "currentReason": "Analyzer identical bytes. Source-fidelity boundary prevents recommending unauthorised local translation rewrite.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/function-metrics/analyzer/analysis-model.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/analysis-model.ts",
+          "lines": [
+            291
+          ],
+          "sha256": "cbd6d9d8bba3163b5c3a54e32d64d949190844544c527ad1da8b6e8fdcd47193",
+          "ownByteIdentity": "unchanged",
+          "anchor": "Array.from(this.longName)"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "A02",
+      "currentStatus": "remaining-growth",
+      "title": "Reader depth token dispatch",
+      "timeComplexity": "Theta(sum dispatched state depth), upper O(T*D); valid nested Go bounded evidence quadratic family",
+      "spaceComplexity": "O(D) linked states/stack",
+      "triggerAndCommonBoundary": "Deep declaration/body state; not all language tokenizers same path",
+      "necessaryOutputLowerBound": "Omega(T) tokens, not always T*D",
+      "currentReason": "All analyzer bytes unchanged; shared chain dispatch still recurses through ancestors per consume.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+          "lines": [
+            219,
+            233
+          ],
+          "sha256": "f1eeaf2ca231f266ada2091715fca0faff2fa6ebad84156b7a69e02b99adb7db",
+          "ownByteIdentity": "unchanged",
+          "anchor": "invokeCurrentState"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "A03",
+      "currentStatus": "remaining-growth",
+      "title": "Full namespace qualification",
+      "timeComplexity": "O(K*D) maps/joins plus actual qualified-name bytes",
+      "spaceComplexity": "O(D+qualified text) live",
+      "triggerAndCommonBoundary": "Deep C++ namespace/extern nesting, many candidates even no functions; empty stack names still visited",
+      "necessaryOutputLowerBound": "Omega(emitted qualified-name bytes), not discarded candidate qualification",
+      "currentReason": "Unchanged nesting stack full qualification used before candidate rejection.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/function-metrics/analyzer/analysis-context.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/analysis-context.ts",
+          "lines": [
+            19,
+            77,
+            82,
+            179,
+            180,
+            184,
+            332,
+            423,
+            424,
+            518
+          ],
+          "sha256": "6ae2295e511a4da9c6b5dd3a280bdc16d5cbbfdd822d71823a4314834fe70ea4",
+          "ownByteIdentity": "unchanged",
+          "anchor": "withNamespace"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "A04",
+      "currentStatus": "remaining-growth",
+      "title": "Ruby interpolation restarts",
+      "timeComplexity": "Theta(I^2) matched quoted suffix width for flat I interpolations in conventional scan model",
+      "spaceComplexity": "O(string width) immediate suffix/token state",
+      "triggerAndCommonBoundary": "Valid flat Ruby string interpolation; output O(I)",
+      "necessaryOutputLowerBound": "Omega(I) tokens",
+      "currentReason": "Unchanged rubyTokens restarts after prepending quote to remainder; source-fidelity changes need separate acceptance.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/function-metrics/analyzer/readers/ruby.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/readers/ruby.ts",
+          "lines": [
+            46
+          ],
+          "sha256": "4dce947f31231c2bded9fe7758f806260e01b0864821843ef6bb3a2da2469f27",
+          "ownByteIdentity": "unchanged",
+          "anchor": "function* rubyTokens"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "U-A01",
+      "currentStatus": "partial-confirmed-malformed",
+      "title": "Tokenizer regular-expression failures",
+      "timeComplexity": "Template missing closer: >=2^r alternative partitions in conventional depth-first backtracking model; comment unclosed r openers: Theta(r^2) suffix work in scan model; finite public timing supports growth not global engine bound",
+      "spaceComplexity": "Engine/backtracking memory unknown; small inputs/worker canceled experiments only",
+      "triggerAndCommonBoundary": "Malformed TS one backtick+${x} repeated r, no final backtick; malformed C /* repeated with no */. General extends/etc families remain uncertain",
+      "necessaryOutputLowerBound": "Output tokens small; exponential/quadratic failed work not necessary final output",
+      "currentReason": "Current bounded public FunctionMetrics experiments refine only two malformed subcases. Byte caps alone no intrinsic Worker timeout; caller signal cancellation outcome does not prove immediate CPU exit.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+          "lines": [
+            15
+          ],
+          "sha256": "29a4ce11038c1a787a72d23f405c72de2933903db7003f589a3bb551c84206f0",
+          "ownByteIdentity": "unchanged",
+          "anchor": "export const TEMPLATE_LITERAL"
+        },
+        {
+          "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+          "lines": [
+            545
+          ],
+          "sha256": "f1eeaf2ca231f266ada2091715fca0faff2fa6ebad84156b7a69e02b99adb7db",
+          "ownByteIdentity": "unchanged",
+          "anchor": "\\/\\*"
+        },
+        {
+          "path": "src/package-checks/function-metrics/analyzer-worker-port.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer-worker-port.ts",
+          "lines": [
+            54,
+            69,
+            85,
+            92,
+            93
+          ],
+          "sha256": "87723bf39fda10eb7b1fe4876324ce479b011da892b291c0d56d8364c81b5b70",
+          "ownByteIdentity": "unchanged",
+          "anchor": "signal"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "U-A02",
+      "currentStatus": "uncertain",
+      "title": "TypeScript suffix slices",
+      "timeComplexity": "Repeated suffix widths may sum Theta(N*I); engine sharing means actual copy/CPU/retention not proved",
+      "spaceComplexity": "Unknown substring sharing/flatten/retained backing storage",
+      "triggerAndCommonBoundary": "Flat templates with many substitutions; TSX tokenizer differs",
+      "necessaryOutputLowerBound": "Omega(N+tokens)",
+      "currentReason": "Unchanged splitTemplateLiteral; no copy/heap instrumentation. A width sum alone cannot establish runtime quadratic.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+          "lines": [
+            78
+          ],
+          "sha256": "29a4ce11038c1a787a72d23f405c72de2933903db7003f589a3bb551c84206f0",
+          "ownByteIdentity": "unchanged",
+          "anchor": "content = content.slice"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    },
+    {
+      "id": "U-A03",
+      "currentStatus": "uncertain",
+      "title": "Nested Python f-string rescanning",
+      "timeComplexity": "Conditional O(N*D) if accepted deep nested family, but legal growing tokenizer family not established",
+      "spaceComplexity": "Conditional O(D) recursion plus tokens, actual sharing unknown",
+      "triggerAndCommonBoundary": "Flat expressions scanned finite times; GDScript legal support differs",
+      "necessaryOutputLowerBound": "Omega(N+tokens)",
+      "currentReason": "No current code or evidence proves general nesting lower bound. Keep uncertain, not generic Python parser quadratic.",
+      "currentSourceEvidence": [
+        {
+          "path": "src/package-checks/function-metrics/analyzer/readers/python.ts",
+          "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/readers/python.ts",
+          "lines": [
+            120,
+            125,
+            235
+          ],
+          "sha256": "1950cbb29afe84b64bfae6884d5a78dd19a509c1b457eede9b95886f337729d2",
+          "ownByteIdentity": "unchanged",
+          "anchor": "generateTokens"
+        }
+      ],
+      "actualConsumerScale": "Unknown outside bounded synthetic/current repository consumer; no general production N distribution observed.",
+      "evidence": "Current source/root-call-boundary review; unchanged root-local historical review reused with SHA256 identity. Counts/timing only where separately linked; status is not based solely on seven-group report."
+    }
+  ]
+}

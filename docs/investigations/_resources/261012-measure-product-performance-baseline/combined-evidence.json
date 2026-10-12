@@ -1,0 +1,649 @@
+{
+  "formedAt": "2026-10-12T10:28:54.710Z",
+  "sourceRevision": "5cb448b23453edc90e02b25d003efd57dcdd3509",
+  "methods": "public source API,Node24.18.0 consumer baseline; Bun1.3.14 separately observed. First-operation then same-process repetitions; startup/module imports and fixture creation excluded; noOScold flush. p95 is nearest rank of2or3 samples,not population tail. Groups serial,not randomized; nospeedup/wholeGateclaim. node-core pre-repair successful groups recovered from unchangedrawstdout; faulty final Admission readback was temporaryharness error and group rerun using inspection.settledTasks.",
+  "selectionIsolation": {
+    "runtimeName": "node",
+    "runtime": {
+      "node": "24.18.0",
+      "acorn": "8.16.0",
+      "ada": "3.4.4",
+      "amaro": "1.1.9",
+      "ares": "1.34.6",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.2",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.69.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.5.7",
+      "simdjson": "4.6.4",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.1",
+      "tz": "2026b",
+      "undici": "7.28.0",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.50",
+      "zlib": "1.3.1-e00f703",
+      "zstd": "1.5.7"
+    },
+    "warning": "public single collection, not Check-private area batch. Same paths verified. Input pattern representation differs, so earlierNode-four versus Bun cannot isolate runtime.",
+    "evidence": [
+      {
+        "encoding": "combined-native-globs",
+        "patternCount": 24,
+        "samples": [
+          {
+            "i": 0,
+            "elapsedMs": 50.16339900000003,
+            "files": 853,
+            "samePaths": true
+          },
+          {
+            "i": 1,
+            "elapsedMs": 18.31603400000006,
+            "files": 853,
+            "samePaths": true
+          },
+          {
+            "i": 2,
+            "elapsedMs": 28.264836999999943,
+            "files": 853,
+            "samePaths": true
+          },
+          {
+            "i": 3,
+            "elapsedMs": 22.276927,
+            "files": 853,
+            "samePaths": true
+          }
+        ]
+      },
+      {
+        "encoding": "explicit-manifest-paths",
+        "patternCount": 853,
+        "samples": [
+          {
+            "i": 0,
+            "elapsedMs": 2715.69922,
+            "files": 853,
+            "samePaths": true
+          },
+          {
+            "i": 1,
+            "elapsedMs": 2573.874067,
+            "files": 853,
+            "samePaths": true
+          },
+          {
+            "i": 2,
+            "elapsedMs": 2616.530836,
+            "files": 853,
+            "samePaths": true
+          },
+          {
+            "i": 3,
+            "elapsedMs": 2569.8603509999994,
+            "files": 853,
+            "samePaths": true
+          }
+        ]
+      }
+    ]
+  },
+  "changesReadback": {
+    "note": "untimed same-contract readback, not additional timing evidence",
+    "runtime": {
+      "node": "24.18.0",
+      "acorn": "8.16.0",
+      "ada": "3.4.4",
+      "amaro": "1.1.9",
+      "ares": "1.34.6",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.2",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.69.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.5.7",
+      "simdjson": "4.6.4",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.1",
+      "tz": "2026b",
+      "undici": "7.28.0",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.50",
+      "zlib": "1.3.1-e00f703",
+      "zstd": "1.5.7"
+    },
+    "result": {
+      "kind": "completed",
+      "declarativeFingerprint": "5b7e298843b5c0a8972fb0c1fc19991dbf7b09585ad65d6fe6e63c44d78dbfee",
+      "definitionWarnings": [],
+      "outputs": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      },
+      "aggregate": "failed",
+      "checkDurations": [
+        {
+          "checkId": "source-change",
+          "durationMs": null
+        }
+      ],
+      "checkMessages": [],
+      "snapshot": {
+        "checks": [
+          {
+            "checkId": "source-change",
+            "displayName": "Source change",
+            "outcome": {
+              "status": "not-applicable",
+              "reason": {
+                "code": "flag-condition-not-matched"
+              }
+            }
+          }
+        ],
+        "records": []
+      }
+    }
+  },
+  "manifestChecks": [
+    {
+      "label": "node-checks",
+      "workload": "file",
+      "files": 1085,
+      "changed": []
+    },
+    {
+      "label": "node-checks",
+      "workload": "json",
+      "files": 289,
+      "changed": []
+    },
+    {
+      "label": "node-checks",
+      "workload": "schema",
+      "files": 9,
+      "changed": []
+    },
+    {
+      "label": "node-checks",
+      "workload": "secret",
+      "files": 100,
+      "changed": []
+    },
+    {
+      "label": "node-checks",
+      "workload": "maintenance",
+      "files": 0,
+      "changed": []
+    },
+    {
+      "label": "node-checks",
+      "workload": "command",
+      "files": 0,
+      "changed": []
+    },
+    {
+      "label": "bun-checks",
+      "workload": "file",
+      "files": 1085,
+      "changed": []
+    },
+    {
+      "label": "bun-checks",
+      "workload": "json",
+      "files": 289,
+      "changed": []
+    },
+    {
+      "label": "bun-checks",
+      "workload": "schema",
+      "files": 9,
+      "changed": []
+    },
+    {
+      "label": "bun-checks",
+      "workload": "secret",
+      "files": 100,
+      "changed": []
+    },
+    {
+      "label": "bun-checks",
+      "workload": "maintenance",
+      "files": 0,
+      "changed": []
+    },
+    {
+      "label": "bun-checks",
+      "workload": "command",
+      "files": 0,
+      "changed": []
+    },
+    {
+      "label": "node-four",
+      "workload": "function",
+      "files": 526,
+      "changed": []
+    },
+    {
+      "label": "node-four",
+      "workload": "links",
+      "files": 322,
+      "changed": []
+    },
+    {
+      "label": "node-four",
+      "workload": "lint",
+      "files": 558,
+      "changed": []
+    },
+    {
+      "label": "node-four",
+      "workload": "duplicate",
+      "files": 853,
+      "changed": []
+    },
+    {
+      "label": "node-four-native",
+      "workload": "function",
+      "files": 526,
+      "changed": []
+    },
+    {
+      "label": "node-four-native",
+      "workload": "links",
+      "files": 323,
+      "changed": []
+    },
+    {
+      "label": "node-four-native",
+      "workload": "lint",
+      "files": 559,
+      "changed": []
+    },
+    {
+      "label": "node-four-native",
+      "workload": "duplicate",
+      "files": 853,
+      "changed": []
+    }
+  ],
+  "comparisons": [
+    {
+      "workload": "file",
+      "identicalOptions": true,
+      "identicalManifests": true
+    },
+    {
+      "workload": "json",
+      "identicalOptions": true,
+      "identicalManifests": true
+    },
+    {
+      "workload": "schema",
+      "identicalOptions": true,
+      "identicalManifests": true
+    },
+    {
+      "workload": "secret",
+      "identicalOptions": true,
+      "identicalManifests": true
+    },
+    {
+      "workload": "maintenance",
+      "identicalOptions": true,
+      "identicalManifests": true
+    },
+    {
+      "workload": "command",
+      "identicalOptions": true,
+      "identicalManifests": true
+    }
+  ],
+  "outputSizes": [
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/0/diagnostic/core-20261012T101452.183Z-78c2747c-c1a4-46c6-ad4b-901c9183f07f.log",
+      "bytes": 204176
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/0/diagnostic/scheduler-20261012T101452.183Z-78c2747c-c1a4-46c6-ad4b-901c9183f07f.log",
+      "bytes": 24192
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/0/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/0/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/1/diagnostic/core-20261012T101452.236Z-144f1567-4742-4fa4-9357-3ab40b7b7b14.log",
+      "bytes": 204177
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/1/diagnostic/scheduler-20261012T101452.236Z-144f1567-4742-4fa4-9357-3ab40b7b7b14.log",
+      "bytes": 24183
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/1/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/1/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/2/diagnostic/core-20261012T101452.282Z-557406f2-838a-40d2-84f8-f16cba761ec0.log",
+      "bytes": 204177
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/2/diagnostic/scheduler-20261012T101452.282Z-557406f2-838a-40d2-84f8-f16cba761ec0.log",
+      "bytes": 24181
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/2/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/2/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/3/diagnostic/core-20261012T101452.326Z-4be6c64f-4965-4417-b956-f09cb5cc94d5.log",
+      "bytes": 204177
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/3/diagnostic/scheduler-20261012T101452.326Z-4be6c64f-4965-4417-b956-f09cb5cc94d5.log",
+      "bytes": 24181
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/3/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/all/3/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/0/diagnostic/core-20261012T101452.040Z-eb4532c2-a70c-4b6c-96e7-353c04bda76b.log",
+      "bytes": 204193
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/0/diagnostic/scheduler-20261012T101452.040Z-eb4532c2-a70c-4b6c-96e7-353c04bda76b.log",
+      "bytes": 24188
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/1/diagnostic/core-20261012T101452.072Z-41e3b1bd-b34e-4b49-8008-0b1aef1f4871.log",
+      "bytes": 204193
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/1/diagnostic/scheduler-20261012T101452.072Z-41e3b1bd-b34e-4b49-8008-0b1aef1f4871.log",
+      "bytes": 24190
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/2/diagnostic/core-20261012T101452.104Z-86316e01-f8c4-410d-912b-70dfb89cbbf1.log",
+      "bytes": 204191
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/2/diagnostic/scheduler-20261012T101452.104Z-86316e01-f8c4-410d-912b-70dfb89cbbf1.log",
+      "bytes": 24186
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/3/diagnostic/core-20261012T101452.126Z-b28bcad5-17e6-457e-8eda-ece3d79dc6b6.log",
+      "bytes": 204191
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/diagnostic/3/diagnostic/scheduler-20261012T101452.126Z-b28bcad5-17e6-457e-8eda-ece3d79dc6b6.log",
+      "bytes": 24188
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/machine/0/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/machine/0/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/machine/1/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/machine/1/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/machine/2/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/machine/2/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/machine/3/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/bun/machine/3/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/0/diagnostic/core-20261012T101317.800Z-bb1e47f9-e683-4bf2-842b-42bac3edc9ab.log",
+      "bytes": 204179
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/0/diagnostic/scheduler-20261012T101317.800Z-bb1e47f9-e683-4bf2-842b-42bac3edc9ab.log",
+      "bytes": 24182
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/0/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/0/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/1/diagnostic/core-20261012T101317.838Z-ae977a78-fe4d-4031-bd30-f61030888260.log",
+      "bytes": 204177
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/1/diagnostic/scheduler-20261012T101317.838Z-ae977a78-fe4d-4031-bd30-f61030888260.log",
+      "bytes": 24181
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/1/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/1/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/2/diagnostic/core-20261012T101317.875Z-a4f0b4d6-9013-494b-828f-72494cb0ca4e.log",
+      "bytes": 204176
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/2/diagnostic/scheduler-20261012T101317.875Z-a4f0b4d6-9013-494b-828f-72494cb0ca4e.log",
+      "bytes": 24178
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/2/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/2/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/3/diagnostic/core-20261012T101317.912Z-12da5614-eaf0-409c-bae0-2349f6357fcc.log",
+      "bytes": 204177
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/3/diagnostic/scheduler-20261012T101317.912Z-12da5614-eaf0-409c-bae0-2349f6357fcc.log",
+      "bytes": 24178
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/3/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/all/3/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/0/diagnostic/core-20261012T101317.706Z-0c0f1616-706a-4cef-b77b-858ae96bbbd1.log",
+      "bytes": 204191
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/0/diagnostic/scheduler-20261012T101317.706Z-0c0f1616-706a-4cef-b77b-858ae96bbbd1.log",
+      "bytes": 24184
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/1/diagnostic/core-20261012T101317.731Z-4663c456-a01c-43a1-98de-18fc81fe2be9.log",
+      "bytes": 204194
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/1/diagnostic/scheduler-20261012T101317.731Z-4663c456-a01c-43a1-98de-18fc81fe2be9.log",
+      "bytes": 24180
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/2/diagnostic/core-20261012T101317.746Z-ebce51fc-c6c6-4aed-9a8e-93f200237d60.log",
+      "bytes": 204194
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/2/diagnostic/scheduler-20261012T101317.746Z-ebce51fc-c6c6-4aed-9a8e-93f200237d60.log",
+      "bytes": 24180
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/3/diagnostic/core-20261012T101317.762Z-d09576f7-2d56-4873-b6c9-5e599bab0553.log",
+      "bytes": 204193
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/diagnostic/3/diagnostic/scheduler-20261012T101317.762Z-d09576f7-2d56-4873-b6c9-5e599bab0553.log",
+      "bytes": 24180
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/machine/0/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/machine/0/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/machine/1/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/machine/1/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/machine/2/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/machine/2/machine/run.json",
+      "bytes": 2278
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/machine/3/machine/records.ndjson",
+      "bytes": 168800
+    },
+    {
+      "path": "/workspace/vibe-check/tmp/product-wide-investigation-20261012/performance/outputs/node/machine/3/machine/run.json",
+      "bytes": 2278
+    }
+  ],
+  "archiveLayout": {
+    "description": "Lossless partition of the original combined raw evidence to satisfy the existing 2 MiB JSON-file cap; each fragment retains original raw objects. This file is metadata and the fragment map, not another measurement.",
+    "originalCombinedBytes": 4491053,
+    "originalCombinedSha256": "7d054b3af434e433f3e9e5df9b6032a75e281da546881d08f36d058137c9a411",
+    "parts": [
+      {
+        "file": "node-evidence.json",
+        "bytes": 1772432,
+        "sha256": "b2289874f5561d18917249c4f503de480ed4a25af53435525964111bb4ac5d95",
+        "topLevelKeys": [
+          "packs"
+        ],
+        "packKeys": [
+          "node-checks",
+          "node-four",
+          "node-four-native",
+          "node-core"
+        ]
+      },
+      {
+        "file": "bun-check-evidence.json",
+        "bytes": 1397257,
+        "sha256": "a40fc04e882513b605b8751321131fd8364027be2207e4c0458526d8af0a8e05",
+        "topLevelKeys": [
+          "packs",
+          "earlierDevelopmentBaseline"
+        ],
+        "packKeys": [
+          "bun-checks",
+          "bun-core"
+        ]
+      },
+      {
+        "file": "bun-scheduler-evidence.json",
+        "bytes": 1300565,
+        "sha256": "db1d6fb9e5dff99ca3ff6a9e089517b986a0115fd4fcd50ea28bbd3af9193185",
+        "topLevelKeys": [
+          "earlierSchedulerDevelopmentBaseline",
+          "earlierHighParallelDevelopmentBaseline"
+        ]
+      }
+    ]
+  }
+}
