@@ -203,7 +203,7 @@ Owner: `docs/development/markdown-link-resolution.md#markdown-link-direct-target
 Entities:
 
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > reads only root-contained sources and returns their Link parser facts`
-- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > resolves direct local files, directories, and same or cross-document anchors`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.endpoints.test.ts|Markdown local resolver > resolves direct local files, directories, and same or cross-document anchors`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > gates lexical and symlink escapes before external work and accepts only strict file URIs`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > allows explicit validate mode and enforces the per-invocation direct target limit`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > memoizes successful canonical Markdown targets without changing logical target limits`

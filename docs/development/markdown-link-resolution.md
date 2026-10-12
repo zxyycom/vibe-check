@@ -15,6 +15,10 @@ partial occurrence set。anchor lookup 时，每份文档以 ATX 和 Setext head
 navigation range 使用 decode 后 JavaScript UTF-16 position，line/column 为 one-based、end-exclusive；parser offset 和
 dependency AST 保持 private。
 
+resolver 仅在启用的 anchor lookup 首次需要某份 immutable facts 时构建 heading slug Set，并在本次 invocation 内按 facts 身份复用。
+Set 直接索引 parser 已生成的 slug，保留 GitHub slugger 的重复 heading 规则。该索引不进入持久 parse-facts payload，
+也不缓存 target 授权、Finding 或结算结果。
+
 这些 immutable facts 可由本 Check 的[parse-facts cache](#markdown-link-parse-facts-cache)复用；
 cache 的恢复、当前 bytes 校验与 terminal publication 仍由同一 Link-private owner 承接。
 

@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import type { MarkdownHeading, ParsedMarkdownLinkFacts } from "./markdown-parser.ts";
+import type { ParsedMarkdownLinkFacts } from "./markdown-parser.ts";
 
 type RootExternalTargetMode = "ignore" | "report" | "validate";
 const NOT_LOCAL_FILE_URI: unique symbol = Symbol("not-local-file-uri");
@@ -204,13 +204,11 @@ function hasUriQuery(uriPathAndFragment: string): boolean {
 }
 
 export function anchorResolution(
-  headings: readonly MarkdownHeading[],
+  headingSlugs: ReadonlySet<string>,
   fragment: string,
   target: MarkdownSafeTargetDescriptor
 ): MarkdownLocalResolution {
-  return headings.some((heading) => heading.slug === fragment)
-    ? valid(target)
-    : finding("missing-anchor", target);
+  return headingSlugs.has(fragment) ? valid(target) : finding("missing-anchor", target);
 }
 
 export function isRootRelativePath(

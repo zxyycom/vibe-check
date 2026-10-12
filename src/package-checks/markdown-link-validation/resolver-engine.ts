@@ -35,6 +35,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
   readonly #maxTargetReads: number;
   readonly #signal: AbortSignal;
   readonly #targetFactMemo = new Map<string, Promise<ParsedMarkdownLinkFacts | undefined>>();
+  readonly #headingSlugMemo = new WeakMap<ParsedMarkdownLinkFacts, ReadonlySet<string>>();
 
   constructor(
     canonicalProjectRoot: string,
@@ -197,7 +198,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     const facts = await this.#targetFacts(targetPath, request.maxMarkdownBytes);
     return facts === undefined
       ? unavailable("target-unavailable")
-      : anchorResolution(facts.headings, fragment, target);
+      : anchorResolution(this.#headingSlugs(facts), fragment, target);
   }
 
   async resolveDirectory(
@@ -269,6 +270,14 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     return this.#signal.aborted ? undefined : parsed;
   }
 
+  #headingSlugs(facts: ParsedMarkdownLinkFacts): ReadonlySet<string> {
+    const existing = this.#headingSlugMemo.get(facts);
+    if (existing !== undefined) return existing;
+    const slugs = new Set(facts.headings.map((heading) => heading.slug));
+    this.#headingSlugMemo.set(facts, slugs);
+    return slugs;
+  }
+
   resolveSameDocument(
     fragment: string | null,
     request: MarkdownLocalResolutionRequest
@@ -281,6 +290,6 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     if (fragment === null || !request.validateSameDocumentAnchors) {
       return valid(target);
     }
-    return anchorResolution(request.source.facts.headings, fragment, target);
+    return anchorResolution(this.#headingSlugs(request.source.facts), fragment, target);
   }
 }

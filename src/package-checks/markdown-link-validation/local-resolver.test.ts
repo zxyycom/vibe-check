@@ -1,11 +1,19 @@
 import { strict as assert } from "node:assert";
-import { mkdtemp, mkdir, rm, symlink, writeFile } from "node:fs/promises";
-import os from "node:os";
+import { rm, symlink } from "node:fs/promises";
 import path from "node:path";
 import { describe, it } from "node:test";
 
-import { createMarkdownLocalResolver } from "./local-resolver.ts";
-import type { MarkdownLinkSource, MarkdownLocalResolutionRequest } from "./local-resolver.ts";
+import {
+  createdResolver,
+  outsideProjectRootTarget,
+  projectTarget,
+  readSource,
+  requestFor,
+  validOutsideTarget,
+  validTarget,
+  withFixture,
+  writeFixtureFile
+} from "./local-resolver.test-support.ts";
 
 describe("Markdown local resolver", () => {
   it("reads only root-contained sources and returns their Link parser facts", async () => {
@@ -36,68 +44,6 @@ describe("Markdown local resolver", () => {
       assert.deepEqual(await resolver.readSource("docs/source.md", 1), {
         ok: false,
         reason: "source-too-large"
-      });
-    });
-  });
-
-  it("resolves direct local files, directories, and same or cross-document anchors", async () => {
-    await withFixture(async ({ root }) => {
-      await writeFixtureFile(root, "docs/source.md", "# Source\n");
-      await writeFixtureFile(root, "docs/target.md", "# Target\n");
-      await writeFixtureFile(root, "docs/image.png", "not Markdown");
-      await mkdir(path.join(root, "docs", "empty"));
-      await writeFixtureFile(root, "docs/nonempty/child.txt", "present");
-      const resolver = await createdResolver(root, 20);
-      const source = await readSource(resolver, "docs/source.md");
-
-      assert.deepEqual(
-        await resolver.resolve(requestFor(source, "#source")),
-        validTarget("same-document", "docs/source.md", "source")
-      );
-      assert.deepEqual(await resolver.resolve(requestFor(source, "target.md#target")), {
-        ...validTarget("project-file", "docs/target.md", "target")
-      });
-      assert.deepEqual(await resolver.resolve(requestFor(source, "target.md#missing")), {
-        kind: "finding",
-        reason: "missing-anchor",
-        target: projectTarget("project-file", "docs/target.md", "missing")
-      });
-      assert.deepEqual(await resolver.resolve(requestFor(source, "missing.md")), {
-        kind: "finding",
-        reason: "missing-target",
-        target: projectTarget("project-path", "docs/missing.md", null)
-      });
-      assert.deepEqual(await resolver.resolve(requestFor(source, "image.png#anchor")), {
-        kind: "finding",
-        reason: "anchor-target-not-markdown",
-        target: projectTarget("project-file", "docs/image.png", "anchor")
-      });
-      assert.deepEqual(
-        await resolver.resolve(
-          requestFor(source, "image.png#anchor", { validateCrossDocumentAnchors: false })
-        ),
-        validTarget("project-file", "docs/image.png", "anchor")
-      );
-      assert.deepEqual(
-        await resolver.resolve(requestFor(source, "empty", { requireNonEmptyDirectories: true })),
-        {
-          kind: "finding",
-          reason: "empty-directory",
-          target: projectTarget("project-directory", "docs/empty", null)
-        }
-      );
-      assert.deepEqual(
-        await resolver.resolve(
-          requestFor(source, "nonempty", { requireNonEmptyDirectories: true })
-        ),
-        {
-          ...validTarget("project-directory", "docs/nonempty", null)
-        }
-      );
-      assert.deepEqual(await resolver.resolve(requestFor(source, "nonempty#anchor")), {
-        kind: "finding",
-        reason: "anchor-on-directory",
-        target: projectTarget("project-directory", "docs/nonempty", "anchor")
       });
     });
   });
@@ -226,7 +172,7 @@ describe("Markdown local resolver", () => {
   });
 
   it("memoizes successful canonical Markdown targets without changing logical target limits", async () => {
-    await withFixture(async ({ root }) => {
+    await withFixture(async ({ root, outside }) => {
       await writeFixtureFile(root, "docs/source.md", "# Source\n");
       await writeFixtureFile(root, "docs/target.md", "# One\n# Two\n");
       const resolver = await createdResolver(root, 2);
@@ -247,6 +193,23 @@ describe("Markdown local resolver", () => {
         reason: "target-read-limit-exceeded"
       });
       assert.equal(resolver.targetReadCount, 2);
+
+      const nextResolver = await createdResolver(root, 2);
+      const nextSource = await readSource(nextResolver, "docs/source.md");
+      assert.deepEqual(await nextResolver.resolve(requestFor(nextSource, "target.md#two")), {
+        kind: "finding",
+        reason: "missing-anchor",
+        target: projectTarget("project-file", "docs/target.md", "two")
+      });
+      await writeFixtureFile(outside, "outside.md", "# Two\n");
+      await rm(path.join(root, "docs/target.md"));
+      await symlink(path.join(outside, "outside.md"), path.join(root, "docs/target.md"));
+      assert.deepEqual(await nextResolver.resolve(requestFor(nextSource, "target.md#one")), {
+        kind: "finding",
+        reason: "target-outside-project-root",
+        target: { kind: "outside-project-root" }
+      });
+      assert.equal(nextResolver.targetReadCount, 1);
     });
   });
 
@@ -270,101 +233,3 @@ describe("Markdown local resolver", () => {
     });
   });
 });
-
-async function createdResolver(
-  root: string,
-  maxTargetReads: number,
-  cache: Parameters<typeof createMarkdownLocalResolver>[2] = Object.freeze({ enabled: false }),
-  signal: AbortSignal = new AbortController().signal
-) {
-  const creation = await createMarkdownLocalResolver(root, maxTargetReads, cache, signal);
-  assert.equal(creation.ok, true);
-  if (!creation.ok) {
-    assert.fail("expected resolver");
-  }
-  return creation.resolver;
-}
-
-async function readSource(
-  resolver: Awaited<ReturnType<typeof createdResolver>>,
-  rootRelativePath: string
-): Promise<MarkdownLinkSource> {
-  const source = await resolver.readSource(rootRelativePath, 1_024);
-  assert.equal(source.ok, true);
-  if (!source.ok) {
-    assert.fail("expected source");
-  }
-  return source.source;
-}
-
-function requestFor(
-  source: MarkdownLinkSource,
-  rawDestination: string,
-  overrides: Partial<MarkdownLocalResolutionRequest> = {}
-): MarkdownLocalResolutionRequest {
-  return {
-    source,
-    rawDestination,
-    rootExternalTargetMode: "report",
-    requireExistingTargets: true,
-    requireNonEmptyDirectories: false,
-    validateSameDocumentAnchors: true,
-    validateCrossDocumentAnchors: true,
-    maxMarkdownBytes: 1_024,
-    ...overrides
-  };
-}
-
-function validTarget(
-  kind: "same-document" | "project-file" | "project-directory" | "project-path",
-  relativePath: string,
-  fragment: string | null
-) {
-  return { kind: "valid" as const, target: projectTarget(kind, relativePath, fragment) };
-}
-
-function validOutsideTarget() {
-  return { kind: "valid" as const, target: outsideProjectRootTarget() };
-}
-
-function projectTarget(
-  kind: "same-document" | "project-file" | "project-directory" | "project-path",
-  relativePath: string,
-  fragment: string | null
-) {
-  return { kind, path: relativePath, fragment };
-}
-
-function outsideProjectRootTarget() {
-  return { kind: "outside-project-root" as const };
-}
-
-interface Fixture {
-  readonly root: string;
-  readonly outside: string;
-}
-
-async function withFixture(action: (fixture: Fixture) => Promise<void>): Promise<void> {
-  const workspace = await mkdtemp(path.join(os.tmpdir(), "vibe-check-link-resolver-"));
-  const fixture = {
-    root: path.join(workspace, "root"),
-    outside: path.join(workspace, "outside")
-  };
-  await mkdir(fixture.root);
-  await mkdir(fixture.outside);
-  try {
-    await action(fixture);
-  } finally {
-    await rm(workspace, { recursive: true, force: true });
-  }
-}
-
-async function writeFixtureFile(
-  root: string,
-  relativePath: string,
-  content: string
-): Promise<void> {
-  const filePath = path.join(root, relativePath);
-  await mkdir(path.dirname(filePath), { recursive: true });
-  await writeFile(filePath, content);
-}
