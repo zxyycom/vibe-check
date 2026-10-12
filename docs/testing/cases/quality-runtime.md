@@ -342,6 +342,8 @@ Entities:
 - `bun|src/package-checks/maintenance-reminders/history-failure-assessments.test.ts|maintenance reminders > classifies Git history failures as complete advisory or enforcing assessments`
 - `bun|src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts|maintenance reminders > renders due reminders through progress and retains their message readback`
 - `bun|src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts|maintenance reminders > keeps cancellation as a whole-Check unavailable boundary`
+- `bun|src/package-checks/maintenance-reminders/measurement-reuse.test.ts|maintenance reminders > reuses successful overlapping measurements only within one execution and observes cancellation on reuse`
+- `bun|src/package-checks/maintenance-reminders/measurement-reuse.test.ts|maintenance reminders > retries failed measurement steps while retaining usable shorter prefixes and ordered assessments`
   Proves:
 - One owning Check measures only committed first-parent activity after each base, excludes worktree/index delta and base itself, sums Git numstat additions/deletions, and treats merge, revert, binary, rename, and strict thresholds as declared by the quality owner.
 - Every measurable entry retains a parser-validated ordered clear/due assessment. A Git measurement failure retains a complete unavailable assessment with an actionable `reason`, plus an advisory warning or enforcing error/failure, rather than being mistaken for clear or discarded; due messages remain visible through progress and `RunResult.checkMessages`; cancellation instead closes the whole Check unavailable with an actionable error because no complete payload is formed.

@@ -11,25 +11,12 @@ import type {
   ReminderMeasurement
 } from "./maintenance-reminders.ts";
 
-export async function measureReminder(input: {
-  readonly entry: Readonly<MaintenanceReminder>;
+type MeasurementSessionInput = Readonly<{
   readonly executable: string;
   readonly history: FirstParentHistory;
   readonly projectRoot: string;
   readonly signal: AbortSignal;
-}): Promise<ReminderMeasurement> {
-  const base = await resolvedBaseCommit(input);
-  if (base.kind === "cancelled") return base;
-  if (base.kind === "unavailable") return unavailableMeasurement(input, base.reason);
-  const changedLines = await measuredChangedLines(input, base.value);
-  if (changedLines.kind === "cancelled") return changedLines;
-  if (changedLines.kind === "unavailable")
-    return unavailableMeasurement(input, changedLines.reason);
-  return completedMeasurement(
-    input.entry,
-    measuredAssessment(input, base.value, changedLines.value)
-  );
-}
+}>;
 
 type ReminderMeasureStage<T> =
   | Readonly<{ readonly kind: "cancelled" }>
@@ -39,56 +26,92 @@ type ReminderMeasureStage<T> =
       readonly reason: MaintenanceReminderUnavailableReason;
     }>;
 
-async function resolvedBaseCommit(input: {
-  readonly entry: Readonly<MaintenanceReminder>;
-  readonly executable: string;
-  readonly history: FirstParentHistory;
-  readonly projectRoot: string;
-  readonly signal: AbortSignal;
-}): Promise<ReminderMeasureStage<number>> {
-  const base = await runGit({
-    args: ["rev-parse", "--verify", `${input.entry.baseCommit}^{commit}`],
-    executable: input.executable,
-    projectRoot: input.projectRoot,
-    signal: input.signal
-  });
-  if (base.kind === "cancelled") return base;
-  if (base.kind === "failed") return unavailableMeasure("base-commit-unavailable");
+/** Successful immutable Git measurements live only for one ordered Check execution. */
+export class MaintenanceReminderMeasurementSession {
+  readonly #input: MeasurementSessionInput;
+  readonly #historyIndices = new Map<string, number>();
+  readonly #resolvedBases = new Map<string, number>();
+  readonly #changedLinePrefixes: number[] = [0];
 
-  const baseCommit = parseCommitId(base.stdout);
-  if (baseCommit === null) return unavailableMeasure("base-commit-unavailable");
+  constructor(input: MeasurementSessionInput) {
+    this.#input = input;
+    for (const [index, commit] of input.history.commits.entries()) {
+      if (!this.#historyIndices.has(commit)) this.#historyIndices.set(commit, index);
+    }
+  }
 
-  const baseIndex = input.history.commits.indexOf(baseCommit);
-  return baseIndex < 0
-    ? unavailableMeasure("base-not-first-parent-ancestor")
-    : completeMeasure(baseIndex);
-}
+  async measure(entry: Readonly<MaintenanceReminder>): Promise<ReminderMeasurement> {
+    if (this.#input.signal.aborted) return { kind: "cancelled" };
+    const input = { entry, history: this.#input.history };
+    const base = await this.#resolvedBaseIndex(entry.baseCommit);
+    if (base.kind === "cancelled") return base;
+    if (base.kind === "unavailable") return unavailableMeasurement(input, base.reason);
+    const changedLines = await this.#measuredChangedLines(base.value);
+    if (changedLines.kind === "cancelled") return changedLines;
+    if (changedLines.kind === "unavailable")
+      return unavailableMeasurement(input, changedLines.reason);
+    if (this.#input.signal.aborted) return { kind: "cancelled" };
+    return completedMeasurement(entry, measuredAssessment(input, base.value, changedLines.value));
+  }
 
-async function measuredChangedLines(
-  input: {
-    readonly executable: string;
-    readonly history: FirstParentHistory;
-    readonly projectRoot: string;
-    readonly signal: AbortSignal;
-  },
-  baseIndex: number
-): Promise<ReminderMeasureStage<number>> {
-  let changedLines = 0;
-  for (const commit of input.history.commits.slice(0, baseIndex)) {
+  async #resolvedBaseIndex(baseCommit: string): Promise<ReminderMeasureStage<number>> {
+    if (this.#input.signal.aborted) return { kind: "cancelled" };
+    const key = baseCommit.toLowerCase();
+    const cachedIndex = this.#resolvedBases.get(key);
+    if (cachedIndex !== undefined) return completeMeasure(cachedIndex);
+    const base = await runGit({
+      args: ["rev-parse", "--verify", `${baseCommit}^{commit}`],
+      executable: this.#input.executable,
+      projectRoot: this.#input.projectRoot,
+      signal: this.#input.signal
+    });
+    if (base.kind === "cancelled") return base;
+    if (base.kind === "failed") return unavailableMeasure("base-commit-unavailable");
+    const resolvedCommit = parseCommitId(base.stdout);
+    if (resolvedCommit === null) return unavailableMeasure("base-commit-unavailable");
+    const baseIndex = this.#historyIndices.get(resolvedCommit);
+    if (baseIndex === undefined) return unavailableMeasure("base-not-first-parent-ancestor");
+    this.#resolvedBases.set(key, baseIndex);
+    return completeMeasure(baseIndex);
+  }
+
+  async #measuredChangedLines(baseIndex: number): Promise<ReminderMeasureStage<number>> {
+    if (this.#input.signal.aborted) return { kind: "cancelled" };
+    while (this.#changedLinePrefixes.length <= baseIndex) {
+      if (this.#input.signal.aborted) return { kind: "cancelled" };
+      const index = this.#changedLinePrefixes.length - 1;
+      const commit = this.#input.history.commits[index];
+      const previousCount = this.#changedLinePrefixes[index];
+      if (commit === undefined || previousCount === undefined)
+        throw new Error("Maintenance history prefix is incomplete");
+      const nextPrefix = await this.#measuredCommitPrefix({ commit, previousCount });
+      if (nextPrefix.kind === "cancelled") return nextPrefix;
+      if (nextPrefix.kind === "unavailable") return nextPrefix;
+      // A failed step stays retryable; shorter successful prefixes remain usable.
+      this.#changedLinePrefixes.push(nextPrefix.value);
+    }
+    const changedLines = this.#changedLinePrefixes[baseIndex];
+    if (changedLines === undefined) throw new Error("Maintenance history prefix is incomplete");
+    return completeMeasure(changedLines);
+  }
+
+  async #measuredCommitPrefix(input: {
+    readonly commit: string;
+    readonly previousCount: number;
+  }): Promise<ReminderMeasureStage<number>> {
     const numstat = await runGit({
-      args: ["diff-tree", "--no-commit-id", "--numstat", "-r", `${commit}^`, commit],
-      executable: input.executable,
-      projectRoot: input.projectRoot,
-      signal: input.signal
+      args: ["diff-tree", "--no-commit-id", "--numstat", "-r", `${input.commit}^`, input.commit],
+      executable: this.#input.executable,
+      projectRoot: this.#input.projectRoot,
+      signal: this.#input.signal
     });
     if (numstat.kind === "cancelled") return numstat;
     if (numstat.kind === "failed") return unavailableMeasure("numstat-unavailable");
     const count = parseChangedLines(numstat.stdout);
-    if (count === null || !Number.isSafeInteger(changedLines + count))
+    if (count === null || !Number.isSafeInteger(input.previousCount + count))
       return unavailableMeasure("numstat-invalid");
-    changedLines += count;
+    return completeMeasure(input.previousCount + count);
   }
-  return completeMeasure(changedLines);
 }
 
 function measuredAssessment(

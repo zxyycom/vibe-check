@@ -24,7 +24,11 @@ import {
   unavailableHistory,
   unavailableResult
 } from "./assessment-results.ts";
-import { measureReminder, parseCommitId, parseFirstParentHistory } from "./measurement.ts";
+import {
+  MaintenanceReminderMeasurementSession,
+  parseCommitId,
+  parseFirstParentHistory
+} from "./measurement.ts";
 
 export const MAINTENANCE_REMINDERS_CHECK_ID = "maintenance-reminders";
 
@@ -280,15 +284,15 @@ async function executeMaintenanceReminders(
       );
     }
 
+    const measurements = new MaintenanceReminderMeasurementSession({
+      executable: context.options.git.executable,
+      history: history.value,
+      projectRoot: context.project.root,
+      signal: context.signal
+    });
     const evaluations: ReminderEvaluation[] = [];
     for (const entry of context.options.entries) {
-      const measurement = await measureReminder({
-        entry,
-        executable: context.options.git.executable,
-        history: history.value,
-        projectRoot: context.project.root,
-        signal: context.signal
-      });
+      const measurement = await measurements.measure(entry);
       if (measurement.kind === "cancelled") {
         return unavailableResult(WHOLE_CHECK_UNAVAILABLE_CODE.executionCancelled);
       }
