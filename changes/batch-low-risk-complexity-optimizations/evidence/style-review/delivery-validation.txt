@@ -1,0 +1,99 @@
+$ mise exec -- bun run validate (new style-review files staged)
+$ bun scripts/validation/workspace.ts
+strict JSON validation ok: 287 file(s)
+schema strict compile ok: 5 schema file(s)
+current machine artifact examples ok: 1 set(s)
+schema ok: docs/schemas/vibe-check-report.schema.json (4 file(s))
+report examples ok: 4 file(s)
+markdown links ok: 526 file(s)
+
+$ mise exec -- bun run test-evidence -- check --root .
+$ bun scripts/test-evidence/command.ts check --root .
+Test Case check passed: 704 current test entities (704 Bun); 704 mapped by 176 semantic Cases across 15 topics.
+
+$ mise exec -- bun run change-plan -- check-all changes
+$ bun .codex/skills/change-plan/scripts/change-plan.mjs check-all changes
+Change plan collection check passed (/workspace/vibe-check/changes; 15/15 changes valid).
+
+$ mise exec -- bun run format -- check
+$ bun scripts/development/format.ts check
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 57ms on 916 files using 4 threads.
+
+$ git diff --check && git diff --cached --check
+
+$ mise exec -- bun run check -- --materials
+$ mise exec -- bun scripts/project/gate/run.ts --materials
+project gate start: candidate=0.0.0-local.dbb0d18d75a0; source=local; selection=focused; presets=materials; package-acceptance=not-selected
+Vibe Check
+total 43 checks
+
+Checks:
+  The following 36 checks did not run because the run flags did not match their conditions:
+    - TypeScript product typecheck and import boundary
+    - TypeScript product lint
+    - TypeScript script typecheck
+    - TypeScript script lint
+    - Source format
+    - Prepared package candidate
+    - Prepared external package consumer
+    - Bun package calculation and material tests
+    - Bun package artifact acceptance
+    - Bun external package consumer type acceptance
+    - Bun external package consumer documentation acceptance
+    - Bun external package consumer runtime acceptance
+    - Bun Product duplicate detection tests
+    - Bun Product file metrics tests
+    - Bun Product function metrics tests
+    - Bun Product JSON tests
+    - Bun Product Markdown link tests
+    - Bun Product secret detection tests
+    - Bun Product supporting Check tests
+    - Bun Product runtime tests
+    - Bun admission workbench tests
+    - Bun Project Gate tooling tests
+    - Bun Project Gate change selection tests
+    - Bun Test Evidence tooling tests
+    - Bun repository layout tests
+    - Bun machine artifact validation tests
+    - Bun package-tools boundary tests
+    - Bun repository material validation tests
+    - Bun ordinary script tooling tests
+    - Duplicate detection
+    - File metrics
+    - Function metrics
+    - Decision records
+    - Semantic Case ledger
+    - Test evidence ast-grep rule tests
+    - Git diff whitespace
+  [37/43] JSON validation | passed | 946.1ms
+  [38/43] Repository publication and machine example material validator | passed | 198.1ms
+  [39/43] JSON Schema validation | passed | 109.6ms
+  [40/43] Repository schema publication material validator | passed | 103.7ms
+  [41/43] Repository material link validation | passed | 20.6ms
+  [42/43] Markdown lint | passed | 3.5s
+  [43/43] Markdown link validation | passed | 4.2s
+
+Execution summary:
+  execution: completed
+  total checks: 43
+  passed: 7
+  failed: 0
+  not applicable: 36
+  unavailable: 0
+  elapsed: 4.3s
+project gate logs: /workspace/vibe-check/.log/project-gate/2026-10-12T08-49-49.822Z-1934177-6b66e4b1-5adf-4a9c-ad00-c15f1ac17e58
+project gate result: passed
+
+Archive and source integrity verification:
+helper-source archive matches frozen input bytes and metadata
+raw-flags archive matches complete original samples
+equivalence-and-validation archive matches source files
+conversion-sources archive matches source files
+independent-audit archive matches source files
+current 722 source files match style-after manifest
+original SHA group unchanged: changes/batch-low-risk-complexity-optimizations/evidence
+original SHA group unchanged: changes/batch-low-risk-complexity-optimizations/evidence/root-validation
+original SHA group unchanged: changes/batch-low-risk-complexity-optimizations/evidence/independent-review

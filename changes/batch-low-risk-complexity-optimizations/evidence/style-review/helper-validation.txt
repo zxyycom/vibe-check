@@ -1,0 +1,14 @@
+$ mise exec -- bun run tsgo --project /tmp/vibe-low-risk-style.9xQguq/candidate/harness/tsconfig.json --noEmit
+exit: 0
+$ mise exec -- bun run tsgo --project /tmp/vibe-low-risk-style.9xQguq/tsconfig.json --noEmit
+exit: 0
+$ mise exec -- bun run oxlint --deny-warnings --config candidate/harness/lint.json <13 harness TS + 4 conversion TS>
+exit: 0
+$ mise exec -- bun run oxfmt --check --config candidate/harness/.oxfmtrc.json <13 harness TS + 4 conversion TS>
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 4ms on 17 files using 4 threads.
+exit: 0
+$ bash -n <each of five harness shell scripts>
+exit: 0
