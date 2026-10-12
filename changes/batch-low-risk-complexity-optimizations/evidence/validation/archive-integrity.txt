@@ -1,1 +1,0 @@
-All eight archives readable; all existing archived regular-file members byte-equal to their original temporary files; seven raw text evidence files extract byte-equal to delivery-final originals, with original SHA recorded.

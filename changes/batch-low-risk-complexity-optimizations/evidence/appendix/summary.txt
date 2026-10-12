@@ -1,3 +1,0 @@
-C05-isolated-once-per-call-Set/2: B=0.000056ms (MAD 0.000005), A=0.000220, A/B=3.898
-C05-isolated-once-per-call-Set/5: B=0.000092ms (MAD 0.000003), A=0.000846, A/B=9.203
-C05-isolated-once-per-call-Set/512: B=0.369159ms (MAD 0.006235), A=0.111322, A/B=0.302

@@ -1,2 +1,0 @@
-$ bun scripts/test-evidence/command.ts check --root .
-Test Case check passed: 704 current test entities (704 Bun); 704 mapped by 176 semantic Cases across 15 topics.
