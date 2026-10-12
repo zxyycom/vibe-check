@@ -1,0 +1,2 @@
+$ bun scripts/decision-records/command.ts check
+Decision records check passed (357 decisions, 121 active, 118 aligned, 3 unaligned, 236 archived, 0 candidate scaffolds, 0 body-ready candidates).

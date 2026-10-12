@@ -88,6 +88,10 @@ owner 时，实施与合入必须串行。
 
 ### Scheduler 证据队列
 
+[`batch-low-risk-complexity-optimizations`](../../changes/batch-low-risk-complexity-optimizations/proposal.md)
+独立承接已授权的局部 membership、lookup 与累计成本优化；R04 不跨阶段复用 graph，T01/T02 不改变 learned 策略。
+它与下述策略证据队列共享 Scheduler / learned owner 时串行实施和合入，不解除后者的恢复条件。
+
 Scheduler 的当前行为由 runtime、Architecture、API mechanics、
 [统一 Invocation 策略生命周期 Decision](../decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md)
 和[虚拟评估 Decision](../decisions/evaluate-admission-heuristics-with-seeded-virtual-workloads.md)承接。以下队列只协调

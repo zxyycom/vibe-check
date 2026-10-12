@@ -1,0 +1,1 @@
+Exact-key boolean equivalence: 768 cases including empty, reordered, missing, extra, and duplicate schema keys.

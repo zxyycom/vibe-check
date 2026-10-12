@@ -1,0 +1,1 @@
+Read-only Git no-index whitespace checks: all 38 final delivered text files passed, no diagnostics. Exit 1 for /dev/null versus new file is the normal content-difference status. No Git config/index/repository writes performed.

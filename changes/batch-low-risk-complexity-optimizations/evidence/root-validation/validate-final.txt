@@ -1,0 +1,7 @@
+$ bun scripts/validation/workspace.ts
+strict JSON validation ok: 287 file(s)
+schema strict compile ok: 5 schema file(s)
+current machine artifact examples ok: 1 set(s)
+schema ok: docs/schemas/vibe-check-report.schema.json (4 file(s))
+report examples ok: 4 file(s)
+markdown links ok: 526 file(s)

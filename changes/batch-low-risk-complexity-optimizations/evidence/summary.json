@@ -1,0 +1,1608 @@
+{
+  "protocol": "independent process before/after; 3 iteration-batch warmup calls; 7 measured batches; no sample exclusions; median and unscaled median absolute deviation; pooled batches are not independent experiments",
+  "files": [
+    "formal-00-after.json",
+    "formal-00-before.json",
+    "formal-01-after.json",
+    "formal-01-before.json",
+    "formal-02-after.json",
+    "formal-02-before.json",
+    "formal-03-after.json",
+    "formal-03-before.json",
+    "formal-04-after.json",
+    "formal-04-before.json"
+  ],
+  "rows": [
+    {
+      "name": "C01-identifier-dedup",
+      "size": 8,
+      "boundary": "parseUniqueIdentifiers closed-array snapshot + insertion-order dedup",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.0050314433333333375,
+        "mad": 0.00045421333333332294,
+        "min": 0.0044490600000000316,
+        "max": 0.011921329999999937,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.006291183333333331,
+        "mad": 0.0009622533333334127,
+        "min": 0.004833410000000005,
+        "max": 0.014713966666666635,
+        "count": 35
+      },
+      "afterOverBefore": 1.250373484613095,
+      "beforeProcessMedians": [
+        0.004801613333333326,
+        0.007824363333333318,
+        0.007598276666666664,
+        0.004913423333333308,
+        0.004786553333333359
+      ],
+      "afterProcessMedians": [
+        0.007536536666666697,
+        0.008635066666666755,
+        0.005939396666666662,
+        0.005927606666666681,
+        0.00589879000000001
+      ],
+      "pairedAfterOverBefore": [
+        1.5695842508490288,
+        1.1036126901060028,
+        0.7816768100485941,
+        1.2064107373881303,
+        1.2323669223365967
+      ]
+    },
+    {
+      "name": "C03-reason-unique-and-reject",
+      "size": 8,
+      "boundary": "normalizeCheckOutcome valid list + late duplicate rejection",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.01526267333333332,
+        "mad": 0.0045949733333333145,
+        "min": 0.009609909999999975,
+        "max": 0.03792227000000006,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.01196237999999994,
+        "mad": 0.0015078966666666818,
+        "min": 0.009740089999999953,
+        "max": 0.05509289000000005,
+        "count": 35
+      },
+      "afterOverBefore": 0.7837670202817211,
+      "beforeProcessMedians": [
+        0.01191108333333337,
+        0.020204619999999996,
+        0.019662506666666673,
+        0.01030871,
+        0.014410960000000065
+      ],
+      "afterProcessMedians": [
+        0.020081756666666593,
+        0.031066893333333307,
+        0.011503293333333317,
+        0.01051663,
+        0.011074333333333282
+      ],
+      "pairedAfterOverBefore": [
+        1.6859723087040666,
+        1.5376133445386904,
+        0.5850369705320708,
+        1.0201693519363724,
+        0.7684660378859723
+      ]
+    },
+    {
+      "name": "R08-flag-membership",
+      "size": 8,
+      "boundary": "selectEffectiveCheckIds full selection including run flags membership construction",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.006568196666666685,
+        "mad": 0.0012206666666667353,
+        "min": 0.0051873666666666434,
+        "max": 0.01911335000000008,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.004242579999999994,
+        "mad": 0.0008883833333333275,
+        "min": 0.003272010000000023,
+        "max": 0.034316726666666755,
+        "count": 35
+      },
+      "afterOverBefore": 0.6459276747194409,
+      "beforeProcessMedians": [
+        0.005902553333333363,
+        0.008776266666666668,
+        0.009088123333333442,
+        0.005703359999999975,
+        0.005729973333333381
+      ],
+      "afterProcessMedians": [
+        0.005431619999999953,
+        0.010003229999999993,
+        0.0036514466666666104,
+        0.0035782100000000126,
+        0.004925913333333369
+      ],
+      "pairedAfterOverBefore": [
+        0.9202153192460086,
+        1.139804700556044,
+        0.4017822528083245,
+        0.6273863126297531,
+        0.8596747396148432
+      ]
+    },
+    {
+      "name": "R08-dependency-reads",
+      "size": 8,
+      "boundary": "prepared createCheckDependencies closure; n authorized string gets + one unauthorized get",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.0011928500000000022,
+        "mad": 0.00023750333333329848,
+        "min": 0.000888716666666672,
+        "max": 0.005361416666666609,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.000878466666666687,
+        "mad": 0.00008462333333331639,
+        "min": 0.0007417766666666617,
+        "max": 0.003617200000000101,
+        "count": 35
+      },
+      "afterOverBefore": 0.7364435315980092,
+      "beforeProcessMedians": [
+        0.0010813399999999736,
+        0.0018654299999999087,
+        0.0016343666666667409,
+        0.0009623866666666459,
+        0.0010496833333332727
+      ],
+      "afterProcessMedians": [
+        0.001453396666666625,
+        0.001701289999999934,
+        0.0008628699999999867,
+        0.0008073000000000737,
+        0.0008477099999999874
+      ],
+      "pairedAfterOverBefore": [
+        1.3440700118988111,
+        0.912009563478671,
+        0.5279537435499669,
+        0.8388520206709269,
+        0.8075864149505753
+      ]
+    },
+    {
+      "name": "R08-dependency-build-and-reads",
+      "size": 8,
+      "boundary": "createCheckDependencies plus n authorized string gets; includes index construction",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.0009250199999999609,
+        "mad": 0.00015452333333333473,
+        "min": 0.0007257166666666611,
+        "max": 0.006485216666666626,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.001948283333333336,
+        "mad": 0.00040428666666665917,
+        "min": 0.0012436766666666205,
+        "max": 0.0048724633333333146,
+        "count": 35
+      },
+      "afterOverBefore": 2.1062067126477464,
+      "beforeProcessMedians": [
+        0.0007862933333332952,
+        0.0014781766666665892,
+        0.0010272066666667948,
+        0.0008352200000000683,
+        0.0008397933333333185
+      ],
+      "afterProcessMedians": [
+        0.0021586099999999914,
+        0.0019654499999999567,
+        0.0015667433333333254,
+        0.0013494733333333404,
+        0.001977236666666613
+      ],
+      "pairedAfterOverBefore": [
+        2.7452986162926,
+        1.3296448552609137,
+        1.5252464612766627,
+        1.615710032486327,
+        2.3544324397272116
+      ]
+    },
+    {
+      "name": "R08-artifact-lookups",
+      "size": 8,
+      "boundary": "resolved invocation path object; n check-local directory reads + missing lookup; no filesystem writes",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.0006905500000000112,
+        "mad": 0.00004017666666669586,
+        "min": 0.0006349099999999907,
+        "max": 0.0018975533333334246,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.00017005000000002232,
+        "mad": 0.000014493333333405201,
+        "min": 0.00015058000000000977,
+        "max": 0.004066599999999975,
+        "count": 35
+      },
+      "afterOverBefore": 0.2462529867497206,
+      "beforeProcessMedians": [
+        0.0006558199999999677,
+        0.0007165333333333971,
+        0.0016905066666667305,
+        0.000667473333333343,
+        0.0006711766666667056
+      ],
+      "afterProcessMedians": [
+        0.0002924433333333809,
+        0.000199603333333395,
+        0.00016697666666658505,
+        0.00016033333333335045,
+        0.00016727666666668028
+      ],
+      "pairedAfterOverBefore": [
+        0.44592012035832285,
+        0.27856810569414386,
+        0.09877314887839074,
+        0.24020934669052663,
+        0.2492289660447134
+      ]
+    },
+    {
+      "name": "R08-artifact-build-and-lookups",
+      "size": 8,
+      "boundary": "resolveInvocationPaths plus n check-local directory reads; includes hashes and index build",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.013044789999999959,
+        "mad": 0.0017681166666666092,
+        "min": 0.009148723333333351,
+        "max": 0.023939263333333353,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.010486976666666693,
+        "mad": 0.0007178700000000059,
+        "min": 0.00959985999999996,
+        "max": 0.02132678999999996,
+        "count": 35
+      },
+      "afterOverBefore": 0.8039206968197055,
+      "beforeProcessMedians": [
+        0.011593360000000151,
+        0.019206133333333354,
+        0.018409236666666592,
+        0.011430293333333357,
+        0.011981446666666689
+      ],
+      "afterProcessMedians": [
+        0.013783553333333316,
+        0.01847724666666674,
+        0.010149716666666676,
+        0.009822640000000054,
+        0.009984910000000013
+      ],
+      "pairedAfterOverBefore": [
+        1.1889179093319915,
+        0.9620492759257486,
+        0.5513382684163467,
+        0.8593515243703312,
+        0.8333643071482182
+      ]
+    },
+    {
+      "name": "R04-four-singleton-prepare",
+      "size": 8,
+      "boundary": "four separate prepareTaskGraph calls; singleton scopes; no cross-stage reuse; excludes public Run shell",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.13746515000000006,
+        "mad": 0.03522697333333327,
+        "min": 0.08958892666666657,
+        "max": 0.1822422400000001,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.10700797000000004,
+        "mad": 0.012397926666666684,
+        "min": 0.09407287333333329,
+        "max": 0.2334155666666667,
+        "count": 35
+      },
+      "afterOverBefore": 0.7784370802345175,
+      "beforeProcessMedians": [
+        0.13746515000000006,
+        0.15826429999999997,
+        0.17141861000000025,
+        0.09532258000000013,
+        0.09270424666666656
+      ],
+      "afterProcessMedians": [
+        0.14758259999999987,
+        0.1994943333333337,
+        0.10606302999999988,
+        0.10319155000000005,
+        0.09567982333333343
+      ],
+      "pairedAfterOverBefore": [
+        1.0736001088275815,
+        1.260513794540738,
+        0.6187369621069715,
+        1.0825509548734404,
+        1.0320975227528253
+      ]
+    },
+    {
+      "name": "R04-four-no-scope-prepare",
+      "size": 8,
+      "boundary": "four separate prepareTaskGraph calls; common unscoped graph protects no-scope path; no cross-stage reuse; excludes public Run shell",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.06511406666666668,
+        "mad": 0.015534603333333424,
+        "min": 0.0434554133333332,
+        "max": 0.12069004666666615,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.0522206133333331,
+        "mad": 0.004286959999999833,
+        "min": 0.04600444666666666,
+        "max": 0.1933703200000006,
+        "count": 35
+      },
+      "afterOverBefore": 0.8019866674993897,
+      "beforeProcessMedians": [
+        0.06545373666666668,
+        0.07997739666666727,
+        0.09119861666666641,
+        0.04811286999999993,
+        0.04954494999999989
+      ],
+      "afterProcessMedians": [
+        0.06552843333333386,
+        0.13764736666666674,
+        0.05131439,
+        0.05028495333333315,
+        0.048010326666666665
+      ],
+      "pairedAfterOverBefore": [
+        1.0011412131754613,
+        1.7210783596815298,
+        0.5626663196828476,
+        1.0451455781651193,
+        0.9690256356433253
+      ]
+    },
+    {
+      "name": "T01-critical-path-preparation",
+      "size": 8,
+      "boundary": "createSchedulerCriticalPathSnapshot incl prediction lookup + frozen score DTO; independent task graph",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.0064317433333333915,
+        "mad": 0.002085540000000113,
+        "min": 0.0038445400000000516,
+        "max": 0.014356443333332814,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.005184860000000147,
+        "mad": 0.0006146066666667593,
+        "min": 0.004303360000000112,
+        "max": 0.035279916666666696,
+        "count": 35
+      },
+      "afterOverBefore": 0.8061360242920297,
+      "beforeProcessMedians": [
+        0.0055366499999998575,
+        0.009199676666667074,
+        0.007339713333333293,
+        0.0045746633333336225,
+        0.004346203333333278
+      ],
+      "afterProcessMedians": [
+        0.0073522533333334646,
+        0.00952007999999978,
+        0.0050835066666665325,
+        0.004634406666666943,
+        0.0050928900000000495
+      ],
+      "pairedAfterOverBefore": [
+        1.3279245271660036,
+        1.0348276732913466,
+        0.692602890031113,
+        1.0130596131299971,
+        1.17180205558724
+      ]
+    },
+    {
+      "name": "T01-history-prediction",
+      "size": 8,
+      "boundary": "createSchedulerPredictionSnapshot with immutable in-memory bounded history: n matching series x4 samples; includes history index construction, identity hashing, learned/prior, digest and frozen DTO; excludes IO",
+      "iterations": 30,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.13521090000000033,
+        "mad": 0.044586333333328815,
+        "min": 0.06968070000000352,
+        "max": 0.24050323333333382,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.08661586666666683,
+        "mad": 0.009279199999999349,
+        "min": 0.06839536666666769,
+        "max": 0.5608030666666688,
+        "count": 35
+      },
+      "afterOverBefore": 0.6405982555153957,
+      "beforeProcessMedians": [
+        0.1586744000000029,
+        0.16993223333333846,
+        0.1608355999999958,
+        0.07818549999999884,
+        0.07801919999999805
+      ],
+      "afterProcessMedians": [
+        0.12941599999999956,
+        0.17112436666667083,
+        0.08186603333333171,
+        0.08330536666666527,
+        0.08348736666666809
+      ],
+      "pairedAfterOverBefore": [
+        0.8156073065346218,
+        1.007015345528908,
+        0.5090044326836463,
+        1.0654835828467748,
+        1.0700874485597156
+      ]
+    },
+    {
+      "name": "T01-history-recording",
+      "size": 8,
+      "boundary": "recordSchedulerHistory with immutable prepared predictions, n existing series x4 samples and n ordered available admissions; includes prediction index construction, merge, bounded 4-sample retention and freeze; synthetic complete terminal input, no storage/terminalEffect",
+      "iterations": 100,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.027872359999998934,
+        "mad": 0.007996249999998779,
+        "min": 0.01802616999999941,
+        "max": 0.04669658999999911,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.02344714000000067,
+        "mad": 0.0047830799999997,
+        "min": 0.017778509999999415,
+        "max": 0.050170839999998405,
+        "count": 35
+      },
+      "afterOverBefore": 0.8412326763862683,
+      "beforeProcessMedians": [
+        0.03298694999999952,
+        0.034290979999998396,
+        0.033516740000000024,
+        0.018913519999999837,
+        0.01933059999999955
+      ],
+      "afterProcessMedians": [
+        0.031060110000000803,
+        0.046033420000001116,
+        0.020353900000000067,
+        0.01954650000000015,
+        0.019684259999999086
+      ],
+      "pairedAfterOverBefore": [
+        0.9415878097247928,
+        1.342435240987667,
+        0.6072756479299614,
+        1.0334670648298319,
+        1.0182953452039536
+      ]
+    },
+    {
+      "name": "T01-T02-prepared-decisions",
+      "size": 8,
+      "boundary": "public strategy.prepare outside timer; synchronous decide on tightening, active continuation, and wait boundaries",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.024858633333333272,
+        "mad": 0.008372450000000146,
+        "min": 0.014244186666666488,
+        "max": 0.05530370333333318,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.010000236666666449,
+        "mad": 0.0020884433333336946,
+        "min": 0.007757369999999734,
+        "max": 0.035091720000000354,
+        "count": 35
+      },
+      "afterOverBefore": 0.4022842500056911,
+      "beforeProcessMedians": [
+        0.031943356666666506,
+        0.02972406666666681,
+        0.025926926666666836,
+        0.014815613333333129,
+        0.014655549999999948
+      ],
+      "afterProcessMedians": [
+        0.011922170000000279,
+        0.015848453333333054,
+        0.008370893333333242,
+        0.00786110000000008,
+        0.00819945999999997
+      ],
+      "pairedAfterOverBefore": [
+        0.37322846576237517,
+        0.5331859032299184,
+        0.32286485170243295,
+        0.5305956508944295,
+        0.5594781499159021
+      ]
+    },
+    {
+      "name": "T01-T02-public-prepare",
+      "size": 8,
+      "boundary": "public learned strategy.prepare with empty existing directory; includes async history read, identity, predictions, scores and immutable index construction; no terminalEffect/write",
+      "iterations": 10,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.5199053000000049,
+        "mad": 0.16459130000000644,
+        "min": 0.2655695999999921,
+        "max": 1.5054316999999855,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.379061999999999,
+        "mad": 0.09848479999999427,
+        "min": 0.24626030000000582,
+        "max": 0.7589281000000028,
+        "count": 35
+      },
+      "afterOverBefore": 0.7290981646080458,
+      "beforeProcessMedians": [
+        1.0232103999999935,
+        0.5199053000000049,
+        0.585183999999981,
+        0.32214880000000223,
+        0.3076447999999914
+      ],
+      "afterProcessMedians": [
+        0.4831952999999885,
+        0.607442200000014,
+        0.3063042999999993,
+        0.2855521000000067,
+        0.2828283000000056
+      ],
+      "pairedAfterOverBefore": [
+        0.47223454726417124,
+        1.1683708552307666,
+        0.5234324588505653,
+        0.8863981489299501,
+        0.9193339201573162
+      ]
+    },
+    {
+      "name": "C01-identifier-dedup",
+      "size": 512,
+      "boundary": "parseUniqueIdentifiers closed-array snapshot + insertion-order dedup",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 1.2984813749999944,
+        "mad": 0.458829625000007,
+        "min": 0.7976849999999871,
+        "max": 2.4200346249999996,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.3303810000000027,
+        "mad": 0.02831762499999968,
+        "min": 0.29532837499999687,
+        "max": 1.1592993750000176,
+        "count": 35
+      },
+      "afterOverBefore": 0.2544364565876073,
+      "beforeProcessMedians": [
+        2.189130999999975,
+        1.664151750000002,
+        1.2984813749999944,
+        0.828718875000007,
+        0.8264408749999888
+      ],
+      "afterProcessMedians": [
+        0.5475192499999935,
+        0.736533124999994,
+        0.3201307500000041,
+        0.30468075000000283,
+        0.320889875000006
+      ],
+      "pairedAfterOverBefore": [
+        0.2501080337357608,
+        0.4425877177366746,
+        0.24654242730282175,
+        0.36765272179905434,
+        0.38827928858190897
+      ]
+    },
+    {
+      "name": "C03-reason-unique-and-reject",
+      "size": 512,
+      "boundary": "normalizeCheckOutcome valid list + late duplicate rejection",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 2.0560284999999965,
+        "mad": 0.4956369999999879,
+        "min": 1.1583861249999927,
+        "max": 2.8832802499999843,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.49440887499999064,
+        "mad": 0.06907537499998284,
+        "min": 0.41145287500000904,
+        "max": 1.4223552500000096,
+        "count": 35
+      },
+      "afterOverBefore": 0.2404679093699292,
+      "beforeProcessMedians": [
+        2.3971526249999897,
+        2.1346358749999865,
+        2.37462450000001,
+        1.2190774999999974,
+        1.202066125000016
+      ],
+      "afterProcessMedians": [
+        0.6547608749999938,
+        1.0583007500000008,
+        0.43959262500000307,
+        0.4312369999999959,
+        0.4730991250000045
+      ],
+      "pairedAfterOverBefore": [
+        0.2731410875433919,
+        0.49577577253076355,
+        0.1851209001675849,
+        0.35374043077654765,
+        0.39357163067880163
+      ]
+    },
+    {
+      "name": "R08-flag-membership",
+      "size": 512,
+      "boundary": "selectEffectiveCheckIds full selection including run flags membership construction",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 9.918967624999993,
+        "mad": 1.1939526250000085,
+        "min": 7.027809499999989,
+        "max": 12.950457000000029,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.3006821250000087,
+        "mad": 0.051224375000018085,
+        "min": 0.2333507499999996,
+        "max": 0.5893922500000031,
+        "count": 35
+      },
+      "afterOverBefore": 0.030313852849177828,
+      "beforeProcessMedians": [
+        9.926434125000014,
+        11.078356374999998,
+        10.226549624999961,
+        7.890291999999988,
+        7.941705000000013
+      ],
+      "afterProcessMedians": [
+        0.3714185000000043,
+        0.4350427499999796,
+        0.31448774999999785,
+        0.2494577499999906,
+        0.2691690000000051
+      ],
+      "pairedAfterOverBefore": [
+        0.0374171122603409,
+        0.03926961141832555,
+        0.030752087608434113,
+        0.03161578177334767,
+        0.03389309978147068
+      ]
+    },
+    {
+      "name": "R08-dependency-reads",
+      "size": 512,
+      "boundary": "prepared createCheckDependencies closure; n authorized string gets + one unauthorized get",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.4914888750000159,
+        "mad": 0.056543750000003,
+        "min": 0.43302662499999656,
+        "max": 1.4688037500000064,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.042844624999986536,
+        "mad": 0.00614899999997931,
+        "min": 0.03518162500000699,
+        "max": 0.19096274999998286,
+        "count": 35
+      },
+      "afterOverBefore": 0.08717313286081023,
+      "beforeProcessMedians": [
+        0.6145840000000362,
+        0.6384874999999965,
+        0.5790437499999825,
+        0.43508800000000747,
+        0.43777799999998024
+      ],
+      "afterProcessMedians": [
+        0.05158824999998046,
+        0.0578274999999735,
+        0.03934812500000362,
+        0.03679825000000392,
+        0.041796375000004105
+      ],
+      "pairedAfterOverBefore": [
+        0.0839401123361126,
+        0.09056950997470399,
+        0.06795363044675778,
+        0.08457656841835051,
+        0.095473904581788
+      ]
+    },
+    {
+      "name": "R08-dependency-build-and-reads",
+      "size": 512,
+      "boundary": "createCheckDependencies plus n authorized string gets; includes index construction",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.48630737500002397,
+        "mad": 0.059681250000039654,
+        "min": 0.42246574999998643,
+        "max": 0.8841350000000148,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.08653837499998929,
+        "mad": 0.01574675000001946,
+        "min": 0.05506099999999492,
+        "max": 0.22107050000005302,
+        "count": 35
+      },
+      "afterOverBefore": 0.17794995397712202,
+      "beforeProcessMedians": [
+        0.4966527499999529,
+        0.708960999999988,
+        0.7214433749999785,
+        0.43035537500000487,
+        0.430470750000012
+      ],
+      "afterProcessMedians": [
+        0.10312899999999559,
+        0.09807462500003794,
+        0.056414750000016056,
+        0.08222887499999842,
+        0.08770800000000634
+      ],
+      "pairedAfterOverBefore": [
+        0.20764810020684546,
+        0.13833571240172535,
+        0.07819705877819966,
+        0.191072029714971,
+        0.20374903521320298
+      ]
+    },
+    {
+      "name": "R08-artifact-lookups",
+      "size": 512,
+      "boundary": "resolved invocation path object; n check-local directory reads + missing lookup; no filesystem writes",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 1.7300798750000013,
+        "mad": 0.24039774999999963,
+        "min": 1.4047612499999786,
+        "max": 2.3530483750000144,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.01204737499998032,
+        "mad": 0.002644999999986908,
+        "min": 0.009200750000005087,
+        "max": 0.03170637499999884,
+        "count": 35
+      },
+      "afterOverBefore": 0.006963479070571994,
+      "beforeProcessMedians": [
+        1.9561932500000125,
+        1.8272418749999702,
+        1.7688103749999868,
+        1.4343247500000018,
+        1.4340004999999962
+      ],
+      "afterProcessMedians": [
+        0.011863374999990128,
+        0.01646812499996031,
+        0.015238374999995585,
+        0.009402374999993413,
+        0.009650500000020656
+      ],
+      "pairedAfterOverBefore": [
+        0.006064520977152974,
+        0.009012558887399939,
+        0.008615041620838355,
+        0.006555262328139706,
+        0.006729774501487748
+      ]
+    },
+    {
+      "name": "R08-artifact-build-and-lookups",
+      "size": 512,
+      "boundary": "resolveInvocationPaths plus n check-local directory reads; includes hashes and index build",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 2.560214999999971,
+        "mad": 0.34325287499996193,
+        "min": 1.9416208750000123,
+        "max": 3.952160625000033,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.4850481249999916,
+        "mad": 0.08231974999998215,
+        "min": 0.3650528750000035,
+        "max": 1.4423003749999452,
+        "count": 35
+      },
+      "afterOverBefore": 0.18945601248332547,
+      "beforeProcessMedians": [
+        3.0838635000000068,
+        2.862854249999998,
+        2.7428991249999513,
+        2.216962125000009,
+        2.1342260000000124
+      ],
+      "afterProcessMedians": [
+        0.7102356249999957,
+        0.7473721249999699,
+        0.39920750000001703,
+        0.4273597499999937,
+        0.43156949999999483
+      ],
+      "pairedAfterOverBefore": [
+        0.23030708881894227,
+        0.26105839128903274,
+        0.14554217337468586,
+        0.19276817821143064,
+        0.2022135893761918
+      ]
+    },
+    {
+      "name": "R04-four-singleton-prepare",
+      "size": 512,
+      "boundary": "four separate prepareTaskGraph calls; singleton scopes; no cross-stage reuse; excludes public Run shell",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 10.647781124999995,
+        "mad": 1.7858340000000226,
+        "min": 8.08950687500004,
+        "max": 20.049106875000007,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 7.812765000000013,
+        "mad": 0.9977516250000065,
+        "min": 6.572861249999988,
+        "max": 17.78608387500003,
+        "count": 35
+      },
+      "afterOverBefore": 0.7337458300731193,
+      "beforeProcessMedians": [
+        14.125507874999926,
+        16.990987875000087,
+        10.287259999999947,
+        9.289977249999993,
+        8.750267500000007
+      ],
+      "afterProcessMedians": [
+        11.644817999999987,
+        12.005103250000047,
+        7.617997374999987,
+        6.921249875000001,
+        7.416150499999986
+      ],
+      "pairedAfterOverBefore": [
+        0.8243822525213131,
+        0.706557107704368,
+        0.7405273488761854,
+        0.7450233395350895,
+        0.8475341468132238
+      ]
+    },
+    {
+      "name": "R04-four-no-scope-prepare",
+      "size": 512,
+      "boundary": "four separate prepareTaskGraph calls; common unscoped graph protects no-scope path; no cross-stage reuse; excludes public Run shell",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 4.03056074999995,
+        "mad": 0.7434233750000203,
+        "min": 2.849872624999989,
+        "max": 7.782436500000017,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 3.7669295000000034,
+        "mad": 0.5831962500000145,
+        "min": 2.7717346249999935,
+        "max": 8.622244749999993,
+        "count": 35
+      },
+      "afterOverBefore": 0.9345919175142194,
+      "beforeProcessMedians": [
+        4.726023374999954,
+        5.7234878749999325,
+        4.03056074999995,
+        3.2286916249999535,
+        3.3399488750000046
+      ],
+      "afterProcessMedians": [
+        5.403787625000007,
+        5.944781624999962,
+        3.463032499999997,
+        3.2031368749999842,
+        3.729559999999992
+      ],
+      "pairedAfterOverBefore": [
+        1.1434111082872203,
+        1.0386641423609257,
+        0.8591937238509655,
+        0.992085106610338,
+        1.1166518230013287
+      ]
+    },
+    {
+      "name": "T01-critical-path-preparation",
+      "size": 512,
+      "boundary": "createSchedulerCriticalPathSnapshot incl prediction lookup + frozen score DTO; independent task graph",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.7831955000000335,
+        "mad": 0.13192862500011415,
+        "min": 0.5223682499999995,
+        "max": 1.3512790000000905,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.28900425000000496,
+        "mad": 0.07359037500003751,
+        "min": 0.19908225000000357,
+        "max": 0.8944092500000806,
+        "count": 35
+      },
+      "afterOverBefore": 0.36900652519069965,
+      "beforeProcessMedians": [
+        0.756201625000017,
+        0.9662687499999265,
+        0.7256475000000364,
+        0.5764854999999898,
+        0.6554276250000157
+      ],
+      "afterProcessMedians": [
+        0.421353124999996,
+        0.6362611250000327,
+        0.2399731250000059,
+        0.2254762499999856,
+        0.27310187500000893
+      ],
+      "pairedAfterOverBefore": [
+        0.5571967992001955,
+        0.658472215933798,
+        0.3307020626405987,
+        0.3911221531157152,
+        0.4166773943957617
+      ]
+    },
+    {
+      "name": "T01-history-prediction",
+      "size": 512,
+      "boundary": "createSchedulerPredictionSnapshot with immutable in-memory bounded history: n matching series x4 samples; includes history index construction, identity hashing, learned/prior, digest and frozen DTO; excludes IO",
+      "iterations": 2,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 9.166199499999948,
+        "mad": 1.6808745000000727,
+        "min": 7.267706500000031,
+        "max": 30.64693299999999,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 5.981763000000001,
+        "mad": 1.1747315000000071,
+        "min": 4.454687000000149,
+        "max": 11.42844950000017,
+        "count": 35
+      },
+      "afterOverBefore": 0.6525892219561701,
+      "beforeProcessMedians": [
+        11.675467500000195,
+        18.286721999999827,
+        9.192071999999825,
+        7.720024500000136,
+        7.571466999999984
+      ],
+      "afterProcessMedians": [
+        7.223805500000026,
+        10.876312000000325,
+        5.224238000000014,
+        4.783222000000023,
+        5.363305000000082
+      ],
+      "pairedAfterOverBefore": [
+        0.6187165952883604,
+        0.5947655353430992,
+        0.5683417188203175,
+        0.6195863756649916,
+        0.7083574424877099
+      ]
+    },
+    {
+      "name": "T01-history-recording",
+      "size": 512,
+      "boundary": "recordSchedulerHistory with immutable prepared predictions, n existing series x4 samples and n ordered available admissions; includes prediction index construction, merge, bounded 4-sample retention and freeze; synthetic complete terminal input, no storage/terminalEffect",
+      "iterations": 3,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 4.411929333333319,
+        "mad": 1.1868040000000897,
+        "min": 2.7924790000000335,
+        "max": 8.364630666666926,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 1.7387910000000677,
+        "mad": 0.5330250000001797,
+        "min": 1.1277143333331878,
+        "max": 4.8468703333334515,
+        "count": 35
+      },
+      "afterOverBefore": 0.3941112535196408,
+      "beforeProcessMedians": [
+        5.27468333333339,
+        6.5592443333331785,
+        4.411929333333319,
+        2.9647620000000643,
+        2.959003999999974
+      ],
+      "afterProcessMedians": [
+        3.9370373333332886,
+        3.81363633333361,
+        1.2801973333333383,
+        1.2191173333333911,
+        1.544495999999981
+      ],
+      "pairedAfterOverBefore": [
+        0.7464025960484035,
+        0.5814139769048142,
+        0.290167234470666,
+        0.4112024281656891,
+        0.5219648232986487
+      ]
+    },
+    {
+      "name": "T01-T02-prepared-decisions",
+      "size": 512,
+      "boundary": "public strategy.prepare outside timer; synchronous decide on tightening, active continuation, and wait boundaries",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 8.68111250000004,
+        "mad": 0.4947442500000534,
+        "min": 7.983134374999963,
+        "max": 19.016158625000003,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.4988343750000013,
+        "mad": 0.08188637499995366,
+        "min": 0.40715362500003494,
+        "max": 0.9669531250000318,
+        "count": 35
+      },
+      "afterOverBefore": 0.057462033235947466,
+      "beforeProcessMedians": [
+        15.98351762499999,
+        11.988469375000022,
+        8.68111250000004,
+        8.44751400000007,
+        8.261827499999981
+      ],
+      "afterProcessMedians": [
+        0.5809236249999685,
+        0.7255566249999674,
+        0.42402362499996116,
+        0.41793487499995763,
+        0.46581400000002304
+      ],
+      "pairedAfterOverBefore": [
+        0.03634516747998824,
+        0.060521206027601505,
+        0.048844387744077636,
+        0.04947430391946722,
+        0.05638147250109302
+      ]
+    },
+    {
+      "name": "T01-T02-public-prepare",
+      "size": 512,
+      "boundary": "public learned strategy.prepare with empty existing directory; includes async history read, identity, predictions, scores and immutable index construction; no terminalEffect/write",
+      "iterations": 2,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 19.174481000000014,
+        "mad": 1.7284514999996645,
+        "min": 16.664040499999828,
+        "max": 43.49642549999999,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 9.203476500000079,
+        "mad": 1.8015004999999746,
+        "min": 6.90978599999994,
+        "max": 16.250055500000144,
+        "count": 35
+      },
+      "afterOverBefore": 0.47998569035584704,
+      "beforeProcessMedians": [
+        32.45201300000008,
+        26.709869499999968,
+        19.14158899999984,
+        17.93659200000002,
+        17.527883499999916
+      ],
+      "afterProcessMedians": [
+        12.894580500000075,
+        12.991300499999852,
+        7.534686499999907,
+        7.971197000000075,
+        9.203476500000079
+      ],
+      "pairedAfterOverBefore": [
+        0.39734300919946147,
+        0.48638577212067124,
+        0.39362910257868194,
+        0.4444097853148506,
+        0.5250763162591834
+      ]
+    },
+    {
+      "name": "C05-exact-keys-conditional",
+      "size": 2,
+      "boundary": "hasExactPlainRecordKeys existing plain record; protects common 2/5-key schemas; no snapshot cost",
+      "iterations": 10000,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.00010366250000006403,
+        "mad": 0.000014952799999991845,
+        "min": 0.00008061769999994794,
+        "max": 0.0005412190999999439,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.00011658939999997529,
+        "mad": 0.0000187989000000016,
+        "min": 0.00008633630000003905,
+        "max": 0.0002993328000000019,
+        "count": 35
+      },
+      "afterOverBefore": 1.1247017966950756,
+      "beforeProcessMedians": [
+        0.00014401440000001456,
+        0.00017880599999998595,
+        0.0001007209999999759,
+        0.00010162470000004759,
+        0.0000971915000000081
+      ],
+      "afterProcessMedians": [
+        0.00015041030000002137,
+        0.00011629600000005666,
+        0.00011509879999998702,
+        0.00010594380000002274,
+        0.00013103350000001228
+      ],
+      "pairedAfterOverBefore": [
+        1.0444115310691582,
+        0.6504032303170241,
+        1.1427487812870658,
+        1.0425004944661398,
+        1.3481991737960763
+      ]
+    },
+    {
+      "name": "C05-exact-keys-conditional",
+      "size": 5,
+      "boundary": "hasExactPlainRecordKeys existing plain record; protects common 2/5-key schemas; no snapshot cost",
+      "iterations": 10000,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.00018129259999996066,
+        "mad": 0.000038665799999944284,
+        "min": 0.00013781089999993128,
+        "max": 0.00037092760000005003,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.0001707734000000073,
+        "mad": 0.000015427899999986036,
+        "min": 0.0001510294000000158,
+        "max": 0.00032847139999994397,
+        "count": 35
+      },
+      "afterOverBefore": 0.9419766719658959,
+      "beforeProcessMedians": [
+        0.00024275269999998272,
+        0.0002502934000000096,
+        0.0001714162999999644,
+        0.00014963989999996555,
+        0.00015687840000000507
+      ],
+      "afterProcessMedians": [
+        0.00017337389999997867,
+        0.00019222090000002936,
+        0.00016348049999996876,
+        0.00015597569999999906,
+        0.0001765450000000328
+      ],
+      "pairedAfterOverBefore": [
+        0.7141996772847058,
+        0.7679822959775288,
+        0.9537045193485258,
+        1.0423403116417143,
+        1.125362063866199
+      ]
+    },
+    {
+      "name": "C05-exact-keys-conditional",
+      "size": 512,
+      "boundary": "hasExactPlainRecordKeys existing plain record; protects common 2/5-key schemas; no snapshot cost",
+      "iterations": 100,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.4709200299999975,
+        "mad": 0.033517300000003136,
+        "min": 0.435803420000002,
+        "max": 1.3060383499999988,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.4702594399999998,
+        "mad": 0.029374950000001232,
+        "min": 0.4306242599999996,
+        "max": 0.7535404299999936,
+        "count": 35
+      },
+      "afterOverBefore": 0.9985972352885527,
+      "beforeProcessMedians": [
+        0.8934901399999944,
+        0.6311533400000008,
+        0.4709200299999975,
+        0.443285479999995,
+        0.4393361899999945
+      ],
+      "afterProcessMedians": [
+        0.5625912599999993,
+        0.6674029100000007,
+        0.45210935999999946,
+        0.4446606199999997,
+        0.44634325999999874
+      ],
+      "pairedAfterOverBefore": [
+        0.6296558124301213,
+        1.0574338559311116,
+        0.9600554896762448,
+        1.0031021543949616,
+        1.015949221028216
+      ]
+    },
+    {
+      "name": "K04-area-intersection",
+      "size": 4,
+      "boundary": "applyDuplicateAreaPolicy incl path-policy build, 2-location overlap intersection, strict thresholds and ordered annotations",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.014498083333331427,
+        "mad": 0.004161370000004657,
+        "min": 0.008924739999999171,
+        "max": 0.04243115333333359,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.014407889999999195,
+        "mad": 0.004445456666665754,
+        "min": 0.009076053333333221,
+        "max": 0.053518756666668804,
+        "count": 35
+      },
+      "afterOverBefore": 0.9937789477920247,
+      "beforeProcessMedians": [
+        0.026335763333330153,
+        0.018310733333334307,
+        0.010643563333333076,
+        0.010331219999998212,
+        0.011115639999998166
+      ],
+      "afterProcessMedians": [
+        0.019053980000001806,
+        0.019486523333331812,
+        0.011311040000000503,
+        0.01159189333333264,
+        0.012762933333333422
+      ],
+      "pairedAfterOverBefore": [
+        0.7235020970851211,
+        1.0642131573101445,
+        1.062711767268491,
+        1.1220256013650514,
+        1.148195995312508
+      ]
+    },
+    {
+      "name": "K04-area-intersection",
+      "size": 256,
+      "boundary": "applyDuplicateAreaPolicy incl path-policy build, 2-location overlap intersection, strict thresholds and ordered annotations",
+      "iterations": 3,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 39.059817333333434,
+        "mad": 3.368969999999834,
+        "min": 35.426053666666725,
+        "max": 74.46987166666683,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 3.259113333333365,
+        "mad": 0.9047273333332368,
+        "min": 2.251383666666546,
+        "max": 11.25007066666664,
+        "count": 35
+      },
+      "afterOverBefore": 0.0834390316145195,
+      "beforeProcessMedians": [
+        59.57569366666697,
+        48.56539333333361,
+        38.569825333333334,
+        36.266147333333414,
+        37.12021299999984
+      ],
+      "afterProcessMedians": [
+        6.5144413333331,
+        6.887715333333593,
+        2.7424193333334492,
+        2.354386000000128,
+        2.8086320000000646
+      ],
+      "pairedAfterOverBefore": [
+        0.10934730143105287,
+        0.14182352618991562,
+        0.07110271590894031,
+        0.06491966125765265,
+        0.07566314342000345
+      ]
+    },
+    {
+      "name": "K07-scc-batch-planning",
+      "size": 8,
+      "boundary": "planSccBatches fixed 28000 UTF16 ceiling; stable multi-batch transport planning only; no scanner process",
+      "iterations": 1000,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.0016065570000009758,
+        "mad": 0.00029968000000098996,
+        "min": 0.0012829919999985577,
+        "max": 0.004485853000000134,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.0001600579999999354,
+        "mad": 0.00003883300000006783,
+        "min": 0.00011583500000006098,
+        "max": 0.00037991000000056374,
+        "count": 35
+      },
+      "afterOverBefore": 0.09962796215748224,
+      "beforeProcessMedians": [
+        0.00239705800000047,
+        0.002101962999999159,
+        0.0014058999999997468,
+        0.001357731000000058,
+        0.0014277289999999993
+      ],
+      "afterProcessMedians": [
+        0.00022007899999971415,
+        0.00020665399999961664,
+        0.00011998300000004747,
+        0.00012362900000016452,
+        0.00016857300000037867
+      ],
+      "pairedAfterOverBefore": [
+        0.09181212970218951,
+        0.09831476576880721,
+        0.08534248524082017,
+        0.09105559201355735,
+        0.1180707263075687
+      ]
+    },
+    {
+      "name": "K07-scc-batch-planning",
+      "size": 2048,
+      "boundary": "planSccBatches fixed 28000 UTF16 ceiling; stable multi-batch transport planning only; no scanner process",
+      "iterations": 8,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 13.005766875000063,
+        "mad": 2.0848493749997488,
+        "min": 10.504622375000054,
+        "max": 31.32619324999996,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.02923812500000622,
+        "mad": 0.0048452500000166765,
+        "min": 0.02402087500001926,
+        "max": 0.15623637499999177,
+        "count": 35
+      },
+      "afterOverBefore": 0.002248089273090717,
+      "beforeProcessMedians": [
+        15.892441624999947,
+        17.3641423749998,
+        12.454519375000018,
+        10.800350999999978,
+        11.279546750000009
+      ],
+      "afterProcessMedians": [
+        0.05599562500003685,
+        0.02891237500000443,
+        0.024950124999975287,
+        0.024535500000013144,
+        0.029631249999965803
+      ],
+      "pairedAfterOverBefore": [
+        0.0035234123441392246,
+        0.001665062078829261,
+        0.0020032989028912446,
+        0.0022717317242757383,
+        0.002626989422244806
+      ]
+    },
+    {
+      "name": "K14-ordered-findings",
+      "size": 8,
+      "boundary": "orderedMarkdownLintCandidates incl raw coordinate sort and public frozen range/IDs; null ranges and duplicate positions",
+      "iterations": 300,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 0.014375726666670138,
+        "mad": 0.0035694566666704,
+        "min": 0.010017433333335551,
+        "max": 0.040599756666664086,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 0.00913817999999992,
+        "mad": 0.002792863333334025,
+        "min": 0.005720896666666704,
+        "max": 0.017641503333334186,
+        "count": 35
+      },
+      "afterOverBefore": 0.6356673448158016,
+      "beforeProcessMedians": [
+        0.022063363333333353,
+        0.021799326666665973,
+        0.011106723333335443,
+        0.011273466666665021,
+        0.012234186666667786
+      ],
+      "afterProcessMedians": [
+        0.013168186666665254,
+        0.010708956666667291,
+        0.006279660000000149,
+        0.006678470000000137,
+        0.007955416666666982
+      ],
+      "pairedAfterOverBefore": [
+        0.5968349642672449,
+        0.4912517175607396,
+        0.5653926735666975,
+        0.5924060626131961,
+        0.6502611806914493
+      ]
+    },
+    {
+      "name": "K14-ordered-findings",
+      "size": 2048,
+      "boundary": "orderedMarkdownLintCandidates incl raw coordinate sort and public frozen range/IDs; null ranges and duplicate positions",
+      "iterations": 5,
+      "fullOutputParity": true,
+      "beforeMsPerCall": {
+        "median": 10.262460800000008,
+        "mad": 1.229583000000094,
+        "min": 8.59613700000009,
+        "max": 31.024826799999936,
+        "count": 35
+      },
+      "afterMsPerCall": {
+        "median": 2.568667000000005,
+        "mad": 0.6025458000000072,
+        "min": 1.7733556000000135,
+        "max": 8.158296599999995,
+        "count": 35
+      },
+      "afterOverBefore": 0.2502973750701199,
+      "beforeProcessMedians": [
+        18.50102220000008,
+        14.988261799999965,
+        9.046680800000104,
+        10.111643399999958,
+        9.545533199999955
+      ],
+      "afterProcessMedians": [
+        4.6272338000000675,
+        4.001036399999975,
+        2.3019142000000103,
+        2.251272599999993,
+        2.3884750000000166
+      ],
+      "pairedAfterOverBefore": [
+        0.25010692652431105,
+        0.2669446566512459,
+        0.25444848236493367,
+        0.22264161333062857,
+        0.25021912867057317
+      ]
+    }
+  ]
+}

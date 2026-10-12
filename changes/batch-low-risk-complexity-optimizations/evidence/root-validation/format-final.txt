@@ -1,0 +1,5 @@
+$ bun scripts/development/format.ts check
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 63ms on 916 files using 4 threads.
