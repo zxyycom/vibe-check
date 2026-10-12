@@ -32,7 +32,7 @@ export function selectEffectiveCheckIds(
 
   for (const check of checks) {
     const enablement = check.enabledByFlags;
-    if (enablement !== undefined && !matchesFlagEnablement(enablement, runFlags)) continue;
+    if (enablement !== undefined && !matchesFlagCondition(enablement.when, runFlags)) continue;
 
     if (enablement?.propagateDependsOn === true) {
       selectCheckAndDependsOnClosure(check, checksByCheckId, expandedCheckIds, selectedCheckIds);
@@ -114,13 +114,6 @@ function selectCheckAndDependsOnClosure(
     }
     selectCheckAndDependsOnClosure(dependency, checksByCheckId, expandedCheckIds, selectedCheckIds);
   }
-}
-
-function matchesFlagEnablement(
-  enablement: NonNullable<NormalizedCheck["enabledByFlags"]>,
-  runFlags: ReadonlySet<string>
-): boolean {
-  return matchesFlagCondition(enablement.when, runFlags);
 }
 
 function matchesFlagCondition(
