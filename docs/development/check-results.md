@@ -11,6 +11,9 @@ generic scheduler 或 human presentation grammar。
 
 package-private settled Check seam 与冻结快照复用同一 canonical final-data 引用，供运行时依赖读取使用，不建立第二份事实来源。
 
+Session 在构造时从已校验的注册快照建立私有 `checkId → slot` 索引与完整 known-checkId 集合，后续读取和
+reason ownership 校验复用它们；这些集合不对外暴露，也不随 settlement 改变成员。规范排序的 slot 数组继续
+拥有 cancellation closure 与最终 Check facts 的枚举顺序，索引指向同一份 slot 生命周期。
 
 Definition 先 flatten canonical executable catalog，`check-settlement/**` 为每项保存一个 terminal fact。公开[四态与 data grammar](../api-mechanics.md#terminal-resultrecords-与-messages)在这里闭合：passed/failed 必须有 canonical final data；not-applicable/unavailable 不伪造 data。
 

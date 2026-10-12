@@ -8,48 +8,80 @@ import { validateCoreSnapshot } from "./fact-validation.ts";
 
 describe("check-record Core Check session", () => {
   it("closes every registered Check exactly once and freezes canonical Check and Record facts", () => {
+    const authoredZeta = { checkId: "zeta-check", displayName: "Zeta check" };
     const session = createCoreCheckSession([
-      { definition: definition("zeta-check") },
+      { definition: authoredZeta },
       { definition: definition("alpha-check") }
     ]);
+    authoredZeta.checkId = "changed-check";
+    authoredZeta.displayName = "Changed check";
+    assert.throws(() => session.openCheckScope("changed-check"), CoreInvariantFailure);
+    assert.throws(() => session.openCheckScope("unknown-check"), CoreInvariantFailure);
     const settledAlphaOutcome = settleCanonicalCheckFacts(session);
     const snapshot = session.freeze();
 
     assertFrozenSnapshot(snapshot);
     assertCanonicalData(snapshot, settledAlphaOutcome);
+    assert.equal(snapshot.checks[1]?.displayName, "Zeta check");
     assert.equal(validateCoreSnapshot(snapshot).ok, true);
     assert.strictEqual(session.freeze(), snapshot);
+    assertRegisteredProductReason();
   });
 
   it("maps unresolved scopes to Product unavailable outcomes while retaining accepted Records", () => {
     const session = createCoreCheckSession([
-      { definition: definition("open-check") },
-      { definition: definition("pending-check") }
+      { definition: definition("pending\u0000check") },
+      { definition: definition("open\u0000check") }
     ]);
-    const open = session.openCheckScope("open-check");
+    const open = session.openCheckScope("open\u0000check");
     assert.equal(open.records.report({ id: "retained" }, { value: 1 }), "committed");
 
     assert.deepEqual(session.closeUnresolvedAsCancelled(), [
       {
-        checkId: "open-check",
+        checkId: "open\u0000check",
         outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
       },
       {
-        checkId: "pending-check",
+        checkId: "pending\u0000check",
         outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
       }
     ]);
     assert.equal(open.records.report({ id: "late" }, {}), "rejected");
     const snapshot = session.freeze();
     assert.deepEqual(snapshot.records, [
-      { checkId: "open-check", id: "retained", data: { value: 1 } }
+      { checkId: "open\u0000check", id: "retained", data: { value: 1 } }
     ]);
+    assert.strictEqual(
+      session.readSettledCheckOutcome("open\u0000check"),
+      snapshot.checks[0]?.outcome
+    );
+    assert.deepEqual(session.readSettledCheckRecords("open\u0000check"), snapshot.records);
     assert.deepEqual(
       snapshot.checks.map((check) => check.outcome),
       Array.from({ length: 2 }, cancelledOutcome)
     );
   });
 });
+
+function assertRegisteredProductReason() {
+  const session = createCoreCheckSession([
+    { definition: definition("registered\u0000check") },
+    { definition: definition("__proto__") }
+  ]);
+  const scope = session.openCheckScope("__proto__");
+  assert.deepEqual(
+    scope.settleProduct({
+      status: "unavailable",
+      reason: { code: "product-reason", checkIds: ["registered\u0000check"] }
+    }),
+    {
+      status: "unavailable",
+      reason: { code: "product-reason", checkIds: ["registered\u0000check"] }
+    }
+  );
+  session.closeUnresolvedAsCancelled();
+  assert.equal(validateCoreSnapshot(session.freeze()).ok, true);
+}
 
 function settleCanonicalCheckFacts(session: ReturnType<typeof createCoreCheckSession>) {
   const zeta = session.openCheckScope("zeta-check");

@@ -107,11 +107,15 @@ function createSlots(registrations: readonly CoreCheckRegistration[]): CoreSlot[
 
 class CoreCheckSessionImpl implements CoreCheckSession {
   readonly #slots: CoreSlot[];
+  readonly #slotsByCheckId: ReadonlyMap<string, CoreSlot>;
+  readonly #knownCheckIds: ReadonlySet<string>;
   readonly #recordStore = new CoreRecordStore();
   #snapshot: CoreSnapshot | undefined;
 
   public constructor(registrations: readonly CoreCheckRegistration[]) {
     this.#slots = createSlots(registrations);
+    this.#slotsByCheckId = new Map(this.#slots.map((slot) => [slot.checkId, slot]));
+    this.#knownCheckIds = new Set(this.#slotsByCheckId.keys());
   }
 
   public openCheckScope(checkId: string): TrustedCheckScope {
@@ -184,12 +188,8 @@ class CoreCheckSessionImpl implements CoreCheckSession {
 
   #slotFor(checkId: string): CoreSlot {
     if (typeof checkId !== "string") coreInvariant("Core Check scope requires a checkId");
-    const slot = this.#slots.find((candidate) => candidate.definition.checkId === checkId);
+    const slot = this.#slotsByCheckId.get(checkId);
     return slot ?? coreInvariant("Core Check scope does not own this checkId");
-  }
-
-  #checkIds(): ReadonlySet<string> {
-    return new Set(this.#slots.map((candidate) => candidate.checkId));
   }
 
   #settleSlot(slot: CoreSlot, outcome: unknown, productOutcome: boolean): CheckOutcome {
@@ -207,7 +207,7 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     const normalized =
       diagnostic === undefined
         ? normalizeCheckOutcome({
-            knownCheckIds: this.#checkIds(),
+            knownCheckIds: this.#knownCheckIds,
             productOutcome: false,
             value: terminal
           })
@@ -228,7 +228,7 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     const outcome =
       diagnostic === undefined
         ? (normalizeCheckOutcome({
-            knownCheckIds: this.#checkIds(),
+            knownCheckIds: this.#knownCheckIds,
             productOutcome,
             value: terminal
           }) ?? unavailable("invalid-execution-result"))

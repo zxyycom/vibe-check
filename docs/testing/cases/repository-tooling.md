@@ -450,8 +450,8 @@ Entities:
 - `bun|src/project-run/task-scheduler/task-engine.static-validation.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
 - `bun|src/project-run/check-execution/plan.test.ts|Check execution plan > projects normalized admission priority into the static task graph`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > respects one root budget for dependency order and named mutex execution`
-- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > distinguishes full graph identities with identical Task IDs but different scheduler semantics`
-- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > records one graph and references its fingerprint from every scheduler decision`
+- `bun|src/project-run/task-scheduler/task-engine.graph-observation.test.ts|static task engine > distinguishes full graph identities with identical Task IDs but different scheduler semantics`
+- `bun|src/project-run/task-scheduler/task-engine.graph-observation.test.ts|static task engine > records one graph and references its fingerprint from every scheduler decision`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > uses priority only among dependency and mutex eligible ordinary ready tasks`
 - `bun|src/project-run/task-scheduler/task-engine.admission-observation.test.ts|static task engine > emits immutable root admission and mutex decisions`
 - `bun|src/project-run/task-scheduler/task-engine.admission-observation.test.ts|static task engine > emits root capacity and running-drain decisions`

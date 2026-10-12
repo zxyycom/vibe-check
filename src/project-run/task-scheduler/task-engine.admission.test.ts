@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 
-import { isRecord } from "../../data-boundary/value-shapes.ts";
 import { describe, it } from "node:test";
 
 import { runTaskGraph } from "./scheduler.ts";
@@ -125,74 +124,6 @@ describe("static task engine", () => {
       lifecycleOpen: true,
       taskId: "base"
     });
-  });
-
-  it("records one graph and references its fingerprint from every scheduler decision", async () => {
-    const observations: DiagnosticObservation[] = [];
-    await runTaskGraph({
-      diagnosticLogger: recordingLogger(observations),
-      execute: () => undefined,
-      graph: { tasks: [{ id: "first" }, { id: "second" }] },
-      maxParallel: 2
-    });
-    const graphs = observations.filter((observation) => observation.event === "scheduler.graph");
-    assert.equal(graphs.length, 1);
-    const graphDetails = graphs[0]?.details;
-    assert.ok(isRecord(graphDetails));
-    const fingerprint = graphDetails.graphFingerprint;
-    assert.equal(typeof fingerprint, "string");
-    const decisions = observations.filter(
-      (observation) => observation.event === "scheduler.decision"
-    );
-    assert.ok(decisions.length > 1);
-    for (const decision of decisions) {
-      assert.ok(isRecord(decision.details));
-      assert.equal(decision.details.graphFingerprint, fingerprint);
-      assert.equal("graphIdentity" in decision.details, false);
-    }
-  });
-
-  it("distinguishes full graph identities with identical Task IDs but different scheduler semantics", () => {
-    const baseline = decisionFor(
-      {
-        tasks: [
-          { id: "source", mutex: ["shared"], scopeId: "limited" },
-          { admissionPriority: 1, id: "target", observes: ["source"], scopeId: "limited" }
-        ],
-        scopes: [
-          {
-            activationTaskIds: ["source"],
-            id: "limited",
-            maxParallel: 1,
-            terminalTaskId: "target"
-          }
-        ]
-      },
-      { maxParallel: 2 }
-    );
-    const changed = decisionFor(
-      {
-        tasks: [
-          { admissionPriority: 3, id: "source", mutex: ["other"], scopeId: "limited" },
-          { admissionPriority: 9, dependsOn: ["source"], id: "target", scopeId: "limited" }
-        ],
-        scopes: [
-          {
-            activationTaskIds: ["source"],
-            id: "limited",
-            maxParallel: 2,
-            terminalTaskId: "target"
-          }
-        ]
-      },
-      { maxParallel: 2 }
-    );
-
-    assert.deepEqual(
-      baseline.graphIdentity.tasks.map((task) => task.taskId),
-      changed.graphIdentity.tasks.map((task) => task.taskId)
-    );
-    assert.notDeepEqual(baseline.graphIdentity, changed.graphIdentity);
   });
 
   it("uses priority only among dependency and mutex eligible ordinary ready tasks", () => {

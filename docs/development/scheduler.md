@@ -14,6 +14,13 @@ Scheduler 负责 graph validation、readiness、dependency/mutex admission、roo
 
 policy 只返回决定，Scheduler 不解释公平、防饥饿或等待理由；static tightening/continuation 每轮重算，不保存 reservation、sticky target 或策略状态。Task engine 不解释 Check terminal grammar、Records、scanner payload 或 aggregation。
 
+blocker summary 在当前 boundary 内索引 settled kinds、held mutex 与 resource inspection；关系判定仍只认可当前 settled facts，
+并保持 dependency、mutex、resource 的分类优先序。static scope selection 复用当前 compiled graph 的 scope/activation 索引，
+仅为当前 active scopes 建 Set；候选 fold 保留 cap、priority、scope ID、Task ID 顺序和相等时的声明顺序。
+
+graph diagnostic fingerprint 在 Scheduler invocation 内惰性计算一次，仍使用 immutable graph DTO 的原始 `JSON.stringify` 字节和 SHA-256；
+graph record 与后续 decision 引用同一值，不跨 Run 缓存，也不从 logger shape 推断事实需求。
+
 ## Public prepared admission-strategy lifecycle
 
 完整 graph 已验证且未在 pre-work/planning 取消时，调用顺序如下：

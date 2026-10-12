@@ -34,7 +34,7 @@ export function observeSchedulerDecision<TResult>(
   const observation: DiagnosticObservation = {
     event: "scheduler.decision",
     tags: schedulerDecisionTags(decision),
-    details: schedulerDecisionDetails(decision)
+    details: schedulerDecisionDetails(state, decision)
   };
   const observe = () => {
     observeSchedulerDiagnostic(state, observation);
@@ -49,7 +49,7 @@ export function observeSchedulerGraph<TResult>(state: SchedulerState<TResult>): 
   observeSchedulerDiagnostic(state, {
     event: "scheduler.graph",
     tags: diagnosticTags("GRAPH"),
-    details: Object.freeze({ graph, graphFingerprint: schedulerGraphFingerprint(graph) })
+    details: Object.freeze({ graph, graphFingerprint: graphFingerprintForInvocation(state) })
   });
 }
 
@@ -57,11 +57,19 @@ export function schedulerGraphFingerprint(graph: unknown): string {
   return createHash("sha256").update(JSON.stringify(graph)).digest("hex");
 }
 
-function schedulerDecisionDetails(decision: SchedulerDecision): Readonly<Record<string, unknown>> {
-  const { graphIdentity, ...dynamicFacts } = decision;
+function graphFingerprintForInvocation<TResult>(state: SchedulerState<TResult>): string {
+  state.graphFingerprint ??= schedulerGraphFingerprint(state.graph.schedulerGraphSnapshot);
+  return state.graphFingerprint;
+}
+
+function schedulerDecisionDetails<TResult>(
+  state: SchedulerState<TResult>,
+  decision: SchedulerDecision
+): Readonly<Record<string, unknown>> {
+  const { graphIdentity: _graphIdentity, ...dynamicFacts } = decision;
   return Object.freeze({
     ...dynamicFacts,
-    graphFingerprint: schedulerGraphFingerprint(graphIdentity)
+    graphFingerprint: graphFingerprintForInvocation(state)
   });
 }
 

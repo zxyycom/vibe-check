@@ -40,6 +40,56 @@ describe("static task engine", () => {
     });
     assert.equal(mutexWait.kind, "await-running");
     assert.equal(mutexWait.blockers.mutex, 1);
+
+    const mixedGraph = {
+      resourceCapacities: { worker: 1 },
+      tasks: [
+        { id: "completed" },
+        { id: "failed" },
+        { id: "blocked" },
+        { id: "prerequisite-unsatisfied" },
+        { id: "cancelled-before-start" },
+        { id: "unsettled" },
+        { id: "holder", mutex: ["shared"], resourceClaims: { worker: 1 } },
+        { id: "depends-failed", dependsOn: ["failed"], mutex: ["shared"] },
+        { id: "depends-unsettled", dependsOn: ["unsettled"] },
+        {
+          id: "observes-terminal",
+          observes: ["failed", "blocked", "prerequisite-unsatisfied", "cancelled-before-start"],
+          mutex: ["shared"],
+          resourceClaims: { worker: 1 }
+        },
+        { id: "observes-unsettled", observes: ["unsettled"], mutex: ["shared"] },
+        { id: "resource-wait", dependsOn: ["completed"], resourceClaims: { worker: 1 } }
+      ]
+    };
+    const mixedDecision = decisionFor(mixedGraph, {
+      maxParallel: 3,
+      pendingTaskIds: [
+        "depends-failed",
+        "depends-unsettled",
+        "observes-terminal",
+        "observes-unsettled",
+        "resource-wait"
+      ],
+      runningMutexes: ["shared"],
+      runningTaskIds: ["holder", "unsettled"],
+      settledTasks: [
+        { taskId: "completed", kind: "completed" },
+        { taskId: "failed", kind: "failed" },
+        { taskId: "blocked", kind: "blocked" },
+        { taskId: "prerequisite-unsatisfied", kind: "prerequisite-unsatisfied" },
+        { taskId: "cancelled-before-start", kind: "cancelled-before-start" }
+      ]
+    });
+    assert.deepEqual(mixedDecision.blockers, {
+      dependency: 3,
+      mutex: 1,
+      resourceCapacity: 1,
+      rootCapacity: false,
+      scopeCapacity: false
+    });
+    assert.equal(Object.isFrozen(mixedDecision.blockers), true);
     assertSchedulerDecisionCopiesSnapshotInputs();
   });
 

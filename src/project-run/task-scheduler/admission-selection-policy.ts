@@ -43,10 +43,11 @@ export const staticAdmissionSelectionPolicy: AdmissionSelectionPolicy = Object.f
 });
 
 function decideStaticAdmission(input: AdmissionPolicyInput): AdmissionPolicyDecision {
-  const tightening = selectTighteningCandidate(input);
+  const activeScopeIds = new Set(input.inspection.activeScopeIds);
+  const tightening = selectTighteningCandidate(input, activeScopeIds);
   if (tightening !== undefined) return proposalFor(tightening);
 
-  const continuation = selectConstrainedContinuation(input);
+  const continuation = selectConstrainedContinuation(input, activeScopeIds);
   if (continuation !== undefined) return proposalFor(continuation);
 
   return proposalFor(selectOrdinaryReadyCandidate(input.candidates));
@@ -58,23 +59,50 @@ function proposalFor(candidate: AdmissionCandidate): AdmissionPolicyDecision {
     : Object.freeze({ kind: "wait" });
 }
 
-function selectTighteningCandidate(input: AdmissionPolicyInput): AdmissionCandidate | undefined {
-  return input.candidates
-    .filter(
-      (candidate) =>
-        tighteningScopeForTask(input.graph, input.inspection, candidate.task) !== undefined
-    )
-    .sort((left, right) => compareConstrainedCandidates(input, left, right))[0];
+function selectTighteningCandidate(
+  input: AdmissionPolicyInput,
+  activeScopeIds: ReadonlySet<string>
+): AdmissionCandidate | undefined {
+  let selected: AdmissionCandidate | undefined;
+  for (const candidate of input.candidates) {
+    if (
+      tighteningScopeForTask(
+        input.admissionCore.compiled,
+        input.inspection.maxParallel,
+        activeScopeIds,
+        candidate.task
+      ) === undefined
+    ) {
+      continue;
+    }
+    if (selected === undefined || compareConstrainedCandidates(input, candidate, selected) < 0) {
+      selected = candidate;
+    }
+  }
+  return selected;
 }
 
 function selectConstrainedContinuation(
-  input: AdmissionPolicyInput
+  input: AdmissionPolicyInput,
+  activeScopeIds: ReadonlySet<string>
 ): AdmissionCandidate | undefined {
-  return input.candidates
-    .filter((candidate) =>
-      isConstrainedScopeContinuation(input.graph, input.inspection, candidate.task)
-    )
-    .sort((left, right) => compareConstrainedCandidates(input, left, right))[0];
+  let selected: AdmissionCandidate | undefined;
+  for (const candidate of input.candidates) {
+    if (
+      !isConstrainedScopeContinuation(
+        input.admissionCore.compiled,
+        input.inspection.maxParallel,
+        activeScopeIds,
+        candidate.task
+      )
+    ) {
+      continue;
+    }
+    if (selected === undefined || compareConstrainedCandidates(input, candidate, selected) < 0) {
+      selected = candidate;
+    }
+  }
+  return selected;
 }
 
 function selectOrdinaryReadyCandidate(
@@ -96,8 +124,8 @@ function compareConstrainedCandidates(
   left: AdmissionCandidate,
   right: AdmissionCandidate
 ): number {
-  const leftScope = scopeForTask(input.graph, left.task);
-  const rightScope = scopeForTask(input.graph, right.task);
+  const leftScope = scopeForTask(input.admissionCore.compiled, left.task);
+  const rightScope = scopeForTask(input.admissionCore.compiled, right.task);
   if (leftScope === undefined || rightScope === undefined) {
     throw new Error("constrained task is missing a scope");
   }

@@ -6,16 +6,21 @@ export function summarizeSchedulerBlockers(
   state: SchedulerInspection,
   capacity: SchedulerCapacity
 ): SchedulerBlockerSummary {
+  const settledKindsByTaskId = new Map(
+    state.settledTasks.map(({ taskId, kind }) => [taskId, kind])
+  );
+  const runningMutexes = new Set(state.runningMutexes);
+  const resourcesById = new Map(state.resources.map((resource) => [resource.resourceId, resource]));
   let dependency = 0;
   let mutex = 0;
   let resourceCapacity = 0;
   for (const task of state.pendingTasks) {
-    if (hasUnsatisfiedRelation(task, state.settledTasks)) {
+    if (hasUnsatisfiedRelation(task, settledKindsByTaskId)) {
       dependency += 1;
       continue;
     }
-    if (hasRunningMutex(task.mutex, state.runningMutexes)) mutex += 1;
-    else if (hasResourceShortage(task.resourceClaims, state.resources)) resourceCapacity += 1;
+    if (hasRunningMutex(task.mutex, runningMutexes)) mutex += 1;
+    else if (hasResourceShortage(task.resourceClaims, resourcesById)) resourceCapacity += 1;
   }
   return Object.freeze({
     dependency,
@@ -30,38 +35,27 @@ export function summarizeSchedulerBlockers(
 
 function hasResourceShortage(
   claims: SchedulerInspection["pendingTasks"][number]["resourceClaims"],
-  resources: SchedulerInspection["resources"]
+  resourcesById: ReadonlyMap<string, SchedulerInspection["resources"][number]>
 ): boolean {
   return claims.some((claim) => {
-    const resource = resources.find(({ resourceId }) => resourceId === claim.resourceId);
+    const resource = resourcesById.get(claim.resourceId);
     return resource === undefined || claim.units > resource.available;
   });
 }
 
 function hasUnsatisfiedRelation(
   task: SchedulerInspection["pendingTasks"][number],
-  settledTasks: SchedulerInspection["settledTasks"]
+  settledKindsByTaskId: ReadonlyMap<string, SchedulerInspection["settledTasks"][number]["kind"]>
 ): boolean {
   return (
-    task.dependsOn.some(
-      (dependencyId) => settlementKindFor(settledTasks, dependencyId) !== "completed"
-    ) ||
-    task.observes.some(
-      (observationId) => settlementKindFor(settledTasks, observationId) === undefined
-    )
+    task.dependsOn.some((dependencyId) => settledKindsByTaskId.get(dependencyId) !== "completed") ||
+    task.observes.some((observationId) => settledKindsByTaskId.get(observationId) === undefined)
   );
 }
 
 function hasRunningMutex(
   mutexNames: readonly string[],
-  runningMutexes: SchedulerInspection["runningMutexes"]
+  runningMutexes: ReadonlySet<string>
 ): boolean {
-  return mutexNames.some((mutexName) => runningMutexes.includes(mutexName));
-}
-
-function settlementKindFor(
-  settledTasks: SchedulerInspection["settledTasks"],
-  taskId: string
-): SchedulerInspection["settledTasks"][number]["kind"] | undefined {
-  return settledTasks.find((task) => task.taskId === taskId)?.kind;
+  return mutexNames.some((mutexName) => runningMutexes.has(mutexName));
 }

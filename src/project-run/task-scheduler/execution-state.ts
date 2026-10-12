@@ -105,6 +105,8 @@ export interface SchedulerState<TResult> {
   readonly admissionPolicy: AdmissionSelectionPolicy;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly graph: PlannedTaskGraph;
+  /** Lazily computed from the immutable graph DTO; retained only for this Scheduler invocation. */
+  graphFingerprint: string | undefined;
   readonly isPrerequisiteSatisfied: RunTaskGraphOptions<TResult>["isPrerequisiteSatisfied"];
   readonly maxParallel: number;
   readonly signal: AbortSignal | undefined;
@@ -142,6 +144,7 @@ export function createSchedulerState<TResult>(
     admissionPolicy,
     diagnosticLogger: options.diagnosticLogger,
     graph,
+    graphFingerprint: undefined,
     isPrerequisiteSatisfied: options.isPrerequisiteSatisfied,
     maxParallel: options.maxParallel,
     onTaskBlocked: options.onTaskBlocked,
