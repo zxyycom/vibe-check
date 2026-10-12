@@ -28,6 +28,9 @@ root 即使空 patterns 也必须是真实可读目录。glob 起点在父目录
 
 Node byte Dirent 提供元数据；locked Bun 1.3.14 对 byte overload 实际返回 bare Uint8Array names，薄 Dirent bridge 按需要 lazy lstat 并在 entry 内缓存。两宿主仍每目录一次获取、no-follow、必要 I/O 错误透明，不建立第二个 walker。
 
+本次操作按已保留的目录 entries 建立 `decoded name → entry 列表` 索引，供路径分量查询直接取得同名候选。
+同 spelling 的 raw-byte 冲突保留全部 entry 与原顺序，继续执行 fidelity 检查。索引与目录观察一同结束，后续收集调用重新观察。
+
 ### Public single-selection collection
 
 package root 的同步 `collectProjectFiles({ projectRoot, selection })` 先执行 closed、descriptor-safe detached snapshot，再 resolve root、进入同一 private 机制。非法输入 TypeError、必要 I/O Error、冻结成功空数组分别可识别。named batch、Map、候选与 fs adapter 都 private；façade 不物化 Check 后缀默认，不处理 eligibility、内容读取、结算或 scanner。

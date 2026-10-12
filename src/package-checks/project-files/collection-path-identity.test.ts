@@ -60,10 +60,8 @@ describe("quality input file collection", () => {
       fs.mkdirSync(rawDirectory);
       fs.writeFileSync(Buffer.concat([rawDirectory, Buffer.from("/a.ts")]), "content\n");
       write(root, "bad\uFFFD/a.ts");
-      assert.throws(
-        () => collectProjectFiles(root, { patterns: ["./bad\uFFFD/**/*.ts"] }),
-        /name bytes 626164ff/u
-      );
+      for (const patterns of [["./bad\uFFFD/**/*.ts"], ["./bad\uFFFD/a.ts"]])
+        assert.throws(() => collectProjectFiles(root, { patterns }), /name bytes 626164ff/u);
       assert.deepEqual(collectProjectFiles(root, { patterns: ["src/**/*.ts"] }), ["src/a.ts"]);
       assert.deepEqual(collectProjectFiles(root, { patterns: ["**/*", "!bad*/**"] }), [
         "bad\uFFFD.ts",

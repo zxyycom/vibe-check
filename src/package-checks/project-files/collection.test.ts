@@ -98,6 +98,22 @@ describe("quality input file collection", () => {
       assert.deepEqual(selected.get("empty"), []);
       assert.equal(new Set(reads).size, reads.length);
       for (const files of selected.values()) assert.equal(Object.isFrozen(files), true);
+
+      write(root, "src/c.ts");
+      const exactPaths = ["src/a.ts", "src/b.tsx", "src/c.ts"];
+      reads.length = 0;
+      const exact = collectProjectFileSets(root, {
+        forward: { patterns: exactPaths },
+        reverse: { patterns: [...[...exactPaths].reverse(), "src/a.ts"] }
+      });
+      for (const files of exact.values()) assert.deepEqual(files, exactPaths);
+      assert.deepEqual([...reads].sort(), [root, join(root, "src")].sort());
+
+      fs.rmSync(join(root, "src/a.ts"));
+      assert.deepEqual(collectProjectFiles(root, { patterns: exactPaths }), [
+        "src/b.tsx",
+        "src/c.ts"
+      ]);
     } finally {
       Reflect.set(fs, "readdirSync", originalRead);
       fs.rmSync(root, { recursive: true, force: true });

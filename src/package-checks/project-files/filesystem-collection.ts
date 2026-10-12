@@ -17,6 +17,11 @@ interface CollectionEntry extends fs.Dirent {
   assertFaithfulName(): void;
 }
 
+interface CollectionDirectory {
+  readonly entries: CollectionEntry[];
+  readonly entriesByName: ReadonlyMap<string, readonly CollectionEntry[]>;
+}
+
 /** Acquisition is a superset; only the common native list matcher decides membership. */
 export function collectionCandidatePatterns(selections: readonly ProjectFileSelection[]): string[] {
   const patterns = selections.flatMap((selection) => {
@@ -69,7 +74,7 @@ export function createCollectionFilesystem(
 
 /** One operation owns its observed directory membership; no cache survives collection. */
 class CollectionDirectoryAccess {
-  private readonly directories = new Map<string, CollectionEntry[]>();
+  private readonly directories = new Map<string, CollectionDirectory>();
   private readonly root: string;
   private readonly noDemand: SubtreePruner;
   private readonly selections: readonly ProjectFileSelection[];
@@ -78,15 +83,15 @@ class CollectionDirectoryAccess {
     this.root = root;
     this.noDemand = noDemand;
     this.selections = selections;
-    this.readEntries(root); // Required even for empty patterns; symlink roots are rejected.
+    this.readDirectory(root); // Required even for empty patterns; symlink roots are rejected.
   }
 
   readTarget(absolute: string): fs.Dirent[] {
-    if (absolute === this.root) return this.readEntries(this.root);
+    if (absolute === this.root) return this.readDirectory(this.root).entries;
     const entry = this.targetEntry(absolute, true);
     if (entry?.isDirectory() !== true) return [];
     entry.assertFaithfulName();
-    return this.readEntries(absolute);
+    return this.readDirectory(absolute).entries;
   }
 
   targetEntry(absolute: string, readingDirectory = false): CollectionEntry | undefined {
@@ -95,14 +100,11 @@ class CollectionDirectoryAccess {
     const parts = path.split("/");
     let parent = this.root;
     for (const [index, part] of parts.entries()) {
-      const matching = this.readEntries(parent).filter((candidate) => candidate.name === part);
-      // Detect selected lossy files before a valid U+FFFD spelling can hide the collision.
-      for (const candidate of matching) {
-        candidate.isFile();
-        if ((readingDirectory || index < parts.length - 1) && candidate.isDirectory())
-          candidate.assertFaithfulName();
-      }
-      const entry = matching.find((candidate) => !candidate.isSymbolicLink());
+      const entry = this.validatedDirectoryEntry(
+        parent,
+        part,
+        readingDirectory || index < parts.length - 1
+      );
       if (entry === undefined) return undefined; // Missing before inspection is a legal no-match.
       if (index === parts.length - 1) return entry;
       if (!entry.isDirectory()) return undefined; // Also rejects stable directory symlinks.
@@ -110,6 +112,20 @@ class CollectionDirectoryAccess {
       parent = join(parent, part);
     }
     return undefined;
+  }
+
+  private validatedDirectoryEntry(
+    parent: string,
+    name: string,
+    requireDirectoryIdentity: boolean
+  ): CollectionEntry | undefined {
+    const matching = this.readDirectory(parent).entriesByName.get(name) ?? [];
+    // Detect selected lossy files before a valid U+FFFD spelling can hide the collision.
+    for (const candidate of matching) {
+      candidate.isFile();
+      if (requireDirectoryIdentity && candidate.isDirectory()) candidate.assertFaithfulName();
+    }
+    return matching.find((candidate) => !candidate.isSymbolicLink());
   }
 
   private demandedPath(absolute: string, readingDirectory: boolean): string | undefined {
@@ -134,7 +150,7 @@ class CollectionDirectoryAccess {
     );
   }
 
-  private readEntries(path: string): CollectionEntry[] {
+  private readDirectory(path: string): CollectionDirectory {
     const cached = this.directories.get(path);
     if (cached !== undefined) return cached;
     const stats = path === this.root ? inspectPath(path) : this.targetEntry(path, true)?.getStats();
@@ -156,8 +172,16 @@ class CollectionDirectoryAccess {
       });
     }
     entries = entries.filter((entry) => this.retainEntry(path, entry));
-    this.directories.set(path, entries);
-    return entries;
+    const entriesByName = new Map<string, CollectionEntry[]>();
+    for (const entry of entries) {
+      const matching = entriesByName.get(entry.name);
+      // Different raw byte names can decode to the same spelling; retain every entry in order.
+      if (matching === undefined) entriesByName.set(entry.name, [entry]);
+      else matching.push(entry);
+    }
+    const directory = { entries, entriesByName };
+    this.directories.set(path, directory);
+    return directory;
   }
 }
 
