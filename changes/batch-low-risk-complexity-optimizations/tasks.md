@@ -20,6 +20,6 @@
 
 - [x] 2.1 各切面最窄行为测试通过，完整 Case 闭合与必要 typecheck/lint/format/dependency 通过。
 - [x] 2.2 在 CPU 静默窗口完成同条件 before/after 及输出/错误/顺序等价核对，记录小规模成本与收益边界。
-- [ ] 2.3 由非实施 GPT‑6.1‑sol 代理审查正确性、实现质量、测试证明力与文档影响，清除实质阻断。
+- [x] 2.3 全新非实施 GPT‑6.1‑sol 独立审查通过；66 tests / 19 files、Case 与证据复核通过，无产品实质阻断；E1 测量解释澄清另记且原始证据不变。
 - [x] 2.4 运行完整 Project Gate（43/43），归档后补过 validate、Case、全部 Change、Decision、format 与 diff 检查。
-- [x] 2.5 审计范围与证据，按 Core/Run、Checks、learned 分组提交；保留可复现结果、临时物归宿和明确的独立审查缺口。
+- [x] 2.5 审计范围与证据，按 Core/Run、Checks、learned 分组提交；首次交接明确审查缺口，本轮补齐独立审查记录，保留可复现结果与临时物归宿。

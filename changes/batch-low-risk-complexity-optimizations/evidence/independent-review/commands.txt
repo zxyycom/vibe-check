@@ -1,0 +1,23 @@
+Working directory: /workspace/vibe-check
+All commands below exited 0. Output redirects were to this isolated review directory.
+
+mise exec -- bun run test-evidence -- check --root .
+
+mise exec -- bun test src/check-settlement/session-lifecycle.test.ts src/project-definition/project-definition.scheduling-inheritance.test.ts src/project-run/check-execution/resolved-checks.dependencies.test.ts src/project-run/task-scheduler/task-engine.static-validation.test.ts src/package-checks/file-metrics/scc/scanner.test.ts src/package-checks/markdown-lint/default-check.test.ts src/package-tools/learned-critical-path/critical-path-ranking.test.ts src/package-tools/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts src/package-tools/learned-critical-path/duration-model/scheduler-duration-recording.test.ts src/package-tools/learned-critical-path/strategy.test.ts
+
+mise exec -- bun test src/project-run/check-execution/flag-dependency-selection.test.ts src/project-run/check-execution/resolved-checks.handoff.test.ts src/project-run/check-execution/resolved-checks.handoff-failure.test.ts src/project-run/run-callback-context.test.ts src/project-run/invocation/learned-scheduling.test.ts src/package-checks/duplicate-detection/default-check.overlap.test.ts
+Note: last overlap.test.ts path does not exist; Bun ran only five files. Correct overlap owner was subsequently run below.
+
+mise exec -- bun test src/package-checks/duplicate-detection/default-check.test.ts src/project-definition/project-definition.flag-enablement.test.ts
+
+mise exec -- bun test src/project-run/controls/flags.test.ts src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts
+
+uv run --no-project --offline python /tmp/vibe-low-risk-review.5n66j6/audit-evidence.py
+
+git diff --check b3c8fec 7b1ca20
+git diff --quiet b3c8fec 7b1ca20 -- src/index.ts docs/package-documents.json docs/examples docs/schemas src/data-boundary/closed-values.ts
+git status --short
+git rev-parse HEAD
+
+Official Case list queries were run through mise exec -- bun run test-evidence -- list --query QUERY --limit 100 --root .
+QUERY values: learned, direct, scc, scheduling-inheritance.test.ts, session-lifecycle.test.ts, task-engine.static-validation.test.ts, resolved-checks.dependencies.test.ts, scanner.test.ts.

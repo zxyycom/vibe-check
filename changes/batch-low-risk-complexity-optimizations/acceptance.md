@@ -1,6 +1,6 @@
 # 本批实施与验收交接
 
-2026-10-12：实施与测量已完成，完整 Gate 通过；**指定模型的独立审查尚未完成，因此本 Change 不结项、不作为完整验收通过交付**。
+2026-10-12：实施、测量和指定模型独立审查均已完成，完整 Gate 通过；**本批验收 13/13，无产品实质阻断**。尚未合入 `main`，未取得 Change 删除授权，不把验收完成等同于集成、发布或结项。
 主线程只负责编排、取舍、实际 diff 与证据审计；本批实施、测量子代理均为 GPT‑6.1‑sol，没有切换其它模型。
 
 ## 实际范围
@@ -26,7 +26,7 @@ T02 没有另加 activation-ID Set；未修改现有 getter/snapshot shape。R05
 完整序列化输出及 workload 元数据跨双侧、跨进程一致；主线程另用 Python 标准库重算全部 median/MAD/min/max、进程中位数和配对比率，与原汇总逐值一致。
 这不是穷举语义证明，也不是 Run 端到端、内存或外部 SCC 进程测量。
 
-下表为**局部每次调用的 pooled batch median**，不是五次独立实验的置信区间；五对进程比率和全部分布见[证据入口](evidence/README.md)。
+下表为**局部每次调用的 pooled batch median**，不是五次独立实验的置信区间；五对进程比率和全部分布见[当前证据入口](evidence/reading-guide.md)。
 
 | 放大 workload | Before ms | After ms | After / Before |
 | --- | ---: | ---: | ---: |
@@ -50,6 +50,7 @@ T02 没有另加 activation-ID Set；未修改现有 getter/snapshot shape。R05
 本批接受这两项有限绝对准备成本以获得放大输入收益，保留简单一致实现，不凭微基准新增自适应阈值；不声称无回退或已满足未声明的生产延迟预算。
 R04/8 singleton 的 pooled 比率虽为 0.778，五对中四对更慢；无 scope/512 的 0.935 也无稳定方向。K04/4 和其它小输入同样应查看配对分布，而非只引用 pooled 改善。
 未修改的 C05 对照存在波动，提醒本次测量仍受共享主机、JIT/GC 等影响。
+独立审查进一步明确：表中 public prepare 组合路径还包含 prepare 内部 missing-history 的异步读取。原始 workload 名称/row boundary 未写全三次 decide，原始 results/protocol 对 IO 不计时的概括不能覆盖这项读取；[阅读说明](evidence/reading-guide.md)保存精确澄清，原始数据、helper、统计和 SHA 不变。
 
 ## 验证与失败记录
 
@@ -75,16 +76,23 @@ R04/8 singleton 的 pooled 比率虽为 0.778，五对中四对更慢；无 scop
 - 用户页面、README、示例、JSDoc 公共签名与 machine schema 无需更新：未新增可选参数或能力，默认值、授权、回调时机、错误/取消、输出及 I/O 边界未改变；相关契约与包验收继续通过。
 - 内部 owner 无新增职责或生命周期规则；索引属于原 owner 的私有实现，局部 JSDoc 已说明不可变 graph 与实时 boundary facts 分离。Change 协调页登记共享 Scheduler/learned owner 的串行约束，不改其它策略计划。
 - 12 个测试/支持文件扩展既有语义实体：覆盖重复/未知值、最新 dependency facts、跨 Run artifact 隔离、scope 首错顺序、argv 边界、稳定 ordinal、重复 prediction first-match、同 identity history 合并及活动状态变化。既有 Case 目的未变，账本闭合通过。
-- 这些是主线程结果审计与机械证据。**非实施 GPT‑6.1‑sol 的独立正确性、测试证明力和文档反查仍缺失**；不能用主线程检查或 43/43 Gate 替代任务 2.3。
+- 上述主线程判断现已由全新、非实施 GPT‑6.1‑sol 代理从实际 diff 独立反查。审查确认无需新增产品/API/文档契约，未发现实质阻断；报告与具体源码/测试依据见[独立审查](evidence/independent-review/review.md)，不是用主线程检查或 Gate 替代任务 2.3。
+
+## 独立审查结果
+
+审查对象为 baseline `b3c8fecce5a2ff835948f76f9fd4fa5a8e2fe853` 至 `7b1ca20f8b8049b0c4ef7c499beeec6cae78bcb5`；审查前后工作树干净，产品源码未改。
+代理实际运行 66 个测试、19 个文件，全部通过，并执行完整 Case 闭合；独立复核源码/归档 SHA、双侧 helper、所有 workload 输出和 2,590 批统计。
+唯一 E1 是上述测量组合路径与 IO 文字的解释澄清，非产品阻断，不需要改实现或重测；同一 reviewer 已对实际新增说明作定向复核，通过。reviewer 未重跑完整 Gate、benchmark、typecheck/lint/format 或 Node consumer；这些验证仍引用既有、源码身份一致的证据。主线程另跑归档/说明的 validate、Case、Change、format 与 diff 检查，不混作 reviewer 的测试证据。
+原始审查报告、命令、日志和脚本见[审查材料](evidence/independent-review/README.md)。
 
 ## 剩余工作与文件归宿
 
-新建实施代理与独立 reviewer 均收到线程数上限错误；Paseo 可用配置也没有本项目所需的 GPT‑6.1‑sol 环境，因此没有切换模型、创建其它工作区或复用旧代理冒充新独立职责。
-需要可新建指定模型审查代理的运行上下文，对当前稳定 diff 完成任务 2.3；若发现实质问题，再定向修复并重验相关证据。在此前保留 Plan，不合入 `main`，不 finalize。
+此前新建实施代理与独立 reviewer 收到线程数上限错误，Paseo 配置也不适用；没有切换模型或复用旧代理冒充独立角色。用户要求重试后，本会话成功新建 GPT‑6.1‑sol reviewer，已完成任务 2.3，该阻塞解除。
+当前没有产品验收遗留问题；本轮只闭合审查与说明，不合入 `main`，不 finalize。集成与 Change 结项是不同动作，结项删除仍需明确授权。
 
 最终测量脚本、源码重建 patch/清单、配置、原始结果、失败尝试、统计及 Gate 日志留在本 Change 的 `evidence/`，不新增常驻 benchmark 产品或独立 Investigation。
-`/tmp/vibe-low-risk-bench.OMhMtE` 和 `/tmp/vibe-low-risk-verification.jOmqWA` 暂为待审查的复现辅助物；仓库归档不包含完整源码副本、node_modules 或进程临时状态。
-独立审查和归档完整性复核完成后，可清理这些本任务临时根；本轮不清理，避免未完成审查失去现场。后续 Change 结项仍需明确删除授权。
+`/tmp/vibe-low-risk-bench.OMhMtE`、`/tmp/vibe-low-risk-verification.jOmqWA` 和 `/tmp/vibe-low-risk-review.5n66j6` 是本任务复现辅助物；所需证据已归档，源码与数据可按保存的 commit、patch、helper 和原始结果重建，仓库不保存完整源副本、node_modules 或进程临时状态。
+独立审查及归档完整性已核对。本轮保留这些精确临时根供集成交接，归档确认后的交接收尾可清理它们；临时辅助物的清理不等于 Change 结项删除授权。
 
 ## 提交与恢复边界
 
@@ -94,4 +102,4 @@ R04/8 singleton 的 pooled 比率虽为 0.778，五对中四对更慢；无 scop
 - `2d057d0c`：Checks 的 membership、batch planning 与 Finding 排序。
 - `765f7186`：learned helper 不可变索引及其行为测试。
 
-Plan、协调页与证据单独保存，不将未完成独立审查隐含为已结项。普通 commit 使用现有 post-commit hook；当前分支非 main，hook 明确跳过 push。未发布、未推送远端或改写历史。
+Plan、协调页与证据在 `7b1ca20f` 保存了首次交接及当时的审查缺口；本轮补充独立审查与澄清，不改产品提交。普通 commit 使用现有 post-commit hook；当前分支非 main，hook 跳过 push。未发布、未推送远端或改写历史。

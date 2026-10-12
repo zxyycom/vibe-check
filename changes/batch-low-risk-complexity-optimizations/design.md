@@ -52,7 +52,7 @@ Run 的 graph validation、依赖读取和路径冻结由[Project Run](../../doc
 ## Open Questions
 
 - readiness 已确认各索引入口与生命周期；实际 diff 未引入 public contract、跨 Run 状态或错误重排，验证与取舍见[验收交接](acceptance.md)。
-- 新代理数限制需要恢复才能完成指定模型的独立审查；不据此放宽用户模型约束或让实现者自称独立 reviewer。
+- 无产品验收开放问题。用户要求重试后成功新建指定模型独立 reviewer，审查无实质阻断；本轮未合入 main，也没有 Change 删除授权。
 
 ## Implementation Observations
 
@@ -69,6 +69,8 @@ Run 的 graph validation、依赖读取和路径冻结由[Project Run](../../doc
 - Learned readiness 将 T01/T02 限定为五个现有模块：成功 prepared closure 的 graph/prediction/score 索引、单次 prediction 的 history 索引，以及单次 recording 的 immutable prediction 索引。历史合并的可变 Map 不缓存，现有 snapshot/getter shape 不改，原 find 的 first-match 语义显式保留。
 - 三个实施切面均已完成并停止写入；Learned 29 项相关测试通过。未新增 activation-ID Set 或扩大策略范围。
 - 首轮完整 Gate 42/43：唯一阻断为 strategy.ts 305 code lines 超过现有 300。删除单次使用的纯转发 comparator 后降至 298；没有修改限额/waiver。最终完整 Gate 43/43，candidate `0.0.0-local.aa7ca827d229`，保留 p95 Check duration advisory 告警。
-- 最终 37 workload、5 对交错进程、2,590 批原始数据已取得，所有完整输出和顺序一致。before/after 源码、helper、配置和 binary 身份前后复核一致；主线程独立重算统计一致。详细结论与可复现材料见[验收交接](acceptance.md)和[测量证据](evidence/README.md)。
+- 最终 37 workload、5 对交错进程、2,590 批原始数据已取得，所有完整输出和顺序一致。before/after 源码、helper、配置和 binary 身份前后复核一致；主线程独立重算统计一致。详细结论与可复现材料见[验收交接](acceptance.md)和[测量证据](evidence/reading-guide.md)。
 - 接受 C01/8 约 +1.26 µs、dependency 构造加 8 次读取约 +1.02 µs 的局部固定成本，以保留放大路径收益与简单实现；不声称所有输入无回退、不新增经验阈值。R04 的小规模与无 scope 对照方向不稳定，不计作已证明收益。
-- 测量辅助物归档 6.5 MB，保留非固定 runtime 探索、失败 after、原始 lint 失败和重建摘要的区别。主线程另留两轮 Gate 日志及统计复算结果；独立审查仍因线程配额阻塞，不结项、不合入 main。
+- 首次交接归档测量辅助物 6.5 MB，保留非固定 runtime 探索、失败 after、原始 lint 失败和重建摘要的区别。主线程另留两轮 Gate 日志及统计复算结果；当时独立审查因线程配额阻塞，没有结项或合入 main。
+- 2026-10-12 重试成功：全新 GPT‑6.1‑sol 独立 reviewer 审查 b3c8fec → 7b1ca20f，实际执行 66 tests / 19 files、Case 闭合，复核 source/archive/全部测量统计，无产品实质阻断。任务 2.3 完成，未改产品源码。
+- 独立审查 E1 澄清原始 public-prepare workload 实为 prepare（含 history read）+ 三次 decide，不能当 isolated prepare 或统一宣称 IO 不计时。新增[当前阅读说明](evidence/reading-guide.md)，保留原始 44 项测量交付及所有 SHA 不变，不重测。报告和命令另行归档。

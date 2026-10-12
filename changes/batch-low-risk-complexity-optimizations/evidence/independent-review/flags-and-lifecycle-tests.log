@@ -1,0 +1,27 @@
+bun test v1.3.14 (0d9b296a)
+
+src/project-run/controls/flags.test.ts:
+(pass) Package Run flags > rejects invalid flag input before any Check callback [4.01ms]
+(pass) Package Run flags > rejects caller attempts to supply Product-reserved change flags before preparation [0.35ms]
+(pass) Package Run flags > provides canonical immutable callback snapshots [24.55ms]
+(pass) Package Run flags > enables all mode only when every configured flag is present [11.17ms]
+(pass) Package Run flags > enables any mode when at least one configured flag is present [17.18ms]
+(pass) Package Run flags > enables none mode only when no configured flag is present [8.42ms]
+(pass) Package Run flags > enables not-all mode when at least one configured flag is absent [16.81ms]
+
+src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts:
+(pass) Package Run admission strategy lifecycle > prepares once, decides synchronously, and completes after terminal effects on normal execute [5.05ms]
+(pass) Package Run admission strategy lifecycle > completes after terminal effects when cancellation drains started work [4.13ms]
+(pass) Package Run admission strategy lifecycle > completes after terminal effects when an admission policy fault drains [1.73ms]
+(pass) Package Run admission strategy lifecycle > does not complete when pre-terminal task-engine setup fails [0.72ms]
+(pass) Package Run admission strategy lifecycle > keeps a prepared terminal effect output enabled but not-run without a sealed context [0.78ms]
+(pass) Package Run admission strategy lifecycle > keeps prepared policy closures independent across overlapping Runs [4.23ms]
+(pass) Package Run admission strategy lifecycle > runs a public prepared strategy once and completes after generic terminal effects [4.65ms]
+(pass) Package Run admission strategy lifecycle > keeps public prepared closures isolated across overlapping Runs [4.17ms]
+(pass) Package Run admission strategy lifecycle > fails public preparation before Scheduler start and preserves its output boundary [1.09ms]
+(pass) Package Run admission strategy lifecycle > aggregates public terminal-effect failures without rewriting a sealed primary result [1.34ms]
+(pass) Package Run admission strategy lifecycle > enables measurement output only for generic terminal effects or an actual prepared terminal effect [10.58ms]
+
+ 18 pass
+ 0 fail
+Ran 18 tests across 2 files. [564.00ms]

@@ -1,0 +1,56 @@
+bun test v1.3.14 (0d9b296a)
+
+src/check-settlement/session-lifecycle.test.ts:
+(pass) check-record Core Check session > closes every registered Check exactly once and freezes canonical Check and Record facts [4.84ms]
+(pass) check-record Core Check session > maps unresolved scopes to Product unavailable outcomes while retaining accepted Records [0.42ms]
+
+src/project-definition/project-definition.scheduling-inheritance.test.ts:
+(pass) Project Definition > uses exact scheduling inheritance and rejects retired catalog fields [2.29ms]
+(pass) Project Definition > normalizes signed admission priority by nearest explicit ancestor [1.32ms]
+(pass) Project Definition > normalizes closed named resource capacities and exact replacement claims [0.55ms]
+
+src/package-checks/markdown-lint/default-check.test.ts:
+(pass) Markdown lint Check > materializes the closed recommended policy and rejects malformed authoring [1.19ms]
+(pass) Markdown lint Check > publishes Product-owned findings only after a complete bounded traversal [41.34ms]
+(pass) Markdown lint Check > settles zero input, rejected input, limits, and cancellation without partial lint publication [13.82ms]
+(pass) Markdown lint Check > reports MD052 reference forms through the public single-rule Check [8.45ms]
+
+src/project-run/check-execution/resolved-checks.dependencies.test.ts:
+(pass) Package Run direct Check execution > waits for direct observations and limits readback to direct relations [22.62ms]
+
+src/project-run/task-scheduler/task-engine.static-validation.test.ts:
+(pass) static task engine > validates static task identity dependency and scope structure before execution [2.91ms]
+
+src/package-tools/learned-critical-path/critical-path-ranking.test.ts:
+(pass) critical-path ranking > scores both dependency and observation downstream paths once [0.64ms]
+
+src/package-tools/learned-critical-path/strategy.test.ts:
+(pass) public learned critical-path strategy > uses the public scope layers and returns wait for an unavailable learned preference [4.77ms]
+(pass) public learned critical-path strategy > orders score, priority, canonical IDs, constrained scope caps, continuations, and static fallback through public data [5.08ms]
+(pass) public learned critical-path strategy > rejects a non-absolute history path and contains rejected caller observations [2.83ms]
+
+src/package-checks/file-metrics/scc/scanner.test.ts:
+(pass) quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty [0.14ms]
+(pass) quality scc exact input projection > sends --no-config and rejects a successful scc invocation that produces no CSV header [141.64ms]
+(pass) quality scc exact input projection > plans a conservative UTF-16 argv partition without reordering or overlap [0.12ms]
+(pass) quality scc exact input projection > rejects one infeasible path before starting a measurement process [1.47ms]
+(pass) quality scc exact input projection > uses one compatible process for small input and merges ordered batch-local measurements [45.41ms]
+(pass) quality scc exact input projection > merges successful oversized batches into one stable exact result [93.18ms]
+(pass) quality scc exact input projection > covers oversized exact input in sequential batches and rejects a batch-local out-of-scope row [44.67ms]
+(pass) quality scc exact input projection > rejects duplicate rows only after all batch-local validation has completed [86.49ms]
+(pass) quality scc exact input projection > fails the complete logical scan when a later process fails [85.88ms]
+(pass) quality scc exact input projection > does not start a later batch after the shared monotonic deadline expires [46.56ms]
+(pass) quality scc exact input projection > accounts stdout and stderr cumulatively before a later batch can start [0.07ms]
+
+src/package-tools/learned-critical-path/duration-model/scheduler-duration-recording.test.ts:
+(pass) scheduler duration recording > retains bounded admitted samples [3.91ms]
+(pass) scheduler duration recording > does not create samples when timing is unavailable [0.58ms]
+(pass) scheduler duration recording > evicts the oldest series beyond capacity [90.99ms]
+
+src/package-tools/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts:
+(pass) scheduler duration prediction > forms a frozen digest-only summary [0.62ms]
+(pass) scheduler duration prediction > uses learned means before a median project prior and cold start [0.30ms]
+
+ 31 pass
+ 0 fail
+Ran 31 tests across 10 files. [1302.00ms]

@@ -1,0 +1,15 @@
+bun test v1.3.14 (0d9b296a)
+
+src/project-definition/project-definition.flag-enablement.test.ts:
+(pass) Project Definition > normalizes executable flag enablement as declarative identity [5.22ms]
+(pass) Project Definition > normalizes opt-in dependency propagation as declarative identity [0.56ms]
+(pass) Project Definition > rejects malformed and container flag enablement [2.53ms]
+
+src/package-checks/duplicate-detection/default-check.test.ts:
+(pass) default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options [296.31ms]
+(pass) default Check direct callbacks > detects project-relative duplicates through the public Check and fails the default strict aggregate [112.72ms]
+(pass) default Check direct callbacks > scans the exact-input union once and compares fragments only within common areas [271.93ms]
+
+ 6 pass
+ 0 fail
+Ran 6 tests across 2 files. [910.00ms]
