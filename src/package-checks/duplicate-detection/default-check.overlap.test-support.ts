@@ -208,6 +208,36 @@ export async function assertReevaluatedCommonAreaPolicies(
   });
   assert.equal(stricter.records.length, 0);
   assert.equal(readFileSync(scanCountPath, "utf8"), "1");
+  const multipleCommonAreas = {
+    ...options,
+    codeAreas: {
+      ...options.codeAreas,
+      "also-shared": { ...sharedArea, minimumLines: 12, minimumTokens: 100 }
+    }
+  };
+  const overlapping = await execute(executeDuplicateDetection, multipleCommonAreas, root);
+  assert(overlapping.result.status === "passed");
+  assert.deepEqual(overlapping.result.data, { blockingFindingCount: 0, findingCount: 1 });
+  assert.equal(overlapping.records.length, 1);
+  assert.deepEqual(Reflect.get(overlapping.records[0]?.data ?? {}, "codeAreas"), [
+    "also-shared",
+    "shared"
+  ]);
+  const stricterLines = await execute(
+    executeDuplicateDetection,
+    {
+      ...multipleCommonAreas,
+      codeAreas: {
+        ...multipleCommonAreas.codeAreas,
+        "also-shared": { ...sharedArea, minimumLines: 13, minimumTokens: 100 }
+      }
+    },
+    root
+  );
+  assert(stricterLines.result.status === "passed");
+  assert.deepEqual(stricterLines.result.data, { blockingFindingCount: 0, findingCount: 0 });
+  assert.deepEqual(stricterLines.records, []);
+  assert.equal(readFileSync(scanCountPath, "utf8"), "1");
 }
 
 function duplicateReportItem(

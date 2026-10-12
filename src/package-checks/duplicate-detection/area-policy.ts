@@ -11,6 +11,11 @@ type PathPolicy = Readonly<{
   minimumTokens: number;
 }>;
 
+type PathPolicies = Readonly<{
+  readonly codeAreaIds: ReadonlySet<string>;
+  readonly policies: readonly PathPolicy[];
+}>;
+
 type FragmentAnnotation =
   | Readonly<{
       fragment: DuplicateCodeFragment;
@@ -44,35 +49,46 @@ export function applyDuplicateAreaPolicy(
 
 function buildPathPolicies(
   areas: readonly DuplicateDetectionAreaInput[]
-): ReadonlyMap<string, readonly PathPolicy[]> {
-  const mutablePolicies = new Map<string, PathPolicy[]>();
+): ReadonlyMap<string, PathPolicies> {
+  const mutablePolicies = new Map<
+    string,
+    { readonly codeAreaIds: Set<string>; readonly policies: PathPolicy[] }
+  >();
   for (const area of areas) {
     for (const path of area.approvedExactPaths) {
-      const policies = mutablePolicies.get(path) ?? [];
-      policies.push(
+      let pathPolicies = mutablePolicies.get(path);
+      if (pathPolicies === undefined) {
+        pathPolicies = { codeAreaIds: new Set(), policies: [] };
+        mutablePolicies.set(path, pathPolicies);
+      }
+      pathPolicies.policies.push(
         Object.freeze({
           codeArea: area.codeArea,
           minimumLines: area.minimumLines,
           minimumTokens: area.minimumTokens
         })
       );
-      mutablePolicies.set(path, policies);
+      pathPolicies.codeAreaIds.add(area.codeArea);
     }
   }
   return new Map(
-    Array.from(mutablePolicies, ([path, policies]) => [path, Object.freeze(policies)] as const)
+    Array.from(
+      mutablePolicies,
+      ([path, { codeAreaIds, policies }]) =>
+        [path, Object.freeze({ codeAreaIds, policies: Object.freeze(policies) })] as const
+    )
   );
 }
 
 function annotateFragment(
   fragment: DuplicateCodeFragment,
-  policiesByPath: ReadonlyMap<string, readonly PathPolicy[]>
+  policiesByPath: ReadonlyMap<string, PathPolicies>
 ): FragmentAnnotation | undefined {
   const locations: DuplicateCodeLocation[] = [];
   let commonPolicies: readonly PathPolicy[] | undefined;
   for (const location of fragment.locations) {
     const pathPolicies = policiesByPath.get(location.path);
-    if (pathPolicies === undefined || pathPolicies.length === 0) return undefined;
+    if (pathPolicies === undefined || pathPolicies.policies.length === 0) return undefined;
     locations.push(
       Object.freeze({
         endLine: location.endLine,
@@ -82,10 +98,8 @@ function annotateFragment(
     );
     commonPolicies =
       commonPolicies === undefined
-        ? pathPolicies
-        : commonPolicies.filter((policy) =>
-            pathPolicies.some((candidate) => candidate.codeArea === policy.codeArea)
-          );
+        ? pathPolicies.policies
+        : commonPolicies.filter((policy) => pathPolicies.codeAreaIds.has(policy.codeArea));
   }
   if (commonPolicies === undefined) return undefined;
   if (commonPolicies.length === 0) return Object.freeze({ kind: "outside-common-area" });

@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 import { markdownLint } from "./default-check.ts";
 import { executeMarkdownLint } from "./execution.ts";
 import { parseMarkdownLintData } from "./final-data.ts";
+import { orderedMarkdownLintCandidates } from "./records.ts";
 import {
   createMarkdownLintTestRoot,
   executeMarkdownLintCheck,
@@ -47,6 +48,7 @@ describe("Markdown lint Check", () => {
   });
 
   it("publishes Product-owned findings only after a complete bounded traversal", async () => {
+    assertStableFindingLocations();
     const root = createMarkdownLintTestRoot("vibe-check-markdown-lint-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
@@ -222,3 +224,75 @@ describe("Markdown lint Check", () => {
     }
   });
 });
+
+function assertStableFindingLocations(): void {
+  const candidates = orderedMarkdownLintCandidates(
+    [
+      { path: "docs/z.md", finding: { lineNumber: 1, range: null, rule: "no-alt-text" } },
+      { path: "docs/a.md", finding: { lineNumber: 2, range: [3, 2], rule: "no-alt-text" } },
+      {
+        path: "docs/a.md",
+        finding: { lineNumber: 1, range: [2, 1], rule: "no-missing-space-atx" }
+      },
+      {
+        path: "docs/a.md",
+        finding: { lineNumber: 1, range: [1, 9], rule: "no-missing-space-atx" }
+      },
+      { path: "docs/a.md", finding: { lineNumber: 1, range: [1, 2], rule: "no-alt-text" } },
+      { path: "docs/a.md", finding: { lineNumber: 1, range: null, rule: "heading-increment" } },
+      {
+        path: "docs/a.md",
+        finding: { lineNumber: 1, range: [1, 2], rule: "no-missing-space-atx" }
+      }
+    ],
+    ["no-alt-text", "no-missing-space-atx"]
+  );
+  assert.deepEqual(
+    candidates.map(({ data: { path, rule, range } }) => ({ path, rule, range })),
+    [
+      {
+        path: "docs/a.md",
+        rule: "no-alt-text",
+        range: { start: { line: 1, column: 1 }, end: { line: 1, column: 3 } }
+      },
+      {
+        path: "docs/a.md",
+        rule: "heading-increment",
+        range: { start: { line: 1, column: 1 }, end: { line: 1, column: 1 } }
+      },
+      {
+        path: "docs/a.md",
+        rule: "no-missing-space-atx",
+        range: { start: { line: 1, column: 1 }, end: { line: 1, column: 10 } }
+      },
+      {
+        path: "docs/a.md",
+        rule: "no-missing-space-atx",
+        range: { start: { line: 1, column: 1 }, end: { line: 1, column: 3 } }
+      },
+      {
+        path: "docs/a.md",
+        rule: "no-missing-space-atx",
+        range: { start: { line: 1, column: 2 }, end: { line: 1, column: 3 } }
+      },
+      {
+        path: "docs/a.md",
+        rule: "no-alt-text",
+        range: { start: { line: 2, column: 3 }, end: { line: 2, column: 5 } }
+      },
+      {
+        path: "docs/z.md",
+        rule: "no-alt-text",
+        range: { start: { line: 1, column: 1 }, end: { line: 1, column: 1 } }
+      }
+    ]
+  );
+  assert.equal(
+    candidates[2]?.id,
+    "path:docs%2Fa.md:rule:no-missing-space-atx:line:1:column:1:ordinal:1"
+  );
+  assert.equal(
+    candidates[3]?.id,
+    "path:docs%2Fa.md:rule:no-missing-space-atx:line:1:column:1:ordinal:2"
+  );
+}

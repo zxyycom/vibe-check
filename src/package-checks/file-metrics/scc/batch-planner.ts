@@ -28,27 +28,26 @@ export function planSccBatches(
   ceiling = SCC_BATCH_COMMAND_LINE_CEILING
 ): SccBatchPlan {
   const batches: string[][] = [];
+  const fixedCodeUnits = estimateSccCommandLineCodeUnits([executable, ...fixedArguments]);
   let currentBatch: string[] = [];
+  let currentCodeUnits = fixedCodeUnits;
 
   for (const includePath of includePaths) {
-    const singlePathArguments = [executable, ...fixedArguments, includePath];
-    if (estimateSccCommandLineCodeUnits(singlePathArguments) > ceiling) {
+    const pathCodeUnits = 2 * includePath.length + 3;
+    if (fixedCodeUnits + pathCodeUnits > ceiling) {
       return {
         ok: false,
         error: `scc exact path cannot fit command-line ceiling ${ceiling}: ${JSON.stringify(includePath)}`
       };
     }
 
-    const candidateBatch = [...currentBatch, includePath];
-    if (
-      currentBatch.length > 0 &&
-      estimateSccCommandLineCodeUnits([executable, ...fixedArguments, ...candidateBatch]) > ceiling
-    ) {
+    if (currentBatch.length > 0 && currentCodeUnits + pathCodeUnits > ceiling) {
       batches.push(currentBatch);
-      currentBatch = [includePath];
-      continue;
+      currentBatch = [];
+      currentCodeUnits = fixedCodeUnits;
     }
-    currentBatch = candidateBatch;
+    currentBatch.push(includePath);
+    currentCodeUnits += pathCodeUnits;
   }
 
   if (currentBatch.length > 0) batches.push(currentBatch);

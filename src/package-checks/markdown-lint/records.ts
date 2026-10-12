@@ -112,12 +112,10 @@ function compareFindings(
   right: Readonly<{ readonly path: string; readonly finding: MarkdownLintBackendFinding }>,
   rank: ReadonlyMap<MarkdownLintRuleName, number>
 ): number {
-  const leftRange = publicRange(left.finding);
-  const rightRange = publicRange(right.finding);
   return (
     left.path.localeCompare(right.path) ||
-    leftRange.start.line - rightRange.start.line ||
-    leftRange.start.column - rightRange.start.column ||
+    left.finding.lineNumber - right.finding.lineNumber ||
+    (left.finding.range?.[0] ?? 1) - (right.finding.range?.[0] ?? 1) ||
     (rank.get(left.finding.rule) ?? 0) - (rank.get(right.finding.rule) ?? 0)
   );
 }

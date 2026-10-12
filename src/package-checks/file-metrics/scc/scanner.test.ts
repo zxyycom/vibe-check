@@ -66,6 +66,23 @@ describe("quality scc exact input projection", () => {
       ok: false,
       error: 'scc exact path cannot fit command-line ceiling 25: "oversized"'
     });
+    assert.equal(estimateSccCommandLineCodeUnits(["scc", "x", "a b", '"\\😀']), 34);
+    assert.deepEqual(planSccBatches("scc", ["x"], ["a b", '"\\😀'], 34), {
+      ok: true,
+      batches: [["a b", '"\\😀']]
+    });
+    assert.deepEqual(planSccBatches("scc", ["x"], ["a b", '"\\😀'], 33), {
+      ok: true,
+      batches: [["a b"], ['"\\😀']]
+    });
+    assert.deepEqual(planSccBatches("scc", [], ["a", "b", "c", "d", "e"], 19), {
+      ok: true,
+      batches: [["a", "b"], ["c", "d"], ["e"]]
+    });
+    assert.deepEqual(planSccBatches("scc", [], ["a", "oversized", "too-long"], 19), {
+      ok: false,
+      error: 'scc exact path cannot fit command-line ceiling 19: "oversized"'
+    });
   });
 
   it("rejects one infeasible path before starting a measurement process", () => {
