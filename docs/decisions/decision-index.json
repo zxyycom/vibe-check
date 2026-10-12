@@ -317,7 +317,7 @@
       "260908-isolate-package-release-source-from-change-work": "sha256:424e622408e55c648ea02973f61ab49125777e1114794fbd3ad2b05412c75f88",
       "260908-provide-synchronous-single-selection-file-collection": "sha256:6a1184b3c0c4223eb8b5a3ee2668b4025120dbe24cac482fa49220f6c8da0231",
       "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
-      "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
+      "260908-use-unprefixed-project-branch-names": "sha256:81a4d630f7ec8d343b21e1e124132a5b615df9cf26f49b547e1b82b36aec6566",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
       "260909-prepare-project-change-flags-before-selection": "sha256:3bd48ca7885f56037d6e9ea14b17721fc7ee84392885ce0303727296c6faa274",
       "260909-provide-file-change-marker-context": "sha256:90fab6cc62c59c357a4249efd5937fc4fac683107fdfa3320d3252e3f8cc57a1",
@@ -6592,8 +6592,8 @@
       "alignment": "aligned",
       "createdAt": "2026-09-08T16:34:44Z",
       "purpose": "让分支名称表达项目工作而非执行工具或命名空间",
-      "background": "Change 分支已有独立工作区约定，工具前缀不能表达正式项目的工作身份",
-      "decision": "新增项目分支直接使用语义名称，Change 分支使用 Change 名称",
+      "background": "日常开发只在 main 进行，发布或其它明确授权的分支仍需表达项目工作身份",
+      "decision": "对明确获准创建的项目分支使用无前缀语义名称，命名规则不授予创建权限",
       "tags": [
         "workflow-policy"
       ],

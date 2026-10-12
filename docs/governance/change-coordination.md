@@ -1,24 +1,24 @@
 # Change 执行依赖与 Worktree 协调
 
-本文是同时推进多个当前 Change 时的协调入口。它完整维护 `main` 作为开发集成线、Change 分支命名、一般 worktree 规则、跨 Change 前置关系、推荐合入顺序与共享 owner 冲突；不保存已完成 Change 的副本或形成时证据。正式发布的双工作区、冻结 source、同一 tarball 验收、Git tag 与发布后交接时序由 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 完整定义。
+本文是同时推进多个当前 Change 时的协调入口，维护日常 `main` 工作区、跨 Change 前置关系、执行顺序与共享 owner 冲突；不保存已完成 Change 的副本或形成时证据。发布分支、双工作区、冻结 source、同一 tarball 验收、Git tag 与发布后交接时序由 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 完整定义。
 
 本文不拥有 Change 的 stage、任务状态、实施授权或恢复条件。成员与动态状态以
 `bun run change-plan -- list changes` 和目标 `changes/<change>/` artifacts 为准；本文与目标 artifacts 不一致时，先按当前事实更新本文，不得用协调摘要覆盖 Change 自身的约束。
 
 ## 使用步骤
 
-每次创建或恢复 worktree 前依次执行：
+每次开始或恢复 Change 工作前依次执行：
 
 1. 运行 `bun run change-plan -- list changes`，确认目标仍是当前直接成员，并读取其 stage、任务进度和 Plan 距离。
 2. 读取目标 Change 的 `proposal.md`、`design.md` 和存在时的 `tasks.md`，确认 Outcome、开放问题、Resume Conditions 与 Readiness。
-3. 确认硬前置的稳定提交已经包含在目标 worktree 的实施基线中。该基线可以是 `main`、集成分支或上游 Change 分支，不要求先合入 `main`。
-4. 检查同批 worktree 是否修改相同源码 owner、lockfile、Gate、Case 账本或稳定文档 owner；有重叠时默认串行合入。
-5. 从选定实施基线创建一个 Change 分支和一个活跃实现 worktree。发布的 detached 冻结 worktree 是 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 所定义的正式验收边界，不替代本项实施 worktree。上游变化后，下游同步基线并重新复核。
+3. 确认日常工作区位于 `main`，且硬前置的稳定提交已包含在当前实施基线中；发现其它分支时先核对授权，不沿用它继续普通 Change 工作。
+4. 检查同批任务是否修改相同源码 owner、lockfile、Gate、Case 账本或稳定文档 owner；有重叠时串行实施和提交，保留其它任务的改动。
+5. 在当前 `main` 上限定本次写入范围与验证对象。前置变化后，下游先重新复核；发布工作区另按[发布流程](../tooling/package-release.md#发布工作区冻结源与交接)准备。
 
 ## 当前 Change 协调
 
 完整当前集合由 `bun run change-plan -- list changes` 查询。本节让执行者恢复三项协调信息：下一项工作、
-跨 Change 前置和共享 owner 的合入顺序。目标 Change 的 stage、Readiness、开放问题和实施授权仍由其
+跨 Change 前置和共享 owner 的执行顺序。目标 Change 的 stage、Readiness、开放问题和实施授权仍由其
 artifacts 决定。
 
 ### 当前主队列
@@ -38,10 +38,10 @@ artifacts 决定。
 Waiver 可省略实现由[公开指南](../guides/finding-waivers.md#输入与默认值)承接；
 [`audit-public-authoring-optional-fields`](../../changes/audit-public-authoring-optional-fields/proposal.md)保留其独立验收与结项入口。
 
-### 并行与合入边界
+### 并行与提交边界
 
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享
-owner 时，实施与合入必须串行。
+owner 时，实施与提交必须串行。
 
 | 轨道 | 可并行工作 | 实施前置与共享边界 |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ owner 时，实施与合入必须串行。
 
 长期取舍由[文件范围决策](../decisions/unify-file-selection-with-default-excludes.md)与
 [索引决策](../decisions/provide-readonly-file-region-index.md)承接；本节不保留完成 Change 的阶段和验收副本。
-后续触及共同 matcher、Run 接线、包材料、Case 或文档 owner 时，仍按实际重叠串行实施与合入。
+后续触及共同 matcher、Run 接线、包材料、Case 或文档 owner 时，仍按实际重叠串行实施与提交。
 函数指标的来源、计量和读取边界各由对应 owner 拥有；后续是否复用关系索引按具体结果与责任判断，不由本轨道交付自动触发。
 
 ### Lizard 升级与 TypeScript 修复
@@ -76,7 +76,7 @@ owner 时，实施与合入必须串行。
 [Function Metrics](../checks/function-metrics.md)及[有界偏差 owner](../development/scanner-dependencies.md#typescript-函数指标的有界偏差)承接；
 [短路口径 Decision](../decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)已与完整方向对齐，形成时验收见
 [TypeScript 修复调查](../investigations/verify-typescript-metrics-implementation.md)。本节不保留修复 Change 的阶段或恢复副本。
-共享 analyzer、来源账本、Case 与包材料的后续变更仍串行实施和合入，已交付能力不自动授权扩大其它 owner 的范围。
+共享 analyzer、来源账本、Case 与包材料的后续变更仍串行实施和提交，已交付能力不自动授权扩大其它 owner 的范围。
 
 ### 函数指标读取优化
 
@@ -84,7 +84,7 @@ owner 时，实施与合入必须串行。
 [内部 owner](../development/scanner-dependencies.md#package-maintenance-evidence)和
 [Function Metrics](../checks/function-metrics.md)承接；同条件精确安装对照与完整验收见
 [读取优化实施调查](../investigations/verify-function-metrics-admission-implementation.md)。本节不保留已完成 Change 的链接或阶段副本。
-共享 measurement、测试、Case 或包 owner 的后续变更仍串行实施和合入；来源升级、指标修复与读取策略分别验收。
+共享 measurement、测试、Case 或包 owner 的后续变更仍串行实施和提交；来源升级、指标修复与读取策略分别验收。
 
 ### Scheduler 证据队列
 
@@ -118,19 +118,19 @@ pending outcome、observer 与 drain 语义后才能激活。若它先激活，�
 
 ## Worktree 与合入规则
 
-1. **`main` 是开发集成线。** 当前 Change 从选定的实施基线分出；需要集成时按已验提交合回 `main`，而非把 `main` 当作活动 Change 分支。
-2. **默认一个当前 Change 一个无前缀语义分支。** 普通 Change 使用 `<change-name>`；发布使用 `release-<version 的连字符形式>`，例如 `release-0-0-2`。新项目分支直接使用语义名称，不使用工具或分类命名空间；既有分支不因此迁移或重命名。有硬依赖时，下游分支可直接建立在上游稳定提交上。
-3. **一个 Change 一个活跃实现 worktree。** 不让两个执行者同时修改同一 Change 目录。[Package release](../tooling/package-release.md#发布工作区冻结源与交接) 为正式发布另设 detached 冻结 worktree；它不是第二个实现 worktree，且不在其上更新活动 Change 记录，但 `S` 的快照可以保留已提交的 Change 文件。
-4. **按下游实际继承的提交解除依赖。** 未提交 working tree、测试结果或未被下游继承的旁支提交不足以解除依赖。
-5. **共享 owner 默认串行。** package、Gate、Case、lockfile 或稳定文档的交叉改动分次合入。
+1. **日常开发与提交只在 `main` 进行。** 普通 Change 是范围与验收单位，不创建对应分支或另设合入阶段。创建、切换或使用其它分支须有用户明确授权；已有分支的存在不构成使用授权，删除或重命名也须另行授权。
+2. **发布分支遵循独立发布流程。** [Package release](../tooling/package-release.md#发布工作区冻结源与交接)保留发布分支、实现工作区和 detached 冻结工作区的职责及授权要求；该例外不扩展到普通 Change。显式获准的分支按[命名规则](../decisions/use-unprefixed-project-branch-names.md)命名。
+3. **写入所有权互斥。** 不让两个执行者同时修改同一 Change 目录或共享 owner；只读调查及写入范围不重叠的任务可在 `main` 工作区并行。发布冻结工作区不维护活动 Change 记录，但 `S` 的快照可以包含已提交的 Change 文件。
+4. **按当前基线中的稳定提交解除依赖。** 未提交 working tree、测试结果或基线以外的提交不足以解除依赖。
+5. **共享 owner 串行提交。** package、Gate、Case、lockfile 或稳定文档的交叉改动按任务隔离、复核和提交，不包含其它任务的未完成改动。
 6. **先语义复核，再刷新 Plan。** Git 距离非零本身不要求机械重写 `baseCommit`；确认当前 Plan 仍成立后再运行 `plan`。
 7. **每项 Change 独立验收和提交。** owner 交接、验证与任务闭合后，只有取得当前任务的明确删除授权才运行 `finalize`。
-8. **堆叠分支按依赖顺序同步与合入。** 上游更新后，下游先同步并运行受影响验证。正式发布的 source/tag 与发布后修正、交接合回 `main` 的特殊顺序，以 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 为准。
+8. **前置变化后复核下游。** 上游在 `main` 更新后，下游重新确认假设并运行受影响验证。正式发布的 source/tag 与发布后修正、交接合回 `main` 的特殊顺序，以 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 为准。
 
 ## 维护与验证
 
 当前 Change 新增、退出、stage 或 Outcome 改变，硬前置完成，条件分支激活，或实际冲突改变并行边界时更新本文：
 
 1. 运行 `bun run change-plan -- list changes` 和 `bun run change-plan -- check-all changes`。
-2. 读取发生变化的目标 artifacts，只维护当前依赖、允许工作、轨道和合入顺序；不复制动态任务计数或已完成材料。
+2. 读取发生变化的目标 artifacts，只维护当前依赖、允许工作、轨道和执行顺序；不复制动态任务计数或已完成材料。
 3. 运行 `bun run validate -- materials`、`bun run decisions -- check` 和 `git diff --check`。
