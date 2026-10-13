@@ -1,0 +1,3422 @@
+{
+  "materializedAt": "2026-10-12T15:18:10.573Z",
+  "fixture": "/workspace/vibe-check/tmp/optimization-20261012/file-selection/node_modules/frozen-fixture",
+  "sourceHead": "08c9166b85152168ca27d45452a4174afed50e57",
+  "files": 853,
+  "totalBytes": 4111410,
+  "sources": [
+    {
+      "path": "docs/examples/json/diagnostic-report.json",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/json/empty-scope-report.json",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/json/gate-failing-report.json",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/json/passing-report.json",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api-support/gate-example-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/admission-graph.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/cache-json-by-key.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/collect-project-files.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/command-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/custom-admission-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/custom-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/data-boundaries.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/debug-change-flags.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-cached-measurement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-change-selection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-existing-command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-json-diagnostics.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-minimal.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-resource-claims.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-shared-preparation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-task-selection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-terminal-observation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/gate-text-diagnostics.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/learned-critical-path.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/maintenance-reminders.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/markdown-link-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/markdown-lint.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/prepared-custom-admission-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/presenting-findings.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/progress-preview.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/project-changes.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/project-file-region-index.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/quick-start.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/examples/package-api/typed-dependency.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/schemas/vibe-check-record.schema.json",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/schemas/vibe-check-report.schema.json",
+      "source": "current-workspace"
+    },
+    {
+      "path": "docs/schemas/vibe-check-run.schema.json",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/canonical-json.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/decision-records/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/format-targets.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/format.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lint.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/analyzer-only.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/arguments.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/benchmark-context.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/benchmark-identity.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/canonical.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/command.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/comparison.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/current-decomposition.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/evidence-shapes.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/fixed-lizard124.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/historical-product.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/public-product-driver.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/sampling.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/statistics.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/target-evidence.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/lizard-performance/workload.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/quality-targets.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/development/typecheck.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/diagnostic-safety.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/machine-artifacts/examples/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/machine-artifacts/examples/contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/machine-artifacts/examples/definition-execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/machine-artifacts/examples/publication.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/machine-artifacts/package-materials.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/machine-artifacts/schemas.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/check-guides.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/check-guides.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/command.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/example-payloads.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/example-projection-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/example-projections.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/jsdoc-render.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/jsdoc-target-discovery.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/markdown-example-fences.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/render.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/render.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-api/test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-documents.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/docs/package-documents.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/environment/manage.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/error-message.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/investigation-report/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/maintenance/lizard-upstream-advisory.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/maintenance/lizard-upstream-advisory.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/acceptance-input.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/acceptance-input.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/artifact.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/build.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/compiler-cache.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/compiler-cache.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/documentation-audit.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/esm-module-specifiers.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/esm-module-specifiers.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/fingerprint.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/manifest.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/manifest.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/packed-tar-audit.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/runtime-source-maps.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/runtime-source-maps.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/staging-audit.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/artifact/staging-runtime-layout.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/build-contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/acceptance-input.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/acceptance-input.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/candidate.integration.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/candidate.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/dependency-license-audit.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/dependency-license-audit.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/dependency-probe.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/check-options-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/command-check-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/command-result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/custom-admission-strategy-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/data-boundary-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/documentation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/documentation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/finding-waiver-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/handoff-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/input.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/input.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/markdown-lint-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/material.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/node-command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/package-check-constructor-options-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/project-changes-type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/provider.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/assertions.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/command-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/durations.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/function-metrics.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/learned-scheduling.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/messages.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/run.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/runtime-host.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime-evidence/values.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/runtime.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/type-acceptance.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/type-acceptance.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/typecheck-fixture.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/install.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/installed-materials.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/integration-command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/preparation-decision.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/prepare.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/receipt.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/candidate/receipt.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/command.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/dependency-version.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/dependency-version.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/file-inventory.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/legal-materials.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/legal-materials.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/legal-materials/packaged-audit.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/legal-materials/provenance-inventory.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/legal-materials/source-mapping.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/legal-materials/source-mapping.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/pack.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/package-contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/package-material-audit.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/public-api-inventory.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/public-api-inventory.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/command.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/identity.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/paths.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/prepare.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/receipt-contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/receipt.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/release.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/package/release/source.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/process-execution/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/process-execution/contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/process-execution/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/process-execution/failure.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/process-execution/plain-text-environment.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/process-execution/process.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/process-execution/result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/process-execution/runner.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/command-output.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/command.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/evidence.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/fixture-model.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/fixture-registry.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/gate-shape-fixture.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/learned-heuristic-comparison.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/learned-heuristic-cost.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/learned-heuristic-evaluation-input.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/learned-heuristic-evaluation-types.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/learned-heuristic-evaluation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/learned-heuristic-evaluation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/learned-heuristic-policy-state.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/policy.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/scenario-fixtures.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/scenario.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/shared-closure.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/simulate.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/simulate.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/simulation-clock.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/simulation-control.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/simulation-evidence.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/simulation-observations.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/admission-workbench/simulation-types.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/check-execution.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/command-result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/decision-records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/entry-factories.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/entry-factories.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/external-consumer-material.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/external-consumer-material.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/materials-validation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/materials-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/native-projections.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/oxfmt-failure-records.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/oxfmt-failure-records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/oxlint-failure-records.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/oxlint-failure-records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/prepared-candidate-fact.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/prepared-candidate.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/prepared-candidate.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/process/failure-projection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/process/native-operation-protocol.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/process/native-operation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/process/native-operation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/process/safe-workspace-path.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/process/transcript.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/repository-quality.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/repository-quality.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/test-evidence/ast-grep-rule-tests-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/test-evidence/semantic-case-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/test-evidence/semantic-case-diagnostic-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/test-evidence/semantic-case-projection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/test-execution/checks.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/test-execution/entries.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/checks/test-execution/lanes.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/definition.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/definition.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/run.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/run.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/bound-run.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/bound-run.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/catalog.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/controls.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/eligibility.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/eligibility.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/entries.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/invocation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/performance-baseline.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/performance-observation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/performance-observation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/product-test-regions.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/reporting.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/result-contributor.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/root-import-boundary.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/transcript.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/project/gate/runtime/transcript.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/repository-files/files.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/repository-files/files.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/repository-files/paths.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/repository-files/paths.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/ast-grep/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/ast-grep/rule-tests.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/ast-grep/scan.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/ast-grep/scan.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/cases.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/catalog.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/catalog/catalog-types.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/catalog/load.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/catalog/markdown.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/catalog/owner-ref.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/catalog/source.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/catalog/test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/closure.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/closure.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/command.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/discover.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/discovery/bun-files.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/discovery/bun-files.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/discovery/bun-junit.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/discovery/bun.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/discovery/profile.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/discovery/runner-process.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/discovery/runner-process.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/entities.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/profile.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/test-evidence/relative-path.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/function-metrics-analyzer-boundary.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/import-boundaries.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/layout-characterization.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/layout-characterization.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/layout-characterization.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/module-specifier-analysis.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/package-tools-boundary.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/package-tools-core-closure.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/package-tools-core-closure.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/package-tools-module-graph.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/project-gate-layout.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/assertions.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/diagnostics.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/json/files.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/json/value.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/links.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/links.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/machine-artifacts/artifact-shapes.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/machine-artifacts/canonical.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/machine-artifacts/diagnostics.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/machine-artifacts/invariants.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/machine-artifacts/parsing.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/machine-artifacts/validation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/machine-artifacts/validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/repository-files.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/repository-paths.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/schema/registry.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/schema/strict-json.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/schema/validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/task-contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/workflow.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/repository-material/workflow.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/workspace.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/validation/workspace.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "scripts/value-guards.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/bun-test.d.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/fact-validation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/fact-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/facts.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/facts.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/outcome-normalization.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/reason-shape.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/record-store.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/session-lifecycle.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/session-record-misuse.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/session.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check-settlement/session.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/descriptor-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/descriptor.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/flag-enablement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/handoff-provider-identity.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/inherited-collection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/options-snapshot.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/project-changes.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/check/project-context.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/canonical-data.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/canonical-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/canonical-json.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/closed-values.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/closed-values.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/config-glob.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/project-file-region-index.boundary.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/project-file-region-index.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/project-file-region-index.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/project-file-region-index.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/project-path.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/data-boundary/value-shapes.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/index.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/atomic-publication.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/contract-materials.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/freeze-publication-value.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/lifecycle.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/projection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/publication-invariants.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/publication-model.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/publication.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/publication.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/publish.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/records-fingerprint.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/schema-identities.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/schema.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/serializers.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/validation-result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/validation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/machine-output/v4/validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/check-authoring.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/check-execution.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/code-quality-findings/finding-waiver-authoring.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/code-quality-findings/finding-waiver-evidence.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/code-quality-findings/finding-waiver-evidence.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/code-quality-findings/policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/command-check.environment.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/command-check.terminal.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/command-check.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/command-check.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/command-check.transcript.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/command-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/command-check/transcript.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/area-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/default-check.execution.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/default-check.overlap.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/default-check.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/default-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/finding-messages.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/finding-messages.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/finding-waiver-identity.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/finding-waivers.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/availability.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/command-path.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/command-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/json-report.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/parser.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/scanner-contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/scanner.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/scanner.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/jscpd/scoped-fragments.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/measurement-model.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/measurement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/options-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/project-revision.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/duplicate-detection/records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/constructor.region-identity.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/constructor.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/constructor.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/file-metrics.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/finding-messages.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/finding-waivers.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/measurement-model.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/measurement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/options-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/availability.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/availability.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/batch-planner.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/logical-scan-resources.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/parser.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/parser.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/scanner.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/file-metrics/scc/scanner.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/final-data-parsing.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/finding-detail.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analysis.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analysis.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-adapter.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-adapter.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-worker-contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-worker-port.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-worker.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer-worker.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/constructor.area-findings.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/constructor.input-rejection.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/constructor.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/constructor.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/constructor.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/finding-messages.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/finding-messages.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/finding-waiver-identity.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/finding-waivers.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement-model.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement-performance-harness.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement-performance-source-dto.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement-performance-worker.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement.admission.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement.encoding.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement.resource.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/measurement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/options-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/target-files.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/target-files.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/typescript-metrics.integration.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/function-metrics/upgrade.integration.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/csv.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/error-message.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/filesystem.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/git.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/path.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/process.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/process/contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/process/env.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/process/failure.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/process/result.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/process/result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/process/runner.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/host-environment/process/runner.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-document/strict-document.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-document/strict-document.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/default-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/execution-stages.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/issue-collector.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.allowlisted-reference.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.default-contract.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.offline-and-local-reference.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.reference-failure-boundaries.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.result-reporting.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/json-schema-validation.unsafe-schema-boundaries.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/options-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/reference-resolver.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/remote-response.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/schema-engine.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-schema-validation/schema-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-validation/default-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-validation/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-validation/json-validation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-validation/json-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-validation/options-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-validation/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/json-validation/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/local-cache-options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/assessment-results.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/maintenance-reminders.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/maintenance-reminders.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/maintenance-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/measurement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/cache-behavior.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/default-check.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/default-check.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/default-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/execution-outcomes.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/finding-messages.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/input-rejection.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/local-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/local-resolver.endpoints.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/local-resolver.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/local-resolver.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/local-resolver.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/markdown-parser.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/markdown-parser.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/options-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/parse-facts-cache-payload.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/parse-facts-cache.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/resolver-engine.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/source-reader.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/target-descriptor.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/traversal-result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/unavailable-reasons.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/adapter.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/adapter.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/default-check.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/default-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/finding-messages.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/finding-waiver-authoring.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/finding-waiver-boundaries.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/finding-waiver-identity.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/finding-waivers.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/findings-cache.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/findings-cache.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/markdown-lint.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/options-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/markdown-lint/unavailable-reasons.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/collection-path-identity.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/collection.test.ts",
+      "source": "git:08c9166b85152168ca27d45452a4174afed50e57"
+    },
+    {
+      "path": "src/package-checks/project-files/collection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/config-glob.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/configuration.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/exact-input-measurement.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/exact-input-measurement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/file-fingerprint.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/file-fingerprint.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/filesystem-collection.ts",
+      "source": "git:08c9166b85152168ca27d45452a4174afed50e57"
+    },
+    {
+      "path": "src/package-checks/project-files/input-eligibility.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/input-eligibility.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/public-collection.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/public-collection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/project-files/reported-path.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/classification.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/default-check.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/final-data.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/finding-waiver-identity.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/input-preparation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/options-resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/options-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/options.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/records.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/secret-detection.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/secret-detection.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-checks/secret-detection/secretlint/adapter.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/admission-policy/define-admission-policy.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/admission-policy/define-admission-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/change-flag-debugging/change-flag-debugging.boundary.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/change-flag-debugging/change-flag-debugging.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/change-flag-debugging/change-flag-debugging.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/change-flag-debugging/change-flag-debugging.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/finding-presentation/finding-presentation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/finding-presentation/finding-presentation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/finding-waivers/reconciliation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/finding-waivers/reconciliation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/critical-path-ranking.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/critical-path-ranking.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/bounded-history.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/prediction.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/preparation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/recording.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/scheduler-duration-model.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/scheduler-duration-recording.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/scheduler-duration-storage.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/duration-model/storage.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/selection-layers.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/static-decision.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/strategy.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/package-tools/learned-critical-path/strategy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/check-tree/authoring.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/check-tree/check-fields-authoring.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/check-tree/collection-authoring.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/check-tree/flag-conditions.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/check-tree/materialization.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/check-tree/resolution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/check-tree/scheduling-authoring.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/declarative-snapshot.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/output-defaults.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/output-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/progress-rendering-output.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-changes.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-changes.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.authoring-defaults.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.check-authoring-types.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.fingerprint.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.flag-builders.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.flag-enablement.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.flag-enablement.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.options-preparation.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.options-preparation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.quiet-pass-policy.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.recursive-checks.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.result-types.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.scheduling-inheritance.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.typed-provider-types.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.typed-provider.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/project-definition.typed-provider.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/resource-unit-mapping.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-definition/scheduler-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/admission-strategy-provider/custom-strategy-preparation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/admission-strategy-provider/prepared-admission-strategy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/admission-strategy-provider/provider.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/admission-strategy-provider/provider.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/aggregation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/changes/git.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/changes/git.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/changes/git.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/admitted-check-execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/callback.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/console-capture.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/console-capture.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/dependencies.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/execution-finalization.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/execution-settlement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/flag-controls.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/flag-dependency-selection.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/hostile-values.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/lifecycle.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/messages.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/plan.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/plan.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/preparation-cancellation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/preparation-failures.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/preparation-messages.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/preparation-result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/preparation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/ready-check-execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.dependencies.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.dependencies.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.execution.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.failure.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.handoff-diagnostics.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.handoff-failure.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.handoff.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-checks.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/resolved-execution-result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/scheduled-check-run.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/task-local-preparation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-execution/terminal-result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-facts-aggregation.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-facts-aggregation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-facts-effective-selection.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-facts-integration.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-facts-publication.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-facts-record-misuse.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/check-facts-record-misuse.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/completion/completion.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/completion/machine-publication.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/completion/result-resolver.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/controls/contract.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/controls/flags.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/controls/outputs-override-validation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/controls/outputs-override-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/controls/validation-result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/controls/validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/diagnostic-logging/diagnostic-detail-rendering.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/diagnostic-logging/logger.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/diagnostic-logging/logger.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/diagnostic-logging/observation-rendering.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/execution-control.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/candidate.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/candidates.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/creation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/execution.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/invocation-custom-admission-strategy-lifecycle.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/invocation-event-order.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/learned-scheduling.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/paths.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/progress.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/run.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/invocation/scheduler.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/outputs/configuration.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/outputs/directories.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/outputs/status.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/default-outputs.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-diagnostic-data.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-diagnostic-failures.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-diagnostic-hostile.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-diagnostic-naming.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-diagnostic-start.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-output-failure.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-progress-failures.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-progress-heartbeat.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-progress-record-previews.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation-progress.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/invocation.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/presentation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-formatting-color.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-formatting-final.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-formatting-records.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-formatting-statuses.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-formatting-writer-failure.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-formatting.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer-lifecycle.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer.lifecycle.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/renderer.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/result-priority.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/terminal-statuses.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/progress-rendering/timing.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/project-changes-lifecycle.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/project-context.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/result.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-callback-context.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-callback-context.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-control-validation.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-controls.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-dependency-assertions.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-dependency-data.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-dependency-data.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-fixtures.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-planning.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run-preparation-cancellation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/run.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core.scheduler-integration.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/compiled-graph-lookup.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/compiled-graph.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/compiled-graph.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/core.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/graph.capacity.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/graph.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/input.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/projection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection-index.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection-query.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection-seed.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection-transition.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/selection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/trace.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/trace.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-core/transitions.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-scope-layers.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/admission-selection-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/custom-admission-policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/execution-state.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/forced-block-effect-replay.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/graph-validation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/graph.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/diagnostics-boundaries.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/diagnostics-terminal.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/diagnostics-waits.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/diagnostics.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/diagnostics.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/diagnostics.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/integrals.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/policy.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/summary.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/measurement/timing.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-admission-decision.ts",
+      "source": "git:08c9166b85152168ca27d45452a4174afed50e57"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-decision-model.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-decision.ts",
+      "source": "git:08c9166b85152168ca27d45452a4174afed50e57"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-graph-snapshot.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-observation.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-task-lifecycle.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-terminal-measurement.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler.ts",
+      "source": "git:08c9166b85152168ca27d45452a4174afed50e57"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.admission-observation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.admission-policy.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.admission-policy.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.admission.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.graph-fixtures.test-support.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.graph-observation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.scope-capacity.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.settlement.test.ts",
+      "source": "git:08c9166b85152168ca27d45452a4174afed50e57"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.static-validation.test.ts",
+      "source": "current-workspace"
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.test-support.ts",
+      "source": "current-workspace"
+    }
+  ],
+  "verifiedExactMembershipAndBytes": true
+}

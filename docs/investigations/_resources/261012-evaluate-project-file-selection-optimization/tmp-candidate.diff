@@ -1,0 +1,86 @@
+--- src/package-checks/project-files/filesystem-collection.ts	2026-10-12 03:44:21.299485175 +0000
++++ tmp/optimization-20261012/file-selection/candidate-production-shape.ts	2026-10-12 14:51:23.057921815 +0000
+@@ -46,7 +46,10 @@
+   root: string,
+   selections: readonly ProjectFileSelection[]
+ ): Partial<FileSystemAdapter> {
+-  const access = new CollectionDirectoryAccess(root, createSubtreePruner(selections), selections);
++  const literalSelections = new Map(selections.map(selection => [selection, selection.patterns.every(pattern => pattern.split("/").every(part => /^[A-Za-z0-9_.-]+$/u.test(part) && part !== "." && part !== "..")) ? new Set(selection.patterns) : undefined]));
++  const defaultExclusions = DEFAULT_PROJECT_FILE_EXCLUDES.map(pattern => micromatch.matcher(pattern, CONFIG_GLOB_OPTIONS));
++  function matchesSelection(path: string, selection: ProjectFileSelection): boolean { const literal = literalSelections.get(selection); return (literal === undefined ? matchesConfigPatterns(path, selection.patterns) : literal.has(path)) && (selection.useDefaultExcludes === false || !defaultExclusions.some(matches => matches(path))); }
++  const access = new CollectionDirectoryAccess(root, createSubtreePruner(selections), selections, matchesSelection);
+   function readdirSync(path: string, options: { withFileTypes: true }): fs.Dirent[];
+   function readdirSync(path: string): string[];
+   function readdirSync(path: string, options?: { withFileTypes: true }): fs.Dirent[] | string[] {
+@@ -59,7 +62,7 @@
+       const absolute = resolve(path);
+       const relativePath = slashRelative(root, absolute);
+       // Static patterns otherwise stat before library filtering, including excluded bases.
+-      const entry = selections.some((selection) => selectedPath(relativePath, selection))
++      const entry = selections.some((selection) => matchesSelection(relativePath, selection))
+         ? access.targetEntry(absolute)
+         : undefined;
+       if (entry === undefined) {
+@@ -75,12 +78,12 @@
+ /** One operation owns its observed directory membership; no cache survives collection. */
+ class CollectionDirectoryAccess {
+   private readonly directories = new Map<string, CollectionDirectory>();
+-  private readonly root: string;
++  private readonly root: string; private readonly thisSelectedPath: typeof selectedPath;
+   private readonly noDemand: SubtreePruner;
+   private readonly selections: readonly ProjectFileSelection[];
+ 
+-  constructor(root: string, noDemand: SubtreePruner, selections: readonly ProjectFileSelection[]) {
+-    this.root = root;
++  constructor(root: string, noDemand: SubtreePruner, selections: readonly ProjectFileSelection[], thisSelectedPath: typeof selectedPath) {
++    this.root = root; this.thisSelectedPath = thisSelectedPath;
+     this.noDemand = noDemand;
+     this.selections = selections;
+     this.readDirectory(root); // Required even for empty patterns; symlink roots are rejected.
+@@ -134,7 +137,7 @@
+       return undefined;
+     if (
+       this.noDemand(path) &&
+-      (readingDirectory || !this.selections.some((selection) => selectedPath(path, selection)))
++      (readingDirectory || !this.selections.some((selection) => this.thisSelectedPath(path, selection)))
+     )
+       return undefined;
+     return path;
+@@ -146,7 +149,7 @@
+     if (!this.noDemand(path)) return true;
+     // A subtree exclusion can still select an ordinary file with that base spelling.
+     return (
+-      this.selections.some((selection) => selectedPath(path, selection)) && !entry.isDirectory()
++      this.selections.some((selection) => this.thisSelectedPath(path, selection)) && !entry.isDirectory()
+     );
+   }
+ 
+@@ -163,8 +166,8 @@
+         .readdirSync(path, { withFileTypes: true, encoding: "buffer" })
+         .map((entry) =>
+           entry instanceof Uint8Array
+-            ? createCollectionEntry(this.root, path, Buffer.from(entry), this.selections)
+-            : createCollectionEntry(this.root, path, entry.name, this.selections, entry)
++            ? createCollectionEntry(this.root, path, Buffer.from(entry), this.selections, undefined, this.thisSelectedPath)
++            : createCollectionEntry(this.root, path, entry.name, this.selections, entry, this.thisSelectedPath)
+         );
+     } catch (cause: unknown) {
+       throw new Error(`could not read project directory ${path}: ${errorMessage(cause)}`, {
+@@ -191,7 +194,7 @@
+   parent: string,
+   nameBytes: Buffer,
+   selections: readonly ProjectFileSelection[],
+-  knownType?: fs.Dirent<Buffer>
++  knownType?: fs.Dirent<Buffer>, thisSelectedPath: typeof selectedPath = selectedPath
+ ): CollectionEntry {
+   const name = nameBytes.toString("utf8");
+   const faithful = Buffer.from(name, "utf8").equals(nameBytes);
+@@ -214,7 +217,7 @@
+   // Validate selected lossy files before fast-glob's duplicate-path filter can hide one.
+   if (
+     !faithful &&
+-    selections.some((selection) => selectedPath(slashRelative(root, path), selection)) &&
++    selections.some((selection) => thisSelectedPath(slashRelative(root, path), selection)) &&
+     (knownType ?? getStats()).isFile()
+   )
+     assertFaithfulName();

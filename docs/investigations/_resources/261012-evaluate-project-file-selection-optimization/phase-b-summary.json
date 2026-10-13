@@ -1,0 +1,101 @@
+{
+  "protocol": "Same materialized 853-file fixture, verified membership/bytes/SHA-256; first+3 warm repeats; serial AB/BA; collect return is identical timing end; all assertions and input hashes outside timing; source before snapshot versus after public src/index.ts",
+  "input": {
+    "manifest": "manifest.json",
+    "provenance": "fixture-provenance.json",
+    "files": 853
+  },
+  "before": {
+    "identity": "before-source-provenance.json",
+    "modules": [
+      {
+        "path": "src/package-checks/project-files/filesystem-collection.ts",
+        "sha256": "bddbbcb441910d705e1d19c4ea6d0fa9c3e5815afb2af95310d5c1f085b412eb"
+      },
+      {
+        "path": "src/package-checks/project-files/collection.ts",
+        "sha256": "a1c6714b0f3b5dba1628847c679c498416a28ebe1aceef875b972f4517a673a4"
+      },
+      {
+        "path": "src/package-checks/project-files/public-collection.ts",
+        "sha256": "29191139aa355cd7f29d1d474c2cf50ecd29b595cc687edb79eb8067b0019c30"
+      }
+    ],
+    "publicRelationship": "Unmodified public-collection.ts implementation captured before edit; only owner-local import routes rewritten in runnable tmp snapshot. The production src/index.ts export delegates to the corresponding same public facade."
+  },
+  "after": {
+    "path": "src/package-checks/project-files/filesystem-collection.ts",
+    "sha256": "8c39dc521fbc40930cb5b418c2f07f52645e24712bc583fd56006920ae29f0f1"
+  },
+  "runtimes": [
+    {
+      "runtime": "Node24.18.0",
+      "raw": "phase-b-node-frozen-fixture.json",
+      "summary": [
+        {
+          "name": "native",
+          "implementation": "before-snapshot",
+          "medianMs": 16.60082699999998,
+          "minMs": 11.875872000000072,
+          "maxMs": 22.34022600000003
+        },
+        {
+          "name": "native",
+          "implementation": "after-public-api",
+          "medianMs": 23.495137,
+          "minMs": 12.536420000000021,
+          "maxMs": 26.260756000000015
+        },
+        {
+          "name": "explicit",
+          "implementation": "before-snapshot",
+          "medianMs": 2371.991402999999,
+          "minMs": 2361.896063,
+          "maxMs": 2390.688744000001
+        },
+        {
+          "name": "explicit",
+          "implementation": "after-public-api",
+          "medianMs": 66.93424199999981,
+          "minMs": 65.716633,
+          "maxMs": 72.08926000000065
+        }
+      ]
+    },
+    {
+      "runtime": "Bun1.3.14",
+      "raw": "phase-b-bun-frozen-fixture.json",
+      "summary": [
+        {
+          "name": "native",
+          "implementation": "before-snapshot",
+          "medianMs": 52.69026199999996,
+          "minMs": 51.66995700000007,
+          "maxMs": 57.307946999999956
+        },
+        {
+          "name": "native",
+          "implementation": "after-public-api",
+          "medianMs": 53.408750000000055,
+          "minMs": 51.87029600000005,
+          "maxMs": 55.64643000000001
+        },
+        {
+          "name": "explicit",
+          "implementation": "before-snapshot",
+          "medianMs": 1556.3449730000002,
+          "minMs": 1496.5556550000001,
+          "maxMs": 1575.4077340000003
+        },
+        {
+          "name": "explicit",
+          "implementation": "after-public-api",
+          "medianMs": 91.4277219999999,
+          "minMs": 91.26575899999989,
+          "maxMs": 94.32570600000054
+        }
+      ]
+    }
+  ],
+  "boundary": "Large explicit safe ASCII list improved on this fixture. Node native small-sample median increased with overlapping ranges; not evidence of no regression or of a settled regression. No cold start, p95, CPU/heap/GC, Windows or end-to-end Check guarantee."
+}

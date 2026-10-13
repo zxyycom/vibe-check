@@ -11,6 +11,9 @@ import { DEFAULT_PROJECT_FILE_EXCLUDES } from "./configuration.ts";
 import type { ProjectFileSelection } from "./configuration.ts";
 
 type SubtreePruner = (path: string) => boolean;
+type SelectedPathPredicate = (path: string) => boolean;
+// micromatch 4.0.8's picomatch parser rejects longer patterns; preserve its error timing/context.
+const MAX_NATIVE_PATTERN_LENGTH = 64 * 1024;
 interface CollectionEntry extends fs.Dirent {
   readonly mayBeDirectory: boolean;
   getStats(): fs.Stats;
@@ -46,7 +49,8 @@ export function createCollectionFilesystem(
   root: string,
   selections: readonly ProjectFileSelection[]
 ): Partial<FileSystemAdapter> {
-  const access = new CollectionDirectoryAccess(root, createSubtreePruner(selections), selections);
+  const selectedPath = createSelectedPathPredicate(selections);
+  const access = new CollectionDirectoryAccess(root, createSubtreePruner(selections), selectedPath);
   function readdirSync(path: string, options: { withFileTypes: true }): fs.Dirent[];
   function readdirSync(path: string): string[];
   function readdirSync(path: string, options?: { withFileTypes: true }): fs.Dirent[] | string[] {
@@ -59,9 +63,7 @@ export function createCollectionFilesystem(
       const absolute = resolve(path);
       const relativePath = slashRelative(root, absolute);
       // Static patterns otherwise stat before library filtering, including excluded bases.
-      const entry = selections.some((selection) => selectedPath(relativePath, selection))
-        ? access.targetEntry(absolute)
-        : undefined;
+      const entry = selectedPath(relativePath) ? access.targetEntry(absolute) : undefined;
       if (entry === undefined) {
         throw Object.assign(new Error(`project path skipped by collection policy: ${absolute}`), {
           code: "ENOENT"
@@ -77,12 +79,12 @@ class CollectionDirectoryAccess {
   private readonly directories = new Map<string, CollectionDirectory>();
   private readonly root: string;
   private readonly noDemand: SubtreePruner;
-  private readonly selections: readonly ProjectFileSelection[];
+  private readonly selectedPath: SelectedPathPredicate;
 
-  constructor(root: string, noDemand: SubtreePruner, selections: readonly ProjectFileSelection[]) {
+  constructor(root: string, noDemand: SubtreePruner, selectedPath: SelectedPathPredicate) {
     this.root = root;
     this.noDemand = noDemand;
-    this.selections = selections;
+    this.selectedPath = selectedPath;
     this.readDirectory(root); // Required even for empty patterns; symlink roots are rejected.
   }
 
@@ -132,11 +134,7 @@ class CollectionDirectoryAccess {
     const path = slashRelative(this.root, absolute);
     if (path === "" || isAbsolute(path) || path === ".." || path.startsWith("../"))
       return undefined;
-    if (
-      this.noDemand(path) &&
-      (readingDirectory || !this.selections.some((selection) => selectedPath(path, selection)))
-    )
-      return undefined;
+    if (this.noDemand(path) && (readingDirectory || !this.selectedPath(path))) return undefined;
     return path;
   }
 
@@ -145,9 +143,7 @@ class CollectionDirectoryAccess {
     const path = slashRelative(this.root, join(parent, entry.name));
     if (!this.noDemand(path)) return true;
     // A subtree exclusion can still select an ordinary file with that base spelling.
-    return (
-      this.selections.some((selection) => selectedPath(path, selection)) && !entry.isDirectory()
-    );
+    return this.selectedPath(path) && !entry.isDirectory();
   }
 
   private readDirectory(path: string): CollectionDirectory {
@@ -163,8 +159,8 @@ class CollectionDirectoryAccess {
         .readdirSync(path, { withFileTypes: true, encoding: "buffer" })
         .map((entry) =>
           entry instanceof Uint8Array
-            ? createCollectionEntry(this.root, path, Buffer.from(entry), this.selections)
-            : createCollectionEntry(this.root, path, entry.name, this.selections, entry)
+            ? createCollectionEntry(this.root, path, Buffer.from(entry), this.selectedPath)
+            : createCollectionEntry(this.root, path, entry.name, this.selectedPath, entry)
         );
     } catch (cause: unknown) {
       throw new Error(`could not read project directory ${path}: ${errorMessage(cause)}`, {
@@ -190,7 +186,7 @@ function createCollectionEntry(
   root: string,
   parent: string,
   nameBytes: Buffer,
-  selections: readonly ProjectFileSelection[],
+  selectedPath: SelectedPathPredicate,
   knownType?: fs.Dirent<Buffer>
 ): CollectionEntry {
   const name = nameBytes.toString("utf8");
@@ -212,11 +208,7 @@ function createCollectionEntry(
     return stats;
   }
   // Validate selected lossy files before fast-glob's duplicate-path filter can hide one.
-  if (
-    !faithful &&
-    selections.some((selection) => selectedPath(slashRelative(root, path), selection)) &&
-    (knownType ?? getStats()).isFile()
-  )
+  if (!faithful && selectedPath(slashRelative(root, path)) && (knownType ?? getStats()).isFile())
     assertFaithfulName();
   return {
     name,
@@ -281,12 +273,39 @@ function inspectPath(path: string | Buffer): fs.Stats {
   }
 }
 
-function selectedPath(path: string, selection: ProjectFileSelection): boolean {
-  return (
-    matchesConfigPatterns(path, selection.patterns) &&
-    (selection.useDefaultExcludes === false ||
-      !matchesConfigPatterns(path, DEFAULT_PROJECT_FILE_EXCLUDES))
+/** Prepare only proven literal membership and the fixed positive default layer per operation. */
+function createSelectedPathPredicate(
+  selections: readonly ProjectFileSelection[]
+): SelectedPathPredicate {
+  // The fixed default array contains only positive patterns, so its native union is an OR.
+  let defaultExclusions: readonly SelectedPathPredicate[] | undefined;
+  function matchesDefaultExclusion(path: string): boolean {
+    defaultExclusions ??= DEFAULT_PROJECT_FILE_EXCLUDES.map((pattern) =>
+      micromatch.matcher(pattern, CONFIG_GLOB_OPTIONS)
+    );
+    return defaultExclusions.some((matches) => matches(path));
+  }
+  const predicates = selections.map((selection) => {
+    const matchesUserPaths = createUserPathPredicate(selection.patterns);
+    if (selection.useDefaultExcludes === false) return matchesUserPaths;
+    return (path: string) => matchesUserPaths(path) && !matchesDefaultExclusion(path);
+  });
+  return (path) => predicates.some((matches) => matches(path));
+}
+
+function createUserPathPredicate(patterns: readonly string[]): SelectedPathPredicate {
+  // This deliberately narrow alphabet excludes glob, negation and escape syntax. Keep ./,
+  // non-normalized segments and every other spelling on the complete native-list path.
+  const allLiteralPaths = patterns.every(
+    (pattern) =>
+      pattern.length <= MAX_NATIVE_PATTERN_LENGTH &&
+      pattern
+        .split("/")
+        .every((part) => /^[A-Za-z0-9_.-]+$/u.test(part) && part !== "." && part !== "..")
   );
+  if (!allLiteralPaths) return (path) => matchesConfigPatterns(path, patterns);
+  const literalPaths = new Set(patterns);
+  return (path) => literalPaths.has(path);
 }
 
 function isListNegative(pattern: string): boolean {

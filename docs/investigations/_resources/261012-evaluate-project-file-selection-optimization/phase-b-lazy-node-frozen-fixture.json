@@ -1,0 +1,492 @@
+{
+  "measuredAt": "2026-10-12T15:30:03.607Z",
+  "runtimeName": "node",
+  "runtime": {
+    "node": "24.18.0",
+    "acorn": "8.16.0",
+    "ada": "3.4.4",
+    "amaro": "1.1.9",
+    "ares": "1.34.6",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.3",
+    "llhttp": "9.4.2",
+    "merve": "1.2.2",
+    "modules": "137",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.69.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "3.5.7",
+    "simdjson": "4.6.4",
+    "simdutf": "6.4.0",
+    "sqlite": "3.53.1",
+    "tz": "2026b",
+    "undici": "7.28.0",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "13.6.233.17-node.50",
+    "zlib": "1.3.1-e00f703",
+    "zstd": "1.5.7"
+  },
+  "fixture": "/workspace/vibe-check/tmp/optimization-20261012/file-selection/node_modules/frozen-fixture",
+  "manifestFiles": 853,
+  "beforeOwnerSnapshot": [
+    {
+      "path": "src/package-checks/project-files/filesystem-collection.ts",
+      "sha256": "bddbbcb441910d705e1d19c4ea6d0fa9c3e5815afb2af95310d5c1f085b412eb"
+    },
+    {
+      "path": "src/package-checks/project-files/collection.ts",
+      "sha256": "a1c6714b0f3b5dba1628847c679c498416a28ebe1aceef875b972f4517a673a4"
+    },
+    {
+      "path": "src/package-checks/project-files/public-collection.ts",
+      "sha256": "29191139aa355cd7f29d1d474c2cf50ecd29b595cc687edb79eb8067b0019c30"
+    }
+  ],
+  "afterSource": {
+    "path": "src/package-checks/project-files/filesystem-collection.ts",
+    "sha256": "7c9c9eb2399dff8e0e93c747e7e21bcafe4fffa21ef8cf218113d4477540dc74"
+  },
+  "protocol": "same materialized frozen 853-file manifest; native first+12 warm samples and explicit first+3 warm samples, serial AB/BA alternating each round; after includes lazy-default correction; Node primary/Bun reference; import/fixture verification/assert/hash/log outside timing; before is unmodified public facade snapshot with only internal import routing",
+  "schedule": [
+    {
+      "name": "native",
+      "i": 0,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 1,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 2,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 3,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 4,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 5,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 6,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 7,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 8,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 9,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 10,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 11,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 12,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "explicit",
+      "i": 0,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "explicit",
+      "i": 1,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "explicit",
+      "i": 2,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "explicit",
+      "i": 3,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "name": "native",
+      "patternCount": 24,
+      "implementation": "before-snapshot",
+      "samples": [
+        {
+          "i": 0,
+          "elapsedMs": 36.439633999999955,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 1,
+          "elapsedMs": 25.148793999999953,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 2,
+          "elapsedMs": 18.259650999999963,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 3,
+          "elapsedMs": 11.587276000000088,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 4,
+          "elapsedMs": 17.872724999999946,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 5,
+          "elapsedMs": 12.611521000000039,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 6,
+          "elapsedMs": 18.116442000000006,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 7,
+          "elapsedMs": 24.48194000000001,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 8,
+          "elapsedMs": 24.587512999999944,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 9,
+          "elapsedMs": 10.183969999999931,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 10,
+          "elapsedMs": 24.33696199999997,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 11,
+          "elapsedMs": 16.987642999999935,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 12,
+          "elapsedMs": 10.626191999999946,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        }
+      ]
+    },
+    {
+      "name": "native",
+      "patternCount": 24,
+      "implementation": "after-public-api",
+      "samples": [
+        {
+          "i": 0,
+          "elapsedMs": 21.21655599999997,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 1,
+          "elapsedMs": 26.768496000000027,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 2,
+          "elapsedMs": 26.12174600000003,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 3,
+          "elapsedMs": 15.439451000000076,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 4,
+          "elapsedMs": 11.805862000000047,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 5,
+          "elapsedMs": 20.16462100000001,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 6,
+          "elapsedMs": 13.545709999999985,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 7,
+          "elapsedMs": 11.126471000000038,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 8,
+          "elapsedMs": 24.846197000000075,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 9,
+          "elapsedMs": 15.144685999999979,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 10,
+          "elapsedMs": 24.134315000000015,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 11,
+          "elapsedMs": 23.808699999999817,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 12,
+          "elapsedMs": 10.583880000000136,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        }
+      ]
+    },
+    {
+      "name": "explicit",
+      "patternCount": 853,
+      "implementation": "before-snapshot",
+      "samples": [
+        {
+          "i": 0,
+          "elapsedMs": 2543.192898,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 1,
+          "elapsedMs": 2410.1932159999997,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 2,
+          "elapsedMs": 2431.027591,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 3,
+          "elapsedMs": 2415.8991849999984,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        }
+      ]
+    },
+    {
+      "name": "explicit",
+      "patternCount": 853,
+      "implementation": "after-public-api",
+      "samples": [
+        {
+          "i": 0,
+          "elapsedMs": 77.33917900000006,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 1,
+          "elapsedMs": 65.5308930000001,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 2,
+          "elapsedMs": 70.99627099999998,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 3,
+          "elapsedMs": 69.55594999999994,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "name": "native",
+      "implementation": "before-snapshot",
+      "medianMs": 17.994583499999976,
+      "minMs": 10.183969999999931,
+      "maxMs": 25.148793999999953
+    },
+    {
+      "name": "native",
+      "implementation": "after-public-api",
+      "medianMs": 17.802036000000044,
+      "minMs": 10.583880000000136,
+      "maxMs": 26.768496000000027
+    },
+    {
+      "name": "explicit",
+      "implementation": "before-snapshot",
+      "medianMs": 2415.8991849999984,
+      "minMs": 2410.1932159999997,
+      "maxMs": 2431.027591
+    },
+    {
+      "name": "explicit",
+      "implementation": "after-public-api",
+      "medianMs": 69.55594999999994,
+      "minMs": 65.5308930000001,
+      "maxMs": 70.99627099999998
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "capturedAt": "2026-10-12T15:04:26.726Z",
+  "head": "08c9166b85152168ca27d45452a4174afed50e57",
+  "kind": "Unmodified collection-owner modules captured before authorized Product edit; runnable tmp copies only rewrite owner-local imports, all other imports bind current unchanged helpers",
+  "entries": [
+    {
+      "path": "src/package-checks/project-files/filesystem-collection.ts",
+      "sha256": "bddbbcb441910d705e1d19c4ea6d0fa9c3e5815afb2af95310d5c1f085b412eb",
+      "bytes": 11737,
+      "resource": "before-filesystem-collection.ts",
+      "runnableSnapshot": "/workspace/vibe-check/tmp/optimization-20261012/file-selection/before/filesystem-collection.ts"
+    },
+    {
+      "path": "src/package-checks/project-files/collection.ts",
+      "sha256": "a1c6714b0f3b5dba1628847c679c498416a28ebe1aceef875b972f4517a673a4",
+      "bytes": 3207,
+      "resource": "before-collection.ts",
+      "runnableSnapshot": "/workspace/vibe-check/tmp/optimization-20261012/file-selection/before/collection.ts"
+    },
+    {
+      "path": "src/package-checks/project-files/public-collection.ts",
+      "sha256": "29191139aa355cd7f29d1d474c2cf50ecd29b595cc687edb79eb8067b0019c30",
+      "bytes": 2573,
+      "resource": "before-public-collection.ts",
+      "runnableSnapshot": "/workspace/vibe-check/tmp/optimization-20261012/file-selection/before/public-collection.ts"
+    }
+  ]
+}

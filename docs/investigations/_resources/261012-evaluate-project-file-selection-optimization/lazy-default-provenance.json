@@ -1,0 +1,14 @@
+{
+  "preparedAt": "2026-10-12T15:26:25.826Z",
+  "before": {
+    "path": "src/package-checks/project-files/filesystem-collection.ts",
+    "resource": "pre-lazy-filesystem-collection.ts",
+    "sha256": "d50e82897d7c22442882436ae671dc1a17c2fba17ae42b3c18984cbe12656fa1",
+    "note": "This is root-formatted Phase B implementation before lazy-default timing correction, not the exact byte hash of the first Phase B measurement"
+  },
+  "after": {
+    "path": "src/package-checks/project-files/filesystem-collection.ts",
+    "sha256": "7c9c9eb2399dff8e0e93c747e7e21bcafe4fffa21ef8cf218113d4477540dc74",
+    "note": "Only move fixed default matcher preparation behind actual default lookup; no timing/test evidence yet"
+  }
+}

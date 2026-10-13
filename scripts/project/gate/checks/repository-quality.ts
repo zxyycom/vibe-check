@@ -242,7 +242,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       patterns: ["docs/**/*.md", "changes/**/*.md", ...repositoryExcludedPatterns]
     },
     findingPolicy: "blocking",
-    limits: { maxTargetReads: 1_500 }
+    limits: { maxTargetReads: 2_000 }
   }
 } as const satisfies RepositoryQualityCheckOptions;
 

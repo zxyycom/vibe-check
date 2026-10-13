@@ -1,0 +1,119 @@
+{
+  "protocol": "same materialized 853-file fixture; native 1 first+12 warm, explicit 1 first+3 warm per implementation; serial per-round AB/BA in one process per runtime; samples share one host/process and are not independent host replications; assertions/hash/logging outside collection timing",
+  "input": {
+    "manifest": "manifest.json",
+    "provenance": "fixture-provenance.json",
+    "files": 853
+  },
+  "before": {
+    "provenance": "before-source-provenance.json",
+    "modules": [
+      {
+        "path": "src/package-checks/project-files/filesystem-collection.ts",
+        "sha256": "bddbbcb441910d705e1d19c4ea6d0fa9c3e5815afb2af95310d5c1f085b412eb"
+      },
+      {
+        "path": "src/package-checks/project-files/collection.ts",
+        "sha256": "a1c6714b0f3b5dba1628847c679c498416a28ebe1aceef875b972f4517a673a4"
+      },
+      {
+        "path": "src/package-checks/project-files/public-collection.ts",
+        "sha256": "29191139aa355cd7f29d1d474c2cf50ecd29b595cc687edb79eb8067b0019c30"
+      }
+    ],
+    "productionRelationship": "Unmodified public façade three-module snapshot, only import routes rewritten; corresponds to collectProjectFiles exported through src/index.ts before change"
+  },
+  "after": {
+    "path": "src/package-checks/project-files/filesystem-collection.ts",
+    "sha256": "7c9c9eb2399dff8e0e93c747e7e21bcafe4fffa21ef8cf218113d4477540dc74",
+    "resource": "final-filesystem-collection.ts",
+    "lazyCorrectionProvenance": "lazy-default-provenance.json"
+  },
+  "runtimes": [
+    {
+      "runtime": "Node24.18.0",
+      "raw": "phase-b-lazy-node-frozen-fixture.json",
+      "summary": [
+        {
+          "name": "native",
+          "implementation": "before-snapshot",
+          "medianMs": 17.994583499999976,
+          "minMs": 10.183969999999931,
+          "maxMs": 25.148793999999953,
+          "warmSamples": 12,
+          "firstMs": 36.439633999999955
+        },
+        {
+          "name": "native",
+          "implementation": "after-public-api",
+          "medianMs": 17.802036000000044,
+          "minMs": 10.583880000000136,
+          "maxMs": 26.768496000000027,
+          "warmSamples": 12,
+          "firstMs": 21.21655599999997
+        },
+        {
+          "name": "explicit",
+          "implementation": "before-snapshot",
+          "medianMs": 2415.8991849999984,
+          "minMs": 2410.1932159999997,
+          "maxMs": 2431.027591,
+          "warmSamples": 3,
+          "firstMs": 2543.192898
+        },
+        {
+          "name": "explicit",
+          "implementation": "after-public-api",
+          "medianMs": 69.55594999999994,
+          "minMs": 65.5308930000001,
+          "maxMs": 70.99627099999998,
+          "warmSamples": 3,
+          "firstMs": 77.33917900000006
+        }
+      ]
+    },
+    {
+      "runtime": "Bun1.3.14",
+      "raw": "phase-b-lazy-bun-frozen-fixture.json",
+      "summary": [
+        {
+          "name": "native",
+          "implementation": "before-snapshot",
+          "medianMs": 52.388223500000095,
+          "minMs": 49.82225099999994,
+          "maxMs": 67.41266399999995,
+          "warmSamples": 12,
+          "firstMs": 84.598466
+        },
+        {
+          "name": "native",
+          "implementation": "after-public-api",
+          "medianMs": 52.89891300000011,
+          "minMs": 48.455347000000074,
+          "maxMs": 55.319613000000004,
+          "warmSamples": 12,
+          "firstMs": 64.24343299999998
+        },
+        {
+          "name": "explicit",
+          "implementation": "before-snapshot",
+          "medianMs": 1598.7450239999998,
+          "minMs": 1568.1810759999998,
+          "maxMs": 1615.70896,
+          "warmSamples": 3,
+          "firstMs": 1619.6282469999999
+        },
+        {
+          "name": "explicit",
+          "implementation": "after-public-api",
+          "medianMs": 98.21155099999942,
+          "minMs": 94.39262600000029,
+          "maxMs": 103.8446869999998,
+          "warmSamples": 3,
+          "firstMs": 94.24248799999987
+        }
+      ]
+    }
+  ],
+  "boundary": "Explicit safe ASCII list improvement remained large. Native medians close in this bounded 12-warm sample; does not prove universal no regression or explain the complete earlier 3-warm median increase. Old Phase A/Phase B raw preserved; not p95/cold/CPU/heap/GC/Windows/end-to-end Check guarantee."
+}

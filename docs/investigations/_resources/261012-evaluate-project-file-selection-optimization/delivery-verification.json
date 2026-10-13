@@ -1,0 +1,869 @@
+{
+  "formedAt": "2026-10-12T16:18:29.263Z",
+  "candidate": "0.0.0-local.15bfd8447e98",
+  "scope": "Delivery verification after all three optimizations. Not a benchmark or user deployment.",
+  "capacityExperiment": {
+    "candidate": "0.0.0-local.15bfd8447e98",
+    "originalOptions": {
+      "files": {
+        "useDefaultExcludes": true,
+        "patterns": [
+          "docs/**/*.md",
+          "changes/**/*.md",
+          "!**/.git",
+          "!**/.git/**",
+          "!**/archive/**",
+          "!**/target/**",
+          "!**/node_modules/**",
+          "!**/.venv/**",
+          "!**/.uv-cache/**",
+          "!**/.ruff_cache/**",
+          "!**/dist/**",
+          "!**/build/**",
+          "!**/vendor/**",
+          "!**/generated/**",
+          "!**/fixtures/**",
+          "!**/.cache/**",
+          "!**/cache/**",
+          "!**/artifacts/**",
+          "!**/.tmp/**",
+          "!**/.log/**"
+        ]
+      },
+      "findingPolicy": "blocking",
+      "limits": {
+        "maxTargetReads": 1500
+      }
+    },
+    "experimentalOptions": {
+      "files": {
+        "useDefaultExcludes": true,
+        "patterns": [
+          "docs/**/*.md",
+          "changes/**/*.md",
+          "!**/.git",
+          "!**/.git/**",
+          "!**/archive/**",
+          "!**/target/**",
+          "!**/node_modules/**",
+          "!**/.venv/**",
+          "!**/.uv-cache/**",
+          "!**/.ruff_cache/**",
+          "!**/dist/**",
+          "!**/build/**",
+          "!**/vendor/**",
+          "!**/generated/**",
+          "!**/fixtures/**",
+          "!**/.cache/**",
+          "!**/cache/**",
+          "!**/artifacts/**",
+          "!**/.tmp/**",
+          "!**/.log/**"
+        ]
+      },
+      "findingPolicy": "blocking",
+      "limits": {
+        "maxTargetReads": 2000
+      }
+    },
+    "result": {
+      "kind": "completed",
+      "declarativeFingerprint": "13adc7ba42a070c578611b2777648d8f1a3a3a947aeede701f94a11dd797d15a",
+      "definitionWarnings": [],
+      "outputs": {
+        "machinePublication": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "progressRendering": {
+          "enabled": false,
+          "status": "disabled"
+        },
+        "diagnosticLogging": {
+          "channels": {
+            "core": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            },
+            "scheduler": {
+              "enabled": false,
+              "file": null,
+              "status": "disabled"
+            }
+          },
+          "enabled": false,
+          "status": "disabled"
+        },
+        "terminalEffects": {
+          "enabled": false,
+          "status": "disabled"
+        }
+      },
+      "aggregate": "passed",
+      "checkDurations": [
+        {
+          "checkId": "markdown-link-validation",
+          "durationMs": 2543.828147
+        }
+      ],
+      "checkMessages": [],
+      "snapshot": {
+        "checks": [
+          {
+            "checkId": "markdown-link-validation",
+            "displayName": "Markdown link validation",
+            "outcome": {
+              "status": "passed",
+              "data": {
+                "findingCount": 0,
+                "occurrenceCount": 2102,
+                "rejectedInputCount": 0,
+                "sourceFileCount": 346,
+                "targetReadCount": 1702
+              }
+            }
+          }
+        ],
+        "records": []
+      }
+    }
+  },
+  "staticAttribution": {
+    "head": "08c9166b85152168ca27d45452a4174afed50e57",
+    "selection": {
+      "useDefaultExcludes": true,
+      "patterns": [
+        "docs/**/*.md",
+        "changes/**/*.md",
+        "!**/.git",
+        "!**/.git/**",
+        "!**/archive/**",
+        "!**/target/**",
+        "!**/node_modules/**",
+        "!**/.venv/**",
+        "!**/.uv-cache/**",
+        "!**/.ruff_cache/**",
+        "!**/dist/**",
+        "!**/build/**",
+        "!**/vendor/**",
+        "!**/generated/**",
+        "!**/fixtures/**",
+        "!**/.cache/**",
+        "!**/cache/**",
+        "!**/artifacts/**",
+        "!**/.tmp/**",
+        "!**/.log/**"
+      ]
+    },
+    "method": "Native parser/local destination classifier. Excludes same-document and lexical outside-root under report default. Static classification does not itself prove filesystem containment; current count equality with public runtime validates this corpus. HEAD count reconstructs selected tracked blobs without executing previous Product.",
+    "current": {
+      "sourceFileCount": 346,
+      "occurrenceCount": 2102,
+      "targetReadCount": 1702
+    },
+    "baseline": {
+      "sourceFileCount": 330,
+      "occurrenceCount": 1855,
+      "targetReadCount": 1455
+    },
+    "groups": {
+      "threeNewReports": {
+        "sourceFileCount": 3,
+        "occurrenceCount": 240,
+        "targetReadCount": 240
+      },
+      "threeChanges": {
+        "sourceFileCount": 9,
+        "occurrenceCount": 0,
+        "targetReadCount": 0
+      },
+      "newDecision": {
+        "sourceFileCount": 1,
+        "occurrenceCount": 3,
+        "targetReadCount": 3
+      }
+    },
+    "changes": [
+      {
+        "sourcePath": "docs/decisions/bound-unclosable-tokenizer-tail-cost.md",
+        "sha256": "26f7cdb9164852ab1cd5be2ff478d427d8a92ea1debf6387293efb8fb5f553f6",
+        "occurrences": 3,
+        "direct": 3,
+        "uniqueTargets": 3,
+        "baseline": null,
+        "directDelta": 3,
+        "occurrenceDelta": 3
+      },
+      {
+        "sourcePath": "docs/development/scanner-dependencies.md",
+        "sha256": "fb107b4a6d2800a44f15216c47647bf5d348f13b452f52bce266ac9d1371e120",
+        "occurrences": 12,
+        "direct": 12,
+        "uniqueTargets": 7,
+        "baseline": {
+          "sourcePath": "docs/development/scanner-dependencies.md",
+          "sha256": "3b8c837bb230da875c9a49b83fa3a1b5a09e369816915c00df356b428c4cb625",
+          "occurrences": 11,
+          "direct": 11,
+          "uniqueTargets": 6
+        },
+        "directDelta": 1,
+        "occurrenceDelta": 1
+      },
+      {
+        "sourcePath": "docs/governance/change-coordination.md",
+        "sha256": "086d004f002297340bd707c32ef7537c3007d632480f1aa3f36f62af01bd0b00",
+        "occurrences": 45,
+        "direct": 45,
+        "uniqueTargets": 37,
+        "baseline": {
+          "sourcePath": "docs/governance/change-coordination.md",
+          "sha256": "2d4f626fefbe945e3456a1a08071b8c7d5d91c543e4715150026686fa4c270f6",
+          "occurrences": 42,
+          "direct": 42,
+          "uniqueTargets": 34
+        },
+        "directDelta": 3,
+        "occurrenceDelta": 3
+      },
+      {
+        "sourcePath": "docs/investigations/evaluate-bounded-tokenizer-optimization.md",
+        "sha256": "e7f817df9e01c3574d0224fb39268a2cf7ed621535f865549ebdc509b6042ed7",
+        "occurrences": 123,
+        "direct": 123,
+        "uniqueTargets": 80,
+        "baseline": null,
+        "directDelta": 123,
+        "occurrenceDelta": 123
+      },
+      {
+        "sourcePath": "docs/investigations/evaluate-project-file-selection-optimization.md",
+        "sha256": "d076700ade386ecfee73087c3d7d5160453fa2b0e4cfc274ff59fd4938fed26f",
+        "occurrences": 37,
+        "direct": 37,
+        "uniqueTargets": 37,
+        "baseline": null,
+        "directDelta": 37,
+        "occurrenceDelta": 37
+      },
+      {
+        "sourcePath": "docs/investigations/evaluate-run-projection-optimization.md",
+        "sha256": "cbb9bdc9467587826ea94bcbf1b9cfc4b4800554985bd9a2ecab1c1e8edc1332",
+        "occurrences": 80,
+        "direct": 80,
+        "uniqueTargets": 80,
+        "baseline": null,
+        "directDelta": 80,
+        "occurrenceDelta": 80
+      }
+    ],
+    "removed": [],
+    "omitted": "Per-source unchanged manifests omitted; original static output SHA-256 records exact source output.",
+    "originalSha256": "a072082d89fe70a939cd12fe80f7735bfd0aae5d2a3141336afb55012f74d878"
+  },
+  "gates": [
+    {
+      "selection": "required-first",
+      "path": ".log/project-gate/2026-10-12T16-08-28.823Z-2101865-59b477ed-75df-4938-8273-2a23446b9541",
+      "machineSha256": "0927c5f17d9053ba7309d5cf4c9ab47a42f21cfbc362887071ba667c2020a3d9",
+      "counts": {
+        "passed": 32,
+        "unavailable": 1,
+        "not-applicable": 10
+      },
+      "checks": [
+        {
+          "checkId": "decision-records",
+          "status": "passed"
+        },
+        {
+          "checkId": "duplicate-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "file-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "format-check",
+          "status": "passed"
+        },
+        {
+          "checkId": "function-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-product",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-scripts",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "status": "unavailable",
+          "outcome": {
+            "status": "unavailable",
+            "reason": {
+              "code": "target-read-limit-exceeded"
+            }
+          }
+        },
+        {
+          "checkId": "markdown-lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-json-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-links-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-json",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "typecheck-product",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "status": "passed"
+        }
+      ],
+      "gateTranscript": "[GATE] [INFO] project gate candidate: 0.0.0-local.15bfd8447e98\n[GATE] [INFO] project gate candidate source: local\n[GATE] [INFO] project gate selection: selection=required; package-acceptance=not-selected\n[GATE] [INFO] project gate aggregation: Product default strict-all over effective Check statuses; any non-passed status or an empty effective selection makes the aggregate failed; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs\n[GATE] [INFO] project gate info [project-gate-performance-not-evaluated]: performance budgets were not evaluated because the initial Gate result was not passed\n[GATE] [LOGS] directory=\"/workspace/vibe-check/.log/project-gate/2026-10-12T16-08-28.823Z-2101865-59b477ed-75df-4938-8273-2a23446b9541\"\n[GATE] [RESULT:FAILED] project gate result: failed\n[GATE] [EXIT:1] project gate exit status: 1\n",
+      "omitted": "Check names and full status preserved; non-Markdown final data omitted. Full machine bytes are identified by machineSha256."
+    },
+    {
+      "selection": "required",
+      "path": ".log/project-gate/2026-10-12T16-16-11.467Z-2110053-5b6f9299-ba48-4aa7-9aee-f584e4a0962d",
+      "machineSha256": "826a86cc8edba3ae5b3755f009fff6e03f0fce29d5418d9518dd76b91d08bb01",
+      "counts": {
+        "passed": 34,
+        "not-applicable": 9
+      },
+      "checks": [
+        {
+          "checkId": "decision-records",
+          "status": "passed"
+        },
+        {
+          "checkId": "duplicate-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "file-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "format-check",
+          "status": "passed"
+        },
+        {
+          "checkId": "function-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-product",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-scripts",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "status": "passed",
+          "outcome": {
+            "status": "passed",
+            "data": {
+              "findingCount": 0,
+              "occurrenceCount": 2102,
+              "rejectedInputCount": 0,
+              "sourceFileCount": 346,
+              "targetReadCount": 1702
+            }
+          }
+        },
+        {
+          "checkId": "markdown-lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-json-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-links-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-json",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "status": "not-applicable"
+        },
+        {
+          "checkId": "typecheck-product",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "status": "passed"
+        }
+      ],
+      "gateTranscript": "[GATE] [INFO] project gate candidate: 0.0.0-local.15bfd8447e98\n[GATE] [INFO] project gate candidate source: local\n[GATE] [INFO] project gate selection: selection=required; package-acceptance=not-selected\n[GATE] [INFO] project gate aggregation: Product default strict-all over effective Check statuses; any non-passed status or an empty effective selection makes the aggregate failed; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs\n[GATE] [INFO] project gate info [project-gate-performance-within-limit]: elapsed-to-initial-result 23695.3ms (candidate preparation 130.8ms; adapter/setup 428.3ms; Product Run 23136.2ms) was within warning budget 30000.0ms\n[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=34; cumulative execution 62990.1ms (not wall time); mean 1852.6ms (budget 2000.0ms); p95 5040.9ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: p95; slowest Checks: tests-product-supporting-checks=5636.5ms, markdown-link-validation=5040.9ms, tests-scripts-admission-workbench=4637.6ms\n[GATE] [LOGS] directory=\"/workspace/vibe-check/.log/project-gate/2026-10-12T16-16-11.467Z-2110053-5b6f9299-ba48-4aa7-9aee-f584e4a0962d\"\n[GATE] [RESULT:PASSED] project gate result: passed\n[GATE] [EXIT:0] project gate exit status: 0\n",
+      "omitted": "Check names and full status preserved; non-Markdown final data omitted. Full machine bytes are identified by machineSha256."
+    },
+    {
+      "selection": "all",
+      "path": ".log/project-gate/2026-10-12T16-16-41.086Z-2115983-e40ea422-21ea-480f-a739-7ed80831e46a",
+      "machineSha256": "b5d75426e061b7c62381a0f7f6037abb3990fd9c908f40509bb81c87a01d9346",
+      "counts": {
+        "passed": 43
+      },
+      "checks": [
+        {
+          "checkId": "decision-records",
+          "status": "passed"
+        },
+        {
+          "checkId": "duplicate-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "file-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "format-check",
+          "status": "passed"
+        },
+        {
+          "checkId": "function-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-product",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-scripts",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "status": "passed",
+          "outcome": {
+            "status": "passed",
+            "data": {
+              "findingCount": 0,
+              "occurrenceCount": 2102,
+              "rejectedInputCount": 0,
+              "sourceFileCount": 346,
+              "targetReadCount": 1702
+            }
+          }
+        },
+        {
+          "checkId": "markdown-lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-json-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-links-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "status": "passed"
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-json",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-product",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "status": "passed"
+        }
+      ],
+      "gateTranscript": "[GATE] [INFO] project gate candidate: 0.0.0-local.15bfd8447e98\n[GATE] [INFO] project gate candidate source: local\n[GATE] [INFO] project gate selection: selection=all; package-acceptance=selected\n[GATE] [INFO] project gate aggregation: Product default strict-all over effective Check statuses; any non-passed status or an empty effective selection makes the aggregate failed; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs\n[GATE] [INFO] project gate info [project-gate-performance-within-limit]: elapsed-to-initial-result 38086.6ms (candidate preparation 121.7ms; adapter/setup 415.3ms; Product Run 37549.6ms) was within warning budget 90000.0ms\n[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 100646.6ms (not wall time); mean 2340.6ms (budget 2000.0ms); p95 5375.9ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: prepared-external-package-consumer=17511.6ms, tests-scripts-validation=7476.5ms, tests-product-supporting-checks=5375.9ms\n[GATE] [LOGS] directory=\"/workspace/vibe-check/.log/project-gate/2026-10-12T16-16-41.086Z-2115983-e40ea422-21ea-480f-a739-7ed80831e46a\"\n[GATE] [RESULT:PASSED] project gate result: passed\n[GATE] [EXIT:0] project gate exit status: 0\n",
+      "omitted": "Check names and full status preserved; non-Markdown final data omitted. Full machine bytes are identified by machineSha256."
+    }
+  ],
+  "postReportMaterialsVerification": {
+    "command": "mise exec -- bun run check -- --materials",
+    "path": ".log/project-gate/2026-10-12T16-21-58.249Z-2120932-0ef57e17-dde2-43bf-8f97-6dc702ac5c2a",
+    "machineSha256": "3f812dfb685939773e2e8f1e7a2929f74ac610704f04f0847be293c7d3032676",
+    "counts": {
+      "passed": 7,
+      "not-applicable": 36
+    },
+    "markdownOutcome": {
+      "status": "passed",
+      "data": {
+        "findingCount": 0,
+        "occurrenceCount": 2106,
+        "rejectedInputCount": 0,
+        "sourceFileCount": 346,
+        "targetReadCount": 1706
+      }
+    },
+    "gateTranscript": "[GATE] [INFO] project gate candidate: 0.0.0-local.15bfd8447e98\n[GATE] [INFO] project gate candidate source: local\n[GATE] [INFO] project gate selection: selection=focused; presets=materials; package-acceptance=not-selected\n[GATE] [INFO] project gate aggregation: Product default strict-all over effective Check statuses; any non-passed status or an empty effective selection makes the aggregate failed; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs\n[GATE] [INFO] project gate info [project-gate-performance-focused-selection]: focused preset selection has no performance budget evaluation\n[GATE] [LOGS] directory=\"/workspace/vibe-check/.log/project-gate/2026-10-12T16-21-58.249Z-2120932-0ef57e17-dde2-43bf-8f97-6dc702ac5c2a\"\n[GATE] [RESULT:PASSED] project gate result: passed\n[GATE] [EXIT:0] project gate exit status: 0\n",
+    "scope": "After final report resource links and Decision alignment; same Product candidate, no repeated performance benchmark."
+  }
+}

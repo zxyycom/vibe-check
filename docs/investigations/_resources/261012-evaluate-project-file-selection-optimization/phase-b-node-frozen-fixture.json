@@ -1,0 +1,294 @@
+{
+  "measuredAt": "2026-10-12T15:21:04.440Z",
+  "runtimeName": "node",
+  "runtime": {
+    "node": "24.18.0",
+    "acorn": "8.16.0",
+    "ada": "3.4.4",
+    "amaro": "1.1.9",
+    "ares": "1.34.6",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.3",
+    "llhttp": "9.4.2",
+    "merve": "1.2.2",
+    "modules": "137",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.69.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "3.5.7",
+    "simdjson": "4.6.4",
+    "simdutf": "6.4.0",
+    "sqlite": "3.53.1",
+    "tz": "2026b",
+    "undici": "7.28.0",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "13.6.233.17-node.50",
+    "zlib": "1.3.1-e00f703",
+    "zstd": "1.5.7"
+  },
+  "fixture": "/workspace/vibe-check/tmp/optimization-20261012/file-selection/node_modules/frozen-fixture",
+  "manifestFiles": 853,
+  "beforeOwnerSnapshot": [
+    {
+      "path": "src/package-checks/project-files/filesystem-collection.ts",
+      "sha256": "bddbbcb441910d705e1d19c4ea6d0fa9c3e5815afb2af95310d5c1f085b412eb"
+    },
+    {
+      "path": "src/package-checks/project-files/collection.ts",
+      "sha256": "a1c6714b0f3b5dba1628847c679c498416a28ebe1aceef875b972f4517a673a4"
+    },
+    {
+      "path": "src/package-checks/project-files/public-collection.ts",
+      "sha256": "29191139aa355cd7f29d1d474c2cf50ecd29b595cc687edb79eb8067b0019c30"
+    }
+  ],
+  "afterSource": {
+    "path": "src/package-checks/project-files/filesystem-collection.ts",
+    "sha256": "8c39dc521fbc40930cb5b418c2f07f52645e24712bc583fd56006920ae29f0f1"
+  },
+  "protocol": "same materialized frozen 853-file manifest; first+3 warm samples, serial AB/BA alternating each round; Node primary/Bun reference; import/fixture verification/assert/hash/log outside timing; before is unmodified public facade snapshot with only internal import routing",
+  "schedule": [
+    {
+      "name": "native",
+      "i": 0,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 1,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 2,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "native",
+      "i": 3,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "explicit",
+      "i": 0,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "explicit",
+      "i": 1,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    },
+    {
+      "name": "explicit",
+      "i": 2,
+      "order": [
+        "before-snapshot",
+        "after-public-api"
+      ]
+    },
+    {
+      "name": "explicit",
+      "i": 3,
+      "order": [
+        "after-public-api",
+        "before-snapshot"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "name": "native",
+      "patternCount": 24,
+      "implementation": "before-snapshot",
+      "samples": [
+        {
+          "i": 0,
+          "elapsedMs": 33.85867099999996,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 1,
+          "elapsedMs": 22.34022600000003,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 2,
+          "elapsedMs": 16.60082699999998,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 3,
+          "elapsedMs": 11.875872000000072,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        }
+      ]
+    },
+    {
+      "name": "native",
+      "patternCount": 24,
+      "implementation": "after-public-api",
+      "samples": [
+        {
+          "i": 0,
+          "elapsedMs": 22.278970999999956,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 1,
+          "elapsedMs": 23.495137,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 2,
+          "elapsedMs": 26.260756000000015,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 3,
+          "elapsedMs": 12.536420000000021,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        }
+      ]
+    },
+    {
+      "name": "explicit",
+      "patternCount": 853,
+      "implementation": "before-snapshot",
+      "samples": [
+        {
+          "i": 0,
+          "elapsedMs": 2623.035602,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 1,
+          "elapsedMs": 2361.896063,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 2,
+          "elapsedMs": 2371.991402999999,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 3,
+          "elapsedMs": 2390.688744000001,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        }
+      ]
+    },
+    {
+      "name": "explicit",
+      "patternCount": 853,
+      "implementation": "after-public-api",
+      "samples": [
+        {
+          "i": 0,
+          "elapsedMs": 72.00911599999972,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 1,
+          "elapsedMs": 66.93424199999981,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 2,
+          "elapsedMs": 72.08926000000065,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        },
+        {
+          "i": 3,
+          "elapsedMs": 65.716633,
+          "files": 853,
+          "pathsSha256": "ebb2f897bd1cb12715bc5339d34cdbd65a49f913944dff3576a2089e81d778b5",
+          "frozen": true
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "name": "native",
+      "implementation": "before-snapshot",
+      "medianMs": 16.60082699999998,
+      "minMs": 11.875872000000072,
+      "maxMs": 22.34022600000003
+    },
+    {
+      "name": "native",
+      "implementation": "after-public-api",
+      "medianMs": 23.495137,
+      "minMs": 12.536420000000021,
+      "maxMs": 26.260756000000015
+    },
+    {
+      "name": "explicit",
+      "implementation": "before-snapshot",
+      "medianMs": 2371.991402999999,
+      "minMs": 2361.896063,
+      "maxMs": 2390.688744000001
+    },
+    {
+      "name": "explicit",
+      "implementation": "after-public-api",
+      "medianMs": 66.93424199999981,
+      "minMs": 65.716633,
+      "maxMs": 72.08926000000065
+    }
+  ]
+}

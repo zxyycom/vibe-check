@@ -85,7 +85,7 @@ describe("repository quality Checks", () => {
     assert.deepEqual(markdownLinkValidation.options.limits, {
       maxMarkdownBytes: 1_048_576,
       maxOccurrences: 10_000,
-      maxTargetReads: 1_500
+      maxTargetReads: 2_000
     });
     assert.equal(markdownLinkValidation.options.rootExternalTargetMode, "report");
     assert.equal(fileMetrics.options.scanner.executable, "/tools/scc");

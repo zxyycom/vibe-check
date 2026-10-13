@@ -16,6 +16,12 @@ Check 自己拥有完整 `{ patterns, useDefaultExcludes? }` selection，area-ba
 
 private `collectProjectFileSets(root, selections)` 在一个 Check 本次操作内共享必要 filesystem entries，枚举普通文件、不跟随链接、零 Git/ignore 策略。fast-glob 3.3.3 只获得候选 superset，完整列表由共同 `data-boundary/config-glob` 的 micromatch 4.0.8 参数解释，每 selection 单独减去启用的固定默认数组；结果冻结、稳定排序去重。用户原生重包含不改变固定防呆层。
 
+必要单路径 policy 判断在本次操作内准备谓词：只有全部用户 patterns 的每个 slash segment 都是
+`[A-Za-z0-9_.-]+` 且不是 `.` / `..`、pattern 长度不超过当前原生 parser 可接受范围时使用字面 Set membership；
+复杂语法、`./`、空 segment、超长 pattern 和其它字符仍交给完整原生列表 matcher，保留原有错误时点与上下文。
+固定默认数组全为正 pattern，首次实际需要默认层判断时在本次操作内以同一参数编译，随后复用正列表 OR；
+此层仍独立于用户重新包含。谓词不跨收集调用保留，不改变获取与 inspection 顺序；最终批次选择仍使用完整 micromatch 列表。
+
 ### 访问剪枝与失败
 
 fs adapter 在 task base、静态路径及目录下沉前检查本次全部 selections：全部无需求才剪枝，空 selection 不制造需求，无法证明时继续访问。安全用户子树剪枝限末段负规则的整子树排除；不重建递归引擎，不把用户负规则永久下发为 fast-glob ignore。混合开关保持各自候选与输出。

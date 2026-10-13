@@ -1,0 +1,42 @@
+{
+  "verifiedAt": "2026-10-12T15:18:10.606Z",
+  "commands": [
+    {
+      "command": "mise exec -- bun test src/package-checks/project-files/collection.test.ts src/package-checks/project-files/public-collection.test.ts src/package-checks/project-files/collection-path-identity.test.ts",
+      "runtime": "Bun 1.3.14",
+      "tests": 12,
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "command": "mise exec -- node --test src/package-checks/project-files/collection.test.ts src/package-checks/project-files/public-collection.test.ts src/package-checks/project-files/collection-path-identity.test.ts",
+      "runtime": "Node 24.18.0",
+      "tests": 12,
+      "passed": 12,
+      "failed": 0
+    }
+  ],
+  "testEvidenceBaseline": "Root reported complete baseline: 704 entities / 176 cases / 15 topics before current matrix edit; worker did not rerun closure",
+  "matrix": "Expanded existing native/default entities only; Case Owner/Entities/Proves unchanged; overlong native error context retains wrapped acquisition Error/cause on lossy byte entry",
+  "lazyDefaultReverification": {
+    "verifiedAt": "2026-10-12T15:31:28.023Z",
+    "commands": [
+      {
+        "command": "mise exec -- bun test src/package-checks/project-files/collection.test.ts src/package-checks/project-files/public-collection.test.ts src/package-checks/project-files/collection-path-identity.test.ts",
+        "runtime": "Bun 1.3.14",
+        "tests": 12,
+        "passed": 12,
+        "failed": 0
+      },
+      {
+        "command": "mise exec -- node --test src/package-checks/project-files/collection.test.ts src/package-checks/project-files/public-collection.test.ts src/package-checks/project-files/collection-path-identity.test.ts",
+        "runtime": "Node 24.18.0",
+        "tests": 12,
+        "passed": 12,
+        "failed": 0
+      }
+    ],
+    "afterSourceSha256": "7c9c9eb2399dff8e0e93c747e7e21bcafe4fffa21ef8cf218113d4477540dc74",
+    "timingSeparation": "Target tests completed before starting either runtime performance process; no tests/profiling during collection timing"
+  }
+}

@@ -54,14 +54,22 @@ describe("quality input file collection", () => {
       ])
         write(root, file);
       for (const useDefaultExcludes of [undefined, true]) {
-        assert.deepEqual(
-          collectProjectFiles(root, {
-            patterns: ["**/*", "!node_modules/**", "node_modules/a.ts"],
-            ...(useDefaultExcludes === undefined ? {} : { useDefaultExcludes })
-          }),
-          [".visible", "src/a.ts"]
-        );
+        for (const patterns of [
+          ["**/*", "!node_modules/**", "node_modules/a.ts"],
+          [".visible", "src/a.ts", "node_modules/a.ts", "build/a.ts", "src/a.generated.ts"]
+        ])
+          assert.deepEqual(
+            collectProjectFiles(root, {
+              patterns,
+              ...(useDefaultExcludes === undefined ? {} : { useDefaultExcludes })
+            }),
+            [".visible", "src/a.ts"]
+          );
       }
+      assert.deepEqual(
+        collectProjectFiles(root, { patterns: ["node_modules/a.ts"], useDefaultExcludes: false }),
+        ["node_modules/a.ts"]
+      );
       assert.deepEqual(
         collectProjectFiles(root, { patterns: ["**/*", "!build/**"], useDefaultExcludes: false }),
         [".visible", "nested/.git/config", "node_modules/a.ts", "src/a.generated.ts", "src/a.ts"]
@@ -122,10 +130,26 @@ describe("quality input file collection", () => {
 
   it("matches native complete lists consistently for collection and explicit paths", () => {
     const root = fs.mkdtempSync(join(tmpdir(), "collection-patterns-"));
-    const files = ["src/.dot.ts", "src/a.ts", "src/b.tsx", "docs/a.md", "src/line\nbreak.ts"];
+    const files = [
+      ".entry",
+      "src/.dot.ts",
+      "src/Safe_1-2.ts",
+      "src/a.ts",
+      "src/b.tsx",
+      "docs/a.md",
+      "docs/a b.md",
+      "src/référence.ts",
+      "src/square[1].ts",
+      "src/line\nbreak.ts"
+    ];
     try {
       for (const file of files) write(root, file);
       for (const patterns of [
+        ["src/a.ts", "src/.dot.ts", "src/a.ts", "src/Safe_1-2.ts", ".entry"],
+        ["src/référence.ts"],
+        ["docs/a b.md"],
+        ["src/square[[]1].ts"],
+        ["src//a.ts"],
         ["src/**/*.{ts,tsx}", "!src/a.ts", "src/a.ts"],
         ["src/**/@(a|b).@(ts|tsx)"],
         ["!docs/**"],
@@ -152,8 +176,11 @@ describe("quality input file collection", () => {
       write(root, "literal\\name.ts");
       assert.deepEqual(collectProjectFiles(root, { patterns: ["src/**/*.ts"] }), [
         "src/.dot.ts",
+        "src/Safe_1-2.ts",
         "src/a.ts",
-        "src/line\nbreak.ts"
+        "src/line\nbreak.ts",
+        "src/référence.ts",
+        "src/square[1].ts"
       ]);
       assert.deepEqual(
         collectProjectFiles(root, { patterns: ["**/*", "!literal*"] }),
@@ -165,6 +192,19 @@ describe("quality input file collection", () => {
           error instanceof Error &&
           !(error instanceof TypeError) &&
           error.message.includes("literal\\name.ts")
+      );
+      // A literal beyond the locked native parser limit must retain the same acquisition
+      // failure context instead of skipping the matcher until the final batch selection.
+      const rawName = Buffer.concat([Buffer.from(`${root}/`), Buffer.from([0xff])]);
+      fs.writeFileSync(rawName, "content\n");
+      assert.throws(
+        () => collectProjectFiles(root, { patterns: ["a".repeat(65537)] }),
+        (error: unknown) =>
+          error instanceof Error &&
+          !(error instanceof SyntaxError) &&
+          error.message.includes(`could not read project directory ${root}`) &&
+          error.cause instanceof SyntaxError &&
+          error.cause.message.includes("maximum allowed length: 65536")
       );
     } finally {
       fs.rmSync(root, { recursive: true, force: true });

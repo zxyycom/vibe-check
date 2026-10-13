@@ -1,0 +1,65 @@
+{
+  "summary": [
+    {
+      "runtime": "node",
+      "runtimeVersion": "24.18.0",
+      "name": "native",
+      "before": {
+        "medianMs": 20.204928999999993,
+        "minMs": 15.281758000000082,
+        "maxMs": 22.13618500000007
+      },
+      "tmpCandidate": {
+        "medianMs": 20.922440000000023,
+        "minMs": 19.32620800000001,
+        "maxMs": 23.154225999999994
+      }
+    },
+    {
+      "runtime": "node",
+      "runtimeVersion": "24.18.0",
+      "name": "explicit",
+      "before": {
+        "medianMs": 2571.36196,
+        "minMs": 2565.6601610000002,
+        "maxMs": 2608.152271000001
+      },
+      "tmpCandidate": {
+        "medianMs": 67.04474699999997,
+        "minMs": 65.71021199999996,
+        "maxMs": 88.18818899999997
+      }
+    },
+    {
+      "runtime": "bun",
+      "runtimeVersion": "1.3.14",
+      "name": "native",
+      "before": {
+        "medianMs": 63.58849799999996,
+        "minMs": 62.41384500000004,
+        "maxMs": 80.03880700000002
+      },
+      "tmpCandidate": {
+        "medianMs": 60.67175399999999,
+        "minMs": 56.26124899999999,
+        "maxMs": 62.2474
+      }
+    },
+    {
+      "runtime": "bun",
+      "runtimeVersion": "1.3.14",
+      "name": "explicit",
+      "before": {
+        "medianMs": 1738.7740719999993,
+        "minMs": 1723.447231,
+        "maxMs": 1794.8234510000002
+      },
+      "tmpCandidate": {
+        "medianMs": 107.65889500000003,
+        "minMs": 105.494685,
+        "maxMs": 111.84524999999996
+      }
+    }
+  ],
+  "warning": "Phase A tmp-copy candidate only. Noninstrumented timings; 1 first + 3 warm repeats; no cold/CPU/RSS/tail guarantee. Node instrumented profile is separate."
+}
