@@ -1,0 +1,240 @@
+{
+  "inputPath": "tmp/low-risk-optimization-20261013/exact-keys/samples-initial.json",
+  "allSamplesRetained": true,
+  "summary": [
+    {
+      "workload": "initial-region-prefix:same:0",
+      "beforeMedianMs": 15.406670500000004,
+      "candidateMedianMs": 19.16275499999999,
+      "candidateOverBefore": 1.2437959908339693,
+      "pairedRatios": [
+        1.225254871741358,
+        1.2995651957691667,
+        1.262931808808444,
+        1.2389936267213837,
+        1.2019113490033084,
+        1.2480526375291976,
+        1.3056908477730846,
+        1.298485159893673
+      ],
+      "pairedMedianRatio": 1.2554922231688208,
+      "candidateSlowerPairs": 8,
+      "beforeRangeMs": [
+        14.27465699999999,
+        18.68685
+      ],
+      "candidateRangeMs": [
+        18.638288999999986,
+        22.896153999999996
+      ]
+    },
+    {
+      "workload": "initial-region-prefix:same:1",
+      "beforeMedianMs": 49.359475499999974,
+      "candidateMedianMs": 65.15278900000004,
+      "candidateOverBefore": 1.3199651807483261,
+      "pairedRatios": [
+        1.2871595442258876,
+        1.365518518335138,
+        1.3314556392924684,
+        1.3087871715401456,
+        1.3189637136628718,
+        1.2878114726070775,
+        1.3532644462030672,
+        1.2926775507711759
+      ],
+      "pairedMedianRatio": 1.3138754426015087,
+      "candidateSlowerPairs": 8,
+      "beforeRangeMs": [
+        48.435295999999994,
+        50.73533300000008
+      ],
+      "candidateRangeMs": [
+        64.48944799999992,
+        66.18935900000002
+      ]
+    },
+    {
+      "workload": "initial-region-prefix:same:2",
+      "beforeMedianMs": 66.03095700000017,
+      "candidateMedianMs": 84.51242949999994,
+      "candidateOverBefore": 1.27989102899114,
+      "pairedRatios": [
+        1.2885457163370369,
+        1.2918659628731561,
+        1.3004032020017124,
+        1.2678635796070454,
+        1.2298515633611966,
+        0.7794712817907702,
+        0.6675934114910592,
+        1.3560830039268732
+      ],
+      "pairedMedianRatio": 1.278204647972041,
+      "candidateSlowerPairs": 6,
+      "beforeRangeMs": [
+        63.58284999999978,
+        143.91735800000015
+      ],
+      "candidateRangeMs": [
+        81.92940900000008,
+        96.07828000000018
+      ]
+    },
+    {
+      "workload": "initial-region-prefix:same:4",
+      "beforeMedianMs": 48.5546260000001,
+      "candidateMedianMs": 59.547514500000034,
+      "candidateOverBefore": 1.2264024956139075,
+      "pairedRatios": [
+        1.1937999029859079,
+        1.1139669079310561,
+        1.2257990403622827,
+        1.2293739522764722,
+        1.2886644391781197,
+        1.2702285596129725,
+        1.2270074277948815,
+        1.2452941452099922
+      ],
+      "pairedMedianRatio": 1.2281906900356767,
+      "candidateSlowerPairs": 8,
+      "beforeRangeMs": [
+        46.43917199999987,
+        52.16959999999972
+      ],
+      "candidateRangeMs": [
+        57.83042899999964,
+        63.07132300000012
+      ]
+    },
+    {
+      "workload": "initial-region-prefix:same:8",
+      "beforeMedianMs": 49.937364000000116,
+      "candidateMedianMs": 59.96207550000008,
+      "candidateOverBefore": 1.2007457081635295,
+      "pairedRatios": [
+        1.1996693905956952,
+        1.185849534322926,
+        1.1915109907405639,
+        1.1982891624958116,
+        1.2002141654534448,
+        1.1618486864392576,
+        1.2124071002082448,
+        1.2188338833591479
+      ],
+      "pairedMedianRatio": 1.1989792765457534,
+      "candidateSlowerPairs": 8,
+      "beforeRangeMs": [
+        48.625960999999734,
+        50.76006800000005
+      ],
+      "candidateRangeMs": [
+        58.29367000000002,
+        60.61641300000065
+      ]
+    },
+    {
+      "workload": "initial-region-prefix:same:16",
+      "beforeMedianMs": 61.0849005,
+      "candidateMedianMs": 71.57931600000029,
+      "candidateOverBefore": 1.1718004844748873,
+      "pairedRatios": [
+        1.164363011957395,
+        1.1611474130259403,
+        1.1703543699466676,
+        1.172651448206057,
+        1.1717703618040545,
+        1.1707460117996928,
+        1.212426226104352,
+        1.169847251410229
+      ],
+      "pairedMedianRatio": 1.1705501908731804,
+      "candidateSlowerPairs": 8,
+      "beforeRangeMs": [
+        60.71367000000009,
+        62.79023599999982
+      ],
+      "candidateRangeMs": [
+        70.66330600000038,
+        75.94499300000007
+      ]
+    },
+    {
+      "workload": "initial-region-prefix:same:64",
+      "beforeMedianMs": 88.36463849999973,
+      "candidateMedianMs": 88.86182400000007,
+      "candidateOverBefore": 1.005626521065894,
+      "pairedRatios": [
+        0.9847049402498845,
+        1.0922652109917452,
+        1.1652864710440598,
+        0.957700797747596,
+        0.8045102816857027,
+        1.0025062341404762,
+        1.0340096063302993,
+        1.0283343406675598
+      ],
+      "pairedMedianRatio": 1.0154202874040181,
+      "candidateSlowerPairs": 5,
+      "beforeRangeMs": [
+        84.65260000000035,
+        108.45371399999931
+      ],
+      "candidateRangeMs": [
+        86.47828499999923,
+        108.2390660000001
+      ]
+    },
+    {
+      "workload": "initial-region-prefix:same:256",
+      "beforeMedianMs": 113.2006650000003,
+      "candidateMedianMs": 94.93492349999997,
+      "candidateOverBefore": 0.838642807442869,
+      "pairedRatios": [
+        0.9118588707299711,
+        0.7859728080978174,
+        0.8946446050527341,
+        0.737779519283708,
+        0.7781813245166499,
+        0.8110895309210472,
+        1.0055753641673448,
+        0.9035751451371088
+      ],
+      "pairedMedianRatio": 0.8528670679868906,
+      "candidateSlowerPairs": 1,
+      "beforeRangeMs": [
+        105.80289700000048,
+        123.87235700000019
+      ],
+      "candidateRangeMs": [
+        88.36643399999957,
+        113.47541999999885
+      ]
+    },
+    {
+      "workload": "initial-region-prefix:same:1024",
+      "beforeMedianMs": 163.34458050000012,
+      "candidateMedianMs": 91.71357949999947,
+      "candidateOverBefore": 0.5614730480758093,
+      "pairedRatios": [
+        0.557709269826114,
+        0.5609822711459237,
+        0.5740208683712026,
+        0.5805676069510152,
+        0.5813268907009843,
+        0.5548051342966714,
+        0.5548313882097428,
+        0.5656305105645117
+      ],
+      "pairedMedianRatio": 0.5633063908552177,
+      "candidateSlowerPairs": 0,
+      "beforeRangeMs": [
+        161.10191599999962,
+        168.78690900000038
+      ],
+      "candidateRangeMs": [
+        89.84207900000001,
+        98.12036900000021
+      ]
+    }
+  ]
+}

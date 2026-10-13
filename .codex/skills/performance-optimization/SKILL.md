@@ -36,6 +36,15 @@ description: >-
 6. **Remeasure**：用同一 workload 比较 before/after；噪声较大时报告多次运行的 median、p95 或保守范围。
 7. **Guard**：只有已有 budget、baseline、用户报告或 merge policy 需要后续比较时，沉淀覆盖优化路径的最小性能验证证据：unit test、benchmark、smoke check、monitoring note 或 budget 文档。Timing measurement 默认作为 observation；只有明确 budget 或 merge policy 时才成为 required check。
 
+## 比较与采用
+
+1. 按目标规模、输入形状和调用路径分别比较绝对成本、相对变化及增长趋势，结合调用频率、内存和已有预算判断影响。真实分布未知时写清假设，使用代表性输入和成本边界；保留各重要场景，不用总平均值掩盖代价。
+2. 综合规模收益、局部开销与维护风险决定采用。可以用可接受的小规模常数开销换取低复杂度或退化路径改善，不要求每种规模都更快；说明接受了什么代价、换取什么价值。
+3. 区分复杂度或操作量、局部计时与端到端计时。已证明的增长成本降低可支持采用，即使当前端到端尚未测出加速；仍需解释适用规模与维护成本。计时收益按测量和噪声解释，局部结论保持在其证据层。
+4. 保持语义、安全、兼容及显式资源限制，遵循更具体的领域验收条件。证据不足时，只补充能改变取舍的调查；将“待评估”“采用”“不采用”与“已实施”分别说明。
+
+长期采用理由见[规模收益与实际代价决策](../../../docs/decisions/weigh-performance-costs-against-scaling-benefits.md)。
+
 ## 参考加载
 
 - 需要 workload 分类、baseline 模板、fixture/data shape、bottleneck triage、budget 模板、常见误判或验证范围时，读取 [performance-checklist.md](references/performance-checklist.md)。

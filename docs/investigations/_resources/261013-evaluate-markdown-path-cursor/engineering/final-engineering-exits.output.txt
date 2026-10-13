@@ -1,0 +1,4 @@
+strict-tsgo-exit=0
+harness.mts syntax-exit=0
+trace-harness.mts syntax-exit=0
+io-trace.mts syntax-exit=0

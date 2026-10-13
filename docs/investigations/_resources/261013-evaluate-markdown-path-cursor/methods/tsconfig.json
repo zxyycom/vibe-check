@@ -1,0 +1,8 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": ["*.mts", "node_modules/after/src/**/*.ts"],
+  "exclude": ["node_modules/after/src/package-checks/function-metrics/analyzer/fixtures"]
+}

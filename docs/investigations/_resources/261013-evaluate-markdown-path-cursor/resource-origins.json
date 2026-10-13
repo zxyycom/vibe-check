@@ -1,0 +1,301 @@
+{
+  "confirmedAt": "2026-10-13T03:23:07.340Z",
+  "originPathsRelativeToRepositoryRoot": true,
+  "generatedManifestExcludesItself": true,
+  "files": [
+    {
+      "resource": "audit-result.json",
+      "source": null,
+      "sha256": "223aca6adcf7b972d5173954e694d34510829a9143b96fee5ceaf68e3bb3b91c",
+      "bytes": 8313,
+      "treatment": "new read-only audit method or result; no performance measurement"
+    },
+    {
+      "resource": "candidate.patch",
+      "source": null,
+      "sha256": "65b8549320059b57daa4b2e140b4477bc5f2a92766eb5648ba363612c980b419",
+      "bytes": 840,
+      "treatment": "zero-context diff regenerated from the two archived sources"
+    },
+    {
+      "resource": "engineering/audit-oxlintrc.json",
+      "source": null,
+      "sha256": "3d5f2ca5c1d4bb33f5d22a28e04cda63fa341b87f536b1736c30ff7b10332159",
+      "bytes": 7141,
+      "treatment": "new read-only typed audit method or engineering support; no performance measurement"
+    },
+    {
+      "resource": "engineering/audit-verification.output.txt",
+      "source": null,
+      "sha256": "5df1fa7a5e188c3ab059b6341b547fd268fd42ca9b53273bc4e95b10968b2ad8",
+      "bytes": 1487,
+      "treatment": "new read-only typed audit method or engineering support; no performance measurement"
+    },
+    {
+      "resource": "engineering/bun-after-tests.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/bun-after-tests.log",
+      "sha256": "6b1164a51ccc017214c9b4929749df43de05b030778d7c6c6ba0226a7c787e24",
+      "bytes": 5935,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/bun-before-tests.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/bun-before-tests.log",
+      "sha256": "afae01ff085d256b63fdaf6e8565ac39b1b64c272098ef7a7ed8cdfcdb3a5057",
+      "bytes": 5947,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/final-engineering-exits.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/final-engineering-exits.log",
+      "sha256": "77f1a39cededf9b035f5f579c44ab9ebbb5cd8879033fa5d7d665b295ffee4b5",
+      "bytes": 104,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/format-fd.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/format-fd.log",
+      "sha256": "ec43ecb5180db91870176da1df7fd8eeab18e57505ca51d62f0ac6f0e8a96ab9",
+      "bytes": 110,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/gate-final.stdout.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/integration/gate-final.stdout.log",
+      "sha256": "f452c2b94ef7bdeb713e33055120cc50164f4e9b784d6812e4b4f3185e3b1864",
+      "bytes": 4522,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/gate-first-manifest-copy.output.txt",
+      "source": ".log/project-gate/2026-10-13T02-53-04.834Z-2265794-077f37c9-3e9b-4ca4-a6ed-7414eb578bb0/checks/check-PAIT4STSmx6Nb7exSqKfjaUQ83Oo3LrX_3Izut2ZR9M/process.log",
+      "sha256": "35ef8ee1f6459ac04a327a64898c6e61328f65a1e82eb798be6ed95283645ed7",
+      "bytes": 1606,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/gate-first-package-documents-copy.output.txt",
+      "source": ".log/project-gate/2026-10-13T02-53-04.834Z-2265794-077f37c9-3e9b-4ca4-a6ed-7414eb578bb0/checks/check-byOkPFhQmJt32Vh3E6VBzkQNnQJzjr2Oyumkz3M46d4/process.log",
+      "sha256": "93961b8f7f1c80a8debf816724626c4f8a307c329df68c2da5d6c3e7d1fc1edb",
+      "bytes": 1270,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/helper-lint-final.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/integration/helper-lint-final.log",
+      "sha256": "b52353c1fd2cae56abe26449a595c158e2d79377c306ac430ffe0150ffbf74c9",
+      "bytes": 21,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/helper-lint-initial.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/integration/helper-lint-initial.log",
+      "sha256": "b5c3d9c69a67ec9502cc8efc30b831b7a4756043f6e8fcf9e22a82f4173b8a38",
+      "bytes": 1064,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/helper-lint-input-identities.json",
+      "source": "tmp/low-risk-optimization-20261013/integration/helper-lint-input-identities.json",
+      "sha256": "dd5fa8ef9a37d083945f68bf6b65c1208a055fe4e813bddff108740236cdc7dc",
+      "bytes": 2606,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/mirror-oxlintrc.json",
+      "source": "tmp/low-risk-optimization-20261013/integration/mirror-oxlintrc.json",
+      "sha256": "9aa77fc4f4908f67e48154daa5762862b34177ad5b3ec4268049ece21558d944",
+      "bytes": 6986,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/typed-helper-verification.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/typed-helper-verification.log",
+      "sha256": "7a346716533a9e589b23e58138a8fc561fa454d3f36f4228645faf19201b19b4",
+      "bytes": 496,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "engineering/typed-helper.patch",
+      "source": null,
+      "sha256": "7408b786a22f762e88efa5db6e5e1c9c6b401a98c0d7d956d1c50823b51b6bb2",
+      "bytes": 534,
+      "treatment": "zero-context diff regenerated from the two archived sources"
+    },
+    {
+      "resource": "methods/audit/audit.ts",
+      "source": null,
+      "sha256": "ccd252ce258e6dd8c25c3c3f33d5471400860f06346af6c680a8f82286296988",
+      "bytes": 9033,
+      "treatment": "new read-only typed audit method or engineering support; no performance measurement"
+    },
+    {
+      "resource": "methods/audit/tsconfig.json",
+      "source": null,
+      "sha256": "20161da5660129467c6ec5c0995462769f4f30dbe73aaccac700e741e38387ac",
+      "bytes": 148,
+      "treatment": "new read-only typed audit method or engineering support; no performance measurement"
+    },
+    {
+      "resource": "methods/io-trace.mts",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/io-trace.mts",
+      "sha256": "a1f0db30d3a42665274b127621f100fddd6f4742328b38a23181a1666e1d9633",
+      "bytes": 1992,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "methods/measured-harness.mts",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/measured-helper-sources/harness.mts",
+      "sha256": "b5d69864218094f8220d04f047852abedc8b3cff348ffae5d014991173143ea8",
+      "bytes": 7050,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "methods/trace-harness.mts",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/trace-harness.mts",
+      "sha256": "6a7942fef558d5c473de83c1a2d509780f663b198f97eeb23ba8e272d4b077c0",
+      "bytes": 7476,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "methods/trace-probes.after.js",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/trace-probes.after.js",
+      "sha256": "5ab31321cdb83f18c105c3ae47f9d4597e698e002881fb6b85c53dfa2269fc59",
+      "bytes": 5909,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "methods/trace-probes.before.js",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/trace-probes.before.js",
+      "sha256": "0b1cdf3018bc761902dfc3f60ecc901998b90ecd3b9b62dc7aa9ed1c36c79b4e",
+      "bytes": 5729,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "methods/tsconfig.json",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/tsconfig.json",
+      "sha256": "8c36976f782859d821cc323304bdd64fa2275b39226d962cc1f1692b581fb145",
+      "bytes": 244,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "methods/typed-harness.mts",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/harness.mts",
+      "sha256": "b61024e63f609cc57c4a9851ae3bd83e44cbaba15dc3daa1f258dd0bf3d9e86b",
+      "bytes": 7185,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/bun-smoke-typed-helper.json",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/bun-smoke-typed-helper.json",
+      "sha256": "f7a86ba99a49dd804c54943ea3fbb98b7ed0df2c98d680437cc8a43c3cf08051",
+      "bytes": 3522,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/bun-smoke.json",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/bun-smoke.json",
+      "sha256": "7e895285acb83d22fe6a4f5e79ce295f3e94b9ee46c91bc4577600a1789af5fa",
+      "bytes": 3522,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/frozen-identities.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/frozen-identities.txt",
+      "sha256": "0e90150269f1ec91731d1aee7439d2a209e95f2ab0132c31ef17569321c3cd3f",
+      "bytes": 1272,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/node-measure-end.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/node-measure-end.txt",
+      "sha256": "d2775146ab9af700db5ba8f36c7191e2e01e1201322d5b31ff92892e2c686399",
+      "bytes": 21,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/node-measure-exit.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/node-measure-exit.txt",
+      "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
+      "bytes": 7,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/node-measure-start.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/node-measure-start.txt",
+      "sha256": "83cdd831472b1bb176af4d07d5b2cd68d406d18b93da421d7b5ad98148ec1c43",
+      "bytes": 21,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/node-measure.json",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/node-measure.json",
+      "sha256": "230d572216ff406361c94684a84908bf33c7b7ac913b064b8a3085532fbb0dbf",
+      "bytes": 10736,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/node-smoke-typed-helper.json",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/node-smoke-typed-helper.json",
+      "sha256": "9ff447e4133a86ef93d0f6dc4a3b66eef07225a4afe0a9e710cc6fb23bc9645c",
+      "bytes": 3065,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/node-smoke.json",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/node-smoke.json",
+      "sha256": "0178da8aea5fc293b802a8017000ace563f4e4b6b8ccb73eac51ae12e43db85b",
+      "bytes": 3065,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/node-trace-parity.json",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/node-trace-parity.json",
+      "sha256": "6c268a9294ba88c2730c5dc7b4fa021b1851a80b85fc84356f622d2d45e22dae",
+      "bytes": 145579,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/production-unchanged.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/production-unchanged.txt",
+      "sha256": "eaf8e7051ceb64ebccbcfdea7fec8e03e186de107c0f3227298c93c3344ce4b1",
+      "bytes": 182,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/snapshot-differences.output.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/snapshot-differences.log",
+      "sha256": "37b0f22604ffe48d8d77fc419a0fddba35a8d6305dc2e619191f7a974ad46486",
+      "bytes": 284,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "raw/typed-helper-identities.txt",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/raw/typed-helper-identities.txt",
+      "sha256": "74641ab79e8042849ffd181722c202ae1e5b2eddd3f8c5ac43f3b6fdd5ad5d35",
+      "bytes": 869,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "sources/after-filesystem-probes.ts",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/node_modules/after/src/package-checks/markdown-link-validation/filesystem-probes.ts",
+      "sha256": "bd0ac153f62c3d4ddd0fb9deb679fde25aa7f981c05ebc6f520be95485b054fb",
+      "bytes": 6339,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "sources/before-filesystem-probes.ts",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/filesystem-probes.ts",
+      "sha256": "91cb7e29cec852ed335e0b995643eaaf7c0e037c58b9ab871ffc0cc84f9334d9",
+      "bytes": 6140,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    },
+    {
+      "resource": "summary.json",
+      "source": "tmp/low-risk-optimization-20261013/markdown-path/summary.json",
+      "sha256": "187a946df576829f6c5542af52c1125829c9014872b23eb95399cfc15588b777",
+      "bytes": 3020,
+      "treatment": "byte-preserving copy; .log renamed .output.txt when applicable"
+    }
+  ]
+}

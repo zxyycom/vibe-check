@@ -1,0 +1,22 @@
+Read-only authored audit verification; no benchmark or trace execution.
+2026-10-13T03:22:35Z
+$ node_modules/.bin/tsgo --project docs/investigations/_resources/261013-evaluate-markdown-path-cursor/methods/audit/tsconfig.json --pretty false
+tsgo-exit=0
+$ node_modules/.bin/oxlint --deny-warnings --no-ignore --disable-nested-config --type-aware -c docs/investigations/_resources/261013-evaluate-markdown-path-cursor/engineering/audit-oxlintrc.json --tsconfig docs/investigations/_resources/261013-evaluate-markdown-path-cursor/methods/audit/tsconfig.json docs/investigations/_resources/261013-evaluate-markdown-path-cursor/methods/audit/audit.ts
+typed-lint-exit=0
+$ node_modules/.bin/oxlint --debug files (same config and explicit file)
+docs/investigations/_resources/261013-evaluate-markdown-path-cursor/methods/audit/audit.ts
+matched-input-exit=0
+$ node_modules/.bin/oxfmt --check --config .oxfmtrc.json <audit.ts> <audit/tsconfig.json>
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 2ms on 2 files using 4 threads.
+format-exit=0
+$ mise exec -- node --check <audit.ts>
+node-syntax-exit=0
+$ mise exec -- node <audit.ts> <managed-resource-root> <original-experiment-root>
+read-only-audit-exit=0
+$ mise exec -- node <audit.ts> <managed-resource-root> (no original tmp needed)
+managed-only-audit-exit=0
+ccd252ce258e6dd8c25c3c3f33d5471400860f06346af6c680a8f82286296988  docs/investigations/_resources/261013-evaluate-markdown-path-cursor/methods/audit/audit.ts

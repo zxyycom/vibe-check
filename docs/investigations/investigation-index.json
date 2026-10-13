@@ -2104,6 +2104,128 @@
         "performance"
       ],
       "title": "优先复杂度优化的行为与性能验证"
+    },
+    "261013-evaluate-exact-key-membership-candidates": {
+      "formedAt": "2026-10-13T03:07:06Z",
+      "name": "evaluate-exact-key-membership-candidates",
+      "question": "保持 exact-key 语义且不采用经验尺寸阈值时，局部线性候选在不同规模和字段顺序下有哪些收益、开销与采用条件？",
+      "relations": [
+        {
+          "summary": "为C05补充公开快照API的跨规模对照与采用边界",
+          "target": "261012-review-product-algorithmic-complexity",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261013-evaluate-exact-key-membership-candidates/audit-results.json",
+        "261013-evaluate-exact-key-membership-candidates/baseline/closed-values.ts",
+        "261013-evaluate-exact-key-membership-candidates/cancelled-threshold256/candidate.ts",
+        "261013-evaluate-exact-key-membership-candidates/cancelled-threshold256/harness-frozen.mjs",
+        "261013-evaluate-exact-key-membership-candidates/cancelled-threshold256/harness-measured.ts",
+        "261013-evaluate-exact-key-membership-candidates/cancelled-threshold256/harness-type-fixed.ts",
+        "261013-evaluate-exact-key-membership-candidates/copy-identities.json",
+        "261013-evaluate-exact-key-membership-candidates/helper-validation/helper-lint-final.txt",
+        "261013-evaluate-exact-key-membership-candidates/helper-validation/helper-lint-initial.txt",
+        "261013-evaluate-exact-key-membership-candidates/helper-validation/helper-lint-input-identities.json",
+        "261013-evaluate-exact-key-membership-candidates/helper-validation/mirror-oxlintrc.json",
+        "261013-evaluate-exact-key-membership-candidates/helper-validation/mirror-tsconfig.json",
+        "261013-evaluate-exact-key-membership-candidates/initial/candidate.ts",
+        "261013-evaluate-exact-key-membership-candidates/initial/harness-frozen.mjs",
+        "261013-evaluate-exact-key-membership-candidates/initial/harness-measured.ts",
+        "261013-evaluate-exact-key-membership-candidates/initial/harness-type-fixed.ts",
+        "261013-evaluate-exact-key-membership-candidates/initial/samples.json",
+        "261013-evaluate-exact-key-membership-candidates/initial/summary-paired.json",
+        "261013-evaluate-exact-key-membership-candidates/prefix/candidate.ts",
+        "261013-evaluate-exact-key-membership-candidates/prefix/harness-frozen.mjs",
+        "261013-evaluate-exact-key-membership-candidates/prefix/harness-measured.ts",
+        "261013-evaluate-exact-key-membership-candidates/prefix/harness-type-fixed.ts",
+        "261013-evaluate-exact-key-membership-candidates/prefix/samples.json",
+        "261013-evaluate-exact-key-membership-candidates/prefix/summary-paired.json",
+        "261013-evaluate-exact-key-membership-candidates/provenance-original.txt",
+        "261013-evaluate-exact-key-membership-candidates/resource-guide.md",
+        "261013-evaluate-exact-key-membership-candidates/semantic-recheck.txt",
+        "261013-evaluate-exact-key-membership-candidates/summarize.ts",
+        "261013-evaluate-exact-key-membership-candidates/threshold64/candidate.ts",
+        "261013-evaluate-exact-key-membership-candidates/threshold64/harness-frozen.mjs",
+        "261013-evaluate-exact-key-membership-candidates/threshold64/harness-measured.ts",
+        "261013-evaluate-exact-key-membership-candidates/threshold64/harness-type-fixed.ts",
+        "261013-evaluate-exact-key-membership-candidates/threshold64/samples.json",
+        "261013-evaluate-exact-key-membership-candidates/threshold64/summary-historical.json",
+        "261013-evaluate-exact-key-membership-candidates/threshold64/summary-paired.json",
+        "261013-evaluate-exact-key-membership-candidates/withdrawn-formal-test.patch"
+      ],
+      "sourcePath": "evaluate-exact-key-membership-candidates.md",
+      "tags": [
+        "algorithmic-complexity",
+        "data-boundary",
+        "performance"
+      ],
+      "title": "Exact-key 线性成员校验候选的规模收益与开销"
+    },
+    "261013-evaluate-markdown-path-cursor": {
+      "formedAt": "2026-10-13T03:07:12Z",
+      "name": "evaluate-markdown-path-cursor",
+      "question": "将 containment 路径余段复制改为游标后，局部成本、安全读取语义与完整 Markdown Link Check 耗时如何变化？",
+      "relations": [
+        {
+          "summary": "为K03补充游标候选的安全语义与完整Check对照",
+          "target": "261012-review-product-algorithmic-complexity",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261013-evaluate-markdown-path-cursor/audit-result.json",
+        "261013-evaluate-markdown-path-cursor/candidate.patch",
+        "261013-evaluate-markdown-path-cursor/engineering/audit-oxlintrc.json",
+        "261013-evaluate-markdown-path-cursor/engineering/audit-verification.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/bun-after-tests.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/bun-before-tests.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/final-engineering-exits.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/format-fd.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/gate-final.stdout.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/gate-first-manifest-copy.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/gate-first-package-documents-copy.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/helper-lint-final.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/helper-lint-initial.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/helper-lint-input-identities.json",
+        "261013-evaluate-markdown-path-cursor/engineering/mirror-oxlintrc.json",
+        "261013-evaluate-markdown-path-cursor/engineering/typed-helper-verification.output.txt",
+        "261013-evaluate-markdown-path-cursor/engineering/typed-helper.patch",
+        "261013-evaluate-markdown-path-cursor/methods/audit/audit.ts",
+        "261013-evaluate-markdown-path-cursor/methods/audit/tsconfig.json",
+        "261013-evaluate-markdown-path-cursor/methods/io-trace.mts",
+        "261013-evaluate-markdown-path-cursor/methods/measured-harness.mts",
+        "261013-evaluate-markdown-path-cursor/methods/trace-harness.mts",
+        "261013-evaluate-markdown-path-cursor/methods/trace-probes.after.js",
+        "261013-evaluate-markdown-path-cursor/methods/trace-probes.before.js",
+        "261013-evaluate-markdown-path-cursor/methods/tsconfig.json",
+        "261013-evaluate-markdown-path-cursor/methods/typed-harness.mts",
+        "261013-evaluate-markdown-path-cursor/raw/bun-smoke-typed-helper.json",
+        "261013-evaluate-markdown-path-cursor/raw/bun-smoke.json",
+        "261013-evaluate-markdown-path-cursor/raw/frozen-identities.txt",
+        "261013-evaluate-markdown-path-cursor/raw/node-measure-end.txt",
+        "261013-evaluate-markdown-path-cursor/raw/node-measure-exit.txt",
+        "261013-evaluate-markdown-path-cursor/raw/node-measure-start.txt",
+        "261013-evaluate-markdown-path-cursor/raw/node-measure.json",
+        "261013-evaluate-markdown-path-cursor/raw/node-smoke-typed-helper.json",
+        "261013-evaluate-markdown-path-cursor/raw/node-smoke.json",
+        "261013-evaluate-markdown-path-cursor/raw/node-trace-parity.json",
+        "261013-evaluate-markdown-path-cursor/raw/production-unchanged.txt",
+        "261013-evaluate-markdown-path-cursor/raw/snapshot-differences.output.txt",
+        "261013-evaluate-markdown-path-cursor/raw/typed-helper-identities.txt",
+        "261013-evaluate-markdown-path-cursor/resource-origins.json",
+        "261013-evaluate-markdown-path-cursor/sources/after-filesystem-probes.ts",
+        "261013-evaluate-markdown-path-cursor/sources/before-filesystem-probes.ts",
+        "261013-evaluate-markdown-path-cursor/summary.json"
+      ],
+      "sourcePath": "evaluate-markdown-path-cursor.md",
+      "tags": [
+        "algorithmic-complexity",
+        "markdown-link-validation",
+        "performance",
+        "serial-io"
+      ],
+      "title": "Markdown 路径游标候选的复制成本与完整 Check 对照"
     }
   },
   "metadata": {},
@@ -2186,7 +2308,9 @@
       "261012-measure-product-performance-baseline": "sha256:b87dc559349cb9552d1a89b9d6fc782188ec54be6c9536a96f542d450f6817a2",
       "261012-profile-post-optimization-run-stages": "sha256:f4439e5a85e0e366aa599f70475fd4889aa0e24ac6377e628f031a2a6bbf46b4",
       "261012-review-product-algorithmic-complexity": "sha256:640d5bc0ede06d31f27feb63d6e7b6b08da4bfde6f1bc305ecba31fb1b0270b5",
-      "261012-verify-priority-complexity-optimizations": "sha256:d1cbc2171cbccbece597fdfc2f05dcfc0a689066e5b230fc80e48935beed30a6"
+      "261012-verify-priority-complexity-optimizations": "sha256:d1cbc2171cbccbece597fdfc2f05dcfc0a689066e5b230fc80e48935beed30a6",
+      "261013-evaluate-exact-key-membership-candidates": "sha256:4114f624580f04702349e3724c0691f8ea101267b2b7652245ff0930deff1c98",
+      "261013-evaluate-markdown-path-cursor": "sha256:d358687b9c5034d36ea805648003e01ef33a33bbcc129de084e5dd0fac99cc12"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

@@ -1,0 +1,7 @@
+b5d69864218094f8220d04f047852abedc8b3cff348ffae5d014991173143ea8  tmp/low-risk-optimization-20261013/markdown-path/measured-helper-sources/harness.mts
+b61024e63f609cc57c4a9851ae3bd83e44cbaba15dc3daa1f258dd0bf3d9e86b  tmp/low-risk-optimization-20261013/markdown-path/harness.mts
+4a0b572a765f6e2822d20f7e1fd230c650c261a78a757dca6c7719869c37fd7e  tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/dist/index.js
+fa605097eefac543fd96907415a457afcde2a12bdd119ae91a0965bcfe412192  tmp/low-risk-optimization-20261013/markdown-path/node_modules/after/dist/index.js
+a4a999b52760d4bf3e4ce559e36acd6007fc0dd77632b22016afb3322d43611e  tmp/low-risk-optimization-20261013/markdown-path/candidate.patch
+230d572216ff406361c94684a84908bf33c7b7ac913b064b8a3085532fbb0dbf  tmp/low-risk-optimization-20261013/markdown-path/raw/node-measure.json
+no-persistent-fifo-exit=0

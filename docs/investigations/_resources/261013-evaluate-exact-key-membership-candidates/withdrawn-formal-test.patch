@@ -1,0 +1,60 @@
+--- baseline/src/data-boundary/closed-values.test.ts
++++ withdrawn-draft/src/data-boundary/closed-values.test.ts
+@@ -26,0 +27,57 @@
++    for (const keyCount of [0, 1, 4, 16, 255, 256, 257]) {
++      const authored = Object.fromEntries(
++        Array.from({ length: keyCount }, (_, index) => [`region-${index}`, nested])
++      );
++      const keys = Object.keys(authored).reverse();
++      Object.defineProperty(keys, Symbol.iterator, {
++        value() {
++          throw new Error("caller key iteration must not run");
++        }
++      });
++      const snapshot = snapshotExactClosedRecord(authored, keys);
++      assert.ok(snapshot !== undefined);
++      assert.notEqual(snapshot, authored);
++      assert.deepEqual(Object.keys(snapshot), Object.keys(authored));
++      assert.equal(Object.isFrozen(snapshot), true);
++      for (const key of Object.keys(authored)) assert.equal(snapshot[key], nested);
++      if (keyCount > 0) {
++        const mismatched = keys.map((key, index) => (index === 0 ? "absent-region" : key));
++        assert.equal(snapshotExactClosedRecord(authored, mismatched), undefined);
++      }
++    }
++
++    const special = Object.fromEntries<unknown>([
++      ["__proto__", nested],
++      ["constructor", callback],
++      ["10", undefined],
++      ["2", -0]
++    ]);
++    const specialKeys = ["__proto__", "10", "constructor", "2"];
++    Object.defineProperty(specialKeys, Symbol.iterator, {
++      value() {
++        throw new Error("caller key iteration must not run");
++      }
++    });
++    const specialSnapshot = snapshotExactClosedRecord(special, specialKeys);
++    assert.ok(specialSnapshot !== undefined);
++    assert.deepEqual(specialSnapshot, special);
++    assert.equal(specialSnapshot.__proto__, nested);
++    assert.equal(specialSnapshot.constructor, callback);
++    assert.equal(Object.hasOwn(specialSnapshot, "10"), true);
++    assert.equal(specialSnapshot["10"], undefined);
++    assert.equal(Object.is(specialSnapshot["2"], -0), true);
++    assert.equal(Object.getPrototypeOf(specialSnapshot), Object.prototype);
++    assert.deepEqual(Object.keys(specialSnapshot), ["2", "10", "__proto__", "constructor"]);
++    assert.deepEqual(Object.getOwnPropertyNames(specialKeys), ["0", "1", "2", "3", "length"]);
++    assert.deepEqual(specialKeys.slice(), ["__proto__", "10", "constructor", "2"]);
++
++    assert.equal(
++      snapshotExactClosedRecord({ first: true, second: true }, ["first", "first"]),
++      undefined
++    );
++    assert.equal(snapshotExactClosedRecord({ [Symbol("hidden")]: true }, []), undefined);
++    assert.equal(
++      snapshotExactClosedRecord(Object.defineProperty({}, "hidden", { value: true }), ["hidden"]),
++      undefined
++    );
++

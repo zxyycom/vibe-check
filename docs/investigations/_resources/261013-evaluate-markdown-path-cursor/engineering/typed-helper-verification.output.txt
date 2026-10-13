@@ -1,0 +1,31 @@
+stdin-format-roundtrip-exit=0
+strict-tsgo-exit=0
+harness-syntax-exit=0
+{
+  "mode": "smoke",
+  "summary": [
+    {
+      "workload": "shallow",
+      "semanticParity": true
+    },
+    {
+      "workload": "bounded-deep",
+      "semanticParity": true
+    }
+  ]
+}
+node-public-smoke-exit=0
+{
+  "mode": "smoke",
+  "summary": [
+    {
+      "workload": "shallow",
+      "semanticParity": true
+    },
+    {
+      "workload": "bounded-deep",
+      "semanticParity": true
+    }
+  ]
+}
+bun-public-smoke-exit=0

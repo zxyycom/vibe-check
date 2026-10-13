@@ -1,0 +1,300 @@
+{
+  "auditAt": "2026-10-13T03:22:36.682Z",
+  "noMeasurementOrFixtureMutation": true,
+  "bundlesVerifiedFromOriginalExperiment": true,
+  "hashes": {
+    "methods/measured-harness.mts": "b5d69864218094f8220d04f047852abedc8b3cff348ffae5d014991173143ea8",
+    "methods/typed-harness.mts": "b61024e63f609cc57c4a9851ae3bd83e44cbaba15dc3daa1f258dd0bf3d9e86b",
+    "methods/trace-harness.mts": "6a7942fef558d5c473de83c1a2d509780f663b198f97eeb23ba8e272d4b077c0",
+    "methods/io-trace.mts": "a1f0db30d3a42665274b127621f100fddd6f4742328b38a23181a1666e1d9633",
+    "candidate.patch": "65b8549320059b57daa4b2e140b4477bc5f2a92766eb5648ba363612c980b419",
+    "raw/node-measure.json": "230d572216ff406361c94684a84908bf33c7b7ac913b064b8a3085532fbb0dbf",
+    "sources/before-filesystem-probes.ts": "91cb7e29cec852ed335e0b995643eaaf7c0e037c58b9ab871ffc0cc84f9334d9",
+    "node_modules/before/dist/index.js": "4a0b572a765f6e2822d20f7e1fd230c650c261a78a757dca6c7719869c37fd7e",
+    "sources/after-filesystem-probes.ts": "bd0ac153f62c3d4ddd0fb9deb679fde25aa7f981c05ebc6f520be95485b054fb",
+    "node_modules/after/dist/index.js": "fa605097eefac543fd96907415a457afcde2a12bdd119ae91a0965bcfe412192",
+    "originalCandidatePatch": "a4a999b52760d4bf3e4ce559e36acd6007fc0dd77632b22016afb3322d43611e"
+  },
+  "recomputed": [
+    {
+      "workload": "shallow",
+      "beforeMedian": 173.950374,
+      "afterMedian": 176.83225550000134,
+      "changePercent": 1.6567262453838216,
+      "beforeMad": 6.10856000000058,
+      "afterMad": 8.535113500000534,
+      "beforeRange": [
+        164.5993750000007,
+        295.74667899999986
+      ],
+      "afterRange": [
+        155.1550470000002,
+        282.7662109999983
+      ],
+      "pairedChangesPercent": [
+        -6.767314831578764,
+        0.1486106994281533,
+        6.3322786006928755,
+        23.568644948805904,
+        14.72861596183579,
+        2.8283065204004254,
+        2.658979545790374,
+        -1.8409369640268625,
+        -1.8800684349070451,
+        -38.349731054799875,
+        -0.5650150402318421,
+        2.030746164992503
+      ],
+      "pairedMedianChangePercent": 1.0896784322103281,
+      "pairsFaster": 5,
+      "pairsSlower": 7,
+      "beforeP95": 295.74667899999986,
+      "afterP95": 282.7662109999983
+    },
+    {
+      "workload": "bounded-deep",
+      "beforeMedian": 1082.0705329999982,
+      "afterMedian": 1115.9484749999992,
+      "changePercent": 3.130844151727863,
+      "beforeMad": 17.61728750000111,
+      "afterMad": 49.663356499999736,
+      "beforeRange": [
+        1034.3354800000016,
+        1100.4583109999985
+      ],
+      "afterRange": [
+        1035.7606670000005,
+        1288.0466560000023
+      ],
+      "pairedChangesPercent": [
+        0.3197126983954135,
+        9.650486242007439,
+        -2.3163382099895546,
+        -4.644289716047567,
+        15.597957400489793,
+        8.003035334454633,
+        7.7422532183503145,
+        5.437585803354139,
+        7.465487104008206,
+        24.528905843972424,
+        -1.5653809965938015,
+        1.3730550298819422
+      ],
+      "pairedMedianChangePercent": 6.451536453681173,
+      "pairsFaster": 3,
+      "pairsSlower": 9,
+      "beforeP95": 1100.4583109999985,
+      "afterP95": 1288.0466560000023
+    }
+  ],
+  "traces": [
+    {
+      "name": "root",
+      "result": {
+        "kind": "contained",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root"
+      },
+      "eventCount": 0,
+      "peak": 0
+    },
+    {
+      "name": "ordinary-file",
+      "result": {
+        "kind": "contained",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+        "endpoint": {
+          "kind": "file"
+        }
+      },
+      "eventCount": 6,
+      "peak": 1
+    },
+    {
+      "name": "depth-128",
+      "result": {
+        "kind": "contained",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/deep.md",
+        "endpoint": {
+          "kind": "file"
+        }
+      },
+      "eventCount": 256,
+      "peak": 1
+    },
+    {
+      "name": "directory",
+      "result": {
+        "kind": "contained",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+        "endpoint": {
+          "kind": "directory"
+        }
+      },
+      "eventCount": 4,
+      "peak": 1
+    },
+    {
+      "name": "unsupported-fifo",
+      "result": {
+        "kind": "contained",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/pipe",
+        "endpoint": {
+          "kind": "unsupported"
+        }
+      },
+      "eventCount": 2,
+      "peak": 1
+    },
+    {
+      "name": "missing-leaf",
+      "result": {
+        "kind": "missing",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/missing.md"
+      },
+      "eventCount": 6,
+      "peak": 1
+    },
+    {
+      "name": "missing-parent",
+      "result": {
+        "kind": "missing",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/missing"
+      },
+      "eventCount": 4,
+      "peak": 1
+    },
+    {
+      "name": "enotdir",
+      "result": {
+        "kind": "unavailable"
+      },
+      "eventCount": 8,
+      "peak": 1
+    },
+    {
+      "name": "lexical-outside",
+      "result": {
+        "kind": "outside"
+      },
+      "eventCount": 0,
+      "peak": 0
+    },
+    {
+      "name": "symlink-remaining",
+      "result": {
+        "kind": "contained",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+        "endpoint": {
+          "kind": "file"
+        }
+      },
+      "eventCount": 10,
+      "peak": 1
+    },
+    {
+      "name": "symlink-root-reset",
+      "result": {
+        "kind": "contained",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+        "endpoint": {
+          "kind": "file"
+        }
+      },
+      "eventCount": 10,
+      "peak": 1
+    },
+    {
+      "name": "symlink-external",
+      "result": {
+        "kind": "outside"
+      },
+      "eventCount": 4,
+      "peak": 1
+    },
+    {
+      "name": "symlink-loop",
+      "result": {
+        "kind": "unavailable"
+      },
+      "eventCount": 162,
+      "peak": 1
+    },
+    {
+      "name": "exact-40-hops",
+      "result": {
+        "kind": "contained",
+        "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+        "endpoint": {
+          "kind": "file"
+        }
+      },
+      "eventCount": 166,
+      "peak": 1
+    },
+    {
+      "name": "exceeds-40-hops",
+      "result": {
+        "kind": "unavailable"
+      },
+      "eventCount": 162,
+      "peak": 1
+    },
+    {
+      "name": "lstat-failure",
+      "result": {
+        "kind": "unavailable"
+      },
+      "eventCount": 4,
+      "peak": 1
+    },
+    {
+      "name": "readlink-failure",
+      "result": {
+        "kind": "unavailable"
+      },
+      "eventCount": 4,
+      "peak": 1
+    },
+    {
+      "name": "exact-cap",
+      "result": {
+        "ok": true,
+        "bytes": {
+          "0": 35,
+          "1": 32,
+          "2": 65,
+          "3": 10
+        }
+      },
+      "eventCount": 10,
+      "peak": 1
+    },
+    {
+      "name": "over-cap",
+      "result": {
+        "ok": false,
+        "reason": "too-large"
+      },
+      "eventCount": 6,
+      "peak": 1
+    },
+    {
+      "name": "no-follow-symlink",
+      "result": {
+        "ok": false,
+        "reason": "unavailable"
+      },
+      "eventCount": 2,
+      "peak": 1
+    },
+    {
+      "name": "nonregular-directory",
+      "result": {
+        "ok": false,
+        "reason": "unavailable"
+      },
+      "eventCount": 6,
+      "peak": 1
+    }
+  ]
+}

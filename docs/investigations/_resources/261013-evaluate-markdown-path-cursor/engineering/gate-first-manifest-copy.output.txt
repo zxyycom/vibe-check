@@ -1,0 +1,39 @@
+status=failed
+stdout:
+bun test v1.3.14 (0d9b296a)
+
+stderr:
+......................
+
+scripts/package/artifact/manifest.test.ts:
+92 |     return onFile(srcStat, destStat, src, dest, opts);
+93 |   else if (srcStat.isSymbolicLink())
+94 |     return onLink(destStat, src, dest, opts);
+95 |   else if (srcStat.isSocket())
+96 |     throw Error(`cannot copy a socket file: ${dest}`);
+97 |     throw Error(`cannot copy a FIFO pipe: ${dest}`);
+                    ^
+error: cannot copy a FIFO pipe: /tmp/vibe-check-package-fingerprint-EXDxDb/repository/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/pipe
+      at getStats (internal:fs/cp-sync:97:16)
+      at copyDir (internal:fs/cp-sync:146:15)
+      at mkDirAndCopy (internal:fs/cp-sync:140:34)
+      at copyDir (internal:fs/cp-sync:146:15)
+      at mkDirAndCopy (internal:fs/cp-sync:140:34)
+      at copyDir (internal:fs/cp-sync:146:15)
+      at mkDirAndCopy (internal:fs/cp-sync:140:34)
+      at copyDir (internal:fs/cp-sync:146:15)
+      at mkDirAndCopy (internal:fs/cp-sync:140:34)
+      at copyDir (internal:fs/cp-sync:146:15)
+      at mkDirAndCopy (internal:fs/cp-sync:140:34)
+      at copyDir (internal:fs/cp-sync:146:15)
+      at mkDirAndCopy (internal:fs/cp-sync:140:34)
+      at copyDir (internal:fs/cp-sync:146:15)
+      at mkDirAndCopy (internal:fs/cp-sync:140:34)
+      at <anonymous> (/workspace/vibe-check/scripts/package/artifact/manifest.test.ts:81:5)
+      at fn (node:test:215:18)
+(fail) release manifest bytes invalidate the candidate fingerprint [445.12ms]
+......
+
+28 pass
+1 fail
+Ran 29 tests across 17 files. [2.14s]

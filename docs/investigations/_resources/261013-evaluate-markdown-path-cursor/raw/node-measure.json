@@ -1,0 +1,442 @@
+{
+  "formedAt": "2026-10-13T02:41:39.478Z",
+  "command": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node /workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/harness.mts measure",
+  "mode": "measure",
+  "runtime": {
+    "node": "24.18.0",
+    "acorn": "8.16.0",
+    "ada": "3.4.4",
+    "amaro": "1.1.9",
+    "ares": "1.34.6",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.3",
+    "llhttp": "9.4.2",
+    "merve": "1.2.2",
+    "modules": "137",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.69.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "3.5.7",
+    "simdjson": "4.6.4",
+    "simdutf": "6.4.0",
+    "sqlite": "3.53.1",
+    "tz": "2026b",
+    "undici": "7.28.0",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "13.6.233.17-node.50",
+    "zlib": "1.3.1-e00f703",
+    "zstd": "1.5.7"
+  },
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+  "cpuCount": 6,
+  "frozenHead": "bedcfc6b",
+  "identities": [
+    {
+      "variant": "before",
+      "sourceSha256": "91cb7e29cec852ed335e0b995643eaaf7c0e037c58b9ab871ffc0cc84f9334d9",
+      "bundleSha256": "4a0b572a765f6e2822d20f7e1fd230c650c261a78a757dca6c7719869c37fd7e"
+    },
+    {
+      "variant": "after",
+      "sourceSha256": "bd0ac153f62c3d4ddd0fb9deb679fde25aa7f981c05ebc6f520be95485b054fb",
+      "bundleSha256": "fa605097eefac543fd96907415a457afcde2a12bdd119ae91a0965bcfe412192"
+    }
+  ],
+  "protocol": "Public defineConfig + markdownLinkValidation + run; imports/definition outside envelope; warm OS cache, application cache disabled; 1 warmup each; 12 paired AB/BA rounds; serial run IO; no filesystem instrumentation during timings",
+  "workloads": [
+    {
+      "name": "shallow",
+      "root": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/shallow",
+      "depth": 3,
+      "sourceCount": 120,
+      "relativeDirectory": "d/d",
+      "sourceBytes": 37,
+      "absoluteTargetBytes": 101
+    },
+    {
+      "name": "bounded-deep",
+      "root": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/bounded-deep",
+      "depth": 128,
+      "sourceCount": 40,
+      "relativeDirectory": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+      "sourceBytes": 37,
+      "absoluteTargetBytes": 356
+    }
+  ],
+  "copySlots": [
+    {
+      "name": "shallow",
+      "depth": 3,
+      "beforeRemainingArraySlots": 3,
+      "afterRemainingArraySlots": 0
+    },
+    {
+      "name": "bounded-deep",
+      "depth": 128,
+      "beforeRemainingArraySlots": 8128,
+      "afterRemainingArraySlots": 0
+    }
+  ],
+  "samples": [
+    {
+      "workload": "shallow",
+      "pair": 0,
+      "variant": "before",
+      "milliseconds": 166.41701000000012
+    },
+    {
+      "workload": "shallow",
+      "pair": 0,
+      "variant": "after",
+      "milliseconds": 155.1550470000002
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 0,
+      "variant": "before",
+      "milliseconds": 1088.0033910000002
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 0,
+      "variant": "after",
+      "milliseconds": 1091.4818759999998
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 1,
+      "variant": "after",
+      "milliseconds": 1165.067011
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 1,
+      "variant": "before",
+      "milliseconds": 1062.5279019999998
+    },
+    {
+      "workload": "shallow",
+      "pair": 1,
+      "variant": "after",
+      "milliseconds": 168.46196099999997
+    },
+    {
+      "workload": "shallow",
+      "pair": 1,
+      "variant": "before",
+      "milliseconds": 168.21198000000004
+    },
+    {
+      "workload": "shallow",
+      "pair": 2,
+      "variant": "before",
+      "milliseconds": 164.5993750000007
+    },
+    {
+      "workload": "shallow",
+      "pair": 2,
+      "variant": "after",
+      "milliseconds": 175.02226599999995
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 2,
+      "variant": "before",
+      "milliseconds": 1063.047654
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 2,
+      "variant": "after",
+      "milliseconds": 1038.4238750000004
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 3,
+      "variant": "after",
+      "milliseconds": 1035.7606670000005
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 3,
+      "variant": "before",
+      "milliseconds": 1086.2072800000005
+    },
+    {
+      "workload": "shallow",
+      "pair": 3,
+      "variant": "after",
+      "milliseconds": 218.61006199999974
+    },
+    {
+      "workload": "shallow",
+      "pair": 3,
+      "variant": "before",
+      "milliseconds": 176.91386199999943
+    },
+    {
+      "workload": "shallow",
+      "pair": 4,
+      "variant": "before",
+      "milliseconds": 184.40629500000068
+    },
+    {
+      "workload": "shallow",
+      "pair": 4,
+      "variant": "after",
+      "milliseconds": 211.56679000000076
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 4,
+      "variant": "before",
+      "milliseconds": 1098.9173300000002
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 4,
+      "variant": "after",
+      "milliseconds": 1270.3259870000002
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 5,
+      "variant": "after",
+      "milliseconds": 1127.7960759999987
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 5,
+      "variant": "before",
+      "milliseconds": 1044.2262779999983
+    },
+    {
+      "workload": "shallow",
+      "pair": 5,
+      "variant": "after",
+      "milliseconds": 185.53218800000104
+    },
+    {
+      "workload": "shallow",
+      "pair": 5,
+      "variant": "before",
+      "milliseconds": 180.4291000000012
+    },
+    {
+      "workload": "shallow",
+      "pair": 6,
+      "variant": "before",
+      "milliseconds": 174.01521599999978
+    },
+    {
+      "workload": "shallow",
+      "pair": 6,
+      "variant": "after",
+      "milliseconds": 178.64224500000273
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 6,
+      "variant": "before",
+      "milliseconds": 1100.4583109999985
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 6,
+      "variant": "after",
+      "milliseconds": 1185.6585799999993
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 7,
+      "variant": "after",
+      "milliseconds": 1092.7385939999986
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 7,
+      "variant": "before",
+      "milliseconds": 1036.3843080000006
+    },
+    {
+      "workload": "shallow",
+      "pair": 7,
+      "variant": "after",
+      "milliseconds": 166.63996599999882
+    },
+    {
+      "workload": "shallow",
+      "pair": 7,
+      "variant": "before",
+      "milliseconds": 169.76523699999962
+    },
+    {
+      "workload": "shallow",
+      "pair": 8,
+      "variant": "before",
+      "milliseconds": 173.88553200000024
+    },
+    {
+      "workload": "shallow",
+      "pair": 8,
+      "variant": "after",
+      "milliseconds": 170.61636499999804
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 8,
+      "variant": "before",
+      "milliseconds": 1081.452567999997
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 8,
+      "variant": "after",
+      "milliseconds": 1162.1882700000024
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 9,
+      "variant": "after",
+      "milliseconds": 1288.0466560000023
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 9,
+      "variant": "before",
+      "milliseconds": 1034.3354800000016
+    },
+    {
+      "workload": "shallow",
+      "pair": 9,
+      "variant": "after",
+      "milliseconds": 182.3286229999976
+    },
+    {
+      "workload": "shallow",
+      "pair": 9,
+      "variant": "before",
+      "milliseconds": 295.74667899999986
+    },
+    {
+      "workload": "shallow",
+      "pair": 10,
+      "variant": "before",
+      "milliseconds": 284.37296100000094
+    },
+    {
+      "workload": "shallow",
+      "pair": 10,
+      "variant": "after",
+      "milliseconds": 282.7662109999983
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 10,
+      "variant": "before",
+      "milliseconds": 1082.6884979999995
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 10,
+      "variant": "after",
+      "milliseconds": 1065.7402980000006
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 11,
+      "variant": "after",
+      "milliseconds": 1104.1008739999997
+    },
+    {
+      "workload": "bounded-deep",
+      "pair": 11,
+      "variant": "before",
+      "milliseconds": 1089.146295999999
+    },
+    {
+      "workload": "shallow",
+      "pair": 11,
+      "variant": "after",
+      "milliseconds": 174.1349459999983
+    },
+    {
+      "workload": "shallow",
+      "pair": 11,
+      "variant": "before",
+      "milliseconds": 170.66908999999578
+    }
+  ],
+  "summary": [
+    {
+      "workload": "shallow",
+      "semanticParity": true,
+      "beforeMedian": 173.950374,
+      "afterMedian": 176.83225550000134,
+      "changePercent": 1.6567262453838216,
+      "beforeMad": 6.10856000000058,
+      "afterMad": 8.535113500000534,
+      "beforeRange": [
+        164.5993750000007,
+        295.74667899999986
+      ],
+      "afterRange": [
+        155.1550470000002,
+        282.7662109999983
+      ],
+      "pairedChangesPercent": [
+        -6.767314831578764,
+        0.1486106994281533,
+        6.3322786006928755,
+        23.568644948805904,
+        14.72861596183579,
+        2.8283065204004254,
+        2.658979545790374,
+        -1.8409369640268625,
+        -1.8800684349070451,
+        -38.349731054799875,
+        -0.5650150402318421,
+        2.030746164992503
+      ]
+    },
+    {
+      "workload": "bounded-deep",
+      "semanticParity": true,
+      "beforeMedian": 1082.0705329999982,
+      "afterMedian": 1115.9484749999992,
+      "changePercent": 3.130844151727863,
+      "beforeMad": 17.61728750000111,
+      "afterMad": 49.663356499999736,
+      "beforeRange": [
+        1034.3354800000016,
+        1100.4583109999985
+      ],
+      "afterRange": [
+        1035.7606670000005,
+        1288.0466560000023
+      ],
+      "pairedChangesPercent": [
+        0.3197126983954135,
+        9.650486242007439,
+        -2.3163382099895546,
+        -4.644289716047567,
+        15.597957400489793,
+        8.003035334454633,
+        7.7422532183503145,
+        5.437585803354139,
+        7.465487104008206,
+        24.528905843972424,
+        -1.5653809965938015,
+        1.3730550298819422
+      ]
+    }
+  ]
+}

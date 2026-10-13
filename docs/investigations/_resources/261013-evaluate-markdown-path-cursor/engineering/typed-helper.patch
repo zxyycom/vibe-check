@@ -1,0 +1,12 @@
+--- measured-harness.mts
++++ typed-harness.mts
+@@ -156,0 +157 @@
++const identityVariants: readonly Variant[] = ["before", "after"];
+@@ -158 +159 @@
+-  (Object.keys(variants) as Variant[]).map(async (variant) => ({
++  identityVariants.map(async (variant) => ({
+@@ -199,0 +201 @@
++const verificationSuffix = mode === "smoke" ? "-typed-helper" : "";
+@@ -204 +206 @@
+-    `${process.versions.bun === undefined ? "node" : "bun"}-${mode}.json`
++    `${process.versions.bun === undefined ? "node" : "bun"}-${mode}${verificationSuffix}.json`

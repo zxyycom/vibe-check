@@ -1,0 +1,13 @@
+exact-keys/harness.ts:44:9: error typescript(no-unsafe-assignment): Unsafe assignment of an any value.
+exact-keys/final/harness.ts:48:11: error typescript(no-unsafe-assignment): Unsafe assignment of an any value.
+exact-keys/prefix/harness.ts:64:11: error typescript(no-unsafe-assignment): Unsafe assignment of an any value.
+exact-keys/final/harness.ts:75:9: error typescript(no-unsafe-assignment): Unsafe assignment of an any value.
+exact-keys/harness.ts:63:9: error typescript(no-unsafe-assignment): Unsafe assignment of an any value.
+exact-keys/prefix/harness.ts:106:9: error typescript(no-unsafe-assignment): Unsafe assignment of an any value.
+exact-keys/threshold/harness.ts:54:11: error typescript(no-unsafe-assignment): Unsafe assignment of an any value.
+exact-keys/threshold/harness.ts:81:9: error typescript(no-unsafe-assignment): Unsafe assignment of an any value.
+markdown-path/harness.mts:158:4: error typescript(no-unsafe-type-assertion): Unsafe type assertion: type '("after" | "before")[]' is more narrow than the original type.
+
+
+exit=1
+signal=null

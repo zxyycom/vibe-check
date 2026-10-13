@@ -362,7 +362,8 @@
       "261010-provide-readonly-file-region-index": "sha256:2376fadd31010db1a71bf32463fbc343c32af553510457c8948cae08d33127f0",
       "261010-unify-file-selection-with-default-excludes": "sha256:b864debed85b047c249b2ef3867c41a99b648526a8c8c8d222015d8509b3b6e2",
       "261011-align-nullish-coalescing-with-short-circuit-function-metrics": "sha256:cf106af43518a331361eda94c81f038d4e85e910c4443c8973a3d863ee2ec5a7",
-      "261012-bound-unclosable-tokenizer-tail-cost": "sha256:7c0d37be8708827791a0b3728bcd290dd8236d3a79102e94391f64ace81f2da6"
+      "261012-bound-unclosable-tokenizer-tail-cost": "sha256:7c0d37be8708827791a0b3728bcd290dd8236d3a79102e94391f64ace81f2da6",
+      "261013-weigh-performance-costs-against-scaling-benefits": "sha256:f683acd59be9bff15ce789368bcf39f642945069f7d29267ce03ef5ba612dfbb"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7513,6 +7514,23 @@
         "algorithmic-complexity",
         "performance",
         "source-alignment"
+      ],
+      "relations": []
+    },
+    "261013-weigh-performance-costs-against-scaling-benefits": {
+      "name": "weigh-performance-costs-against-scaling-benefits",
+      "sourcePath": "weigh-performance-costs-against-scaling-benefits.md",
+      "title": "按规模收益与实际代价权衡性能优化",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-13T03:43:34Z",
+      "purpose": "允许以可接受的局部开销换取规模增长收益，并保持取舍依据可复核",
+      "background": "小输入回退曾被直接用于否决低复杂度候选，用户明确要求综合判断收益与代价",
+      "decision": "结合绝对成本、规模趋势与维护风险决定采用，不要求每种规模都更快",
+      "tags": [
+        "algorithmic-complexity",
+        "performance",
+        "workflow-policy"
       ],
       "relations": []
     }

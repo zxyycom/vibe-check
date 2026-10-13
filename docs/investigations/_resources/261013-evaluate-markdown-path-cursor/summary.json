@@ -1,0 +1,106 @@
+{
+  "recommendation": "not worth: do not adopt current candidate",
+  "summary": [
+    {
+      "workload": "shallow",
+      "semanticParity": true,
+      "beforeMedian": 173.950374,
+      "afterMedian": 176.83225550000134,
+      "changePercent": 1.6567262453838216,
+      "beforeMad": 6.10856000000058,
+      "afterMad": 8.535113500000534,
+      "beforeRange": [
+        164.5993750000007,
+        295.74667899999986
+      ],
+      "afterRange": [
+        155.1550470000002,
+        282.7662109999983
+      ],
+      "pairedChangesPercent": [
+        -6.767314831578764,
+        0.1486106994281533,
+        6.3322786006928755,
+        23.568644948805904,
+        14.72861596183579,
+        2.8283065204004254,
+        2.658979545790374,
+        -1.8409369640268625,
+        -1.8800684349070451,
+        -38.349731054799875,
+        -0.5650150402318421,
+        2.030746164992503
+      ],
+      "pairedMedianChangePercent": 1.0896784322103281,
+      "pairsFaster": 5,
+      "pairsSlower": 7,
+      "beforeP95": 295.74667899999986,
+      "afterP95": 282.7662109999983
+    },
+    {
+      "workload": "bounded-deep",
+      "semanticParity": true,
+      "beforeMedian": 1082.0705329999982,
+      "afterMedian": 1115.9484749999992,
+      "changePercent": 3.130844151727863,
+      "beforeMad": 17.61728750000111,
+      "afterMad": 49.663356499999736,
+      "beforeRange": [
+        1034.3354800000016,
+        1100.4583109999985
+      ],
+      "afterRange": [
+        1035.7606670000005,
+        1288.0466560000023
+      ],
+      "pairedChangesPercent": [
+        0.3197126983954135,
+        9.650486242007439,
+        -2.3163382099895546,
+        -4.644289716047567,
+        15.597957400489793,
+        8.003035334454633,
+        7.7422532183503145,
+        5.437585803354139,
+        7.465487104008206,
+        24.528905843972424,
+        -1.5653809965938015,
+        1.3730550298819422
+      ],
+      "pairedMedianChangePercent": 6.451536453681173,
+      "pairsFaster": 3,
+      "pairsSlower": 9,
+      "beforeP95": 1100.4583109999985,
+      "afterP95": 1288.0466560000023
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "shallow",
+      "depth": 3,
+      "sourceCount": 120,
+      "sourceBytes": 37,
+      "absoluteTargetBytes": 101,
+      "sourceSha256": "ab90918c0aea391ec4dc324ce53d6d2d4e48670a401df8b2316a9df50bb1e6de",
+      "targetSha256": "a400399bd5f0dd9da434e5d4be7d428d79c3c46c634503bcfa3f114931bb6cb5"
+    },
+    {
+      "name": "bounded-deep",
+      "depth": 128,
+      "sourceCount": 40,
+      "sourceBytes": 37,
+      "absoluteTargetBytes": 356,
+      "sourceSha256": "ab90918c0aea391ec4dc324ce53d6d2d4e48670a401df8b2316a9df50bb1e6de",
+      "targetSha256": "a400399bd5f0dd9da434e5d4be7d428d79c3c46c634503bcfa3f114931bb6cb5"
+    }
+  ],
+  "runtime": {
+    "node": "24.18.0",
+    "bunCompiler": "1.3.14",
+    "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "cpuCount": 6,
+    "platform": "linux",
+    "architecture": "x64"
+  },
+  "rawSha256": "230d572216ff406361c94684a84908bf33c7b7ac913b064b8a3085532fbb0dbf"
+}

@@ -1,0 +1,63 @@
+bun test v1.3.14 (0d9b296a)
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/default-check.test.ts:
+(pass) default Check direct callbacks > materializes bounded Markdown Link defaults and rejects malformed resolved options [12.84ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/local-resolver.test.ts:
+(pass) Markdown local resolver > reads only root-contained sources and returns their Link parser facts [23.01ms]
+(pass) Markdown local resolver > gates lexical and symlink escapes before external work and accepts only strict file URIs [8.63ms]
+(pass) Markdown local resolver > allows explicit validate mode and enforces the per-invocation direct target limit [10.64ms]
+(pass) Markdown local resolver > memoizes successful canonical Markdown targets without changing logical target limits [19.87ms]
+(pass) Markdown local resolver > does not retain an unavailable Markdown target parse for a later occurrence [11.16ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/markdown-parser.test.ts:
+(pass) Markdown link parser > collects GFM inline, image, reference, and autolink occurrences [10.08ms]
+(pass) Markdown link parser > generates fresh GitHub-compatible slugs for ATX and Setext headings [3.34ms]
+(pass) Markdown link parser > reports decoded UTF-16 source ranges with 1-based, end-exclusive positions [0.79ms]
+(pass) Markdown link parser > returns immutable facts and a controlled failure for malformed decoded text [0.95ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/parse-facts-cache.test.ts:
+(pass) Markdown Link parse-facts cache > restores only closed immutable parser facts [4.08ms]
+(pass) Markdown Link parse-facts cache > invalidates entries written for a different parser-contract version [7.03ms]
+(pass) Markdown Link parse-facts cache > awaits the append once publication has started despite later cancellation [3.11ms]
+(pass) Markdown Link parse-facts cache > ignores malformed, unknown, and unterminated lines while last valid identity wins [4.91ms]
+(pass) Markdown Link parse-facts cache > rejects cached facts when the exact source bytes are not valid UTF-8 [4.20ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/execution-outcomes.test.ts:
+(pass) default Check direct callbacks > reports safe Markdown Link findings only after a complete traversal [22.45ms]
+(pass) default Check direct callbacks > reports a root-external target without persisting its path, fragment, or query [6.50ms]
+(pass) default Check direct callbacks > validates a direct Markdown target outside source scope without scanning its links [12.85ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/cache-behavior.test.ts:
+(pass) default Check direct callbacks > uses an explicit parse-facts cache only as best-effort state [30.31ms]
+(pass) default Check direct callbacks > invalidates source and direct-target parse facts by exact content bytes [29.68ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/input-rejection.test.ts:
+(pass) Markdown Link input rejection > is not applicable only when its file selection selects no path [3.32ms]
+(pass) Markdown Link input rejection > reports every selected non-Markdown path without making blocking policy fail [8.53ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/local-resolver.endpoints.test.ts:
+(pass) Markdown local resolver > resolves direct local files, directories, and same or cross-document anchors [19.11ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts:
+(pass) default Check direct callbacks > returns unavailable without publishing an earlier Markdown Link finding [11.69ms]
+(pass) default Check direct callbacks > returns unavailable without publishing an earlier finding when target work reaches its limit [8.27ms]
+(pass) default Check direct callbacks > returns unavailable when project root cannot be canonicalized before source discovery [9.84ms]
+(pass) default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled [2.41ms]
+(pass) default Check direct callbacks > does not start parse-facts publication after cancellation without reporting stale findings [9.52ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-lint/default-check.test.ts:
+(pass) Markdown lint Check > materializes the closed recommended policy and rejects malformed authoring [1.59ms]
+(pass) Markdown lint Check > publishes Product-owned findings only after a complete bounded traversal [27.03ms]
+(pass) Markdown lint Check > settles zero input, rejected input, limits, and cancellation without partial lint publication [11.02ms]
+(pass) Markdown lint Check > reports MD052 reference forms through the public single-rule Check [10.59ms]
+
+tmp/low-risk-optimization-20261013/markdown-path/node_modules/before/src/package-checks/markdown-lint/findings-cache.test.ts:
+(pass) Markdown lint findings cache > preserves complete Check results on cold and warm traversal [29.03ms]
+(pass) Markdown lint findings cache > keys per-file findings by source content and selected rules [7.87ms]
+(pass) Markdown lint findings cache > reconciles current waiver changes and raw finding limits after cache hits [46.33ms]
+(pass) Markdown lint findings cache > recomputes invalid or unwritable cache entries and respects cancellation [11.73ms]
+
+ 36 pass
+ 0 fail
+Ran 36 tests across 11 files. [645.00ms]

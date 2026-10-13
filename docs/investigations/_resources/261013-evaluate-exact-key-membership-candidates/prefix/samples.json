@@ -1,0 +1,4913 @@
+{
+  "protocol": "exact-public-snapshot-ab-ba-v1",
+  "startedAt": "2026-10-13T02:44:30.887Z",
+  "finishedAt": "2026-10-13T02:45:31.713Z",
+  "runtime": "v24.18.0",
+  "compiledBy": "Bun 1.3.14",
+  "warmupRule": "K<=16:20000;else:500 per variant per workload",
+  "platform": "linux",
+  "architecture": "x64",
+  "sourceSha256": {
+    "harness": "5a26eeb4e6ffba574548db8f4093903f8fb8a7d5b563e067f09173e3b8c6304d",
+    "before": "289d49d3fc3b9faf7ddb0147fae920bb8e1fa6a709f8be728020d78dd7fc9c11",
+    "candidate": "6c59820936676ce89ed3cce53d871968fd368f0cb77595e82484b16b5d60f693"
+  },
+  "samples": [
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 32.189053999999985
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 29.911223000000007
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 29.64379600000001
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 31.164271000000014
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 28.65779599999999
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 29.208522000000016
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 28.38129299999997
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 28.795251000000007
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.214260999999965
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 28.965978000000007
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.214797000000033
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 29.056475999999975
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.09195500000004
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 29.16641500000003
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 28.14076799999998
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 28.657014999999888
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.81528400000002
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.53012799999999
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.95684700000004
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 47.849272999999926
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.05621499999995
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.540751
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.093526999999995
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.60939599999995
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.631440999999995
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.97318700000005
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.20578999999998
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.045473999999786
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.65615200000002
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.65499599999998
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.13362099999995
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.422236999999996
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.78119200000015
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.72542700000008
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.78309600000011
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 63.53164400000014
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.00459999999998
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.55536800000004
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 63.49888099999998
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.38692100000003
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.34126700000002
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.57392500000014
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.61684600000035
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.26396199999999
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.02602400000023
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 63.64656500000001
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.89232100000027
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.29033900000013
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 63.27710100000013
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 81.34488400000009
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 80.87854400000015
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 63.07469400000036
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.52219400000013
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 81.28423500000008
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 81.7278510000001
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 63.89603699999998
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.49221299999999
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 82.23511000000008
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 84.17469100000017
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.27295999999978
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.50426299999981
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 83.35707300000013
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 81.7801059999997
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 63.82417899999973
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 63.65907100000004
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 80.92442200000005
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 82.51829000000043
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 68.43109200000026
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.61394400000017
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 81.92612400000007
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 81.25221500000043
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.3773940000001
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.91704599999957
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 87.26567900000009
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 82.40748600000006
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.18407299999944
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.04354899999998
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 82.34264400000029
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 82.23532799999975
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.34006800000043
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.08285199999955
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.74703700000009
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.10252299999956
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.30899399999998
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.187903
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 99.56639799999994
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.55794999999944
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.09589999999935
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.1963969999997
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.67279700000017
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 96.12438100000054
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.30724800000007
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.08539199999996
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.54437899999994
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.34724199999982
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 96.70425100000011
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 96.55910399999993
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.2737189999998
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 112.88560299999972
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.46697300000051
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.36174699999992
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 115.04250000000047
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 112.29789700000038
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.13658300000043
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.15743700000075
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 122.61799200000041
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 119.58440999999948
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 98.11506300000019
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.47927499999969
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 115.17824500000006
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 115.87547300000006
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.79678700000022
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.89789599999858
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 128.0983500000002
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 129.2547369999993
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.95836299999974
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 102.27368600000045
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 118.27021499999864
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 118.35856899999999
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.78758799999923
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.74704999999994
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 121.61732399999892
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 118.77388699999938
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 97.14196700000139
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 98.33336799999961
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.71539800000028
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.22959600000104
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.89031900000009
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.12173999999868
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 95.7172810000011
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 91.16740199999913
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.93369200000052
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 95.49030700000003
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 91.95718100000158
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.37738700000045
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.55761800000073
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.74027500000011
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.98858199999995
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.6444960000008
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.95475400000032
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.34899200000109
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.4845750000004
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.58020299999953
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 94.14291200000116
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.05033999999978
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 107.9561219999996
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 109.33178200000111
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 91.85354000000007
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.83612500000163
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 108.91191100000106
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 106.96451999999954
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 95.23744299999998
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.0251070000013
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 108.96706300000005
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 108.43248800000038
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.0310040000004
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.8958709999988
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 106.63113800000065
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 110.22828599999957
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 94.10554500000035
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 100.1242029999994
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 116.92849399999977
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 122.32718300000124
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 94.29862599999979
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 95.54479100000026
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 106.05813400000079
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 107.38535300000149
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.12357999999949
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 94.90704200000073
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 112.64155699999901
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 108.02295100000083
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.0678650000009
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.59529400000065
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 107.70298600000024
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 108.16188299999885
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.04508600000008
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 101.69739900000059
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 75.31654100000014
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 77.03748299999825
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 100.77336800000012
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 100.68113699999958
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 74.22886699999981
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 73.6682869999986
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 99.88624100000015
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 103.30015699999967
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 75.73298599999907
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 72.74071900000126
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 117.24214700000084
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 106.21774300000106
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 78.41077100000075
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 76.11354900000151
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 105.6617559999977
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 96.45138999999836
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 83.59651699999813
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 83.71123499999885
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 98.09153900000092
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 94.1886889999987
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 82.61960800000088
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 89.63180799999827
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 107.8797799999993
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 95.12616999999955
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 89.3016119999993
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 88.92013199999928
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 94.92540100000042
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 96.92088500000318
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 88.06555599999774
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 87.89309399999911
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 98.09550300000046
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 96.98009999999704
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 86.04210899999816
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 82.33043600000019
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 94.658661999998
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 92.84004500000083
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 83.55479000000196
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 83.96139400000175
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 98.58994399999938
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 94.32941299999948
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 84.61355999999796
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 88.09776300000158
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 98.77871699999741
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 99.41615099999763
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 85.55439000000115
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 90.20810600000186
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 104.66223099999843
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 164.72372299999915
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 81.07139499999903
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 80.6482990000004
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 161.84824399999707
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 163.40036500000133
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 81.38766599999872
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 81.59586099999797
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 161.66688599999907
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 162.50584499999968
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 81.98226499999873
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 81.35331099999894
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 161.56040700000085
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 170.00093000000197
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 85.34653400000025
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 82.32805800000278
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 161.4812520000014
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 155.6989649999996
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 88.96155699999872
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 88.4169550000006
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 155.70966899999985
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 152.88867299999765
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 84.61477599999853
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 85.1599479999968
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 153.59522600000128
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 153.9654159999991
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 87.51754599999913
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 90.15160499999911
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 155.80040400000144
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 153.91395999999804
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 86.78468400000202
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 87.74524799999926
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 158.11296800000127
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 156.3343550000027
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 90.3436729999994
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 91.10482599999887
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 158.46466999999757
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 157.640793999999
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 90.35453100000086
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 92.5404120000021
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 169.96834200000012
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 161.4887060000001
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 90.85804899999857
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 91.32385299999805
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 167.2549739999995
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 170.96799800000008
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 101.89179399999921
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 118.81555300000036
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "short",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 175.81944999999905
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.26185500000065
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.107488000001467
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.79729000000225
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 32.17570899999919
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.963433000000805
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 31.422349999997095
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 28.98549500000081
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.454601000001276
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 29.353108999999677
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 29.53592700000081
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 28.92204700000002
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 30.01816300000064
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 31.21441699999923
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 33.39867899999808
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 32.815936999999394
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 0,
+      "iterations": 200000,
+      "elapsedMs": 29.665648000001966
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.976636000003055
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.94661899999846
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 58.02865499999825
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 56.02664100000038
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.735420000000886
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.94803200000024
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 50.810951999999816
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.07456699999966
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.022963999999774
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.80481999999756
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.8337640000027
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.14893600000141
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 48.79044000000067
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.81915499999741
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.21407900000122
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 1,
+      "iterations": 100000,
+      "elapsedMs": 49.6828319999986
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.95433899999989
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.08702500000072
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.67327999999907
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.4476829999985
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.11661100000128
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.8479150000021
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 68.04919800000062
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 68.82422399999996
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 72.32692599999791
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.85669099999723
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.51865499999985
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.09113200000138
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 70.64028699999835
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 76.34140400000251
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.47099800000069
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 68.80284499999834
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.66013999999996
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 83.23854899999787
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 83.3618400000014
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.02285400000255
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.13572399999975
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 83.93155599999955
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 83.44775699999809
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.85492500000328
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 65.33467700000256
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 82.29615199999898
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 83.18556800000079
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.40438100000028
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.7706849999995
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 83.88600699999733
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 85.11598400000003
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.10571699999855
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.50243699999919
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 87.41758699999991
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 85.18917800000054
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 66.44047399999909
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.29186900000059
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 83.6954650000007
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 84.45505499999854
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 69.60524399999849
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.67324999999983
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 89.07353499999954
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 86.78434600000037
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 67.01150300000154
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.59582799999771
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 84.40333499999906
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 84.81233400000201
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 2,
+      "iterations": 100000,
+      "elapsedMs": 64.54613000000245
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.64616000000024
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.42312899999888
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.4600089999949
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 96.28871500000241
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.0459469999987
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.4926059999998
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.26517199999944
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 97.12153699999908
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.661924
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.35529099999985
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.49861200000305
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.37607399999979
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.2847780000011
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.23012300000119
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.52556700000423
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.98087400000077
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.54810300000099
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.28851399999985
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.91029400000116
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.76954300000216
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 92.98892699999851
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.23785800000041
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 115.1278039999961
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.72836699999607
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.53590299999632
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 115.7598549999966
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 113.63158999999723
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.75540400000318
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 100.48356899999635
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 112.99167199999647
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 113.71598799999629
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.89107099999819
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 95.08453200000076
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 113.78998599999613
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 115.70004999999946
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.61656799999764
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.82408700000087
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 118.68572000000131
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.900155000003
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.31117699999595
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 98.91968899999483
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 117.10700599999836
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.56787099999929
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 94.14505599999393
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 93.8098869999958
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 115.32076600000437
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 114.76615599999786
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 4,
+      "iterations": 100000,
+      "elapsedMs": 97.78862800000206
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 89.55461300000024
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.05513399999472
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.57612599999993
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 89.09342699999979
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.0749399999986
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 89.35019900000043
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 95.33842299999378
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 92.61447000000044
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 96.72106899999926
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 87.96733200000017
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 87.41462399999727
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 88.37790600000153
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 89.53156800000579
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 87.43371800000023
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.7516340000002
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.24392299999454
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.70173400000203
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 111.32494399999996
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 107.07812700000068
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 91.79928599999403
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.7313839999988
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 108.34309199999552
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 104.45042400000239
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.49456900000223
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.33012800000142
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 106.15258899999753
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 105.64984099999856
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 102.12412200000108
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 91.66550299999653
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 107.96006199999829
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 103.98909599999752
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 88.78444399999717
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.5533379999979
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 105.15578500000265
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 113.29487399999925
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 89.6966470000043
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 97.76448900000105
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 119.21723299999576
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 117.36892200000148
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 93.62409299999854
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 89.13704800000414
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 104.36421100000007
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 107.99181900000258
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 91.70665000000008
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 90.79251199999999
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 109.85475299999962
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 119.55547699999443
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 16,
+      "iterations": 30000,
+      "elapsedMs": 91.33924700000352
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 106.30164999999397
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 79.58031299999857
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 74.38093200000003
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 101.41768999999476
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 101.80879899999854
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 75.17753200000152
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 73.07626100000198
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 102.97369400000025
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 101.24969299999793
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 76.67726299999777
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 74.17090699999972
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 101.79031600000599
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 105.4071100000001
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 78.8767269999953
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 78.74169899999833
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 103.74629500000447
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 96.58040099999926
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 87.56237999999576
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 86.44725100000505
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 94.85386499999731
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 94.49943599999824
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 83.48947500000213
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 84.1047830000025
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 95.93714400000317
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 95.47421799999574
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 83.52892799999972
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 86.94104900000093
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 98.47298199999932
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 97.09755199999927
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 86.27546599999914
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 85.03991999999562
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 97.83087599999999
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 99.33453400000144
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 83.51838799999678
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 82.65515900000173
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 95.43147299999691
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 98.28888200000074
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 113.53521100000216
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 247.51342899999872
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 396.9719320000004
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 218.07617699999537
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 171.87870100000146
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 154.40277400000195
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 268.97195099999954
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 206.50077099999908
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 240.540909000003
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 412.99709099999745
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 256,
+      "iterations": 1000,
+      "elapsedMs": 256.7820800000045
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 313.8072200000024
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 165.71367399999872
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 137.3957569999984
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 274.81565899999987
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 243.6216809999969
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 119.39010700000654
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 140.95331599999918
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 283.7374129999953
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 230.92885599999863
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 133.2008599999972
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 132.4581760000001
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 298.5525170000037
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 372.0735480000003
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 223.59103799999866
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 166.48016699999425
+    },
+    {
+      "keyOrder": "same",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 286.29647600000317
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 253.44653100000141
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 142.9738240000006
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 130.90953600000648
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 253.2299170000042
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 245.05400100000406
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 141.09616200000164
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 120.54565100000036
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 196.31909799999994
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 190.75865399999748
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 104.74807700000383
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 122.20355399999971
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 226.18699099999503
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 211.35301700000127
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 110.01807700000063
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 111.78898499999923
+    },
+    {
+      "keyOrder": "reverse",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 258.7593889999989
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 218.63445199999842
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 0,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 127.40214600000036
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 131.94807299999957
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 1,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 196.5036939999991
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 207.4197239999994
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 2,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 103.61730200000602
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 108.07783799999743
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 3,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 238.6907510000019
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 186.8254390000002
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 4,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 119.50160000000324
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 139.33882900000026
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 5,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 202.9628320000047
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 199.89455000000453
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 6,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 109.31688600000052
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "candidate",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 132.64411599999585
+    },
+    {
+      "keyOrder": "odd-even",
+      "keyShape": "shared-prefix",
+      "round": 7,
+      "variant": "before",
+      "keyCount": 1024,
+      "iterations": 200,
+      "elapsedMs": 210.44321299999865
+    }
+  ]
+}

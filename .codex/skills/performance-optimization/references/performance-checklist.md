@@ -125,6 +125,7 @@ Budget 必须写明 workload、data、mode/options、build profile、host 假设
 | Cache 看起来可用 | 先确认 lifecycle、invalidation、memory bound 和 workload 匹配。 |
 | Identifier lookup 成本高 | 优化 owning lookup，同时保持 identifier opacity 和兼容性。 |
 | 小输入表现正常 | 用真实规模和结构证明 large workload。 |
+| 小输入增加开销，大输入或增长成本改善 | 按 [SKILL.md 的比较与采用](../SKILL.md#比较与采用)评估绝对代价与规模收益，不以单组回退自动否决。 |
 | Web first load 慢 | 先看 bundle、image/font、TTFB、render-blocking resources 和 Core Web Vitals。 |
 
 ## Contract Preservation Cues
@@ -150,6 +151,6 @@ Budget 必须写明 workload、data、mode/options、build profile、host 假设
 交付前：
 
 - [ ] before/after 使用同一 fixture/data、workload、mode/options、build profile 和机器条件。
-- [ ] improvement 大于 measurement noise。
+- [ ] 声称计时改善时，证据足以区别 measurement noise；复杂度或操作量改善按其自身证据层说明。
 - [ ] 当 budget、baseline、用户报告或 merge policy 需要后续比较时，最小性能验证证据覆盖 optimized code path。
 - [ ] 无法自动化的 performance evidence 已写明精确复现步骤。

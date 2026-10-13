@@ -1,0 +1,99 @@
+{
+  "formedAt": "2026-10-13T02:59:23.712Z",
+  "command": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node /workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/harness.mts smoke",
+  "mode": "smoke",
+  "runtime": {
+    "node": "24.18.0",
+    "acorn": "8.16.0",
+    "ada": "3.4.4",
+    "amaro": "1.1.9",
+    "ares": "1.34.6",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.3",
+    "llhttp": "9.4.2",
+    "merve": "1.2.2",
+    "modules": "137",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.69.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "3.5.7",
+    "simdjson": "4.6.4",
+    "simdutf": "6.4.0",
+    "sqlite": "3.53.1",
+    "tz": "2026b",
+    "undici": "7.28.0",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "13.6.233.17-node.50",
+    "zlib": "1.3.1-e00f703",
+    "zstd": "1.5.7"
+  },
+  "platform": "linux",
+  "architecture": "x64",
+  "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+  "cpuCount": 6,
+  "frozenHead": "bedcfc6b",
+  "identities": [
+    {
+      "variant": "before",
+      "sourceSha256": "91cb7e29cec852ed335e0b995643eaaf7c0e037c58b9ab871ffc0cc84f9334d9",
+      "bundleSha256": "4a0b572a765f6e2822d20f7e1fd230c650c261a78a757dca6c7719869c37fd7e"
+    },
+    {
+      "variant": "after",
+      "sourceSha256": "bd0ac153f62c3d4ddd0fb9deb679fde25aa7f981c05ebc6f520be95485b054fb",
+      "bundleSha256": "fa605097eefac543fd96907415a457afcde2a12bdd119ae91a0965bcfe412192"
+    }
+  ],
+  "protocol": "Public defineConfig + markdownLinkValidation + run; imports/definition outside envelope; warm OS cache, application cache disabled; 1 warmup each; 12 paired AB/BA rounds; serial run IO; no filesystem instrumentation during timings",
+  "workloads": [
+    {
+      "name": "shallow",
+      "root": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/shallow",
+      "depth": 3,
+      "sourceCount": 120,
+      "relativeDirectory": "d/d",
+      "sourceBytes": 37,
+      "absoluteTargetBytes": 101
+    },
+    {
+      "name": "bounded-deep",
+      "root": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/bounded-deep",
+      "depth": 128,
+      "sourceCount": 40,
+      "relativeDirectory": "d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+      "sourceBytes": 37,
+      "absoluteTargetBytes": 356
+    }
+  ],
+  "copySlots": [
+    {
+      "name": "shallow",
+      "depth": 3,
+      "beforeRemainingArraySlots": 3,
+      "afterRemainingArraySlots": 0
+    },
+    {
+      "name": "bounded-deep",
+      "depth": 128,
+      "beforeRemainingArraySlots": 8128,
+      "afterRemainingArraySlots": 0
+    }
+  ],
+  "samples": [],
+  "summary": [
+    {
+      "workload": "shallow",
+      "semanticParity": true
+    },
+    {
+      "workload": "bounded-deep",
+      "semanticParity": true
+    }
+  ]
+}

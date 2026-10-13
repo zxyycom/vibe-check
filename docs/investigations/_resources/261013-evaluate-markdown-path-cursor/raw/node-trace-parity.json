@@ -1,0 +1,1289 @@
+{
+  "formedAt": "2026-10-13T02:31:43.736Z",
+  "runtime": {
+    "node": "24.18.0",
+    "acorn": "8.16.0",
+    "ada": "3.4.4",
+    "amaro": "1.1.9",
+    "ares": "1.34.6",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.3",
+    "llhttp": "9.4.2",
+    "merve": "1.2.2",
+    "modules": "137",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.69.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "3.5.7",
+    "simdjson": "4.6.4",
+    "simdutf": "6.4.0",
+    "sqlite": "3.53.1",
+    "tz": "2026b",
+    "undici": "7.28.0",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "13.6.233.17-node.50",
+    "zlib": "1.3.1-e00f703",
+    "zstd": "1.5.7"
+  },
+  "evidence": [
+    {
+      "name": "root",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        0,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "contained",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root"
+        },
+        "events": [],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 0
+        }
+      }
+    },
+    {
+      "name": "ordinary-file",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        3,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "contained",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "endpoint": {
+            "kind": "file"
+          }
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "depth-128",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        8128,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "contained",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/deep.md",
+          "endpoint": {
+            "kind": "file"
+          }
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/deep.md",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/d/deep.md"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "directory",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        1,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "contained",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "endpoint": {
+            "kind": "directory"
+          }
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "unsupported-fifo",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        0,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "contained",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/pipe",
+          "endpoint": {
+            "kind": "unsupported"
+          }
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/pipe",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/pipe"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "missing-leaf",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        3,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "missing",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/missing.md"
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/missing.md",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/missing.md"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "missing-parent",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        3,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "missing",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/missing"
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/missing",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/missing"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "enotdir",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        6,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "unavailable"
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md/child",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md/child"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "lexical-outside",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        0,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "outside"
+        },
+        "events": [],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 0
+        }
+      }
+    },
+    {
+      "name": "symlink-remaining",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        5,
+        2
+      ],
+      "observation": {
+        "result": {
+          "kind": "contained",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "endpoint": {
+            "kind": "file"
+          }
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/inner",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/inner",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/inner",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/inner",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "symlink-root-reset",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        6,
+        3
+      ],
+      "observation": {
+        "result": {
+          "kind": "contained",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "endpoint": {
+            "kind": "file"
+          }
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/reset",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/reset",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/reset",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/reset",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "symlink-external",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        1,
+        1
+      ],
+      "observation": {
+        "result": {
+          "kind": "outside"
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/escape",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/escape",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/escape",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/escape"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "symlink-loop",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        0,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "unavailable"
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/loop"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "exact-40-hops",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        3,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "contained",
+          "absolutePath": "/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "endpoint": {
+            "kind": "file"
+          }
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h1",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h1",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h1",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h1",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h2",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h2",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h2",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h2",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h3",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h3",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h3",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h3",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h4",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h4",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h4",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h4",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h5",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h5",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h5",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h5",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h6",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h6",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h6",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h6",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h7",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h7",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h7",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h7",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h8",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h8",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h8",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h8",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h9",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h9",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h9",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h9",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h10",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h10",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h10",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h10",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h11",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h11",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h11",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h11",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h12",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h12",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h12",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h12",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h13",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h13",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h13",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h13",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h14",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h14",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h14",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h14",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h15",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h15",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h15",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h15",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h16",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h16",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h16",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h16",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h17",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h17",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h17",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h17",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h18",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h18",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h18",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h18",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h19",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h19",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h19",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h19",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h20",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h20",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h20",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h20",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h21",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h21",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h21",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h21",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h22",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h22",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h22",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h22",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h23",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h23",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h23",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h23",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h24",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h24",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h24",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h24",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h25",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h25",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h25",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h25",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h26",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h26",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h26",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h26",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h27",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h27",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h27",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h27",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h28",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h28",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h28",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h28",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h29",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h29",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h29",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h29",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h30",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h30",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h30",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h30",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h31",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h31",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h31",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h31",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h32",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h32",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h32",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h32",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h33",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h33",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h33",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h33",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h34",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h34",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h34",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h34",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h35",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h35",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h35",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h35",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h36",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h36",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h36",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h36",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h37",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h37",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h37",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h37",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h38",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h38",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h38",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h38",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h39",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h39",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h39",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h39",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h40",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h40",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h40",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h40",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "exceeds-40-hops",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        0,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "unavailable"
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h0",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h0",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h0",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h0",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h1",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h1",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h1",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h1",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h2",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h2",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h2",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h2",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h3",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h3",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h3",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h3",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h4",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h4",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h4",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h4",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h5",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h5",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h5",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h5",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h6",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h6",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h6",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h6",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h7",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h7",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h7",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h7",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h8",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h8",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h8",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h8",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h9",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h9",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h9",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h9",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h10",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h10",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h10",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h10",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h11",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h11",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h11",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h11",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h12",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h12",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h12",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h12",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h13",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h13",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h13",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h13",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h14",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h14",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h14",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h14",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h15",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h15",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h15",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h15",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h16",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h16",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h16",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h16",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h17",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h17",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h17",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h17",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h18",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h18",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h18",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h18",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h19",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h19",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h19",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h19",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h20",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h20",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h20",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h20",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h21",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h21",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h21",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h21",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h22",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h22",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h22",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h22",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h23",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h23",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h23",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h23",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h24",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h24",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h24",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h24",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h25",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h25",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h25",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h25",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h26",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h26",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h26",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h26",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h27",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h27",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h27",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h27",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h28",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h28",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h28",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h28",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h29",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h29",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h29",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h29",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h30",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h30",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h30",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h30",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h31",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h31",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h31",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h31",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h32",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h32",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h32",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h32",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h33",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h33",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h33",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h33",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h34",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h34",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h34",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h34",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h35",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h35",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h35",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h35",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h36",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h36",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h36",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h36",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h37",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h37",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h37",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h37",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h38",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h38",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h38",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h38",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h39",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h39",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h39",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h39",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h40",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h40"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "lstat-failure",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        3,
+        0
+      ],
+      "observation": {
+        "result": {
+          "kind": "unavailable"
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a",
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "readlink-failure",
+      "parity": true,
+      "remainingArraySlotCopies": [
+        2,
+        2
+      ],
+      "observation": {
+        "result": {
+          "kind": "unavailable"
+        },
+        "events": [
+          "start:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/inner",
+          "end:lstat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/inner",
+          "start:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/inner",
+          "end:readlink:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/inner"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "exact-cap",
+      "parity": true,
+      "observation": {
+        "result": {
+          "ok": true,
+          "bytes": {
+            "0": 35,
+            "1": 32,
+            "2": 65,
+            "3": 10
+          }
+        },
+        "events": [
+          "start:open-131072:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:open-131072:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "start:stat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:stat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "start:read-0-5-0:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:read-0-5-0:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "start:read-4-1-4:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:read-4-1-4:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "start:close:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:close:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "over-cap",
+      "parity": true,
+      "observation": {
+        "result": {
+          "ok": false,
+          "reason": "too-large"
+        },
+        "events": [
+          "start:open-131072:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:open-131072:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "start:stat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:stat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "start:close:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md",
+          "end:close:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b/file.md"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "no-follow-symlink",
+      "parity": true,
+      "observation": {
+        "result": {
+          "ok": false,
+          "reason": "unavailable"
+        },
+        "events": [
+          "start:open-131072:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h40",
+          "end:open-131072:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/h40"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    },
+    {
+      "name": "nonregular-directory",
+      "parity": true,
+      "observation": {
+        "result": {
+          "ok": false,
+          "reason": "unavailable"
+        },
+        "events": [
+          "start:open-131072:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:open-131072:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "start:stat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:stat:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "start:close:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b",
+          "end:close:/workspace/vibe-check/tmp/low-risk-optimization-20261013/markdown-path/fixtures/semantics/root/a/b"
+        ],
+        "settlement": {
+          "activeOperations": 0,
+          "peakOperations": 1
+        }
+      }
+    }
+  ]
+}

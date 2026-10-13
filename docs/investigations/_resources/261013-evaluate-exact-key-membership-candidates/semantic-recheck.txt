@@ -1,0 +1,10 @@
+startedAt=2026-10-13T03:12:28.754Z
+Purpose: current non-timing semantic recheck only; no measure mode or performance rerun.
+Runtime command: mise exec node@24.18.0 bun@1.3.14 -- node <absolute frozen harness path> smoke
+initial: exit=0; verified both variants across all shapes and scales
+threshold64: exit=0; verified both variants across all shapes and scales
+cancelled-threshold256: exit=0; verified both variants across all shapes and scales
+prefix: exit=0; verified both variants across all shapes and scales
+finishedAt=2026-10-13T03:12:29.616Z
+Historical measurements call verify(before) and verify(candidate) before recording timed samples. These smoke results supplement that source evidence; they are not original measurement-window timestamps.
+No Bun performance run. No formal test suite rerun. Cancelled threshold256 is smoke only.

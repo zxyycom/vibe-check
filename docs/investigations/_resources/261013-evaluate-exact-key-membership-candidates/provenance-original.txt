@@ -1,0 +1,109 @@
+file-lifecycle-hygiene: exact-key membership experiments
+
+Source: /workspace/vibe-check/src/data-boundary/closed-values.ts at bedcfc6b.
+Purpose: isolated before/candidate public snapshotExactClosedRecord experiments.
+Performance/source review freeze: 2026-10-13T02:48:57Z.
+Subsequent authored-helper-only type repair: 2026-10-13, after root typed-lint audit.
+Production closed-values.ts and formal test restored to baseline.
+
+Root harness.ts / harness.mjs / node_modules/{before,candidate}.ts:
+  Initial uniform per-call Set(actualKeys) + indexed delete candidate.
+  Rejected: common small K regressed 17–32%; raw samples-initial.json and
+  samples-initial.stderr retain every AB/BA sample, UTC times, runtime and hashes.
+
+threshold/:
+  K<=64 retains original membership, K>64 uses local Set.
+  Rejected: K65 regressed 6.6–7.5% on both key shapes. Also user rejected
+  machine-derived size thresholds. Raw samples.json/stderr and summary.json retained.
+
+final/:
+  Prepared K>=256 threshold candidate, strict typechecked and smoke checked,
+  but NEVER TIMED. Cancelled upon user's explicit rejection of size thresholds.
+  The directory name is historical preparation, NOT an accepted/final product.
+
+prefix/:
+  Uniform ordered-prefix elimination, then an operation-local exact tail Set.
+  No size/machine threshold. Preserves duplicate rejection and arbitrary key order.
+  Rejected: every small K2/K4/K16 reverse and odd-even workload regressed in all
+  eight paired samples, across both key shapes (paired median +16–30%). Same-order
+  and large-key improvements do not offset the stable legal-input regressions.
+  544 raw samples, UTC 02:44:30.887–02:45:31.713, source/compiled identities,
+  and full paired ratios retained in samples.json/stderr and summary.json.
+
+No production optimization is adopted. hasExactPlainRecordKeys remains baseline.
+All formal closed-values.test.ts additions were withdrawn after preserving the
+complete diff in formal-test-experiment.patch. Baseline test source is retained in
+node_modules/closed-values-test-baseline.ts for audit, not current test discovery.
+Both production and formal test files now match bedcfc6b byte-for-byte.
+
+Actual checks: each measured stage passed strict tsgo checking of its harness
+with noUncheckedIndexedAccess, exactOptionalPropertyTypes, noImplicitOverride,
+noImplicitReturns, allowUnreachableCode:false and Node types. The bundled before
+and candidate modules passed Node24 smoke assertions before measurement. Prefix
+also passed Bun1.3.14 dual-variant smoke after the final performance window; this
+is semantic evidence ONLY, not Bun performance evidence. summarize.ts passed
+the same strict tsgo profile. Local production/test diff checks passed after restore.
+Root owns full Case closure, public Product lint/typecheck and integrated Gate;
+this slice did not run Gate, full test execution, package build, or external consumer.
+The temporary formal test draft initially had one unsafe heterogeneous fromEntries
+assignment (found by root Product lint), repaired with explicit unknown generic
+before archive; no lint suppression. Final test draft was not kept or executed.
+Early preparatory formatting attempts on ignored tmp paths returned unmatched;
+stdin formatting resolved that. An early isolated tsgo attempt omitted Node types
+and failed; all reported successful isolated checks explicitly supplied --types node.
+
+Reproduction: use mise exec for pinned Node v24.18.0 and Bun 1.3.14.
+The frozen .mjs files were built via bun build <stage>/harness.ts --target=node
+--outfile=<stage>/harness.mjs. They invoke only the public snapshot API.
+Each workload constructs input/keys once, validates both variants outside timing,
+warms both, then records eight alternating AB/BA pairs. Timed loops contain only
+snapshot calls and loop control; fixture construction, assertions and IO are outside.
+Inputs have either short keys or shared-prefix string keys. Nested object/callback
+values preserve identities. Frozen key lists remain stable and contain no duplicates.
+Small/large scale, reversal, wrong-key, own special-key, non-enumerable/symbol/accessor,
+Proxy reflection failure, caller iterator, and shallow reference semantics are smoke checked.
+Timing observations are local Node public-API workloads, not a budget/Gate check,
+not end-to-end debugChangeFlags latency, and not cross-machine/runtime guarantees.
+
+summarize.ts derives eight-sample medians/ranges and paired directions from raw JSON;
+summary-initial-paired.json, threshold/summary-paired.json and prefix/summary.json
+include all paired directions. Older threshold/summary.json is retained unchanged.
+All summary files are derived and do not replace raw data. No samples were removed.
+
+Authored helper type repair boundary:
+Root's outside-ignored-ancestry typed lint found eight implicit-any fromEntries
+assignments across the four authored harness files. Before editing, each original
+source was copied byte-for-byte to measured-helper-sources/<original-stage>/harness.ts
+(initial stage has no subdirectory). These archived sources, all original harness.mjs
+files, frozen before/candidate modules and raw samples remain unchanged. The final/
+archive is an unmeasured cancelled preparer, not performance evidence.
+Current harness.ts files add Object.fromEntries<unknown> at the two construction
+sites and a readonly [string, unknown] return annotation on generated entry tuples.
+No runtime fixture, algorithm, iteration, warmup, assertion or output logic changed.
+The initial generic-only repair exposed a tuple-shape tsgo error; explicit tuple
+return types repaired it. Current four helpers then passed strict tsgo, stdin format
+checks and Node24 non-timing smoke. Each rebuilt harness-type-fixed.mjs is BYTE
+IDENTICAL (cmp exit 0) to its original frozen harness.mjs, including path comments.
+No runtime AST comparison or performance rerun was needed after this stronger byte
+comparison. Root owns the final outside-mirror typed lint; no direct tmp lint run.
+
+Original TypeScript source identity -> archived path -> current authored source SHA256:
+initial: 5c2176761f15a0cf7adfeaea7b95d81bd26ba62e16dafc2a2e3ceebd13595f42
+  -> measured-helper-sources/harness.ts
+  -> harness.ts: 232b51d584c3a2cd9854bc37723d4449666253458ecbc50d9b22e8d4617ea64d
+threshold: 2de8cd167464733afbc4f4f1460c90db933c5b10cfdfdaf59eb82833137152eb
+  -> measured-helper-sources/threshold/harness.ts
+  -> threshold/harness.ts: 6bd53b4a14598d97e4c318590988130e3e5c7396b97e05608c5b36a8a49cded4
+cancelled final: 387710392610884c0ce6e6c52ff310eea2e187341f95b2c328d6fdb06cd49d68
+  -> measured-helper-sources/final/harness.ts
+  -> final/harness.ts: febab709db7d8c1cee60810e8c7609fad658601344987e7f0e44ac9af05de6c2
+prefix: 269c5288f0ab0e7c0f931b35df759ace6075067fb93489a1e0a58e8a015401ab
+  -> measured-helper-sources/prefix/harness.ts
+  -> prefix/harness.ts: 85d2a276b196d8702879a1ffaeaf5185bf590a589d9d3ed3e4f5ba8360b7f54b
+Raw sourceSha256.harness identities refer to frozen COMPILED harness.mjs, not these
+TypeScript source hashes. The compiled identities remain exactly those in raw data.
+Additional format-output scratch files under stage node_modules are type-repair
+intermediates, not authoring inputs or new evidence; retain until review cleanup.
+Preserve all stage source, compiled harness, raw samples and identities until review.
+These are ignored temporary evidence, not current owner docs or package materials.
+Cleanup after task review requires precise-target authorization; no cleanup performed.

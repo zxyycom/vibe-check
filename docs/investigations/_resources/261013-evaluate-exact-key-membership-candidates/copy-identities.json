@@ -1,0 +1,235 @@
+{
+  "copiedAt": "2026-10-13T03:11:29.669Z",
+  "sourceRoot": "/workspace/vibe-check",
+  "resources": [
+    {
+      "resource": "baseline/closed-values.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/node_modules/before.ts",
+      "bytes": 6625,
+      "sha256": "289d49d3fc3b9faf7ddb0147fae920bb8e1fa6a709f8be728020d78dd7fc9c11",
+      "byteIdentical": true
+    },
+    {
+      "resource": "cancelled-threshold256/candidate.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/final/node_modules/candidate.ts",
+      "bytes": 6953,
+      "sha256": "e301e181c0e267df84417494ca1d62cd1ed3790e342e1134678cf240e38a2cab",
+      "byteIdentical": true
+    },
+    {
+      "resource": "cancelled-threshold256/harness-frozen.mjs",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/final/harness.mjs",
+      "bytes": 9456,
+      "sha256": "f5957c13769053f4284658ddbed1b15e61a58beea3c03d3dbb5b8dcf6bfb2a8b",
+      "byteIdentical": true
+    },
+    {
+      "resource": "cancelled-threshold256/harness-measured.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/measured-helper-sources/final/harness.ts",
+      "bytes": 6567,
+      "sha256": "387710392610884c0ce6e6c52ff310eea2e187341f95b2c328d6fdb06cd49d68",
+      "byteIdentical": true
+    },
+    {
+      "resource": "cancelled-threshold256/harness-type-fixed.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/final/harness.ts",
+      "bytes": 6615,
+      "sha256": "febab709db7d8c1cee60810e8c7609fad658601344987e7f0e44ac9af05de6c2",
+      "byteIdentical": true
+    },
+    {
+      "resource": "helper-validation/helper-lint-final.txt",
+      "source": "tmp/low-risk-optimization-20261013/integration/helper-lint-final.log",
+      "bytes": 21,
+      "sha256": "b52353c1fd2cae56abe26449a595c158e2d79377c306ac430ffe0150ffbf74c9",
+      "byteIdentical": true
+    },
+    {
+      "resource": "helper-validation/helper-lint-initial.txt",
+      "source": "tmp/low-risk-optimization-20261013/integration/helper-lint-initial.log",
+      "bytes": 1064,
+      "sha256": "b5c3d9c69a67ec9502cc8efc30b831b7a4756043f6e8fcf9e22a82f4173b8a38",
+      "byteIdentical": true
+    },
+    {
+      "resource": "helper-validation/helper-lint-input-identities.json",
+      "source": "tmp/low-risk-optimization-20261013/integration/helper-lint-input-identities.json",
+      "bytes": 2606,
+      "sha256": "dd5fa8ef9a37d083945f68bf6b65c1208a055fe4e813bddff108740236cdc7dc",
+      "byteIdentical": true
+    },
+    {
+      "resource": "helper-validation/mirror-oxlintrc.json",
+      "source": "tmp/low-risk-optimization-20261013/integration/mirror-oxlintrc.json",
+      "bytes": 6986,
+      "sha256": "9aa77fc4f4908f67e48154daa5762862b34177ad5b3ec4268049ece21558d944",
+      "byteIdentical": true
+    },
+    {
+      "resource": "helper-validation/mirror-tsconfig.json",
+      "source": "tmp/low-risk-optimization-20261013/integration/mirror-tsconfig.json",
+      "bytes": 167,
+      "sha256": "88b956f452380f2a7be555e34ebcac7a8cd06b146049fdc28661ce568a90f1eb",
+      "byteIdentical": true
+    },
+    {
+      "resource": "initial/candidate.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/node_modules/candidate.ts",
+      "bytes": 6808,
+      "sha256": "346bfc295c59450018bcf2547ce6aa3a845c4a25cf956864d800fa5858ade776",
+      "byteIdentical": true
+    },
+    {
+      "resource": "initial/harness-frozen.mjs",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/harness.mjs",
+      "bytes": 8717,
+      "sha256": "0b335e4d4739cb48eec4f17c1118c4da52170be171df96f79e511b8234afda30",
+      "byteIdentical": true
+    },
+    {
+      "resource": "initial/harness-measured.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/measured-helper-sources/harness.ts",
+      "bytes": 5867,
+      "sha256": "5c2176761f15a0cf7adfeaea7b95d81bd26ba62e16dafc2a2e3ceebd13595f42",
+      "byteIdentical": true
+    },
+    {
+      "resource": "initial/harness-type-fixed.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/harness.ts",
+      "bytes": 5913,
+      "sha256": "232b51d584c3a2cd9854bc37723d4449666253458ecbc50d9b22e8d4617ea64d",
+      "byteIdentical": true
+    },
+    {
+      "resource": "initial/samples.json",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/samples-initial.json",
+      "bytes": 21405,
+      "sha256": "d556d74f1ecb902fcc9e89ad8290497e9f7d6b170411e778bcbad35b2aaf05d7",
+      "byteIdentical": true
+    },
+    {
+      "resource": "initial/summary-paired.json",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/summary-initial-paired.json",
+      "bytes": 6543,
+      "sha256": "3e63bf5a3f6f09a253a5785ad84026cdc2f12bb9a68b7f5c1f810437ca7623ae",
+      "byteIdentical": true
+    },
+    {
+      "resource": "prefix/candidate.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/prefix/node_modules/candidate.ts",
+      "bytes": 7053,
+      "sha256": "6c59820936676ce89ed3cce53d871968fd368f0cb77595e82484b16b5d60f693",
+      "byteIdentical": true
+    },
+    {
+      "resource": "prefix/harness-frozen.mjs",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/prefix/harness.mjs",
+      "bytes": 10339,
+      "sha256": "5a26eeb4e6ffba574548db8f4093903f8fb8a7d5b563e067f09173e3b8c6304d",
+      "byteIdentical": true
+    },
+    {
+      "resource": "prefix/harness-measured.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/measured-helper-sources/prefix/harness.ts",
+      "bytes": 7561,
+      "sha256": "269c5288f0ab0e7c0f931b35df759ace6075067fb93489a1e0a58e8a015401ab",
+      "byteIdentical": true
+    },
+    {
+      "resource": "prefix/harness-type-fixed.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/prefix/harness.ts",
+      "bytes": 7607,
+      "sha256": "85d2a276b196d8702879a1ffaeaf5185bf590a589d9d3ed3e4f5ba8360b7f54b",
+      "byteIdentical": true
+    },
+    {
+      "resource": "prefix/samples.json",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/prefix/samples.json",
+      "bytes": 111971,
+      "sha256": "e5d2d50923ccee5f415dc92f4d7294925b921912ebbc9832656988c1818466a7",
+      "byteIdentical": true
+    },
+    {
+      "resource": "prefix/summary-paired.json",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/prefix/summary.json",
+      "bytes": 24053,
+      "sha256": "94ad77cc8992845c2ae27719705a29001debf4cb9e3edb0514472d99ddf3d015",
+      "byteIdentical": true
+    },
+    {
+      "resource": "provenance-original.txt",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/artifact-notes.txt",
+      "bytes": 7509,
+      "sha256": "0fa2fad31343a8edf67fe86cd88da9a8106af1c4b25b0c2d29c142dd04b60bf1",
+      "byteIdentical": true
+    },
+    {
+      "resource": "summarize.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/summarize.ts",
+      "bytes": 4047,
+      "sha256": "d390de299b02cb21c3fb36573d7fef358e3949c662a8c99cecad920236da68d6",
+      "byteIdentical": true
+    },
+    {
+      "resource": "threshold64/candidate.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/threshold/node_modules/candidate.ts",
+      "bytes": 6959,
+      "sha256": "230552c037a52b80331379540b320dc57b64efdfa077be58842c6bcfcd08342b",
+      "byteIdentical": true
+    },
+    {
+      "resource": "threshold64/harness-frozen.mjs",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/threshold/harness.mjs",
+      "bytes": 9552,
+      "sha256": "80b7260fc7c12bcfd041fe7412f34fbe8ff2e90a1b871be0a48a484529affd5a",
+      "byteIdentical": true
+    },
+    {
+      "resource": "threshold64/harness-measured.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/measured-helper-sources/threshold/harness.ts",
+      "bytes": 6652,
+      "sha256": "2de8cd167464733afbc4f4f1460c90db933c5b10cfdfdaf59eb82833137152eb",
+      "byteIdentical": true
+    },
+    {
+      "resource": "threshold64/harness-type-fixed.ts",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/threshold/harness.ts",
+      "bytes": 6698,
+      "sha256": "6bd53b4a14598d97e4c318590988130e3e5c7396b97e05608c5b36a8a49cded4",
+      "byteIdentical": true
+    },
+    {
+      "resource": "threshold64/samples.json",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/threshold/samples.json",
+      "bytes": 73777,
+      "sha256": "852924f91a7da8b03249b90669cd8066e968fcd7904d8c4ef71949ed99bb177b",
+      "byteIdentical": true
+    },
+    {
+      "resource": "threshold64/summary-historical.json",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/threshold/summary.json",
+      "bytes": 9523,
+      "sha256": "d9f3eac05f33a8f6ef7896dfaaf38af6f94ad961128526bacee4a18a570a8f40",
+      "byteIdentical": true
+    },
+    {
+      "resource": "threshold64/summary-paired.json",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/threshold/summary-paired.json",
+      "bytes": 18351,
+      "sha256": "b43bbb9f978072ca53695af76a2965dfb60faaaa4ad2d11b0242b6be130247d8",
+      "byteIdentical": true
+    },
+    {
+      "resource": "withdrawn-formal-test.patch",
+      "source": "tmp/low-risk-optimization-20261013/exact-keys/formal-test-experiment.patch",
+      "bytes": 2702,
+      "sha256": "36d62178fea541de8f2d143355c021e23a8ce1feeda5b731f900ac6aecca2edb",
+      "byteIdentical": false,
+      "sourceSha256": "14f7ddc709e21f8535714e80218e2800cefc7c7d8070ad17a675ad66e77d1d69",
+      "sourceBytes": 3180,
+      "transformation": "Reconstructed complete withdrawn draft from original patch and baseline, verifying every context line, then derived equivalent unified=0 diff. Original patch remains unchanged. This is not the original patch byte identity."
+    }
+  ],
+  "totalResourceBytes": 416667,
+  "finalLayoutConfirmedAt": "2026-10-13T03:13:06.463Z"
+}
