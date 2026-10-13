@@ -27,8 +27,6 @@ export function applyAdmission<TResult>(
   decision: Extract<SchedulerDecision, { readonly kind: "admit" }>
 ): void {
   const task = takePendingTask(state, decision.taskId, "admission");
-  for (const mutex of task.mutex) state.runningMutexes.add(mutex);
-  activateScope(state, decision.scopeToActivate);
 
   const completion = Promise.resolve()
     .then(() => state.execute(task, Object.freeze({ signal: state.signal })))
@@ -87,7 +85,6 @@ export function settleRunningTask<TResult>(
   const running = state.runningById.get(result.taskId);
   if (running === undefined) throw new Error(`task ${result.taskId} settled without admission`);
   state.runningById.delete(result.taskId);
-  for (const mutex of running.task.mutex) state.runningMutexes.delete(mutex);
   recordSettlement(state, running.task, result.settlement);
 }
 
@@ -103,15 +100,6 @@ export function buildTaskGraphRun<TResult>(state: SchedulerState<TResult>): Task
       })
     )
   });
-}
-
-function activateScope<TResult>(state: SchedulerState<TResult>, scopeId: string | null): void {
-  if (scopeId === null) return;
-  const scope = state.scopesById.get(scopeId);
-  if (scope === undefined) {
-    throw new Error(`scheduler admission references unknown scope ${scopeId}`);
-  }
-  scope.isActive = true;
 }
 
 function takePendingTask<TResult>(

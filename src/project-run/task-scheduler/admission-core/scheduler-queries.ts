@@ -3,8 +3,9 @@ import type { AdmissionCoreState } from "./selection.ts";
 import {
   activeScopesForCore,
   effectiveMaxParallelForCore,
-  statusForCore
-} from "./selection-query.ts";
+  taskSlotsForCore,
+  requiredTaskForCore
+} from "./state-query.ts";
 
 /** Thin authoritative queries; none constructs a Scheduler inspection or another state index. */
 export function capacityForCore(core: AdmissionCoreState): AdmissionPolicyContext["capacity"] {
@@ -24,8 +25,6 @@ export function taskIdsForCore(
   kind: "pending" | "running" | "settled"
 ): readonly string[] {
   return Object.freeze(
-    core.compiled.graph.tasks.flatMap((task, slot) =>
-      statusForCore(core, slot).kind === kind ? [task.id] : []
-    )
+    taskSlotsForCore(core, kind).map((slot) => requiredTaskForCore(core, slot).id)
   );
 }

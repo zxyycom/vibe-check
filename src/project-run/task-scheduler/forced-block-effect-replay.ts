@@ -1,9 +1,5 @@
-import {
-  schedulerInspectionForCore,
-  type AdmissionCoreEffect,
-  type AdmissionCoreState
-} from "./admission-core/core.ts";
-import { decisionContext } from "./scheduler-decision-inspection.ts";
+import { type AdmissionCoreEffect, type AdmissionCoreState } from "./admission-core/core.ts";
+import { coreDecisionContext } from "./scheduler-decision-inspection.ts";
 import { freezeDecision } from "./scheduler-decision-model.ts";
 import type { SchedulerTrigger } from "./scheduler-decision.ts";
 import type { SchedulerState } from "./execution-state.ts";
@@ -35,25 +31,17 @@ export function replayCoreForcedBlocks<TResult>(
     }
     diagnostics?.beforePendingSettlement([effect.taskId]);
     state.admissionCore = effectState;
-    applyForcedBlockedSettlement(state, effect.taskId, effect.dependencyIds ?? []);
+    applyForcedBlockedSettlement(state, effect.taskId, effect.dependencyIds);
     diagnostics?.captureState(performanceState(state));
     diagnostics?.recordEffect(
       Object.freeze({ kind: "settled", settlementKind: "blocked", taskId: effect.taskId })
     );
     if (diagnostics !== undefined || state.diagnosticLogger !== undefined) {
-      const inspection = schedulerInspectionForCore(state.admissionCore);
       observeSchedulerDecision(
         state,
         freezeDecision({
-          ...decisionContext(
-            Object.freeze({
-              ...inspection,
-              isAbortRequested: state.signal?.aborted === true,
-              isCancelled: state.isCancelled
-            }),
-            state.admissionCore.compiled.graph.schedulerGraphSnapshot
-          ),
-          dependencyIds: effect.dependencyIds ?? [],
+          ...coreDecisionContext(state.admissionCore),
+          dependencyIds: effect.dependencyIds,
           kind: "settle-blocked",
           taskId: effect.taskId,
           trigger

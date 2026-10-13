@@ -3,10 +3,9 @@ import { createHash } from "node:crypto";
 import { diagnosticTags, type DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import type { SchedulerDecision } from "./scheduler-decision.ts";
 import type { SchedulerState } from "./execution-state.ts";
-import {
-  schedulerInspectionForCore,
-  validateAdmissionCoreSelection
-} from "./admission-core/core.ts";
+import { capacityForCore } from "./admission-core/scheduler-queries.ts";
+import { admissionQueueKindForCore } from "./admission-core/selection-query.ts";
+import { requiredTaskForCore, taskSlotsForCore } from "./admission-core/state-query.ts";
 import type {
   AdmissionViablePendingTask,
   SchedulerPerformanceDiagnostics,
@@ -90,41 +89,21 @@ export function observeSchedulerDiagnostic<TResult>(
 export function performanceState<TResult>(
   state: SchedulerState<TResult>
 ): SchedulerPerformanceState {
-  const inspection = schedulerInspectionForCore(state.admissionCore);
+  const core = state.admissionCore;
+  const capacity = capacityForCore(core);
   const admissionViablePendingTasks: AdmissionViablePendingTask[] = [];
-  for (const task of inspection.pendingTasks) {
-    const validation = validateAdmissionCoreSelection(state.admissionCore, task.id);
-    if (validation.accepted) {
+  for (const slot of taskSlotsForCore(core, "pending")) {
+    const kind = admissionQueueKindForCore(core, slot);
+    if (kind !== undefined)
       admissionViablePendingTasks.push(
-        Object.freeze({ kind: "admissible-pending", taskId: task.id })
+        Object.freeze({ kind, taskId: requiredTaskForCore(core, slot).id })
       );
-      continue;
-    }
-    switch (validation.reason.kind) {
-      case "mutex-held":
-        admissionViablePendingTasks.push(Object.freeze({ kind: "mutex-blocked", taskId: task.id }));
-        continue;
-      case "root-capacity-reached":
-      case "scope-capacity-reached":
-      case "resource-capacity-insufficient":
-        admissionViablePendingTasks.push(
-          Object.freeze({ kind: "capacity-blocked", taskId: task.id })
-        );
-        continue;
-      case "depends-on-pending":
-      case "observes-pending":
-        continue;
-      case "not-pending":
-      case "state-complete":
-      case "unknown-task":
-        throw new Error("shared admission core disagrees with Scheduler pending state");
-    }
   }
   return Object.freeze({
     admissionViablePendingTasks: Object.freeze(admissionViablePendingTasks),
-    effectiveMaxParallel: inspection.effectiveMaxParallel,
-    rootMaxParallel: inspection.maxParallel,
-    running: inspection.runningTaskIds.length
+    effectiveMaxParallel: capacity.effectiveMaxParallel,
+    rootMaxParallel: capacity.maxParallel,
+    running: capacity.running
   });
 }
 

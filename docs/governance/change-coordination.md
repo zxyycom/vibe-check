@@ -71,6 +71,21 @@ Case 账本、来源映射、知识索引与本协调页由主线程串行协调
 Duplicate 的实现范围独立，但共享 Case、知识索引、稳定文档和本页由主线程安排唯一写入者。
 正式计时继续独占串行；公共 API、package material 和完整 Gate 在全部输入稳定后统一验收。
 
+### Scheduler Core 补完与 Markdown 缓存提醒
+
+以下两项 Change 各自验收独立 Outcome，没有互相交付才能成立的硬前置；它们不扩张旧性能 Plan。
+
+| 当前 Change | 写入与验收边界 |
+| --- | --- |
+| [`warn-markdown-link-cache-capacity`](../../changes/warn-markdown-link-cache-capacity/proposal.md) | Markdown 专属可配置容量提醒，只消费首次 restore 已读 bytes；保留显式 cache、退化、Findings、Records 与 settlement。 |
+| [`unify-scheduler-core-state-queries`](../../changes/unify-scheduler-core-state-queries/proposal.md) | 真实执行与推演共用 Core 状态、判断和查询，移除 Shell 镜像与重复 seed；保留合法投影差异、hard guards、forced effects 与按需 instrumentation。 |
+
+源码 owner 相互独立；Case 账本、派生知识索引和本页共享，分别安排唯一写入者。文档与代码审查按文件范围隔离；
+独立反查仍须以实际实现 diff 核对公开和内部 owner。历史报告仅修正 Decision 移位后的链接，保留形成时结论。
+公共材料及完整 Gate 在全部输入稳定后统一验收，Git 提交与 Change 结项删除分别依当前任务授权执行。
+Scheduler 补完落实现有 immutable state 与需求声明方向，不启动旧
+[`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)，也不改变默认策略。
+
 ### 并行与提交边界
 
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享

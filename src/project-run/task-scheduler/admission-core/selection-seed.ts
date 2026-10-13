@@ -1,3 +1,5 @@
+import { Set as PersistentSet } from "immutable";
+
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
   requiredTaskMutexSlotsForCompiled,
@@ -8,6 +10,7 @@ import {
   freezeSelectionIndex,
   persistentNumbersFor,
   persistentStatuses,
+  pendingBlockerStageForSelection,
   statusForStore,
   type AdmissionSelectionIndex,
   type CoreTaskStatus,
@@ -28,26 +31,46 @@ interface SeedTaskCounters {
 /** Builds every immutable selection index from one static graph and one exact status seed. */
 export function selectionIndexForSeed(
   compiled: CompiledAdmissionGraph,
-  statuses: readonly CoreTaskStatus[],
-  activeScopeIds: readonly string[] | undefined,
-  legacyRunningMutexes: readonly string[] | undefined
+  seed: Readonly<{
+    statuses: readonly CoreTaskStatus[];
+    activeScopeIds?: readonly string[];
+    legacyRunningMutexes?: readonly string[];
+  }>
 ): AdmissionSelectionIndex {
+  const { statuses, activeScopeIds, legacyRunningMutexes } = seed;
   const persistentStatus = persistentStatuses(statuses);
   const counters = seedTaskCounters(compiled, persistentStatus);
   const activeScopes = seedActiveScopes(compiled, activeScopeIds);
-  return freezeSelectionIndex({
-    activeScopeSlots: activeScopeSlotsForSeed(compiled, persistentStatus, activeScopes),
-    activeScopes: persistentNumbersFor(activeScopes),
-    forcedQueue: forcedQueueForSeed(compiled, persistentStatus, counters),
+  const readiness = {
     heldMutexBlockers: persistentNumbersFor(
       heldMutexBlockersForSeed(compiled, counters.mutexHolders, legacyRunningMutexes)
     ),
+    pendingDependencies: persistentNumbersFor(counters.pendingDependencies),
+    pendingObservations: persistentNumbersFor(counters.pendingObservations)
+  };
+  const taskSlotsByStatus = {
+    pending: PersistentSet<number>(),
+    running: PersistentSet<number>(),
+    settled: PersistentSet<number>()
+  };
+  for (const [slot, status] of statuses.entries()) {
+    if (status.kind !== "absent")
+      taskSlotsByStatus[status.kind] = taskSlotsByStatus[status.kind].add(slot);
+  }
+  const candidateTaskSlots = taskSlotsByStatus.pending.filter(
+    (slot) => pendingBlockerStageForSelection(readiness, slot) === undefined
+  );
+  return freezeSelectionIndex({
+    ...readiness,
+    taskSlotsByStatus: Object.freeze(taskSlotsByStatus),
+    candidateTaskSlots,
+    activeScopeSlots: activeScopeSlotsForSeed(compiled, persistentStatus, activeScopes),
+    activeScopes: persistentNumbersFor(activeScopes),
+    forcedQueue: forcedQueueForSeed(compiled, persistentStatus, counters),
     legacyRunningMutexes:
       legacyRunningMutexes === undefined ? undefined : Object.freeze([...legacyRunningMutexes]),
     mutexHolders: persistentNumbersFor(counters.mutexHolders),
     nonCompletedDependencies: persistentNumbersFor(counters.nonCompletedDependencies),
-    pendingDependencies: persistentNumbersFor(counters.pendingDependencies),
-    pendingObservations: persistentNumbersFor(counters.pendingObservations),
     remainingTaskCount: counters.remainingTaskCount,
     resourceInUse: persistentNumbersFor(counters.resourceInUse),
     runningTotal: counters.runningTotal,

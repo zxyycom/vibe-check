@@ -7,9 +7,12 @@ import {
   type AdmissionSelectionIndex,
   type CoreTaskStatus
 } from "./selection-index.ts";
-import { isScopeInactiveForCore } from "./selection-query.ts";
+import { isScopeInactiveForCore } from "./state-query.ts";
 import { selectionIndexForSeed } from "./selection-seed.ts";
-import { transitionIndexedSelection } from "./selection-transition.ts";
+import {
+  transitionIndexedSelection,
+  type IndexedSelectionTransition
+} from "./selection-transition.ts";
 import type { SchedulerSettlementKind, SchedulerSnapshot } from "../scheduler-decision-model.ts";
 
 /** Private immutable core passed among Scheduler decision, policy and effect owners. */
@@ -23,15 +26,21 @@ export interface AdmissionCoreState {
 export function createInitialAdmissionCoreState(
   compiled: CompiledAdmissionGraph
 ): AdmissionCoreState {
-  return freezeCoreState(
-    compiled,
-    selectionIndexForSeed(
-      compiled,
-      compiled.graph.tasks.map(() => PENDING),
-      undefined,
-      undefined
-    )
-  );
+  return createAdmissionCoreFromSettlements(compiled, []);
+}
+
+/** Seeds actual pre-admission settlements once; no shell state mirror is required. */
+export function createAdmissionCoreFromSettlements(
+  compiled: CompiledAdmissionGraph,
+  settlements: readonly Readonly<{ taskId: string; kind: SchedulerSettlementKind }>[]
+): AdmissionCoreState {
+  const statuses = compiled.graph.tasks.map(() => PENDING);
+  for (const { taskId, kind } of settlements) {
+    const slot = compiled.taskSlotsById.get(taskId);
+    if (slot === undefined) throw new Error(`admission core settlement task is unknown: ${taskId}`);
+    statuses[slot] = Object.freeze({ kind: "settled", settlementKind: kind });
+  }
+  return freezeCoreState(compiled, selectionIndexForSeed(compiled, { statuses }));
 }
 
 /** Seeds from a shell snapshot without exposing a mutable shell view. */
@@ -42,7 +51,11 @@ export function createAdmissionCoreFromSchedulerSnapshot(
   const statuses = statusesForSchedulerSnapshot(compiled, snapshot);
   return freezeCoreState(
     compiled,
-    selectionIndexForSeed(compiled, statuses, snapshot.activeScopeIds, snapshot.runningMutexes)
+    selectionIndexForSeed(compiled, {
+      statuses,
+      activeScopeIds: snapshot.activeScopeIds,
+      legacyRunningMutexes: snapshot.runningMutexes
+    })
   );
 }
 
@@ -55,7 +68,11 @@ export function admitTaskForCore(state: AdmissionCoreState, taskSlot: number): A
     state.compiled.taskActivatesScope[taskSlot] === true
       ? scopeSlot
       : undefined;
-  return transitionState(state, taskSlot, Object.freeze({ kind: "running" }), activatedScopeSlot);
+  return transitionState(state, {
+    taskSlot,
+    status: Object.freeze({ kind: "running" }),
+    activatedScopeSlot
+  });
 }
 
 /** Produces an immutable successor for one already-validated settlement event. */
@@ -64,12 +81,11 @@ export function settleTaskForCore(
   taskSlot: number,
   settlementKind: SchedulerSettlementKind
 ): AdmissionCoreState {
-  return transitionState(
-    state,
+  return transitionState(state, {
     taskSlot,
-    Object.freeze({ kind: "settled", settlementKind }),
-    undefined
-  );
+    status: Object.freeze({ kind: "settled", settlementKind }),
+    activatedScopeSlot: undefined
+  });
 }
 
 /** Pops the forced max-heap before recording its canonical blocked settlement. */
@@ -116,19 +132,11 @@ function statusesForSchedulerSnapshot(
 
 function transitionState(
   state: AdmissionCoreState,
-  taskSlot: number,
-  status: CoreTaskStatus,
-  activatedScopeSlot: number | undefined
+  transition: IndexedSelectionTransition
 ): AdmissionCoreState {
   return freezeCoreState(
     state.compiled,
-    transitionIndexedSelection(
-      state.compiled,
-      state.selection,
-      taskSlot,
-      status,
-      activatedScopeSlot
-    )
+    transitionIndexedSelection(state.compiled, state.selection, transition)
   );
 }
 

@@ -3,11 +3,7 @@ import type { AdmissionSelectionPolicy } from "./admission-selection-policy.ts";
 import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
 import { staticAdmissionSelectionPolicy } from "./admission-selection-policy.ts";
 import { decideAdmission, type SchedulerDecisionCycle } from "./scheduler-admission-decision.ts";
-import {
-  coreDecisionContext,
-  decisionContext,
-  type SchedulerInspection
-} from "./scheduler-decision-inspection.ts";
+import { coreDecisionContext, type SchedulerInspection } from "./scheduler-decision-inspection.ts";
 import { freezeDecision, freezeDecisionWithContext } from "./scheduler-decision-model.ts";
 import type {
   SchedulerDecision,
@@ -54,15 +50,8 @@ export function decideScheduler(
     );
     if (forced?.kind === "settled" && forced.settlementKind === "blocked") {
       return freezeDecision({
-        ...decisionContext(
-          Object.freeze({
-            ...schedulerInspectionForCore(core),
-            isAbortRequested: snapshot.isAbortRequested,
-            isCancelled: snapshot.isCancelled
-          }),
-          core.compiled.graph.schedulerGraphSnapshot
-        ),
-        dependencyIds: forced.dependencyIds ?? [],
+        ...coreDecisionContext(core),
+        dependencyIds: forced.dependencyIds,
         kind: "settle-blocked",
         taskId: forced.taskId,
         trigger
@@ -105,7 +94,7 @@ export function decideSchedulerFromCore(
     }));
   const cycle: SchedulerDecisionCycle = Object.freeze({
     admissionCore: core,
-    context: coreDecisionContext(core, inspection),
+    context: coreDecisionContext(core),
     policy,
     get state() {
       return inspection();

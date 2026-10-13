@@ -30,7 +30,7 @@ export interface CompiledAdmissionGraph {
   readonly taskScopeSlots: readonly (number | undefined)[];
   readonly taskSlotsById: ReadonlyMap<string, number>;
   readonly taskIdsInPublicOrder: readonly string[];
-  readonly taskSlotsInPublicOrder: readonly number[];
+  readonly taskPublicRanksBySlot: readonly number[];
   readonly relationIndexes: RelationStaticIndexes;
 }
 
@@ -61,7 +61,7 @@ interface ScopeStaticIndexes {
 
 interface PublicTaskOrder {
   readonly taskIdsInPublicOrder: readonly string[];
-  readonly taskSlotsInPublicOrder: readonly number[];
+  readonly taskPublicRanksBySlot: readonly number[];
 }
 
 interface CompiledAdmissionGraphParts {
@@ -253,18 +253,14 @@ function compilePublicTaskOrder(
   taskSlotsById: ReadonlyMap<string, number>
 ): PublicTaskOrder {
   const taskIdsInPublicOrder = Object.freeze(graph.tasks.map((task) => task.id).sort(compareText));
-  return {
-    taskIdsInPublicOrder,
-    taskSlotsInPublicOrder: Object.freeze(
-      taskIdsInPublicOrder.map((taskId) => {
-        const taskSlot = taskSlotsById.get(taskId);
-        if (taskSlot === undefined) {
-          throw new Error(`admission core task is missing from public order: ${taskId}`);
-        }
-        return taskSlot;
-      })
-    )
-  };
+  const taskPublicRanksBySlot = graph.tasks.map(() => 0);
+  for (const [rank, taskId] of taskIdsInPublicOrder.entries()) {
+    const slot = taskSlotsById.get(taskId);
+    if (slot === undefined)
+      throw new Error(`admission core task is missing from public order: ${taskId}`);
+    taskPublicRanksBySlot[slot] = rank;
+  }
+  return { taskIdsInPublicOrder, taskPublicRanksBySlot: Object.freeze(taskPublicRanksBySlot) };
 }
 
 /** Freezes the one compiled graph object after every static compiler stage has completed. */
@@ -302,7 +298,7 @@ function assembleCompiledAdmissionGraph(
     taskActivatesScope: scopeIndexes.taskActivatesScope,
     taskScopeSlots: scopeIndexes.taskScopeSlots,
     taskSlotsById: catalog.taskSlotsById,
-    taskSlotsInPublicOrder: publicTaskOrder.taskSlotsInPublicOrder
+    taskPublicRanksBySlot: publicTaskOrder.taskPublicRanksBySlot
   });
 }
 

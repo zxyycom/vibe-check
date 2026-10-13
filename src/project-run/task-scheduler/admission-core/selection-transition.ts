@@ -11,6 +11,7 @@ import {
   enqueueForcedTaskSlots,
   freezeSelectionIndex,
   numberFor,
+  pendingBlockerStageForSelection,
   statusForSelection,
   statusForStore,
   withNumberDeltas,
@@ -23,7 +24,14 @@ import {
 } from "./selection-index.ts";
 import { insertActiveScopeSlot } from "./selection-seed.ts";
 
+export interface IndexedSelectionTransition {
+  readonly taskSlot: number;
+  readonly status: CoreTaskStatus;
+  readonly activatedScopeSlot: number | undefined;
+}
+
 interface MutableTransitionFacts {
+  readonly affectedCandidateSlots: Set<number>;
   readonly activatedScopeSlot: number | undefined;
   activeScopeSlots: readonly number[];
   activeScopes: NumberStore;
@@ -46,15 +54,30 @@ interface MutableTransitionFacts {
 export function transitionIndexedSelection(
   compiled: CompiledAdmissionGraph,
   selection: AdmissionSelectionIndex,
-  taskSlot: number,
-  status: CoreTaskStatus,
-  activatedScopeSlot: number | undefined
+  transition: IndexedSelectionTransition
 ): AdmissionSelectionIndex {
-  const facts = initialTransitionFacts(selection, taskSlot, status, activatedScopeSlot);
+  const { taskSlot, status } = transition;
+  const facts = initialTransitionFacts(selection, transition);
   applyRunningOccupancyDelta(compiled, facts);
   applySettlementRelationDelta(compiled, facts);
   applyScopeLifecycleDelta(compiled, facts);
+  const taskSlotsByStatus = { ...selection.taskSlotsByStatus };
+  if (facts.previous.kind !== "absent")
+    taskSlotsByStatus[facts.previous.kind] =
+      taskSlotsByStatus[facts.previous.kind].delete(taskSlot);
+  if (status.kind !== "absent")
+    taskSlotsByStatus[status.kind] = taskSlotsByStatus[status.kind].add(taskSlot);
+  let candidateTaskSlots = selection.candidateTaskSlots;
+  for (const slot of facts.affectedCandidateSlots) {
+    candidateTaskSlots =
+      statusForStore(facts.statuses, slot).kind === "pending" &&
+      pendingBlockerStageForSelection(facts, slot) === undefined
+        ? candidateTaskSlots.add(slot)
+        : candidateTaskSlots.delete(slot);
+  }
   return freezeSelectionIndex({
+    candidateTaskSlots,
+    taskSlotsByStatus: Object.freeze(taskSlotsByStatus),
     activeScopeSlots: facts.activeScopeSlots,
     activeScopes: facts.activeScopes,
     forcedQueue: facts.forcedQueue,
@@ -73,11 +96,11 @@ export function transitionIndexedSelection(
 
 function initialTransitionFacts(
   selection: AdmissionSelectionIndex,
-  taskSlot: number,
-  status: CoreTaskStatus,
-  activatedScopeSlot: number | undefined
+  transition: IndexedSelectionTransition
 ): MutableTransitionFacts {
+  const { taskSlot, status, activatedScopeSlot } = transition;
   return {
+    affectedCandidateSlots: new Set([taskSlot]),
     activatedScopeSlot,
     activeScopeSlots: selection.activeScopeSlots,
     activeScopes: selection.activeScopes,
@@ -106,18 +129,13 @@ function applyRunningOccupancyDelta(
   if (previous.kind === "pending" && status.kind === "running") {
     facts.runningTotal += 1;
     facts.mutexHolders = withMutexHolderDelta(compiled, facts.mutexHolders, taskSlot, 1);
-    facts.heldMutexBlockers = withMutexBlockerDelta(compiled, facts.heldMutexBlockers, taskSlot, 1);
+    applyMutexBlockerDelta(compiled, facts, 1);
     facts.resourceInUse = withResourceClaimDelta(compiled, facts.resourceInUse, taskSlot, 1);
   } else if (previous.kind === "running" && status.kind === "settled") {
     facts.runningTotal -= 1;
     facts.remainingTaskCount -= 1;
     facts.mutexHolders = withMutexHolderDelta(compiled, facts.mutexHolders, taskSlot, -1);
-    facts.heldMutexBlockers = withMutexBlockerDelta(
-      compiled,
-      facts.heldMutexBlockers,
-      taskSlot,
-      -1
-    );
+    applyMutexBlockerDelta(compiled, facts, -1);
     facts.resourceInUse = withResourceClaimDelta(compiled, facts.resourceInUse, taskSlot, -1);
   } else if (previous.kind === "pending" && status.kind === "settled") {
     facts.remainingTaskCount -= 1;
@@ -152,13 +170,15 @@ function withMutexHolderDelta(
   );
 }
 
-function withMutexBlockerDelta(
+/** Keeps blocker counters and their candidate invalidation fanout in the same transition stage. */
+function applyMutexBlockerDelta(
   compiled: CompiledAdmissionGraph,
-  blockers: NumberStore,
-  taskSlot: number,
+  facts: MutableTransitionFacts,
   delta: 1 | -1
-): NumberStore {
-  return withNumberDeltas(blockers, mutexBlockerDeltasFor(compiled, taskSlot, delta));
+): void {
+  const deltas = mutexBlockerDeltasFor(compiled, facts.taskSlot, delta);
+  for (const [slot] of deltas) facts.affectedCandidateSlots.add(slot);
+  facts.heldMutexBlockers = withNumberDeltas(facts.heldMutexBlockers, deltas);
 }
 
 function mutexBlockerDeltasFor(
@@ -183,6 +203,9 @@ function applySettlementRelationDelta(
   const { previous, status, taskSlot } = facts;
   if (previous.kind === "settled" || status.kind !== "settled") return;
   const reverseDependencies = requiredReverseDependenciesForCompiled(compiled, taskSlot);
+  const reverseObservations = requiredReverseObservationsForCompiled(compiled, taskSlot);
+  for (const slot of reverseDependencies) facts.affectedCandidateSlots.add(slot);
+  for (const slot of reverseObservations) facts.affectedCandidateSlots.add(slot);
   facts.pendingDependencies = withNumberDeltas(
     facts.pendingDependencies,
     reverseDependencies.map((dependentSlot) => [dependentSlot, -1] as const)
@@ -195,9 +218,7 @@ function applySettlementRelationDelta(
   }
   facts.pendingObservations = withNumberDeltas(
     facts.pendingObservations,
-    requiredReverseObservationsForCompiled(compiled, taskSlot).map(
-      (observerSlot) => [observerSlot, -1] as const
-    )
+    reverseObservations.map((observerSlot) => [observerSlot, -1] as const)
   );
   facts.forcedQueue = enqueueForcedTaskSlots(
     facts.forcedQueue,

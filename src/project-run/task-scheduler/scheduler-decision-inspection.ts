@@ -1,10 +1,8 @@
 import { capacityForCore } from "./admission-core/scheduler-queries.ts";
 import type { AdmissionCoreState } from "./admission-core/core.ts";
 import type { PlannedTask, PlannedTaskGraph } from "./graph.ts";
-import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 import { summarizeSchedulerBlockers } from "./scheduler-blocker-summary.ts";
 import type {
-  SchedulerCapacity,
   SchedulerDecisionContext,
   SchedulerSettlementKind
 } from "./scheduler-decision-model.ts";
@@ -31,36 +29,13 @@ export interface SchedulerInspection {
   }>[];
 }
 
-export function decisionContext(
-  state: SchedulerInspection,
-  graphIdentity: SchedulerGraphSnapshot
-): SchedulerDecisionContext {
-  const capacity = capacityFor(state);
-  return Object.freeze({
-    blockers: summarizeSchedulerBlockers(state, capacity),
-    capacity,
-    graphIdentity
-  });
-}
-
-export function capacityFor(state: SchedulerInspection): SchedulerCapacity {
-  return Object.freeze({
-    effectiveMaxParallel: state.effectiveMaxParallel,
-    maxParallel: state.maxParallel,
-    running: state.runningTaskIds.length
-  });
-}
-
-/** Defers diagnostic-only full inspection/blockers; capacity is a thin scalar projection. */
-export function coreDecisionContext(
-  core: AdmissionCoreState,
-  inspection: () => SchedulerInspection
-): SchedulerDecisionContext {
+/** Defers diagnostic-only blocker aggregation; capacity is a thin scalar projection. */
+export function coreDecisionContext(core: AdmissionCoreState): SchedulerDecisionContext {
   let blockers: SchedulerDecisionContext["blockers"] | undefined;
   const capacity = capacityForCore(core);
   return Object.freeze({
     get blockers() {
-      return (blockers ??= summarizeSchedulerBlockers(inspection(), capacity));
+      return (blockers ??= summarizeSchedulerBlockers(core));
     },
     capacity,
     graphIdentity: core.compiled.graph.schedulerGraphSnapshot

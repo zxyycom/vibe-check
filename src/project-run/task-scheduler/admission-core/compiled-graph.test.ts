@@ -117,7 +117,7 @@ describe("prepared admission graph compiler", () => {
       "terminal-later",
       "z-source"
     ]);
-    assert.deepEqual(compiled.taskSlotsInPublicOrder, [1, 2, 3, 4, 0]);
+    assert.deepEqual(compiled.taskPublicRanksBySlot, [4, 0, 1, 2, 3]);
     assert.equal(Object.isFrozen(compiled), true);
     assert.equal(Object.isFrozen(compiled.relationIndexes), true);
     assert.equal(Object.isFrozen(compiled.taskMutexSlots), true);

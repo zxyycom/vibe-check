@@ -1,4 +1,4 @@
-import { List } from "immutable";
+import { List, Set as PersistentSet } from "immutable";
 
 import type { SchedulerSettlementKind } from "../scheduler-decision-model.ts";
 
@@ -30,8 +30,15 @@ export type ForcedTaskQueue =
       readonly taskSlot: number;
     }>;
 
-/** Private dynamic index shared by the seed, delta reducer and read-only query owners. */
+/** Primary relation/mutex blocker, shared by seed, transition and read-only query owners. */
+export type PendingBlockerStage = "depends-on-pending" | "mutex-held" | "observes-pending";
+export type TaskPartitionKind = "pending" | "running" | "settled";
+
 export interface AdmissionSelectionIndex {
+  /** Persistent memberships; order is applied only at consuming projection boundaries. */
+  readonly taskSlotsByStatus: Readonly<Record<TaskPartitionKind, PersistentSet<number>>>;
+  /** Pending tasks with resolved relations and no held mutex; capacity is evaluated dynamically. */
+  readonly candidateTaskSlots: PersistentSet<number>;
   readonly activeScopeSlots: readonly number[];
   readonly activeScopes: NumberStore;
   readonly forcedQueue: ForcedTaskQueue;
@@ -46,6 +53,19 @@ export interface AdmissionSelectionIndex {
   readonly resourceInUse: NumberStore;
   readonly runningTotal: number;
   readonly statuses: StatusStore;
+}
+
+/** Shared relation/mutex readiness: seeds, transitions and public validation consume this predicate. */
+export function pendingBlockerStageForSelection(
+  selection: Pick<
+    AdmissionSelectionIndex,
+    "pendingDependencies" | "pendingObservations" | "heldMutexBlockers"
+  >,
+  taskSlot: number
+): PendingBlockerStage | undefined {
+  if (numberFor(selection.pendingDependencies, taskSlot) > 0) return "depends-on-pending";
+  if (numberFor(selection.pendingObservations, taskSlot) > 0) return "observes-pending";
+  return numberFor(selection.heldMutexBlockers, taskSlot) > 0 ? "mutex-held" : undefined;
 }
 
 export function persistentStatuses(values: readonly CoreTaskStatus[]): StatusStore {

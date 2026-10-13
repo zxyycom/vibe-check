@@ -636,3 +636,24 @@ Entities:
   Proves:
 - 首次实际 restore 的已读文件 bytes 严格超过自定义或默认 16 MiB 阈值才产生一次 warning；等于阈值不提醒，后续 parse 不重读或重复提醒。message 给出大小、阈值和准确可删除文件；除容量 message 外，冷 miss 与 warm hit 均保留相同链接 Records、data、status 和 messages。
 - 未实际 parse、已取消或非 UTF-8 source 不触发提醒；关闭 cache 不改变现有文件，无输入不产生 message。成功读取超阈值的无效 UTF-8 cache 仍 fresh-parse 并提醒，但不追加 publication；后续 traversal 不可用也保留提醒而不发布 partial findings。
+
+## Case WB-RUNTIME-ADMISSION-CORE-QUERIES-001: Core memberships 支持执行与推演查询
+
+Owner: `docs/development/scheduler.md#admission-state-与-real-shell`
+Entities:
+
+- `bun|src/project-run/task-scheduler/admission-core/scheduler-queries.test.ts|shared admission Core queries > shares ordered memberships and readiness across transitions without scanning the whole graph`
+- `bun|src/project-run/task-scheduler/scheduler-blocker-summary.test.ts|Scheduler blocker summary > aggregates independent Core blockers even when primary scope or root capacity hides resources`
+  Proves:
+- declaration-order pending/running/settled 与 lexical public catalog/inspection 共读 immutable memberships；重复关系与 mutex occurrence 的 admission/release 更新 readiness，暂时 resource shortage 的 candidate 不消失。保留 predecessor、独立 fork 和取消 successor 均不互相改变。
+- indexed consumer reads 用 whole-graph traversal guard 证明不重扫全图构造 memberships；query、public projection、transition 与 cancellation 仍返回完整有序事实。此结构证据不宣称 wall-clock 收益。
+- summary 的 dependency → mutex → resource priority 直接聚合 Core facts，即使 primary root/scoped rejection 遮住 resource reason 仍计入 shortage；measurement 使用同源 capacity classification。
+
+## Case WB-RUNTIME-PREADMISSION-SEED-001: Pre-admission 初始化保持回调与错误顺序
+
+Owner: `docs/development/scheduler.md#public-prepared-admission-strategy-lifecycle`
+Entities:
+
+- `bun|src/project-run/task-scheduler/execution-state.test.ts|Scheduler pre-admission initialization > initializes terminal facts while preserving input validation and satisfaction callback order`
+  Proves:
+- static validation 在任何 satisfaction callback 前；unknown/duplicate ID 在对应 callback 前拒绝，callback throw 优先于后续非法 ID。成功值按输入顺序映射 completed/prerequisite-unsatisfied，实际 settlements 与 Core 的 graph-order terminal membership 完整一致，且没有 admission/running work。

@@ -6,15 +6,18 @@ import type {
 } from "../../../project-definition/scheduler-policy.ts";
 import type { PlannedTask, PlannedTaskGraph } from "../graph.ts";
 import {
+  isAdmissionEligibleForPendingTask,
+  selectionRejectionForPendingTask
+} from "./selection-query.ts";
+import {
   activeScopesForCore,
   effectiveMaxParallelForCore,
-  isAdmissionEligibleForPendingTask,
   requiredScopeSlotForCore,
   requiredTaskForCore,
   scopeLifecycleForCore,
-  selectionRejectionForPendingTask,
-  statusForCore
-} from "./selection-query.ts";
+  statusForCore,
+  taskSlotsForCore
+} from "./state-query.ts";
 import { numberFor } from "./selection-index.ts";
 import type { AdmissionCoreState } from "./selection.ts";
 import type { SchedulerSettlementKind } from "../scheduler-decision-model.ts";
@@ -23,8 +26,7 @@ import type { SchedulerSettlementKind } from "../scheduler-decision-model.ts";
 export function catalogForCore(state: AdmissionCoreState): AdmissionCatalog {
   const selectableTaskIds: string[] = [];
   const nonSelectableTasks: { reason: AdmissionSelectionRejectionReason; taskId: string }[] = [];
-  for (const taskSlot of state.compiled.taskSlotsInPublicOrder) {
-    if (statusForCore(state, taskSlot).kind !== "pending") continue;
+  for (const taskSlot of publicTaskSlotsForCore(state, "pending")) {
     const reason = selectionRejectionForPendingTask(state, taskSlot);
     const taskId = requiredTaskForCore(state, taskSlot).id;
     if (reason === undefined) selectableTaskIds.push(taskId);
@@ -37,21 +39,22 @@ export function catalogForCore(state: AdmissionCoreState): AdmissionCatalog {
 }
 
 export function inspectionForCore(state: AdmissionCoreState): AdmissionInspection {
-  const runningTaskIds: string[] = [];
+  const runningTaskIds = publicTaskSlotsForCore(state, "running").map(
+    (slot) => requiredTaskForCore(state, slot).id
+  );
   const settledTasks: { outcome: AdmissionSettlementOutcome; taskId: string }[] = [];
-  for (const taskSlot of state.compiled.taskSlotsInPublicOrder) {
-    const task = requiredTaskForCore(state, taskSlot);
+  for (const taskSlot of publicTaskSlotsForCore(state, "settled")) {
     const status = statusForCore(state, taskSlot);
-    if (status.kind === "running") runningTaskIds.push(task.id);
-    if (status.kind === "settled") {
-      const outcome = publicOutcomeForSettlement(status.settlementKind);
-      if (outcome !== undefined) settledTasks.push(Object.freeze({ outcome, taskId: task.id }));
-    }
+    if (status.kind !== "settled")
+      throw new Error("admission core settled partition disagrees with status");
+    const outcome = publicOutcomeForSettlement(status.settlementKind);
+    if (outcome !== undefined)
+      settledTasks.push(
+        Object.freeze({ outcome, taskId: requiredTaskForCore(state, taskSlot).id })
+      );
   }
-  const hasSelectablePending = state.compiled.graph.tasks.some(
-    (_, taskSlot) =>
-      statusForCore(state, taskSlot).kind === "pending" &&
-      isAdmissionEligibleForPendingTask(state, taskSlot)
+  const hasSelectablePending = state.selection.candidateTaskSlots.some((slot) =>
+    isAdmissionEligibleForPendingTask(state, slot)
   );
   return Object.freeze({
     capacity: Object.freeze({
@@ -91,20 +94,22 @@ export function schedulerInspectionForCore(state: AdmissionCoreState): Readonly<
     readonly taskId: string;
   }>[];
 }> {
-  const pendingTasks: PlannedTask[] = [];
+  const pendingTasks = taskSlotsForCore(state, "pending").map((slot) =>
+    requiredTaskForCore(state, slot)
+  );
   const runningTaskIds: string[] = [];
   const runningMutexes = new Set<string>();
   const settledTasks: { kind: SchedulerSettlementKind; taskId: string }[] = [];
-  for (const [taskSlot, task] of state.compiled.graph.tasks.entries()) {
-    const status = statusForCore(state, taskSlot);
-    if (status.kind === "pending") pendingTasks.push(task);
-    if (status.kind === "running") {
-      runningTaskIds.push(task.id);
-      for (const mutexId of task.mutex) runningMutexes.add(mutexId);
-    }
-    if (status.kind === "settled") {
-      settledTasks.push({ kind: status.settlementKind, taskId: task.id });
-    }
+  for (const slot of taskSlotsForCore(state, "running")) {
+    const task = requiredTaskForCore(state, slot);
+    runningTaskIds.push(task.id);
+    for (const mutexId of task.mutex) runningMutexes.add(mutexId);
+  }
+  for (const slot of taskSlotsForCore(state, "settled")) {
+    const status = statusForCore(state, slot);
+    if (status.kind !== "settled")
+      throw new Error("admission core settled partition disagrees with status");
+    settledTasks.push({ kind: status.settlementKind, taskId: requiredTaskForCore(state, slot).id });
   }
   return Object.freeze({
     activeScopeIds: Object.freeze(activeScopesForCore(state).map((scope) => scope.id)),
@@ -117,6 +122,22 @@ export function schedulerInspectionForCore(state: AdmissionCoreState): Readonly<
     runningTaskIds: Object.freeze(runningTaskIds),
     settledTasks: Object.freeze(settledTasks.map((task) => Object.freeze(task)))
   });
+}
+
+/** Public lexical order is a projection, distinct from real Scheduler declaration order. */
+function publicTaskSlotsForCore(
+  state: AdmissionCoreState,
+  kind: "pending" | "running" | "settled"
+): readonly number[] {
+  return state.selection.taskSlotsByStatus[kind]
+    .toArray()
+    .sort((left, right) => publicRankForCore(state, left) - publicRankForCore(state, right));
+}
+
+function publicRankForCore(state: AdmissionCoreState, slot: number): number {
+  const rank = state.compiled.taskPublicRanksBySlot[slot];
+  if (rank === undefined) throw new Error(`admission core public rank is unknown: ${slot}`);
+  return rank;
 }
 
 function resourceOccupancyForCore(state: AdmissionCoreState): AdmissionInspection["resources"] {

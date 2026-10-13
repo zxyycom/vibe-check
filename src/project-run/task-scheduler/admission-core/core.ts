@@ -13,6 +13,7 @@ import { catalogForCore, inspectionForCore, schedulerInspectionForCore } from ".
 import {
   admitTaskForCore,
   createAdmissionCoreFromSchedulerSnapshot,
+  createAdmissionCoreFromSettlements,
   createInitialAdmissionCoreState,
   nextForcedTaskForCore,
   settleForcedTaskForCore,
@@ -21,14 +22,17 @@ import {
 } from "./selection.ts";
 import {
   admissionCandidatesForCore,
+  selectionRejectionForPendingTask,
+  type AdmissionCoreSelection
+} from "./selection-query.ts";
+import {
   isCoreComplete,
   requiredTaskForCore,
   requiredTaskSlotForCore,
   scopeToActivateForCore,
-  selectionRejectionForPendingTask,
   statusForCore,
-  type AdmissionCoreSelection
-} from "./selection-query.ts";
+  taskSlotsForCore
+} from "./state-query.ts";
 import type { SchedulerSettlementKind } from "../scheduler-decision-model.ts";
 
 export { compilePreparedAdmissionGraph } from "./compiled-graph.ts";
@@ -36,6 +40,7 @@ export type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 export {
   admissionCandidatesForCore,
   createAdmissionCoreFromSchedulerSnapshot,
+  createAdmissionCoreFromSettlements,
   createInitialAdmissionCoreState,
   schedulerInspectionForCore,
   scopeToActivateForCore
@@ -45,9 +50,14 @@ export type { AdmissionCoreSelection, AdmissionCoreState };
 export type AdmissionCoreEffect =
   | Readonly<{ readonly kind: "admitted"; readonly taskId: string }>
   | Readonly<{
-      readonly dependencyIds?: readonly string[];
       readonly kind: "settled";
-      readonly settlementKind: SchedulerSettlementKind;
+      readonly settlementKind: Exclude<SchedulerSettlementKind, "blocked">;
+      readonly taskId: string;
+    }>
+  | Readonly<{
+      readonly dependencyIds: readonly string[];
+      readonly kind: "settled";
+      readonly settlementKind: "blocked";
       readonly taskId: string;
     }>;
 
@@ -149,8 +159,8 @@ export function cancelPendingAdmissionCore(state: AdmissionCoreState): Admission
   let next = state;
   const effects: AdmissionCoreEffect[] = [];
   const effectStates: AdmissionCoreState[] = [];
-  for (const [slot, task] of state.compiled.graph.tasks.entries()) {
-    if (statusForCore(next, slot).kind !== "pending") continue;
+  for (const slot of taskSlotsForCore(state, "pending")) {
+    const task = requiredTaskForCore(state, slot);
     next = settleTaskForCore(next, slot, "cancelled-before-start");
     effects.push(
       Object.freeze({ kind: "settled", settlementKind: "cancelled-before-start", taskId: task.id })
