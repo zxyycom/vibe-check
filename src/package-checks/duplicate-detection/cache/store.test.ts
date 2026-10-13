@@ -49,6 +49,25 @@ describe("quality measurement cache", () => {
 
 function assertIdentityInputs(baseKey: string, identity: DuplicateCodeCacheIdentity): void {
   assert.notEqual(baseKey, buildScanCacheKey({ ...identity, configVersion: "changed" }));
+  assert.notEqual(baseKey, buildScanCacheKey({ ...identity, commitSha: "changed-commit" }));
+  assert.notEqual(baseKey, buildScanCacheKey({ ...identity, toolVersion: "5.0.12" }));
+  assert.notEqual(
+    baseKey,
+    buildScanCacheKey({
+      ...identity,
+      scannerConfiguration: { ...identity.scannerConfiguration, minimumLines: 4 }
+    })
+  );
+  assert.notEqual(
+    baseKey,
+    buildScanCacheKey({
+      ...identity,
+      scannerConfiguration: {
+        ...identity.scannerConfiguration,
+        backend: { kind: "custom", executable: "/another/jscpd" }
+      }
+    })
+  );
   assert.notEqual(
     baseKey,
     buildScanCacheKey({
@@ -72,17 +91,11 @@ function assertIdentityInputs(baseKey: string, identity: DuplicateCodeCacheIdent
 function assertRawScanConfigurationVersion(): void {
   const current = createDuplicateScanCacheIdentity({
     dependency: { command: DEFAULT_JSCPD_COMMAND },
-    exactInput: {
-      approvedExactPaths: ["src/risky.ts"],
-      areas: [],
-      cacheRootDir: ".cache/vibe-check",
-      commitSha: "abc123",
-      inputFingerprint: {
-        fileCount: 1,
-        fileList: ["src/risky.ts"],
-        fingerprint: "sha256:test:1"
-      },
-      rootDir: "/workspace/consumer"
+    commitSha: "abc123",
+    inputFingerprint: {
+      fileCount: 1,
+      fileList: ["src/risky.ts"],
+      fingerprint: "sha256:test:1"
     },
     minimumLines: 3,
     minimumTokens: 75,

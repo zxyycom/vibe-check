@@ -46,6 +46,8 @@ package root 的同步 `collectProjectFiles({ projectRoot, selection })` 先执�
 需要按输入内容隔离 cache 的 Check 调用 `fingerprintProjectFiles(root, paths)`。该机制先稳定排序 exact relative paths，
 再以 LF-normalized 当前文件内容形成 SHA-256；文件顺序不改变 fingerprint，路径或内容变化会改变 fingerprint。不可读文件
 使用明确 sentinel 参与 fingerprint，后续 scanner/read 边界仍负责把实际不可读输入结算为不可用，而不是把它解释为空文件。
+fingerprint 属于内容缓存身份，不是文件收集或扫描合法性的预读证明；调用方只在实际需要该身份的缓存路径取得它。
+Duplicate 的条件获取与 scan 前取样由 [scanner cache owner](scanner-dependencies.md#cache-and-failures) 承接。
 
 Package-provided Checks 的 exact file selection 只由各自的顶层 `options.files` 或 `codeAreas[id].files` 决定。
 项目自定义的 diff、baseline 或其它 comparison facts 是普通 Check data：producing Check 拥有来源、options 与 data shape；

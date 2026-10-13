@@ -27,13 +27,6 @@ export interface DuplicateDetectionAreaInput {
 export interface DuplicateDetectionExactInputSet {
   readonly approvedExactPaths: readonly string[];
   readonly areas: readonly DuplicateDetectionAreaInput[];
-  readonly cacheRootDir: string;
-  readonly commitSha: string;
-  readonly inputFingerprint: Readonly<{
-    readonly fileCount: number;
-    readonly fileList: readonly string[];
-    readonly fingerprint: string;
-  }>;
   readonly rootDir: string;
 }
 

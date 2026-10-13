@@ -5,7 +5,7 @@ import {
   writeScanCacheEntry,
   type DuplicateCodeCacheIdentity
 } from "./cache/store.ts";
-import { createDuplicateScanCacheIdentity } from "./cache/identity.ts";
+import { prepareDuplicateScanCache, type PreparedDuplicateScanCache } from "./cache/identity.ts";
 import { checkJscpd } from "./jscpd/availability.ts";
 import { scanWithJscpdAsync } from "./jscpd/scanner.ts";
 import { toScopedJscpdMeasurements } from "./jscpd/scoped-fragments.ts";
@@ -24,6 +24,7 @@ export type DuplicateMeasurementResult = Readonly<
   | { kind: "invalid-result" }
   | { kind: "cache-write-failed" }
   | { kind: "unavailable" }
+  | { kind: "source-unavailable" }
 >;
 
 type RawMeasurementResult = Readonly<
@@ -31,6 +32,7 @@ type RawMeasurementResult = Readonly<
   | { kind: "execution-failed" }
   | { kind: "invalid-result" }
   | { kind: "cache-write-failed" }
+  | { kind: "source-unavailable" }
 >;
 
 interface RawScopeMeasurementInput {
@@ -74,7 +76,7 @@ export async function measureDuplicateDetection(
 
 function validMeasurementInput(exactInput: DuplicateDetectionExactInputSet): boolean {
   const approvedExactPaths = exactInput.approvedExactPaths;
-  if (!hasValidScopeIdentity(exactInput) || !hasValidApprovedPaths(exactInput)) return false;
+  if (!hasValidScanScope(exactInput) || !hasValidApprovedPaths(exactInput)) return false;
 
   const approvedPathSet = new Set(approvedExactPaths);
   const coveredPathSet = new Set<string>();
@@ -90,22 +92,13 @@ function validMeasurementInput(exactInput: DuplicateDetectionExactInputSet): boo
   return coveredPathSet.size === approvedPathSet.size;
 }
 
-function hasValidScopeIdentity(exactInput: DuplicateDetectionExactInputSet): boolean {
-  return (
-    exactInput.approvedExactPaths.length >= 2 &&
-    nonEmptyString(exactInput.rootDir) &&
-    nonEmptyString(exactInput.cacheRootDir) &&
-    nonEmptyString(exactInput.commitSha)
-  );
+function hasValidScanScope(exactInput: DuplicateDetectionExactInputSet): boolean {
+  return exactInput.approvedExactPaths.length >= 2 && nonEmptyString(exactInput.rootDir);
 }
 
 function hasValidApprovedPaths(exactInput: DuplicateDetectionExactInputSet): boolean {
   const paths = exactInput.approvedExactPaths;
-  return (
-    paths.every(nonEmptyString) &&
-    sameStrings(paths, uniqueSorted(paths)) &&
-    validFingerprintForPaths(exactInput.inputFingerprint, paths)
-  );
+  return paths.every(nonEmptyString) && sameStrings(paths, uniqueSorted(paths));
 }
 
 function isValidAreaInput(area: DuplicateDetectionAreaInput): boolean {
@@ -119,32 +112,25 @@ function isValidAreaInput(area: DuplicateDetectionAreaInput): boolean {
   );
 }
 
-function validFingerprintForPaths(
-  fingerprint: DuplicateDetectionExactInputSet["inputFingerprint"],
-  approvedExactPaths: readonly string[]
-): boolean {
-  const expectedFileList = approvedExactPaths.slice(0, 200);
-  return (
-    fingerprint.fileCount === approvedExactPaths.length &&
-    sameStrings(fingerprint.fileList, expectedFileList) &&
-    nonEmptyString(fingerprint.fingerprint)
-  );
-}
-
 async function measureRawScope(input: RawScopeMeasurementInput): Promise<RawMeasurementResult> {
-  const identity = createDuplicateScanCacheIdentity(input);
   const exactPaths = input.exactInput.approvedExactPaths;
+  let cache: PreparedDuplicateScanCache | null = null;
   if (input.cache.enabled) {
+    try {
+      cache = prepareDuplicateScanCache({ ...input, directory: input.cache.directory });
+    } catch {
+      return Object.freeze({ kind: "source-unavailable" });
+    }
     const cachedFragments = loadValidCachedFragments(
-      input.exactInput.cacheRootDir,
-      identity,
+      cache.cacheRootDir,
+      cache.identity,
       exactPaths
     );
     if (cachedFragments !== null) {
       return Object.freeze({ fragments: cachedFragments, kind: "complete" });
     }
   }
-  return scanAndCacheScope(input, identity, exactPaths);
+  return scanAndCacheScope(input, cache, exactPaths);
 }
 
 function loadValidCachedFragments(
@@ -165,7 +151,7 @@ function loadValidCachedFragments(
 
 async function scanAndCacheScope(
   input: RawScopeMeasurementInput,
-  identity: DuplicateCodeCacheIdentity,
+  cache: PreparedDuplicateScanCache | null,
   exactPaths: readonly string[]
 ): Promise<RawMeasurementResult> {
   const result = await scanWithJscpdAsync({
@@ -186,11 +172,11 @@ async function scanAndCacheScope(
     return Object.freeze({ kind: "invalid-result" });
   }
   const fragments = Object.freeze(accepted.payloads);
-  if (input.cache.enabled) {
+  if (cache !== null) {
     try {
       writeScanCacheEntry({
-        rootDir: input.exactInput.cacheRootDir,
-        identity,
+        rootDir: cache.cacheRootDir,
+        identity: cache.identity,
         metrics: [...fragments]
       });
     } catch {

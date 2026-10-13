@@ -1,12 +1,9 @@
-import { resolve } from "node:path";
-
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import {
   reconcileFindingWaivers,
   type FindingWaiverReconciliation
 } from "../../package-tools/finding-waivers/reconciliation.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
-import { fingerprintProjectFiles } from "../project-files/file-fingerprint.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
 import {
   reportFindingWaiverAudits,
@@ -14,7 +11,6 @@ import {
 } from "../code-quality-findings/finding-waiver-evidence.ts";
 import { appendCheckMessages } from "../../package-tools/finding-presentation/finding-presentation.ts";
 import { duplicateFindingMessages, duplicateWaiverMessages } from "./finding-messages.ts";
-import { getGitSha } from "./project-revision.ts";
 import { measureDuplicateDetection, type DuplicateMeasurementResult } from "./measurement.ts";
 import type {
   DuplicateDetectionAreaInput,
@@ -129,16 +125,9 @@ function prepareExactInputSet(
 ): DuplicateDetectionExactInputSet {
   const areas = collectAreaInputs(rootDir, options.codeAreas);
   const approvedExactPaths = uniqueSorted(areas.flatMap((area) => area.approvedExactPaths));
-  const inputFingerprint = fingerprintProjectFiles(rootDir, approvedExactPaths);
   return Object.freeze({
     approvedExactPaths: Object.freeze(approvedExactPaths),
     areas,
-    cacheRootDir: resolve(rootDir, options.cache.directory),
-    commitSha: getGitSha(rootDir),
-    inputFingerprint: Object.freeze({
-      ...inputFingerprint,
-      fileList: Object.freeze([...inputFingerprint.fileList])
-    }),
     rootDir
   });
 }
@@ -185,6 +174,8 @@ function directMeasurementFailure(
   measurement: Exclude<DuplicateMeasurementResult, { kind: "complete" }>
 ): CheckResult<DuplicateDetectionFinalData> {
   switch (measurement.kind) {
+    case "source-unavailable":
+      return unavailable("source-unavailable");
     case "cache-write-failed":
       return unavailable("cache-write-failed");
     case "execution-failed":

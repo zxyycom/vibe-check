@@ -73,6 +73,14 @@ filtering 不持久化。identity 包含 raw-scan configuration version、jscpd 
 exact-input fingerprint、configuration version 与结构化 scanner configuration。只改变 area membership 或严格阈值但
 不改变 exact-input union 和 scanner 下界时，可以复用 raw measurement，再按当前 area policy 重新标注和过滤。
 
+扫描输入携带 root、approved exact paths 与 area policy；cache identity owner 拥有 cache directory、commit 和内容 fingerprint。
+少于两个输入时结算为 not-applicable；有扫描工作时先验证输入并取得实际 availability/version。
+可用且 cache enabled 时，在 scan 前采样一次完整身份，供 lookup 与 write 共用；其它分支跳过 cache-only
+内容读取/hash、Git 与 directory resolve。scanner 自身读取、version 检查和 exact fragment 验收保持完整。
+
+fingerprint 的 unreadable sentinel 不是 readability preflight；identity preparation 失败为 `source-unavailable`，
+cache read 失败退化为 miss，write 失败结算为不可用。
+
 external command 的 availability、process、parse、cache 或 exact-input failure 由对应 owner 转换为
 `unavailable`。`functionMetrics` 的 source collection、cancellation、analysis 和资源上限失败同样由其 Check owner
 转换为稳定 `unavailable` reason；原因、message 和恢复操作以

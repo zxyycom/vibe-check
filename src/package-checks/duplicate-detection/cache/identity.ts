@@ -1,4 +1,11 @@
+import { resolve } from "node:path";
+
+import {
+  fingerprintProjectFiles,
+  type FileInputFingerprint
+} from "../../project-files/file-fingerprint.ts";
 import type { DuplicateDetectionExactInputSet } from "../measurement-model.ts";
+import { getGitSha } from "../project-revision.ts";
 import type { ResolvedDuplicateDetectionScannerOptions } from "../options.ts";
 import { isPackageJscpdCommand } from "../jscpd/command-resolution.ts";
 import type {
@@ -10,10 +17,33 @@ const RAW_SCAN_CONFIGURATION_VERSION = "4";
 
 interface DuplicateScanCacheIdentityInput {
   readonly dependency: ResolvedDuplicateDetectionScannerOptions;
-  readonly exactInput: DuplicateDetectionExactInputSet;
+  readonly commitSha: string;
+  readonly inputFingerprint: FileInputFingerprint;
   readonly minimumLines: number;
   readonly minimumTokens: number;
   readonly toolVersion: string;
+}
+
+export interface PreparedDuplicateScanCache {
+  readonly cacheRootDir: string;
+  readonly identity: DuplicateCodeCacheIdentity;
+}
+
+export function prepareDuplicateScanCache(
+  input: Omit<DuplicateScanCacheIdentityInput, "commitSha" | "inputFingerprint"> & {
+    readonly directory: string;
+    readonly exactInput: DuplicateDetectionExactInputSet;
+  }
+): PreparedDuplicateScanCache {
+  const { rootDir, approvedExactPaths } = input.exactInput;
+  const inputFingerprint = fingerprintProjectFiles(rootDir, approvedExactPaths);
+  const cacheRootDir = resolve(rootDir, input.directory);
+  const identity = createDuplicateScanCacheIdentity({
+    ...input,
+    commitSha: getGitSha(rootDir),
+    inputFingerprint
+  });
+  return Object.freeze({ cacheRootDir, identity });
 }
 
 export function createDuplicateScanCacheIdentity(
@@ -28,11 +58,11 @@ export function createDuplicateScanCacheIdentity(
       minimumTokens: input.minimumTokens
     }),
     configVersion: RAW_SCAN_CONFIGURATION_VERSION,
-    commitSha: input.exactInput.commitSha,
+    commitSha: input.commitSha,
     inputFingerprint: {
-      fileCount: input.exactInput.inputFingerprint.fileCount,
-      fileList: [...input.exactInput.inputFingerprint.fileList],
-      fingerprint: input.exactInput.inputFingerprint.fingerprint
+      fileCount: input.inputFingerprint.fileCount,
+      fileList: [...input.inputFingerprint.fileList],
+      fingerprint: input.inputFingerprint.fingerprint
     }
   });
 }
