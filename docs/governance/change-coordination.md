@@ -38,6 +38,21 @@ artifacts 决定。
 Waiver 可省略实现由[公开指南](../guides/finding-waivers.md#输入与默认值)承接；
 [`audit-public-authoring-optional-fields`](../../changes/audit-public-authoring-optional-fields/proposal.md)保留其独立验收与结项入口。
 
+### 有界性能优化交接
+
+以下三个切面分别保留实施计划与独立调查证据。当前工作按各自 Plan 交接、验收和提交；
+共享 Gate 配置、知识索引与本页串行维护，其它性能候选仍按各自进入条件处理。
+
+| 当前 Change | 写入与验收边界 |
+| --- | --- |
+| [`optimize-project-file-selection-cost`](../../changes/optimize-project-file-selection-cost/proposal.md) | 共同文件收集的 operation-local membership；保留原生列表语义、默认排除、路径身份与访问失败边界。 |
+| [`optimize-run-projection-cost`](../../changes/optimize-run-projection-cost/proposal.md) | 共同 Run 的重复投影；保留 immutable context、声明顺序、measurement、取消与 drain，不改变策略。 |
+| [`bound-function-metrics-tokenization-cost`](../../changes/bound-function-metrics-tokenization-cost/proposal.md) | private Lizard port 的有界尾部防护；独立 Decision、来源偏差与完整 tokenizer/lifecycle 证据共同约束采用，维持现有 Worker 取消协议。 |
+
+三个源码 owner 不重叠，可在隔离写入范围内实施；性能计时串行独占，不与行为测试、profile、构建或 Gate 混跑。
+Case 账本、来源映射、知识索引与本协调页由主线程串行协调；package candidate 准备、required 与 complete Gate 统一在源码稳定后执行。
+每项收益与语义分别验收，共同 Gate 只证明组合验收。提交与 Change 结项删除分别按当前任务授权执行。
+
 ### 并行与提交边界
 
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享
