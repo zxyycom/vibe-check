@@ -1,7 +1,8 @@
 import type { CheckProjectContext } from "../../check/check.ts";
 import type { PreparedAdmissionStrategy } from "../admission-strategy-provider/prepared-admission-strategy.ts";
-import { executeResolvedChecks } from "../check-execution/resolved-checks.ts";
+import { executePreparedChecks } from "../check-execution/resolved-checks.ts";
 import type { ResolvedCheckExecution } from "../check-execution/resolved-execution-result.ts";
+import type { PreparedCheckExecution } from "../check-execution/prepared-check-execution.ts";
 import type { Invocation } from "./run.ts";
 import type { NonConfigurationRunResult } from "../result.ts";
 
@@ -11,6 +12,7 @@ export type SchedulerExecution =
 
 type SchedulerAdapterInput = Readonly<{
   readonly invocation: Invocation;
+  readonly prepared: PreparedCheckExecution;
   readonly preparedStrategy: PreparedAdmissionStrategy;
   readonly project: CheckProjectContext;
 }>;
@@ -20,9 +22,8 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
   const { invocation, preparedStrategy } = input;
   try {
     const performanceDiagnostics = schedulerPerformanceDiagnostics(input);
-    return await executeResolvedChecks({
+    return await executePreparedChecks(input.prepared, {
       admissionPolicy: preparedStrategy.admissionPolicy,
-      checks: invocation.normalized.checks,
       clock: invocation.clock,
       diagnosticLogger: invocation.diagnosticLogging.core,
       ...(invocation.diagnosticLoggingEnabled
@@ -38,8 +39,6 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
       onSchedulerTerminalEffectsSettled: () => {
         invocation.outputs.succeeded("terminalEffects");
       },
-      maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
-      resourceCapacities: invocation.normalized.declarative.scheduler.resourceCapacities,
       invocationId: invocation.invocationId,
       checkLifecycle: invocation.progressRendering.checkLifecycle,
       invocationLifecycle: invocation.progressRendering.invocationLifecycle,

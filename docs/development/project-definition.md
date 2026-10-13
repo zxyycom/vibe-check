@@ -188,6 +188,10 @@ Definition 只提供 normalized static graph metadata，不能给 callback 暴�
 
 validation 要求全树唯一 checkId 和非空 displayName。execution 与 containment 独立：executable 也可有 children；container 只影响 scheduling inheritance，不创建单独的 published hierarchy。
 
+公开 Run 的私有 validation handoff 保留本次已关闭的 parsed/resolved tree，Controls 通过后直接投影 normalized Checks
+与 declarative snapshot。独立 validator 返回 detached ordinary authoring，独立 normalizer 验证原始输入。
+每次 Run 都重新验证当前 Definition，复用范围限于本次 invocation；后续 author mutation 不回写既有 options、graph 或 fingerprint。
+
 root maxParallel 为正 safe integer，省略默认 4；admissionPriority 为有符号 safe integer，默认 0。normalization 按父子关系解析以下继承，具体 authoring 范围见[调度指南](../guides/scheduling.md)：maxParallel 和 admissionPriority 继承最近显式值；resourceClaims 继承整个 mapping，显式 `{}` 清空，不逐 key merge；dependsOn/observes/mutex 的 exact collection 完整替换（含空数组），inherit 则在父集合上 add/remove 后排序去重。normalized direct dependsOn 与 observes 不得包含同一 provider，二者只引用 executable IDs。
 
 effective priority/claims 是 immutable graph metadata；admission 时原子取得全部 claims，贯穿 preparation/execution，任意 settlement 一起释放。declaration order 不代替 execution order，也不绕过 prerequisite、mutex、capacity 或 cancellation。

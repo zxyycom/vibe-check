@@ -12,7 +12,7 @@ import { observeSchedulerDiagnostic } from "./scheduler-observation.ts";
 export async function observeTerminalMeasurement<TResult>(
   input: Readonly<{
     readonly diagnostics: SchedulerPerformanceDiagnostics;
-    readonly options: RunTaskGraphOptions<TResult>;
+    readonly options: Omit<RunTaskGraphOptions<TResult>, "graph">;
     readonly state: SchedulerState<TResult>;
   }>
 ): Promise<SchedulerMeasurementContext> {

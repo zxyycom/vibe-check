@@ -124,7 +124,7 @@ export interface SchedulerState<TResult> {
 
 export function createSchedulerState<TResult>(
   graph: PlannedTaskGraph,
-  options: RunTaskGraphOptions<TResult>
+  options: Omit<RunTaskGraphOptions<TResult>, "graph">
 ): SchedulerState<TResult> {
   const admissionPolicy = options.admissionPolicy ?? staticAdmissionSelectionPolicy;
   if (!Object.isFrozen(admissionPolicy) || typeof admissionPolicy.decide !== "function") {

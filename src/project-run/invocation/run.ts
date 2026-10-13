@@ -7,10 +7,13 @@ import {
 } from "../../project-definition/project-definition.ts";
 import type { CheckAggregation, RunControls } from "../controls/contract.ts";
 import type { AdmissionStrategyProviderFactory } from "../admission-strategy-provider/provider.ts";
-import { prepareTaskGraph } from "../task-scheduler/graph.ts";
+import {
+  prepareCheckExecution,
+  type PreparedCheckExecution
+} from "../check-execution/prepared-check-execution.ts";
+import type { ValidatedProjectDefinition } from "../../project-definition/project-definition-validation.ts";
 import { CheckAggregationFailure } from "../aggregation.ts";
 import { type CheckExecutionClock } from "../check-execution/resolved-checks.ts";
-import { planStaticCheckGraph } from "../check-execution/plan.ts";
 import {
   type ProgressRefreshScheduler,
   type ProgressRendering,
@@ -35,7 +38,6 @@ export type Invocation = Readonly<{
   readonly clock: CheckExecutionClock;
   readonly controls: RunControls;
   readonly declarativeFingerprint: string;
-  readonly definition: ProjectDefinition;
   readonly definitionWarnings: readonly DefinitionWarning[];
   readonly diagnosticLogging: DiagnosticLoggingRouter;
   /** Effective output selection, retained privately for enabled-only Scheduler diagnostics. */
@@ -61,6 +63,10 @@ export interface RunInvocationDependencies {
   readonly wallClock?: Readonly<{ now(): Date }>;
 }
 
+/**
+ * 兼容 private standalone callers：调用方负责 Controls 校验；Definition 仍按原始输入归一化。
+ * 此入口不持有 validation 的准备事实；public Run 通过 executePreparedRun 传递它们。
+ */
 export async function executeValidatedRun(
   definition: ProjectDefinition,
   controls: RunControls,
@@ -68,22 +74,46 @@ export async function executeValidatedRun(
   dependencies: RunInvocationDependencies = {}
 ): Promise<RunResult> {
   const normalized = normalizeProjectDefinition(definition);
-  const invocation = createInvocation({
-    controls,
+  return executeNormalizedRun({
     definition,
+    controls,
     definitionWarnings,
     dependencies,
     normalized
   });
+}
+
+/** Public Run's private handoff; Controls have already passed before normalization. */
+export async function executePreparedRun(
+  definition: ValidatedProjectDefinition,
+  controls: RunControls,
+  dependencies: RunInvocationDependencies = {}
+): Promise<RunResult> {
+  return executeNormalizedRun({
+    definition,
+    controls,
+    definitionWarnings: definition.warnings,
+    dependencies,
+    normalized: definition.normalize()
+  });
+}
+
+async function executeNormalizedRun(
+  input: Parameters<typeof createInvocation>[0]
+): Promise<RunResult> {
+  const { controls } = input;
+  const invocation = createInvocation(input);
   let candidate: NonConfigurationRunResult;
   try {
     observeInvocationStarted(invocation, controls.checkAggregation);
     if (isCancelled(controls)) {
       candidate = cancelledBeforeExecution(invocation, "pre-work");
-    } else if (!validateTaskGraph(invocation)) {
-      candidate = planningResult(invocation, "task-graph-invalid");
     } else {
-      candidate = await executePlannedInvocation(invocation, controls.checkAggregation);
+      const prepared = prepareInvocationChecks(invocation);
+      candidate =
+        prepared === undefined
+          ? planningResult(invocation, "task-graph-invalid")
+          : await executePlannedInvocation(invocation, prepared, controls.checkAggregation);
     }
   } catch (error) {
     if (error instanceof CheckAggregationFailure) {
@@ -112,15 +142,13 @@ function observeInvocationStarted(
   });
 }
 
-function validateTaskGraph(invocation: Invocation): boolean {
+function prepareInvocationChecks(invocation: Invocation): PreparedCheckExecution | undefined {
   try {
-    prepareTaskGraph(
-      planStaticCheckGraph(
-        invocation.normalized.checks,
-        invocation.normalized.declarative.scheduler.resourceCapacities
-      ),
-      invocation.normalized.declarative.scheduler.maxParallel
-    );
+    const prepared = prepareCheckExecution({
+      checks: invocation.normalized.checks,
+      resourceCapacities: invocation.normalized.declarative.scheduler.resourceCapacities,
+      maxParallel: invocation.normalized.declarative.scheduler.maxParallel
+    });
     invocation.diagnosticLogging.core.observe({
       event: "run.planning.succeeded",
       tags: diagnosticTags("RUN", "PLANNING", "SUCCEEDED"),
@@ -129,7 +157,7 @@ function validateTaskGraph(invocation: Invocation): boolean {
         maxParallel: invocation.normalized.declarative.scheduler.maxParallel
       }
     });
-    return true;
+    return prepared;
   } catch {
     invocation.diagnosticLogging.core.observe({
       event: "run.planning.failed",
@@ -139,6 +167,6 @@ function validateTaskGraph(invocation: Invocation): boolean {
         maxParallel: invocation.normalized.declarative.scheduler.maxParallel
       }
     });
-    return false;
+    return undefined;
   }
 }

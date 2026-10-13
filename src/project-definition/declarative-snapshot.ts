@@ -15,7 +15,7 @@ import type { NormalizedProjectChangesConfiguration } from "./project-changes.ts
  * Produces the immutable, callback-free Definition identity consumed by fingerprinting.
  */
 export function createDeclarativeProjectSnapshot(
-  definition: Omit<ProjectDefinition, "changes"> & {
+  definition: Omit<ProjectDefinition, "changes" | "checks"> & {
     readonly changes?: NormalizedProjectChangesConfiguration;
   },
   checks: readonly NormalizedCheck[]
@@ -39,7 +39,9 @@ export function createDeclarativeProjectSnapshot(
   });
 }
 
-function declarativeOutputs(definition: ProjectDefinition): DeclarativeProjectOutputs {
+function declarativeOutputs(
+  definition: Pick<ProjectDefinition, "outputs">
+): DeclarativeProjectOutputs {
   const progressRendering = resolveProgressRenderingOutput(definition.outputs.progressRendering);
   return Object.freeze({
     diagnosticLogging: definition.outputs.diagnosticLogging,

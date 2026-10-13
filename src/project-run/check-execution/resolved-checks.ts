@@ -7,7 +7,6 @@ import type { ResourceUnitMapping } from "../../project-definition/resource-unit
 import { createCoreCheckSession } from "../../check-settlement/session.ts";
 import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { AdmissionSelectionPolicy } from "../task-scheduler/admission-selection-policy.ts";
-import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import type { SchedulerPerformanceDiagnosticsInput } from "../task-scheduler/measurement/diagnostics.ts";
 import type { ResolvedInvocationPaths } from "../invocation/paths.ts";
 import { runWithCheckConsoleRouter } from "./console-capture.ts";
@@ -18,7 +17,7 @@ import {
 } from "./execution-settlement.ts";
 import { checkIdentity, closeResolvedChecks } from "./execution-finalization.ts";
 import type { CheckExecutionLifecycle, InvocationLifecycle } from "./lifecycle.ts";
-import { planStaticCheckGraph } from "./plan.ts";
+import { prepareCheckExecution, type PreparedCheckExecution } from "./prepared-check-execution.ts";
 import {
   selectEffectiveCheckIds,
   resolveFlagControlSettlements,
@@ -68,23 +67,38 @@ export type ResolvedCheckExecutionInput = Readonly<{
 export async function executeResolvedChecks(
   input: ResolvedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
-  prepareTaskGraph(planStaticCheckGraph(input.checks, input.resourceCapacities), input.maxParallel);
-  const effectiveCheckIds = selectEffectiveCheckIds(input.checks, input.project.flags);
-  return runWithCheckConsoleRouter(() => executePreparedResolvedChecks(input, effectiveCheckIds));
+  return executePreparedChecks(prepareCheckExecution(input), input);
+}
+
+export type PreparedCheckExecutionInput = Omit<
+  ResolvedCheckExecutionInput,
+  "checks" | "maxParallel" | "resourceCapacities"
+>;
+
+/** Consumes the same validated static facts used by Invocation's strategy preparation. */
+export async function executePreparedChecks(
+  prepared: PreparedCheckExecution,
+  input: PreparedCheckExecutionInput
+): Promise<ResolvedCheckExecution> {
+  const effectiveCheckIds = selectEffectiveCheckIds(prepared.checks, input.project.flags);
+  return runWithCheckConsoleRouter(() =>
+    executePreparedResolvedChecks(prepared, input, effectiveCheckIds)
+  );
 }
 
 async function executePreparedResolvedChecks(
-  input: ResolvedCheckExecutionInput,
+  prepared: PreparedCheckExecution,
+  input: PreparedCheckExecutionInput,
   effectiveCheckIds: readonly string[]
 ): Promise<ResolvedCheckExecution> {
   const state = createExecutionState({
-    checks: input.checks,
+    checks: prepared.checks,
     diagnosticLogger: input.diagnosticLogger,
     lifecycle: input.checkLifecycle
   });
   try {
     const flagControlSettlements = resolveFlagControlSettlements({
-      checks: input.checks,
+      checks: prepared.checks,
       ...(input.diagnosticLogger === undefined ? {} : { diagnosticLogger: input.diagnosticLogger }),
       effectiveCheckIds,
       signal: input.signal
@@ -94,13 +108,14 @@ async function executePreparedResolvedChecks(
     }
     input.invocationLifecycle?.selectionSettled();
     const graphRun = await runScheduledChecks({
-      execution: input,
+      execution: { ...input, checks: prepared.checks },
+      taskGraph: prepared.taskGraph,
       flagControlSettlements,
       state
     });
 
     return closeResolvedChecks({
-      allChecks: input.checks,
+      allChecks: prepared.checks,
       effectiveCheckIds,
       graphRun,
       state

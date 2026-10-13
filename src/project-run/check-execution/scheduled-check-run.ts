@@ -1,20 +1,23 @@
 /** Maps normalized Checks into the Scheduler's opaque Task execute contract. */
 
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
-import { runTaskGraph, type RunTaskGraphOptions } from "../task-scheduler/scheduler.ts";
+import {
+  runPreparedTaskGraph,
+  type PreparedTaskGraphRunOptions
+} from "../task-scheduler/scheduler.ts";
 import {
   CheckExecutionInvariantFailure,
   type CheckExecutionState
 } from "./execution-settlement.ts";
 import { settleBlockedDependent, trustedFailure } from "./execution-finalization.ts";
 import type { FlagControlSettlement } from "./flag-controls.ts";
-import { planStaticCheckGraph } from "./plan.ts";
+import type { ExecutableTaskGraph } from "../task-scheduler/graph.ts";
 import {
   executeAdmittedCheck,
   type AdmittedCheckExecutionInput,
   type CheckExecutionClock
 } from "./admitted-check-execution.ts";
-import type { ResolvedCheckExecutionInput } from "./resolved-checks.ts";
+import type { PreparedCheckExecutionInput } from "./resolved-checks.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
 const DIRECT_EXECUTION_INVOCATION_ID = "invocation/v1:direct-check-execution";
@@ -24,13 +27,16 @@ const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({
 
 export async function runScheduledChecks(
   input: Readonly<{
-    readonly execution: ResolvedCheckExecutionInput;
+    readonly execution: PreparedCheckExecutionInput & {
+      readonly checks: readonly NormalizedCheck[];
+    };
+    readonly taskGraph: ExecutableTaskGraph;
     readonly flagControlSettlements: readonly FlagControlSettlement[];
     readonly state: CheckExecutionState;
   }>
-): Promise<Awaited<ReturnType<typeof runTaskGraph<boolean>>>> {
+): Promise<Awaited<ReturnType<typeof runPreparedTaskGraph<boolean>>>> {
   try {
-    return await runTaskGraph(schedulerOptionsFor(input));
+    return await runPreparedTaskGraph(input.taskGraph, schedulerOptionsFor(input));
   } catch (error) {
     throw trustedFailure(error);
   }
@@ -38,11 +44,14 @@ export async function runScheduledChecks(
 
 function schedulerOptionsFor(
   input: Readonly<{
-    readonly execution: ResolvedCheckExecutionInput;
+    readonly execution: PreparedCheckExecutionInput & {
+      readonly checks: readonly NormalizedCheck[];
+    };
+    readonly taskGraph: ExecutableTaskGraph;
     readonly flagControlSettlements: readonly FlagControlSettlement[];
     readonly state: CheckExecutionState;
   }>
-): RunTaskGraphOptions<boolean> {
+): PreparedTaskGraphRunOptions<boolean> {
   const execution = input.execution;
   const checksByCheckId = new Map(
     execution.checks.map((check) => [check.definition.checkId, check] as const)
@@ -50,11 +59,9 @@ function schedulerOptionsFor(
   const schedulerDiagnosticLogger =
     execution.schedulerDiagnosticLogger ?? execution.diagnosticLogger;
   return {
-    graph: planStaticCheckGraph(execution.checks, execution.resourceCapacities),
     ...(execution.admissionPolicy === undefined
       ? {}
       : { admissionPolicy: execution.admissionPolicy }),
-    maxParallel: execution.maxParallel,
     ...(schedulerDiagnosticLogger === undefined
       ? {}
       : { diagnosticLogger: schedulerDiagnosticLogger }),
@@ -107,7 +114,7 @@ function requiredNormalizedCheck(
 }
 
 function admittedExecutionFacts(
-  execution: ResolvedCheckExecutionInput
+  execution: PreparedCheckExecutionInput
 ): Omit<AdmittedCheckExecutionInput, keyof CheckExecutionState | "check" | "signal"> {
   return {
     clock: execution.clock ?? SYSTEM_MONOTONIC_CLOCK,

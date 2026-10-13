@@ -1,5 +1,5 @@
 import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
-import { prepareTaskGraph } from "./graph.ts";
+import { prepareExecutableTaskGraph, type ExecutableTaskGraph } from "./graph.ts";
 import {
   decideSchedulerFromCore,
   type SchedulerDecision,
@@ -48,7 +48,24 @@ import {
 export async function runTaskGraph<TResult>(
   options: RunTaskGraphOptions<TResult>
 ): Promise<TaskGraphRun<TResult>> {
-  const graph = prepareTaskGraph(options.graph, options.maxParallel);
+  return runPreparedTaskGraph(
+    prepareExecutableTaskGraph(options.graph, options.maxParallel),
+    options
+  );
+}
+
+export type PreparedTaskGraphRunOptions<TResult> = Omit<
+  RunTaskGraphOptions<TResult>,
+  "graph" | "maxParallel"
+>;
+
+/** Executes a private validated graph; cap and static metadata cannot be supplied independently. */
+export async function runPreparedTaskGraph<TResult>(
+  prepared: ExecutableTaskGraph,
+  input: PreparedTaskGraphRunOptions<TResult>
+): Promise<TaskGraphRun<TResult>> {
+  const graph = prepared.graph;
+  const options = { ...input, maxParallel: prepared.rootMaxParallel };
   const state = createSchedulerState(graph, options);
   observeSchedulerGraph(state);
   const measurementInput =

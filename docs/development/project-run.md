@@ -77,6 +77,11 @@ invalid Definition 或 Controls 在 author work 前返回 configuration result�
 
 Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution；独立 ready preparation 可并行，不能形成全局 barrier。每项 `prepare(options, signal, project)` 和后续 `execute` 接收同一个冻结 project context。change flag flow 见[Change preparation and flag projection](#change-preparation-and-flag-projection)，preparation snapshot 与 Definition grammar 见[Project Definition](project-definition.md)。
 
+pre-work cancellation 之后、Git acquisition 之前，一次私有 preparation 将 normalized Checks、validated static graph
+与 root maxParallel 绑定为同一个 invocation-local capability。strategy preparation、Check execution 与 Scheduler 复用该成果；
+flags 和 pre-admission settlements 仍在静态图之外形成本次动态 seed。独立 raw execution 入口先准备并验证自己的输入；
+prepared 入口只接受已绑定事实来源的 capability。
+
 Scheduler 是 Run-private child，使用共同 immutable admission reducer 维护 graph、relations、mutex、root/scoped/named capacity、cancellation 与 settlement；real shell 独占真实 Task/Promise 和 effects。policy 只交回决定，不获得执行权限。reducer、simulation、hard guards、measurement 与 terminal handoff 由[Scheduler 实现](scheduler.md)完整拥有。
 
 ### 策略生命周期

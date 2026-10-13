@@ -6,6 +6,10 @@
 
 `admission-core/**` 编译 immutable graph、named-resource slots 和 persistent parent+delta state，以同一 pure reducer/canonical effects 完成 selection transition。running seed、admission 与任意 settlement 都经过它更新 occupancy，使 static/custom proposals、standalone simulation 和 real shell 使用同一 legality。
 
+raw Task graph 入口先校验 root cap 并执行 `prepareTaskGraph`；内部 prepared 入口只接受绑定 immutable graph 与
+同一 validated root cap 的私有 capability。Invocation 的已准备图由 strategy、execution 和 Scheduler 在本 Run 内复用；
+独立 simulation 与 raw Scheduler 各自关闭其输入。
+
 `createAdmissionGraph` 从独立 static input 建立 initial state；custom callback 的 `admissionState` 从 live boundary 建立同型 seed。二者只投影 frozen inspection/catalog/validation 和 hypothetical `select` / binary `settle` successor。静态 capacities/claims 用 canonical `{ resourceId, units }[]`；inspection 投影 occupancy，不提供 mutable counter 或资源操作 capability。同一 callback 重读保持 handle identity；旧 state 不随真实调度变动。
 
 real shell 独占 Task/Promise、signal、actual value/error、diagnostic、measurement 与 RunResult；应用 reducer effects 后仍执行 callback-return hard guards。只有实际读取 `admissionState` 才构造 public catalog/search projection，普通运行不为未消费的推演视图付出构造成本。
@@ -41,6 +45,8 @@ Invocation: public prepared terminalEffect once → aggregate output
 ```
 
 Invocation 为每 Run 解析一次 simple closure 或 prepared result；prepare failure 在 Scheduler 前形成 `admission-strategy-preparation-failed`。Scheduler 只收到 frozen synchronous policy，不接触 public `prepare` / `terminalEffect`。它停止 admission 并 drain started work，交付 sealed context 后，Invocation 才至多一次交付 `terminalEffect`。跨 Run 学习由[learned helper](package-tools.md#learned-critical-path-helper-owner)承接，不获得 Scheduler 特权。
+
+同一 Run 中需要 graph 的 strategy preparation、decision 与 terminal delivery 复用同一个 frozen graph snapshot；pre-admission settlement 不重建静态图，继承的 scope/resource facts 与 root cap 保持同一次验证结果。
 
 在任何 admission 前，Invocation 先处理 cancellation precedence，再完成[唯一 flag selection/control](project-definition.md#flag-enabled-checks)。这些 pre-admission settlements 留在同一 graph；Scheduler 仍负责 dependent blocking 和 observation readiness，不另建传播图。
 

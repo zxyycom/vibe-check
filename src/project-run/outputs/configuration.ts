@@ -5,7 +5,7 @@ import type {
 import { resolveProgressRenderingOutput } from "../../project-definition/output-defaults.ts";
 import type { RunControls } from "../controls/contract.ts";
 export function effectiveOutputs(
-  definition: ProjectDefinition,
+  definition: Pick<ProjectDefinition, "outputs">,
   controls: RunControls
 ): ResolvedProjectOutputs {
   return Object.freeze({

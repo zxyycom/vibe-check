@@ -1,8 +1,11 @@
-import { resolveParsedCheckTree } from "./check-tree/resolution.ts";
-import { parseCheckTreeAuthoring } from "./check-tree/authoring.ts";
+import { resolveParsedCheckTree, type ResolvedCheckTree } from "./check-tree/resolution.ts";
+import { parseCheckTreeAuthoring, type ParsedCheckTree } from "./check-tree/authoring.ts";
 import { materializeCheckTreeAuthoring } from "./check-tree/materialization.ts";
 import { parseOutputs } from "./output-validation.ts";
 import {
+  normalizeResolvedProjectDefinition,
+  type ProjectDefinition,
+  type NormalizedProjectDefinition,
   type ProjectDefinitionDiagnostic,
   type ProjectDefinitionValidationResult,
   type AdmissionPolicy,
@@ -32,27 +35,70 @@ const PROJECT_DEFINITION_KEYS = [
   "scheduler"
 ] as const;
 
-/**
- * Validates one closed Definition before Run can invoke any project callback.
- * Successful validation carries information-only Check warnings separately.
- */
-export function validateProjectDefinition(value: unknown): ProjectDefinitionValidationResult {
-  try {
-    return validateProjectDefinitionValue(value);
-  } catch {
-    return invalidDefinition("definition");
+type ValidatedDefinitionFields = Omit<ProjectDefinition, "checks">;
+type ParsedDefinitionFacts = Readonly<{
+  readonly fields: ValidatedDefinitionFields;
+  readonly parsedChecks: ParsedCheckTree;
+  readonly tree: ResolvedCheckTree;
+}>;
+
+/** Invocation-local validation facts; never keyed by the caller's Definition identity. */
+export class ValidatedProjectDefinition {
+  readonly #facts: ParsedDefinitionFacts;
+
+  private constructor(facts: ParsedDefinitionFacts) {
+    this.#facts = facts;
+    Object.freeze(this);
+  }
+
+  static validate(value: unknown): DefinitionValidationResult<ValidatedProjectDefinition> {
+    try {
+      const data = exactProjectDefinition(value);
+      if (!data.ok) return data;
+      const facts = parseProjectDefinitionFields(data.value);
+      if (!facts.ok) return facts;
+      return Object.freeze({ ok: true, value: new ValidatedProjectDefinition(facts.value) });
+    } catch {
+      return invalidDefinition("definition");
+    }
+  }
+
+  get outputs(): ProjectDefinition["outputs"] {
+    return this.#facts.fields.outputs;
+  }
+
+  get warnings(): ResolvedCheckTree["warnings"] {
+    return this.#facts.tree.warnings;
+  }
+
+  /** Called only after Controls validation on the public Run path. */
+  normalize(): NormalizedProjectDefinition {
+    return normalizeResolvedProjectDefinition(this.#facts.fields, this.#facts.tree);
+  }
+
+  /** Legacy standalone validation still returns detached ordinary authoring. */
+  materialize(): ProjectDefinition {
+    return Object.freeze({
+      ...this.#facts.fields,
+      checks: materializeCheckTreeAuthoring(this.#facts.parsedChecks)
+    });
   }
 }
 
-function validateProjectDefinitionValue(value: unknown): ProjectDefinitionValidationResult {
-  const data = exactProjectDefinition(value);
-  if (!data.ok) return data;
-  return parseProjectDefinitionFields(data.value);
+/** Validates closed authoring without executing callbacks; preserves the standalone result contract. */
+export function validateProjectDefinition(value: unknown): ProjectDefinitionValidationResult {
+  const validated = ValidatedProjectDefinition.validate(value);
+  if (!validated.ok) return validated;
+  return Object.freeze({
+    ok: true,
+    value: validated.value.materialize(),
+    warnings: validated.value.warnings
+  });
 }
 
 function parseProjectDefinitionFields(
   data: Readonly<Record<string, unknown>>
-): ProjectDefinitionValidationResult {
+): DefinitionValidationResult<ParsedDefinitionFacts> {
   const scheduler = parseScheduler(data.scheduler);
   if (scheduler === undefined) return invalidDefinition("definition.scheduler");
   const changes = Object.hasOwn(data, "changes")
@@ -78,14 +124,16 @@ function parseProjectDefinitionFields(
   if (outputs === undefined) return invalidDefinition("definition.outputs");
   return Object.freeze({
     ok: true,
-    value: {
-      apiVersion: "1" as const,
-      checks: materializeCheckTreeAuthoring(parsedChecks),
-      ...(changes === undefined ? {} : { changes }),
-      outputs,
-      scheduler
-    },
-    warnings: tree.warnings
+    value: Object.freeze({
+      fields: Object.freeze({
+        apiVersion: "1" as const,
+        ...(changes === undefined ? {} : { changes }),
+        outputs,
+        scheduler
+      }),
+      parsedChecks,
+      tree
+    })
   });
 }
 
@@ -247,7 +295,7 @@ function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly s
   );
 }
 
-function invalidDefinition(path: string): ProjectDefinitionValidationResult {
+function invalidDefinition(path: string): DefinitionValidationResult<never> {
   return Object.freeze({
     ok: false,
     error: Object.freeze({

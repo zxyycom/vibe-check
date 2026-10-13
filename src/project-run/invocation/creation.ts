@@ -24,7 +24,7 @@ const SYSTEM_MONOTONIC_CLOCK: Invocation["clock"] = Object.freeze({
 
 export interface InvocationCreationInput {
   readonly controls: RunControls;
-  readonly definition: ProjectDefinition;
+  readonly definition: Pick<ProjectDefinition, "outputs">;
   readonly definitionWarnings: readonly DefinitionWarning[];
   readonly dependencies: RunInvocationDependencies;
   readonly normalized: NormalizedProjectDefinition;
@@ -66,7 +66,6 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
     clock,
     controls: input.controls,
     declarativeFingerprint: createDeclarativeFingerprint(input.normalized.declarative),
-    definition: input.definition,
     definitionWarnings: Object.freeze([...input.definitionWarnings]),
     diagnosticLogging,
     diagnosticLoggingEnabled,

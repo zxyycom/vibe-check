@@ -60,6 +60,29 @@ export interface PlannedTaskGraph {
   readonly scopes: readonly PlannedTaskScope[];
 }
 
+const EXECUTABLE_TASK_GRAPH = Symbol("executable-task-graph");
+
+/** Private capability binding validated static facts to the root cap used for validation. */
+export interface ExecutableTaskGraph {
+  readonly [EXECUTABLE_TASK_GRAPH]: true;
+  readonly graph: PlannedTaskGraph;
+  readonly rootMaxParallel: number;
+}
+
+export function prepareExecutableTaskGraph(
+  graph: unknown,
+  rootMaxParallel: number
+): ExecutableTaskGraph {
+  if (!Number.isSafeInteger(rootMaxParallel) || rootMaxParallel <= 0) {
+    throw new TypeError("task engine maxParallel must be a positive safe integer");
+  }
+  return Object.freeze({
+    [EXECUTABLE_TASK_GRAPH]: true as const,
+    graph: prepareTaskGraph(graph, rootMaxParallel),
+    rootMaxParallel
+  });
+}
+
 const TASK_GRAPH_KEYS = ["resourceCapacities", "tasks", "scopes"] as const;
 const TASK_NODE_KEYS = [
   "admissionPriority",

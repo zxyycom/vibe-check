@@ -1,4 +1,8 @@
-import { resolveCheckTree, type ResolvedCheckTreeLeaf } from "./check-tree/resolution.ts";
+import {
+  resolveCheckTree,
+  type ResolvedCheckTreeLeaf,
+  type ResolvedCheckTree
+} from "./check-tree/resolution.ts";
 import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
 import type { CheckDescriptor } from "../check/descriptor.ts";
 import type {
@@ -232,7 +236,6 @@ export function normalizeProjectDefinition(
   );
   if (tree === undefined)
     throw new TypeError("Project Definition Check tree failed closed normalization");
-  const checks = Object.freeze(tree.leaves.map(normalizeCheck));
   const changes =
     definition.changes === undefined
       ? undefined
@@ -241,17 +244,24 @@ export function normalizeProjectDefinition(
     throw new TypeError("Project Definition changes failed closed normalization");
   }
   const { changes: _authoredChanges, ...baseDefinition } = definition;
-  const normalizedDefinition = Object.freeze({
-    ...baseDefinition,
-    ...(changes === undefined ? {} : { changes }),
-    scheduler
-  });
+  return normalizeResolvedProjectDefinition(
+    { ...baseDefinition, ...(changes === undefined ? {} : { changes }), scheduler },
+    tree
+  );
+}
+
+/** Private projection from the already closed fields and resolved tree of one validation. */
+export function normalizeResolvedProjectDefinition(
+  definition: Omit<ProjectDefinition, "checks">,
+  tree: ResolvedCheckTree
+): NormalizedProjectDefinition {
+  const checks = Object.freeze(tree.leaves.map(normalizeCheck));
   return Object.freeze({
     checks,
-    ...(changes === undefined ? {} : { changes }),
-    declarative: createDeclarativeProjectSnapshot(normalizedDefinition, checks),
+    ...(definition.changes === undefined ? {} : { changes: definition.changes }),
+    declarative: createDeclarativeProjectSnapshot(definition, checks),
     definitionWarnings: tree.warnings,
-    scheduler
+    scheduler: definition.scheduler
   });
 }
 function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {

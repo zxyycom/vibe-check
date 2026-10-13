@@ -1,8 +1,8 @@
 import type { ProjectDefinition } from "../project-definition/project-definition.ts";
 import type { RunControls } from "./controls/contract.ts";
-import { validateProjectDefinition } from "../project-definition/project-definition-validation.ts";
+import { ValidatedProjectDefinition } from "../project-definition/project-definition-validation.ts";
 import { validateRunControls } from "./controls/validation.ts";
-import { executeValidatedRun } from "./invocation/run.ts";
+import { executePreparedRun } from "./invocation/run.ts";
 import type { RunResult } from "./result.ts";
 
 export type { RunOutputStatus, RunOutputStatuses } from "./outputs/status.ts";
@@ -26,7 +26,7 @@ export async function run(
 ): Promise<RunResult>;
 export async function run(definition: unknown, controls?: unknown): Promise<RunResult>;
 export async function run(definition: unknown, controls: unknown = {}): Promise<RunResult> {
-  const validatedDefinition = validateProjectDefinition(definition);
+  const validatedDefinition = ValidatedProjectDefinition.validate(definition);
   if (!validatedDefinition.ok) {
     return Object.freeze({
       kind: "configuration",
@@ -43,9 +43,5 @@ export async function run(definition: unknown, controls: unknown = {}): Promise<
     });
   }
 
-  return executeValidatedRun(
-    validatedDefinition.value,
-    validatedControls.value,
-    validatedDefinition.warnings
-  );
+  return executePreparedRun(validatedDefinition.value, validatedControls.value);
 }

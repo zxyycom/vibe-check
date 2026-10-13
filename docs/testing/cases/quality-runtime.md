@@ -461,11 +461,13 @@ Entities:
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > enables measurement output only for generic terminal effects or an actual prepared terminal effect`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > prepares before admission and records only after terminal effects settle`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > records a cancelled Run only after its terminal terminal effect settles`
+- `bun|src/project-run/run-prepared-facts.test.ts|Package Run prepared facts > shares one immutable graph through strategy preparation decision and terminal delivery`
   Proves:
 
 - Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver terminalEffect at most once after admission stops, started work drains and generic terminal effects settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no terminal-effect delivery.
 - Generic terminal effects all receive their chance before public `terminalEffect`. Their actual settlement, plus optional `terminalEffect`, is the sole input to `terminalEffects`: generic-only no-context stays enabled/`not-run`; simple and prepared-without-terminalEffect do not independently enable it; a terminal-effect failure cannot overwrite sealed primary facts, and later terminalEffect success cannot overwrite a generic failure.
 - A learned factory is an ordinary public prepared strategy: it prepares immutable prediction before Scheduler decisions and records its terminal sample only after terminal delivery, without a private Invocation lifecycle.
+- Preparation, synchronous decisions and generic/prepared terminal delivery observe the same frozen static graph identity with inherited scope/resource facts and the validated root cap; flag-excluded providers still block dependents while terminal observations can proceed.
 
 ## Case API-COMMAND-CHECK-CONSTRUCTOR-001: Command Check closes its public authoring input
 
