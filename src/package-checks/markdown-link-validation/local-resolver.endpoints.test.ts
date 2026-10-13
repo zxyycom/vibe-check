@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { mkdir } from "node:fs/promises";
+import { mkdir, symlink } from "node:fs/promises";
 import path from "node:path";
 import { describe, it } from "node:test";
 
@@ -108,6 +108,56 @@ describe("Markdown local resolver", () => {
         reason: "anchor-on-directory",
         target: projectTarget("project-directory", "docs/nonempty", "anchor")
       });
+
+      const deepDirectory = Array.from({ length: 127 }, () => "d").join("/");
+      await writeFixtureFile(root, `${deepDirectory}/target.md`, "# Target\n");
+      await writeFixtureFile(root, "walk/a/b/target.md", "# Target\n");
+      await symlink("a", path.join(root, "walk", "inner"));
+      await symlink(root, path.join(root, "walk", "reset"));
+      await symlink("a/b/target.md", path.join(root, "walk", "leaf.md"));
+      await symlink("loop", path.join(root, "loop"));
+      for (let index = 0; index <= 40; index += 1) {
+        await symlink(
+          index === 40 ? "walk/a/b/target.md" : `hop-${index + 1}`,
+          path.join(root, `hop-${index}`)
+        );
+      }
+      const pathResolver = await createdResolver(root, 20);
+      for (const targetPath of [
+        `${deepDirectory}/target.md`,
+        "walk/a/b/target.md",
+        "walk/inner/b/target.md",
+        "walk/reset/walk/a/b/target.md",
+        "walk/leaf.md",
+        "hop-1"
+      ]) {
+        assert.deepEqual(
+          await pathResolver.resolve(requestFor(source, `../${targetPath}#target`)),
+          validTarget("project-file", targetPath, "target")
+        );
+      }
+      for (const targetPath of ["", "walk/reset"]) {
+        assert.deepEqual(
+          await pathResolver.resolve(requestFor(source, `../${targetPath}`)),
+          validTarget("project-directory", targetPath, null)
+        );
+      }
+      assert.deepEqual(
+        await pathResolver.resolve(requestFor(source, "../walk/missing/target.md")),
+        {
+          kind: "finding",
+          reason: "missing-target",
+          target: projectTarget("project-path", "walk/missing/target.md", null)
+        }
+      );
+      const readsBeforeUnavailable = pathResolver.targetReadCount;
+      for (const targetPath of ["hop-0", "loop", "walk/a/b/target.md/child"]) {
+        assert.deepEqual(await pathResolver.resolve(requestFor(source, `../${targetPath}`)), {
+          kind: "unavailable",
+          reason: "target-unavailable"
+        });
+      }
+      assert.equal(pathResolver.targetReadCount, readsBeforeUnavailable);
     });
   });
 });

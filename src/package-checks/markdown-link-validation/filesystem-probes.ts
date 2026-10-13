@@ -13,7 +13,8 @@ import {
 
 interface RootContainedPathProbeState {
   readonly currentPath: string;
-  readonly pendingSegments: readonly string[];
+  readonly pathSegments: readonly string[];
+  readonly segmentIndex: number;
   readonly symlinkHops: number;
 }
 
@@ -31,11 +32,12 @@ export async function probeRootContainedPath(
   }
   let state: RootContainedPathProbeState = {
     currentPath: canonicalProjectRoot,
-    pendingSegments: relativeSegments(canonicalProjectRoot, candidatePath),
+    pathSegments: relativeSegments(canonicalProjectRoot, candidatePath),
+    segmentIndex: 0,
     symlinkHops: 0
   };
 
-  while (state.pendingSegments.length > 0) {
+  while (state.segmentIndex < state.pathSegments.length) {
     const advance = await advanceRootContainedPathProbe(canonicalProjectRoot, state);
     if (!isRootContainedPathProbeState(advance)) return advance;
     state = advance;
@@ -54,13 +56,13 @@ async function advanceRootContainedPathProbe(
   canonicalProjectRoot: string,
   state: RootContainedPathProbeState
 ): Promise<RootContainedPathProbeAdvance> {
-  const [segment, ...remainingSegments] = state.pendingSegments;
+  const segment = state.pathSegments[state.segmentIndex];
   if (segment === undefined) return Object.freeze({ kind: "unavailable" as const });
   const nextPath = path.join(state.currentPath, segment);
   const pathStatus = await rootContainedPathStatus(nextPath);
   if (pathStatus.kind !== "status") return pathStatus;
   if (!pathStatus.status.isSymbolicLink()) {
-    return remainingSegments.length === 0
+    return state.segmentIndex + 1 === state.pathSegments.length
       ? Object.freeze({
           kind: "contained" as const,
           absolutePath: nextPath,
@@ -68,14 +70,15 @@ async function advanceRootContainedPathProbe(
         })
       : Object.freeze({
           currentPath: nextPath,
-          pendingSegments: remainingSegments,
+          pathSegments: state.pathSegments,
+          segmentIndex: state.segmentIndex + 1,
           symlinkHops: state.symlinkHops
         });
   }
   return advanceThroughContainedSymlink(
     canonicalProjectRoot,
     nextPath,
-    remainingSegments,
+    state.pathSegments.slice(state.segmentIndex + 1),
     state.symlinkHops
   );
 }
@@ -108,10 +111,11 @@ async function advanceThroughContainedSymlink(
   }
   return Object.freeze({
     currentPath: canonicalProjectRoot,
-    pendingSegments: [
+    pathSegments: [
       ...relativeSegments(canonicalProjectRoot, linkDestination),
       ...remainingSegments
     ],
+    segmentIndex: 0,
     symlinkHops: symlinkHops + 1
   });
 }
