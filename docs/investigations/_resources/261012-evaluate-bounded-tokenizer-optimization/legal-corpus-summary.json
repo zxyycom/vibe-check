@@ -1,0 +1,67 @@
+{
+  "files": 526,
+  "bytes": 2417957,
+  "measurement": "analyzer-only; once warm, once timed; fresh child each sample; alternating AB/BA; no Product Run or filesystem timing; inputs and imports frozen",
+  "summary": [
+    {
+      "source": "corpus-exec-rejected-node.json",
+      "samplesPerVariant": 8,
+      "baselineMedianMs": 341.15367950000007,
+      "candidateMedianMs": 370.071182,
+      "deltaPercent": 8.476385933278486,
+      "baselineRangeMs": [
+        337.650156,
+        357.952833
+      ],
+      "candidateRangeMs": [
+        361.931592,
+        385.2020010000001
+      ]
+    },
+    {
+      "source": "corpus-exec-rejected-bun.json",
+      "samplesPerVariant": 8,
+      "baselineMedianMs": 3198.9951735000004,
+      "candidateMedianMs": 3165.2310405,
+      "deltaPercent": -1.055460579612555,
+      "baselineRangeMs": [
+        3132.67202,
+        3254.0320319999996
+      ],
+      "candidateRangeMs": [
+        3125.6144810000005,
+        3214.622195
+      ]
+    },
+    {
+      "source": "corpus-node.json",
+      "samplesPerVariant": 8,
+      "baselineMedianMs": 344.981942,
+      "candidateMedianMs": 371.966263,
+      "deltaPercent": 7.821951735665067,
+      "baselineRangeMs": [
+        337.34759999999994,
+        356.96301900000003
+      ],
+      "candidateRangeMs": [
+        364.136885,
+        411.8662529999999
+      ]
+    },
+    {
+      "source": "corpus-bun.json",
+      "samplesPerVariant": 4,
+      "baselineMedianMs": 3204.2852789999997,
+      "candidateMedianMs": 3150.083179,
+      "deltaPercent": -1.69155038582941,
+      "baselineRangeMs": [
+        3130.9680620000004,
+        3245.0893019999994
+      ],
+      "candidateRangeMs": [
+        3107.3558920000005,
+        3244.3344800000004
+      ]
+    }
+  ]
+}

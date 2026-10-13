@@ -81,8 +81,13 @@ export class TypeScriptReader extends CodeReader {
       yield "`";
     }
 
-    const typeScriptAddition = `${addition}|(?:\\?\\?)|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?(?!\\?))|${TEMPLATE_LITERAL}`;
-    for (const token of CodeReader.generateTokens(sourceCode, typeScriptAddition, tokenFactory)) {
+    const typeScriptAddition = `${addition}|(?:\\?\\?)|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?(?!\\?))`;
+    for (const token of CodeReader.generateTokens(
+      sourceCode,
+      typeScriptAddition,
+      tokenFactory,
+      TEMPLATE_LITERAL
+    )) {
       if (token.startsWith("`") && token.endsWith("`") && token.length > 1) {
         yield* splitTemplateLiteral(token);
       } else {

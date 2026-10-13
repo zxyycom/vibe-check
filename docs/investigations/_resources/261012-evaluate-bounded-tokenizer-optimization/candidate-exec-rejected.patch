@@ -1,0 +1,91 @@
+--- baseline/src/package-checks/function-metrics/analyzer/shared/code-reader.ts
++++ candidate-exec-rejected/src/package-checks/function-metrics/analyzer/shared/code-reader.ts
+@@ -503,7 +503,8 @@
+   public static *generateTokens(
+     sourceCode: string,
+     addition = "",
+-    tokenFactory: TokenFactory = (match) => match.text
++    tokenFactory: TokenFactory = (match) => match.text,
++    templateLiteralPattern = ""
+   ): Generator<string> {
+     const { cleanedAddition, flags } = tokenizerFlags(addition);
+     const untilEnd = String.raw`(?:\\\n|[^\n])*`;
+@@ -540,10 +541,11 @@
+       "|=",
+       "..."
+     ];
+-    const tokenPattern = new RegExp(
++    const createTokenPattern = (includeComment: boolean, includeTemplate: boolean): RegExp => new RegExp(
+       "(?:" +
+-        String.raw`\/\*.*?\*\/` +
++        (includeComment ? String.raw`\/\*.*?\*\/` : "(?!)") +
+         cleanedAddition +
++        (includeTemplate && templateLiteralPattern ? `|${normalizePythonRegex(templateLiteralPattern)}` : "") +
+         String.raw`|(?:\d+')+\d+` +
+         String.raw`|0x(?:[0-9A-Fa-f]+')+[0-9A-Fa-f]+` +
+         String.raw`|0b(?:[01]+')+[01]+` +
+@@ -562,8 +564,36 @@
+       flags
+     );
+ 
++    // Investigation-only candidate: retain complete-source anchors/offsets.
++    const lastCommentClose = sourceCode.lastIndexOf("*/");
++    const lastTemplateDelimiter = templateLiteralPattern ? sourceCode.lastIndexOf("`") : -1;
++    // Compile original alternatives first to preserve regex construction failure.
++    let pattern = createTokenPattern(true, true);
++    let includesComment = true;
++    let includesTemplate = true;
++    function* matches(): Generator<RegExpExecArray> {
++      let cursor = 0;
++      while (cursor <= sourceCode.length) {
++        const includeComment = cursor <= lastCommentClose - 2;
++        const includeTemplate = Boolean(templateLiteralPattern) && cursor < lastTemplateDelimiter;
++        if (includeComment !== includesComment || includeTemplate !== includesTemplate) {
++          pattern = createTokenPattern(includeComment, includeTemplate);
++          includesComment = includeComment;
++          includesTemplate = includeTemplate;
++        }
++        pattern.lastIndex = cursor;
++        const match = pattern.exec(sourceCode);
++        if (!match) return;
++        cursor = match.index + match[0].length;
++        if (match[0].length === 0) {
++          const codePoint = sourceCode.codePointAt(cursor);
++          cursor += codePoint !== undefined && codePoint > 0xffff ? 2 : 1;
++        }
++        yield match;
++      }
++    }
+     let macro = "";
+-    for (const match of sourceCode.matchAll(tokenPattern)) {
++    for (const match of matches()) {
+       const token = tokenFactory(new TokenMatch(match[0], match.index));
+       if (macro) {
+         if (token.includes("\\\n") || !token.includes("\n")) {
+--- baseline/src/package-checks/function-metrics/analyzer/readers/typescript.ts
++++ candidate-exec-rejected/src/package-checks/function-metrics/analyzer/readers/typescript.ts
+@@ -81,8 +81,8 @@
+       yield "`";
+     }
+ 
+-    const typeScriptAddition = `${addition}|(?:\\?\\?)|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?(?!\\?))|${TEMPLATE_LITERAL}`;
+-    for (const token of CodeReader.generateTokens(sourceCode, typeScriptAddition, tokenFactory)) {
++    const typeScriptAddition = `${addition}|(?:\\?\\?)|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?(?!\\?))`;
++    for (const token of CodeReader.generateTokens(sourceCode, typeScriptAddition, tokenFactory, TEMPLATE_LITERAL)) {
+       if (token.startsWith("`") && token.endsWith("`") && token.length > 1) {
+         yield* splitTemplateLiteral(token);
+       } else {
+--- baseline/src/package-checks/function-metrics/analyzer/readers/tsx.ts
++++ candidate-exec-rejected/src/package-checks/function-metrics/analyzer/readers/tsx.ts
+@@ -25,9 +25,9 @@
+     addition = "",
+     tokenFactory?: TokenFactory
+   ): Generator<string> {
+-    const tsxAddition = `${addition}|(?:\\?\\?)|(?:<[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:<\\/[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:#\\w+)|(?:\\$\\w+)|(?:<\\/\\w+>)|(?:=>)|${TEMPLATE_LITERAL}`;
++    const tsxAddition = `${addition}|(?:\\?\\?)|(?:<[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:<\\/[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:#\\w+)|(?:\\$\\w+)|(?:<\\/\\w+>)|(?:=>)`;
+     const tokenizer = new TSXTokenizer();
+-    for (const token of CodeReader.generateTokens(sourceCode, tsxAddition, tokenFactory)) {
++    for (const token of CodeReader.generateTokens(sourceCode, tsxAddition, tokenFactory, TEMPLATE_LITERAL)) {
+       yield* tokenizer.__call__(token);
+     }
+   });

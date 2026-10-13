@@ -361,7 +361,8 @@
       "261010-collect-project-files-only-from-filesystem": "sha256:09535a541cccc4047c51f307b7d2cd15802eb4166b19fdad3ef6c5d722d56a26",
       "261010-provide-readonly-file-region-index": "sha256:2376fadd31010db1a71bf32463fbc343c32af553510457c8948cae08d33127f0",
       "261010-unify-file-selection-with-default-excludes": "sha256:b864debed85b047c249b2ef3867c41a99b648526a8c8c8d222015d8509b3b6e2",
-      "261011-align-nullish-coalescing-with-short-circuit-function-metrics": "sha256:cf106af43518a331361eda94c81f038d4e85e910c4443c8973a3d863ee2ec5a7"
+      "261011-align-nullish-coalescing-with-short-circuit-function-metrics": "sha256:cf106af43518a331361eda94c81f038d4e85e910c4443c8973a3d863ee2ec5a7",
+      "261012-bound-unclosable-tokenizer-tail-cost": "sha256:7c0d37be8708827791a0b3728bcd290dd8236d3a79102e94391f64ace81f2da6"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7495,6 +7496,23 @@
         "function-metrics",
         "product-contract",
         "source-fidelity"
+      ],
+      "relations": []
+    },
+    "261012-bound-unclosable-tokenizer-tail-cost": {
+      "name": "bound-unclosable-tokenizer-tail-cost",
+      "sourcePath": "bound-unclosable-tokenizer-tail-cost.md",
+      "title": "为无法闭合的 tokenizer 尾部采用等价成本防护",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-12T15:40:37Z",
+      "purpose": "在私有 Lizard port 缓解已证实的未闭合尾部识别成本，同时保留完整分析语义与来源可审计性。",
+      "background": "未闭合模板和注释可造成明显成本增长；无差别尾部监测又使合法语料回退，需要窄成本筛选与完整等价证据。",
+      "decision": "仅在独立且确定无法闭合的注释或固定模板分支上启用私有尾部防护，其余输入保留原生路径，并以完整语义和分发验收决定采用。",
+      "tags": [
+        "algorithmic-complexity",
+        "performance",
+        "source-alignment"
       ],
       "relations": []
     }

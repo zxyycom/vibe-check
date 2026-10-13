@@ -1,0 +1,7320 @@
+{
+  "records": [
+    {
+      "source": "v3-lifecycle-node.json",
+      "sourceSha256": "82666e17537f9555838fcf72a37bbced2b6c2b30b2805d600f23927931d5a6b1",
+      "runtime": {
+        "node": "24.18.0",
+        "acorn": "8.16.0",
+        "ada": "3.4.4",
+        "amaro": "1.1.9",
+        "ares": "1.34.6",
+        "brotli": "1.2.0",
+        "cldr": "48.0",
+        "icu": "78.3",
+        "llhttp": "9.4.2",
+        "merve": "1.2.2",
+        "modules": "137",
+        "napi": "10",
+        "nbytes": "0.1.4",
+        "ncrypto": "0.0.1",
+        "nghttp2": "1.69.0",
+        "nghttp3": "",
+        "ngtcp2": "",
+        "openssl": "3.5.7",
+        "simdjson": "4.6.4",
+        "simdutf": "6.4.0",
+        "sqlite": "3.53.1",
+        "tz": "2026b",
+        "undici": "7.28.0",
+        "unicode": "17.0",
+        "uv": "1.52.1",
+        "uvwasi": "0.0.23",
+        "v8": "13.6.233.17-node.50",
+        "zlib": "1.3.1-e00f703",
+        "zstd": "1.5.7"
+      },
+      "rows": [
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              16,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              17,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              18,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "factory",
+              "/",
+              19,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              20,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              21,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "finished",
+              9
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              "",
+              12,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              13,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              14,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              15,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              16,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              17,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              18,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              19,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              20,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              21,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              11
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              "",
+              12,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              13,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              16,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              17,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              18,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "factory",
+              "/",
+              19,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              20,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              21,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "finished",
+              9
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              16,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              17,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              18,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "factory",
+              "/",
+              19,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              20,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              21,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "finished",
+              9
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              " \t\u001c ",
+              8,
+              " \t\u001c ",
+              null
+            ],
+            [
+              "yield",
+              " \t\u001c "
+            ],
+            [
+              "factory",
+              "`",
+              12,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "$",
+              13,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              14,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "x",
+              15,
+              "x",
+              null
+            ],
+            [
+              "yield",
+              "x"
+            ],
+            [
+              "factory",
+              "}",
+              16,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "factory",
+              "$",
+              17,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              18,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "x",
+              19,
+              "x",
+              null
+            ],
+            [
+              "yield",
+              "x"
+            ],
+            [
+              "factory",
+              "}",
+              20,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "finished",
+              13
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              2,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              3,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              4,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              5,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              6,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              7,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              8,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              9,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              10,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              11,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              12,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              13,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              14,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              15,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              16,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              17,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              18,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              19,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              20,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              21
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              2,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              " \t\u001c ",
+              8,
+              " \t\u001c ",
+              null
+            ],
+            [
+              "yield",
+              " \t\u001c "
+            ],
+            [
+              "factory",
+              "`",
+              12,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "$",
+              13,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              14,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "x",
+              15,
+              "x",
+              null
+            ],
+            [
+              "yield",
+              "x"
+            ],
+            [
+              "factory",
+              "}",
+              16,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "factory",
+              "$",
+              17,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              18,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "x",
+              19,
+              "x",
+              null
+            ],
+            [
+              "yield",
+              "x"
+            ],
+            [
+              "factory",
+              "}",
+              20,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "finished",
+              13
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              " \t\u001c ",
+              8,
+              " \t\u001c ",
+              null
+            ],
+            [
+              "yield",
+              " \t\u001c "
+            ],
+            [
+              "factory",
+              "`",
+              12,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "$",
+              13,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              14,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "",
+              15,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "}",
+              16,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "factory",
+              "$",
+              17,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              18,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "",
+              19,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "}",
+              20,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "finished",
+              13
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "yield",
+              "\ud800"
+            ],
+            [
+              "factory",
+              "\n",
+              4,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "finished",
+              4
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              3,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              4,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              4
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              3,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "yield",
+              "\ud800"
+            ],
+            [
+              "factory",
+              "\n",
+              4,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "finished",
+              4
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "yield",
+              "\ud800"
+            ],
+            [
+              "factory",
+              "\n",
+              4,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "finished",
+              4
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#x"
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              3,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              4,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              "/",
+              5,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "finished",
+              6
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#x"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              2,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              3,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              4,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              5,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              6
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              2,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#x"
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              3,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              4,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              "/",
+              5,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "finished",
+              6
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#x"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#"
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              3,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              4,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              "/",
+              5,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "finished",
+              6
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "addition": "|(",
+          "action": "invalid-addition-lazy-error",
+          "events": [
+            "created",
+            "SyntaxError",
+            0
+          ]
+        },
+        {
+          "addition": "|[",
+          "action": "invalid-addition-lazy-error",
+          "events": [
+            "created",
+            "SyntaxError",
+            0
+          ]
+        }
+      ],
+      "result": "equal"
+    },
+    {
+      "source": "v3-lifecycle-bun.json",
+      "sourceSha256": "13d297d148362dd6859cc39f5af344df3e8442000ff3ef43ebd80215cac44d83",
+      "runtime": {
+        "node": "24.3.0",
+        "bun": "1.3.14",
+        "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+        "openssl": "1.1.0",
+        "llhttp": "9.3.0",
+        "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+        "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+        "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+        "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+        "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+        "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+        "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+        "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+        "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+        "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+        "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+        "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+        "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+        "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+        "v8": "13.6.233.10-node.18",
+        "uv": "1.48.0",
+        "napi": "10",
+        "icu": "75.1",
+        "unicode": "15.1",
+        "modules": "137"
+      },
+      "rows": [
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              16,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              17,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              18,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "factory",
+              "/",
+              19,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              20,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              21,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "finished",
+              9
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              "",
+              12,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              13,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              14,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              15,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              16,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              17,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              18,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              19,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              20,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              21,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              11
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              "",
+              12,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              13,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              16,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              17,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              18,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "factory",
+              "/",
+              19,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              20,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              21,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "finished",
+              9
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              16,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              17,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              18,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "factory",
+              "/",
+              19,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              20,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              " ",
+              21,
+              " ",
+              null
+            ],
+            [
+              "yield",
+              " "
+            ],
+            [
+              "finished",
+              9
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "/* closed */ \t\r\n/* /* ",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "/* closed */",
+              0,
+              "/* closed */",
+              null
+            ],
+            [
+              "yield",
+              "/* closed */"
+            ],
+            [
+              "factory",
+              " \t\r",
+              12,
+              " \t\r",
+              null
+            ],
+            [
+              "yield",
+              " \t\r"
+            ],
+            [
+              "factory",
+              "\n",
+              15,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              " \t\u001c ",
+              8,
+              " \t\u001c ",
+              null
+            ],
+            [
+              "yield",
+              " \t\u001c "
+            ],
+            [
+              "factory",
+              "`",
+              12,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "$",
+              13,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              14,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "x",
+              15,
+              "x",
+              null
+            ],
+            [
+              "yield",
+              "x"
+            ],
+            [
+              "factory",
+              "}",
+              16,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "factory",
+              "$",
+              17,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              18,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "x",
+              19,
+              "x",
+              null
+            ],
+            [
+              "yield",
+              "x"
+            ],
+            [
+              "factory",
+              "}",
+              20,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "finished",
+              13
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              2,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              3,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              4,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              5,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              6,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              7,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              8,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              9,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              10,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              11,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              12,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              13,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              14,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              15,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              16,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              17,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              18,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              19,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              20,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              21
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              2,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              " \t\u001c ",
+              8,
+              " \t\u001c ",
+              null
+            ],
+            [
+              "yield",
+              " \t\u001c "
+            ],
+            [
+              "factory",
+              "`",
+              12,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "$",
+              13,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              14,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "x",
+              15,
+              "x",
+              null
+            ],
+            [
+              "yield",
+              "x"
+            ],
+            [
+              "factory",
+              "}",
+              16,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "factory",
+              "$",
+              17,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              18,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "x",
+              19,
+              "x",
+              null
+            ],
+            [
+              "yield",
+              "x"
+            ],
+            [
+              "factory",
+              "}",
+              20,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "finished",
+              13
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              " \t\u001c ",
+              8,
+              " \t\u001c ",
+              null
+            ],
+            [
+              "yield",
+              " \t\u001c "
+            ],
+            [
+              "factory",
+              "`",
+              12,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "$",
+              13,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              14,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "",
+              15,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "}",
+              16,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "factory",
+              "$",
+              17,
+              "$",
+              null
+            ],
+            [
+              "yield",
+              "$"
+            ],
+            [
+              "factory",
+              "{",
+              18,
+              "{",
+              null
+            ],
+            [
+              "yield",
+              "{"
+            ],
+            [
+              "factory",
+              "",
+              19,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "}",
+              20,
+              "}",
+              null
+            ],
+            [
+              "yield",
+              "}"
+            ],
+            [
+              "finished",
+              13
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "`closed` \t\u001c `${x}${x}",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "`",
+              0,
+              "`",
+              null
+            ],
+            [
+              "yield",
+              "`"
+            ],
+            [
+              "factory",
+              "closed",
+              1,
+              "closed",
+              null
+            ],
+            [
+              "yield",
+              "closed"
+            ],
+            [
+              "factory",
+              "`",
+              7,
+              "`",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "yield",
+              "\ud800"
+            ],
+            [
+              "factory",
+              "\n",
+              4,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "finished",
+              4
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              3,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              4,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              4
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              3,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "yield",
+              "\ud800"
+            ],
+            [
+              "factory",
+              "\n",
+              4,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "finished",
+              4
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "yield",
+              "\ud800"
+            ],
+            [
+              "factory",
+              "\n",
+              4,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "finished",
+              4
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "a😀\ud800\n",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "a",
+              0,
+              "a",
+              null
+            ],
+            [
+              "yield",
+              "a"
+            ],
+            [
+              "factory",
+              "😀",
+              1,
+              "😀",
+              null
+            ],
+            [
+              "yield",
+              "😀"
+            ],
+            [
+              "factory",
+              "\ud800",
+              3,
+              "\ud800",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#x"
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              3,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              4,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              "/",
+              5,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "finished",
+              6
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#x"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              2,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              3,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              4,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              5,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              6
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "",
+              0,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "yield",
+              ""
+            ],
+            [
+              "factory",
+              "",
+              2,
+              "",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#x"
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              3,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              4,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              "/",
+              5,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "finished",
+              6
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#x"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "x",
+              1,
+              "x",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#"
+            ],
+            [
+              "yield",
+              "\n"
+            ],
+            [
+              "factory",
+              "/",
+              3,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "factory",
+              "*",
+              4,
+              "*",
+              null
+            ],
+            [
+              "yield",
+              "*"
+            ],
+            [
+              "factory",
+              "/",
+              5,
+              "/",
+              null
+            ],
+            [
+              "yield",
+              "/"
+            ],
+            [
+              "finished",
+              6
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "yield",
+              "#"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              1
+            ]
+          ]
+        },
+        {
+          "source": "#x\n/*/",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "factory",
+              "#",
+              0,
+              "#",
+              null
+            ],
+            [
+              "factory",
+              "",
+              1,
+              "",
+              null
+            ],
+            [
+              "factory",
+              "\n",
+              2,
+              "\n",
+              null
+            ],
+            [
+              "error",
+              "factory-stop"
+            ],
+            [
+              "finished",
+              3
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?=.)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?=.)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?=.)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?=.)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(a)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(a)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(a)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(a)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?i)(?=x)",
+          "action": "drain",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?i)(?=x)",
+          "action": "return-after-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-1",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "source": "",
+          "addition": "|(?i)(?=x)",
+          "action": "throw-at-3",
+          "events": [
+            [
+              "created",
+              0
+            ],
+            [
+              "finished",
+              0
+            ]
+          ]
+        },
+        {
+          "addition": "|(",
+          "action": "invalid-addition-lazy-error",
+          "events": [
+            "created",
+            "SyntaxError",
+            0
+          ]
+        },
+        {
+          "addition": "|[",
+          "action": "invalid-addition-lazy-error",
+          "events": [
+            "created",
+            "SyntaxError",
+            0
+          ]
+        }
+      ],
+      "result": "equal"
+    }
+  ]
+}

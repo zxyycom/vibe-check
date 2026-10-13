@@ -1,0 +1,1089 @@
+{
+  "capturedAt": "2026-10-13T01:54:56.792Z",
+  "purpose": "Coding-style review of read-only historical harness descriptions; post-review helpers have explicit JSON/argv/error/protocol boundaries. This verification is not a performance experiment.",
+  "scope": {
+    "productionFilesChanged": 0,
+    "testFilesChanged": 0,
+    "originalMeasuredDataPatchesSnapshotInputChanged": 0,
+    "helpersChanged": 26,
+    "originalSourceSaved": "harness-source-history.json",
+    "standaloneEntrypoints": 22,
+    "nodeImportHooks": 4,
+    "historyOriginal17RowsUnchanged": true
+  },
+  "notClaimed": "Runtime boundary corrections intentionally change invalid-input/error behavior; complete erased-JS before/after equality is not claimed. No original timing matrix was rerun and new helpers do not own historical measurements.",
+  "checks": {
+    "format": "Oxfmt explicit all 26 helper targets exit0",
+    "lint": "Oxlint current project config explicit all 26 helper targets exit0",
+    "typecheck": "TypeScript --ignoreConfig --noEmit --module nodenext --moduleResolution nodenext --target esnext --strict --noUncheckedIndexedAccess --exactOptionalPropertyTypes --noImplicitReturns --noImplicitOverride --erasableSyntaxOnly --allowImportingTsExtensions --skipLibCheck --types node; 11 TS targets exit0",
+    "historySha256": 26,
+    "javascriptSyntax": "Node --check explicit all 15 MJS targets exit0"
+  },
+  "boundary": {
+    "capturedAt": "2026-10-13T01:54:56.302Z",
+    "historyHashesVerified": 26,
+    "legalDecoded": {
+      "corpus": 526,
+      "sourceModules": 348,
+      "selectedFixtures": 110
+    },
+    "probeCount": 157,
+    "rows": [
+      {
+        "file": "differential-v3.1.ts",
+        "probes": 15,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "differential-v3.ts",
+        "probes": 15,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "differential.ts",
+        "probes": 15,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "measure-v3.1.ts",
+        "probes": 20,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "measure-v3.ts",
+        "probes": 20,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "measure.ts",
+        "probes": 20,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "v3-dispatch-counts.ts",
+        "probes": 9,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "v3-lifecycle-probes.ts",
+        "probes": 0,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "v3.1-leading-addition-probe.ts",
+        "probes": 0,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "v3.1-lifecycle-probes.ts",
+        "probes": 0,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "v3.1-long-token-proof.ts",
+        "probes": 2,
+        "scope": "Isolated declared input decoders / argv region only; no top-level harness, imports, analyzer, Worker, filesystem writes or child process invoked."
+      },
+      {
+        "file": "controller.mjs",
+        "probes": 7,
+        "scope": "Pure child protocol decoder only; success parse failures preserve status/stdout/stderr; no spawnSync/controller executed."
+      },
+      {
+        "file": "controller-v3.mjs",
+        "probes": 7,
+        "scope": "Pure child protocol decoder only; success parse failures preserve status/stdout/stderr; no spawnSync/controller executed."
+      },
+      {
+        "file": "controller-v3.1.mjs",
+        "probes": 7,
+        "scope": "Pure child protocol decoder only; success parse failures preserve status/stdout/stderr; no spawnSync/controller executed."
+      },
+      {
+        "file": "controller-v3.1-confirm.mjs",
+        "probes": 7,
+        "scope": "Pure child protocol decoder only; success parse failures preserve status/stdout/stderr; no spawnSync/controller executed."
+      },
+      {
+        "file": "followup.mjs",
+        "probes": 7,
+        "scope": "Pure child protocol decoder only; success parse failures preserve status/stdout/stderr; no spawnSync/controller executed."
+      },
+      {
+        "file": "freeze-snapshots.mjs",
+        "probes": 6,
+        "scope": "Isolated metadata decoders only; cpSync, snapshot reads/writes and source/input artifacts not invoked."
+      }
+    ]
+  },
+  "settlement": {
+    "capturedAt": "2026-10-13T01:54:56.602Z",
+    "probeCount": 23,
+    "rows": [
+      {
+        "file": "v3-lifecycle-probes.ts",
+        "probes": 6,
+        "scope": "Only extracted catch/factory callbacks against controlled in-memory mock generator; Error is recorded, unexpected object/string rethrown unchanged."
+      },
+      {
+        "file": "v3.1-lifecycle-probes.ts",
+        "probes": 6,
+        "scope": "Only extracted catch/factory callbacks against controlled in-memory mock generator; Error is recorded, unexpected object/string rethrown unchanged."
+      },
+      {
+        "file": "v3.1-leading-addition-probe.ts",
+        "probes": 3,
+        "scope": "Only extracted catch/factory callbacks against controlled in-memory mock generator; Error is recorded, unexpected object/string rethrown unchanged."
+      },
+      {
+        "file": "controller.mjs",
+        "probes": 1,
+        "scope": "Only extracted child function with mocked spawnSync and memory-only writer/log; protocol failure row retained before controlled stop. No external process/fixture/timing matrix."
+      },
+      {
+        "file": "controller-v3.mjs",
+        "probes": 1,
+        "scope": "Only extracted child function with mocked spawnSync and memory-only writer/log; protocol failure row retained before controlled stop. No external process/fixture/timing matrix."
+      },
+      {
+        "file": "controller-v3.1.mjs",
+        "probes": 1,
+        "scope": "Only extracted child function with mocked spawnSync and memory-only writer/log; protocol failure row retained before controlled stop. No external process/fixture/timing matrix."
+      },
+      {
+        "file": "controller-v3.1-confirm.mjs",
+        "probes": 1,
+        "scope": "Only extracted child function with mocked spawnSync and memory-only writer/log; protocol failure row retained before controlled stop. No external process/fixture/timing matrix."
+      },
+      {
+        "file": "followup.mjs",
+        "probes": 1,
+        "scope": "Single extracted loop body with mocked spawnSync/log only; controller loops and filesystem final write not executed."
+      },
+      {
+        "file": "measure.ts",
+        "probes": 1,
+        "scope": "Only extracted diagnostic factory against in-memory Worker mock; termination rejection observed; no real Worker or performance sample."
+      },
+      {
+        "file": "measure-v3.ts",
+        "probes": 1,
+        "scope": "Only extracted diagnostic factory against in-memory Worker mock; termination rejection observed; no real Worker or performance sample."
+      },
+      {
+        "file": "measure-v3.1.ts",
+        "probes": 1,
+        "scope": "Only extracted diagnostic factory against in-memory Worker mock; termination rejection observed; no real Worker or performance sample."
+      }
+    ]
+  },
+  "helperSource": [
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/controller-v3.1-confirm.mjs",
+      "beforeSha256": "1576bf85223fe683394a99966a9ef4ba41f481f2027bf99cc8740800a0df065c",
+      "afterSha256": "3bf457c25175a0cc779992582b2d29ead54bdc163e446bd324716f49b8053233"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/controller-v3.1.mjs",
+      "beforeSha256": "fd162ad2edfd56c2d87b7b97d9b3c86c9206d6075f0cb6381749a59992be4566",
+      "afterSha256": "8b9cc01afb0cf2d3a13aaf83ecf2216137426766c014faf258af616b714f131f"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/controller-v3.mjs",
+      "beforeSha256": "b910a5d768771c05d9139759ffee1a466b3055f897227b5b1615adb6b64b5d44",
+      "afterSha256": "778e0a22f53b3f9796516d44363afa38b4ab5c09ff1de8984b28445e3ee86c4e"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/controller.mjs",
+      "beforeSha256": "4a4796af12b9681d1d00582822151026b0c7113c9c71137ca609071af0a9b62a",
+      "afterSha256": "5704cddefbbd6b3cc4c253aa7709ae7eeaa8064d820ce5fd5acea4df2e886e93"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/differential-v3.1.ts",
+      "beforeSha256": "c32ae372e5f3074aeb320efe75eb57d60ca3f11b903687c27d9995c6cdd13f88",
+      "afterSha256": "76d52b7f779a6d56e9917ae257758ff460d12962872a9e37b1db7797cd415875"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/differential-v3.ts",
+      "beforeSha256": "0732fe1c0e96a40e651b7764ad46bdc9037347f2938ae2f1e7e27d920b120b49",
+      "afterSha256": "e8e10d9fc0a7a47475761b6ef2205635770879f0ce09e480dd8eb778fb63fe47"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/differential.ts",
+      "beforeSha256": "c3ea8fad58a8f1dc578c26e3a18030fa35cb2db5d4f00da8390b904f9e8630d3",
+      "afterSha256": "6948134dc249726914207fb76c854b5c02bceb30b248970ecdc4d0464261df07"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/followup.mjs",
+      "beforeSha256": "3b18f306cc3ccfaaa6fb7b0eb9da7e678d70e4591ae1bcbc336df66ac612efe7",
+      "afterSha256": "b71aea24065adc7a51dcd4a3e43f58b59741b807544280114dd1843b05154a52"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/freeze-snapshots.mjs",
+      "beforeSha256": "21a7273eac83e66bf1bf410e52b38d3ff8f70897ff7de667fd43926b783f45e4",
+      "afterSha256": "688c300629d19341c747b569107ab866314200c09a2481c890abc1c5bce1a863"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/measure-v3.1.ts",
+      "beforeSha256": "7b306471c4639123a7c88c0691980c5f8917b0b5fa217274aca6ef06ba350240",
+      "afterSha256": "96d96deffb1a223d6f447160add54e5ed4047b36ca5a14dbd0efb88dd5f2c1df"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/measure-v3.ts",
+      "beforeSha256": "11f3f73a9196e1d10d442d889a32d2368dfea9a150737181bb8170d8daaeda22",
+      "afterSha256": "a01375f4595cd1755364cace1a496b51c2972d40d8ed38e7e94dfe653de89ba3"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/measure.ts",
+      "beforeSha256": "f9373a12707c8730ba1d4d6011d8499de710f81f589016812346d3181350c93b",
+      "afterSha256": "3d0629d3b1b0b3c31c7ca3752a010feb26a15af30292013b24fb491303c1e0fc"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/v3-dispatch-counts.ts",
+      "beforeSha256": "1af0be35158508ad48e4c9cdd6a0c17803e4b8e82b3cd50ae5a318b897277a69",
+      "afterSha256": "27ca496a637962727d74181b3c16197db391077efb8c879ef4d8561dc823b5eb"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/v3-lifecycle-probes.ts",
+      "beforeSha256": "9bb0e113854291feb59dd9754c744868c75297aabcfc7c43091a6da6308bbd57",
+      "afterSha256": "1425663452c52ede17c50269cc1757fb82f3464256f24e2761bdcf0f300fa7d7"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/v3.1-leading-addition-probe.ts",
+      "beforeSha256": "3488ac2ddee16ff388a0c28b5df4c75d04606330015d7362ff464f52a2f09bd5",
+      "afterSha256": "45b660ea896055f1f7b7d85aefddc0c17df642ee582388b39b099b4a52c411d2"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/v3.1-lifecycle-probes.ts",
+      "beforeSha256": "f8c13f64a801e0fea1965e2505422aeb99a03de8db0bc88349a7517d1ce2ee33",
+      "afterSha256": "dc3672f198ebce43feb9c7da9fd5f70763477a24d16a45c30917cb3aa90b1095"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/v3.1-long-token-proof.ts",
+      "beforeSha256": "3a9687e5861c25e3483984c813967922aee27f1cb50c9a09aa82f882d4bdb796",
+      "afterSha256": "8d2f282662933ef52735905324d8dddc6fe787ab230a3993c5a0345aa89ce27a"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/baseline-imports.mjs",
+      "beforeSha256": "f3a64dfdb6bc108ef1f32c7a4898248b622077c41865d8a17b86b9b7fd4b61bf",
+      "afterSha256": "28d7f22c5da0e5262177cbad4e10431b2482467442a72978a2e26f83a9fd70d2"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/candidate-imports.mjs",
+      "beforeSha256": "ae3382348d6baa0f6eddc42f0b50c4c50eca2e06117db55358c9d17dfe272ca9",
+      "afterSha256": "189b778f735374bd10ed4982ace1c80a85d713d60256d23caa0fa11bf1214e0c"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/candidate-v3-imports.mjs",
+      "beforeSha256": "f0a3c63cfe6a5603a6a584392bbd92c466872d817f0a3f880d52ec7222dd6b94",
+      "afterSha256": "f66f5017d3ea2850bac091422f8bf7f6bdfbf1544ce8469e8a1fac4700772dd1"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/candidate-v3.1-imports.mjs",
+      "beforeSha256": "a086ab4d79c8ff0fa68eaaf13077b46bc34d78d40108b86638fac4854591b8d0",
+      "afterSha256": "1974fd9473e10bbc1c1419f79c0c48a21b01a9a8a1cdd883221233a502401aea"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/prepare-candidate.mjs",
+      "beforeSha256": "e6740853838f792a068a732905f4dc63076e468f2e2f235a39187aa4a22dbc98",
+      "afterSha256": "69824459cdc119a836b80057a1131dd17ff6e322f8eb6a989cbd538acad5ea02"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/prepare-native-candidate.mjs",
+      "beforeSha256": "b43899263de6f4ea7dbaa7ba37a503a45bffb639cf278965df8f263f43c740d1",
+      "afterSha256": "ec7726731c6382e7b089092d9016b6e31ed776b7034610844fd650209b0eff21"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/prepare-v3-candidate.mjs",
+      "beforeSha256": "366e7c055d98a1bd44cd337173a74c3e7e2051bb9045da98e7a6fed471fb7d8e",
+      "afterSha256": "76be3dee77bae421d574bcacc4489c92dab9576499b2e30fd2d0d935c5f0934c"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/prepare-v3.1.mjs",
+      "beforeSha256": "6910447dd8bc81c674c139a99a99911cd043cb4c35c3c68f334f250517c99041",
+      "afterSha256": "e2da576ccbdf1282956cefc033781f024a9cfc82550bd4193e4c3351f1675d38"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness/verify-product-token-relation.mjs",
+      "beforeSha256": "9d2b33730c2ef129ebec2369e8d9d0a9405cc2b3b38682cfd1be123ad13c4b97",
+      "afterSha256": "49344e8384603ed51df3cdc88c82046e7dd0f2462ddd1a8c718866127646b583"
+    }
+  ],
+  "remainingBoundary": "Absolute historical workspace paths and archived experimental action order remain. These are historical experiment descriptions, not maintained runners. Isolated probes execute only JSON/argv/protocol/pure source transformations/AST leaves or hooks with mocked registration and append. No whole preparer, frozen snapshot write, real hook registration, actual analyzer, Worker or timing matrix was executed. 22 standalone entries validate argv before dynamic imports/IO/spawn; four Node import hooks do not own or reject main test argv. Formatting/typecheck/lint/syntax cover all applicable 26 scripts. Old raw measurements were not regenerated with these post-review helpers.",
+  "argv": {
+    "capturedAt": "2026-10-13T01:54:55.864Z",
+    "helpers": 17,
+    "probeCount": 126,
+    "rows": [
+      {
+        "file": "controller-v3.1-confirm.mjs",
+        "legalCases": [
+          [],
+          [
+            "legal"
+          ],
+          [
+            "tail"
+          ]
+        ],
+        "rejectedCases": [
+          [
+            "unknown"
+          ],
+          [
+            "legal",
+            "extra"
+          ],
+          [
+            "tail",
+            "tail"
+          ],
+          [
+            "--unknown"
+          ]
+        ],
+        "probes": 7,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "controller-v3.1.mjs",
+        "legalCases": [
+          [],
+          [
+            "legal"
+          ],
+          [
+            "tail"
+          ]
+        ],
+        "rejectedCases": [
+          [
+            "unknown"
+          ],
+          [
+            "legal",
+            "extra"
+          ],
+          [
+            "tail",
+            "tail"
+          ],
+          [
+            "--unknown"
+          ]
+        ],
+        "probes": 7,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "controller-v3.mjs",
+        "legalCases": [
+          [],
+          [
+            "legal"
+          ],
+          [
+            "tail"
+          ]
+        ],
+        "rejectedCases": [
+          [
+            "unknown"
+          ],
+          [
+            "legal",
+            "extra"
+          ],
+          [
+            "tail",
+            "tail"
+          ],
+          [
+            "--unknown"
+          ]
+        ],
+        "probes": 7,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "controller.mjs",
+        "legalCases": [
+          [],
+          [
+            "node"
+          ],
+          [
+            "bun"
+          ],
+          [
+            "node",
+            "pathological"
+          ],
+          [
+            "bun",
+            "corpus"
+          ]
+        ],
+        "rejectedCases": [
+          [
+            "unknown"
+          ],
+          [
+            "node",
+            "unknown"
+          ],
+          [
+            "node",
+            "corpus",
+            "extra"
+          ],
+          [
+            "node",
+            "node"
+          ],
+          [
+            "bun",
+            "corpus",
+            "corpus"
+          ],
+          [
+            "--unknown"
+          ]
+        ],
+        "probes": 11,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "differential-v3.1.ts",
+        "legalCases": [
+          [],
+          [
+            "--smoke"
+          ],
+          [
+            "--corpus"
+          ],
+          [
+            "--smoke",
+            "--corpus"
+          ],
+          [
+            "--corpus",
+            "--smoke"
+          ]
+        ],
+        "rejectedCases": [
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ],
+          [
+            "--corpus",
+            "--corpus"
+          ],
+          [
+            "--smoke",
+            "--corpus",
+            "--smoke"
+          ],
+          [
+            "--corpus",
+            "extra"
+          ]
+        ],
+        "probes": 10,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "differential-v3.ts",
+        "legalCases": [
+          [],
+          [
+            "--smoke"
+          ],
+          [
+            "--corpus"
+          ],
+          [
+            "--smoke",
+            "--corpus"
+          ],
+          [
+            "--corpus",
+            "--smoke"
+          ]
+        ],
+        "rejectedCases": [
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ],
+          [
+            "--corpus",
+            "--corpus"
+          ],
+          [
+            "--smoke",
+            "--corpus",
+            "--smoke"
+          ],
+          [
+            "--corpus",
+            "extra"
+          ]
+        ],
+        "probes": 10,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "differential.ts",
+        "legalCases": [
+          [],
+          [
+            "--smoke"
+          ],
+          [
+            "--corpus"
+          ],
+          [
+            "--smoke",
+            "--corpus"
+          ],
+          [
+            "--corpus",
+            "--smoke"
+          ]
+        ],
+        "rejectedCases": [
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ],
+          [
+            "--corpus",
+            "--corpus"
+          ],
+          [
+            "--smoke",
+            "--corpus",
+            "--smoke"
+          ],
+          [
+            "--corpus",
+            "extra"
+          ]
+        ],
+        "probes": 10,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "followup.mjs",
+        "legalCases": [
+          []
+        ],
+        "rejectedCases": [
+          [
+            "extra"
+          ],
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ]
+        ],
+        "probes": 4,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "freeze-snapshots.mjs",
+        "legalCases": [
+          []
+        ],
+        "rejectedCases": [
+          [
+            "extra"
+          ],
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ]
+        ],
+        "probes": 4,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "measure-v3.1.ts",
+        "legalCases": [
+          [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          [
+            "candidate",
+            "raw",
+            "template"
+          ],
+          [
+            "candidate",
+            "raw",
+            "comment",
+            "16000",
+            "1"
+          ],
+          [
+            "baseline",
+            "port",
+            "template",
+            "24",
+            "0",
+            "--exit-wait-3000"
+          ]
+        ],
+        "rejectedCases": [
+          [],
+          [
+            "baseline",
+            "unknown",
+            "comment"
+          ],
+          [
+            "baseline",
+            "raw",
+            "unknown"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "bad"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "0",
+            "--unknown"
+          ],
+          [
+            "baseline",
+            "port",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000",
+            "--exit-wait-3000"
+          ],
+          [
+            "baseline",
+            "port",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000",
+            "extra"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000"
+          ]
+        ],
+        "probes": 12,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "measure-v3.ts",
+        "legalCases": [
+          [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          [
+            "candidate",
+            "raw",
+            "template"
+          ],
+          [
+            "candidate",
+            "raw",
+            "comment",
+            "16000",
+            "1"
+          ],
+          [
+            "baseline",
+            "port",
+            "template",
+            "24",
+            "0",
+            "--exit-wait-3000"
+          ]
+        ],
+        "rejectedCases": [
+          [],
+          [
+            "baseline",
+            "unknown",
+            "comment"
+          ],
+          [
+            "baseline",
+            "raw",
+            "unknown"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "bad"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "0",
+            "--unknown"
+          ],
+          [
+            "baseline",
+            "port",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000",
+            "--exit-wait-3000"
+          ],
+          [
+            "baseline",
+            "port",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000",
+            "extra"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000"
+          ]
+        ],
+        "probes": 12,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "measure.ts",
+        "legalCases": [
+          [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          [
+            "candidate",
+            "raw",
+            "template"
+          ],
+          [
+            "candidate",
+            "raw",
+            "comment",
+            "16000",
+            "1"
+          ],
+          [
+            "baseline",
+            "port",
+            "template",
+            "24",
+            "0",
+            "--exit-wait-3000"
+          ]
+        ],
+        "rejectedCases": [
+          [],
+          [
+            "baseline",
+            "unknown",
+            "comment"
+          ],
+          [
+            "baseline",
+            "raw",
+            "unknown"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "bad"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "0",
+            "--unknown"
+          ],
+          [
+            "baseline",
+            "port",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000",
+            "--exit-wait-3000"
+          ],
+          [
+            "baseline",
+            "port",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000",
+            "extra"
+          ],
+          [
+            "baseline",
+            "raw",
+            "comment",
+            "1",
+            "0",
+            "--exit-wait-3000"
+          ]
+        ],
+        "probes": 12,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "v3-dispatch-counts.ts",
+        "legalCases": [
+          []
+        ],
+        "rejectedCases": [
+          [
+            "extra"
+          ],
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ]
+        ],
+        "probes": 4,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "v3-lifecycle-probes.ts",
+        "legalCases": [
+          []
+        ],
+        "rejectedCases": [
+          [
+            "extra"
+          ],
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ]
+        ],
+        "probes": 4,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "v3.1-leading-addition-probe.ts",
+        "legalCases": [
+          []
+        ],
+        "rejectedCases": [
+          [
+            "extra"
+          ],
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ]
+        ],
+        "probes": 4,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "v3.1-lifecycle-probes.ts",
+        "legalCases": [
+          []
+        ],
+        "rejectedCases": [
+          [
+            "extra"
+          ],
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ]
+        ],
+        "probes": 4,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      },
+      {
+        "file": "v3.1-long-token-proof.ts",
+        "legalCases": [
+          []
+        ],
+        "rejectedCases": [
+          [
+            "extra"
+          ],
+          [
+            "--unknown"
+          ],
+          [
+            "--smoke",
+            "--smoke"
+          ]
+        ],
+        "probes": 4,
+        "scope": "Only AST-selected argv declarations and guards executed; no imports, I/O, analyzers, worker, spawn, timing block or freeze body executed."
+      }
+    ]
+  },
+  "probeCount": 381,
+  "additionalHelpers": {
+    "capturedAt": "2026-10-13T01:54:55.468Z",
+    "historySourceHashesVerified": 26,
+    "extraHelpers": 9,
+    "semanticProbeCount": 55,
+    "argvProbeCount": 20,
+    "rows": [
+      {
+        "file": "prepare-candidate.mjs",
+        "probes": 10,
+        "proof": "Only patch declarations with a recording stub and pure replacement function; all three frozen baseline source inputs produce exact same bytes, replacement strings unchanged; missing/duplicate fragments reject."
+      },
+      {
+        "file": "prepare-native-candidate.mjs",
+        "probes": 3,
+        "proof": "Only old transform expression region and new pure transform, with generated v1 source in memory; exact output bytes retained; missing/duplicate source marker rejected."
+      },
+      {
+        "file": "prepare-v3-candidate.mjs",
+        "probes": 4,
+        "proof": "Only old transform region with mocked read returning frozen baseline and new pure transform; exact v3 output bytes retained; missing/duplicate/reordered macro/source guards explicit."
+      },
+      {
+        "file": "prepare-v3.1.mjs",
+        "probes": 3,
+        "proof": "Only old replace expressions and new pure transform; exact v3.1 replacement bytes retained; missing/duplicate fragments reject instead of silent no-op."
+      },
+      {
+        "file": "baseline-imports.mjs",
+        "probes": 7,
+        "proof": "Static imports stripped; register/append mocked; six redirect/exclusion callbacks equal original, logging bytes equal, nextResolve arguments and thrown identity preserved; hook accepts unrelated main argv."
+      },
+      {
+        "file": "candidate-imports.mjs",
+        "probes": 7,
+        "proof": "Static imports stripped; register/append mocked; six redirect/exclusion callbacks equal original, logging bytes equal, nextResolve arguments and thrown identity preserved; hook accepts unrelated main argv."
+      },
+      {
+        "file": "candidate-v3-imports.mjs",
+        "probes": 7,
+        "proof": "Static imports stripped; register/append mocked; six redirect/exclusion callbacks equal original, logging bytes equal, nextResolve arguments and thrown identity preserved; hook accepts unrelated main argv."
+      },
+      {
+        "file": "candidate-v3.1-imports.mjs",
+        "probes": 7,
+        "proof": "Static imports stripped; register/append mocked; six redirect/exclusion callbacks equal original, logging bytes equal, nextResolve arguments and thrown identity preserved; hook accepts unrelated main argv."
+      },
+      {
+        "file": "verify-product-token-relation.mjs",
+        "probes": 7,
+        "proof": "Only pure AST leaf collector; valid TS/erased JS leaves equal original, invalid source reports file; top-level source reads/result writes never invoked."
+      }
+    ],
+    "argvRows": [
+      {
+        "file": "prepare-candidate.mjs",
+        "probes": 4,
+        "proof": "First executable statement only; rejects extra/unknown/repeated argv before all IO."
+      },
+      {
+        "file": "prepare-native-candidate.mjs",
+        "probes": 4,
+        "proof": "First executable statement only; rejects extra/unknown/repeated argv before all IO."
+      },
+      {
+        "file": "prepare-v3-candidate.mjs",
+        "probes": 4,
+        "proof": "First executable statement only; rejects extra/unknown/repeated argv before all IO."
+      },
+      {
+        "file": "prepare-v3.1.mjs",
+        "probes": 4,
+        "proof": "First executable statement only; rejects extra/unknown/repeated argv before all IO."
+      },
+      {
+        "file": "verify-product-token-relation.mjs",
+        "probes": 4,
+        "proof": "First executable statement only; rejects extra/unknown/repeated argv before all IO."
+      }
+    ],
+    "notRun": "No entire preparer/verify helper, real hook registration, actual append/write/copy, analyzer, Worker or performance matrix executed.",
+    "generatedSourceTemplates": [
+      {
+        "file": "prepare-candidate.mjs",
+        "rawTemplateCount": 1,
+        "unchanged": true
+      },
+      {
+        "file": "prepare-native-candidate.mjs",
+        "rawTemplateCount": 1,
+        "unchanged": true
+      },
+      {
+        "file": "prepare-v3-candidate.mjs",
+        "rawTemplateCount": 1,
+        "unchanged": true
+      }
+    ],
+    "replacementLiteralProof": "prepare-candidate original/new evaluated patch declaration arrays deeply equal (probe); prepare-native/v3 raw generated source template lexemes unchanged; prepare-v3.1 original/new two replacements yield exact same output on frozen-chain generated v3 source (probe)."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "externalCliInterval": [
+    "2026-10-12T15:40:25Z",
+    "2026-10-12T15:40:45Z"
+  ],
+  "externalActualWallMsApprox": 4700,
+  "conservativeOverlap": [],
+  "note": "Parent disclosure; interval is approximate outer window. Original rows unchanged; reject any intersecting row and rerun full paired block."
+}

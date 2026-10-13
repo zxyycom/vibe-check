@@ -503,7 +503,8 @@ export class CodeReader implements AnalyzerReader {
   public static *generateTokens(
     sourceCode: string,
     addition = "",
-    tokenFactory: TokenFactory = (match) => match.text
+    tokenFactory: TokenFactory = (match) => match.text,
+    templateLiteralPattern = ""
   ): Generator<string> {
     const { cleanedAddition, flags } = tokenizerFlags(addition);
     const untilEnd = String.raw`(?:\\\n|[^\n])*`;
@@ -540,30 +541,88 @@ export class CodeReader implements AnalyzerReader {
       "|=",
       "..."
     ];
-    const tokenPattern = new RegExp(
-      "(?:" +
-        String.raw`\/\*.*?\*\/` +
-        cleanedAddition +
-        String.raw`|(?:\d+')+\d+` +
-        String.raw`|0x(?:[0-9A-Fa-f]+')+[0-9A-Fa-f]+` +
-        String.raw`|0b(?:[01]+')+[01]+` +
-        String.raw`|[\p{L}\p{N}_]+` +
-        String.raw`|"(?:\\.|[^"\\])*"` +
-        String.raw`|'(?:\\.|[^'\\])*?'` +
-        String.raw`|\/\/` +
-        untilEnd +
-        String.raw`|#` +
-        String.raw`|:=|::|\*\*` +
-        String.raw`|<(?=(?:[^<>?]*\?)+[^<>]*>)(?:[\w\s,.?]|(?:extends))+>` +
-        `|${combinedSymbols.map(escapeRegex).join("|")}` +
-        String.raw`|\\\n|\n|` +
-        `${pythonWhitespaceExceptLineFeed}+` +
-        String.raw`|.)`,
-      flags
-    );
+    const createTokenPattern = (includeComment: boolean, includeTemplate: boolean): RegExp =>
+      new RegExp(
+        "(?:" +
+          (includeComment ? String.raw`\/\*.*?\*\/` : "(?!)") +
+          cleanedAddition +
+          (includeTemplate && templateLiteralPattern
+            ? `|${normalizePythonRegex(templateLiteralPattern)}`
+            : "") +
+          String.raw`|(?:\d+')+\d+` +
+          String.raw`|0x(?:[0-9A-Fa-f]+')+[0-9A-Fa-f]+` +
+          String.raw`|0b(?:[01]+')+[01]+` +
+          String.raw`|[\p{L}\p{N}_]+` +
+          String.raw`|"(?:\\.|[^"\\])*"` +
+          String.raw`|'(?:\\.|[^'\\])*?'` +
+          String.raw`|\/\/` +
+          untilEnd +
+          String.raw`|#` +
+          String.raw`|:=|::|\*\*` +
+          String.raw`|<(?=(?:[^<>?]*\?)+[^<>]*>)(?:[\w\s,.?]|(?:extends))+>` +
+          `|${combinedSymbols.map(escapeRegex).join("|")}` +
+          String.raw`|\\\n|\n|` +
+          `${pythonWhitespaceExceptLineFeed}+` +
+          String.raw`|.)`,
+        flags
+      );
 
+    // Cost dispatch is conservative; it does not classify source syntax.
+    const originalPattern = createTokenPattern(true, Boolean(templateLiteralPattern));
+    const lastCommentOpen = sourceCode.lastIndexOf("/*");
+    const lastCommentClose = sourceCode.lastIndexOf("*/");
+    const lastTemplateDelimiter = templateLiteralPattern ? sourceCode.lastIndexOf("`") : -1;
+    const commentTailRisk = lastCommentOpen >= 0 && lastCommentOpen > lastCommentClose - 2;
+    const templateTailRisk =
+      Boolean(templateLiteralPattern) &&
+      lastTemplateDelimiter >= 0 &&
+      sourceCode.indexOf("${", lastTemplateDelimiter + 1) !== -1;
+    function* guardedMatches(): Generator<RegExpExecArray> {
+      let pattern = originalPattern;
+      let includesComment = true;
+      let includesTemplate = Boolean(templateLiteralPattern);
+      let cursor = 0;
+      while (cursor <= sourceCode.length) {
+        const includeComment: boolean =
+          includesComment && !(commentTailRisk && cursor > lastCommentClose - 2);
+        const includeTemplate: boolean =
+          includesTemplate && !(templateTailRisk && cursor === lastTemplateDelimiter);
+        if (includeComment !== includesComment || includeTemplate !== includesTemplate) {
+          pattern = createTokenPattern(includeComment, includeTemplate);
+          includesComment = includeComment;
+          includesTemplate = includeTemplate;
+        }
+        pattern.lastIndex = cursor;
+        const boundary = Math.min(
+          commentTailRisk && includesComment ? lastCommentClose - 1 : Infinity,
+          templateTailRisk && includesTemplate && cursor <= lastTemplateDelimiter
+            ? lastTemplateDelimiter
+            : Infinity
+        );
+        let switched = false;
+        for (const match of sourceCode.matchAll(pattern)) {
+          cursor = match.index + match[0].length;
+          if (match[0].length === 0) {
+            const codePoint = sourceCode.codePointAt(cursor);
+            cursor += codePoint !== undefined && codePoint > 0xffff ? 2 : 1;
+          }
+          yield match;
+          if (cursor >= boundary) {
+            switched = true;
+            break;
+          }
+        }
+        if (!switched) break;
+      }
+    }
     let macro = "";
-    for (const match of sourceCode.matchAll(tokenPattern)) {
+    // Non-alternative additions may quantify the preceding comment slash.
+    const tailGuardEligible = cleanedAddition === "" || cleanedAddition.startsWith("|");
+    const matches =
+      tailGuardEligible && (commentTailRisk || templateTailRisk)
+        ? guardedMatches()
+        : sourceCode.matchAll(originalPattern);
+    for (const match of matches) {
       const token = tokenFactory(new TokenMatch(match[0], match.index));
       if (macro) {
         if (token.includes("\\\n") || !token.includes("\n")) {

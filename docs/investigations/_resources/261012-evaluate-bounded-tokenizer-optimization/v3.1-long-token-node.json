@@ -1,0 +1,218 @@
+{
+  "runtime": {
+    "node": "24.18.0",
+    "acorn": "8.16.0",
+    "ada": "3.4.4",
+    "amaro": "1.1.9",
+    "ares": "1.34.6",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.3",
+    "llhttp": "9.4.2",
+    "merve": "1.2.2",
+    "modules": "137",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.69.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "3.5.7",
+    "simdjson": "4.6.4",
+    "simdutf": "6.4.0",
+    "sqlite": "3.53.1",
+    "tz": "2026b",
+    "undici": "7.28.0",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "13.6.233.17-node.50",
+    "zlib": "1.3.1-e00f703",
+    "zstd": "1.5.7"
+  },
+  "candidate": "candidate-v3.1",
+  "baseline": "baseline",
+  "rows": [
+    {
+      "label": "template-0",
+      "bytes": 97,
+      "sourceSha256": "01babc5ed03e58e96732009c088da7a1f442f77cd2072e7682188aab065c39de",
+      "baseline": {
+        "rawMatches": 97,
+        "tokens": 97,
+        "rawDigest": "fca122b841f49ba958b2028cd40163e50722096e66e02d219191b9467445382b",
+        "tokenDigest": "8fb57560bd75dd1a40c2595aed214bf74e5b98433838a46f2f239208a49e8393",
+        "adapter": {
+          "kind": "complete",
+          "metrics": []
+        }
+      },
+      "candidate": {
+        "rawMatches": 97,
+        "tokens": 97,
+        "rawDigest": "fca122b841f49ba958b2028cd40163e50722096e66e02d219191b9467445382b",
+        "tokenDigest": "8fb57560bd75dd1a40c2595aed214bf74e5b98433838a46f2f239208a49e8393",
+        "adapter": {
+          "kind": "complete",
+          "metrics": []
+        }
+      },
+      "candidateEqualsSupportedNode": true,
+      "beforeEqualsSupportedNode": true
+    },
+    {
+      "label": "template-1",
+      "bytes": 167,
+      "sourceSha256": "85557f8098c26a5ed419ed41e027feb632a608c70a018608834e7a0e511cfeb9",
+      "baseline": {
+        "rawMatches": 122,
+        "tokens": 127,
+        "rawDigest": "8a514f8120bf9ab20de575eb1eba92fcf4f8979e1ad50e676040f586311c2e02",
+        "tokenDigest": "fea5abd18ba1ecb06041c80457f4cbf86e63783526a0483cfac00247c81044bb",
+        "adapter": {
+          "kind": "complete",
+          "metrics": [
+            {
+              "complexityContributors": [],
+              "cyclomaticComplexity": {
+                "source": "typescript-analyzer",
+                "value": 1
+              },
+              "endLine": 3,
+              "file": "input.ts",
+              "lines": 1,
+              "name": "f",
+              "nestingDepth": {
+                "source": "typescript-analyzer",
+                "value": 0
+              },
+              "parameterCount": 0,
+              "startLine": 3
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "rawMatches": 122,
+        "tokens": 127,
+        "rawDigest": "8a514f8120bf9ab20de575eb1eba92fcf4f8979e1ad50e676040f586311c2e02",
+        "tokenDigest": "fea5abd18ba1ecb06041c80457f4cbf86e63783526a0483cfac00247c81044bb",
+        "adapter": {
+          "kind": "complete",
+          "metrics": [
+            {
+              "complexityContributors": [],
+              "cyclomaticComplexity": {
+                "source": "typescript-analyzer",
+                "value": 1
+              },
+              "endLine": 3,
+              "file": "input.ts",
+              "lines": 1,
+              "name": "f",
+              "nestingDepth": {
+                "source": "typescript-analyzer",
+                "value": 0
+              },
+              "parameterCount": 0,
+              "startLine": 3
+            }
+          ]
+        }
+      },
+      "candidateEqualsSupportedNode": true,
+      "beforeEqualsSupportedNode": true
+    },
+    {
+      "label": "comment-0",
+      "bytes": 48000,
+      "sourceSha256": "fbc740b54d30640dded0b399bab9fbd69ae6ee1f350f354ca2d2dbe7ac913dee",
+      "baseline": {
+        "rawMatches": 48000,
+        "tokens": 48000,
+        "rawDigest": "056818df362f31f21c3b4929dba6f27a8c4a196e12e06c027c302a1fa77abd42",
+        "tokenDigest": "dd8ea7ea023e737a535c4a6cfc02cb0db47dec533236ed07aeb8b9bca7001686",
+        "adapter": {
+          "kind": "complete",
+          "metrics": []
+        }
+      },
+      "candidate": {
+        "rawMatches": 48000,
+        "tokens": 48000,
+        "rawDigest": "056818df362f31f21c3b4929dba6f27a8c4a196e12e06c027c302a1fa77abd42",
+        "tokenDigest": "dd8ea7ea023e737a535c4a6cfc02cb0db47dec533236ed07aeb8b9bca7001686",
+        "adapter": {
+          "kind": "complete",
+          "metrics": []
+        }
+      },
+      "candidateEqualsSupportedNode": true,
+      "beforeEqualsSupportedNode": true
+    },
+    {
+      "label": "comment-1",
+      "bytes": 48070,
+      "sourceSha256": "c2caf0f16fa271aaf775525787da2abc934ea776d67e2da3929ee327222e8c1f",
+      "baseline": {
+        "rawMatches": 48032,
+        "tokens": 48032,
+        "rawDigest": "24a4750261fcc5c3caf455368b771a7c197b9520d95c93941f700b7c62b8fe0d",
+        "tokenDigest": "fef3caf50ebe89850f4e6bbd28fbc049afce72bd5f39032cad127b1e5603faf4",
+        "adapter": {
+          "kind": "complete",
+          "metrics": [
+            {
+              "complexityContributors": [],
+              "cyclomaticComplexity": {
+                "source": "typescript-analyzer",
+                "value": 1
+              },
+              "endLine": 3,
+              "file": "input.c",
+              "lines": 1,
+              "name": "f",
+              "nestingDepth": {
+                "source": "typescript-analyzer",
+                "value": 0
+              },
+              "parameterCount": 0,
+              "startLine": 3
+            }
+          ]
+        }
+      },
+      "candidate": {
+        "rawMatches": 48032,
+        "tokens": 48032,
+        "rawDigest": "24a4750261fcc5c3caf455368b771a7c197b9520d95c93941f700b7c62b8fe0d",
+        "tokenDigest": "fef3caf50ebe89850f4e6bbd28fbc049afce72bd5f39032cad127b1e5603faf4",
+        "adapter": {
+          "kind": "complete",
+          "metrics": [
+            {
+              "complexityContributors": [],
+              "cyclomaticComplexity": {
+                "source": "typescript-analyzer",
+                "value": 1
+              },
+              "endLine": 3,
+              "file": "input.c",
+              "lines": 1,
+              "name": "f",
+              "nestingDepth": {
+                "source": "typescript-analyzer",
+                "value": 0
+              },
+              "parameterCount": 0,
+              "startLine": 3
+            }
+          ]
+        }
+      },
+      "candidateEqualsSupportedNode": true,
+      "beforeEqualsSupportedNode": true
+    }
+  ],
+  "note": "Complete raw tuples [text, UTF16 offset, LF line], full reader final stream and entire adapter result deep-equal before serializing summaries. Node full baseline separately saved. Bun before differences preserved, reason unknown."
+}

@@ -1,0 +1,28 @@
+{
+  "capturedAt": "2026-10-12T16:04:13.559Z",
+  "production": {
+    "runtimeNode": "24.18.0",
+    "tests": 113,
+    "pass": 109,
+    "fail": 4,
+    "runtimeBun": "1.3.14",
+    "bunTests": 113,
+    "bunPass": 113,
+    "bunFail": 0,
+    "scope": "All function-metrics *.test.ts production imports; Node ran before final boolean type-only annotations, whose erased JS relation is separately verified."
+  },
+  "before": {
+    "tests": 7,
+    "pass": 3,
+    "fail": 4,
+    "source": "348 frozen original src modules validated by copy-manifest; original three test files and fixture/test-support locations kept; import hook maps non-test, non-fixture production modules to baseline. Worker is new URL(./analyzer-worker.ts, import.meta.url) from baseline analyzer-worker-port.",
+    "notClaimed": "This comparison does not verify baseline source identity using live-tree readFile tests."
+  },
+  "failures": [
+    "constructor.test.ts > runs from the Product-owned analyzer without an external scanner",
+    "typescript-metrics.integration.test.ts > functionMetrics TypeScript corrections reach public Worker findings, default limits, strict limits, and waiver reconciliation",
+    "typescript-metrics.integration.test.ts > functionMetrics retains every nullish contributor beyond the eight-item human preview",
+    "upgrade.integration.test.ts > functionMetrics upgraded readers publish strict findings, real contributors, and exact waiver identities through the public Worker path"
+  ],
+  "comparison": "The same four original entities fail Node assert.deepStrictEqual because result.data has null prototype while test expects plain object; no test assertion, public result policy or unrelated module changed."
+}

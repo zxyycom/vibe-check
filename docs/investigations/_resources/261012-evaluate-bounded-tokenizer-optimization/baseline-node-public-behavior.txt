@@ -1,0 +1,137 @@
+Vibe Check
+total 1 checks
+
+Checks:
+▶ functionMetrics constructor
+  ✔ materializes frozen analyzer-owned defaults and rejects malformed closed policy (2.973442ms)
+✔ functionMetrics constructor (3.54899ms)
+  [1/1] Function metrics | passed | 119.5ms
+
+Execution summary:
+  execution: completed
+  total checks: 1
+  passed: 1
+  failed: 0
+  not applicable: 0
+  unavailable: 0
+  elapsed: 127.3ms
+▶ functionMetrics analyzer execution
+  ✖ runs from the Product-owned analyzer without an external scanner (141.333735ms)
+  ✔ terminates an in-flight Worker before results or waiver audit (9.265518ms)
+  ✔ fails an over-limit exact input before records or waiver audit (26.421658ms)
+✖ functionMetrics analyzer execution (177.901507ms)
+✖ functionMetrics TypeScript corrections reach public Worker findings, default limits, strict limits, and waiver reconciliation (110.015479ms)
+✖ functionMetrics retains every nullish contributor beyond the eight-item human preview (79.843775ms)
+✖ functionMetrics upgraded readers publish strict findings, real contributors, and exact waiver identities through the public Worker path (120.084133ms)
+ℹ tests 7
+ℹ suites 2
+ℹ pass 3
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 873.145679
+
+✖ failing tests:
+
+test at src/package-checks/function-metrics/constructor.test.ts:85:3
+✖ runs from the Product-owned analyzer without an external scanner (141.333735ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   data: [Object: null prototype] {
+  -   data: {
+        blockingFindingCount: 0,
+        findingCount: 0
+      },
+      status: 'passed'
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/vibe-check/src/package-checks/function-metrics/constructor.test.ts:100:14)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1794:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { status: 'passed', data: { blockingFindingCount: 0, findingCount: 0 } },
+    expected: { status: 'passed', data: { blockingFindingCount: 0, findingCount: 0 } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src/package-checks/function-metrics/typescript-metrics.integration.test.ts:23:1
+✖ functionMetrics TypeScript corrections reach public Worker findings, default limits, strict limits, and waiver reconciliation (110.015479ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   data: [Object: null prototype] {
+  -   data: {
+        blockingFindingCount: 0,
+        findingCount: 0
+      },
+      status: 'passed'
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/vibe-check/src/package-checks/function-metrics/typescript-metrics.integration.test.ts:67:14)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { status: 'passed', data: { blockingFindingCount: 0, findingCount: 0 } },
+    expected: { status: 'passed', data: { findingCount: 0, blockingFindingCount: 0 } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src/package-checks/function-metrics/typescript-metrics.integration.test.ts:129:1
+✖ functionMetrics retains every nullish contributor beyond the eight-item human preview (79.843775ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   data: [Object: null prototype] {
+  -   data: {
+        blockingFindingCount: 1,
+        findingCount: 1
+      },
+      status: 'failed'
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/vibe-check/src/package-checks/function-metrics/typescript-metrics.integration.test.ts:148:12)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { status: 'failed', data: { blockingFindingCount: 1, findingCount: 1 } },
+    expected: { status: 'failed', data: { findingCount: 1, blockingFindingCount: 1 } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at src/package-checks/function-metrics/upgrade.integration.test.ts:20:1
+✖ functionMetrics upgraded readers publish strict findings, real contributors, and exact waiver identities through the public Worker path (120.084133ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   data: [Object: null prototype] {
+  -   data: {
+        blockingFindingCount: 3,
+        findingCount: 3
+      },
+      status: 'failed'
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/vibe-check/src/package-checks/function-metrics/upgrade.integration.test.ts:77:14)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { status: 'failed', data: { blockingFindingCount: 3, findingCount: 3 } },
+    expected: { status: 'failed', data: { findingCount: 3, blockingFindingCount: 3 } },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

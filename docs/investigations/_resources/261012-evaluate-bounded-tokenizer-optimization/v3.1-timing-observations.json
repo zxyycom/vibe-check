@@ -1,0 +1,2547 @@
+{
+  "records": [
+    {
+      "source": "v3.1-legal.json",
+      "sourceSha256": "667b67e2fcdfa3f3a1b02f1496c8bf79aba9d71059d9effb2b27dd8456f66028",
+      "runtimeVersions": {
+        "node": {
+          "node": "24.18.0",
+          "acorn": "8.16.0",
+          "ada": "3.4.4",
+          "amaro": "1.1.9",
+          "ares": "1.34.6",
+          "brotli": "1.2.0",
+          "cldr": "48.0",
+          "icu": "78.3",
+          "llhttp": "9.4.2",
+          "merve": "1.2.2",
+          "modules": "137",
+          "napi": "10",
+          "nbytes": "0.1.4",
+          "ncrypto": "0.0.1",
+          "nghttp2": "1.69.0",
+          "nghttp3": "",
+          "ngtcp2": "",
+          "openssl": "3.5.7",
+          "simdjson": "4.6.4",
+          "simdutf": "6.4.0",
+          "sqlite": "3.53.1",
+          "tz": "2026b",
+          "undici": "7.28.0",
+          "unicode": "17.0",
+          "uv": "1.52.1",
+          "uvwasi": "0.0.23",
+          "v8": "13.6.233.17-node.50",
+          "zlib": "1.3.1-e00f703",
+          "zstd": "1.5.7"
+        },
+        "bun": {
+          "node": "24.3.0",
+          "bun": "1.3.14",
+          "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+          "openssl": "1.1.0",
+          "llhttp": "9.3.0",
+          "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+          "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+          "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+          "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+          "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+          "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+          "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+          "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+          "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+          "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+          "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+          "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+          "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+          "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+          "v8": "13.6.233.10-node.18",
+          "uv": "1.48.0",
+          "napi": "10",
+          "icu": "75.1",
+          "unicode": "15.1",
+          "modules": "137"
+        }
+      },
+      "candidate": "v3.1-addition-eligible-cost-dispatch",
+      "startedAt": "2026-10-12T15:39:15.520Z",
+      "finishedAt": "2026-10-12T15:39:48.829Z",
+      "protocol": "fresh child, once warm/once timed analyzer, Node4/Bun2 pervariant AB/BA, frozen source/input",
+      "rows": [
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:15.520Z",
+          "finishedAt": "2026-10-12T15:39:16.441Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 920.5686079999999,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 345.95654199999996,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:16.442Z",
+          "finishedAt": "2026-10-12T15:39:17.382Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 939.419726,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 359.59102600000006,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:17.382Z",
+          "finishedAt": "2026-10-12T15:39:18.329Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 946.267343,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 361.276008,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:18.329Z",
+          "finishedAt": "2026-10-12T15:39:19.266Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 936.7984960000003,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 355.439087,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:19.266Z",
+          "finishedAt": "2026-10-12T15:39:20.171Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 904.3055849999996,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 333.49206399999997,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:20.171Z",
+          "finishedAt": "2026-10-12T15:39:21.097Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 926.3256120000005,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 344.90761999999995,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:21.098Z",
+          "finishedAt": "2026-10-12T15:39:22.024Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 925.9869440000002,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 341.13022499999994,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:22.024Z",
+          "finishedAt": "2026-10-12T15:39:22.930Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 906.3806989999994,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 336.577153,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:22.931Z",
+          "finishedAt": "2026-10-12T15:39:29.473Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 6541.752245999999,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 3137.657887,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:29.474Z",
+          "finishedAt": "2026-10-12T15:39:35.963Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 6488.932812000001,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 3148.7645310000003,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:35.963Z",
+          "finishedAt": "2026-10-12T15:39:42.378Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 6414.556155999999,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 3074.146925,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:39:42.378Z",
+          "finishedAt": "2026-10-12T15:39:48.829Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 6451.1331930000015,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 3113.999714,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        }
+      ]
+    },
+    {
+      "source": "v3.1-confirm-legal.json",
+      "sourceSha256": "1b60e8dc54a1ca6853f312fa82f901d0762fcae4255e100c66d496236ed9dd49",
+      "runtimeVersions": {
+        "node": {
+          "node": "24.18.0",
+          "acorn": "8.16.0",
+          "ada": "3.4.4",
+          "amaro": "1.1.9",
+          "ares": "1.34.6",
+          "brotli": "1.2.0",
+          "cldr": "48.0",
+          "icu": "78.3",
+          "llhttp": "9.4.2",
+          "merve": "1.2.2",
+          "modules": "137",
+          "napi": "10",
+          "nbytes": "0.1.4",
+          "ncrypto": "0.0.1",
+          "nghttp2": "1.69.0",
+          "nghttp3": "",
+          "ngtcp2": "",
+          "openssl": "3.5.7",
+          "simdjson": "4.6.4",
+          "simdutf": "6.4.0",
+          "sqlite": "3.53.1",
+          "tz": "2026b",
+          "undici": "7.28.0",
+          "unicode": "17.0",
+          "uv": "1.52.1",
+          "uvwasi": "0.0.23",
+          "v8": "13.6.233.17-node.50",
+          "zlib": "1.3.1-e00f703",
+          "zstd": "1.5.7"
+        }
+      },
+      "candidate": "v3.1-addition-eligible-cost-dispatch",
+      "startedAt": "2026-10-12T15:42:24.521Z",
+      "finishedAt": "2026-10-12T15:42:31.814Z",
+      "protocol": "fresh child, once warm/once timed analyzer, additional Node4 only pervariant AB/BA, frozen source/input",
+      "rows": [
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:42:24.522Z",
+          "finishedAt": "2026-10-12T15:42:25.436Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 913.693289,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 334.54522000000003,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:42:25.437Z",
+          "finishedAt": "2026-10-12T15:42:26.354Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 917.1054600000001,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 346.045521,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:42:26.354Z",
+          "finishedAt": "2026-10-12T15:42:27.247Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 893.0471600000001,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 332.826617,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:42:27.247Z",
+          "finishedAt": "2026-10-12T15:42:28.134Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 886.6930969999999,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 331.001683,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:42:28.135Z",
+          "finishedAt": "2026-10-12T15:42:29.043Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 908.1781179999998,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 338.524017,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:42:29.043Z",
+          "finishedAt": "2026-10-12T15:42:29.950Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 906.6177329999991,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 337.544059,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:42:29.952Z",
+          "finishedAt": "2026-10-12T15:42:30.874Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 922.1226999999999,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 340.029624,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "corpus",
+            "real"
+          ],
+          "startedAt": "2026-10-12T15:42:30.874Z",
+          "finishedAt": "2026-10-12T15:42:31.813Z",
+          "externalDeadlineMs": 15000,
+          "outerMs": 939.1114659999994,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "corpus",
+            "kind": "real",
+            "size": 0,
+            "hasPrefix": false,
+            "bytes": 2417957,
+            "elapsedMs": 348.613196,
+            "files": 526,
+            "result": "complete",
+            "metrics": 4181,
+            "metricDigest": "88ad850ab91190c70fba0cb45258bd57bf2b61391176dd16b2361b81050baeef"
+          }
+        }
+      ]
+    },
+    {
+      "source": "v3.1-tail.json",
+      "sourceSha256": "81fc3f868abc02cb50a3c85e2140e1d284d91e0045d5fbb6ed63cdbb754a7b7c",
+      "runtimeVersions": {
+        "node": {
+          "node": "24.18.0",
+          "acorn": "8.16.0",
+          "ada": "3.4.4",
+          "amaro": "1.1.9",
+          "ares": "1.34.6",
+          "brotli": "1.2.0",
+          "cldr": "48.0",
+          "icu": "78.3",
+          "llhttp": "9.4.2",
+          "merve": "1.2.2",
+          "modules": "137",
+          "napi": "10",
+          "nbytes": "0.1.4",
+          "ncrypto": "0.0.1",
+          "nghttp2": "1.69.0",
+          "nghttp3": "",
+          "ngtcp2": "",
+          "openssl": "3.5.7",
+          "simdjson": "4.6.4",
+          "simdutf": "6.4.0",
+          "sqlite": "3.53.1",
+          "tz": "2026b",
+          "undici": "7.28.0",
+          "unicode": "17.0",
+          "uv": "1.52.1",
+          "uvwasi": "0.0.23",
+          "v8": "13.6.233.17-node.50",
+          "zlib": "1.3.1-e00f703",
+          "zstd": "1.5.7"
+        },
+        "bun": {
+          "node": "24.3.0",
+          "bun": "1.3.14",
+          "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+          "openssl": "1.1.0",
+          "llhttp": "9.3.0",
+          "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+          "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+          "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+          "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+          "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+          "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+          "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+          "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+          "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+          "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+          "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+          "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+          "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+          "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+          "v8": "13.6.233.10-node.18",
+          "uv": "1.48.0",
+          "napi": "10",
+          "icu": "75.1",
+          "unicode": "15.1",
+          "modules": "137"
+        }
+      },
+      "candidate": "v3.1-addition-eligible-cost-dispatch",
+      "startedAt": "2026-10-12T15:39:48.855Z",
+      "finishedAt": "2026-10-12T15:40:23.461Z",
+      "protocol": "one diagnostic sample per shape/layer/runtime, pure and normalprefix, external6s; port observe3s only after timedreturn",
+      "rows": [
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "raw",
+            "template",
+            "24",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:39:48.855Z",
+          "finishedAt": "2026-10-12T15:39:50.257Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1401.487078,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "raw",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 1284.867765,
+            "tokens": 97,
+            "tokenDigest": "8fb57560bd75dd1a40c2595aed214bf74e5b98433838a46f2f239208a49e8393"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "raw",
+            "template",
+            "24",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:39:50.258Z",
+          "finishedAt": "2026-10-12T15:39:50.371Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 112.58056499999998,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "raw",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 1.347141999999998,
+            "tokens": 97,
+            "tokenDigest": "8fb57560bd75dd1a40c2595aed214bf74e5b98433838a46f2f239208a49e8393"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "run",
+            "template",
+            "24",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:39:50.371Z",
+          "finishedAt": "2026-10-12T15:39:51.923Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1552.378393,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "run",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 1003.7260570000001,
+            "result": "cancelled",
+            "semanticDigest": "76820506f84902ed6c81a9a6cdf830a262a1df1509fb98eb5bee22ddb3ed5229"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "run",
+            "template",
+            "24",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:39:51.924Z",
+          "finishedAt": "2026-10-12T15:39:52.559Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 635.0984840000001,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "run",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 93.89827599999995,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "port",
+            "template",
+            "24",
+            "0",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:39:52.559Z",
+          "finishedAt": "2026-10-12T15:39:53.675Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1115.3800459999998,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "port",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 1002.636729,
+            "result": "cancelled",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 2.3074750000000037
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 1002.5431649999999
+              },
+              {
+                "kind": "port-return",
+                "ms": 1002.636729,
+                "result": "cancelled"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 1,
+                "ms": 1004.341926
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 1,
+                "ms": 1004.650869
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 1,
+              "ms": 1004.341926
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "port",
+            "template",
+            "24",
+            "0",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:39:53.675Z",
+          "finishedAt": "2026-10-12T15:39:53.869Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 194.15126799999962,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "port",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 89.56032400000001,
+            "result": "complete",
+            "metricDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 2.3608540000000033
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 89.438437
+              },
+              {
+                "kind": "port-return",
+                "ms": 89.56032400000001,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 90.838558
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 91.15563700000001
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 90.838558
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "raw",
+            "template",
+            "24",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:39:53.870Z",
+          "finishedAt": "2026-10-12T15:39:54.155Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 285.29761899999994,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "raw",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 168.69590499999998,
+            "tokens": 127,
+            "tokenDigest": "fea5abd18ba1ecb06041c80457f4cbf86e63783526a0483cfac00247c81044bb"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "raw",
+            "template",
+            "24",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:39:54.155Z",
+          "finishedAt": "2026-10-12T15:39:54.271Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 115.16384899999957,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "raw",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 2.928739,
+            "tokens": 127,
+            "tokenDigest": "fea5abd18ba1ecb06041c80457f4cbf86e63783526a0483cfac00247c81044bb"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "run",
+            "template",
+            "24",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:39:54.271Z",
+          "finishedAt": "2026-10-12T15:39:55.062Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 790.8905830000003,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "run",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 258.53600499999993,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "run",
+            "template",
+            "24",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:39:55.063Z",
+          "finishedAt": "2026-10-12T15:39:55.690Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 627.8058230000006,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "run",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 95.99976899999996,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "port",
+            "template",
+            "24",
+            "1",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:39:55.691Z",
+          "finishedAt": "2026-10-12T15:39:56.080Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 389.1274220000005,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "port",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 277.959258,
+            "result": "complete",
+            "metricDigest": "9bedb8efced72e39ccd1a75c886134d3fd0b9dc758c1506ba37b6e0848e02fbf",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 2.425584999999998
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 277.89037
+              },
+              {
+                "kind": "port-return",
+                "ms": 277.959258,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 279.356953
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 279.806859
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 279.356953
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "port",
+            "template",
+            "24",
+            "1",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:39:56.081Z",
+          "finishedAt": "2026-10-12T15:39:56.279Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 198.2906270000003,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "port",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 89.40838199999999,
+            "result": "complete",
+            "metricDigest": "9bedb8efced72e39ccd1a75c886134d3fd0b9dc758c1506ba37b6e0848e02fbf",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 2.8258380000000045
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 89.349703
+              },
+              {
+                "kind": "port-return",
+                "ms": 89.40838199999999,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 90.71715
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 91.11227299999999
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 90.71715
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "raw",
+            "comment",
+            "16000",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:39:56.280Z",
+          "finishedAt": "2026-10-12T15:39:56.482Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 202.14690500000052,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "raw",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 87.42590299999999,
+            "tokens": 48000,
+            "tokenDigest": "dd8ea7ea023e737a535c4a6cfc02cb0db47dec533236ed07aeb8b9bca7001686"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "raw",
+            "comment",
+            "16000",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:39:56.482Z",
+          "finishedAt": "2026-10-12T15:39:56.606Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 124.20984600000065,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "raw",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 9.111135000000004,
+            "tokens": 48000,
+            "tokenDigest": "dd8ea7ea023e737a535c4a6cfc02cb0db47dec533236ed07aeb8b9bca7001686"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "run",
+            "comment",
+            "16000",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:39:56.607Z",
+          "finishedAt": "2026-10-12T15:39:57.352Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 745.2843329999996,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "run",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 212.048516,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "run",
+            "comment",
+            "16000",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:39:57.353Z",
+          "finishedAt": "2026-10-12T15:39:58.023Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 670.3101189999998,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "run",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 130.132655,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "port",
+            "comment",
+            "16000",
+            "0",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:39:58.023Z",
+          "finishedAt": "2026-10-12T15:39:58.331Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 307.21091999999953,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "port",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 195.743099,
+            "result": "complete",
+            "metricDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 2.38232
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 195.669853
+              },
+              {
+                "kind": "port-return",
+                "ms": 195.743099,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 197.384077
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 197.722745
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 197.384077
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "port",
+            "comment",
+            "16000",
+            "0",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:39:58.331Z",
+          "finishedAt": "2026-10-12T15:39:58.559Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 228.40922300000057,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "port",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 121.357393,
+            "result": "complete",
+            "metricDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 2.362427000000004
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 121.287173
+              },
+              {
+                "kind": "port-return",
+                "ms": 121.357393,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 122.801583
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 123.127758
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 122.801583
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "raw",
+            "comment",
+            "16000",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:39:58.560Z",
+          "finishedAt": "2026-10-12T15:39:58.762Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 202.3059890000004,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "raw",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 86.478579,
+            "tokens": 48032,
+            "tokenDigest": "fef3caf50ebe89850f4e6bbd28fbc049afce72bd5f39032cad127b1e5603faf4"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "raw",
+            "comment",
+            "16000",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:39:58.763Z",
+          "finishedAt": "2026-10-12T15:39:58.888Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 125.39904899999965,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "raw",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 9.443948999999996,
+            "tokens": 48032,
+            "tokenDigest": "fef3caf50ebe89850f4e6bbd28fbc049afce72bd5f39032cad127b1e5603faf4"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "run",
+            "comment",
+            "16000",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:39:58.888Z",
+          "finishedAt": "2026-10-12T15:39:59.648Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 760.1058269999994,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "run",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 205.16333399999996,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "run",
+            "comment",
+            "16000",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:39:59.649Z",
+          "finishedAt": "2026-10-12T15:40:00.328Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 679.4413010000007,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "run",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 130.569754,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "baseline",
+            "port",
+            "comment",
+            "16000",
+            "1",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:00.329Z",
+          "finishedAt": "2026-10-12T15:40:00.631Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 302.20866299999943,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "port",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 195.49264000000002,
+            "result": "complete",
+            "metricDigest": "a9cbb04ff60f58cde3ad4f6d5b26e6d5b7aa4db225ac80c67de379f45abb4110",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 2.3775249999999986
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 195.420836
+              },
+              {
+                "kind": "port-return",
+                "ms": 195.49264000000002,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 196.948583
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 197.289626
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 196.948583
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "node",
+          "args": [
+            "candidate",
+            "port",
+            "comment",
+            "16000",
+            "1",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:00.631Z",
+          "finishedAt": "2026-10-12T15:40:00.863Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 231.1538870000004,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "port",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 119.64910900000001,
+            "result": "complete",
+            "metricDigest": "a9cbb04ff60f58cde3ad4f6d5b26e6d5b7aa4db225ac80c67de379f45abb4110",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 2.5791399999999953
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 119.578688
+              },
+              {
+                "kind": "port-return",
+                "ms": 119.64910900000001,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 121.786641
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 122.148573
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 121.786641
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "raw",
+            "template",
+            "24",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:40:00.863Z",
+          "finishedAt": "2026-10-12T15:40:02.769Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1906.2275150000005,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "raw",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 1837.211781,
+            "tokens": 0,
+            "tokenDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "raw",
+            "template",
+            "24",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:40:02.770Z",
+          "finishedAt": "2026-10-12T15:40:02.839Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 68.77014000000054,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "raw",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 2.474841999999999,
+            "tokens": 97,
+            "tokenDigest": "8fb57560bd75dd1a40c2595aed214bf74e5b98433838a46f2f239208a49e8393"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "run",
+            "template",
+            "24",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:40:02.839Z",
+          "finishedAt": "2026-10-12T15:40:05.094Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 2254.8709180000005,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "run",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 1005.209895,
+            "result": "cancelled",
+            "semanticDigest": "76820506f84902ed6c81a9a6cdf830a262a1df1509fb98eb5bee22ddb3ed5229"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "run",
+            "template",
+            "24",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:40:05.094Z",
+          "finishedAt": "2026-10-12T15:40:05.443Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 349.0199420000008,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "run",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 44.45755500000001,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "port",
+            "template",
+            "24",
+            "0",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:05.444Z",
+          "finishedAt": "2026-10-12T15:40:07.448Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 2004.2135849999977,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "port",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 1002.3062560000001,
+            "result": "cancelled",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 0.7815109999999983
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 1001.741107
+              },
+              {
+                "kind": "port-return",
+                "ms": 1002.3062560000001,
+                "result": "cancelled"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 1936.3529119999998
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 1936.3904009999999
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 1936.3529119999998
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "port",
+            "template",
+            "24",
+            "0",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:07.449Z",
+          "finishedAt": "2026-10-12T15:40:07.542Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 92.85415600000124,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "port",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": false,
+            "bytes": 97,
+            "elapsedMs": 21.717891999999996,
+            "result": "complete",
+            "metricDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 0.6184789999999971
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 21.38343
+              },
+              {
+                "kind": "port-return",
+                "ms": 21.717891999999996,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 25.600937
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 25.637795999999998
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 25.600937
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "raw",
+            "template",
+            "24",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:40:07.542Z",
+          "finishedAt": "2026-10-12T15:40:09.462Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1919.0853500000012,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "raw",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 1849.227012,
+            "tokens": 30,
+            "tokenDigest": "35788dcd6fec37441ba28933a21878bd279ba964acf7b0ff27d370bea2115df9"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "raw",
+            "template",
+            "24",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:40:09.462Z",
+          "finishedAt": "2026-10-12T15:40:09.534Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 71.67498100000012,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "raw",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 2.963971000000001,
+            "tokens": 127,
+            "tokenDigest": "fea5abd18ba1ecb06041c80457f4cbf86e63783526a0483cfac00247c81044bb"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "run",
+            "template",
+            "24",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:40:09.534Z",
+          "finishedAt": "2026-10-12T15:40:11.777Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 2242.4658759999984,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "run",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 1005.350597,
+            "result": "cancelled",
+            "semanticDigest": "76820506f84902ed6c81a9a6cdf830a262a1df1509fb98eb5bee22ddb3ed5229"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "run",
+            "template",
+            "24",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:40:11.777Z",
+          "finishedAt": "2026-10-12T15:40:12.109Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 331.5544740000005,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "run",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 45.06262300000003,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "port",
+            "template",
+            "24",
+            "1",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:12.110Z",
+          "finishedAt": "2026-10-12T15:40:14.099Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1988.9449889999996,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "port",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 1001.9241939999999,
+            "result": "cancelled",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 0.6344579999999986
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 1001.182332
+              },
+              {
+                "kind": "port-return",
+                "ms": 1001.9241939999999,
+                "result": "cancelled"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 1920.871523
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 1920.9098350000002
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 1920.871523
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "port",
+            "template",
+            "24",
+            "1",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:14.100Z",
+          "finishedAt": "2026-10-12T15:40:14.198Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 98.89259899999888,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "port",
+            "kind": "template",
+            "size": 24,
+            "hasPrefix": true,
+            "bytes": 167,
+            "elapsedMs": 25.265102000000002,
+            "result": "complete",
+            "metricDigest": "9bedb8efced72e39ccd1a75c886134d3fd0b9dc758c1506ba37b6e0848e02fbf",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 0.9928440000000016
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 24.782781000000004
+              },
+              {
+                "kind": "port-return",
+                "ms": 25.265102000000002,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 29.920989000000002
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 29.973988000000002
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 29.920989000000002
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "raw",
+            "comment",
+            "16000",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:40:14.199Z",
+          "finishedAt": "2026-10-12T15:40:15.818Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1618.638423999997,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "raw",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 1547.9895219999999,
+            "tokens": 48000,
+            "tokenDigest": "dd8ea7ea023e737a535c4a6cfc02cb0db47dec533236ed07aeb8b9bca7001686"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "raw",
+            "comment",
+            "16000",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:40:15.819Z",
+          "finishedAt": "2026-10-12T15:40:15.907Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 88.59402200000113,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "raw",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 21.343625000000003,
+            "tokens": 48000,
+            "tokenDigest": "dd8ea7ea023e737a535c4a6cfc02cb0db47dec533236ed07aeb8b9bca7001686"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "run",
+            "comment",
+            "16000",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:40:15.909Z",
+          "finishedAt": "2026-10-12T15:40:17.209Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1300.6307519999973,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "run",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 1005.3026350000001,
+            "result": "cancelled",
+            "semanticDigest": "76820506f84902ed6c81a9a6cdf830a262a1df1509fb98eb5bee22ddb3ed5229"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "run",
+            "comment",
+            "16000",
+            "0"
+          ],
+          "startedAt": "2026-10-12T15:40:17.212Z",
+          "finishedAt": "2026-10-12T15:40:17.599Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 386.8846340000018,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "run",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 93.72608,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "port",
+            "comment",
+            "16000",
+            "0",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:17.600Z",
+          "finishedAt": "2026-10-12T15:40:18.679Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1079.2799859999977,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "port",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 1001.951638,
+            "result": "cancelled",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 0.7170719999999982
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 1001.312552
+              },
+              {
+                "kind": "port-return",
+                "ms": 1001.951638,
+                "result": "cancelled"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 1008.5833609999999
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 1008.6234049999999
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 1008.5833609999999
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "port",
+            "comment",
+            "16000",
+            "0",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:18.680Z",
+          "finishedAt": "2026-10-12T15:40:18.825Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 145.28534600000057,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "port",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": false,
+            "bytes": 48000,
+            "elapsedMs": 66.95689100000001,
+            "result": "complete",
+            "metricDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 0.6998890000000024
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 66.522715
+              },
+              {
+                "kind": "port-return",
+                "ms": 66.95689100000001,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 71.986388
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 72.03150199999999
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 71.986388
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "raw",
+            "comment",
+            "16000",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:40:18.826Z",
+          "finishedAt": "2026-10-12T15:40:20.445Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1618.7484900000018,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "raw",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 1546.701846,
+            "tokens": 48032,
+            "tokenDigest": "fef3caf50ebe89850f4e6bbd28fbc049afce72bd5f39032cad127b1e5603faf4"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "raw",
+            "comment",
+            "16000",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:40:20.446Z",
+          "finishedAt": "2026-10-12T15:40:20.537Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 90.82265299999926,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "raw",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 20.898635999999996,
+            "tokens": 48032,
+            "tokenDigest": "fef3caf50ebe89850f4e6bbd28fbc049afce72bd5f39032cad127b1e5603faf4"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "run",
+            "comment",
+            "16000",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:40:20.538Z",
+          "finishedAt": "2026-10-12T15:40:21.835Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1297.5209940000022,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "run",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 1005.892171,
+            "result": "cancelled",
+            "semanticDigest": "76820506f84902ed6c81a9a6cdf830a262a1df1509fb98eb5bee22ddb3ed5229"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "run",
+            "comment",
+            "16000",
+            "1"
+          ],
+          "startedAt": "2026-10-12T15:40:21.836Z",
+          "finishedAt": "2026-10-12T15:40:22.233Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 396.69470599999477,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "run",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 94.58654900000002,
+            "result": "completed",
+            "semanticDigest": "eb89a986fe0e19e8f59eed825e718179e63e7ee4cf8cff4aea02e87bc1d20976"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "baseline",
+            "port",
+            "comment",
+            "16000",
+            "1",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:22.234Z",
+          "finishedAt": "2026-10-12T15:40:23.312Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 1078.0621670000037,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "baseline",
+            "mode": "port",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 1002.19102,
+            "result": "cancelled",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 0.7257469999999984
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 1001.648537
+              },
+              {
+                "kind": "port-return",
+                "ms": 1002.19102,
+                "result": "cancelled"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 1009.083698
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 1009.1472459999999
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 1009.083698
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        },
+        {
+          "runtime": "bun",
+          "args": [
+            "candidate",
+            "port",
+            "comment",
+            "16000",
+            "1",
+            "--exit-wait-3000"
+          ],
+          "startedAt": "2026-10-12T15:40:23.313Z",
+          "finishedAt": "2026-10-12T15:40:23.461Z",
+          "externalDeadlineMs": 6000,
+          "outerMs": 147.58626400000503,
+          "status": 0,
+          "signal": null,
+          "observation": {
+            "variant": "candidate",
+            "mode": "port",
+            "kind": "comment",
+            "size": 16000,
+            "hasPrefix": true,
+            "bytes": 48070,
+            "elapsedMs": 71.146548,
+            "result": "complete",
+            "metricDigest": "a9cbb04ff60f58cde3ad4f6d5b26e6d5b7aa4db225ac80c67de379f45abb4110",
+            "workerEvents": [
+              {
+                "kind": "constructed",
+                "ms": 0.7068919999999999
+              },
+              {
+                "kind": "terminate-request",
+                "ms": 70.57762199999999
+              },
+              {
+                "kind": "port-return",
+                "ms": 71.146548,
+                "result": "complete"
+              },
+              {
+                "kind": "physical-exit",
+                "code": 0,
+                "ms": 75.28041999999999
+              },
+              {
+                "kind": "terminate-resolved",
+                "code": 0,
+                "ms": 75.31870099999999
+              }
+            ],
+            "exitObservationMs": 3000,
+            "exitObservation": {
+              "kind": "physical-exit",
+              "code": 0,
+              "ms": 75.28041999999999
+            },
+            "note": "diagnostic transport clone of production Worker wrapper, production settlement used unchanged; physical exit awaited only after timing window"
+          }
+        }
+      ]
+    }
+  ],
+  "note": "Only duplicate per-row versions deduplicated. First and confirmation legal epochs kept separate; all UTC/order/deadlines/exit events preserved. Parent CLI interval reviewed separately; no overlap."
+}

@@ -1,0 +1,50 @@
+{
+  "baselineProductionModuleCount": 348,
+  "files": [
+    {
+      "variant": "baseline",
+      "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "sha256": "f1eeaf2ca231f266ada2091715fca0faff2fa6ebad84156b7a69e02b99adb7db"
+    },
+    {
+      "variant": "baseline",
+      "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "29a4ce11038c1a787a72d23f405c72de2933903db7003f589a3bb551c84206f0"
+    },
+    {
+      "variant": "baseline",
+      "path": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "sha256": "6fa5e80755b38beb3f1027312b010bfaf96ae08178ff73e44b4ae424888d6255"
+    },
+    {
+      "variant": "candidate-exec-rejected",
+      "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "sha256": "ae860bbf76ca013bdc77ff97ed4d43d0cbbf0ffb2309606ac61b937ac1c3069e"
+    },
+    {
+      "variant": "candidate-exec-rejected",
+      "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "5894a960e47d2bcb87309137337ad5f63ffb14c067181e3087caf970d1d18791"
+    },
+    {
+      "variant": "candidate-exec-rejected",
+      "path": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "sha256": "c1278570fc3c7dfc88f15d8b506e28baf315b07f307e9ff06b7ee323ba3da167"
+    },
+    {
+      "variant": "candidate",
+      "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "sha256": "a2c649a20c05bbbb5961643f56888f13da99fd6cfe15628dd963263f1d718ade"
+    },
+    {
+      "variant": "candidate",
+      "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "5894a960e47d2bcb87309137337ad5f63ffb14c067181e3087caf970d1d18791"
+    },
+    {
+      "variant": "candidate",
+      "path": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "sha256": "c1278570fc3c7dfc88f15d8b506e28baf315b07f307e9ff06b7ee323ba3da167"
+    }
+  ]
+}

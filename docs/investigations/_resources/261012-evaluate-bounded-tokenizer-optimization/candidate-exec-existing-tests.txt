@@ -1,0 +1,40 @@
+▶ functionMetrics Product analyzer adapter
+  ✔ maps all 27 reader families and 55 registered suffixes from supplied source (62.907069ms)
+  ✔ maps fixed complexity contributors and nesting depth from the private port (0.836334ms)
+  ✔ fails the complete input when any supplied source has no translated reader (0.213687ms)
+✔ functionMetrics Product analyzer adapter (64.626301ms)
+▶ Lizard in-memory core
+  ✔ patches FUNCTION_INFO averages for dynamic source-named extension metrics (1.865274ms)
+  ✔ retains OutputScheme fields, schema values, and retained formatting lifecycle (0.949173ms)
+  ✔ runs source analyze_files cross-file and print-result hooks in registration order (2.795802ms)
+✔ Lizard in-memory core (6.373837ms)
+▶ Lizard in-memory core
+  ✔ preserves basic C-like function information, NLOC, CCN, and parameters (3.88749ms)
+  ✔ keeps comment directives and generated-code stopping in upstream processor order (2.250963ms)
+  ✔ matches Python splitlines and whitespace token distinctions in the core pipeline (0.803752ms)
+  ✔ propagates an explicit undefined cross-file result instead of treating it as an absent hook (0.435358ms)
+  ✔ keeps FileAnalyzer's default no-extension processor pipeline equivalent to the direct source helper (1.160485ms)
+✔ Lizard in-memory core (9.371436ms)
+✔ every source-order reader preserves Lizard 1.24 malformed-source whole-file observations (36.125944ms)
+▶ Lizard shared tokenizer
+  ✔ preserves upstream macro, comment, string, and symbol token boundaries (3.280863ms)
+  ✔ clones the concrete state-machine class for later reader and extension substates (0.338208ms)
+  ✔ retains Python tokenizer whitespace and splitlines boundaries (3.616475ms)
+  ✔ retains CodeReader source fields and aliases with single shared storage (0.260544ms)
+✔ Lizard shared tokenizer (8.393486ms)
+▶ Lizard shared state machine
+  ✔ releases the completed callback once with its receiver and retains the reentrant replacement (0.593081ms)
+  ✔ retains source-spelled state fields and state hooks (0.260093ms)
+  ✔ retains source decorator factories for bracket and token-until states (0.296611ms)
+✔ Lizard shared state machine (1.745321ms)
+✔ JavaScript-style regex literals preserve fixed-source raw tokens across all six consumers (17.570978ms)
+✔ JavaScript-style regex recognition preserves tokenFactory and yields without draining input (0.941528ms)
+✔ JavaScript-style regex source-start recognition does not consume cross-line division conditions (4.856518ms)
+ℹ tests 22
+ℹ suites 5
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 395.776375

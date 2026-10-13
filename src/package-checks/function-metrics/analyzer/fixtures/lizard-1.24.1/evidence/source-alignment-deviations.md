@@ -106,6 +106,18 @@ Python `\A` 使用绝对起点断言 `(?<![^])`。共享 tokenizer 有多行模�
 
 前缀拆分只对 slash 出现在非首位的 token 扫描 Python whitespace；无 slash 或 slash 为首字符时不可能发生拆分，保持原 token 与 generator/factory 生命周期。这一局部 guard 避免对所有普通 token 重复扫描，不改变 regex 识别或原始 oracle。
 
+## 私有 tokenizer 的不可闭合尾部成本防护
+
+`CodeReader.generateTokens` 保留原 pattern 的首次消费编译、完整 source 匹配、分支顺序、flags/normalization、UTF-16 offset、Unicode 零宽推进、macro/factory 与惰性生命周期。TS/TSX 通过私有实参传输原固定 `TEMPLATE_LITERAL`，仍在原 addition 位置使用相同 normalization；模板 regex 与拆分逻辑不改。
+
+只有规范化 addition 为空或以 `|` 开始时才允许整个 guarded 路径；其它拼接片段保留原 native loop。例如 `/**` 与 addition `?` 的原末尾 slash 可零次匹配，不能把原分支替换为不可成功的 lookahead。原错误仍在首次消费时发生，factory throw、partial consumption 和 iterator return 不提前 drain。
+
+comment 风险由最后 `/*` 与 `*/` 的非重叠位置保守筛选；template 成本风险由最后原始反引号之后是否含 raw `${` 筛选。无风险输入走原 native loop；风险路径只在从当前游标及之后已不可能匹配完整对应分支时惰性省略相应分支。完整模板 token 跨过最后反引号后不另行构造 reduced pattern。筛选不是语法判定，quoted/escaped delimiter 可保守误触发；无 raw `${` 的模板尾部与最后 delimiter 之前复杂路径仍保留原 regex，不承诺任意 malformed 的线性上界。
+
+这项等价宿主改写由独立 Decision `261012-bound-unclosable-tokenizer-tail-cost` 和 Investigation `261012-evaluate-bounded-tokenizer-optimization` 承接采用与形成时测量。支持的 Product host 是 Node；Bun 是仓库工具及独立性能参考。长模板 N24 在 Bun 原 matcher 上出现省略尾部 token、候选恢复完整 token 的观察，原因未知，不称两者全等、不推断引擎资源耗尽；候选以支持 Node 的完整 raw text/offset/line、final stream 和 adapter facts 为语义对照。正常 Node 语料的有限小幅成本观察不伪装成无损或普通项目加速。
+
+三个既有 translated member 身份与 source/target inventory 保持不变；第四私有参数和 nested helper 不新增 curated module/class/member/named host seam。复审 identity，但不以本地性能改写重写 upstream hash、revision 或原始 oracle。共享 tokenizer 和 TS/TSX 的既有测试正文保留独立 addition、普通闭合前缀与未闭合尾部、offset/factory/零宽/惰性回归。
+
 ## Review trigger
 
 当 root provenance 的 translated record、`additionalTargetPaths`、Lizard revision，或任何 source-aligned

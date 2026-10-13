@@ -25,9 +25,14 @@ export class TSXReader extends TypeScriptReader {
     addition = "",
     tokenFactory?: TokenFactory
   ): Generator<string> {
-    const tsxAddition = `${addition}|(?:\\?\\?)|(?:<[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:<\\/[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:#\\w+)|(?:\\$\\w+)|(?:<\\/\\w+>)|(?:=>)|${TEMPLATE_LITERAL}`;
+    const tsxAddition = `${addition}|(?:\\?\\?)|(?:<[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:<\\/[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:#\\w+)|(?:\\$\\w+)|(?:<\\/\\w+>)|(?:=>)`;
     const tokenizer = new TSXTokenizer();
-    for (const token of CodeReader.generateTokens(sourceCode, tsxAddition, tokenFactory)) {
+    for (const token of CodeReader.generateTokens(
+      sourceCode,
+      tsxAddition,
+      tokenFactory,
+      TEMPLATE_LITERAL
+    )) {
       yield* tokenizer.__call__(token);
     }
   });

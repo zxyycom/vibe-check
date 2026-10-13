@@ -1,0 +1,71 @@
+{
+  "files": 526,
+  "bytes": 2417957,
+  "summary": [
+    {
+      "label": "first",
+      "runtime": "node",
+      "samplesPerVariant": 4,
+      "baselineMedianMs": 341.2668475,
+      "candidateMedianMs": 352.249323,
+      "deltaPercent": 3.2181489589316215,
+      "baselineRangeMs": [
+        333.49206399999997,
+        355.439087
+      ],
+      "candidateRangeMs": [
+        341.13022499999994,
+        361.276008
+      ]
+    },
+    {
+      "label": "confirm",
+      "runtime": "node",
+      "samplesPerVariant": 4,
+      "baselineMedianMs": 336.5346185,
+      "candidateMedianMs": 338.78684150000004,
+      "deltaPercent": 0.6692396194003969,
+      "baselineRangeMs": [
+        331.001683,
+        348.613196
+      ],
+      "candidateRangeMs": [
+        332.826617,
+        346.045521
+      ]
+    },
+    {
+      "label": "combined",
+      "runtime": "node",
+      "samplesPerVariant": 8,
+      "baselineMedianMs": 337.550585,
+      "candidateMedianMs": 343.0189224999999,
+      "deltaPercent": 1.620005339347852,
+      "baselineRangeMs": [
+        331.001683,
+        355.439087
+      ],
+      "candidateRangeMs": [
+        332.826617,
+        361.276008
+      ]
+    },
+    {
+      "label": "first",
+      "runtime": "bun",
+      "samplesPerVariant": 2,
+      "baselineMedianMs": 3125.8288005,
+      "candidateMedianMs": 3111.455728,
+      "deltaPercent": -0.45981636926824,
+      "baselineRangeMs": [
+        3113.999714,
+        3137.657887
+      ],
+      "candidateRangeMs": [
+        3074.146925,
+        3148.7645310000003
+      ]
+    }
+  ],
+  "note": "Small normal-cost observations retained; do not claim lossless speed or statistical threshold. First/confirmation Node epochs explicitly separated."
+}

@@ -36,6 +36,72 @@ describe("Lizard shared tokenizer", () => {
       ],
       ["#define xx()\\\n                       abc", "\n", "                    ", "int"]
     );
+
+    for (const addition of ["?", "*", "{0}", "(?i)?"]) {
+      // These fragments quantify the original comment branch's last slash.
+      assert.deepEqual([...CodeReader.generateTokens("/**", addition)], ["/**"]);
+    }
+    assert.deepEqual([...CodeReader.generateTokens("/**", "+")], ["/", "**"]);
+    assert.deepEqual([...CodeReader.generateTokens("/**", "|(a)")], ["/", "**"]);
+
+    for (const prefix of ["", "/* closed */ \t\r\n"]) {
+      const tail = "/* ".repeat(64);
+      const source = prefix + tail;
+      const matches: { text: string; offset: number }[] = [];
+      const iterator = CodeReader.generateTokens(source, "", (match) => {
+        matches.push({ text: match.group(0)!, offset: match.start() });
+        assert.equal(match.group(1), undefined);
+        return match.text;
+      });
+      assert.deepEqual(matches, []);
+      const prefixTokens = prefix ? ["/* closed */", " \t\r", "\n"] : [];
+      assert.deepEqual(
+        [...iterator],
+        [...prefixTokens, ...Array.from({ length: 64 }, () => ["/", "*", " "]).flat()]
+      );
+      let offset = 0;
+      assert.deepEqual(
+        matches,
+        [...prefixTokens, ...Array.from({ length: 64 }, () => ["/", "*", " "]).flat()].map(
+          (text) => {
+            const expected = { text, offset };
+            offset += text.length;
+            return expected;
+          }
+        )
+      );
+    }
+
+    const calls: string[] = [];
+    const partial = CodeReader.generateTokens("/* /* ", "", (match) => {
+      calls.push(match.text);
+      return match.text;
+    });
+    assert.deepEqual(calls, []);
+    assert.deepEqual(partial.next(), { value: "/", done: false });
+    partial.return(undefined);
+    assert.deepEqual(calls, ["/"]);
+    const failure = new Error("factory-stop");
+    const failing = CodeReader.generateTokens("/* /* ", "", () => {
+      throw failure;
+    });
+    assert.throws(
+      () => failing.next(),
+      (error) => error === failure
+    );
+    const malformed = CodeReader.generateTokens("/* ", "|(");
+    assert.throws(() => malformed.next(), SyntaxError);
+    const zeroWidth: number[] = [];
+    assert.deepEqual(
+      [
+        ...CodeReader.generateTokens("😀/* ", "|(?=.)", (match) => {
+          zeroWidth.push(match.startOffset);
+          return match.text;
+        })
+      ],
+      ["", "", "", ""]
+    );
+    assert.deepEqual(zeroWidth, [0, 2, 3, 4]);
   });
 
   it("clones the concrete state-machine class for later reader and extension substates", () => {

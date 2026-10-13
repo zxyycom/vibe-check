@@ -18,6 +18,12 @@ function analyzer 的唯一目录外生产入口是 `analyzer/port-facade.ts`，
 
 translated core/readers/shared/extensions 以 source fidelity 为先；手写 façade、adapter、Worker、Check/tests 仍按普通项目规则。façade 的 host-only reader-resolution seam 供 capability/analysis 共用，保持 registry selection、unsupported-input boundary 与 root provenance/source identity；未覆盖输入交由 source-aligned registry。所有 internals 仍私有，不形成 public plugin、可替换 backend 或 command protocol。
 
+shared tokenizer 对独立 addition 分支采用私有尾部成本防护：普通输入保持原生迭代，
+风险输入仅在完整 source 游标进入确定不能闭合的注释或固定 TS/TSX 模板尾部时惰性省略对应分支。
+完整 token、factory、模板拆分及 Worker 取消契约保持；该机制不是语法判定或任意 malformed 的线性保证。
+采用取舍见[局部决策](../decisions/bound-unclosable-tokenizer-tail-cost.md)，精确资格、来源同步与持续测试由
+[当前偏差说明](../../src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/source-alignment-deviations.md#私有-tokenizer-的不可闭合尾部成本防护)拥有。
+
 ## Check-owned command options
 
 [随包 Check 指南](../navigation.md#随包-check-指南)拥有初始 options；[Configuration](project-definition.md#package-provided-check-composition)

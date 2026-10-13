@@ -1,0 +1,24 @@
+--- v3/shared/code-reader.ts
++++ v3.1/shared/code-reader.ts
+@@ -572,7 +572,7 @@
+     const commentTailRisk = lastCommentOpen >= 0 && lastCommentOpen > lastCommentClose - 2;
+     const templateTailRisk = Boolean(templateLiteralPattern) && lastTemplateDelimiter >= 0 &&
+       sourceCode.indexOf("${", lastTemplateDelimiter + 1) !== -1;
+-    function* guardedMatches(): Generator<RegExpMatchArray> {
++    function* guardedMatches(): Generator<RegExpExecArray> {
+       let pattern = originalPattern;
+       let includesComment = true;
+       let includesTemplate = Boolean(templateLiteralPattern);
+@@ -607,7 +607,11 @@
+       }
+     }
+     let macro = "";
+-    const matches = commentTailRisk || templateTailRisk ? guardedMatches() : sourceCode.matchAll(originalPattern);
++    // Non-alternative additions may quantify the preceding comment slash.
++    const tailGuardEligible = cleanedAddition === "" || cleanedAddition.startsWith("|");
++    const matches = tailGuardEligible && (commentTailRisk || templateTailRisk)
++      ? guardedMatches()
++      : sourceCode.matchAll(originalPattern);
+     for (const match of matches) {
+       const token = tokenFactory(new TokenMatch(match[0], match.index));
+       if (macro) {

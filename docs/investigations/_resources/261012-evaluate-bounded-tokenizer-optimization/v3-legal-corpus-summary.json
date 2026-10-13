@@ -1,0 +1,36 @@
+{
+  "files": 526,
+  "bytes": 2417957,
+  "summary": [
+    {
+      "runtime": "node",
+      "samplesPerVariant": 8,
+      "baselineMedianMs": 342.142963,
+      "candidateMedianMs": 341.099607,
+      "deltaPercent": -0.3049473795549096,
+      "baselineRangeMs": [
+        331.187543,
+        344.201625
+      ],
+      "candidateRangeMs": [
+        336.70662699999997,
+        351.551607
+      ]
+    },
+    {
+      "runtime": "bun",
+      "samplesPerVariant": 4,
+      "baselineMedianMs": 3117.6593650000004,
+      "candidateMedianMs": 3162.524082,
+      "deltaPercent": 1.4390512800618094,
+      "baselineRangeMs": [
+        3090.660477,
+        3318.351562
+      ],
+      "candidateRangeMs": [
+        3105.400156,
+        3216.153889
+      ]
+    }
+  ]
+}

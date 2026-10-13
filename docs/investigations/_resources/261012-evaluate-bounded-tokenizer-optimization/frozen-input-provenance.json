@@ -1,0 +1,2106 @@
+[
+  {
+    "path": "scripts/canonical-json.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/decision-records/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/format-targets.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/format.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lint.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/analyzer-only.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/arguments.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/benchmark-context.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/benchmark-identity.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/canonical.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/comparison.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/contract.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/current-decomposition.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/evidence-shapes.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/fixed-lizard124.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/historical-product.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/public-product-driver.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/sampling.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/statistics.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/target-evidence.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/lizard-performance/workload.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/test.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/development/typecheck.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/diagnostic-safety.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/machine-artifacts/examples/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/machine-artifacts/examples/contract.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/machine-artifacts/examples/definition-execution.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/machine-artifacts/examples/publication.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/machine-artifacts/package-materials.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/machine-artifacts/schemas.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/check-guides.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/example-payloads.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/example-projection-validation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/example-projections.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/jsdoc-render.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/jsdoc-target-discovery.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/markdown-example-fences.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/render.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-api/test-support.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/docs/package-documents.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/environment/manage.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/error-message.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/investigation-report/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/maintenance/lizard-upstream-advisory.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/acceptance-input.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/build.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/compiler-cache.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/documentation-audit.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/esm-module-specifiers.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/fingerprint.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/manifest.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/packed-tar-audit.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/runtime-source-maps.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/staging-audit.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/artifact/staging-runtime-layout.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/build-contract.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/acceptance-input.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/candidate.integration.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/dependency-license-audit.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/dependency-probe.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/check-options-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/command-check-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/command-result.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/custom-admission-strategy-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/data-boundary-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/documentation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/finding-waiver-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/handoff-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/input.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/markdown-lint-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/material.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/node-command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/package-check-constructor-options-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/project-changes-type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/provider.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/assertions.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/command-check.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/durations.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/function-metrics.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/learned-scheduling.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/messages.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/run.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/runtime-host.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime-evidence/values.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/runtime.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/type-acceptance.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/external-consumer/typecheck-fixture.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/install.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/installed-materials.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/integration-command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/preparation-decision.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/prepare.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/candidate/receipt.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/dependency-version.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/file-inventory.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/legal-materials.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/legal-materials/packaged-audit.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/legal-materials/provenance-inventory.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/legal-materials/source-mapping.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/pack.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/package-contract.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/package-material-audit.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/public-api-inventory.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/release/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/release/identity.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/release/paths.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/release/prepare.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/release/receipt-contract.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/release/receipt.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/package/release/source.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/process-execution/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/process-execution/contract.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/process-execution/execution.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/process-execution/failure.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/process-execution/plain-text-environment.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/process-execution/result.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/process-execution/runner.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/command-output.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/evidence.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/fixture-model.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/fixture-registry.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/gate-shape-fixture.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/learned-heuristic-comparison.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/learned-heuristic-cost.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/learned-heuristic-evaluation-input.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/learned-heuristic-evaluation-types.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/learned-heuristic-evaluation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/learned-heuristic-policy-state.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/policy.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/scenario-fixtures.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/scenario.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/simulate.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/simulation-clock.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/simulation-control.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/simulation-evidence.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/simulation-observations.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/admission-workbench/simulation-types.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/check-execution.test-support.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/command-result.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/decision-records.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/entry-factories.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/external-consumer-material.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/materials-validation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/oxfmt-failure-records.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/oxlint-failure-records.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/prepared-candidate-fact.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/prepared-candidate.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/process/failure-projection.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/process/native-operation-protocol.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/process/native-operation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/process/safe-workspace-path.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/process/transcript.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/repository-quality.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/test-evidence/ast-grep-rule-tests-check.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/test-evidence/semantic-case-check.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/test-evidence/semantic-case-diagnostic-policy.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/test-evidence/semantic-case-projection.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/test-execution/checks.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/test-execution/entries.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/checks/test-execution/lanes.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/definition.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/run.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/bound-run.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/catalog.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/controls.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/eligibility.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/entries.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/invocation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/performance-baseline.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/performance-observation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/product-test-regions.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/reporting.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/result-contributor.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/result.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/root-import-boundary.test-support.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/project/gate/runtime/transcript.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/repository-files/files.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/repository-files/paths.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/ast-grep/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/ast-grep/rule-tests.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/ast-grep/scan.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/cases.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/catalog/catalog-types.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/catalog/load.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/catalog/markdown.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/catalog/owner-ref.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/catalog/source.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/catalog/test-support.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/closure.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/command.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/discover.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/discovery/bun-files.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/discovery/bun-junit.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/discovery/bun.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/discovery/runner-process.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/entities.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/profile.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/test-evidence/relative-path.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/function-metrics-analyzer-boundary.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/import-boundaries.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/layout-characterization.test-support.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/layout-characterization.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/module-specifier-analysis.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/package-tools-boundary.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/package-tools-core-closure.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/package-tools-module-graph.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/project-gate-layout.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/assertions.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/diagnostics.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/json/files.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/json/value.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/links.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/machine-artifacts/artifact-shapes.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/machine-artifacts/canonical.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/machine-artifacts/diagnostics.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/machine-artifacts/invariants.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/machine-artifacts/parsing.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/machine-artifacts/validation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/repository-files.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/repository-paths.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/schema/registry.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/schema/validation.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/task-contract.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/repository-material/workflow.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/validation/workspace.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "scripts/value-guards.ts",
+    "from": "unchanged-live-file-verified-against-Phase-A-hash"
+  },
+  {
+    "path": "src/bun-test.d.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check-settlement/fact-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check-settlement/facts.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check-settlement/outcome-normalization.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check-settlement/reason-shape.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check-settlement/record-store.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check-settlement/session.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/check.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/descriptor-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/descriptor.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/flag-enablement.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/handoff-provider-identity.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/inherited-collection.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/options-snapshot.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/project-changes.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/check/project-context.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/data-boundary/canonical-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/data-boundary/canonical-json.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/data-boundary/closed-values.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/data-boundary/config-glob.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/data-boundary/project-file-region-index.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/data-boundary/project-path.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/data-boundary/value-shapes.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/index.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/atomic-publication.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/freeze-publication-value.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/projection.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/publication-invariants.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/publication-model.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/publish.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/records-fingerprint.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/schema-identities.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/schema.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/serializers.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/validation-result.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/machine-output/v4/validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/check-authoring.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/code-quality-findings/finding-waiver-authoring.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/code-quality-findings/finding-waiver-evidence.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/code-quality-findings/policy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/command-check/command-check.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/command-check/contract.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/command-check/execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/command-check/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/command-check/transcript.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/area-policy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/default-check.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/finding-messages.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/finding-waiver-identity.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/jscpd/availability.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/jscpd/command-path.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/jscpd/command-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/jscpd/json-report.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/jscpd/scanner-contract.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/jscpd/scanner.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/jscpd/scoped-fragments.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/measurement-model.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/measurement.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/options-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/project-revision.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/duplicate-detection/records.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/constructor.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/finding-messages.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/measurement-model.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/measurement.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/options-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/records.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/scc/availability.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/scc/batch-planner.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/scc/logical-scan-resources.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/scc/parser.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/file-metrics/scc/scanner.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/final-data-parsing.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/analysis.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/analyzer-adapter.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/analyzer-worker-contract.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/analyzer-worker-port.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/analyzer-worker.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/constructor.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/finding-messages.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/finding-waiver-identity.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/measurement-model.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/measurement.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/options-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/records.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/function-metrics/target-files.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/csv.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/error-message.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/filesystem.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/git.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/path.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/process.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/process/contract.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/process/env.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/process/failure.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/process/result.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/host-environment/process/runner.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-document/strict-document.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/default-check.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/execution-stages.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/issue-collector.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/json-schema-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/options-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/reference-resolver.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/remote-response.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/schema-engine.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-schema-validation/schema-policy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-validation/default-check.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-validation/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-validation/json-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-validation/options-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-validation/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/json-validation/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/local-cache-options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/maintenance-reminders/assessment-results.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/maintenance-reminders/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/maintenance-reminders/maintenance-reminders.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/maintenance-reminders/maintenance-support.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/maintenance-reminders/measurement.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/maintenance-reminders/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/default-check.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/finding-messages.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/local-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/local-resolver.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/markdown-parser.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/options-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/parse-facts-cache-payload.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/records.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/resolver-engine.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/source-reader.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/target-descriptor.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/traversal-result.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-link-validation/unavailable-reasons.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/adapter.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/default-check.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/finding-messages.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/finding-waiver-identity.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/findings-cache.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/options-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/records.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/markdown-lint/unavailable-reasons.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/collection.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/config-glob.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/configuration.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/exact-input-measurement.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/file-fingerprint.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/filesystem-collection.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/input-eligibility.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/public-collection.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/project-files/reported-path.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/classification.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/default-check.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/final-data.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/finding-waiver-identity.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/input-preparation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/options-resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/options-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/options.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/records.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-checks/secret-detection/secretlint/adapter.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/admission-policy/define-admission-policy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/change-flag-debugging/change-flag-debugging.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/finding-presentation/finding-presentation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/finding-waivers/reconciliation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/critical-path-ranking.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/duration-model/bounded-history.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/duration-model/prediction.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/duration-model/preparation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/duration-model/recording.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/duration-model/storage.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/selection-layers.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/static-decision.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/package-tools/learned-critical-path/strategy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/check-tree/authoring.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/check-tree/check-fields-authoring.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/check-tree/collection-authoring.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/check-tree/flag-conditions.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/check-tree/materialization.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/check-tree/resolution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/check-tree/scheduling-authoring.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/declarative-snapshot.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/output-defaults.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/output-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/progress-rendering-output.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/project-changes.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/project-definition-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/project-definition.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/resource-unit-mapping.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-definition/scheduler-policy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/admission-strategy-provider/custom-strategy-preparation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/admission-strategy-provider/prepared-admission-strategy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/admission-strategy-provider/provider.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/aggregation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/changes/git.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/admitted-check-execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/callback.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/console-capture.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/dependencies.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/execution-finalization.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/execution-settlement.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/flag-controls.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/lifecycle.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/messages.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/plan.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/preparation-result.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/preparation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/ready-check-execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/resolved-checks.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/resolved-execution-result.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/scheduled-check-run.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/check-execution/terminal-result.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/completion/completion.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/completion/machine-publication.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/completion/result-resolver.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/controls/contract.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/controls/outputs-override-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/controls/validation-result.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/controls/validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/diagnostic-logging/diagnostic-detail-rendering.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/diagnostic-logging/logger.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/diagnostic-logging/observation-rendering.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/invocation/candidate.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/invocation/candidates.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/invocation/creation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/invocation/execution.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/invocation/paths.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/invocation/progress.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/invocation/run.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/invocation/scheduler.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/outputs/configuration.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/outputs/status.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/progress-rendering/presentation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/progress-rendering/renderer-formatting.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/progress-rendering/renderer-lifecycle.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/progress-rendering/renderer.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/project-context.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/result.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/run.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/compiled-graph-lookup.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/compiled-graph.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/core.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/input.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/projection.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/selection-index.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/selection-query.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/selection-seed.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/selection-transition.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/selection.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-core/trace.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-scope-layers.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/admission-selection-policy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/custom-admission-policy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/execution-state.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/forced-block-effect-replay.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/graph-validation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/graph.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/measurement/diagnostics.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/measurement/integrals.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/measurement/policy.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/measurement/summary.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/measurement/timing.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler-admission-decision.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler-decision-model.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler-decision.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler-observation.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler-task-lifecycle.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler-terminal-measurement.ts",
+    "from": "Phase-A-production-copy"
+  },
+  {
+    "path": "src/project-run/task-scheduler/scheduler.ts",
+    "from": "Phase-A-production-copy"
+  }
+]

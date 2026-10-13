@@ -35,6 +35,12 @@ fidelity、reader 和 adapter 测试；不是 Product 运行时输入，也不�
 translated targets（包括 extension protocol 与 ND typed-host additional target）、83 个 class identity 与 841 个 symbol/host-seam
 mappings。它也扫描 current `src/**/*.ts`，拒绝 archived-Change evidence path。
 
+## 私有 tokenizer 尾部防护的持续证据
+
+- 共享 tokenizer 与 TS/TSX 的既有测试覆盖独立 addition、普通闭合前缀与未闭合尾部、完整 token/factory offset、Unicode 零宽和惰性边界。
+- 期望来自支持 Node 的原 baseline；本目录 upstream 原观察文件保持，候选输出和 Investigation raw 不作为新 oracle。
+- 三个 translated member 身份保持，source identity 检查读取真实生产文件。机制、Bun 长输入差异及同步复审义务见[偏差说明](source-alignment-deviations.md#私有-tokenizer-的不可闭合尾部成本防护)；采用门槛归 Decision `261012-bound-unclosable-tokenizer-tail-cost`。
+
 ## 升级原始观察与必要偏差
 
 两个升级 JSON 均由固定上游实际执行生成，不读取当前 TypeScript 实现生成期望。token 观察覆盖 CRLF/Python 空白、source-start/BOM 及合法跨行 division。

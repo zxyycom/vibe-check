@@ -1,0 +1,5 @@
+--- a/src/package-checks/function-metrics/analyzer/shared/code-reader.ts
++++ b/src/package-checks/function-metrics/analyzer/shared/code-reader.ts
+@@ -574,1 +574,1 @@
+-    function* guardedMatches(): Generator<RegExpMatchArray> {
++    function* guardedMatches(): Generator<RegExpExecArray> {

@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-10-12T15:45:45.319Z",
+  "identityArtifactCreatedAt": "2026-10-12T15:37:33.626Z",
+  "baselineMatches": 348,
+  "unchangedCandidate": 345,
+  "alteredCandidateMembers": 3,
+  "identityMatches": true,
+  "firstMeasuredLegalStartedAt": "2026-10-12T15:39:15.520Z",
+  "note": "Identity artifact captured before formal timing; all recorded source hashes remain identical after timing. Snapshot is independent of concurrent production src writes; this does not verify production identity."
+}

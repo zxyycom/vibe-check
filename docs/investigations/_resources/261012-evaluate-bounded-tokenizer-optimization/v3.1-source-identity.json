@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "variant": "baseline",
+      "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "sha256": "f1eeaf2ca231f266ada2091715fca0faff2fa6ebad84156b7a69e02b99adb7db"
+    },
+    {
+      "variant": "candidate-v3.1",
+      "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "sha256": "c6da53be7ec176ee88b208f8338c94ce8a350da69e388ad4bb0f31bc39a8a0cc"
+    },
+    {
+      "variant": "baseline",
+      "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "29a4ce11038c1a787a72d23f405c72de2933903db7003f589a3bb551c84206f0"
+    },
+    {
+      "variant": "candidate-v3.1",
+      "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "5894a960e47d2bcb87309137337ad5f63ffb14c067181e3087caf970d1d18791"
+    },
+    {
+      "variant": "baseline",
+      "path": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "sha256": "6fa5e80755b38beb3f1027312b010bfaf96ae08178ff73e44b4ae424888d6255"
+    },
+    {
+      "variant": "candidate-v3.1",
+      "path": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "sha256": "c1278570fc3c7dfc88f15d8b506e28baf315b07f307e9ff06b7ee323ba3da167"
+    }
+  ]
+}

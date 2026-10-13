@@ -20,6 +20,100 @@ test("TypeScript reader preserves fixtures, type syntax, decorators, regexes, te
     ]);
   }
 
+  // Supported Node baseline expectations; no wall-clock assertion or new oracle.
+  for (const prefix of [
+    "",
+    "/* ordinary */\nconst x = `closed ${value}`;\nfunction f(){ return 1; }\n"
+  ]) {
+    const tail = "`" + "${x}".repeat(24);
+    const source = prefix + tail;
+    const raw: { text: string; offset: number }[] = [];
+    const tokens = [
+      ...TypeScriptReader.generateTokens(source, "", (match) => {
+        raw.push({ text: match.text, offset: match.startOffset });
+        return match.text;
+      })
+    ];
+    const expectedTail = ["`", ...Array.from({ length: 24 }, () => ["$", "{", "x", "}"]).flat()];
+    assert.deepEqual(tokens, [
+      ...(prefix
+        ? [
+            "/* ordinary */",
+            "\n",
+            "const",
+            " ",
+            "x",
+            " ",
+            "=",
+            " ",
+            "`",
+            "`closed `",
+            "${",
+            "value",
+            "}",
+            "`",
+            ";",
+            "\n",
+            "function",
+            " ",
+            "f",
+            "(",
+            ")",
+            "{",
+            " ",
+            "return",
+            " ",
+            "1",
+            ";",
+            " ",
+            "}",
+            "\n"
+          ]
+        : []),
+      ...expectedTail
+    ]);
+    let offset = 0;
+    assert.deepEqual(
+      raw,
+      [
+        ...(prefix
+          ? [
+              "/* ordinary */",
+              "\n",
+              "const",
+              " ",
+              "x",
+              " ",
+              "=",
+              " ",
+              "`closed ${value}`",
+              ";",
+              "\n",
+              "function",
+              " ",
+              "f",
+              "(",
+              ")",
+              "{",
+              " ",
+              "return",
+              " ",
+              "1",
+              ";",
+              " ",
+              "}",
+              "\n"
+            ]
+          : []),
+        ...expectedTail
+      ].map((text) => {
+        const expected = { text, offset };
+        offset += text.length;
+        return expected;
+      })
+    );
+  }
+
   const functions = analyze(
     [
       "",
