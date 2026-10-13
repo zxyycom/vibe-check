@@ -137,7 +137,19 @@ export function hasExactPlainRecordKeys(
   keys: readonly string[]
 ): boolean {
   const actualKeys = Object.keys(value);
-  return actualKeys.length === keys.length && actualKeys.every((key) => keys.includes(key));
+  if (actualKeys.length !== keys.length) return false;
+  let matchedKeyCount = 0;
+  while (matchedKeyCount < keys.length && actualKeys[matchedKeyCount] === keys[matchedKeyCount]) {
+    matchedKeyCount += 1;
+  }
+  if (matchedKeyCount === keys.length) return true;
+  // Only unmatched actual keys remain available; deletion also rejects duplicate declared keys.
+  const unmatchedKeys = new Set(actualKeys.slice(matchedKeyCount));
+  for (let index = matchedKeyCount; index < keys.length; index += 1) {
+    const key = keys[index];
+    if (key === undefined || !unmatchedKeys.delete(key)) return false;
+  }
+  return true;
 }
 
 export function hasRequiredAndOptionalRecordKeys(
