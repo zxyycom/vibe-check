@@ -152,3 +152,47 @@ function freezeTrigger(trigger: SchedulerTrigger): SchedulerTrigger {
       });
   }
 }
+
+type ActionWithoutContext<T> = T extends unknown ? Omit<T, keyof SchedulerDecisionContext> : never;
+
+/** Shares deferred diagnostics without evaluating them while copying an action. */
+export function freezeDecisionWithContext(
+  context: SchedulerDecisionContext,
+  action: ActionWithoutContext<SchedulerDecision>,
+  candidateProjection?: () => readonly SchedulerAdmissionCandidateFact[]
+): SchedulerDecision {
+  const trigger = freezeTrigger(action.trigger);
+  if (action.kind === "admit" || action.kind === "await-running") {
+    let candidates: readonly SchedulerAdmissionCandidateFact[] | undefined;
+    return Object.freeze({
+      ...action,
+      trigger,
+      get candidates() {
+        return (candidates ??= candidateProjection?.() ?? action.candidates);
+      },
+      get blockers() {
+        return context.blockers;
+      },
+      get capacity() {
+        return context.capacity;
+      },
+      graphIdentity: context.graphIdentity
+    });
+  }
+  let detached = action;
+  if (action.kind === "cancel-pending")
+    detached = { ...action, taskIds: Object.freeze([...action.taskIds]) };
+  else if (action.kind === "settle-blocked")
+    detached = { ...action, dependencyIds: Object.freeze([...action.dependencyIds]) };
+  return Object.freeze({
+    ...detached,
+    trigger,
+    get blockers() {
+      return context.blockers;
+    },
+    get capacity() {
+      return context.capacity;
+    },
+    graphIdentity: context.graphIdentity
+  });
+}

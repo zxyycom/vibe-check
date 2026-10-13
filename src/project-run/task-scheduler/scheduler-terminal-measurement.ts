@@ -1,28 +1,55 @@
-import type {
-  SchedulerMeasurementContext,
-  SchedulerTerminalEffect,
-  SchedulerRawMeasurement
-} from "../../project-definition/project-definition.ts";
+import type { SchedulerMeasurementContext } from "../../project-definition/scheduler-policy.ts";
+import {
+  normalizeSchedulerContextCallback,
+  unionSchedulerContextNeeds,
+  type NormalizedSchedulerContextCallback
+} from "../../project-definition/scheduler-context-validation.ts";
 import { diagnosticTags } from "../diagnostic-logging/logger.ts";
 import type { RunTaskGraphOptions, SchedulerState } from "./execution-state.ts";
 import type { SchedulerPerformanceDiagnostics } from "./measurement/diagnostics.ts";
+import type { SealedSchedulerTerminalContext } from "./scheduler-terminal-context.ts";
 import { observeSchedulerDiagnostic } from "./scheduler-observation.ts";
 
-/** Delivers the terminal measurement to the internal summary and caller effects exactly once. */
+export interface SchedulerTerminalContextPlan {
+  readonly contextNeeds: readonly (keyof SchedulerMeasurementContext)[];
+  readonly effects: readonly NormalizedSchedulerContextCallback<"terminal">[];
+  readonly deliver: boolean;
+}
+
+/** Fixes terminal production requirements before execution; no late raw-history demand. */
+export function schedulerTerminalContextPlan<TResult>(
+  options: Omit<RunTaskGraphOptions<TResult>, "graph">,
+  withSummary: boolean
+): SchedulerTerminalContextPlan {
+  const effects = (options.terminalEffects ?? []).map((value) => {
+    const consumer = normalizeSchedulerContextCallback("terminal", value);
+    if (consumer === undefined) throw new TypeError("invalid Scheduler terminal effect");
+    return consumer;
+  });
+  const requests = new Set<keyof SchedulerMeasurementContext>([
+    ...unionSchedulerContextNeeds("terminal", effects),
+    ...(options.terminalContextNeeds ?? []),
+    ...(withSummary ? (["graph", "execution", "rawMeasurement"] as const) : [])
+  ]);
+  return Object.freeze({
+    contextNeeds: Object.freeze([...requests]),
+    effects: Object.freeze(effects),
+    deliver: withSummary || effects.length > 0 || options.terminalContextNeeds !== undefined
+  });
+}
+
+/** Seals a phase union independently of raw collection, then drains ordered generic effects. */
 export async function observeTerminalMeasurement<TResult>(
   input: Readonly<{
-    readonly diagnostics: SchedulerPerformanceDiagnostics;
+    readonly diagnostics: SchedulerPerformanceDiagnostics | undefined;
+    readonly plan: SchedulerTerminalContextPlan;
     readonly options: Omit<RunTaskGraphOptions<TResult>, "graph">;
     readonly state: SchedulerState<TResult>;
   }>
-): Promise<SchedulerMeasurementContext> {
-  input.diagnostics.completePendingActionObservation();
-  const context = measurementContext(
-    input.state,
-    input.diagnostics.admittedTaskIds(),
-    input.diagnostics.rawMeasurement()
-  );
-  const callerEffects = input.options.terminalEffects ?? [];
+): Promise<SealedSchedulerTerminalContext | undefined> {
+  input.diagnostics?.completePendingActionObservation();
+  if (!input.plan.deliver) return undefined;
+  const context = terminalContext(input.state, input.plan.contextNeeds, input.diagnostics);
   let callerEffectFailed = false;
   const reportCallerEffectFailure = () => {
     callerEffectFailed = true;
@@ -34,64 +61,70 @@ export async function observeTerminalMeasurement<TResult>(
     try {
       input.options.onTerminalEffectFailure?.();
     } catch {
-      // A failure-reporting seam cannot revise terminal Scheduler facts either.
+      // A reporting seam cannot revise sealed facts or suppress later delivery.
     }
   };
-  const defaultSummaryEffect = input.diagnostics.defaultSummaryHook();
-  const deliveries: readonly TerminalEffectDelivery[] = Object.freeze([
-    ...(defaultSummaryEffect === undefined
+  const summary = input.diagnostics?.defaultSummaryHook();
+  const summaryConsumer =
+    summary === undefined ? undefined : normalizeSchedulerContextCallback("terminal", summary);
+  if (summary !== undefined && summaryConsumer === undefined)
+    throw new Error("invalid internal terminal summary");
+  const deliveries = [
+    ...(summaryConsumer === undefined
       ? []
-      : [Object.freeze({ effect: defaultSummaryEffect, onFailure: () => undefined })]),
-    ...callerEffects.map((effect) =>
-      Object.freeze({ effect, onFailure: reportCallerEffectFailure })
-    )
-  ]);
-  await deliverTerminalEffects(deliveries, context);
-  if (callerEffects.length > 0 && !callerEffectFailed) {
+      : [{ consumer: summaryConsumer, onFailure: () => undefined }]),
+    ...input.plan.effects.map((consumer) => ({ consumer, onFailure: reportCallerEffectFailure }))
+  ];
+  for (const delivery of deliveries) {
+    try {
+      await delivery.consumer.invoke(context);
+    } catch {
+      delivery.onFailure();
+    }
+  }
+  if (input.plan.effects.length > 0 && !callerEffectFailed) {
     try {
       input.options.onTerminalEffectsSettled?.();
     } catch {
-      // A success-reporting seam cannot revise terminal Scheduler facts either.
+      // A reporting seam cannot revise sealed facts.
     }
   }
   return context;
 }
 
-type TerminalEffectDelivery = Readonly<{
-  readonly effect: SchedulerTerminalEffect;
-  readonly onFailure: () => void;
-}>;
-
-async function deliverTerminalEffects(
-  deliveries: readonly TerminalEffectDelivery[],
-  context: SchedulerMeasurementContext
-): Promise<void> {
-  for (const delivery of deliveries) {
-    try {
-      await delivery.effect(context);
-    } catch {
-      delivery.onFailure();
+function terminalContext<TResult>(
+  state: SchedulerState<TResult>,
+  needs: readonly (keyof SchedulerMeasurementContext)[],
+  diagnostics: SchedulerPerformanceDiagnostics | undefined
+): SealedSchedulerTerminalContext {
+  const context: {
+    -readonly [K in keyof SchedulerMeasurementContext]?: SchedulerMeasurementContext[K];
+  } = {};
+  for (const key of needs) {
+    switch (key) {
+      case "graph":
+        context.graph = state.graph.schedulerGraphSnapshot;
+        break;
+      case "execution": {
+        if (state.admissionFacts === undefined)
+          throw new Error("terminal execution facts were not captured");
+        context.execution = Object.freeze({
+          admittedTaskIds: state.admissionFacts.admittedTaskIds(),
+          settledTasks: Object.freeze(
+            state.graph.tasks.map((task) => {
+              const settlement = state.settlementsByTaskId.get(task.id);
+              if (settlement === undefined) throw new Error(`task ${task.id} was not settled`);
+              return Object.freeze({ kind: settlement.kind, taskId: task.id });
+            })
+          )
+        });
+        break;
+      }
+      case "rawMeasurement":
+        if (diagnostics === undefined) throw new Error("terminal measurement was not collected");
+        context.rawMeasurement = diagnostics.rawMeasurement();
+        break;
     }
   }
-}
-
-function measurementContext<TResult>(
-  state: SchedulerState<TResult>,
-  admittedTaskIds: readonly string[],
-  rawMeasurement: SchedulerRawMeasurement
-): SchedulerMeasurementContext {
-  return Object.freeze({
-    graph: state.graph.schedulerGraphSnapshot,
-    execution: Object.freeze({
-      admittedTaskIds: Object.freeze([...admittedTaskIds]),
-      settledTasks: Object.freeze(
-        state.graph.tasks.map((task) => {
-          const settlement = state.settlementsByTaskId.get(task.id);
-          if (settlement === undefined) throw new Error(`task ${task.id} was not settled`);
-          return Object.freeze({ kind: settlement.kind, taskId: task.id });
-        })
-      )
-    }),
-    rawMeasurement
-  });
+  return Object.freeze(context);
 }

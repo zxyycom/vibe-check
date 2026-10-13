@@ -29,6 +29,7 @@ const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.createLearnedCriticalPathStrategy,
   CURRENT_PUBLIC_CONTRACT.operations.createProjectFileRegionIndex,
   CURRENT_PUBLIC_CONTRACT.operations.defineAdmissionPolicy,
+  CURRENT_PUBLIC_CONTRACT.operations.defineSchedulerContextCallback,
   CURRENT_PUBLIC_CONTRACT.operations.defineCheck,
   CURRENT_PUBLIC_CONTRACT.operations.defineConfig,
   CURRENT_PUBLIC_CONTRACT.operations.inherit,

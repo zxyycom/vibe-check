@@ -1,3 +1,5 @@
+import type { SchedulerContextCallbackInput } from "./scheduler-context-callback.ts";
+
 /** 自定义准入 policy 对当前 Task 的唯一提议。 */
 export type AdmissionProposal =
   | Readonly<{ readonly kind: "select"; readonly taskId: string }>
@@ -200,26 +202,26 @@ export interface CustomAdmissionPreparationContext {
 /** prepared custom strategy 为当前 Run 返回的同步选择与可选 terminal completion。 */
 export interface PreparedCustomAdmissionStrategy {
   /** Scheduler 每轮同步调用；不得返回 Promise 或 thenable。 */
-  readonly decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+  readonly decide: SchedulerContextCallbackInput<AdmissionPolicyContext, AdmissionProposal>;
   /** Scheduler 的 generic Hooks 完成后，才以 sealed terminal context 调用一次。 */
-  readonly terminalEffect?: (
-    this: void,
-    context: SchedulerMeasurementContext
-  ) => void | Promise<void>;
+  readonly terminalEffect?: SchedulerContextCallbackInput<
+    SchedulerMeasurementContext,
+    void | Promise<void>
+  >;
 }
 
 /** custom 的 closed authoring grammar。 */
 export type CustomAdmissionStrategy =
   | Readonly<{
       readonly kind: "simple";
-      readonly decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+      readonly decide: SchedulerContextCallbackInput<AdmissionPolicyContext, AdmissionProposal>;
     }>
   | Readonly<{
       readonly kind: "prepared";
-      readonly prepare: (
-        this: void,
-        context: CustomAdmissionPreparationContext
-      ) => PreparedCustomAdmissionStrategy | Promise<PreparedCustomAdmissionStrategy>;
+      readonly prepare: SchedulerContextCallbackInput<
+        CustomAdmissionPreparationContext,
+        PreparedCustomAdmissionStrategy | Promise<PreparedCustomAdmissionStrategy>
+      >;
     }>;
 
 /** Definition authoring 的 closed admission policy。 */
@@ -529,8 +531,8 @@ export interface SchedulerMeasurementContext {
 
 /** 一次 terminal Scheduler measurement 的 caller-owned sync/async consumer。 */
 export type SchedulerTerminalEffect =
-  | ((this: void, context: SchedulerMeasurementContext) => void)
-  | ((this: void, context: SchedulerMeasurementContext) => Promise<void>);
+  | SchedulerContextCallbackInput<SchedulerMeasurementContext, void>
+  | SchedulerContextCallbackInput<SchedulerMeasurementContext, Promise<void>>;
 
 /** 定义级的 Scheduler 预算、admission policy 与终态 measurement consumer。 */
 export interface SchedulerPolicy {

@@ -1,6 +1,11 @@
+import {
+  normalizeSchedulerContextCallback,
+  snapshotSchedulerContextCallback
+} from "../../project-definition/scheduler-context-validation.ts";
 import type {
   AdmissionPolicy,
   CustomAdmissionPreparationContext,
+  CustomAdmissionStrategy,
   PreparedCustomAdmissionStrategy,
   SchedulerGraphSnapshot
 } from "../../project-definition/project-definition.ts";
@@ -22,15 +27,16 @@ export async function prepareCustomAdmissionStrategy(
 }
 
 async function prepareCustomStrategy(
-  prepare: (
-    this: void,
-    context: CustomAdmissionPreparationContext
-  ) => PreparedCustomAdmissionStrategy | Promise<PreparedCustomAdmissionStrategy>,
+  prepare: Extract<CustomAdmissionStrategy, { kind: "prepared" }>["prepare"],
   context: CustomAdmissionPreparationContext
 ): Promise<PreparedCustomAdmissionStrategy> {
   let prepared: unknown;
   try {
-    prepared = await prepare(context);
+    const callback = normalizeSchedulerContextCallback("preparation", prepare);
+    if (callback === undefined) throw new AdmissionStrategyPreparationFailure();
+    prepared = await callback.invoke(
+      callback.contextNeeds.includes("graph") ? context : Object.freeze({})
+    );
   } catch {
     throw new AdmissionStrategyPreparationFailure();
   }
@@ -38,44 +44,38 @@ async function prepareCustomStrategy(
     optional: ["terminalEffect"],
     required: ["decide"]
   });
-  if (record === undefined || !isPreparedCustomDecision(record.decide)) {
+  if (record === undefined) throw new AdmissionStrategyPreparationFailure();
+  const decide = snapshotSchedulerContextCallback("decision", record.decide);
+  const terminalEffect =
+    record.terminalEffect === undefined
+      ? undefined
+      : snapshotSchedulerContextCallback("terminal", record.terminalEffect);
+  if (decide === undefined || (record.terminalEffect !== undefined && terminalEffect === undefined))
     throw new AdmissionStrategyPreparationFailure();
-  }
-  if (record.terminalEffect !== undefined && !isPreparedCustomCompletion(record.terminalEffect)) {
-    throw new AdmissionStrategyPreparationFailure();
-  }
-  return Object.freeze({
-    decide: record.decide,
-    ...(record.terminalEffect === undefined ? {} : { terminalEffect: record.terminalEffect })
-  });
-}
-
-function isPreparedCustomDecision(
-  value: unknown
-): value is PreparedCustomAdmissionStrategy["decide"] {
-  return typeof value === "function";
-}
-
-function isPreparedCustomCompletion(
-  value: unknown
-): value is NonNullable<PreparedCustomAdmissionStrategy["terminalEffect"]> {
-  return typeof value === "function";
+  return Object.freeze({ decide, ...(terminalEffect === undefined ? {} : { terminalEffect }) });
 }
 
 function preparedCustomAdmissionStrategy(
   strategy: Pick<PreparedCustomAdmissionStrategy, "decide" | "terminalEffect">
 ): PreparedAdmissionStrategy {
-  const completion =
+  const terminal =
     strategy.terminalEffect === undefined
+      ? undefined
+      : normalizeSchedulerContextCallback("terminal", strategy.terminalEffect);
+  if (strategy.terminalEffect !== undefined && terminal === undefined)
+    throw new AdmissionStrategyPreparationFailure();
+  const completion =
+    terminal === undefined
       ? Object.freeze({ kind: "none" as const })
       : Object.freeze({
           kind: "terminal-effect" as const,
-          terminalEffect: strategy.terminalEffect
+          terminalEffect: terminal
         });
   return Object.freeze({
     admissionPolicy: admissionSelectionPolicyFor(strategy.decide),
     completion,
-    requiresTerminalMeasurement: completion.kind === "terminal-effect"
+    requiresTerminalMeasurement: terminal?.contextNeeds.includes("rawMeasurement") === true,
+    ...(terminal === undefined ? {} : { terminalContextNeeds: terminal.contextNeeds })
   });
 }
 

@@ -70,7 +70,7 @@ test("prepared learned policy invalidates identity and setup fallback instead of
 test("formal simple and prepared adapters prepare once and never complete virtual observations", async () => {
   let prepareCount = 0;
   let completeCount = 0;
-  const policy: AdmissionPolicy = Object.freeze({
+  const policy = Object.freeze({
     kind: "custom",
     strategy: Object.freeze({
       kind: "prepared",
@@ -89,7 +89,7 @@ test("formal simple and prepared adapters prepare once and never complete virtua
         });
       }
     })
-  });
+  }) satisfies AdmissionPolicy;
   const identity: PolicyIdentity = Object.freeze({
     expectedFallbackType: "none",
     historySnapshotSha256: "sha256:fixture",
@@ -112,4 +112,14 @@ test("formal simple and prepared adapters prepare once and never complete virtua
   await handle.dispose();
   assert.equal(prepareCount, 1);
   assert.equal(completeCount, 0);
+  const descriptorOnlyFixture = {
+    kind: "custom",
+    strategy: {
+      kind: "simple",
+      decide: { contextNeeds: [], callback: () => ({ kind: "wait" }) }
+    }
+  } satisfies AdmissionPolicy;
+  // @ts-expect-error This private fixture adapter accepts functions, not arbitrary public slots.
+  const callableFixture: Parameters<typeof preparePolicyDefinition>[0] = descriptorOnlyFixture;
+  void callableFixture;
 });

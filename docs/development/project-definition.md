@@ -145,6 +145,13 @@ identity/source/closure 不进入。closed validation 拒绝 unknown fields；�
 async/thenable。prepare failure 由 Invocation 在 Scheduler 启动前映射，不是 Definition validation 执行 callback。维护时
 同时核对 helper authoring types、direct-value validation 和 [Scheduler handoff](scheduler.md)。
 
+策略 preparation/decision 与 terminal callback slot 接受 function 或 closed `{ contextNeeds?, callback }`。
+Definition 中的 descriptor 在任何 author work 前验证；prepared 返回值中的 descriptor 由 Invocation 在
+`admission-strategy-preparation-failed` 边界验证。需求是当前 phase 的 dense 字段数组，复制、去重、按固定字段顺序冻结；
+省略或自有 undefined 为 full，显式空列表为 none。未知字段、非法 token、accessor、sparse array 均拒绝。
+`defineSchedulerContextCallback` 改善 phase/tuple authoring inference，运行时验证仍归上述边界；需求与 callback
+同属 runtime 配置，不进入 declarative snapshot/fingerprint。
+
 #### Learned critical-path strategy helper
 
 `createLearnedCriticalPathStrategy(...)` 返回 public prepared custom strategy，调用方将其放入
@@ -155,13 +162,13 @@ caller identity projection 与 model controls。调用方提供的配置和 clos
 
 ### Scheduler terminal effects
 
-`scheduler.terminalEffects` 是 Definition-owned runtime function array。validation 只接受 exact function entries；normalization 复制、冻结列表，省略时为空。callback identity/source/closure 不进入 snapshot/fingerprint，RunControls.outputs 不能注入或覆盖它。
+`scheduler.terminalEffects` 是 Definition-owned runtime consumer array，entry 为原 function 或上节的 terminal descriptor。normalization 复制、冻结列表与需求，省略时为空。callback identity/source/closure 和 contextNeeds 不进入 snapshot/fingerprint，RunControls.outputs 不能注入或覆盖它。
 
 context、ordered delivery 和 prepared `terminalEffect` 的接线见 [Scheduler terminal-effect delivery](scheduler.md#terminal-effects-与-delivery)；公开 status 与 failure priority 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
 
 ### Admission policy context
 
-Definition 只提供 normalized static graph metadata，不能给 callback 暴露 authored options/functions/data。Invocation 内唯一 frozen graph DTO 与每次 callback 的 detached dynamic context、lazy admissionState 和 captured-prefix measurement 由[Scheduler collector](scheduler.md#measurement-collector-与-immutable-context)构造；字段、inspection 与 proposal 的公开使用规则由[调度指南](../guides/scheduling.md#自定义准入-policy)定义。
+Definition 只提供 normalized static graph metadata，不能给 callback 暴露 authored options/functions/data。Invocation 内唯一 frozen graph DTO、按 phase 需求构建的 detached dynamic context、lazy admissionState 和 captured-prefix measurement 由[Scheduler owner](scheduler.md#measurement-collector-与-immutable-context)生产；collector 只承担 measurement，不拥有全部 context。字段、inspection 与 proposal 的公开使用规则由[调度指南](../guides/scheduling.md#自定义准入-policy)定义。
 
 ### Check options preparation
 

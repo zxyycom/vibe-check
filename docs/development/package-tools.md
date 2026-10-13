@@ -12,6 +12,12 @@
   `appendCheckMessages` 与 Finding message 投影；Finding facts、明细位置和 terminal outcome 由 Check owner 定义。
 - `admission-policy/define-admission-policy.ts` 拥有 `defineAdmissionPolicy(...)` 的 exact authoring types、
   inference 与声明 JSDoc；defaults、validation、normalization 与 fingerprint 由 Project Definition 定义。
+- `scheduler-context/define-scheduler-context-callback.ts` 拥有 `defineSchedulerContextCallback(...)` 的
+  phase-specific literal tuple / selected `Pick` inference 与 descriptor exact authoring；不调用 callback。
+  公共槽位与阶段类型由 Project Definition 拥有，descriptor grammar、snapshot 与 normalization 仍由 Definition
+  或 prepared-result boundary 校验；阶段需求并集、事实物化与 terminal delivery 由 Scheduler 拥有。
+  helper 的类型只保证自身声明字段，同阶段共享对象可以含额外字段；公开规则见
+  [Scheduler callback 的 context 需求](../guides/scheduling.md#声明-callback-的-context-需求)。
 - `cache/cache-json-by-key.ts` 拥有 caller-keyed JSON 的本地缓存机制，见[缓存边界](#caller-keyed-cache-boundary)。
 - `finding-waivers/reconciliation.ts` 拥有按调用方语义 identity 对账 Finding waiver 的纯函数，使用公开 Core 数据工具
   规范化和比较身份；Record 发布和 Check outcome 由采用方负责，工具不拥有 Run 或 Gate 生命周期。

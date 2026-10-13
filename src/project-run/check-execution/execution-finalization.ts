@@ -1,9 +1,7 @@
+import type { SealedSchedulerTerminalContext } from "../task-scheduler/scheduler-terminal-context.ts";
 import type { CheckMessage } from "../../check/check.ts";
 import type { CoreSnapshot } from "../../check-settlement/facts.ts";
-import type {
-  NormalizedCheck,
-  SchedulerMeasurementContext
-} from "../../project-definition/project-definition.ts";
+import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import type { SettledTask } from "../task-scheduler/scheduler.ts";
 import type { CheckDuration, CheckRunMessage } from "../result.ts";
 import {
@@ -31,19 +29,19 @@ export function closeResolvedChecks(
   try {
     assertNoTaskEngineFailures(input.graphRun.settlements);
     if (input.graphRun.admissionPolicyFault !== undefined) {
-      const terminalSchedulerMeasurement = input.graphRun.terminalMeasurement;
+      const terminalSchedulerContext = input.graphRun.terminalContext;
       return closeAdmissionPolicyFailed({
         normalizedChecks: input.allChecks,
         state: input.state,
-        ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
+        ...(terminalSchedulerContext === undefined ? {} : { terminalSchedulerContext })
       });
     }
     if (input.graphRun.cancelled) {
-      const terminalSchedulerMeasurement = input.graphRun.terminalMeasurement;
+      const terminalSchedulerContext = input.graphRun.terminalContext;
       return closeCancelledExecution({
         normalizedChecks: input.allChecks,
         state: input.state,
-        ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
+        ...(terminalSchedulerContext === undefined ? {} : { terminalSchedulerContext })
       });
     }
     assertEveryCheckClosed(input.allChecks, input.graphRun.settlements);
@@ -51,7 +49,7 @@ export function closeResolvedChecks(
       input.effectiveCheckIds,
       input.state.session.freeze(),
       input.state,
-      input.graphRun.terminalMeasurement
+      input.graphRun.terminalContext
     );
   } catch (error) {
     throw trustedFailure(error);
@@ -62,7 +60,7 @@ export function closeAdmissionPolicyFailed(
   input: Readonly<{
     readonly normalizedChecks: readonly NormalizedCheck[];
     readonly state: CheckExecutionState;
-    readonly terminalSchedulerMeasurement?: SchedulerMeasurementContext;
+    readonly terminalSchedulerContext?: SealedSchedulerTerminalContext;
   }>
 ): ResolvedCheckExecution {
   input.state.session.closeUnresolvedAsCancelled();
@@ -72,7 +70,7 @@ export function closeAdmissionPolicyFailed(
     "admission-policy-failed",
     snapshot,
     input.state,
-    input.terminalSchedulerMeasurement
+    input.terminalSchedulerContext
   );
 }
 
@@ -80,13 +78,13 @@ export function closeCancelledExecution(
   input: Readonly<{
     readonly normalizedChecks: readonly NormalizedCheck[];
     readonly state: CheckExecutionState;
-    readonly terminalSchedulerMeasurement?: SchedulerMeasurementContext;
+    readonly terminalSchedulerContext?: SealedSchedulerTerminalContext;
   }>
 ): ResolvedCheckExecution {
   input.state.session.closeUnresolvedAsCancelled();
   const snapshot = input.state.session.freeze();
   settleUnstartedCancelledChecks({ ...input, snapshot });
-  return resolvedExecution("cancelled", snapshot, input.state, input.terminalSchedulerMeasurement);
+  return resolvedExecution("cancelled", snapshot, input.state, input.terminalSchedulerContext);
 }
 
 export function checkIdentity(
@@ -111,13 +109,13 @@ function resolvedExecution(
   kind: Exclude<ResolvedCheckExecution["kind"], "completed">,
   snapshot: CoreSnapshot,
   state: CheckExecutionState,
-  terminalSchedulerMeasurement: SchedulerMeasurementContext | undefined
+  terminalSchedulerContext: SealedSchedulerTerminalContext | undefined
 ): ResolvedCheckExecution {
   return Object.freeze({
     kind,
     ...checkRunSummaries(snapshot, state.settledFactsByCheckId),
     snapshot,
-    ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
+    ...(terminalSchedulerContext === undefined ? {} : { terminalSchedulerContext })
   });
 }
 
@@ -125,14 +123,14 @@ function completedResolvedExecution(
   effectiveCheckIds: readonly string[],
   snapshot: CoreSnapshot,
   state: CheckExecutionState,
-  terminalSchedulerMeasurement: SchedulerMeasurementContext | undefined
+  terminalSchedulerContext: SealedSchedulerTerminalContext | undefined
 ): Extract<ResolvedCheckExecution, { readonly kind: "completed" }> {
   return Object.freeze({
     kind: "completed",
     ...checkRunSummaries(snapshot, state.settledFactsByCheckId),
     effectiveCheckIds,
     snapshot,
-    ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
+    ...(terminalSchedulerContext === undefined ? {} : { terminalSchedulerContext })
   });
 }
 

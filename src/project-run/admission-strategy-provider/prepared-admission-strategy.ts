@@ -1,3 +1,4 @@
+import type { NormalizedSchedulerContextCallback } from "../../project-definition/scheduler-context-validation.ts";
 import type { SchedulerMeasurementContext } from "../../project-definition/project-definition.ts";
 import type { AdmissionSelectionPolicy } from "../task-scheduler/admission-selection-policy.ts";
 
@@ -13,7 +14,9 @@ export type PreparedAdmissionStrategyCompletion =
     }>
   | Readonly<{
       readonly kind: "terminal-effect";
-      readonly terminalEffect: (context: SchedulerMeasurementContext) => void | Promise<void>;
+      readonly terminalEffect:
+        | NormalizedSchedulerContextCallback<"terminal">
+        | ((context: SchedulerMeasurementContext) => void | Promise<void>);
     }>;
 
 /** The invocation-scoped handoff from an admission provider to Scheduler and terminal delivery. */
@@ -22,6 +25,7 @@ export interface PreparedAdmissionStrategy {
   readonly admissionPolicy: AdmissionSelectionPolicy;
   /** Closed provider demand merged with output and policy measurement requirements by invocation. */
   readonly requiresTerminalMeasurement: boolean;
+  readonly terminalContextNeeds?: readonly (keyof SchedulerMeasurementContext)[];
   /** Completion owner: no public lifecycle, contained private lifecycle, or public output participant. */
   readonly completion: PreparedAdmissionStrategyCompletion;
 }

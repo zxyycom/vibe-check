@@ -23,6 +23,18 @@ Entities:
 - Definition and RunControls use one closed directory grammar for machine publication and diagnostic logging: child, parent and absolute targets are valid without output I/O; empty, U+0000 and unknown output keys remain configuration failures before callbacks run.
 - Reusing a mutable authored Definition across Runs revalidates current Check identity, canonical options and resource capacities; later mutation changes the new graph/fingerprint without revising earlier frozen facts. The prepared Run path preserves the standalone validation/normalization declarative fingerprint for the same input.
 
+## Case WB-SCHEDULER-CONTEXT-DECLARATION-001: Scheduler context demand has closed phase grammar
+
+Owner: `docs/development/project-definition.md#scheduler-配置`
+Entities:
+
+- `bun|src/project-definition/scheduler-context-validation.test.ts|Scheduler context declaration validation > snapshots closed phase needs without invoking accessors and rejects malformed grammar`
+- `bun|src/project-definition/scheduler-context-validation.test.ts|Scheduler context declaration validation > validates Definition descriptors before callbacks and excludes needs from the declarative fingerprint`
+  Proves:
+
+- Scheduler descriptors reject unknown fields, wrong-phase tokens, sparse arrays and accessors without invoking author code. Valid needs are detached, deduplicated and frozen; omitted or own-undefined needs retain full context while an empty list requests none.
+- Definition validates descriptors before callbacks run, and changing callback demand does not change the declarative fingerprint.
+
 ## Case WB-PROJECT-DEFINITION-FLAG-ENABLEMENT-001: Flag enablement is closed executable identity
 
 Owner: `docs/development/project-definition.md#flag-enabled-checks`
@@ -75,6 +87,7 @@ Entities:
 - Under `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes`, installed callback declarations preserve non-empty and discriminated tuple structure while retaining `unknown` leaf uncertainty; the consumer fixture does not inherit implementation-only control-flow rules. Consumer-local copies of the locked `@types/node` and its `undici-types` dependency provide real standard-library declarations for the examples instead of a hand-written process stub. The acceptance verifies literal `checkId`, exact environment, discard output, final-data/unavailable-reason types, and every ordinary selection, relation and scheduling field accepted by `commandCheck`; its public `execute` return remains `CheckResult<CommandCheckFinalData>` or its Promise.
 - Installed Markdown lint declarations expose `MarkdownLintFindingIdentity`, `MarkdownLintFindingWaiver` and `MarkdownLintFindingWaiverAuditRecordData`; identity authoring requires the closed public rule and complete range, resolved waivers remain readonly, and consumers can narrow the lint/input-rejected/waiver-audit Record union by `kind`.
 - Installed waiver helper declarations support named options and generic inference with omitted, `undefined`, empty and non-empty waiver inputs; `findings` and `identify` remain required, `null` is rejected, and returned audits remain complete and readonly.
+- The installed root exposes `defineSchedulerContextCallback` and its six phase/input/result/descriptor types. Helper-authored callbacks retain their declared field guarantees through direct Definition and prepared strategy slots; wrong-phase needs, undeclared field access, asynchronous decisions and unknown descriptor fields fail typechecking. Widened or union-valued needs do not promise fields that may be absent. Legacy function authoring retains full contextual types; the broadened input slots are not directly callable without narrowing.
 
 ## Case API-ADMISSION-POLICY-AUTHORING-001: Admission policy helper preserves exact public authoring
 
@@ -82,9 +95,11 @@ Owner: `docs/guides/scheduling.md#自定义准入-policy`
 Entities:
 
 - `bun|src/package-tools/admission-policy/define-admission-policy.test.ts|admission policy authoring > preserves policy identity and closed generic authoring types`
+- `bun|src/package-tools/scheduler-context/define-scheduler-context-callback.test.ts|Scheduler context callback authoring > preserves descriptor identity and phase selected types through policy and direct Definition`
   Proves:
 
 - `defineAdmissionPolicy` returns the original policy value while preserving static and custom literal inference. Its generic authoring surface contextually types simple and synchronous/asynchronous prepared callbacks, admits only synchronous decision proposals, and rejects unknown fields at the static, custom-policy and prepared-result boundaries.
+- `defineSchedulerContextCallback` preserves the original descriptor identity and carries phase-selected callback types through policy and direct Definition authoring; the helper does not normalize or replace runtime validation.
 
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link authoring defaults remain partial and bounded
 

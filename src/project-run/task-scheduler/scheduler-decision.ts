@@ -1,9 +1,14 @@
+import { taskIdsForCore } from "./admission-core/scheduler-queries.ts";
 import type { AdmissionSelectionPolicy } from "./admission-selection-policy.ts";
 import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
 import { staticAdmissionSelectionPolicy } from "./admission-selection-policy.ts";
 import { decideAdmission, type SchedulerDecisionCycle } from "./scheduler-admission-decision.ts";
-import { decisionContext } from "./scheduler-decision-inspection.ts";
-import { freezeDecision } from "./scheduler-decision-model.ts";
+import {
+  coreDecisionContext,
+  decisionContext,
+  type SchedulerInspection
+} from "./scheduler-decision-inspection.ts";
+import { freezeDecision, freezeDecisionWithContext } from "./scheduler-decision-model.ts";
 import type {
   SchedulerDecision,
   SchedulerSnapshot,
@@ -86,18 +91,26 @@ export function decideSchedulerFromCore(
     readonly pendingTaskIds?: readonly string[];
   }>
 ): SchedulerDecision {
-  const { admissionCore: core, runtime, trigger, policy, measurement } = input;
-  const coreInspection = schedulerInspectionForCore(core);
-  const state = Object.freeze({
-    ...coreInspection,
-    isAbortRequested: runtime.isAbortRequested,
-    isCancelled: runtime.isCancelled
+  const { admissionCore: core, trigger, policy, measurement } = input;
+  const runtime = Object.freeze({
+    isAbortRequested: input.runtime.isAbortRequested,
+    isCancelled: input.runtime.isCancelled
   });
+  let state: SchedulerInspection | undefined;
+  const inspection = () =>
+    (state ??= Object.freeze({
+      ...schedulerInspectionForCore(core),
+      isAbortRequested: runtime.isAbortRequested,
+      isCancelled: runtime.isCancelled
+    }));
   const cycle: SchedulerDecisionCycle = Object.freeze({
     admissionCore: core,
-    context: decisionContext(state, state.graph.schedulerGraphSnapshot),
+    context: coreDecisionContext(core, inspection),
     policy,
-    state,
+    get state() {
+      return inspection();
+    },
+    runtime,
     ...(measurement === undefined ? {} : { measurement }),
     trigger
   });
@@ -113,42 +126,33 @@ function decideTerminalSchedulerAction(
   pendingTaskIds: readonly string[] | undefined
 ): SchedulerDecision | undefined {
   if (runtime.isAbortRequested && !runtime.isCancelled) {
-    return freezeDecision({
-      ...cycle.context,
+    return freezeDecisionWithContext(cycle.context, {
       kind: "cancel-pending",
-      taskIds: pendingTaskIds ?? cycle.state.pendingTasks.map((task) => task.id),
+      taskIds: pendingTaskIds ?? taskIdsForCore(cycle.admissionCore, "pending"),
       trigger: Object.freeze({ kind: "cancellation-observed" })
     });
   }
-  if (cycle.state.pendingTasks.length === 0 && cycle.state.runningTaskIds.length === 0) {
-    return freezeDecision({
-      ...cycle.context,
+  const runningTaskCount = cycle.admissionCore.selection.runningTotal;
+  const pendingTaskCount = cycle.admissionCore.selection.remainingTaskCount - runningTaskCount;
+  if (pendingTaskCount === 0 && runningTaskCount === 0) {
+    return freezeDecisionWithContext(cycle.context, {
       cancelled: runtime.isCancelled,
       kind: "complete",
       trigger: cycle.trigger
     });
   }
   if (runtime.isCancelled) {
-    if (cycle.state.pendingTasks.length > 0) {
+    if (pendingTaskCount > 0) {
       throw new Error("cancelled scheduler state retains pending tasks");
     }
-    return cancellationDrainDecision(cycle);
+    return awaitDrainDecision(cycle);
   }
-  if (cycle.state.pendingTasks.length === 0) return runningDrainDecision(cycle);
+  if (pendingTaskCount === 0) return awaitDrainDecision(cycle);
   return undefined;
 }
 
-function cancellationDrainDecision(cycle: SchedulerDecisionCycle): SchedulerDecision {
-  return awaitDrainDecision(cycle);
-}
-
-function runningDrainDecision(cycle: SchedulerDecisionCycle): SchedulerDecision {
-  return awaitDrainDecision(cycle);
-}
-
 function awaitDrainDecision(cycle: SchedulerDecisionCycle): SchedulerDecision {
-  return freezeDecision({
-    ...cycle.context,
+  return freezeDecisionWithContext(cycle.context, {
     candidates: Object.freeze([]),
     eligibleCount: 0,
     hardGuard: Object.freeze({ kind: "wait", runningCanDrain: true }),

@@ -5,7 +5,7 @@ import type {
   AdmissionSelectionPolicy
 } from "./admission-selection-policy.ts";
 import {
-  freezeDecision,
+  freezeDecisionWithContext,
   type SchedulerAdmissionCandidateFact,
   type SchedulerAdmissionHardGuard,
   type SchedulerDecision,
@@ -26,6 +26,7 @@ export interface SchedulerDecisionCycle {
   /** Invoked immediately before the private policy seam enters a custom callback. */
   readonly measurement?: () => AdmissionPolicyContext["measurement"];
   readonly state: SchedulerInspection;
+  readonly runtime: Pick<SchedulerInspection, "isAbortRequested" | "isCancelled">;
   readonly trigger: SchedulerTrigger;
 }
 
@@ -38,10 +39,13 @@ export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecisio
     cycle.policy.decide(
       Object.freeze({
         admissionCore: cycle.admissionCore,
+        runtime: cycle.runtime,
         candidates,
-        graph: cycle.state.graph,
+        graph: cycle.admissionCore.compiled.graph,
         graphSnapshot: cycle.context.graphIdentity,
-        inspection: cycle.state,
+        get inspection() {
+          return cycle.state;
+        },
         ...(measurement === undefined ? {} : { measurement })
       })
     )
@@ -63,18 +67,21 @@ function admitDecision(
   if (!candidate.canAdmit) {
     throw new AdmissionPolicyFault("capacity-invalid-select");
   }
-  return freezeDecision({
-    ...cycle.context,
-    admissionPriority: candidate.task.admissionPriority,
-    candidates: candidateFacts(candidates),
-    eligibleCount: candidates.length,
-    hardGuard: selectHardGuard(candidate.task.id),
-    kind: "admit",
-    proposal: result,
-    scopeToActivate: scopeToActivateForCore(cycle.admissionCore, candidate.task.id),
-    taskId: candidate.task.id,
-    trigger: cycle.trigger
-  });
+  return freezeDecisionWithContext(
+    cycle.context,
+    {
+      admissionPriority: candidate.task.admissionPriority,
+      candidates: Object.freeze([]),
+      eligibleCount: candidates.length,
+      hardGuard: selectHardGuard(candidate.task.id),
+      kind: "admit",
+      proposal: result,
+      scopeToActivate: scopeToActivateForCore(cycle.admissionCore, candidate.task.id),
+      taskId: candidate.task.id,
+      trigger: cycle.trigger
+    },
+    () => candidateFacts(candidates)
+  );
 }
 
 function awaitDecision(
@@ -82,18 +89,21 @@ function awaitDecision(
   candidates: readonly AdmissionCandidate[],
   proposal: AdmissionPolicyDecision | null = null
 ): SchedulerDecision {
-  if (cycle.state.runningTaskIds.length === 0) {
+  if (cycle.admissionCore.selection.runningTotal === 0) {
     throw new AdmissionPolicyFault("undrainable-wait");
   }
-  return freezeDecision({
-    ...cycle.context,
-    candidates: candidateFacts(candidates),
-    eligibleCount: candidates.length,
-    hardGuard: waitHardGuard(),
-    kind: "await-running",
-    proposal,
-    trigger: cycle.trigger
-  });
+  return freezeDecisionWithContext(
+    cycle.context,
+    {
+      candidates: Object.freeze([]),
+      eligibleCount: candidates.length,
+      hardGuard: waitHardGuard(),
+      kind: "await-running",
+      proposal,
+      trigger: cycle.trigger
+    },
+    () => candidateFacts(candidates)
+  );
 }
 
 function candidateFacts(

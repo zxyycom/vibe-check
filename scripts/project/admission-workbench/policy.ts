@@ -3,6 +3,7 @@ import {
   type AdmissionPolicy,
   type AdmissionPolicyContext,
   type AdmissionProposal,
+  type CustomAdmissionPreparationContext,
   type SchedulerGraphSnapshot
 } from "@zxyycom/vibe-check";
 
@@ -16,6 +17,23 @@ import type { PolicyRegistryId } from "./scenario.ts";
 
 export type DecisionPolicy = (context: AdmissionPolicyContext) => AdmissionProposal;
 export type LearnedStrategyFactory = typeof createLearnedCriticalPathStrategy;
+
+/** Fixed registry/fixture adapter inputs; not an arbitrary public callback-slot interpreter. */
+type FunctionValuedPolicy =
+  | Extract<AdmissionPolicy, { readonly kind: "static" }>
+  | Readonly<{
+      readonly kind: "custom";
+      readonly strategy:
+        | Readonly<{ readonly kind: "simple"; readonly decide: DecisionPolicy }>
+        | Readonly<{
+            readonly kind: "prepared";
+            readonly prepare: (
+              context: CustomAdmissionPreparationContext
+            ) =>
+              | Readonly<{ readonly decide: DecisionPolicy }>
+              | Promise<Readonly<{ readonly decide: DecisionPolicy }>>;
+          }>;
+    }>;
 
 export interface PolicyIdentity {
   readonly expectedFallbackType: "cold-start" | "none";
@@ -103,9 +121,9 @@ export function registeredPolicyIdentity(policyId: PolicyRegistryId): PolicyIden
     : learnedIdentity(REGISTERED_LEARNED_FIXTURE);
 }
 
-/** Adapts only the public AdmissionPolicy grammar and calls prepared `prepare` exactly once. */
+/** Adapts function-valued registry/fixtures and calls prepared `prepare` exactly once. */
 export async function preparePolicyDefinition(
-  policy: AdmissionPolicy,
+  policy: FunctionValuedPolicy,
   identity: PolicyIdentity,
   graph?: SchedulerGraphSnapshot
 ): Promise<PreparedPolicyHandle> {

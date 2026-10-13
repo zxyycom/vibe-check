@@ -1,3 +1,4 @@
+import { isFullTerminalContext } from "../task-scheduler/scheduler-terminal-context.ts";
 import type { CheckProjectContext } from "../../check/check.ts";
 import type { CheckAggregation } from "../controls/contract.ts";
 import { createAdmissionStrategyProvider } from "../admission-strategy-provider/provider.ts";
@@ -70,7 +71,7 @@ async function executePreparedInvocation(
   const executionStartedAt = invocation.clock.now();
   const executed = await executeScheduler({ invocation, prepared, preparedStrategy, project });
   if (isExecutionRunResult(executed)) return executed;
-  await completeAdmissionStrategyAfterTerminalMeasurement(
+  await completeAdmissionStrategyAfterTerminalDelivery(
     preparedStrategy,
     executed,
     invocation.outputs
@@ -97,27 +98,37 @@ async function prepareAdmissionStrategy(
   return provider.prepare();
 }
 
-/** The prepared provider closes only after Scheduler terminal measurement and Hooks have settled. */
-async function completeAdmissionStrategyAfterTerminalMeasurement(
+/** Scheduler 已排空且通用终态 effects 已交付后关闭 provider；终态 context 不要求包含 measurement。 */
+async function completeAdmissionStrategyAfterTerminalDelivery(
   preparedStrategy: PreparedAdmissionStrategy,
   executed: ResolvedCheckExecution,
   outputs: OutputStatuses
 ): Promise<void> {
-  const terminalMeasurement = executed.terminalSchedulerMeasurement;
-  if (terminalMeasurement === undefined) return;
+  const terminalContext = executed.terminalSchedulerContext;
+  if (terminalContext === undefined) return;
   switch (preparedStrategy.completion.kind) {
     case "none":
       return;
     case "internal":
       try {
-        await preparedStrategy.completion.complete(Object.freeze({ terminalMeasurement }));
+        if (!isFullTerminalContext(terminalContext))
+          throw new Error("internal completion requires full terminal context");
+        await preparedStrategy.completion.complete(
+          Object.freeze({ terminalMeasurement: terminalContext })
+        );
       } catch {
         // Private learned lifecycle cannot revise sealed execution or public output facts.
       }
       return;
     case "terminal-effect":
       try {
-        await preparedStrategy.completion.terminalEffect(terminalMeasurement);
+        if (typeof preparedStrategy.completion.terminalEffect === "function") {
+          if (!isFullTerminalContext(terminalContext))
+            throw new Error("legacy private completion requires full terminal context");
+          await preparedStrategy.completion.terminalEffect(terminalContext);
+        } else {
+          await preparedStrategy.completion.terminalEffect.invoke(terminalContext);
+        }
         outputs.succeeded("terminalEffects");
       } catch {
         outputs.failed("terminalEffects");

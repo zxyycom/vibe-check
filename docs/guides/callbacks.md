@@ -8,18 +8,21 @@
 
 ```text
 Definition / Controls validation
-→ effective flag selection
-→ static graph and admission-strategy preparation
+→ pre-work cancellation check
+→ static graph preparation and validation
+→ Git Project facts (when configured)
+→ admission-strategy preparation
+→ effective flag-control selection
 → Scheduler admission
   → admitted Check: prepare → execute → settle
-→ sealed Scheduler measurement
+→ drained / sealed Scheduler terminal boundary
   → internal summary → terminalEffects[] → prepared terminalEffect
 → effective Check aggregation
 → Run result and output closure
 → Project Gate initial result → resultContributor → exit/transcript
 ```
 
-早期取消、无效图和策略准备失败不会形成 sealed terminal measurement。Check `prepare` 只在该 Check 获准入后运行；它不是 invocation-wide hook。
+早期取消、无效图和策略准备失败不会形成 sealed terminal context。Check `prepare` 只在该 Check 获准入后运行；它不是 invocation-wide hook。
 
 ## Product Check
 
@@ -48,7 +51,7 @@ const check = defineCheck({
 
 | 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
 | --- | --- | --- | --- |
-| Project facts 准备 | **相邻 Change** | `add-project-change-flags` 拥有选择前 Project facts；本 Change 不建立 callback。 | Project Definition owner |
+| Project facts 准备 | **当前内部**：配置 `changes` 后的 Git facts acquisition | static graph 有效后、策略准备和有效选择前取得本次 Project facts；由 Product 执行，不是公开 callback。 | [API 机制](../api-mechanics.md#按文件变化选择-check)；Project Run owner |
 | 有效选择完成 | **当前内部**：`InvocationLifecycle.selectionSettled()` | 所有 flag-control settlements 被接受后、Scheduler graph run 前一次；与逐 Check 生命周期分离。 | Project Run owner |
 | 批量有效输入准备 | **相邻 Change** | `batch-declared-project-file-inputs` 拥有选择后的输入屏障。 | Project Run owner |
 | 有效 Check 汇总 | **当前公开**：`RunControls.checkAggregation(checks)` | 完整结算后至多一次；接收只读、canonical-order 的有效 `CoreCheck[]`，必须同步返回四态。省略时 Product strict-all；throw、Promise 或非法返回直接拒绝 `run`，不是 `RunResult` hook。 | [API 机制](../api-mechanics.md#runcontrols-与-check-aggregation) |
@@ -57,15 +60,23 @@ const check = defineCheck({
 
 | 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
 | --- | --- | --- | --- |
-| 策略准备 | **当前公开**：prepared strategy `prepare(context)` | static graph 有效后至多一次，返回 `decide` 和可选 `terminalEffect`。 | [调度 Check](scheduling.md) |
-| 准入决策 | **当前公开**：simple/prepared `.decide(context)` | 每个 decision boundary 同步提出 select/wait；Scheduler 验证并转换状态。 | Scheduler |
+| 策略准备 | **当前公开**：prepared strategy `prepare`（function 或 descriptor） | static graph 有效后至多一次，返回 `decide` 和可选 `terminalEffect`。 | [调度 Check](scheduling.md) |
+| 准入决策 | **当前公开**：simple/prepared `.decide`（function 或 descriptor） | 每个 decision boundary 同步提出 select/wait；Scheduler 验证并转换状态。 | Scheduler |
 | accepted action 测量 | **当前内部**：private collector | accepted transition 后记录，下一次 decide 只读取冻结 prefix。 | Scheduler owner |
 | 终态摘要 | **当前内部**：summary participant | sealed context 后最先运行并自行 contain writer failure。 | Scheduler owner |
 | 终态作用 | **当前公开**：`scheduler.terminalEffects[]` | internal summary 后依声明顺序 await；任一失败不阻止后续作用。 | [调度 Check](scheduling.md) |
 | prepared 策略终态作用 | **当前公开**：prepared `terminalEffect` | public effects 后、sealed context 存在时至多一次；与数组共享 `outputs.terminalEffects`。 | Scheduler owner |
 | 必达资源释放 | **逻辑保留** | 没有当前公开消费者；terminalEffect 不是 `finally`。 | future Change |
 
-terminal effect 可读取冻结 `SchedulerMeasurementContext`，不能修改 Scheduler 或 Check 结果。任一公开或 prepared effect 失败会使 `outputs.terminalEffects` 为 failed；正常 completed Run 映射为 `kind: "output"` / `scheduler-terminal-effects-failed`，取消或其它 primary failure 保持原结果。
+Scheduler 的 `prepare`、`decide`、Definition `terminalEffects[]` 与 prepared `terminalEffect` 槽位都接受 function
+或 `{ contextNeeds?, callback }`。function 提供完整 context；descriptor 声明阶段字段，类型化编写使用
+`defineSchedulerContextCallback(...)`。字段、同阶段共享对象与 full/none 规则由
+[调度指南](scheduling.md#声明-callback-的-context-需求)完整定义；适用范围限于这些 Scheduler 槽位。
+
+terminal effect 在 drain 并 seal 后读取同阶段共享的冻结 context；function 获得完整 `SchedulerMeasurementContext`，
+descriptor 保证声明字段。none、graph/execution-only effect 同样依序调用，交付不要求 `rawMeasurement`。
+effect 不能修改 Scheduler 或 Check 结果；任一公开或 prepared effect 失败会使 `outputs.terminalEffects` 为 failed。
+正常 completed Run 映射为 `kind: "output"` / `scheduler-terminal-effects-failed`，取消或其它 primary failure 保持原结果。
 
 ## Run output
 
@@ -79,11 +90,12 @@ terminal effect 可读取冻结 `SchedulerMeasurementContext`，不能修改 Sch
 
 | 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
 | --- | --- | --- | --- |
-| Gate 结果贡献 | **当前 Project**：`PROJECT_GATE_RUN_CONFIG.resultContributor(context)` | exact candidate Run 形成 `initialResult` 后至多一次；只能返回已验证 message list。 | Project Gate |
-| Gate 结果决定 | **当前内部**：initial result → contribution → exit mapper | adapter 追加 messages、原样保留 initial status；throw 或非法列表为 unavailable。 | Project Gate owner |
+| Gate 结果贡献 | **当前 Project**：`PROJECT_GATE_RUN_CONFIG.resultContributor(context)` | exact candidate Run 形成 `initialResult` 后至多一次；返回闭合的 `{ blocks, messages }`。 | Project Gate |
+| Gate 结果决定 | **当前内部**：initial result → contribution → exit mapper | adapter 追加 messages；`blocks` 可将 passed 降为 failed，其它初步状态保留；throw 或非法贡献为 unavailable。 | Project Gate owner |
 | transcript 完成 | **当前内部**：`ProjectGateTranscript.complete` | final result 与 exit 已确定后写入一次；失败 fail closed。 | Project Gate owner |
 
-`resultContributor` 不是 package API、插件系统或完整结果 transform。它能读 `initialResult`、selection、candidate、timing 与 Run facts，但不能重写 status。
+`resultContributor` 是 Project Gate 自有的结果处理入口。它能读 `initialResult`、selection、candidate、timing 与 Run facts，
+通过 `blocks` 声明阻断并追加 messages；Product facts 和 RunResult 保持不变。它不是 package API 或完整结果 transform。
 
 ## 精确契约
 

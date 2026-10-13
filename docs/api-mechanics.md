@@ -73,9 +73,10 @@ prepared strategy 的 `prepare / decide / terminalEffect` 顺序、失败与取�
 - `defineCheck(value)` 保留 literal `checkId`、options、typed-provider parser 和 `handoff: true` 的 TypeScript inference。它与同 shape 普通 Check object 具有相同 runtime 语义。
 - `defineConfig(value)` 形成带默认 `apiVersion`、outputs 和 scheduler policy 的 Project Definition；可选 `changes` 声明 Git comparison 与 change-flag regions。
 - `defineAdmissionPolicy(value)` 只保留 closed admission policy literal、特别是 custom strategy 的 inference；它与同形 inline policy value 等价。
+- `defineSchedulerContextCallback(phase, descriptor)` 保留 Scheduler 阶段与所声明字段的 TypeScript inference；不执行 callback，不能替代 Definition 或 prepared-result validation。槽位与需求语义见[调度指南](guides/scheduling.md#声明-callback-的-context-需求)。
 - `run(definition, controls?)` 拥有 invocation validation 与 normalization：它关闭递归 Check grammar，detach / canonicalize authored options，并形成 declarative snapshot 与 fingerprint。
 
-fingerprint 使用 normalized declarative fields；preparation、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static` 与 `custom`，且不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
+fingerprint 使用 normalized declarative fields；preparation、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static` 与 `custom`，且不包含 callback identity、source、closure 或 `contextNeeds`。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
 
 ## 随包 Check 的构造器项目声明
 

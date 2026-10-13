@@ -1,3 +1,4 @@
+import { snapshotSchedulerContextCallback } from "./scheduler-context-validation.ts";
 import {
   resolveCheckTree,
   type ResolvedCheckTreeLeaf,
@@ -292,13 +293,32 @@ function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
   } else {
     admissionPolicy = Object.freeze({
       kind: "custom" as const,
-      strategy: Object.freeze({ ...policy.admissionPolicy.strategy })
+      strategy: normalizeCustomStrategy(policy.admissionPolicy.strategy)
     });
   }
   return Object.freeze({
     admissionPolicy,
     maxParallel: policy.maxParallel,
-    terminalEffects: Object.freeze([...policy.terminalEffects]),
+    terminalEffects: Object.freeze(
+      policy.terminalEffects.map((value) => {
+        const effect = snapshotSchedulerContextCallback("terminal", value);
+        if (effect === undefined) throw new TypeError("invalid scheduler terminal effect");
+        return effect;
+      })
+    ),
     resourceCapacities
   });
+}
+
+function normalizeCustomStrategy(
+  strategy: import("./scheduler-policy.ts").CustomAdmissionStrategy
+): import("./scheduler-policy.ts").CustomAdmissionStrategy {
+  if (strategy.kind === "simple") {
+    const decide = snapshotSchedulerContextCallback("decision", strategy.decide);
+    if (decide === undefined) throw new TypeError("invalid scheduler decision callback");
+    return Object.freeze({ kind: "simple", decide });
+  }
+  const prepare = snapshotSchedulerContextCallback("preparation", strategy.prepare);
+  if (prepare === undefined) throw new TypeError("invalid scheduler preparation callback");
+  return Object.freeze({ kind: "prepared", prepare });
 }

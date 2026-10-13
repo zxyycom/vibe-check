@@ -1,6 +1,7 @@
 import type {
   AdmissionPolicyContext,
-  AdmissionProposal
+  AdmissionProposal,
+  PreparedCustomAdmissionStrategy
 } from "../../project-definition/project-definition.ts";
 import type {
   AdmissionPolicyInput,
@@ -10,26 +11,38 @@ import {
   AdmissionPolicyFault,
   type AdmissionPolicyFaultCategory
 } from "./scheduler-admission-decision.ts";
-import { capacityFor } from "./scheduler-decision-inspection.ts";
+import {
+  capacityForCore,
+  activeScopeIdsForCore,
+  taskIdsForCore
+} from "./admission-core/scheduler-queries.ts";
+import {
+  normalizeSchedulerContextCallback,
+  type NormalizedSchedulerContextCallback
+} from "../../project-definition/scheduler-context-validation.ts";
 import { admissionStateForCore } from "./admission-core/core.ts";
 
 /** Adapts the public, trusted callback to the Scheduler's private pure policy seam. */
 export function admissionSelectionPolicyFor(
-  decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal
+  decide: PreparedCustomAdmissionStrategy["decide"]
 ): AdmissionSelectionPolicy {
+  const consumer = normalizeSchedulerContextCallback("decision", decide);
+  if (consumer === undefined) throw new TypeError("invalid custom scheduler decision callback");
   return Object.freeze({
-    requiresMeasurement: true,
-    decide: (input: AdmissionPolicyInput) => invokeCustomPolicy(decide, input)
+    ...(consumer.contextNeeds.includes("measurement")
+      ? { requiresMeasurement: true as const }
+      : {}),
+    decide: (input: AdmissionPolicyInput) => invokeCustomPolicy(consumer, input)
   });
 }
 
 function invokeCustomPolicy(
-  decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal,
+  consumer: NormalizedSchedulerContextCallback<"decision">,
   input: AdmissionPolicyInput
 ): AdmissionProposal {
   let proposal: unknown;
   try {
-    proposal = decide(admissionPolicyContext(input));
+    proposal = consumer.invoke(admissionPolicyContext(input, consumer.contextNeeds));
   } catch {
     throw new AdmissionPolicyFault("callback-threw");
   }
@@ -37,26 +50,53 @@ function invokeCustomPolicy(
   return validateProposal(proposal);
 }
 
-function admissionPolicyContext(input: AdmissionPolicyInput): AdmissionPolicyContext {
-  if (input.measurement === undefined)
-    throw new Error("custom admission policy requires measurement");
-  return deepFreeze({
-    activeScopeIds: [...input.inspection.activeScopeIds],
-    admissionState: admissionStateForCore(input.admissionCore),
-    candidates: input.candidates.map((candidate) => ({
-      canAdmit: candidate.canAdmit,
-      taskId: candidate.task.id
-    })),
-    capacity: capacityFor(input.inspection),
-    measurement: input.measurement,
-    graph: input.graphSnapshot,
-    runningTaskIds: [...input.inspection.runningTaskIds],
-    runtime: {
-      abortRequested: input.inspection.isAbortRequested,
-      cancelled: input.inspection.isCancelled
-    },
-    settledTaskIds: input.inspection.settledTasks.map((task) => task.taskId)
-  });
+function admissionPolicyContext(
+  input: AdmissionPolicyInput,
+  needs: readonly (keyof AdmissionPolicyContext)[]
+): Readonly<Partial<AdmissionPolicyContext>> {
+  const core = input.admissionCore;
+  const context: { -readonly [K in keyof AdmissionPolicyContext]?: AdmissionPolicyContext[K] } = {};
+  for (const key of needs) {
+    switch (key) {
+      case "activeScopeIds":
+        context.activeScopeIds = activeScopeIdsForCore(core);
+        break;
+      case "admissionState":
+        context.admissionState = admissionStateForCore(core);
+        break;
+      case "candidates":
+        context.candidates = Object.freeze(
+          input.candidates.map((candidate) =>
+            Object.freeze({ canAdmit: candidate.canAdmit, taskId: candidate.task.id })
+          )
+        );
+        break;
+      case "capacity":
+        context.capacity = capacityForCore(core);
+        break;
+      case "graph":
+        context.graph = input.graphSnapshot;
+        break;
+      case "measurement":
+        if (input.measurement === undefined)
+          throw new Error("custom admission policy requires measurement");
+        context.measurement = input.measurement;
+        break;
+      case "runningTaskIds":
+        context.runningTaskIds = taskIdsForCore(core, "running");
+        break;
+      case "settledTaskIds":
+        context.settledTaskIds = taskIdsForCore(core, "settled");
+        break;
+      case "runtime":
+        context.runtime = Object.freeze({
+          abortRequested: input.runtime.isAbortRequested,
+          cancelled: input.runtime.isCancelled
+        });
+        break;
+    }
+  }
+  return Object.freeze(context);
 }
 
 function validateProposal(value: unknown): AdmissionProposal {
@@ -117,12 +157,6 @@ function isThenable(value: unknown): boolean {
   } catch {
     return true;
   }
-}
-
-function deepFreeze<T>(value: T): T {
-  if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value;
-  for (const item of Object.values(value)) deepFreeze(item);
-  return Object.freeze(value);
 }
 
 export type { AdmissionPolicyFaultCategory };

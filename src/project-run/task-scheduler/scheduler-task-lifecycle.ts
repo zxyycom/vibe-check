@@ -35,6 +35,7 @@ export function applyAdmission<TResult>(
     .then((value) => completedTaskCompletion(task.id, value, state.isPrerequisiteSatisfied))
     .catch((error: unknown) => failedTaskCompletion<TResult>(task.id, error));
   state.runningById.set(task.id, { task, completion });
+  state.admissionFacts?.recordAdmission(task.id);
 }
 
 export function applyBlockedSettlement<TResult>(

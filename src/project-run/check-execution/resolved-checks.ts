@@ -1,6 +1,7 @@
 import type { CheckMessage, CheckProjectContext } from "../../check/check.ts";
 import type {
   NormalizedCheck,
+  SchedulerMeasurementContext,
   SchedulerTerminalEffect
 } from "../../project-definition/project-definition.ts";
 import type { ResourceUnitMapping } from "../../project-definition/resource-unit-mapping.ts";
@@ -49,9 +50,12 @@ export type ResolvedCheckExecutionInput = Readonly<{
   readonly diagnosticLogger?: DiagnosticLogger;
   /** Scheduler-owner decision and summary channel. */
   readonly schedulerDiagnosticLogger?: DiagnosticLogger;
+  /** Explicit Invocation switch; false prevents the legacy direct-execution logger fallback. */
+  readonly schedulerDiagnosticLoggingEnabled?: boolean;
   /** Explicit enabled-only diagnostics handoff from the invocation output owner. */
   readonly schedulerPerformanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
   readonly schedulerTerminalEffects?: readonly SchedulerTerminalEffect[];
+  readonly schedulerTerminalContextNeeds?: readonly (keyof SchedulerMeasurementContext)[];
   readonly onSchedulerTerminalEffectFailure?: () => void;
   readonly onSchedulerTerminalEffectsSettled?: () => void;
   readonly checkLifecycle?: CheckExecutionLifecycle;

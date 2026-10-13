@@ -1,5 +1,5 @@
 import type { CoreSnapshot } from "../../check-settlement/facts.ts";
-import type { SchedulerMeasurementContext } from "../../project-definition/project-definition.ts";
+import type { SealedSchedulerTerminalContext } from "../task-scheduler/scheduler-terminal-context.ts";
 import type { CheckDuration, CheckRunMessage } from "../result.ts";
 
 type ResolvedCheckExecutionFacts = Readonly<{
@@ -7,7 +7,7 @@ type ResolvedCheckExecutionFacts = Readonly<{
   readonly checkMessages: readonly CheckRunMessage[];
   readonly snapshot: CoreSnapshot;
   /** Product-private terminal Scheduler facts; never projected into RunResult. */
-  readonly terminalSchedulerMeasurement?: SchedulerMeasurementContext;
+  readonly terminalSchedulerContext?: SealedSchedulerTerminalContext;
 }>;
 
 /** Private terminal result passed from Check execution to the invocation boundary. */

@@ -31,6 +31,7 @@ export function observeSchedulerDecision<TResult>(
   decision: SchedulerDecision,
   diagnostics: SchedulerPerformanceDiagnostics | undefined
 ): void {
+  if (state.diagnosticLogger === undefined) return;
   const observation: DiagnosticObservation = {
     event: "scheduler.decision",
     tags: schedulerDecisionTags(decision),
@@ -45,6 +46,7 @@ export function observeSchedulerDecision<TResult>(
 
 /** One immutable graph record makes the enclosing scheduler channel the self-contained evidence unit. */
 export function observeSchedulerGraph<TResult>(state: SchedulerState<TResult>): void {
+  if (state.diagnosticLogger === undefined) return;
   const graph = state.graph.schedulerGraphSnapshot;
   observeSchedulerDiagnostic(state, {
     event: "scheduler.graph",

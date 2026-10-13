@@ -1,4 +1,3 @@
-import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
 import { prepareExecutableTaskGraph, type ExecutableTaskGraph } from "./graph.ts";
 import {
   decideSchedulerFromCore,
@@ -6,7 +5,6 @@ import {
   type SchedulerTrigger
 } from "./scheduler-decision.ts";
 import {
-  createSchedulerState,
   type RunTaskGraphOptions,
   type SchedulerState,
   type TaskGraphRun
@@ -20,14 +18,16 @@ export type {
 } from "./execution-state.ts";
 import { AdmissionPolicyFault } from "./scheduler-admission-decision.ts";
 import { replayCoreForcedBlocks } from "./forced-block-effect-replay.ts";
-import { SchedulerPerformanceDiagnostics } from "./measurement/diagnostics.ts";
 import {
   observeAdmissionPolicyFault,
   observeSchedulerDecision,
-  observeSchedulerGraph,
   performanceState
 } from "./scheduler-observation.ts";
 import { observeTerminalMeasurement } from "./scheduler-terminal-measurement.ts";
+import {
+  createObservedSchedulerState,
+  decisionBoundaryMeasurement
+} from "./scheduler-observation-setup.ts";
 import {
   applyAdmission,
   applyAdmissionPolicyFault,
@@ -64,22 +64,10 @@ export async function runPreparedTaskGraph<TResult>(
   prepared: ExecutableTaskGraph,
   input: PreparedTaskGraphRunOptions<TResult>
 ): Promise<TaskGraphRun<TResult>> {
-  const graph = prepared.graph;
-  const options = { ...input, maxParallel: prepared.rootMaxParallel };
-  const state = createSchedulerState(graph, options);
-  observeSchedulerGraph(state);
-  const measurementInput =
-    options.performanceDiagnostics ??
-    (state.admissionPolicy.requiresMeasurement === true
-      ? Object.freeze({
-          clock: Object.freeze({ now: () => performance.now() }),
-          declarativeFingerprint: ""
-        })
-      : undefined);
-  const diagnostics =
-    measurementInput === undefined
-      ? undefined
-      : new SchedulerPerformanceDiagnostics(measurementInput, performanceState(state));
+  const { state, options, terminalPlan, diagnostics } = createObservedSchedulerState(
+    prepared,
+    input
+  );
   const initialReconciliation = reconcileAdmissionCore(state.admissionCore);
   replayCoreForcedBlocks(
     state,
@@ -272,14 +260,19 @@ export async function runPreparedTaskGraph<TResult>(
         continue;
       }
       case "complete": {
-        if (diagnostics === undefined) return buildTaskGraphRun(state);
-        const run = diagnostics.measureControlPath(() => buildTaskGraphRun(state));
-        const terminalMeasurement = await observeTerminalMeasurement({
+        const run =
+          diagnostics?.measureControlPath(() => buildTaskGraphRun(state)) ??
+          buildTaskGraphRun(state);
+        const terminalContext = await observeTerminalMeasurement({
+          plan: terminalPlan,
           diagnostics,
           options,
           state
         });
-        return Object.freeze({ ...run, terminalMeasurement });
+        return Object.freeze({
+          ...run,
+          ...(terminalContext === undefined ? {} : { terminalContext })
+        });
       }
     }
   }
@@ -295,13 +288,4 @@ function observeAdmissionCoreEffect<TResult>(
 
 function triggerForInitialReconciliation(): SchedulerTrigger {
   return Object.freeze({ kind: "execution-started" });
-}
-
-function decisionBoundaryMeasurement(
-  diagnostics: SchedulerPerformanceDiagnostics | undefined
-): AdmissionPolicyContext["measurement"] {
-  if (diagnostics === undefined) {
-    throw new Error("custom policy measurement collector is unavailable");
-  }
-  return diagnostics.policyMeasurement();
 }

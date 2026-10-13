@@ -1,3 +1,5 @@
+import { ShellAdmissionFacts } from "./shell-admission-facts.ts";
+import type { SealedSchedulerTerminalContext } from "./scheduler-terminal-context.ts";
 import type {
   SchedulerMeasurementContext,
   SchedulerTerminalEffect
@@ -53,7 +55,7 @@ export interface TaskGraphRun<TResult> {
   /** One entry per static graph Task, in static graph order. */
   readonly settlements: readonly SettledTask<TResult>[];
   /** Product-private terminal facts retained after terminal Hooks have been drained. */
-  readonly terminalMeasurement?: SchedulerMeasurementContext;
+  readonly terminalContext?: SealedSchedulerTerminalContext;
 }
 
 export interface RunTaskGraphOptions<TResult> {
@@ -64,6 +66,9 @@ export interface RunTaskGraphOptions<TResult> {
   readonly performanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
   /** Runtime-only terminal consumers; their context is formed after Scheduler drain. */
   readonly terminalEffects?: readonly SchedulerTerminalEffect[];
+  readonly terminalContextNeeds?: readonly (keyof SchedulerMeasurementContext)[];
+  /** Private production dependency, determined before execution starts. */
+  readonly captureAdmissionFacts?: boolean;
   readonly onTerminalEffectFailure?: () => void;
   readonly onTerminalEffectsSettled?: () => void;
   /** Product-private test observer; no package consumer can supply this through `run`. */
@@ -103,6 +108,7 @@ export interface SchedulerState<TResult> {
   /** The shared immutable legality/transition state; Task and Promise ownership remains below. */
   admissionCore: AdmissionCoreState;
   readonly admissionPolicy: AdmissionSelectionPolicy;
+  readonly admissionFacts: ShellAdmissionFacts | undefined;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly graph: PlannedTaskGraph;
   /** Lazily computed from the immutable graph DTO; retained only for this Scheduler invocation. */
@@ -142,6 +148,7 @@ export function createSchedulerState<TResult>(
   const state: SchedulerState<TResult> = {
     admissionCore: createInitialAdmissionCoreState(compiledAdmissionGraph),
     admissionPolicy,
+    admissionFacts: options.captureAdmissionFacts === true ? new ShellAdmissionFacts() : undefined,
     diagnosticLogger: options.diagnosticLogger,
     graph,
     graphFingerprint: undefined,

@@ -57,7 +57,9 @@ function schedulerOptionsFor(
     execution.checks.map((check) => [check.definition.checkId, check] as const)
   );
   const schedulerDiagnosticLogger =
-    execution.schedulerDiagnosticLogger ?? execution.diagnosticLogger;
+    execution.schedulerDiagnosticLoggingEnabled === false
+      ? undefined
+      : (execution.schedulerDiagnosticLogger ?? execution.diagnosticLogger);
   return {
     ...(execution.admissionPolicy === undefined
       ? {}
@@ -68,6 +70,9 @@ function schedulerOptionsFor(
     ...(execution.schedulerPerformanceDiagnostics === undefined
       ? {}
       : { performanceDiagnostics: execution.schedulerPerformanceDiagnostics }),
+    ...(execution.schedulerTerminalContextNeeds === undefined
+      ? {}
+      : { terminalContextNeeds: execution.schedulerTerminalContextNeeds }),
     ...(execution.schedulerTerminalEffects === undefined
       ? {}
       : { terminalEffects: execution.schedulerTerminalEffects }),

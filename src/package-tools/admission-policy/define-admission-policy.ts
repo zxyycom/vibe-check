@@ -1,6 +1,5 @@
 import type {
   AdmissionPolicy,
-  CustomAdmissionPreparationContext,
   CustomAdmissionStrategy,
   PreparedCustomAdmissionStrategy
 } from "../../project-definition/scheduler-policy.ts";
@@ -18,19 +17,25 @@ type ExactAdmissionPolicy<T extends AdmissionPolicy> =
 
 type ExactCustomAdmissionStrategy<T extends CustomAdmissionStrategy> =
   T extends Readonly<{ readonly kind: "simple" }>
-    ? T & Record<Exclude<keyof T, "kind" | "decide">, never>
+    ? T &
+        Record<Exclude<keyof T, "kind" | "decide">, never> &
+        Readonly<{ readonly decide: ExactSchedulerCallback<T["decide"]> }>
     : T extends Readonly<{ readonly kind: "prepared" }>
       ? T &
           Record<Exclude<keyof T, "kind" | "prepare">, never> &
           Readonly<{ readonly prepare: ExactCustomPreparation<T["prepare"]> }>
       : never;
 
-type ExactCustomPreparation<T> = T extends (
-  this: void,
-  context: CustomAdmissionPreparationContext
-) => infer Result
-  ? (this: void, context: CustomAdmissionPreparationContext) => ExactCustomPreparationResult<Result>
-  : never;
+type ExactSchedulerCallback<T> = T extends (...args: never[]) => unknown
+  ? T
+  : T & Record<Exclude<keyof T, "contextNeeds" | "callback">, never>;
+
+type ExactCustomPreparation<T> = T extends (this: void, context: infer C) => infer R
+  ? T & ((this: void, context: C) => ExactCustomPreparationResult<R>)
+  : T extends { readonly callback: (this: void, context: infer C) => infer R }
+    ? ExactSchedulerCallback<T> &
+        Readonly<{ readonly callback: (this: void, context: C) => ExactCustomPreparationResult<R> }>
+    : never;
 
 type ExactCustomPreparationResult<T> =
   T extends Promise<unknown>
@@ -38,7 +43,12 @@ type ExactCustomPreparationResult<T> =
     : ExactPreparedCustomAdmissionStrategy<T>;
 
 type ExactPreparedCustomAdmissionStrategy<T> = T extends PreparedCustomAdmissionStrategy
-  ? T & Record<Exclude<keyof T, "decide" | "terminalEffect">, never>
+  ? T &
+      Record<Exclude<keyof T, "decide" | "terminalEffect">, never> &
+      Readonly<{ readonly decide: ExactSchedulerCallback<T["decide"]> }> &
+      (T extends { readonly terminalEffect: infer E }
+        ? Readonly<{ readonly terminalEffect: ExactSchedulerCallback<E> }>
+        : unknown)
   : never;
 
 /**

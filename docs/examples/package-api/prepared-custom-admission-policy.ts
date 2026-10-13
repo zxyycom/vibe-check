@@ -1,5 +1,11 @@
 // #region package-api-example:prepared-custom-admission-policy
-import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import {
+  defineAdmissionPolicy,
+  defineCheck,
+  defineConfig,
+  defineSchedulerContextCallback,
+  run
+} from "@zxyycom/vibe-check";
 
 let settledTaskCount: number | null = null;
 
@@ -15,23 +21,35 @@ const strategy = defineAdmissionPolicy({
   kind: "custom",
   strategy: {
     kind: "prepared",
-    async prepare() {
-      // 模拟异步读取调用方自己的配置，并将其捕获在本 Run 的 closure 中。
-      const preferredTaskId = await Promise.resolve("second");
-      return {
-        decide(context) {
-          const next = context.candidates.find(
-            ({ canAdmit, taskId }) => canAdmit && taskId === preferredTaskId
-          ) ?? context.candidates.find(({ canAdmit }) => canAdmit);
-          return next === undefined
-            ? { kind: "wait" as const }
-            : { kind: "select" as const, taskId: next.taskId };
-        },
-        terminalEffect(terminal) {
-          settledTaskCount = terminal.execution.settledTasks.length;
-        }
-      };
-    }
+    prepare: defineSchedulerContextCallback("preparation", {
+      contextNeeds: [],
+      async callback() {
+        // 模拟异步读取调用方自己的配置，并将其捕获在本 Run 的 closure 中。
+        const preferredTaskId = await Promise.resolve("second");
+        return {
+          decide: defineSchedulerContextCallback("decision", {
+            contextNeeds: ["candidates", "runtime"],
+            callback(context) {
+              if (context.runtime.abortRequested || context.runtime.cancelled) {
+                return { kind: "wait" };
+              }
+              const next = context.candidates.find(
+                ({ canAdmit, taskId }) => canAdmit && taskId === preferredTaskId
+              ) ?? context.candidates.find(({ canAdmit }) => canAdmit);
+              return next === undefined
+                ? { kind: "wait" }
+                : { kind: "select", taskId: next.taskId };
+            }
+          }),
+          terminalEffect: defineSchedulerContextCallback("terminal", {
+            contextNeeds: ["execution"],
+            callback(terminal) {
+              settledTaskCount = terminal.execution.settledTasks.length;
+            }
+          })
+        };
+      }
+    })
   }
 });
 
@@ -47,6 +65,6 @@ const definition = defineConfig({
 
 const result = await run(definition);
 if (result.kind !== "completed" || settledTaskCount !== 2) {
-  throw new Error("Expected a completed Run and terminal measurement for both Checks");
+  throw new Error("Expected a completed Run and terminal execution facts for both Checks");
 }
 // #endregion package-api-example:prepared-custom-admission-policy

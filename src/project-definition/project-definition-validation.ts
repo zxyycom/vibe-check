@@ -1,3 +1,4 @@
+import { snapshotSchedulerContextCallback } from "./scheduler-context-validation.ts";
 import { resolveParsedCheckTree, type ResolvedCheckTree } from "./check-tree/resolution.ts";
 import { parseCheckTreeAuthoring, type ParsedCheckTree } from "./check-tree/authoring.ts";
 import { materializeCheckTreeAuthoring } from "./check-tree/materialization.ts";
@@ -222,17 +223,15 @@ function positiveSafeInteger(value: unknown): number | undefined {
 
 function parseTerminalEffects(value: unknown): readonly SchedulerTerminalEffect[] | undefined {
   if (value === undefined) return Object.freeze([]);
-  if (!Array.isArray(value)) return undefined;
-  const hooks: SchedulerTerminalEffect[] = [];
-  for (const hook of value) {
-    if (!isTerminalEffect(hook)) return undefined;
-    hooks.push(hook);
+  const values = snapshotClosedArray(value);
+  if (values === undefined) return undefined;
+  const effects: SchedulerTerminalEffect[] = [];
+  for (const item of values) {
+    const effect = snapshotSchedulerContextCallback("terminal", item);
+    if (effect === undefined) return undefined;
+    effects.push(effect);
   }
-  return Object.freeze(hooks);
-}
-
-function isTerminalEffect(value: unknown): value is SchedulerTerminalEffect {
-  return typeof value === "function";
+  return Object.freeze(effects);
 }
 
 function parseAdmissionPolicy(value: unknown): AdmissionPolicy | undefined {
@@ -266,27 +265,17 @@ function parseCustomAdmissionStrategy(value: unknown): CustomAdmissionStrategy |
   if (strategy === undefined || typeof strategy.kind !== "string") return undefined;
   if (strategy.kind === "simple") {
     if (!hasExactKeys(strategy, ["kind", "decide"])) return undefined;
-    if (!isSimpleCustomDecision(strategy.decide)) return undefined;
-    return Object.freeze({ kind: "simple" as const, decide: strategy.decide });
+    const decide = snapshotSchedulerContextCallback("decision", strategy.decide);
+    return decide === undefined ? undefined : Object.freeze({ kind: "simple" as const, decide });
   }
   if (strategy.kind === "prepared") {
     if (!hasExactKeys(strategy, ["kind", "prepare"])) return undefined;
-    if (!isPreparedCustomPreparation(strategy.prepare)) return undefined;
-    return Object.freeze({ kind: "prepared" as const, prepare: strategy.prepare });
+    const prepare = snapshotSchedulerContextCallback("preparation", strategy.prepare);
+    return prepare === undefined
+      ? undefined
+      : Object.freeze({ kind: "prepared" as const, prepare });
   }
   return undefined;
-}
-
-function isSimpleCustomDecision(
-  value: unknown
-): value is Extract<CustomAdmissionStrategy, { readonly kind: "simple" }>["decide"] {
-  return typeof value === "function";
-}
-
-function isPreparedCustomPreparation(
-  value: unknown
-): value is Extract<CustomAdmissionStrategy, { readonly kind: "prepared" }>["prepare"] {
-  return typeof value === "function";
 }
 
 function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {

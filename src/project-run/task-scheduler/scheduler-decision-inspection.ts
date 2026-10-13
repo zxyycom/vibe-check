@@ -1,3 +1,5 @@
+import { capacityForCore } from "./admission-core/scheduler-queries.ts";
+import type { AdmissionCoreState } from "./admission-core/core.ts";
 import type { PlannedTask, PlannedTaskGraph } from "./graph.ts";
 import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 import { summarizeSchedulerBlockers } from "./scheduler-blocker-summary.ts";
@@ -46,5 +48,21 @@ export function capacityFor(state: SchedulerInspection): SchedulerCapacity {
     effectiveMaxParallel: state.effectiveMaxParallel,
     maxParallel: state.maxParallel,
     running: state.runningTaskIds.length
+  });
+}
+
+/** Defers diagnostic-only full inspection/blockers; capacity is a thin scalar projection. */
+export function coreDecisionContext(
+  core: AdmissionCoreState,
+  inspection: () => SchedulerInspection
+): SchedulerDecisionContext {
+  let blockers: SchedulerDecisionContext["blockers"] | undefined;
+  const capacity = capacityForCore(core);
+  return Object.freeze({
+    get blockers() {
+      return (blockers ??= summarizeSchedulerBlockers(inspection(), capacity));
+    },
+    capacity,
+    graphIdentity: core.compiled.graph.schedulerGraphSnapshot
   });
 }

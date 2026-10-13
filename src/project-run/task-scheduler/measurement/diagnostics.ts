@@ -1,3 +1,4 @@
+import type { ShellAdmissionFacts } from "../shell-admission-facts.ts";
 import type {
   AdmissionPolicyMeasurement,
   SchedulerDecisionMeasurementCumulative,
@@ -47,14 +48,16 @@ export class SchedulerPerformanceDiagnostics {
   readonly #timing: SchedulerPerformanceTiming;
   #lastSettledTaskId: string | undefined;
   #completionTailActiveTaskIds: readonly string[] = Object.freeze([]);
-  readonly #admittedTaskIds = new Set<string>();
+  readonly #admissionFacts: ShellAdmissionFacts;
   readonly #chronologyByTaskId = new Map<string, AdmissionChronology>();
   readonly #policyMeasurement = new SchedulerPolicyMeasurement();
 
   public constructor(
     input: SchedulerPerformanceDiagnosticsInput,
-    initial: SchedulerPerformanceState
+    initial: SchedulerPerformanceState,
+    admissionFacts: ShellAdmissionFacts
   ) {
+    this.#admissionFacts = admissionFacts;
     this.#declarativeFingerprint = input.declarativeFingerprint;
     this.#logger = input.logger;
     this.#timing = new SchedulerPerformanceTiming(input.clock, initial);
@@ -70,7 +73,6 @@ export class SchedulerPerformanceDiagnostics {
 
   /** Flushes the old state before admission changes the real Scheduler state. */
   public beforeAdmission(taskId: string, runningTaskIds: readonly string[]): void {
-    this.#admittedTaskIds.add(taskId);
     this.#completionTailActiveTaskIds = Object.freeze([...runningTaskIds, taskId]);
     const boundary = this.#timing.boundary();
     if (boundary === undefined) return;
@@ -143,7 +145,7 @@ export class SchedulerPerformanceDiagnostics {
   }
 
   public admittedTaskIds(): readonly string[] {
-    return Object.freeze([...this.#admittedTaskIds]);
+    return this.#admissionFacts.admittedTaskIds();
   }
 
   /** Internal default terminal hook; it contains writer failure without runner special-casing. */
@@ -174,7 +176,7 @@ export class SchedulerPerformanceDiagnostics {
       declarativeFingerprint: this.#declarativeFingerprint,
       discrete: Object.freeze({
         acceptedWaitCount: snapshot.acceptedWaitCount,
-        admittedCount: this.#admittedTaskIds.size,
+        admittedCount: this.#admissionFacts.admittedCount,
         maxRunning: snapshot.maxRunning
       }),
       peaks: snapshot.peaks
@@ -202,7 +204,7 @@ export class SchedulerPerformanceDiagnostics {
       declarativeFingerprint: this.#declarativeFingerprint,
       discrete: Object.freeze({
         acceptedWaitCount: snapshot.acceptedWaitCount,
-        admittedCount: this.#admittedTaskIds.size,
+        admittedCount: this.#admissionFacts.admittedCount,
         completionTailActiveTaskIds: Object.freeze([...this.#completionTailActiveTaskIds]),
         lastSettledTaskId: this.#lastSettledTaskId ?? null,
         maxRunning: snapshot.maxRunning

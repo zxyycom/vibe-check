@@ -86,7 +86,11 @@ Scheduler 是 Run-private child，使用共同 immutable admission reducer 维�
 
 ### 策略生命周期
 
-Invocation 拥有 `prepare` / `terminalEffect`，Scheduler 只接收同步 policy，并在 drain 后 seal measurement、交付 generic effects；返回 sealed context 后 Invocation 才交付 `terminalEffect`。[完整生命周期与 failure containment](scheduler.md#public-prepared-admission-strategy-lifecycle)说明两层的交接，公开使用见[调度指南](../guides/scheduling.md)。
+Invocation 拥有 `prepare` / `terminalEffect`，Scheduler 只接收同步 policy。prepared result 验证后，decision 与 terminal
+需求分别固定并交给 Scheduler：effect 存在决定交付，measurement/raw demand 或 effective diagnostics 决定完整采集。
+diagnostics enabled fact 由 Invocation 显式传递，logger 方法形状不作为需求依据，disabled core logger 不作为 Scheduler observer。
+Scheduler drain 后 seal terminal context、交付 generic effects；返回该 context 后 Invocation 才交付 `terminalEffect`。
+[完整生命周期与 failure containment](scheduler.md#public-prepared-admission-strategy-lifecycle)说明交接，公开使用见[调度指南](../guides/scheduling.md)。
 
 ### Check 执行与结算
 

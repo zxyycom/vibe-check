@@ -53,6 +53,24 @@ Waiver 可省略实现由[公开指南](../guides/finding-waivers.md#输入与�
 Case 账本、来源映射、知识索引与本协调页由主线程串行协调；package candidate 准备、required 与 complete Gate 统一在源码稳定后执行。
 每项收益与语义分别验收，共同 Gate 只证明组合验收。提交与 Change 结项删除分别按当前任务授权执行。
 
+### 按需上下文与准备事实优化
+
+本轮三个 Change 各自拥有独立 Outcome；局部 exact-key membership 与 Markdown component cursor 改动
+按各自源码 owner 直接验收，不扩张旧性能 Plan。本轮 Git 提交已获授权；已启用 hook 的受限自动推送遵循
+[工作区提交规则](../tooling/workspace.md#local-post-commit-auto-push)，Change 结项删除仍须另行授权。
+
+| 当前 Change | 写入与验收边界 |
+| --- | --- |
+| [`declare-scheduler-context-needs`](../../changes/declare-scheduler-context-needs/proposal.md) | Scheduler 消费者可选需求声明、阶段内 union 与按需投影；旧回调保留 full context，terminal delivery 与 measurement demand 分离。 |
+| [`reuse-invocation-prepared-facts`](../../changes/reuse-invocation-prepared-facts/proposal.md) | 单次 Run 已验证 Definition 与 prepared graph 的私有交接；不跨 Run 缓存，不改变取消、Git、prepare 或 flag-control 顺序。 |
+| [`isolate-duplicate-scan-cache-identity`](../../changes/isolate-duplicate-scan-cache-identity/proposal.md) | Duplicate 扫描输入与 cache-only identity 分离；cache-off/no-work 不取得无消费者的身份，保留 scanner 与缓存验收。 |
+
+三者不存在互相交付后才能成立的硬前置。需求声明与准备事实复用触及 Definition、Invocation 和 Scheduler
+相同文件，先审阅 handoff 接口，再由准备事实切面完成共享入口写入、冻结局部 diff 后交给需求声明切面；
+这是共享 owner 的串行写入约束，不以未提交改动解除硬前置。各自设计与不重叠的局部实现可以并行。
+Duplicate 的实现范围独立，但共享 Case、知识索引、稳定文档和本页由主线程安排唯一写入者。
+正式计时继续独占串行；公共 API、package material 和完整 Gate 在全部输入稳定后统一验收。
+
 ### 并行与提交边界
 
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享

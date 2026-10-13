@@ -1,3 +1,4 @@
+import { activeScopeIdsForCore } from "./admission-core/scheduler-queries.ts";
 import type { PlannedTask, PlannedTaskGraph } from "./graph.ts";
 import type { AdmissionCoreState } from "./admission-core/core.ts";
 import {
@@ -25,6 +26,7 @@ export interface AdmissionPolicyInput {
   readonly graph: PlannedTaskGraph;
   readonly graphSnapshot: SchedulerGraphSnapshot;
   readonly inspection: SchedulerInspection;
+  readonly runtime: Pick<SchedulerInspection, "isAbortRequested" | "isCancelled">;
 }
 
 export type AdmissionPolicyDecision =
@@ -43,7 +45,7 @@ export const staticAdmissionSelectionPolicy: AdmissionSelectionPolicy = Object.f
 });
 
 function decideStaticAdmission(input: AdmissionPolicyInput): AdmissionPolicyDecision {
-  const activeScopeIds = new Set(input.inspection.activeScopeIds);
+  const activeScopeIds = new Set(activeScopeIdsForCore(input.admissionCore));
   const tightening = selectTighteningCandidate(input, activeScopeIds);
   if (tightening !== undefined) return proposalFor(tightening);
 
@@ -68,7 +70,7 @@ function selectTighteningCandidate(
     if (
       tighteningScopeForTask(
         input.admissionCore.compiled,
-        input.inspection.maxParallel,
+        input.admissionCore.compiled.maxParallel,
         activeScopeIds,
         candidate.task
       ) === undefined
@@ -91,7 +93,7 @@ function selectConstrainedContinuation(
     if (
       !isConstrainedScopeContinuation(
         input.admissionCore.compiled,
-        input.inspection.maxParallel,
+        input.admissionCore.compiled.maxParallel,
         activeScopeIds,
         candidate.task
       )

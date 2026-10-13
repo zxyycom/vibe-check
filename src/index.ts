@@ -209,6 +209,7 @@ export type {
   InheritableCheckCollection
 } from "./check/check.ts";
 export { defineAdmissionPolicy } from "./package-tools/admission-policy/define-admission-policy.ts";
+export { defineSchedulerContextCallback } from "./package-tools/scheduler-context/define-scheduler-context-callback.ts";
 export { defineConfig } from "./project-definition/project-definition.ts";
 export { createLearnedCriticalPathStrategy } from "./package-tools/learned-critical-path/strategy.ts";
 export type {
@@ -252,6 +253,14 @@ export type {
   SchedulerRawMeasurement,
   SchedulerPolicy
 } from "./project-definition/project-definition.ts";
+export type {
+  SchedulerContextByPhase,
+  SchedulerContextPhase,
+  SchedulerContextResultByPhase,
+  SchedulerContextCallbackInput,
+  DeclaredSchedulerContextCallback,
+  FullSchedulerContextCallback
+} from "./project-definition/scheduler-context-callback.ts";
 export type {
   ProjectChangeFlagRegion,
   ProjectChangeSource,

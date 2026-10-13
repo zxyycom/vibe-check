@@ -1,3 +1,4 @@
+import { normalizeSchedulerContextCallback } from "../../project-definition/scheduler-context-validation.ts";
 import type { CheckProjectContext } from "../../check/check.ts";
 import type { PreparedAdmissionStrategy } from "../admission-strategy-provider/prepared-admission-strategy.ts";
 import { executePreparedChecks } from "../check-execution/resolved-checks.ts";
@@ -26,6 +27,7 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
       admissionPolicy: preparedStrategy.admissionPolicy,
       clock: invocation.clock,
       diagnosticLogger: invocation.diagnosticLogging.core,
+      schedulerDiagnosticLoggingEnabled: invocation.diagnosticLoggingEnabled,
       ...(invocation.diagnosticLoggingEnabled
         ? { schedulerDiagnosticLogger: invocation.diagnosticLogging.scheduler }
         : {}),
@@ -33,6 +35,13 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
         ? {}
         : { schedulerPerformanceDiagnostics: performanceDiagnostics }),
       schedulerTerminalEffects: invocation.normalized.scheduler.terminalEffects,
+      ...(preparedStrategy.completion.kind === "none"
+        ? {}
+        : {
+            schedulerTerminalContextNeeds:
+              preparedStrategy.terminalContextNeeds ??
+              (["graph", "execution", "rawMeasurement"] as const)
+          }),
       onSchedulerTerminalEffectFailure: () => {
         invocation.outputs.failed("terminalEffects");
       },
@@ -55,7 +64,12 @@ function schedulerPerformanceDiagnostics(input: SchedulerAdapterInput) {
   const { invocation, preparedStrategy } = input;
   const shouldCollectSchedulerPerformanceDiagnostics =
     invocation.diagnosticLoggingEnabled ||
-    invocation.normalized.scheduler.terminalEffects.length > 0 ||
+    invocation.normalized.scheduler.terminalEffects.some(
+      (effect) =>
+        normalizeSchedulerContextCallback("terminal", effect)?.contextNeeds.includes(
+          "rawMeasurement"
+        ) === true
+    ) ||
     preparedStrategy.admissionPolicy.requiresMeasurement === true ||
     preparedStrategy.requiresTerminalMeasurement;
   if (!shouldCollectSchedulerPerformanceDiagnostics) return undefined;
