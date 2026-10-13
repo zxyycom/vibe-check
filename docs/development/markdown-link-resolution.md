@@ -59,6 +59,15 @@ publication；payload grammar 由相邻 `parse-facts-cache-payload.ts` 拥有。
 结束的尾行不进入 Map，同 identity 以最后一条有效 line 为准。missing file 等同空 cache；其它整文件读取或 UTF-8
 解码失败同时关闭本次 publication，防止在未知材料后继续追加。
 
+容量提醒消费首次 restore 的 readFile 已读 bytes，触发条件与配置由[公开 cache 契约](../checks/markdown-link-validation.md#parse-facts-cache)拥有。
+session 在 read 返回且未取消后、UTF-8 decode 前判断容量并保存冻结 Check warning；所以成功读到超阈值的无效 UTF-8
+也可提醒，而 decode failure 仍关闭 publication。首次 read 的 Promise 保证每 invocation 至多一次判断，
+容量判断没有独立扫描、stat 或读取路径。
+
+session 只保存 message，由 resolver 交给 execution，再通过 `appendCheckMessages` 随成功或正常 unavailable 返回输出。
+该路径与 cache failure 退化、链接 Finding/Record 及 settlement 分离。append 只发布 dirty facts；
+未调用 parse 或 disabled branch 不创建 restore I/O。
+
 每次 lookup 前仍按当前授权读取 source/target exact bytes 并验证 UTF-8。identity 绑定 source bytes 的 SHA-256，
 payload 验证绑定 parser contract 与版本；命中只复用 Link-private occurrences、headings 和 decoded ranges。
 input discovery、target authorization/probe、Finding/Record 与 settlement 每次重新执行。

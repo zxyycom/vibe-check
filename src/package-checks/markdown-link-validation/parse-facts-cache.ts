@@ -2,6 +2,8 @@ import { isUtf8 } from "node:buffer";
 import { appendFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
+import type { CheckMessage } from "../../check/check.ts";
+import { DEFAULT_CACHE_WARN_ABOVE_BYTES } from "./cache-options.ts";
 import {
   cacheEnvelopeLine,
   markdownBytesDigest,
@@ -25,6 +27,7 @@ export class MarkdownLinkParseFactsSession {
   readonly #cache: ResolvedMarkdownLinkValidationOptions["cache"];
   readonly #restored = new Map<string, ParsedMarkdownLinkFacts>();
   readonly #dirty = new Map<string, ParsedMarkdownLinkFacts>();
+  #messages: readonly CheckMessage[] = Object.freeze([]);
   #initialRead: Promise<void> | undefined;
   #canPublish = true;
   #needsPartialTailIsolation = false;
@@ -34,6 +37,10 @@ export class MarkdownLinkParseFactsSession {
     this.#cache = cache;
   }
 
+  get messages(): readonly CheckMessage[] {
+    return this.#messages;
+  }
+
   async parse(
     bytes: Uint8Array,
     signal: AbortSignal
@@ -41,7 +48,7 @@ export class MarkdownLinkParseFactsSession {
     if (signal.aborted || !isUtf8(bytes)) return undefined;
     if (!this.#cache.enabled) return parseCurrentMarkdownBytes(bytes, signal);
 
-    await this.#restoreOnce();
+    await this.#restoreOnce(signal);
     if (signal.aborted) return undefined;
     const identityDigest = markdownBytesDigest(bytes);
     const cachedFacts = this.#cachedFacts(identityDigest);
@@ -70,28 +77,57 @@ export class MarkdownLinkParseFactsSession {
     return parsed;
   }
 
-  async #restoreOnce(): Promise<void> {
-    this.#initialRead ??= this.#restore();
+  async #restoreOnce(signal: AbortSignal): Promise<void> {
+    this.#initialRead ??= this.#restore(signal);
     await this.#initialRead;
   }
 
-  async #restore(): Promise<void> {
+  async #restore(signal: AbortSignal): Promise<void> {
     if (!this.#cache.enabled) return;
-    let contents: Uint8Array;
-    try {
-      contents = await readFile(cacheFilePath(this.#cache.directory));
-    } catch (error) {
-      if (isMissingFile(error)) return;
-      this.#canPublish = false;
-      return;
-    }
+    const contents = await this.#readCacheFile(this.#cache.directory);
+    if (contents === undefined || signal.aborted) return;
+    this.#recordCapacityWarning({
+      byteCount: contents.length,
+      directory: this.#cache.directory,
+      thresholdBytes: this.#cache.warnAboveBytes ?? DEFAULT_CACHE_WARN_ABOVE_BYTES
+    });
+    this.#restoreContents(contents);
+  }
 
+  /** A failed whole-file read prevents publication; a missing file remains an empty cache. */
+  async #readCacheFile(directory: string): Promise<Uint8Array | undefined> {
+    try {
+      return await readFile(cacheFilePath(directory));
+    } catch (error) {
+      if (!isMissingFile(error)) this.#canPublish = false;
+      return undefined;
+    }
+  }
+
+  #recordCapacityWarning(
+    input: Readonly<{
+      byteCount: number;
+      directory: string;
+      thresholdBytes: number;
+    }>
+  ): void {
+    const { byteCount, directory, thresholdBytes } = input;
+    if (byteCount <= thresholdBytes) return;
+    this.#messages = Object.freeze([
+      Object.freeze({
+        code: "parse-facts-cache-capacity",
+        level: "warning" as const,
+        message: `Markdown Link parse-facts cache is ${byteCount} bytes, above the ${thresholdBytes}-byte reminder threshold. You may delete ${cacheFilePath(directory)} to reclaim space; parsing and link validation continue unchanged.`
+      })
+    ]);
+  }
+
+  /** Decoding owns publication safety; only complete valid lines become restored facts. */
+  #restoreContents(contents: Uint8Array): void {
     this.#needsPartialTailIsolation =
       contents.length > 0 && contents[contents.length - 1] !== "\n".charCodeAt(0);
-    let text: string;
-    try {
-      text = new TextDecoder("utf-8", { fatal: true }).decode(contents);
-    } catch {
+    const text = decodeMarkdownBytes(contents);
+    if (text === undefined) {
       this.#canPublish = false;
       return;
     }
@@ -145,10 +181,5 @@ function cacheFilePath(directory: string): string {
 }
 
 function isMissingFile(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as Readonly<{ readonly code?: unknown }>).code === "ENOENT"
-  );
+  return typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";
 }

@@ -57,6 +57,40 @@ describe("default Check direct callbacks", () => {
       }
     );
     const cacheDirectory = join(tmpdir(), "vibe-check-markdown-link-cache-options");
+    assert.deepEqual(
+      markdownLinkValidation({
+        cache: {
+          enabled: true,
+          directory: cacheDirectory,
+          warnAboveBytes: 123
+        }
+      }).options.cache,
+      { enabled: true, directory: cacheDirectory, warnAboveBytes: 123 }
+    );
+    for (const warnAboveBytes of [
+      0,
+      -1,
+      1.5,
+      NaN,
+      Infinity,
+      Number.MAX_SAFE_INTEGER + 1,
+      "123",
+      null
+    ]) {
+      const cache = { enabled: true, directory: cacheDirectory, warnAboveBytes };
+      assert.throws(
+        () => Reflect.apply(markdownLinkValidation, undefined, [{ cache }]),
+        /documented closed policy/
+      );
+      assert.equal(validMarkdownLinkValidationOptions({ ...MARKDOWN_LINK_OPTIONS, cache }), false);
+    }
+    assert.equal(
+      validMarkdownLinkValidationOptions({
+        ...MARKDOWN_LINK_OPTIONS,
+        cache: { enabled: false, warnAboveBytes: 123 }
+      }),
+      false
+    );
     const disabledFingerprint = declarativeFingerprint(markdownLinkValidation());
     const enabledFingerprint = declarativeFingerprint(
       markdownLinkValidation({ cache: { enabled: true, directory: cacheDirectory } })

@@ -17,6 +17,64 @@ const CACHE_FILE = "markdown-link-parse-facts-v1.jsonl";
 const CACHE_FORMAT = "markdown-link-parse-facts-jsonl-v1";
 
 describe("Markdown Link parse-facts cache", () => {
+  it("warns once only above the first actual restore byte threshold", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "vibe-check-markdown-link-cache-size-"));
+    const bytes = new TextEncoder().encode("# Current\n");
+    const signal = new AbortController().signal;
+    try {
+      for (const [size, threshold, expectedCount] of [
+        [3, 4, 0],
+        [4, 4, 0],
+        [5, 4, 1],
+        [16 * 1024 * 1024, undefined, 0],
+        [16 * 1024 * 1024 + 1, undefined, 1]
+      ] as const) {
+        await writeFile(path.join(directory, CACHE_FILE), new Uint8Array(size).fill(32));
+        const session = new MarkdownLinkParseFactsSession({
+          enabled: true,
+          directory,
+          ...(threshold === undefined ? {} : { warnAboveBytes: threshold })
+        });
+        assert.equal(session.messages.length, 0);
+        assertFactsHeadings(await session.parse(bytes, signal), ["current"]);
+        assert.equal(session.messages.length, expectedCount);
+        if (expectedCount === 1) {
+          assert.equal(session.messages[0]?.code, "parse-facts-cache-capacity");
+          assert.equal(session.messages[0]?.level, "warning");
+          assert.ok(session.messages[0]?.message.includes(`${size} bytes`));
+          assert.ok(session.messages[0]?.message.includes(`${threshold ?? 16777216}-byte`));
+          assert.ok(session.messages[0]?.message.includes(path.join(directory, CACHE_FILE)));
+          assert.ok(Object.isFrozen(session.messages));
+        }
+        await writeFile(path.join(directory, CACHE_FILE), "\n".repeat(10));
+        assertFactsHeadings(await session.parse(bytes, signal), ["current"]);
+        assert.equal(session.messages.length, expectedCount);
+      }
+      await writeFile(path.join(directory, CACHE_FILE), new Uint8Array([255, 255]));
+      const unread = new MarkdownLinkParseFactsSession({
+        enabled: true,
+        directory,
+        warnAboveBytes: 1
+      });
+      const cancelled = AbortSignal.abort();
+      assert.equal(await unread.parse(bytes, cancelled), undefined);
+      assert.equal(await unread.parse(new Uint8Array([255]), signal), undefined);
+      await unread.finalize(signal);
+      assert.deepEqual(unread.messages, []);
+      const invalidCache = new MarkdownLinkParseFactsSession({
+        enabled: true,
+        directory,
+        warnAboveBytes: 1
+      });
+      assertFactsHeadings(await invalidCache.parse(bytes, signal), ["current"]);
+      assert.equal(invalidCache.messages.length, 1);
+      await invalidCache.finalize(signal);
+      assert.deepEqual(await readFile(path.join(directory, CACHE_FILE)), Buffer.from([255, 255]));
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it("restores only closed immutable parser facts", () => {
     const facts = parserFacts("# Heading\n[link](target.md)\n");
     const restored = parseMarkdownLinkParseFactsPayload(

@@ -317,7 +317,7 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts|default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled`
 - `bun|src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts|default Check direct callbacks > does not start parse-facts publication after cancellation without reporting stale findings`
   Proves:
-- A completed traversal publishes only the documented safe local-reference Record projection and parser-validated exact final counts; root-external findings retain no destination material. The omitted finding policy defaults to non-blocking and retains the Records/final data in a passed outcome with an actionable warning, while explicit blocking retains the same evidence and settles failed with an actionable error. Enabled parse-facts cache hit, miss, hostile JSONL line, storage failure, and exact-byte source/target invalidation preserve the same Check settlement and do not create cache output facts. Cancellation before source work or before terminal publication remains unavailable with no link-finding Record. Completed normal/rejected findings additionally project at most ten Check-owned summaries plus an exact omitted count; those summaries retain source navigation and closed reason while never copying the unsafe destination.
+- A completed traversal publishes only the documented safe local-reference Record projection and parser-validated exact final counts; root-external findings retain no destination material. The omitted finding policy defaults to non-blocking and retains the Records/final data in a passed outcome with an actionable warning, while explicit blocking retains the same evidence and settles failed with an actionable error. Enabled parse-facts cache hit, miss, hostile JSONL line, storage failure, and exact-byte source/target invalidation preserve the same link settlement; the separately owned capacity reminder adds only its documented Check message. Cancellation before source work or before terminal publication remains unavailable with no link-finding Record. Completed normal/rejected findings additionally project at most ten Check-owned summaries plus an exact omitted count; those summaries retain source navigation and closed reason while never copying the unsafe destination.
 - Every selected non-Markdown path publishes a fixed non-blocking rejection Record, contributes to the separate rejection and total finding counts, and cannot be made blocking by Link policy. All-rejected input is passed with a warning; only zero selected paths are not applicable.
 - A direct root-contained target outside source scope can provide its own anchor facts but cannot recursively create more source work.
 - Source/target limits, root canonicalization failure, and cancellation settle as `unavailable` with actionable Check-owned messages and no partial link-finding Records or final data; already classified rejection Records remain ordinary accepted facts. Zero selected input reaches `not-applicable` only after the root is usable.
@@ -625,3 +625,14 @@ Proves:
 - 唯一匹配仅为原 lint Record 增加 `waiver.reason`，保留全部原 ID、字段和三项 final counts；仅剩余 actionable Findings 按 blocking/non-blocking policy 决定结算，applied/unused 消息以及被省略的 rejected inputs 不制造错误级消息。
 - 完整公开 range 区分同起点不同终点的候选；synthetic publication 候选中的重复完整 identity 不按 ordinal 任挑一条豁免，而是保留全部 Finding、发布稳定 hashed `overmatched` audit 和 warning。此分支不宣称实际 backend 一定产生重复诊断。
 - 无 selected path 不对账；完整空 lint 集合（包括仅 rejected inputs）产生 unused audit，但不更改 rejected evidence 或 Finding 计数。source decode failure、字节/Finding 超限和取消保留已分类 rejected Record，不发布 partial lint、waiver audit 或 final data。
+
+## Case AUX-MARKDOWN-LINK-CACHE-CAPACITY-001: Markdown cache 容量提醒保持链接结算
+
+Owner: `docs/checks/markdown-link-validation.md#parse-facts-cache`
+Entities:
+
+- `bun|src/package-checks/markdown-link-validation/cache-behavior.test.ts|default Check direct callbacks > adds only an actionable capacity message without changing link settlement`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > warns once only above the first actual restore byte threshold`
+  Proves:
+- 首次实际 restore 的已读文件 bytes 严格超过自定义或默认 16 MiB 阈值才产生一次 warning；等于阈值不提醒，后续 parse 不重读或重复提醒。message 给出大小、阈值和准确可删除文件；除容量 message 外，冷 miss 与 warm hit 均保留相同链接 Records、data、status 和 messages。
+- 未实际 parse、已取消或非 UTF-8 source 不触发提醒；关闭 cache 不改变现有文件，无输入不产生 message。成功读取超阈值的无效 UTF-8 cache 仍 fresh-parse 并提醒，但不追加 publication；后续 traversal 不可用也保留提醒而不发布 partial findings。

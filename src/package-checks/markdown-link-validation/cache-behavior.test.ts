@@ -12,6 +12,72 @@ import {
 } from "./default-check.test-support.ts";
 
 describe("default Check direct callbacks", () => {
+  it("adds only an actionable capacity message without changing link settlement", async () => {
+    const root = createMarkdownTestRoot("vibe-check-markdown-link-capacity-");
+    const cacheDirectory = join(root, "cache-state");
+    const cacheFile = join(cacheDirectory, "markdown-link-parse-facts-v1.jsonl");
+    try {
+      mkdirSync(join(root, "docs"));
+      mkdirSync(cacheDirectory);
+      writeFileSync(join(root, "docs", "guide.md"), "[missing](missing.md)\n");
+      writeFileSync(cacheFile, "\n\n\n\n\n");
+      const options = {
+        ...MARKDOWN_LINK_OPTIONS,
+        findingPolicy: "non-blocking" as const,
+        cache: { enabled: true as const, directory: cacheDirectory, warnAboveBytes: 4 }
+      };
+      const disabled = await execute(
+        executeMarkdownLinkValidation,
+        { ...options, cache: { enabled: false } },
+        root,
+        MARKDOWN_FILES
+      );
+      assert.equal(readFileSync(cacheFile, "utf8"), "\n\n\n\n\n");
+      for (const pass of ["miss", "hit"]) {
+        const actual = await execute(executeMarkdownLinkValidation, options, root, MARKDOWN_FILES);
+        const warnings = actual.result.messages?.filter(
+          ({ code }) => code === "parse-facts-cache-capacity"
+        );
+        assert.equal(warnings?.length, 1, pass);
+        assert.equal(warnings?.[0]?.level, "warning");
+        assert.ok(warnings?.[0]?.message.includes(cacheFile));
+        assert.deepEqual(
+          {
+            ...actual,
+            result: {
+              ...actual.result,
+              messages: actual.result.messages?.filter(
+                ({ code }) => code !== "parse-facts-cache-capacity"
+              )
+            }
+          },
+          disabled
+        );
+      }
+      writeFileSync(join(root, "docs", "guide.md"), "[one](missing.md)\n[two](missing.md)\n");
+      const limited = await execute(
+        executeMarkdownLinkValidation,
+        { ...options, limits: { ...options.limits, maxTargetReads: 1 } },
+        root,
+        MARKDOWN_FILES
+      );
+      assert.equal(limited.result.status, "unavailable");
+      assert.equal(
+        limited.result.messages?.filter(({ code }) => code === "parse-facts-cache-capacity").length,
+        1
+      );
+      assert.deepEqual(limited.records, []);
+      const noInput = await execute(executeMarkdownLinkValidation, options, root, {
+        ...MARKDOWN_FILES,
+        patterns: ["none.md"]
+      });
+      assert.equal(noInput.result.status, "not-applicable");
+      assert.equal(noInput.result.messages, undefined);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("uses an explicit parse-facts cache only as best-effort state", async () => {
     const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cache-");
     const cacheDirectory = join(root, "cache-state");

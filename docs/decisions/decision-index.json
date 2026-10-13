@@ -254,7 +254,7 @@
       "260901-use-scc-v4-file-metrics-cli-protocol": "sha256:0163fdca287870dd0e625538094b9e2d59cd0fe6c49862108b15d5ed221bd5cd",
       "260901-use-stateless-admission-policies-with-hard-scheduler-guards": "sha256:f5fe53cd6e6b0c70b30ece11b9a531cee67b47fd4ed05b4b7ec91e92f399b131",
       "260902-compare-duplicates-only-within-common-code-areas": "sha256:ce2819f1931ca5ea5fbf202b1e4afb33cfde11bb73560a34783896b241a41600",
-      "260902-enable-explicit-markdown-link-parse-cache": "sha256:28bb84d508f66c591f8535919c75950dc72db9973548de7d8563a7856c35fdd5",
+      "260902-enable-explicit-markdown-link-parse-cache": "sha256:eac1f78bf3782bc6a7b39c9a1bdf1e33e4e16b571a436d305010f6c7bfd29dde",
       "260902-exclude-historical-schemas-from-maintainability-metrics": "sha256:34c8a1b8b988dc4db7d5a8d13f3192f230534cb7484f2abb1f10245183deef2b",
       "260902-expose-invocation-local-scheduler-measurement-hooks": "sha256:d5c60e6fbcfbd0f2f4f0e92ec71baf04c02400e898c7877d00f65588c7b36c63",
       "260902-extend-invocation-local-scheduler-performance-summary": "sha256:65c0dcc426a007843935c88c9b7224209d001367a0c5bb1f2287a40f3a167b56",
@@ -364,6 +364,7 @@
       "261011-align-nullish-coalescing-with-short-circuit-function-metrics": "sha256:cf106af43518a331361eda94c81f038d4e85e910c4443c8973a3d863ee2ec5a7",
       "261012-bound-unclosable-tokenizer-tail-cost": "sha256:7c0d37be8708827791a0b3728bcd290dd8236d3a79102e94391f64ace81f2da6",
       "261013-declare-scheduler-context-demand": "sha256:03e5513930d9e8f8eea2970fd449590544b355eac777c4fe7f9f77ffc35a8591",
+      "261013-warn-on-explicit-markdown-parse-cache-capacity": "sha256:303c4f09a20e15afc78151fcd2ec13c3e78cab9b885919f9e88e4bd8834dca8c",
       "261013-weigh-performance-costs-against-scaling-benefits": "sha256:f683acd59be9bff15ce789368bcf39f642945069f7d29267ce03ef5ba612dfbb"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
@@ -5278,9 +5279,9 @@
     },
     "260902-enable-explicit-markdown-link-parse-cache": {
       "name": "enable-explicit-markdown-link-parse-cache",
-      "sourcePath": "enable-explicit-markdown-link-parse-cache.md",
+      "sourcePath": "archive/enable-explicit-markdown-link-parse-cache.md",
       "title": "以显式选项启用 Markdown Link parse cache",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-02T08:06:15Z",
       "purpose": "让大型 Markdown corpus 以显式选项复用 parse facts，并保持本次 Check settlement facts。",
@@ -7533,6 +7534,28 @@
         "product-contract"
       ],
       "relations": []
+    },
+    "261013-warn-on-explicit-markdown-parse-cache-capacity": {
+      "name": "warn-on-explicit-markdown-parse-cache-capacity",
+      "sourcePath": "warn-on-explicit-markdown-parse-cache-capacity.md",
+      "title": "为显式 Markdown parse cache 增加非阻断容量提醒",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-13T09:02:06Z",
+      "purpose": "让调用方发现过大的 Markdown parse cache 并自行清理，保留显式性能状态边界。",
+      "background": "单一 append-only JSONL 会增长；旧封闭配置不含提醒，而自动容量管理会扩大性能状态职责。",
+      "decision": "保留默认关闭、exact-content persistent cache 与成功 target memo，增加默认可配置的读取容量提醒。",
+      "tags": [
+        "configuration",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260902-enable-explicit-markdown-link-parse-cache",
+          "summary": "保留显式性能缓存边界，增加专属容量提醒"
+        }
+      ]
     },
     "261013-weigh-performance-costs-against-scaling-benefits": {
       "name": "weigh-performance-costs-against-scaling-benefits",

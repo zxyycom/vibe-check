@@ -1,7 +1,7 @@
 ---
 title: 以显式选项启用 Markdown Link parse cache
 id: 260902-enable-explicit-markdown-link-parse-cache
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T08:06:15Z
 purpose: 让大型 Markdown corpus 以显式选项复用 parse facts，并保持本次 Check settlement facts。

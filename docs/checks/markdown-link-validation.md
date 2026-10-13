@@ -86,8 +86,8 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
   lookup。
 - `rootExternalTargetMode` 为 `ignore | report | validate`；只有显式 `validate` 才授权 bounded root-external target I/O。
 - `requireNonEmptyDirectories` 启用时最多读取 direct directory 的一个 entry，不递归遍历。
-- `cache` 默认 `{ enabled: false }`，不访问 cache filesystem，且不能带 `directory`。启用 branch 必须为
-  `{ enabled: true, directory }`，其中 directory 是非空、无 U+0000 的 host-absolute path；安全与失败行为见 [Parse-facts cache](#parse-facts-cache)。
+- `cache` 默认 `{ enabled: false }`，不访问 cache filesystem，且不能带 `directory` 或 `warnAboveBytes`。启用 branch 为
+  `{ enabled: true, directory, warnAboveBytes? }`；配置、容量提醒与安全边界见 [Parse-facts cache](#parse-facts-cache)。
 - `limits` 限制单文档 bytes、全部 semantic occurrences 与 direct target reads；constructor 会补齐该 branch 中省略的
   fields。`maxMarkdownBytes` 不得超过 `16_777_216`，`maxOccurrences` 不得超过 `100_000`，
   `maxTargetReads` 不得超过 `10_000`。
@@ -113,8 +113,31 @@ const documentationLinks = markdownLinkValidation({
 启用后，cache 在调用方指定的 absolute directory 保存可删除的 Markdown parse facts；调用方负责目录容量与删除。
 它不是输出目录，也不提供机密性或防篡改保护；不愿复制到本地状态的 Markdown 不应启用 cache。
 
+`directory` 必须是非空、无 U+0000 的 host-absolute path。`warnAboveBytes` 可省略，默认
+`16_777_216` bytes（16 MiB）；显式值必须是正安全整数。下面以调用方已选定的绝对路径启用 cache，
+并把提醒阈值设为 32 MiB：
+
+```ts
+const cachedLinks = markdownLinkValidation({
+  cache: { enabled: true, directory: cacheDirectory, warnAboveBytes: 33_554_432 }
+});
+```
+
 命中只避免重复计算 parse facts；每次仍用当前 selection、Markdown bytes 与 target policy 形成 Finding、Record 和 outcome，
 不改变 Check ID 或 finding policy。无法恢复 facts 时 fresh-parse；写入失败只影响后续复用，不改变本次结果或任何发布字段。
+
+首次实际需要 parse facts 并成功读取
+`<directory>/markdown-link-parse-facts-v1.jsonl` 后，已读文件 bytes 严格超过 `warnAboveBytes` 才追加一条
+`parse-facts-cache-capacity` warning。默认 16 MiB 只是维护提醒，不是性能安全线或容量限制。message 给出
+大小、阈值及可删除的准确文件路径；删除后下次重新解析，不会自动清理、停用缓存或中止检查。
+本次 append 跨阈值不二次读取；下一次 invocation 实际读取到超阈值文件才提醒。
+
+每次 invocation 至多提醒一次，沿普通 Check messages 输出，不加入 Findings、Records、final data 或计数，也不改变
+terminal status 或 finding policy。missing/read-failed cache 不提醒；已成功读到的超阈值无效内容仍可提醒并按原规则 fresh-parse。
+容量判断只使用该次已读 bytes，不额外扫描、stat 或读取。未用到 cache（关闭、无输入、首个 parse 前错误/取消或源 bytes
+非 UTF-8）不访问 cache 文件，也不提醒。read 返回时已经取消不提醒；已产生的提醒随后续正常返回的
+`unavailable` result 保留，原错误优先级不变。
+
 publication 开始前取消不会启动写入；append 开始后会等待完成。cache 不缓存 settlement，也不保证跨进程协调、持久性或自动清理。
 
 ## 工作原理

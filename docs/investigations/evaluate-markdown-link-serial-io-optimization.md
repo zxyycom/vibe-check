@@ -16,7 +16,7 @@ relations:
 
 本报告以“复查”关系复查 [`measure-markdown-link-serial-cache-overhead.md`](./measure-markdown-link-serial-cache-overhead.md) 的严格串行 cache 开销基线。该前序报告确认 cache enabled 的 cold relative regression 为 36.14%，未达到当时记录的 cold `<=5%` gate；同时明确 aggregate timing 不能归因于单一 I/O 或 parser 操作。
 
-本轮实现继续遵守活动 Decision [`enable-explicit-markdown-link-parse-cache.md`](../decisions/enable-explicit-markdown-link-parse-cache.md) 和 Markdown Link owner：每次 source 仍读取 exact bytes；cache 默认关闭；hit 不得跳过 current authorization、endpoint validation 或 settlement。用户明确禁止通过 Git/revision/metadata 跳过 source bytes，并要求保持 source I/O 严格串行。
+本轮实现继续遵守活动 Decision [`enable-explicit-markdown-link-parse-cache.md`](../decisions/archive/enable-explicit-markdown-link-parse-cache.md) 和 Markdown Link owner：每次 source 仍读取 exact bytes；cache 默认关闭；hit 不得跳过 current authorization、endpoint validation 或 settlement。用户明确禁止通过 Git/revision/metadata 跳过 source bytes，并要求保持 source I/O 严格串行。
 
 本报告形成时实现已完成且其 before/after raw results 已作为本报告 owner 的受管资源保存。此前尝试过动态 buffer 候选，但其测量表现异常，已撤回；本报告不把它计为最终方案或性能证据。
 

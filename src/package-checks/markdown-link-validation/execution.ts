@@ -86,11 +86,14 @@ export async function executeMarkdownLinkValidation(
       sourceFileCount: traversal.sourceFileCount,
       targetReadCount: resolver.targetReadCount
     }),
-    markdownFindingMessages(
-      traversal.candidates,
-      rejectedPaths,
-      context.options.findingPolicy === "blocking"
-    )
+    [
+      ...markdownFindingMessages(
+        traversal.candidates,
+        rejectedPaths,
+        context.options.findingPolicy === "blocking"
+      ),
+      ...resolver.cacheMessages
+    ]
   );
 }
 
@@ -123,7 +126,10 @@ async function prepareMarkdownTraversal(
   } finally {
     await created.resolver.finalize();
   }
-  return context.signal.aborted ? result(unavailable("cancelled")) : prepared;
+  if (context.signal.aborted) prepared = result(unavailable("cancelled"));
+  return prepared.kind === "result"
+    ? result(appendCheckMessages(prepared.result, created.resolver.cacheMessages))
+    : prepared;
 }
 
 async function prepareCreatedMarkdownTraversal(

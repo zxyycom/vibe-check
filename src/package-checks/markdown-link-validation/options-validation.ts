@@ -2,7 +2,7 @@ import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts"
 import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
-import { validLocalCacheOptions } from "../local-cache-options.ts";
+import { validMarkdownLinkCacheOptions } from "./cache-options.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 
 function boundedPositiveSafeInteger(value: unknown, maximum: number): value is number {
@@ -31,7 +31,7 @@ function validOptionFields(options: Readonly<Record<string, unknown>>): boolean 
     validProjectFileSelection(options.files) &&
     validFindingPolicy(options.findingPolicy) &&
     validAnchorValidationOptions(options) &&
-    validLocalCacheOptions(options.cache) &&
+    validMarkdownLinkCacheOptions(options.cache) &&
     validMarkdownLinkLimits(options.limits)
   );
 }

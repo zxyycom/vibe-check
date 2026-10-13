@@ -53,6 +53,10 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     return this.#targetReadCount;
   }
 
+  get cacheMessages() {
+    return this.#parseFactsCache.messages;
+  }
+
   finalize(): Promise<void> {
     return this.#parseFactsCache.finalize(this.#signal);
   }

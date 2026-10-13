@@ -8,7 +8,7 @@ import {
   snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
 import { DEFAULT_FINDING_POLICY, resolveFindingPolicy } from "../code-quality-findings/policy.ts";
-import { resolveOptionalLocalCacheOptions } from "../local-cache-options.ts";
+import { resolveMarkdownLinkCacheOptions } from "./cache-options.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 
@@ -30,7 +30,7 @@ export function resolveMarkdownLinkValidationOptions(
   const limits = resolvedLimits(input.limits);
   const files = resolvedFiles(input.files);
   const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
-  const cache = resolveOptionalLocalCacheOptions(input.cache);
+  const cache = resolveMarkdownLinkCacheOptions(input.cache);
   if (
     limits === undefined ||
     files === undefined ||

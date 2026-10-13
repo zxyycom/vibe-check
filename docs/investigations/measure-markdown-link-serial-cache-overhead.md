@@ -12,7 +12,7 @@ relations: []
 
 ## 形成时背景
 
-活动 Decision [`enable-explicit-markdown-link-parse-cache.md`](../decisions/enable-explicit-markdown-link-parse-cache.md) 已确认 persistent parse-facts cache 与 invocation-local target memo 的长期语义：cache 默认关闭、启用必须指定 caller-owned absolute directory，identity 必须来自当前授权 source 的 exact bytes，hit 只跳过 parse-facts computation，不得跳过本次 source collection、授权、endpoint validation 或 Check settlement。
+活动 Decision [`enable-explicit-markdown-link-parse-cache.md`](../decisions/archive/enable-explicit-markdown-link-parse-cache.md) 已确认 persistent parse-facts cache 与 invocation-local target memo 的长期语义：cache 默认关闭、启用必须指定 caller-owned absolute directory，identity 必须来自当前授权 source 的 exact bytes，hit 只跳过 parse-facts computation，不得跳过本次 source collection、授权、endpoint validation 或 Check settlement。
 
 此前支持采用的组合性能数据含已移除的 8 路 source read-ahead；该 Decision 明确禁止将其用于声称当前严格串行实现达到 runtime 性能门槛。本轮形成时，用户要求 source I/O 保持纯串行，不得使用 Git/revision/metadata 在 source bytes 读取前跳过内容，并要求 explicit cache 继续 default-disabled。
 

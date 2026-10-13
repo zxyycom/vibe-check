@@ -1,5 +1,6 @@
 import path from "node:path";
 
+import type { CheckMessage } from "../../check/check.ts";
 import type { ParsedMarkdownLinkFacts } from "./markdown-parser.ts";
 
 type RootExternalTargetMode = "ignore" | "report" | "validate";
@@ -35,6 +36,7 @@ interface MarkdownLocalResolver {
   resolve(request: MarkdownLocalResolutionRequest): Promise<MarkdownLocalResolution>;
   finalize(): Promise<void>;
   readonly targetReadCount: number;
+  readonly cacheMessages: readonly CheckMessage[];
 }
 
 interface MarkdownLocalResolutionRequest {

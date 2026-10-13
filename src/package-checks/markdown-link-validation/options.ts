@@ -4,12 +4,18 @@ import type {
   ProjectFileSelectionOptions
 } from "../project-files/configuration.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
-import type { LocalCacheOptions } from "../local-cache-options.ts";
 
 export type MarkdownRootExternalTargetMode = "ignore" | "report" | "validate";
 
 /** 调用方显式拥有的 Link-private parse-facts local cache policy。 */
-type MarkdownLinkValidationCacheOptions = LocalCacheOptions;
+type MarkdownLinkValidationCacheOptions =
+  | Readonly<{ readonly enabled: false }>
+  | Readonly<{
+      readonly enabled: true;
+      readonly directory: string;
+      /** 首次读取的 cache 文件超过此字节数时提醒；省略为 16 MiB，不是容量限制。 */
+      readonly warnAboveBytes?: number;
+    }>;
 
 /** 可省略的 Markdown validation work limits。 */
 export interface MarkdownLinkValidationLimitOptions {
@@ -41,7 +47,7 @@ export interface MarkdownLinkValidationOptions<
   /**
    * 显式启用的、调用方拥有的 Link parse-facts persistent cache。省略时关闭；enabled directory 必须 absolute、可信且可删除。
    * 本 Check 只在其中使用 `markdown-link-parse-facts-v1.jsonl` 保存 source-derived facts；调用方负责容量和删除，且不提供
-   * confidentiality、automatic cleanup、concurrency 或 durability guarantees。cache 不可用时 fresh-parse，Check 结果不变。
+   * confidentiality、automatic cleanup、concurrency 或 durability guarantees。cache 不可用时 fresh-parse；容量提醒只增加 warning message，不改变链接结算。
    */
   readonly cache?: MarkdownLinkValidationCacheOptions;
 }
