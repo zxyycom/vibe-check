@@ -101,6 +101,78 @@ describe("static task engine", () => {
     assert.equal(recomputedAdmission.kind, "admit");
     assert.equal(recomputedAdmission.taskId, "low");
     assert.equal(recomputedAdmission.scopeToActivate, "low");
+    assert.deepEqual(recomputedAdmission.capacity, {
+      effectiveMaxParallel: 2,
+      maxParallel: 2,
+      running: 0
+    });
+
+    const overlappingScopes = decisionFor(graph, {
+      activeScopeIds: ["wide", "low"],
+      maxParallel: 3,
+      pendingTaskIds: ["wide-two", "wide-terminal"],
+      runningTaskIds: ["wide-one", "low"],
+      settledTasks: [{ kind: "completed", taskId: "gate" }]
+    });
+    assert.equal(overlappingScopes.kind, "await-running");
+    assert.deepEqual(overlappingScopes.capacity, {
+      effectiveMaxParallel: 1,
+      maxParallel: 3,
+      running: 2
+    });
+    const afterTighterSettlement = decisionFor(graph, {
+      activeScopeIds: ["wide"],
+      maxParallel: 3,
+      pendingTaskIds: ["wide-two", "wide-terminal"],
+      runningTaskIds: ["wide-one"],
+      settledTasks: [
+        { kind: "completed", taskId: "gate" },
+        { kind: "completed", taskId: "low" }
+      ]
+    });
+    assert.deepEqual(afterTighterSettlement.capacity, {
+      effectiveMaxParallel: 2,
+      maxParallel: 3,
+      running: 1
+    });
+    const afterAllScopeSettlements = decisionFor(graph, {
+      maxParallel: 3,
+      pendingTaskIds: [],
+      settledTasks: graph.tasks.map((task) => ({ kind: "completed", taskId: task.id }))
+    });
+    assert.deepEqual(afterAllScopeSettlements.capacity, {
+      effectiveMaxParallel: 3,
+      maxParallel: 3,
+      running: 0
+    });
+    assert.equal(overlappingScopes.capacity.effectiveMaxParallel, 1);
+    assert.equal(Object.isFrozen(overlappingScopes.capacity), true);
+
+    const scopes = [6, 6, 6, 6, 5, 1].map((maxParallel, index) => ({
+      id: `scope-${index}`,
+      maxParallel,
+      activationTaskIds: [`scoped-task-${index}`],
+      terminalTaskId: `scoped-task-${index}`
+    }));
+    const manyScopesGraph = {
+      tasks: scopes.map((scope) => ({ id: scope.terminalTaskId, scopeId: scope.id })),
+      scopes
+    };
+    for (const scenario of [
+      { activeCount: 0, effectiveMaxParallel: 8 },
+      { activeCount: 4, effectiveMaxParallel: 6 },
+      { activeCount: 5, effectiveMaxParallel: 5 }
+    ]) {
+      const decision = decisionFor(manyScopesGraph, {
+        activeScopeIds: manyScopesGraph.scopes
+          .slice(0, scenario.activeCount)
+          .map((scope) => scope.id),
+        maxParallel: 8,
+        runningTaskIds: manyScopesGraph.tasks.slice(0, scenario.activeCount).map((task) => task.id),
+        pendingTaskIds: manyScopesGraph.tasks.slice(scenario.activeCount).map((task) => task.id)
+      });
+      assert.equal(decision.capacity.effectiveMaxParallel, scenario.effectiveMaxParallel);
+    }
     assert.equal(events.includes("start:wide-two"), false);
     assert.equal(events.includes("start:low"), false);
     releaseWide.resolve();

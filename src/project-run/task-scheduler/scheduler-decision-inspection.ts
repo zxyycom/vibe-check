@@ -9,6 +9,7 @@ import type {
 
 export interface SchedulerInspection {
   readonly activeScopeIds: readonly string[];
+  readonly effectiveMaxParallel: number;
   readonly graph: PlannedTaskGraph;
   readonly isAbortRequested: boolean;
   readonly isCancelled: boolean;
@@ -42,16 +43,8 @@ export function decisionContext(
 
 export function capacityFor(state: SchedulerInspection): SchedulerCapacity {
   return Object.freeze({
-    effectiveMaxParallel: effectiveMaxParallelFor(state),
+    effectiveMaxParallel: state.effectiveMaxParallel,
     maxParallel: state.maxParallel,
     running: state.runningTaskIds.length
   });
-}
-
-function effectiveMaxParallelFor(state: SchedulerInspection): number {
-  let effective = state.maxParallel;
-  for (const scope of state.graph.scopes) {
-    if (state.activeScopeIds.includes(scope.id)) effective = Math.min(effective, scope.maxParallel);
-  }
-  return effective;
 }
