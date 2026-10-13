@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+if (( $# != 0 )); then
+  printf '%s\n' 'arguments: this fixed-input historical helper accepts none' >&2
+  exit 2
+fi
 ROOT=/workspace/vibe-check/tmp/optimization-20261012/run-projection
 NODE=/home/dev/.local/share/mise/installs/node/24.18.0/bin/node
 BUN=/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun

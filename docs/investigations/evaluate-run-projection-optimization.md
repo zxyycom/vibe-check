@@ -93,7 +93,7 @@ Node P=4、N=512 两形状的相邻对均改善，支持本 workload 的收益�
 
 ### 后续辅助代码审查
 
-辅助脚本整理后，以 56 份归档 raw 重算 summary，整对象与原汇总相等；另验证非法输入与 manifest 顺序。五份原始 helper 文本/hash 保存在 `helper-source-history.json`，历史 checksum 仍指原字节。当前 helper 的输入校验与此次统计复核不是新的性能样本，准备方法见随附 `METHODS.md`。
+辅助脚本整理后，以 56 份归档 raw 重算 summary，整对象与原汇总相等；另验证非法输入与 manifest 顺序。固定窗口 shell 在 IO 前拒绝参数，其窗口主体保持原字节并经独立语法/guard 检查，未重新执行。五份原始 helper 文本/hash 保存在 `helper-source-history.json`，历史 checksum 仍指原字节。当前 helper 的输入校验与此次统计复核不是新的性能样本，准备方法见随附 `METHODS.md`。
 
 ## 随附资源
 

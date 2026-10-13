@@ -8,15 +8,17 @@
 2. `identity.json`、before/candidate source manifests、`candidate.patch` 标明测量源码；`implementation.patch` 与行为材料说明生产落地。
 3. `raw/count-*.json` 和 `raw/cancellation.json` 是单独非计时证明，不用于估计 wall time。
 4. `helper-source-history.json` 保存五份原始 helper 的完整源文本与 SHA-256。`artifact-sha256.txt`、`identity.json.script` 及 raw 的 `scriptSha256`
-   仍指这些原始字节，不指当前整理后的四份 MJS；需要复核旧 checksum 时按 `originalPath` 取对应 `sourceText` 的 UTF-8 字节。
+   仍指这些原始字节，不指当前整理后的四份 MJS 和一份 shell；需要复核旧 checksum 时按 `originalPath` 取对应 `sourceText` 的 UTF-8 字节。
 
 ## 审查后的辅助代码
 
 当前 helper 使用清晰 argv 拒绝、具名文件 IO 阶段和 JSON 领域校验；summary 解码核对文件身份、采样结构、runtime、source side 与 hash，
-避免未知文件被默认为 Bun/candidate。原 raw、源码快照、patch 和原 checksum 清单保持。`run-window.sh` 本身未改。
+避免未知文件被默认为 Bun/candidate。`run-window.sh` 在任何 IO 前拒绝参数，固定窗口主体保持原字节。
+原 raw、源码快照、patch 和原 checksum 清单保持。
 
 最窄复核以 56 份归档 raw 重算，生成的 summary 与原 summary 整对象深等；六种 malformed JSON/字段输入明确拒绝并含文件名，
-三个 helper 的非法 argv 在 IO 前拒绝。nested manifest 的有序路径/hash 与原实现一致，symlink 拒绝。
+三个 MJS helper 的非法 argv 在 IO 前拒绝。shell 另经语法检查、隔离的无参数 guard 与三种非法 argv 验证，未执行窗口主体。
+nested manifest 的有序路径/hash 与原实现一致，symlink 拒绝。
 这些是辅助代码与历史统计复核，没有重新计时、执行性能矩阵或把旧脚本 hash 改成新 hash。
 
 ## 重跑准备与留存

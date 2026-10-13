@@ -2182,7 +2182,7 @@
       "261012-audit-function-metrics-pathological-input-cost": "sha256:25531da916fe75b83789364206943c9c58a08839cdaf1708c338920b42141673",
       "261012-evaluate-bounded-tokenizer-optimization": "sha256:7616a14f9f228d3c06c1c993631e593483dcf42249d8ed2ffb583fd46f07c223",
       "261012-evaluate-project-file-selection-optimization": "sha256:8f372f69815696158b56f2c71c2e690759d12667eb735c076542308883f14377",
-      "261012-evaluate-run-projection-optimization": "sha256:6cd9ef84b2f637c522c7f9cecbdb6ddf29f060de5ca1c4aadbe7c7b23134fb6b",
+      "261012-evaluate-run-projection-optimization": "sha256:74564e291b0f27dd42ae96543425c760efcce84484f54ba1bf9c69b34cb77bce",
       "261012-measure-product-performance-baseline": "sha256:b87dc559349cb9552d1a89b9d6fc782188ec54be6c9536a96f542d450f6817a2",
       "261012-profile-post-optimization-run-stages": "sha256:f4439e5a85e0e366aa599f70475fd4889aa0e24ac6377e628f031a2a6bbf46b4",
       "261012-review-product-algorithmic-complexity": "sha256:640d5bc0ede06d31f27feb63d6e7b6b08da4bfde6f1bc305ecba31fb1b0270b5",
