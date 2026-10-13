@@ -7,6 +7,7 @@ import test from "node:test";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { createArtifactFingerprint } from "./fingerprint.ts";
+import { copyArtifactFingerprintFixture } from "./fingerprint.test-support.ts";
 import {
   auditCandidateManifest,
   RELEASE_MANIFEST_SOURCE_PATH,
@@ -78,15 +79,9 @@ test("release manifest bytes invalidate the candidate fingerprint", () => {
   const temporaryRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-fingerprint-"));
   const root = join(temporaryRoot, "repository");
   try {
-    cpSync(repositoryRoot, root, {
-      dereference: false,
-      recursive: true,
-      filter: (path) =>
-        ![".cache", ".codegraph", ".git", ".log", "build", "node_modules"].includes(
-          path.split("/").at(-1) ?? ""
-        )
-    });
+    copyArtifactFingerprintFixture({ repositoryRoot, fixtureRoot: root });
     const before = createArtifactFingerprint(root);
+    assert.equal(before, createArtifactFingerprint(repositoryRoot));
     const sourcePath = join(root, RELEASE_MANIFEST_SOURCE_PATH);
     writeFileSync(sourcePath, `${readFileSync(sourcePath, "utf8").trimEnd()}\n\n`, "utf8");
     assert.notEqual(createArtifactFingerprint(root), before);

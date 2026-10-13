@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 import { createArtifactFingerprint } from "../package/artifact/fingerprint.ts";
+import { copyArtifactFingerprintFixture } from "../package/artifact/fingerprint.test-support.ts";
 import { collectPackageMachineMaterials } from "./machine-artifacts/package-materials.ts";
 import { collectPackageDocumentation } from "./package-api/check-guides.ts";
 import { renderPackageApiDocumentation } from "./package-api/render.ts";
@@ -118,15 +119,9 @@ describe("package document mappings", () => {
     const temporaryRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-document-fingerprint-"));
     const root = join(temporaryRoot, "repository");
     try {
-      cpSync(repositoryRoot, root, {
-        dereference: false,
-        recursive: true,
-        filter: (path) =>
-          ![".cache", ".codegraph", ".git", ".log", "build", "node_modules"].includes(
-            path.split("/").at(-1) ?? ""
-          )
-      });
+      copyArtifactFingerprintFixture({ repositoryRoot, fixtureRoot: root });
       const before = createArtifactFingerprint(root);
+      assert.equal(before, createArtifactFingerprint(repositoryRoot));
       const configPath = join(root, PACKAGE_DOCUMENTS_CONFIG_PATH);
       writeFileSync(configPath, `${readFileSync(configPath, "utf8")}\n`, "utf8");
       assert.notEqual(createArtifactFingerprint(root), before);
