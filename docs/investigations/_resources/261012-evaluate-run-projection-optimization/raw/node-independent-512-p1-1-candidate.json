@@ -1,0 +1,136 @@
+{
+  "sourceRoot": "/workspace/vibe-check/tmp/optimization-20261012/run-projection/candidate",
+  "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+  "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+  "shape": "independent",
+  "size": 512,
+  "parallel": 1,
+  "warmups": 3,
+  "samples": 9,
+  "runtime": {
+    "version": "v24.18.0",
+    "versions": {
+      "node": "24.18.0",
+      "acorn": "8.16.0",
+      "ada": "3.4.4",
+      "amaro": "1.1.9",
+      "ares": "1.34.6",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.2",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.69.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.5.7",
+      "simdjson": "4.6.4",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.1",
+      "tz": "2026b",
+      "undici": "7.28.0",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.50",
+      "zlib": "1.3.1-e00f703",
+      "zstd": "1.5.7"
+    },
+    "execPath": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node"
+  },
+  "scope": "complete public sourceAPI run; import/Definition/verification/IO excluded; not installed package or Gate",
+  "signature": "6a9f2f601dcbcf83575e76a9465982e7f31e4739b0ff2eb3220f88a8a8c37794",
+  "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+  "declarativeFingerprint": "be2ee6380a672b6940c5ba1f5c651ff37e553bc77f68500743b2b6708ea8f86f",
+  "observations": [
+    {
+      "index": 0,
+      "warmup": true,
+      "wallMs": 252.26098899999994
+    },
+    {
+      "index": 1,
+      "warmup": true,
+      "wallMs": 170.61001899999997
+    },
+    {
+      "index": 2,
+      "warmup": true,
+      "wallMs": 166.44283599999994
+    },
+    {
+      "index": 3,
+      "warmup": false,
+      "wallMs": 345.2908789999999
+    },
+    {
+      "index": 4,
+      "warmup": false,
+      "wallMs": 192.69250899999997
+    },
+    {
+      "index": 5,
+      "warmup": false,
+      "wallMs": 164.1914979999999
+    },
+    {
+      "index": 6,
+      "warmup": false,
+      "wallMs": 165.62263800000005
+    },
+    {
+      "index": 7,
+      "warmup": false,
+      "wallMs": 161.20503199999985
+    },
+    {
+      "index": 8,
+      "warmup": false,
+      "wallMs": 168.16929100000016
+    },
+    {
+      "index": 9,
+      "warmup": false,
+      "wallMs": 167.86399699999993
+    },
+    {
+      "index": 10,
+      "warmup": false,
+      "wallMs": 169.45936299999994
+    },
+    {
+      "index": 11,
+      "warmup": false,
+      "wallMs": 158.87485700000025
+    }
+  ],
+  "processMemory": {
+    "rss": 351748096,
+    "heapTotal": 252686336,
+    "heapUsed": 162931488,
+    "external": 13308711,
+    "arrayBuffers": 3987204
+  },
+  "processResourceUsage": {
+    "userCPUTime": 2993378,
+    "systemCPUTime": 549722,
+    "maxRSS": 343504,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 76225,
+    "majorPageFault": 0,
+    "swappedOut": 0,
+    "fsRead": 0,
+    "fsWrite": 0,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 3015,
+    "involuntaryContextSwitches": 134
+  }
+}

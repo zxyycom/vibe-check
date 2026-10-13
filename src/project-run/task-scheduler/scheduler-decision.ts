@@ -64,11 +64,34 @@ export function decideScheduler(
       });
     }
   }
+  return decideSchedulerFromCore({
+    admissionCore: core,
+    pendingTaskIds: snapshot.pendingTaskIds,
+    policy,
+    runtime: snapshot,
+    trigger,
+    ...(measurement === undefined ? {} : { measurement })
+  });
+}
+
+/** Uses the authoritative core without rebuilding discarded shell state projections. */
+export function decideSchedulerFromCore(
+  input: Readonly<{
+    readonly admissionCore: AdmissionCoreState;
+    readonly runtime: Pick<SchedulerSnapshot, "isAbortRequested" | "isCancelled">;
+    readonly trigger: SchedulerTrigger;
+    readonly policy: AdmissionSelectionPolicy;
+    readonly measurement?: () => AdmissionPolicyContext["measurement"];
+    /** Preserves standalone snapshot cancellation order when one was supplied. */
+    readonly pendingTaskIds?: readonly string[];
+  }>
+): SchedulerDecision {
+  const { admissionCore: core, runtime, trigger, policy, measurement } = input;
   const coreInspection = schedulerInspectionForCore(core);
   const state = Object.freeze({
     ...coreInspection,
-    isAbortRequested: snapshot.isAbortRequested,
-    isCancelled: snapshot.isCancelled
+    isAbortRequested: runtime.isAbortRequested,
+    isCancelled: runtime.isCancelled
   });
   const cycle: SchedulerDecisionCycle = Object.freeze({
     admissionCore: core,
@@ -78,7 +101,7 @@ export function decideScheduler(
     ...(measurement === undefined ? {} : { measurement }),
     trigger
   });
-  const terminalDecision = decideTerminalSchedulerAction(cycle, snapshot);
+  const terminalDecision = decideTerminalSchedulerAction(cycle, runtime, input.pendingTaskIds);
   if (terminalDecision !== undefined) return terminalDecision;
 
   return decideAdmission(cycle);
@@ -86,25 +109,26 @@ export function decideScheduler(
 
 function decideTerminalSchedulerAction(
   cycle: SchedulerDecisionCycle,
-  snapshot: SchedulerSnapshot
+  runtime: Pick<SchedulerSnapshot, "isAbortRequested" | "isCancelled">,
+  pendingTaskIds: readonly string[] | undefined
 ): SchedulerDecision | undefined {
-  if (snapshot.isAbortRequested && !snapshot.isCancelled) {
+  if (runtime.isAbortRequested && !runtime.isCancelled) {
     return freezeDecision({
       ...cycle.context,
       kind: "cancel-pending",
-      taskIds: snapshot.pendingTaskIds,
+      taskIds: pendingTaskIds ?? cycle.state.pendingTasks.map((task) => task.id),
       trigger: Object.freeze({ kind: "cancellation-observed" })
     });
   }
   if (cycle.state.pendingTasks.length === 0 && cycle.state.runningTaskIds.length === 0) {
     return freezeDecision({
       ...cycle.context,
-      cancelled: snapshot.isCancelled,
+      cancelled: runtime.isCancelled,
       kind: "complete",
       trigger: cycle.trigger
     });
   }
-  if (snapshot.isCancelled) {
+  if (runtime.isCancelled) {
     if (cycle.state.pendingTasks.length > 0) {
       throw new Error("cancelled scheduler state retains pending tasks");
     }

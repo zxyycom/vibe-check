@@ -1,0 +1,1658 @@
+{
+  "scope": "supported Node public sourceAPI primary; Bun independently reported; no installed package/Gate claim; pooled 18 samples not independent host experiments",
+  "processCount": 56,
+  "workloads": [
+    {
+      "key": "bun-chain-128-p4",
+      "before": {
+        "median": 37.74975649999999,
+        "mad": 2.483877999999976,
+        "min": 33.33639500000004,
+        "max": 48.737644999999986
+      },
+      "candidate": {
+        "median": 31.193544000000003,
+        "mad": 1.8467674999999986,
+        "min": 24.349023999999986,
+        "max": 34.182844999999986
+      },
+      "medianChangePct": -17.367562357653853,
+      "pairChangesPct": [
+        -16.014040926395513,
+        -19.73459862567659
+      ],
+      "processes": [
+        {
+          "file": "bun-chain-128-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "fee2ed89014ef69ccb3ddbaad286a50ac459752c737ab0b6417378732efb47b7",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "5e5b1c0df3bd6622e55ebcde1ea409972d0c7da472dd8322a033c4de3504b511",
+          "side": "before",
+          "median": 37.78554099999997,
+          "mad": 2.50074699999999,
+          "min": 33.33639500000004,
+          "max": 48.737644999999986,
+          "samples": [
+            40.286287999999956,
+            48.737644999999986,
+            42.494166000000064,
+            40.315311000000065,
+            35.81786599999998,
+            37.439314999999965,
+            37.78554099999997,
+            35.318532000000005,
+            33.33639500000004
+          ]
+        },
+        {
+          "file": "bun-chain-128-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "fee2ed89014ef69ccb3ddbaad286a50ac459752c737ab0b6417378732efb47b7",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "5e5b1c0df3bd6622e55ebcde1ea409972d0c7da472dd8322a033c4de3504b511",
+          "side": "candidate",
+          "median": 31.734549000000015,
+          "mad": 1.4036579999999503,
+          "min": 24.349023999999986,
+          "max": 33.865617999999984,
+          "samples": [
+            33.865617999999984,
+            33.493389000000036,
+            32.13799799999998,
+            30.65253899999999,
+            30.330891000000065,
+            31.734549000000015,
+            31.919286000000056,
+            28.25262299999997,
+            24.349023999999986
+          ]
+        },
+        {
+          "file": "bun-chain-128-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "fee2ed89014ef69ccb3ddbaad286a50ac459752c737ab0b6417378732efb47b7",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "5e5b1c0df3bd6622e55ebcde1ea409972d0c7da472dd8322a033c4de3504b511",
+          "side": "candidate",
+          "median": 30.271270999999956,
+          "mad": 3.114975999999956,
+          "min": 26.260524000000032,
+          "max": 34.182844999999986,
+          "samples": [
+            33.88021699999996,
+            32.420870000000036,
+            34.182844999999986,
+            32.58723399999997,
+            30.271270999999956,
+            30.250703000000044,
+            26.260524000000032,
+            26.984217000000058,
+            27.156295
+          ]
+        },
+        {
+          "file": "bun-chain-128-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "fee2ed89014ef69ccb3ddbaad286a50ac459752c737ab0b6417378732efb47b7",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "5e5b1c0df3bd6622e55ebcde1ea409972d0c7da472dd8322a033c4de3504b511",
+          "side": "before",
+          "median": 37.71397200000001,
+          "mad": 1.6626019999999926,
+          "min": 34.223734000000036,
+          "max": 44.57106500000003,
+          "samples": [
+            44.57106500000003,
+            41.64555800000005,
+            39.299847,
+            37.280576999999994,
+            37.71397200000001,
+            34.223734000000036,
+            43.06561499999998,
+            36.05245200000002,
+            36.05137000000002
+          ]
+        }
+      ]
+    },
+    {
+      "key": "bun-chain-512-p4",
+      "before": {
+        "median": 366.1249244999999,
+        "mad": 4.380589999999984,
+        "min": 352.17046099999993,
+        "max": 376.4572669999998
+      },
+      "candidate": {
+        "median": 267.06863250000004,
+        "mad": 7.5232394999999315,
+        "min": 254.54438100000016,
+        "max": 278.1853719999999
+      },
+      "medianChangePct": -27.055326029845283,
+      "pairChangesPct": [
+        -28.295224887871516,
+        -26.19985931534855
+      ],
+      "processes": [
+        {
+          "file": "bun-chain-512-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+          "side": "before",
+          "median": 366.422495,
+          "mad": 5.000205999999935,
+          "min": 352.17046099999993,
+          "max": 373.1367620000001,
+          "samples": [
+            366.422495,
+            352.17046099999993,
+            364.4871629999998,
+            363.1759469999997,
+            360.29528400000027,
+            373.1367620000001,
+            371.42270099999996,
+            373.0299239999995,
+            368.5831870000002
+          ]
+        },
+        {
+          "file": "bun-chain-512-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+          "side": "candidate",
+          "median": 262.74242600000025,
+          "mad": 6.255493999999771,
+          "min": 254.54438100000016,
+          "max": 274.30314099999987,
+          "samples": [
+            255.77887600000008,
+            256.78532900000005,
+            268.99792,
+            254.54438100000016,
+            274.30314099999987,
+            257.29497200000014,
+            262.74242600000025,
+            265.5824929999999,
+            271.21698000000015
+          ]
+        },
+        {
+          "file": "bun-chain-512-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+          "side": "candidate",
+          "median": 270.08867299999974,
+          "mad": 4.79193000000032,
+          "min": 256.72116500000016,
+          "max": 278.1853719999999,
+          "samples": [
+            266.1250749999999,
+            258.0861070000001,
+            268.01219000000015,
+            256.72116500000016,
+            271.42775200000005,
+            270.08867299999974,
+            278.1853719999999,
+            274.88060300000006,
+            274.944653
+          ]
+        },
+        {
+          "file": "bun-chain-512-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+          "side": "before",
+          "median": 365.9731139999999,
+          "mad": 3.3115929999999025,
+          "min": 358.08374000000003,
+          "max": 376.4572669999998,
+          "samples": [
+            358.08374000000003,
+            359.16614800000025,
+            367.6095610000002,
+            363.35544400000026,
+            366.2767349999999,
+            365.9731139999999,
+            376.4572669999998,
+            362.661521,
+            373.40275199999996
+          ]
+        }
+      ]
+    },
+    {
+      "key": "bun-independent-128-p4",
+      "before": {
+        "median": 53.85265399999997,
+        "mad": 2.6252739999999903,
+        "min": 48.48511799999994,
+        "max": 61.00536699999998
+      },
+      "candidate": {
+        "median": 42.06800500000003,
+        "mad": 1.3001105000000734,
+        "min": 38.90753500000005,
+        "max": 50.822914999999966
+      },
+      "medianChangePct": -21.88313504474626,
+      "pairChangesPct": [
+        -22.342007640776018,
+        -22.480975941591353
+      ],
+      "processes": [
+        {
+          "file": "bun-independent-128-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "c2d8489861f678d232201abf2e09d0f0d5f21b08685a787b322d4c96da2cf017",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "052db89be00a4db4e9e5929ce2a77734f47e90fef73f3a3dfcac058e4dd71eed",
+          "side": "before",
+          "median": 53.64036299999998,
+          "mad": 2.2743449999999257,
+          "min": 48.48511799999994,
+          "max": 61.00536699999998,
+          "samples": [
+            56.93798400000003,
+            55.25102300000003,
+            61.00536699999998,
+            54.064944999999966,
+            52.327989,
+            51.366018000000054,
+            49.55451400000004,
+            53.64036299999998,
+            48.48511799999994
+          ]
+        },
+        {
+          "file": "bun-independent-128-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "c2d8489861f678d232201abf2e09d0f0d5f21b08685a787b322d4c96da2cf017",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "052db89be00a4db4e9e5929ce2a77734f47e90fef73f3a3dfcac058e4dd71eed",
+          "side": "candidate",
+          "median": 41.65602899999999,
+          "mad": 1.3846479999999701,
+          "min": 39.359924999999976,
+          "max": 45.629174000000035,
+          "samples": [
+            45.629174000000035,
+            43.78580299999999,
+            42.86802399999999,
+            43.04067699999996,
+            39.359924999999976,
+            41.65602899999999,
+            39.624685,
+            41.52812299999994,
+            40.84235799999999
+          ]
+        },
+        {
+          "file": "bun-independent-128-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "c2d8489861f678d232201abf2e09d0f0d5f21b08685a787b322d4c96da2cf017",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "052db89be00a4db4e9e5929ce2a77734f47e90fef73f3a3dfcac058e4dd71eed",
+          "side": "candidate",
+          "median": 42.479981000000066,
+          "mad": 1.7865500000001475,
+          "min": 38.90753500000005,
+          "max": 50.822914999999966,
+          "samples": [
+            42.94839200000001,
+            50.822914999999966,
+            44.48640599999999,
+            41.08618899999999,
+            40.10741900000005,
+            40.69343099999992,
+            42.479981000000066,
+            38.90753500000005,
+            43.00623600000006
+          ]
+        },
+        {
+          "file": "bun-independent-128-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "c2d8489861f678d232201abf2e09d0f0d5f21b08685a787b322d4c96da2cf017",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "052db89be00a4db4e9e5929ce2a77734f47e90fef73f3a3dfcac058e4dd71eed",
+          "side": "before",
+          "median": 54.79942699999998,
+          "mad": 2.756772000000012,
+          "min": 50.168766000000005,
+          "max": 58.58516099999997,
+          "samples": [
+            54.79942699999998,
+            58.58516099999997,
+            56.38406599999996,
+            55.28791000000001,
+            51.01415600000007,
+            52.04265499999997,
+            51.13351799999998,
+            50.168766000000005,
+            56.84926999999993
+          ]
+        }
+      ]
+    },
+    {
+      "key": "bun-independent-512-p4",
+      "before": {
+        "median": 645.0703575000002,
+        "mad": 20.163782000000538,
+        "min": 610.5801690000003,
+        "max": 677.2781589999995
+      },
+      "candidate": {
+        "median": 473.3229375000001,
+        "mad": 5.104902000000266,
+        "min": 459.12813600000027,
+        "max": 508.0080240000002
+      },
+      "medianChangePct": -26.624602727928025,
+      "pairChangesPct": [
+        -27.03710699634776,
+        -26.659598160154452
+      ],
+      "processes": [
+        {
+          "file": "bun-independent-512-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "45916cfc75291144251d423f0c2d5bf6f22631b196baef28166a375d6e1b82e0",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "bbec5306d94a6e3ee02fb7749cfd91803226957d3b947364cf5224d2642df324",
+          "side": "before",
+          "median": 649.456878,
+          "mad": 16.45574900000065,
+          "min": 610.5801690000003,
+          "max": 670.9454370000003,
+          "samples": [
+            610.5801690000003,
+            623.6846030000002,
+            649.456878,
+            634.7017260000002,
+            640.2001,
+            670.9454370000003,
+            665.9126270000006,
+            650.4450480000005,
+            667.7665280000001
+          ]
+        },
+        {
+          "file": "bun-independent-512-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "45916cfc75291144251d423f0c2d5bf6f22631b196baef28166a375d6e1b82e0",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "bbec5306d94a6e3ee02fb7749cfd91803226957d3b947364cf5224d2642df324",
+          "side": "candidate",
+          "median": 473.8625270000002,
+          "mad": 5.892765000000509,
+          "min": 459.12813600000027,
+          "max": 508.0080240000002,
+          "samples": [
+            508.0080240000002,
+            483.93345299999964,
+            474.87661100000014,
+            459.89324399999987,
+            476.05372999999963,
+            472.78334799999993,
+            473.8625270000002,
+            459.12813600000027,
+            467.9697619999997
+          ]
+        },
+        {
+          "file": "bun-independent-512-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "45916cfc75291144251d423f0c2d5bf6f22631b196baef28166a375d6e1b82e0",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "bbec5306d94a6e3ee02fb7749cfd91803226957d3b947364cf5224d2642df324",
+          "side": "candidate",
+          "median": 471.41937700000017,
+          "mad": 5.48025699999971,
+          "min": 462.06610699999965,
+          "max": 490.9809270000005,
+          "samples": [
+            469.6579059999999,
+            476.8996339999999,
+            468.4663089999999,
+            462.06610699999965,
+            471.41937700000017,
+            468.9832840000008,
+            482.5772449999995,
+            485.0898880000004,
+            490.9809270000005
+          ]
+        },
+        {
+          "file": "bun-independent-512-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "45916cfc75291144251d423f0c2d5bf6f22631b196baef28166a375d6e1b82e0",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "bbec5306d94a6e3ee02fb7749cfd91803226957d3b947364cf5224d2642df324",
+          "side": "before",
+          "median": 642.7826480000003,
+          "mad": 17.1975850000008,
+          "min": 622.3712270000001,
+          "max": 677.2781589999995,
+          "samples": [
+            642.7826480000003,
+            626.0367819999997,
+            633.8011840000004,
+            622.3712270000001,
+            625.5850629999995,
+            672.3832619999994,
+            647.3580670000001,
+            670.1514210000005,
+            677.2781589999995
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-chain-128-p1",
+      "before": {
+        "median": 16.891719999999964,
+        "mad": 1.170949500000006,
+        "min": 14.486601000000064,
+        "max": 32.28721400000006
+      },
+      "candidate": {
+        "median": 14.61629099999999,
+        "mad": 1.2306105000000116,
+        "min": 12.460999000000015,
+        "max": 24.716826999999967
+      },
+      "medianChangePct": -13.470676757606558,
+      "pairChangesPct": [
+        -14.819363165572696,
+        -10.251817528756124
+      ],
+      "processes": [
+        {
+          "file": "node-chain-128-p1-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "d4adb0fab156d5370e77a3e245d336457820ab8349d55da4f2cf6b14a788065b",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "671a8788d462f185c5379f7fada899447eeeac0291997653984c7194142dc4ac",
+          "side": "before",
+          "median": 16.57906600000001,
+          "mad": 0.9311210000000756,
+          "min": 14.486601000000064,
+          "max": 22.451202999999964,
+          "samples": [
+            22.451202999999964,
+            20.03398900000002,
+            14.486601000000064,
+            16.57906600000001,
+            16.18558500000006,
+            20.61862599999995,
+            17.37706800000001,
+            16.44208100000003,
+            15.647944999999936
+          ]
+        },
+        {
+          "file": "node-chain-128-p1-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "d4adb0fab156d5370e77a3e245d336457820ab8349d55da4f2cf6b14a788065b",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "671a8788d462f185c5379f7fada899447eeeac0291997653984c7194142dc4ac",
+          "side": "candidate",
+          "median": 14.122154000000023,
+          "mad": 0.9833070000000816,
+          "min": 12.460999000000015,
+          "max": 19.340434000000073,
+          "samples": [
+            19.340434000000073,
+            17.328507999999943,
+            14.122154000000023,
+            14.130690000000072,
+            13.05397000000005,
+            14.939091000000076,
+            13.138846999999942,
+            13.682688000000098,
+            12.460999000000015
+          ]
+        },
+        {
+          "file": "node-chain-128-p1-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "d4adb0fab156d5370e77a3e245d336457820ab8349d55da4f2cf6b14a788065b",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "671a8788d462f185c5379f7fada899447eeeac0291997653984c7194142dc4ac",
+          "side": "candidate",
+          "median": 15.190657999999985,
+          "mad": 0.6826979999999594,
+          "min": 13.05000300000006,
+          "max": 24.716826999999967,
+          "samples": [
+            24.716826999999967,
+            19.072726999999986,
+            14.507960000000026,
+            15.190657999999985,
+            15.643418999999994,
+            16.050384000000008,
+            13.05000300000006,
+            14.673747000000049,
+            14.558834999999931
+          ]
+        },
+        {
+          "file": "node-chain-128-p1-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "d4adb0fab156d5370e77a3e245d336457820ab8349d55da4f2cf6b14a788065b",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "671a8788d462f185c5379f7fada899447eeeac0291997653984c7194142dc4ac",
+          "side": "before",
+          "median": 16.925866999999926,
+          "mad": 1.132270999999946,
+          "min": 15.460939999999937,
+          "max": 32.28721400000006,
+          "samples": [
+            32.28721400000006,
+            19.83264900000006,
+            15.79359599999998,
+            16.857573000000002,
+            16.925866999999926,
+            17.457731999999965,
+            16.93914200000006,
+            15.460939999999937,
+            15.521013000000039
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-chain-128-p4",
+      "before": {
+        "median": 18.17022149999997,
+        "mad": 3.028639999999996,
+        "min": 13.867433000000005,
+        "max": 30.018651999999975
+      },
+      "candidate": {
+        "median": 14.661685500000033,
+        "mad": 1.2949035000000322,
+        "min": 12.014960999999971,
+        "max": 28.572928000000047
+      },
+      "medianChangePct": -19.309263786354734,
+      "pairChangesPct": [
+        -6.623943554112122,
+        -18.3561668336801
+      ],
+      "processes": [
+        {
+          "file": "node-chain-128-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "fee2ed89014ef69ccb3ddbaad286a50ac459752c737ab0b6417378732efb47b7",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "5e5b1c0df3bd6622e55ebcde1ea409972d0c7da472dd8322a033c4de3504b511",
+          "side": "before",
+          "median": 15.134353000000033,
+          "mad": 0.9204079999999522,
+          "min": 13.867433000000005,
+          "max": 30.018651999999975,
+          "samples": [
+            30.018651999999975,
+            18.626441,
+            14.303842999999915,
+            16.054760999999985,
+            15.134353000000033,
+            15.148809999999912,
+            14.417892999999935,
+            13.867433000000005,
+            14.108676999999943
+          ]
+        },
+        {
+          "file": "node-chain-128-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "fee2ed89014ef69ccb3ddbaad286a50ac459752c737ab0b6417378732efb47b7",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "5e5b1c0df3bd6622e55ebcde1ea409972d0c7da472dd8322a033c4de3504b511",
+          "side": "candidate",
+          "median": 14.131861999999956,
+          "mad": 0.8859849999998914,
+          "min": 12.014960999999971,
+          "max": 28.007075999999984,
+          "samples": [
+            28.007075999999984,
+            18.630194999999958,
+            13.985189999999989,
+            14.672475000000077,
+            14.131861999999956,
+            15.340726000000018,
+            12.014960999999971,
+            13.878311000000053,
+            13.245877000000064
+          ]
+        },
+        {
+          "file": "node-chain-128-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "fee2ed89014ef69ccb3ddbaad286a50ac459752c737ab0b6417378732efb47b7",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "5e5b1c0df3bd6622e55ebcde1ea409972d0c7da472dd8322a033c4de3504b511",
+          "side": "candidate",
+          "median": 15.61131899999998,
+          "mad": 2.1817909999999756,
+          "min": 13.327269000000001,
+          "max": 28.572928000000047,
+          "samples": [
+            28.572928000000047,
+            17.793109999999956,
+            13.406295,
+            15.61131899999998,
+            16.948852999999986,
+            18.164348000000018,
+            13.327269000000001,
+            13.751590999999962,
+            14.650895999999989
+          ]
+        },
+        {
+          "file": "node-chain-128-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "fee2ed89014ef69ccb3ddbaad286a50ac459752c737ab0b6417378732efb47b7",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "5e5b1c0df3bd6622e55ebcde1ea409972d0c7da472dd8322a033c4de3504b511",
+          "side": "before",
+          "median": 19.12124700000004,
+          "mad": 1.4072450000001027,
+          "min": 17.690368000000035,
+          "max": 28.227015999999935,
+          "samples": [
+            27.661696000000006,
+            23.122052999999937,
+            19.60235,
+            19.12124700000004,
+            17.714001999999937,
+            19.068165000000022,
+            18.790584999999965,
+            28.227015999999935,
+            17.690368000000035
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-chain-32-p4",
+      "before": {
+        "median": 9.153912500000047,
+        "mad": 3.5883885000000078,
+        "min": 4.318208999999911,
+        "max": 14.411231000000043
+      },
+      "candidate": {
+        "median": 6.4611175,
+        "mad": 2.673494000000005,
+        "min": 3.4939880000000585,
+        "max": 15.800810999999953
+      },
+      "medianChangePct": -29.4168750247507,
+      "pairChangesPct": [
+        -39.161528644585694,
+        -14.263645948833725
+      ],
+      "processes": [
+        {
+          "file": "node-chain-32-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "e7bbe8366167d10e5b12081f0c8a612d28a08c092e8e8af30b3e8ac1251c2af1",
+          "snapshotDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+          "declarativeFingerprint": "cae42bf78bc78c3ada6d4993edaca56bb4eb7c8a9165989206c79ca049861c40",
+          "side": "before",
+          "median": 11.142420000000016,
+          "mad": 2.5687259999999696,
+          "min": 4.318208999999911,
+          "max": 13.711145999999985,
+          "samples": [
+            13.711145999999985,
+            4.318208999999911,
+            6.439016000000038,
+            12.897699999999986,
+            12.434870000000046,
+            11.142420000000016,
+            4.536995000000047,
+            5.730380999999966,
+            12.336557999999968
+          ]
+        },
+        {
+          "file": "node-chain-32-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "e7bbe8366167d10e5b12081f0c8a612d28a08c092e8e8af30b3e8ac1251c2af1",
+          "snapshotDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+          "declarativeFingerprint": "cae42bf78bc78c3ada6d4993edaca56bb4eb7c8a9165989206c79ca049861c40",
+          "side": "candidate",
+          "median": 6.778877999999963,
+          "mad": 3.284889999999905,
+          "min": 3.4939880000000585,
+          "max": 15.800810999999953,
+          "samples": [
+            11.462785000000054,
+            4.187977000000046,
+            4.344957999999906,
+            13.136392999999998,
+            15.800810999999953,
+            13.549602999999934,
+            6.778877999999963,
+            4.346941999999899,
+            3.4939880000000585
+          ]
+        },
+        {
+          "file": "node-chain-32-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "e7bbe8366167d10e5b12081f0c8a612d28a08c092e8e8af30b3e8ac1251c2af1",
+          "snapshotDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+          "declarativeFingerprint": "cae42bf78bc78c3ada6d4993edaca56bb4eb7c8a9165989206c79ca049861c40",
+          "side": "candidate",
+          "median": 6.143357000000037,
+          "mad": 2.1832330000000866,
+          "min": 3.9601239999999507,
+          "max": 12.906627000000071,
+          "samples": [
+            6.143357000000037,
+            4.593249000000014,
+            4.414015999999947,
+            10.129969999999958,
+            9.307111999999961,
+            5.376563000000033,
+            3.9601239999999507,
+            12.099528000000078,
+            12.906627000000071
+          ]
+        },
+        {
+          "file": "node-chain-32-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "e7bbe8366167d10e5b12081f0c8a612d28a08c092e8e8af30b3e8ac1251c2af1",
+          "snapshotDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+          "declarativeFingerprint": "cae42bf78bc78c3ada6d4993edaca56bb4eb7c8a9165989206c79ca049861c40",
+          "side": "before",
+          "median": 7.165405000000078,
+          "mad": 2.602542000000085,
+          "min": 4.562862999999993,
+          "max": 14.411231000000043,
+          "samples": [
+            7.165405000000078,
+            4.562862999999993,
+            5.3215320000000474,
+            14.411231000000043,
+            6.535214999999994,
+            5.720922999999971,
+            11.676442000000065,
+            13.937434999999937,
+            13.602494999999976
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-chain-512-p1",
+      "before": {
+        "median": 114.1960744999999,
+        "mad": 1.542100000000005,
+        "min": 108.77164100000005,
+        "max": 154.26855299999988
+      },
+      "candidate": {
+        "median": 95.79306050000002,
+        "mad": 0.9144985000000361,
+        "min": 91.78675900000007,
+        "max": 126.14441899999997
+      },
+      "medianChangePct": -16.11527723748498,
+      "pairChangesPct": [
+        -16.154017903603744,
+        -16.67838812246233
+      ],
+      "processes": [
+        {
+          "file": "node-chain-512-p1-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "8ff53d6d318768800d61adcf29454c677f5416ba9ad190b3170b707de90fad13",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "f063c3b7a18e80f717e2beac48a03f3753377366982cebbf4a498c2c586a6ad6",
+          "side": "before",
+          "median": 114.34345999999982,
+          "mad": 1.6101769999997941,
+          "min": 109.42477299999996,
+          "max": 154.26855299999988,
+          "samples": [
+            154.26855299999988,
+            111.25538099999994,
+            112.73328300000003,
+            114.34345999999982,
+            114.99850100000003,
+            117.48883599999999,
+            109.42477299999996,
+            114.81980999999996,
+            113.36718900000005
+          ]
+        },
+        {
+          "file": "node-chain-512-p1-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "8ff53d6d318768800d61adcf29454c677f5416ba9ad190b3170b707de90fad13",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "f063c3b7a18e80f717e2beac48a03f3753377366982cebbf4a498c2c586a6ad6",
+          "side": "candidate",
+          "median": 95.87239699999986,
+          "mad": 0.6695540000000619,
+          "min": 93.388283,
+          "max": 125.1027949999999,
+          "samples": [
+            125.1027949999999,
+            96.54195099999993,
+            96.17492800000014,
+            95.55014800000004,
+            95.742976,
+            100.32541700000002,
+            93.388283,
+            95.87239699999986,
+            93.86570000000006
+          ]
+        },
+        {
+          "file": "node-chain-512-p1-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "8ff53d6d318768800d61adcf29454c677f5416ba9ad190b3170b707de90fad13",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "f063c3b7a18e80f717e2beac48a03f3753377366982cebbf4a498c2c586a6ad6",
+          "side": "candidate",
+          "median": 95.02720599999998,
+          "mad": 1.0805250000000797,
+          "min": 91.78675900000007,
+          "max": 126.14441899999997,
+          "samples": [
+            126.14441899999997,
+            94.98699299999998,
+            95.02720599999998,
+            93.9466809999999,
+            95.84314500000005,
+            96.267787,
+            94.77013099999999,
+            97.47227900000007,
+            91.78675900000007
+          ]
+        },
+        {
+          "file": "node-chain-512-p1-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "8ff53d6d318768800d61adcf29454c677f5416ba9ad190b3170b707de90fad13",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "f063c3b7a18e80f717e2beac48a03f3753377366982cebbf4a498c2c586a6ad6",
+          "side": "before",
+          "median": 114.04868899999997,
+          "mad": 1.7687940000000708,
+          "min": 108.77164100000005,
+          "max": 144.9303930000001,
+          "samples": [
+            144.9303930000001,
+            114.04086099999995,
+            114.04868899999997,
+            113.72172300000011,
+            114.47772600000008,
+            112.16549200000009,
+            117.32556399999999,
+            115.81748300000004,
+            108.77164100000005
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-chain-512-p4",
+      "before": {
+        "median": 115.17425950000006,
+        "mad": 2.7324025000000347,
+        "min": 111.57758999999987,
+        "max": 282.0597519999999
+      },
+      "candidate": {
+        "median": 96.31143599999996,
+        "mad": 1.5905800000000454,
+        "min": 93.31897400000003,
+        "max": 126.80109499999992
+      },
+      "medianChangePct": -16.37763818225382,
+      "pairChangesPct": [
+        -18.33486532195714,
+        -15.140984971574268
+      ],
+      "processes": [
+        {
+          "file": "node-chain-512-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+          "side": "before",
+          "median": 118.29831100000001,
+          "mad": 2.938947999999982,
+          "min": 114.1036009999998,
+          "max": 282.0597519999999,
+          "samples": [
+            282.0597519999999,
+            118.29831100000001,
+            114.9891560000001,
+            115.35936300000003,
+            119.23076200000014,
+            119.27679999999987,
+            117.09374000000003,
+            122.7982400000003,
+            114.1036009999998
+          ]
+        },
+        {
+          "file": "node-chain-512-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+          "side": "candidate",
+          "median": 96.608475,
+          "mad": 1.2929199999998673,
+          "min": 94.0898830000001,
+          "max": 126.80109499999992,
+          "samples": [
+            126.80109499999992,
+            94.0898830000001,
+            96.608475,
+            97.90139499999987,
+            95.57858699999997,
+            95.10026999999991,
+            97.45582799999988,
+            97.66312500000004,
+            94.127074
+          ]
+        },
+        {
+          "file": "node-chain-512-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+          "side": "candidate",
+          "median": 96.01439699999992,
+          "mad": 1.8298739999997906,
+          "min": 93.31897400000003,
+          "max": 125.80080999999996,
+          "samples": [
+            125.80080999999996,
+            94.53172100000006,
+            96.01439699999992,
+            94.84055699999999,
+            94.18452300000013,
+            97.90263700000014,
+            97.01905699999998,
+            98.09409299999993,
+            93.31897400000003
+          ]
+        },
+        {
+          "file": "node-chain-512-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+          "side": "before",
+          "median": 113.14578299999994,
+          "mad": 0.9703200000001289,
+          "min": 111.57758999999987,
+          "max": 145.75939599999992,
+          "samples": [
+            145.75939599999992,
+            113.46558200000004,
+            113.13958200000002,
+            113.14578299999994,
+            114.11610300000007,
+            112.7523540000002,
+            112.13135999999986,
+            119.63039499999991,
+            111.57758999999987
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-independent-128-p1",
+      "before": {
+        "median": 20.992141500000002,
+        "mad": 1.1714604999999665,
+        "min": 19.235698999999954,
+        "max": 26.842771999999968
+      },
+      "candidate": {
+        "median": 18.236128000000008,
+        "mad": 0.9662509999999997,
+        "min": 17.02861100000007,
+        "max": 32.39370300000007
+      },
+      "medianChangePct": -13.12878678909436,
+      "pairChangesPct": [
+        -15.169093760719232,
+        -4.877910725208723
+      ],
+      "processes": [
+        {
+          "file": "node-independent-128-p1-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "13d25b3d27a374ece5018d83977c75cca79ad06b4d241e39c9b91cd21203bee2",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "adcf835cdab7bb3b9a2fb807250a8364b39e88dd6135b5a78f924aa02621d4ee",
+          "side": "before",
+          "median": 21.10054200000002,
+          "mad": 1.3094019999999773,
+          "min": 19.35888299999999,
+          "max": 26.842771999999968,
+          "samples": [
+            26.842771999999968,
+            25.434909999999945,
+            20.53591300000005,
+            21.10054200000002,
+            22.134060999999974,
+            23.061388999999963,
+            19.35888299999999,
+            19.79114000000004,
+            20.897062000000005
+          ]
+        },
+        {
+          "file": "node-independent-128-p1-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "13d25b3d27a374ece5018d83977c75cca79ad06b4d241e39c9b91cd21203bee2",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "adcf835cdab7bb3b9a2fb807250a8364b39e88dd6135b5a78f924aa02621d4ee",
+          "side": "candidate",
+          "median": 17.899781000000075,
+          "mad": 0.42919900000003963,
+          "min": 17.02861100000007,
+          "max": 26.36846300000002,
+          "samples": [
+            26.36846300000002,
+            22.315129999999954,
+            17.06917199999998,
+            17.899781000000075,
+            18.252171999999973,
+            17.87472200000002,
+            18.08398999999997,
+            17.470582000000036,
+            17.02861100000007
+          ]
+        },
+        {
+          "file": "node-independent-128-p1-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "13d25b3d27a374ece5018d83977c75cca79ad06b4d241e39c9b91cd21203bee2",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "adcf835cdab7bb3b9a2fb807250a8364b39e88dd6135b5a78f924aa02621d4ee",
+          "side": "candidate",
+          "median": 19.578095000000076,
+          "mad": 1.3580110000000332,
+          "min": 17.551350999999954,
+          "max": 32.39370300000007,
+          "samples": [
+            32.39370300000007,
+            21.82733200000007,
+            19.804736000000048,
+            19.578095000000076,
+            20.487723999999957,
+            18.881130999999982,
+            17.614248999999973,
+            17.551350999999954,
+            18.220084000000043
+          ]
+        },
+        {
+          "file": "node-independent-128-p1-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "13d25b3d27a374ece5018d83977c75cca79ad06b4d241e39c9b91cd21203bee2",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "adcf835cdab7bb3b9a2fb807250a8364b39e88dd6135b5a78f924aa02621d4ee",
+          "side": "before",
+          "median": 20.582070000000044,
+          "mad": 0.6693729999999505,
+          "min": 19.235698999999954,
+          "max": 25.712417999999957,
+          "samples": [
+            25.712417999999957,
+            24.228527999999983,
+            21.087221,
+            20.034579000000008,
+            21.251442999999995,
+            20.24447299999997,
+            19.235698999999954,
+            20.582070000000044,
+            19.356835000000046
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-independent-128-p4",
+      "before": {
+        "median": 25.989006000000074,
+        "mad": 1.4723240000000146,
+        "min": 21.741063000000054,
+        "max": 33.71136899999999
+      },
+      "candidate": {
+        "median": 20.255166499999973,
+        "mad": 1.3115849999999796,
+        "min": 18.52046100000007,
+        "max": 32.238966000000005
+      },
+      "medianChangePct": -22.062557913912084,
+      "pairChangesPct": [
+        -18.312708872587034,
+        -22.5612840842633
+      ],
+      "processes": [
+        {
+          "file": "node-independent-128-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "c2d8489861f678d232201abf2e09d0f0d5f21b08685a787b322d4c96da2cf017",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "052db89be00a4db4e9e5929ce2a77734f47e90fef73f3a3dfcac058e4dd71eed",
+          "side": "before",
+          "median": 24.025113000000033,
+          "mad": 0.7898959999999988,
+          "min": 21.741063000000054,
+          "max": 32.910057999999935,
+          "samples": [
+            32.910057999999935,
+            26.571649999999977,
+            21.741063000000054,
+            26.13289700000007,
+            24.025113000000033,
+            23.294205000000034,
+            23.958639999999946,
+            23.235217000000034,
+            24.315429999999992
+          ]
+        },
+        {
+          "file": "node-independent-128-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "c2d8489861f678d232201abf2e09d0f0d5f21b08685a787b322d4c96da2cf017",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "052db89be00a4db4e9e5929ce2a77734f47e90fef73f3a3dfcac058e4dd71eed",
+          "side": "candidate",
+          "median": 19.625463999999965,
+          "mad": 0.9640849999999546,
+          "min": 18.52046100000007,
+          "max": 30.640623000000005,
+          "samples": [
+            30.640623000000005,
+            21.843991999999957,
+            19.625463999999965,
+            18.92182600000001,
+            20.16314,
+            20.38583899999992,
+            18.66137900000001,
+            18.52046100000007,
+            18.630796000000032
+          ]
+        },
+        {
+          "file": "node-independent-128-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "c2d8489861f678d232201abf2e09d0f0d5f21b08685a787b322d4c96da2cf017",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "052db89be00a4db4e9e5929ce2a77734f47e90fef73f3a3dfcac058e4dd71eed",
+          "side": "candidate",
+          "median": 20.370787000000064,
+          "mad": 0.9603380000000925,
+          "min": 18.965336999999977,
+          "max": 32.238966000000005,
+          "samples": [
+            32.238966000000005,
+            23.853605000000016,
+            20.69448799999998,
+            19.816919000000098,
+            18.965336999999977,
+            19.41044899999997,
+            20.347192999999947,
+            21.99111400000004,
+            20.370787000000064
+          ]
+        },
+        {
+          "file": "node-independent-128-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "c2d8489861f678d232201abf2e09d0f0d5f21b08685a787b322d4c96da2cf017",
+          "snapshotDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+          "declarativeFingerprint": "052db89be00a4db4e9e5929ce2a77734f47e90fef73f3a3dfcac058e4dd71eed",
+          "side": "before",
+          "median": 26.305688000000032,
+          "mad": 0.8443460000000869,
+          "min": 25.41507399999989,
+          "max": 33.71136899999999,
+          "samples": [
+            33.71136899999999,
+            28.544664999999895,
+            27.26007800000002,
+            25.461341999999945,
+            25.41507399999989,
+            26.827616000000035,
+            26.149425000000065,
+            26.305688000000032,
+            25.845115000000078
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-independent-32-p4",
+      "before": {
+        "median": 7.47631350000006,
+        "mad": 1.4757349999999292,
+        "min": 5.277795999999967,
+        "max": 13.907095000000027
+      },
+      "candidate": {
+        "median": 6.106826000000069,
+        "mad": 1.3054955000000632,
+        "min": 4.782821000000013,
+        "max": 14.869501999999898
+      },
+      "medianChangePct": -18.31768424371155,
+      "pairChangesPct": [
+        -6.575165824809181,
+        -33.684812636656424
+      ],
+      "processes": [
+        {
+          "file": "node-independent-32-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "92f99c9dd3ba627a402952a4f1dd7b94653b6797e4a9345c8133ab3644a7f221",
+          "snapshotDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+          "declarativeFingerprint": "463b128d89048861c02422c50be56cea1f6715c412730d0fa9f08d6562c1bb33",
+          "side": "before",
+          "median": 6.7996460000000525,
+          "mad": 1.0761030000001028,
+          "min": 5.72354299999995,
+          "max": 11.657057000000009,
+          "samples": [
+            5.913616000000047,
+            5.72354299999995,
+            6.7996460000000525,
+            11.657057000000009,
+            6.616206000000034,
+            6.405332999999928,
+            8.152981000000068,
+            8.35647700000004,
+            8.865085999999906
+          ]
+        },
+        {
+          "file": "node-independent-32-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "92f99c9dd3ba627a402952a4f1dd7b94653b6797e4a9345c8133ab3644a7f221",
+          "snapshotDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+          "declarativeFingerprint": "463b128d89048861c02422c50be56cea1f6715c412730d0fa9f08d6562c1bb33",
+          "side": "candidate",
+          "median": 6.352558000000045,
+          "mad": 1.569737000000032,
+          "min": 4.782821000000013,
+          "max": 14.869501999999898,
+          "samples": [
+            4.963105999999925,
+            5.322512999999958,
+            4.782821000000013,
+            14.869501999999898,
+            5.861094000000094,
+            6.352558000000045,
+            9.816024999999968,
+            12.84310000000005,
+            12.861803000000009
+          ]
+        },
+        {
+          "file": "node-independent-32-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "92f99c9dd3ba627a402952a4f1dd7b94653b6797e4a9345c8133ab3644a7f221",
+          "snapshotDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+          "declarativeFingerprint": "463b128d89048861c02422c50be56cea1f6715c412730d0fa9f08d6562c1bb33",
+          "side": "candidate",
+          "median": 5.688913999999954,
+          "mad": 0.869073999999955,
+          "min": 4.819839999999999,
+          "max": 13.478883999999994,
+          "samples": [
+            5.213458999999943,
+            5.057202999999959,
+            4.819839999999999,
+            13.478883999999994,
+            5.688913999999954,
+            5.121715999999992,
+            9.141876000000025,
+            12.68887200000006,
+            10.782711999999947
+          ]
+        },
+        {
+          "file": "node-independent-32-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "92f99c9dd3ba627a402952a4f1dd7b94653b6797e4a9345c8133ab3644a7f221",
+          "snapshotDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+          "declarativeFingerprint": "463b128d89048861c02422c50be56cea1f6715c412730d0fa9f08d6562c1bb33",
+          "side": "before",
+          "median": 8.578599000000054,
+          "mad": 2.897019000000114,
+          "min": 5.277795999999967,
+          "max": 13.907095000000027,
+          "samples": [
+            6.746221000000105,
+            5.277795999999967,
+            8.578599000000054,
+            11.096826000000078,
+            6.4728090000000975,
+            5.68157999999994,
+            13.907095000000027,
+            13.657080000000065,
+            13.276952000000051
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-independent-512-p1",
+      "before": {
+        "median": 183.93503699999997,
+        "mad": 3.3514710000000605,
+        "min": 179.499867,
+        "max": 235.68243299999995
+      },
+      "candidate": {
+        "median": 160.03994450000005,
+        "mad": 5.543268999999896,
+        "min": 151.57301099999995,
+        "max": 345.2908789999999
+      },
+      "medianChangePct": -12.991049932482369,
+      "pairChangesPct": [
+        -9.324829559613502,
+        -14.140035080237002
+      ],
+      "processes": [
+        {
+          "file": "node-independent-512-p1-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "6a9f2f601dcbcf83575e76a9465982e7f31e4739b0ff2eb3220f88a8a8c37794",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "be2ee6380a672b6940c5ba1f5c651ff37e553bc77f68500743b2b6708ea8f86f",
+          "side": "before",
+          "median": 185.126751,
+          "mad": 2.898102000000108,
+          "min": 181.91829700000017,
+          "max": 235.68243299999995,
+          "samples": [
+            235.68243299999995,
+            188.18014600000015,
+            185.126751,
+            182.2286489999999,
+            186.26406199999997,
+            183.07795599999963,
+            183.12582999999995,
+            190.84186899999986,
+            181.91829700000017
+          ]
+        },
+        {
+          "file": "node-independent-512-p1-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "6a9f2f601dcbcf83575e76a9465982e7f31e4739b0ff2eb3220f88a8a8c37794",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "be2ee6380a672b6940c5ba1f5c651ff37e553bc77f68500743b2b6708ea8f86f",
+          "side": "candidate",
+          "median": 167.86399699999993,
+          "mad": 3.672499000000016,
+          "min": 158.87485700000025,
+          "max": 345.2908789999999,
+          "samples": [
+            345.2908789999999,
+            192.69250899999997,
+            164.1914979999999,
+            165.62263800000005,
+            161.20503199999985,
+            168.16929100000016,
+            167.86399699999993,
+            169.45936299999994,
+            158.87485700000025
+          ]
+        },
+        {
+          "file": "node-independent-512-p1-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "6a9f2f601dcbcf83575e76a9465982e7f31e4739b0ff2eb3220f88a8a8c37794",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "be2ee6380a672b6940c5ba1f5c651ff37e553bc77f68500743b2b6708ea8f86f",
+          "side": "candidate",
+          "median": 155.063811,
+          "mad": 1.5796090000001186,
+          "min": 151.57301099999995,
+          "max": 189.8980550000001,
+          "samples": [
+            189.8980550000001,
+            156.6434200000001,
+            151.57301099999995,
+            155.063811,
+            154.61030899999992,
+            154.53610000000026,
+            155.692008,
+            158.5310300000001,
+            152.44508900000028
+          ]
+        },
+        {
+          "file": "node-independent-512-p1-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "6a9f2f601dcbcf83575e76a9465982e7f31e4739b0ff2eb3220f88a8a8c37794",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "be2ee6380a672b6940c5ba1f5c651ff37e553bc77f68500743b2b6708ea8f86f",
+          "side": "before",
+          "median": 180.60083199999985,
+          "mad": 1.10096499999986,
+          "min": 179.499867,
+          "max": 206.56194800000003,
+          "samples": [
+            204.3378140000002,
+            180.60083199999985,
+            184.74424399999998,
+            179.499867,
+            180.56629999999996,
+            179.60316600000033,
+            180.4187939999997,
+            186.13065700000016,
+            206.56194800000003
+          ]
+        }
+      ]
+    },
+    {
+      "key": "node-independent-512-p4",
+      "before": {
+        "median": 196.47229649999997,
+        "mad": 3.8624749999997903,
+        "min": 186.13615300000038,
+        "max": 234.9650419999998
+      },
+      "candidate": {
+        "median": 162.311379,
+        "mad": 2.3827304999999797,
+        "min": 156.9502120000002,
+        "max": 201.8342909999999
+      },
+      "medianChangePct": -17.38714216128684,
+      "pairChangesPct": [
+        -21.800980136237857,
+        -16.199244954374358
+      ],
+      "processes": [
+        {
+          "file": "node-independent-512-p4-0-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "45916cfc75291144251d423f0c2d5bf6f22631b196baef28166a375d6e1b82e0",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "bbec5306d94a6e3ee02fb7749cfd91803226957d3b947364cf5224d2642df324",
+          "side": "before",
+          "median": 206.67534999999998,
+          "mad": 12.620826999999963,
+          "min": 193.7825290000003,
+          "max": 234.9650419999998,
+          "samples": [
+            217.88906799999995,
+            200.42197399999986,
+            194.05452300000002,
+            195.87733900000012,
+            193.7825290000003,
+            228.1412409999998,
+            234.9650419999998,
+            234.63681399999996,
+            206.67534999999998
+          ]
+        },
+        {
+          "file": "node-independent-512-p4-1-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "45916cfc75291144251d423f0c2d5bf6f22631b196baef28166a375d6e1b82e0",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "bbec5306d94a6e3ee02fb7749cfd91803226957d3b947364cf5224d2642df324",
+          "side": "candidate",
+          "median": 161.61809799999992,
+          "mad": 1.753671999999824,
+          "min": 156.9502120000002,
+          "max": 190.287963,
+          "samples": [
+            190.287963,
+            159.99287099999992,
+            161.61809799999992,
+            161.906426,
+            165.2206000000001,
+            165.56258200000025,
+            159.8644260000001,
+            160.26525300000003,
+            156.9502120000002
+          ]
+        },
+        {
+          "file": "node-independent-512-p4-2-candidate.json",
+          "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "45916cfc75291144251d423f0c2d5bf6f22631b196baef28166a375d6e1b82e0",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "bbec5306d94a6e3ee02fb7749cfd91803226957d3b947364cf5224d2642df324",
+          "side": "candidate",
+          "median": 162.9312319999999,
+          "mad": 1.8476700000001074,
+          "min": 157.246805,
+          "max": 201.8342909999999,
+          "samples": [
+            201.8342909999999,
+            162.9312319999999,
+            172.98650700000007,
+            157.246805,
+            161.56925499999988,
+            164.24386700000014,
+            164.77890200000002,
+            162.71633199999997,
+            160.8249780000001
+          ]
+        },
+        {
+          "file": "node-independent-512-p4-3-before.json",
+          "sourceManifestSha256": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6",
+          "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+          "signature": "45916cfc75291144251d423f0c2d5bf6f22631b196baef28166a375d6e1b82e0",
+          "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+          "declarativeFingerprint": "bbec5306d94a6e3ee02fb7749cfd91803226957d3b947364cf5224d2642df324",
+          "side": "before",
+          "median": 194.4269260000001,
+          "mad": 2.309917999999925,
+          "min": 186.13615300000038,
+          "max": 222.79252099999985,
+          "samples": [
+            222.79252099999985,
+            191.43738199999984,
+            196.20774899999992,
+            193.2445459999999,
+            193.20065799999998,
+            194.4269260000001,
+            196.73684400000002,
+            200.24756899999966,
+            186.13615300000038
+          ]
+        }
+      ]
+    }
+  ]
+}

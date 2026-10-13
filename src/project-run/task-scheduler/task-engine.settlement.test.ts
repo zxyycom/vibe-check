@@ -77,8 +77,9 @@ describe("static task engine", () => {
     const started: string[] = [];
     const observations: DiagnosticObservation[] = [];
     let observedSignal: AbortSignal | undefined;
+    const pendingTaskIds = ["pending-z", "pending-a", "pending-middle"];
     const graph: TaskGraph = {
-      tasks: [{ id: "started-one" }, { id: "started-two" }, { id: "pending" }]
+      tasks: [{ id: "started-one" }, { id: "started-two" }, ...pendingTaskIds.map((id) => ({ id }))]
     };
 
     const running = runTaskGraph({
@@ -109,7 +110,13 @@ describe("static task engine", () => {
       kind: "completed",
       value: "started-two"
     });
-    assert.deepEqual(settlementFor(run, "pending"), { kind: "cancelled-before-start" });
+    for (const taskId of pendingTaskIds) {
+      assert.deepEqual(settlementFor(run, taskId), { kind: "cancelled-before-start" });
+    }
+    assert.deepEqual(
+      run.settlements.map(({ task }) => task.id),
+      ["started-one", "started-two", ...pendingTaskIds]
+    );
     const cancellationDecisions = recordedSchedulerDecisions(observations);
     assert.deepEqual(
       cancellationDecisions.map((decision) => decision.kind),
@@ -119,7 +126,8 @@ describe("static task engine", () => {
     if (appliedCancellation?.kind !== "cancel-pending") {
       assert.fail("expected pending cancellation decision");
     }
-    assert.deepEqual(appliedCancellation.taskIds, ["pending"]);
+    assert.deepEqual(appliedCancellation.taskIds, pendingTaskIds);
+    assert.equal(Object.isFrozen(appliedCancellation.taskIds), true);
     assert.equal(appliedCancellation.trigger.kind, "cancellation-observed");
     const appliedCancellationDrain = cancellationDecisions[4];
     if (appliedCancellationDrain?.kind !== "await-running") {
@@ -131,14 +139,15 @@ describe("static task engine", () => {
       assert.fail("expected cancellation completion decision");
     }
     assert.equal(cancellationComplete.trigger.kind, "task-settled");
+    const suppliedPendingTaskIds = ["pending-middle", "pending-a", "pending-z"];
     const cancellation = decisionFor(graph, {
       isAbortRequested: true,
       maxParallel: 2,
-      pendingTaskIds: ["pending"],
+      pendingTaskIds: suppliedPendingTaskIds,
       runningTaskIds: ["started-one", "started-two"]
     });
     assert.equal(cancellation.kind, "cancel-pending");
-    assert.deepEqual(cancellation.taskIds, ["pending"]);
+    assert.deepEqual(cancellation.taskIds, suppliedPendingTaskIds);
     assert.equal(Object.isFrozen(cancellation.taskIds), true);
     assert.equal(cancellation.trigger.kind, "cancellation-observed");
 

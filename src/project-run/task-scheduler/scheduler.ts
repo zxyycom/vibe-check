@@ -1,13 +1,12 @@
 import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
 import { prepareTaskGraph } from "./graph.ts";
 import {
-  decideScheduler,
+  decideSchedulerFromCore,
   type SchedulerDecision,
   type SchedulerTrigger
 } from "./scheduler-decision.ts";
 import {
   createSchedulerState,
-  snapshotSchedulerState,
   type RunTaskGraphOptions,
   type SchedulerState,
   type TaskGraphRun
@@ -77,22 +76,23 @@ export async function runTaskGraph<TResult>(
   while (true) {
     let decision: SchedulerDecision;
     try {
-      const snapshot = snapshotSchedulerState(state);
+      const runtime = Object.freeze({
+        isAbortRequested: state.signal?.aborted === true,
+        isCancelled: state.isCancelled
+      });
       const measurement =
         state.admissionPolicy.requiresMeasurement === true
           ? () => decisionBoundaryMeasurement(diagnostics)
           : undefined;
-      decision =
-        diagnostics?.measureControlPath(() =>
-          decideScheduler(
-            snapshot,
-            trigger,
-            state.admissionPolicy,
-            measurement,
-            state.admissionCore
-          )
-        ) ??
-        decideScheduler(snapshot, trigger, state.admissionPolicy, measurement, state.admissionCore);
+      const decide = () =>
+        decideSchedulerFromCore({
+          admissionCore: state.admissionCore,
+          policy: state.admissionPolicy,
+          runtime,
+          trigger,
+          ...(measurement === undefined ? {} : { measurement })
+        });
+      decision = diagnostics?.measureControlPath(decide) ?? decide();
     } catch (error) {
       if (!(error instanceof AdmissionPolicyFault)) throw error;
       const cancellation = cancelPendingAdmissionCore(state.admissionCore);

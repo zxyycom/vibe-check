@@ -1,0 +1,132 @@
+{
+  "sourceRoot": "/workspace/vibe-check/tmp/optimization-20261012/run-projection/candidate",
+  "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+  "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+  "shape": "chain",
+  "size": 512,
+  "parallel": 4,
+  "warmups": 3,
+  "samples": 9,
+  "runtime": {
+    "version": "v24.3.0",
+    "versions": {
+      "node": "24.3.0",
+      "bun": "1.3.14",
+      "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+      "openssl": "1.1.0",
+      "llhttp": "9.3.0",
+      "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+      "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+      "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+      "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+      "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+      "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+      "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+      "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+      "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+      "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+      "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+      "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "v8": "13.6.233.10-node.18",
+      "uv": "1.48.0",
+      "napi": "10",
+      "icu": "75.1",
+      "unicode": "15.1",
+      "modules": "137"
+    },
+    "execPath": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun"
+  },
+  "scope": "complete public sourceAPI run; import/Definition/verification/IO excluded; not installed package or Gate",
+  "signature": "4ee8b9935863f0c7029c1a4bfd718e86885c8980daecc52a5b1f7141ed01542a",
+  "snapshotDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+  "declarativeFingerprint": "a2a4237f7baea52d875c04d2c4a79d61013ae8fccf75b749048c1a5381144eb6",
+  "observations": [
+    {
+      "index": 0,
+      "warmup": true,
+      "wallMs": 349.1583989999999
+    },
+    {
+      "index": 1,
+      "warmup": true,
+      "wallMs": 262.977038
+    },
+    {
+      "index": 2,
+      "warmup": true,
+      "wallMs": 248.086406
+    },
+    {
+      "index": 3,
+      "warmup": false,
+      "wallMs": 255.77887600000008
+    },
+    {
+      "index": 4,
+      "warmup": false,
+      "wallMs": 256.78532900000005
+    },
+    {
+      "index": 5,
+      "warmup": false,
+      "wallMs": 268.99792
+    },
+    {
+      "index": 6,
+      "warmup": false,
+      "wallMs": 254.54438100000016
+    },
+    {
+      "index": 7,
+      "warmup": false,
+      "wallMs": 274.30314099999987
+    },
+    {
+      "index": 8,
+      "warmup": false,
+      "wallMs": 257.29497200000014
+    },
+    {
+      "index": 9,
+      "warmup": false,
+      "wallMs": 262.74242600000025
+    },
+    {
+      "index": 10,
+      "warmup": false,
+      "wallMs": 265.5824929999999
+    },
+    {
+      "index": 11,
+      "warmup": false,
+      "wallMs": 271.21698000000015
+    }
+  ],
+  "processMemory": {
+    "rss": 260902912,
+    "heapTotal": 83739648,
+    "heapUsed": 20489000,
+    "external": 8582051,
+    "arrayBuffers": 498067
+  },
+  "processResourceUsage": {
+    "userCPUTime": 4010891,
+    "systemCPUTime": 567806,
+    "maxRSS": 256220,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 100912,
+    "majorPageFault": 0,
+    "swappedOut": 0,
+    "fsRead": 0,
+    "fsWrite": 0,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 7287,
+    "involuntaryContextSwitches": 195
+  }
+}

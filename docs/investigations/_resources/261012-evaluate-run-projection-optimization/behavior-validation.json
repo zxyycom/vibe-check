@@ -1,0 +1,54 @@
+{
+  "capturedAt": "2026-10-12T15:17:03.245Z",
+  "command": "mise exec -- bun test ./src/project-run/task-scheduler ./src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts",
+  "runtime": "Bun 1.3.14",
+  "exitCode": 0,
+  "passed": 61,
+  "failed": 0,
+  "files": 21,
+  "scope": "scheduler shell/admission core/measurement plus Invocation prepared lifecycle; no performance samples",
+  "sourceFiles": [
+    {
+      "path": "src/project-run/task-scheduler/scheduler.ts",
+      "sha256": "aad802d085ec401bee57d40cc1bd2deea82e161fa82eb71abb8ec31b0679a259",
+      "sameAsMeasuredCandidate": true
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-decision.ts",
+      "sha256": "e32d52e62dd67348073948c797f02c4353471a7b672fc9c5ca8514540693dd79",
+      "sameAsMeasuredCandidate": true
+    },
+    {
+      "path": "src/project-run/task-scheduler/scheduler-admission-decision.ts",
+      "sha256": "5635bc551c337a03a5b999b6f33839fb864c10a2ec91b66ad7f89c7c1f176f20",
+      "sameAsMeasuredCandidate": true
+    },
+    {
+      "path": "src/project-run/task-scheduler/task-engine.settlement.test.ts",
+      "sha256": "730eb7f52e07232f7a8058a974c3401f28cdf1fea671b27103cecaedada02c09",
+      "sameAsMeasuredCandidate": false
+    }
+  ],
+  "testEvidenceBaseline": {
+    "source": "parent-reported actual execution before granting test writes",
+    "command": "mise exec -- bun run test-evidence -- check --root .",
+    "entities": 704,
+    "cases": 176,
+    "topics": 15
+  },
+  "case": {
+    "id": "AUX-PARALLEL-RUNNER-001",
+    "entityUnchanged": true,
+    "purpose": "same abort/drain and frozen decision contract; adds multi-pending declaration order and standalone supplied reverse order assertions",
+    "caseWrites": false
+  },
+  "notRun": [
+    "post-edit complete Test Evidence closure",
+    "typecheck",
+    "lint",
+    "format",
+    "dependency/entry checks",
+    "Gate"
+  ],
+  "ownerOfRemainingChecks": "main thread coordinates overall stable tree"
+}

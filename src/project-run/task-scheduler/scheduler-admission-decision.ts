@@ -30,11 +30,7 @@ export interface SchedulerDecisionCycle {
 }
 
 export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecision {
-  const candidates = Object.freeze(
-    admissionCandidatesForCore(cycle.admissionCore).map((candidate) =>
-      Object.freeze({ canAdmit: candidate.canAdmit, task: candidate.task })
-    )
-  );
+  const candidates = admissionCandidatesForCore(cycle.admissionCore);
   if (candidates.length === 0) return awaitDecision(cycle, candidates);
 
   const measurement = cycle.measurement?.();

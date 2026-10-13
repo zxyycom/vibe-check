@@ -1,0 +1,542 @@
+{
+  "runtime": "v24.18.0",
+  "method": "direct shell cancellation and standalone snapshot-order equivalence; no timing",
+  "observations": [
+    {
+      "source": "tmp/optimization-20261012/run-projection/before",
+      "executed": [
+        "first"
+      ],
+      "decisions": [
+        {
+          "blockers": {
+            "dependency": 0,
+            "mutex": 0,
+            "resourceCapacity": 0,
+            "rootCapacity": false,
+            "scopeCapacity": false
+          },
+          "capacity": {
+            "effectiveMaxParallel": 1,
+            "maxParallel": 1,
+            "running": 0
+          },
+          "admissionPriority": 0,
+          "candidates": [
+            {
+              "canAdmit": true,
+              "taskId": "first"
+            },
+            {
+              "canAdmit": true,
+              "taskId": "z-last-lexical"
+            },
+            {
+              "canAdmit": true,
+              "taskId": "a-first-lexical"
+            },
+            {
+              "canAdmit": true,
+              "taskId": "middle"
+            }
+          ],
+          "eligibleCount": 4,
+          "hardGuard": {
+            "canAdmit": true,
+            "isCandidate": true,
+            "kind": "select",
+            "lifecycleOpen": true,
+            "taskId": "first"
+          },
+          "kind": "admit",
+          "proposal": {
+            "kind": "select",
+            "taskId": "first"
+          },
+          "scopeToActivate": null,
+          "taskId": "first",
+          "trigger": {
+            "kind": "execution-started"
+          },
+          "graphFingerprint": "b4ac9f43134a243ba44814d26f106212cf1c3e17fc45a2d7637c29de5ab77a36"
+        },
+        {
+          "blockers": {
+            "dependency": 0,
+            "mutex": 0,
+            "resourceCapacity": 0,
+            "rootCapacity": true,
+            "scopeCapacity": false
+          },
+          "capacity": {
+            "effectiveMaxParallel": 1,
+            "maxParallel": 1,
+            "running": 1
+          },
+          "candidates": [
+            {
+              "canAdmit": false,
+              "taskId": "z-last-lexical"
+            },
+            {
+              "canAdmit": false,
+              "taskId": "a-first-lexical"
+            },
+            {
+              "canAdmit": false,
+              "taskId": "middle"
+            }
+          ],
+          "eligibleCount": 3,
+          "hardGuard": {
+            "kind": "wait",
+            "runningCanDrain": true
+          },
+          "kind": "await-running",
+          "proposal": {
+            "kind": "wait"
+          },
+          "trigger": {
+            "kind": "admission-continued"
+          },
+          "graphFingerprint": "b4ac9f43134a243ba44814d26f106212cf1c3e17fc45a2d7637c29de5ab77a36"
+        },
+        {
+          "blockers": {
+            "dependency": 0,
+            "mutex": 0,
+            "resourceCapacity": 0,
+            "rootCapacity": false,
+            "scopeCapacity": false
+          },
+          "capacity": {
+            "effectiveMaxParallel": 1,
+            "maxParallel": 1,
+            "running": 0
+          },
+          "kind": "cancel-pending",
+          "taskIds": [
+            "z-last-lexical",
+            "a-first-lexical",
+            "middle"
+          ],
+          "trigger": {
+            "kind": "cancellation-observed"
+          },
+          "graphFingerprint": "b4ac9f43134a243ba44814d26f106212cf1c3e17fc45a2d7637c29de5ab77a36"
+        },
+        {
+          "blockers": {
+            "dependency": 0,
+            "mutex": 0,
+            "resourceCapacity": 0,
+            "rootCapacity": false,
+            "scopeCapacity": false
+          },
+          "capacity": {
+            "effectiveMaxParallel": 1,
+            "maxParallel": 1,
+            "running": 0
+          },
+          "cancelled": true,
+          "kind": "complete",
+          "trigger": {
+            "kind": "cancellation-applied"
+          },
+          "graphFingerprint": "b4ac9f43134a243ba44814d26f106212cf1c3e17fc45a2d7637c29de5ab77a36"
+        }
+      ],
+      "result": {
+        "cancelled": true,
+        "settlements": [
+          {
+            "task": {
+              "admissionPriority": 0,
+              "id": "first",
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": []
+            },
+            "settlement": {
+              "kind": "completed",
+              "value": "first"
+            }
+          },
+          {
+            "task": {
+              "admissionPriority": 0,
+              "id": "z-last-lexical",
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": []
+            },
+            "settlement": {
+              "kind": "cancelled-before-start"
+            }
+          },
+          {
+            "task": {
+              "admissionPriority": 0,
+              "id": "a-first-lexical",
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": []
+            },
+            "settlement": {
+              "kind": "cancelled-before-start"
+            }
+          },
+          {
+            "task": {
+              "admissionPriority": 0,
+              "id": "middle",
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": []
+            },
+            "settlement": {
+              "kind": "cancelled-before-start"
+            }
+          }
+        ]
+      },
+      "pureDecision": {
+        "blockers": {
+          "dependency": 0,
+          "mutex": 0,
+          "resourceCapacity": 0,
+          "rootCapacity": true,
+          "scopeCapacity": false
+        },
+        "capacity": {
+          "effectiveMaxParallel": 1,
+          "maxParallel": 1,
+          "running": 1
+        },
+        "graphIdentity": {
+          "resourceCapacities": [],
+          "scopes": [],
+          "tasks": [
+            {
+              "admissionPriority": 0,
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": [],
+              "scopeId": null,
+              "taskId": "first"
+            },
+            {
+              "admissionPriority": 0,
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": [],
+              "scopeId": null,
+              "taskId": "z-last-lexical"
+            },
+            {
+              "admissionPriority": 0,
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": [],
+              "scopeId": null,
+              "taskId": "a-first-lexical"
+            },
+            {
+              "admissionPriority": 0,
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": [],
+              "scopeId": null,
+              "taskId": "middle"
+            }
+          ]
+        },
+        "kind": "cancel-pending",
+        "taskIds": [
+          "middle",
+          "a-first-lexical",
+          "z-last-lexical"
+        ],
+        "trigger": {
+          "kind": "cancellation-observed"
+        }
+      }
+    },
+    {
+      "source": "tmp/optimization-20261012/run-projection/candidate",
+      "executed": [
+        "first"
+      ],
+      "decisions": [
+        {
+          "blockers": {
+            "dependency": 0,
+            "mutex": 0,
+            "resourceCapacity": 0,
+            "rootCapacity": false,
+            "scopeCapacity": false
+          },
+          "capacity": {
+            "effectiveMaxParallel": 1,
+            "maxParallel": 1,
+            "running": 0
+          },
+          "admissionPriority": 0,
+          "candidates": [
+            {
+              "canAdmit": true,
+              "taskId": "first"
+            },
+            {
+              "canAdmit": true,
+              "taskId": "z-last-lexical"
+            },
+            {
+              "canAdmit": true,
+              "taskId": "a-first-lexical"
+            },
+            {
+              "canAdmit": true,
+              "taskId": "middle"
+            }
+          ],
+          "eligibleCount": 4,
+          "hardGuard": {
+            "canAdmit": true,
+            "isCandidate": true,
+            "kind": "select",
+            "lifecycleOpen": true,
+            "taskId": "first"
+          },
+          "kind": "admit",
+          "proposal": {
+            "kind": "select",
+            "taskId": "first"
+          },
+          "scopeToActivate": null,
+          "taskId": "first",
+          "trigger": {
+            "kind": "execution-started"
+          },
+          "graphFingerprint": "b4ac9f43134a243ba44814d26f106212cf1c3e17fc45a2d7637c29de5ab77a36"
+        },
+        {
+          "blockers": {
+            "dependency": 0,
+            "mutex": 0,
+            "resourceCapacity": 0,
+            "rootCapacity": true,
+            "scopeCapacity": false
+          },
+          "capacity": {
+            "effectiveMaxParallel": 1,
+            "maxParallel": 1,
+            "running": 1
+          },
+          "candidates": [
+            {
+              "canAdmit": false,
+              "taskId": "z-last-lexical"
+            },
+            {
+              "canAdmit": false,
+              "taskId": "a-first-lexical"
+            },
+            {
+              "canAdmit": false,
+              "taskId": "middle"
+            }
+          ],
+          "eligibleCount": 3,
+          "hardGuard": {
+            "kind": "wait",
+            "runningCanDrain": true
+          },
+          "kind": "await-running",
+          "proposal": {
+            "kind": "wait"
+          },
+          "trigger": {
+            "kind": "admission-continued"
+          },
+          "graphFingerprint": "b4ac9f43134a243ba44814d26f106212cf1c3e17fc45a2d7637c29de5ab77a36"
+        },
+        {
+          "blockers": {
+            "dependency": 0,
+            "mutex": 0,
+            "resourceCapacity": 0,
+            "rootCapacity": false,
+            "scopeCapacity": false
+          },
+          "capacity": {
+            "effectiveMaxParallel": 1,
+            "maxParallel": 1,
+            "running": 0
+          },
+          "kind": "cancel-pending",
+          "taskIds": [
+            "z-last-lexical",
+            "a-first-lexical",
+            "middle"
+          ],
+          "trigger": {
+            "kind": "cancellation-observed"
+          },
+          "graphFingerprint": "b4ac9f43134a243ba44814d26f106212cf1c3e17fc45a2d7637c29de5ab77a36"
+        },
+        {
+          "blockers": {
+            "dependency": 0,
+            "mutex": 0,
+            "resourceCapacity": 0,
+            "rootCapacity": false,
+            "scopeCapacity": false
+          },
+          "capacity": {
+            "effectiveMaxParallel": 1,
+            "maxParallel": 1,
+            "running": 0
+          },
+          "cancelled": true,
+          "kind": "complete",
+          "trigger": {
+            "kind": "cancellation-applied"
+          },
+          "graphFingerprint": "b4ac9f43134a243ba44814d26f106212cf1c3e17fc45a2d7637c29de5ab77a36"
+        }
+      ],
+      "result": {
+        "cancelled": true,
+        "settlements": [
+          {
+            "task": {
+              "admissionPriority": 0,
+              "id": "first",
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": []
+            },
+            "settlement": {
+              "kind": "completed",
+              "value": "first"
+            }
+          },
+          {
+            "task": {
+              "admissionPriority": 0,
+              "id": "z-last-lexical",
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": []
+            },
+            "settlement": {
+              "kind": "cancelled-before-start"
+            }
+          },
+          {
+            "task": {
+              "admissionPriority": 0,
+              "id": "a-first-lexical",
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": []
+            },
+            "settlement": {
+              "kind": "cancelled-before-start"
+            }
+          },
+          {
+            "task": {
+              "admissionPriority": 0,
+              "id": "middle",
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": []
+            },
+            "settlement": {
+              "kind": "cancelled-before-start"
+            }
+          }
+        ]
+      },
+      "pureDecision": {
+        "blockers": {
+          "dependency": 0,
+          "mutex": 0,
+          "resourceCapacity": 0,
+          "rootCapacity": true,
+          "scopeCapacity": false
+        },
+        "capacity": {
+          "effectiveMaxParallel": 1,
+          "maxParallel": 1,
+          "running": 1
+        },
+        "graphIdentity": {
+          "resourceCapacities": [],
+          "scopes": [],
+          "tasks": [
+            {
+              "admissionPriority": 0,
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": [],
+              "scopeId": null,
+              "taskId": "first"
+            },
+            {
+              "admissionPriority": 0,
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": [],
+              "scopeId": null,
+              "taskId": "z-last-lexical"
+            },
+            {
+              "admissionPriority": 0,
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": [],
+              "scopeId": null,
+              "taskId": "a-first-lexical"
+            },
+            {
+              "admissionPriority": 0,
+              "dependsOn": [],
+              "mutex": [],
+              "observes": [],
+              "resourceClaims": [],
+              "scopeId": null,
+              "taskId": "middle"
+            }
+          ]
+        },
+        "kind": "cancel-pending",
+        "taskIds": [
+          "middle",
+          "a-first-lexical",
+          "z-last-lexical"
+        ],
+        "trigger": {
+          "kind": "cancellation-observed"
+        }
+      }
+    }
+  ]
+}

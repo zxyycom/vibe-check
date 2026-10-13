@@ -1,0 +1,108 @@
+bun test v1.3.14 (0d9b296a)
+
+src/project-run/task-scheduler/task-engine.graph-observation.test.ts:
+(pass) static task engine > records one graph and references its fingerprint from every scheduler decision [8.13ms]
+(pass) static task engine > distinguishes full graph identities with identical Task IDs but different scheduler semantics [1.10ms]
+
+src/project-run/task-scheduler/task-engine.scope-capacity.test.ts:
+(pass) static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation [4.56ms]
+(pass) static task engine > recomputes tighter-scope selection after capacity becomes available [9.45ms]
+(pass) static task engine > orders constrained selectors by cap then priority without Scheduler policy state [2.23ms]
+(pass) static task engine > does not activate a cap for a scope with no activation task [3.91ms]
+
+src/project-run/task-scheduler/task-engine.admission.test.ts:
+(pass) static task engine > respects one root budget for dependency order and named mutex execution [15.73ms]
+(pass) static task engine > uses priority only among dependency and mutex eligible ordinary ready tasks [0.79ms]
+(pass) static task engine > limits named resource concurrency without withholding unrelated root slots [5.50ms]
+
+src/project-run/task-scheduler/task-engine.admission-policy.test.ts:
+(pass) task engine admission policy > recomputes static select or wait from each frozen scheduler snapshot without reservation state [0.74ms]
+(pass) task engine admission policy > adapts custom select from a detached frozen full-graph context [3.95ms]
+
+src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts:
+(pass) task engine admission policy > shares one frozen graph while exposing only decision-boundary measurement scalars [15.84ms]
+(pass) task engine admission policy > commits a settled running-cohort interval before the next custom policy callback [1.65ms]
+(pass) task engine admission policy > retains custom action effects while unavailable clocks omit interval contributions [2.36ms]
+
+src/project-run/task-scheduler/task-engine.static-validation.test.ts:
+(pass) static task engine > validates static task identity dependency and scope structure before execution [5.63ms]
+
+src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts:
+(pass) task engine admission policy > preserves the caller closure across overlapping custom Runs without a Scheduler callback lock [3.70ms]
+(pass) task engine admission policy > fails custom policy faults without fallback, cancels pending work, and drains admitted work [2.76ms]
+(pass) task engine admission policy > classifies every bounded custom fault without exposing callback values [4.32ms]
+(pass) task engine admission policy > drains an admitted public Check before returning an admission policy fault [10.56ms]
+(pass) task engine admission policy > returns the dedicated execution result for a custom callback failure [2.02ms]
+
+src/project-run/task-scheduler/admission-core.scheduler-integration.test.ts:
+(pass) Scheduler admission core integration > replays canonical failed and forced effects through shell diagnostics and measurement [4.86ms]
+
+src/project-run/task-scheduler/task-engine.settlement.test.ts:
+(pass) static task engine > settles executor failures and blocks only their dependent tasks [1.77ms]
+(pass) static task engine > blocks unmet prerequisites while admitting terminal observers [0.73ms]
+(pass) static task engine > accepts Product-owned pre-admission results without admitting those Tasks [0.38ms]
+(pass) static task engine > stops new admission after abort while admitted work receives the same signal and drains [2.94ms]
+
+src/project-run/task-scheduler/task-engine.admission-observation.test.ts:
+(pass) static task engine > emits immutable root admission and mutex decisions [1.27ms]
+(pass) static task engine > emits root capacity and running-drain decisions [1.47ms]
+
+src/project-run/task-scheduler/admission-core/compiled-graph.test.ts:
+(pass) prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it [0.65ms]
+
+src/project-run/task-scheduler/admission-core/trace.test.ts:
+(pass) admission core trace > traces public and private binary/failed/cancellation transitions through one reducer [4.78ms]
+
+src/project-run/task-scheduler/admission-core/transitions.test.ts:
+(pass) admission core transitions > admission core settles in the selected implementation [0.39ms]
+(pass) admission core transitions > keeps persistent forced-frontier priority and closed scope roots across a 80-by-80 cascade [24.43ms]
+
+src/project-run/task-scheduler/admission-core/graph.capacity.test.ts:
+(pass) immutable admission graph capacity > keeps duplicate blocker payloads and global active-scope capacity for every candidate [6.42ms]
+(pass) immutable admission graph capacity > atomically holds and releases weighted claims across named resources [1.03ms]
+
+src/project-run/task-scheduler/admission-core/graph.test.ts:
+(pass) immutable admission graph > validates exact input and returns frozen opaque branching successors [1.12ms]
+(pass) immutable admission graph > uses canonical catalog order, dedicated validation reasons, binary settlements, and scope lifecycle [1.31ms]
+(pass) immutable admission graph > supplies callback lookahead without reserving or starting a real Task [5.89ms]
+
+src/project-run/task-scheduler/measurement/diagnostics-boundaries.test.ts:
+(pass) Scheduler performance diagnostics > distinguishes a valid zero-span summary from unavailable timing and retains discrete facts [1.76ms]
+(pass) Scheduler performance diagnostics > contains terminal writer failures [0.51ms]
+
+src/project-run/task-scheduler/measurement/diagnostics-terminal.test.ts:
+(pass) Scheduler performance diagnostics terminal drains > contains a policy diagnostic writer failure while draining admitted work [3.06ms]
+(pass) Scheduler performance diagnostics terminal drains > emits exactly one summary after caller cancellation drains admitted work [0.94ms]
+
+src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts:
+(pass) Scheduler terminal effects > awaits ordered hooks over one immutable terminal context without exposing Task values [2.02ms]
+(pass) Scheduler terminal effects > delivers the internal summary Hook before caller terminal effects through one runner [0.56ms]
+(pass) Scheduler terminal effects > contains summary writer failure while preserving caller terminal effect failure delivery [0.57ms]
+(pass) Scheduler terminal effects > continues after synchronous and asynchronous hook failures [0.53ms]
+
+src/project-run/task-scheduler/measurement/diagnostics.test.ts:
+(pass) Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots [1.25ms]
+(pass) Scheduler performance diagnostics > bounds top admission delays and breaks equal delays by Task ID [13.54ms]
+(pass) Scheduler performance diagnostics > classifies a named resource wait as capacity blocked [0.88ms]
+
+src/project-run/task-scheduler/measurement/diagnostics-waits.test.ts:
+(pass) Scheduler performance diagnostics > records an accepted explicit policy wait [1.21ms]
+(pass) Scheduler performance diagnostics > excludes a passive running drain with a null proposal [0.51ms]
+(pass) Scheduler performance diagnostics > retains an accepted wait count when timing becomes unavailable [1.10ms]
+
+src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts:
+(pass) Package Run admission strategy lifecycle > prepares once, decides synchronously, and completes after terminal effects on normal execute [3.04ms]
+(pass) Package Run admission strategy lifecycle > completes after terminal effects when cancellation drains started work [2.54ms]
+(pass) Package Run admission strategy lifecycle > completes after terminal effects when an admission policy fault drains [1.26ms]
+(pass) Package Run admission strategy lifecycle > does not complete when pre-terminal task-engine setup fails [0.93ms]
+(pass) Package Run admission strategy lifecycle > keeps a prepared terminal effect output enabled but not-run without a sealed context [1.11ms]
+(pass) Package Run admission strategy lifecycle > keeps prepared policy closures independent across overlapping Runs [3.71ms]
+(pass) Package Run admission strategy lifecycle > runs a public prepared strategy once and completes after generic terminal effects [1.90ms]
+(pass) Package Run admission strategy lifecycle > keeps public prepared closures isolated across overlapping Runs [3.35ms]
+(pass) Package Run admission strategy lifecycle > fails public preparation before Scheduler start and preserves its output boundary [1.23ms]
+(pass) Package Run admission strategy lifecycle > aggregates public terminal-effect failures without rewriting a sealed primary result [1.32ms]
+(pass) Package Run admission strategy lifecycle > enables measurement output only for generic terminal effects or an actual prepared terminal effect [4.66ms]
+
+ 61 pass
+ 0 fail
+Ran 61 tests across 21 files. [588.00ms]

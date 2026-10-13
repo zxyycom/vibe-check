@@ -1,0 +1,24 @@
+{
+  "head": "08c9166b85152168ca27d45452a4174afed50e57",
+  "branch": "main",
+  "sides": {
+    "before": {
+      "fileCount": 722,
+      "hash": "d090ce514e1bc2e5079d9da4814c4e56988414383768b0e71e63ee2d288d95d6"
+    },
+    "candidate": {
+      "fileCount": 722,
+      "hash": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986"
+    }
+  },
+  "node": "v24.18.0",
+  "nodeExec": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node",
+  "bun": "1.3.14",
+  "formalProcessCount": 56,
+  "formalExit": "all exit 0 via set -e runner; runner exit 0",
+  "formalStderrEmpty": 56,
+  "sourceVerification": "each measured process checks before/after manifest; archival manifests equal measured hashes",
+  "scope": "sourceAPI, not installed package or Gate",
+  "script": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+  "lockSha256": "11edc0c8cdb1649491dbf40397994a4dc2046772e31ec13437d1dc1ef4ce97ac"
+}

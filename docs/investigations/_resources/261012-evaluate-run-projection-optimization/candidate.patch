@@ -1,0 +1,152 @@
+diff --git a/tmp/optimization-20261012/run-projection/before/src/project-run/task-scheduler/scheduler-admission-decision.ts b/tmp/optimization-20261012/run-projection/candidate/src/project-run/task-scheduler/scheduler-admission-decision.ts
+index c2db6a9a..32c39a0a 100644
+--- a/tmp/optimization-20261012/run-projection/before/src/project-run/task-scheduler/scheduler-admission-decision.ts
++++ b/tmp/optimization-20261012/run-projection/candidate/src/project-run/task-scheduler/scheduler-admission-decision.ts
+@@ -30,11 +30,7 @@ export interface SchedulerDecisionCycle {
+ }
+ 
+ export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecision {
+-  const candidates = Object.freeze(
+-    admissionCandidatesForCore(cycle.admissionCore).map((candidate) =>
+-      Object.freeze({ canAdmit: candidate.canAdmit, task: candidate.task })
+-    )
+-  );
++  const candidates = admissionCandidatesForCore(cycle.admissionCore);
+   if (candidates.length === 0) return awaitDecision(cycle, candidates);
+ 
+   const measurement = cycle.measurement?.();
+diff --git a/tmp/optimization-20261012/run-projection/before/src/project-run/task-scheduler/scheduler-decision.ts b/tmp/optimization-20261012/run-projection/candidate/src/project-run/task-scheduler/scheduler-decision.ts
+index 833962c7..87c9728b 100644
+--- a/tmp/optimization-20261012/run-projection/before/src/project-run/task-scheduler/scheduler-decision.ts
++++ b/tmp/optimization-20261012/run-projection/candidate/src/project-run/task-scheduler/scheduler-decision.ts
+@@ -64,11 +64,32 @@ export function decideScheduler(
+       });
+     }
+   }
++  return decideSchedulerFromCore({
++    admissionCore: core,
++    pendingTaskIds: snapshot.pendingTaskIds,
++    policy,
++    runtime: snapshot,
++    trigger,
++    ...(measurement === undefined ? {} : { measurement })
++  });
++}
++
++/** Uses the authoritative core without rebuilding discarded shell state projections. */
++export function decideSchedulerFromCore(input: Readonly<{
++  readonly admissionCore: AdmissionCoreState;
++  readonly runtime: Pick<SchedulerSnapshot, "isAbortRequested" | "isCancelled">;
++  readonly trigger: SchedulerTrigger;
++  readonly policy: AdmissionSelectionPolicy;
++  readonly measurement?: () => AdmissionPolicyContext["measurement"];
++  /** Preserves standalone snapshot cancellation order when one was supplied. */
++  readonly pendingTaskIds?: readonly string[];
++}>): SchedulerDecision {
++  const { admissionCore: core, runtime, trigger, policy, measurement } = input;
+   const coreInspection = schedulerInspectionForCore(core);
+   const state = Object.freeze({
+     ...coreInspection,
+-    isAbortRequested: snapshot.isAbortRequested,
+-    isCancelled: snapshot.isCancelled
++    isAbortRequested: runtime.isAbortRequested,
++    isCancelled: runtime.isCancelled
+   });
+   const cycle: SchedulerDecisionCycle = Object.freeze({
+     admissionCore: core,
+@@ -78,7 +99,7 @@ export function decideScheduler(
+     ...(measurement === undefined ? {} : { measurement }),
+     trigger
+   });
+-  const terminalDecision = decideTerminalSchedulerAction(cycle, snapshot);
++  const terminalDecision = decideTerminalSchedulerAction(cycle, runtime, input.pendingTaskIds);
+   if (terminalDecision !== undefined) return terminalDecision;
+ 
+   return decideAdmission(cycle);
+@@ -86,25 +107,26 @@ export function decideScheduler(
+ 
+ function decideTerminalSchedulerAction(
+   cycle: SchedulerDecisionCycle,
+-  snapshot: SchedulerSnapshot
++  runtime: Pick<SchedulerSnapshot, "isAbortRequested" | "isCancelled">,
++  pendingTaskIds: readonly string[] | undefined
+ ): SchedulerDecision | undefined {
+-  if (snapshot.isAbortRequested && !snapshot.isCancelled) {
++  if (runtime.isAbortRequested && !runtime.isCancelled) {
+     return freezeDecision({
+       ...cycle.context,
+       kind: "cancel-pending",
+-      taskIds: snapshot.pendingTaskIds,
++      taskIds: pendingTaskIds ?? cycle.state.pendingTasks.map((task) => task.id),
+       trigger: Object.freeze({ kind: "cancellation-observed" })
+     });
+   }
+   if (cycle.state.pendingTasks.length === 0 && cycle.state.runningTaskIds.length === 0) {
+     return freezeDecision({
+       ...cycle.context,
+-      cancelled: snapshot.isCancelled,
++      cancelled: runtime.isCancelled,
+       kind: "complete",
+       trigger: cycle.trigger
+     });
+   }
+-  if (snapshot.isCancelled) {
++  if (runtime.isCancelled) {
+     if (cycle.state.pendingTasks.length > 0) {
+       throw new Error("cancelled scheduler state retains pending tasks");
+     }
+diff --git a/tmp/optimization-20261012/run-projection/before/src/project-run/task-scheduler/scheduler.ts b/tmp/optimization-20261012/run-projection/candidate/src/project-run/task-scheduler/scheduler.ts
+index 71e44d07..2ee45fab 100644
+--- a/tmp/optimization-20261012/run-projection/before/src/project-run/task-scheduler/scheduler.ts
++++ b/tmp/optimization-20261012/run-projection/candidate/src/project-run/task-scheduler/scheduler.ts
+@@ -1,13 +1,12 @@
+ import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
+ import { prepareTaskGraph } from "./graph.ts";
+ import {
+-  decideScheduler,
++  decideSchedulerFromCore,
+   type SchedulerDecision,
+   type SchedulerTrigger
+ } from "./scheduler-decision.ts";
+ import {
+   createSchedulerState,
+-  snapshotSchedulerState,
+   type RunTaskGraphOptions,
+   type SchedulerState,
+   type TaskGraphRun
+@@ -77,22 +76,23 @@ export async function runTaskGraph<TResult>(
+   while (true) {
+     let decision: SchedulerDecision;
+     try {
+-      const snapshot = snapshotSchedulerState(state);
++      const runtime = Object.freeze({
++        isAbortRequested: state.signal?.aborted === true,
++        isCancelled: state.isCancelled
++      });
+       const measurement =
+         state.admissionPolicy.requiresMeasurement === true
+           ? () => decisionBoundaryMeasurement(diagnostics)
+           : undefined;
+-      decision =
+-        diagnostics?.measureControlPath(() =>
+-          decideScheduler(
+-            snapshot,
+-            trigger,
+-            state.admissionPolicy,
+-            measurement,
+-            state.admissionCore
+-          )
+-        ) ??
+-        decideScheduler(snapshot, trigger, state.admissionPolicy, measurement, state.admissionCore);
++      const decide = () =>
++        decideSchedulerFromCore({
++          admissionCore: state.admissionCore,
++          policy: state.admissionPolicy,
++          runtime,
++          trigger,
++          ...(measurement === undefined ? {} : { measurement })
++        });
++      decision = diagnostics?.measureControlPath(decide) ?? decide();
+     } catch (error) {
+       if (!(error instanceof AdmissionPolicyFault)) throw error;
+       const cancellation = cancelPendingAdmissionCore(state.admissionCore);

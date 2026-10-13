@@ -1,0 +1,31 @@
+{
+  "source": "tmp/optimization-20261012/run-projection/before",
+  "method": "complete public sourceAPI Run; temporary transparent freeze wrapper; counts only, no timing claims",
+  "runtime": "v24.18.0",
+  "samples": [
+    {
+      "size": 8,
+      "parallel": 4,
+      "shellSnapshots": 18,
+      "snapshotPendingIds": 54,
+      "snapshotSettledEntries": 46,
+      "candidateObjectFreezes": 92
+    },
+    {
+      "size": 16,
+      "parallel": 4,
+      "shellSnapshots": 34,
+      "snapshotPendingIds": 230,
+      "snapshotSettledEntries": 214,
+      "candidateObjectFreezes": 428
+    },
+    {
+      "size": 32,
+      "parallel": 4,
+      "shellSnapshots": 66,
+      "snapshotPendingIds": 966,
+      "snapshotSettledEntries": 934,
+      "candidateObjectFreezes": 1868
+    }
+  ]
+}

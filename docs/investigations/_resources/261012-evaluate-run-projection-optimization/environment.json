@@ -1,0 +1,15 @@
+{
+  "capturedAt": "2026-10-12T14:56:35.202Z",
+  "scope": "post-window host observation; unchanged kernel/hardware assumed, no isolation or frequency guarantee",
+  "platform": "linux",
+  "arch": "x64",
+  "release": "6.18.33.2-microsoft-standard-WSL2",
+  "logicalCpuCount": 6,
+  "availableParallelism": 4,
+  "cpuModels": [
+    "AMD Ryzen AI 7 H 450 w/ Radeon 860M"
+  ],
+  "totalMemoryBytes": 8327917568,
+  "workingDirectory": "/workspace/vibe-check",
+  "assumptions": "shared host; only this agent held approved heavy-work window; JIT/GC/scheduler noise remain; no cache/reset intervention"
+}

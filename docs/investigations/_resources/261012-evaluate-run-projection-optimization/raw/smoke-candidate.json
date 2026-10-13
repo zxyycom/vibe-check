@@ -1,0 +1,86 @@
+{
+  "sourceRoot": "/workspace/vibe-check/tmp/optimization-20261012/run-projection/candidate",
+  "sourceManifestSha256": "eb7df8f775bdf2b6502df17087388c4bb949a4cf49cf467946671694c0e07986",
+  "scriptSha256": "7d5fcaa38ff0d3fba6a670236269c845629813d923ca8eebe73911bd9c8666c2",
+  "shape": "independent",
+  "size": 8,
+  "parallel": 4,
+  "warmups": 1,
+  "samples": 1,
+  "runtime": {
+    "version": "v24.18.0",
+    "versions": {
+      "node": "24.18.0",
+      "acorn": "8.16.0",
+      "ada": "3.4.4",
+      "amaro": "1.1.9",
+      "ares": "1.34.6",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.2",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.69.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.5.7",
+      "simdjson": "4.6.4",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.1",
+      "tz": "2026b",
+      "undici": "7.28.0",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.50",
+      "zlib": "1.3.1-e00f703",
+      "zstd": "1.5.7"
+    },
+    "execPath": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node"
+  },
+  "scope": "complete public sourceAPI run; import/Definition/verification/IO excluded; not installed package or Gate",
+  "signature": "f56400c9d708c107e469b2058b63d9367f6f8a4822129cb3e28d422cd43cb8b7",
+  "snapshotDigest": "d409f71f404414964b5a98e8cd6180107151ae0e07b6f0bbe5845bc909039ec5",
+  "declarativeFingerprint": "a9fab714c695cfc190831d4c62b67885e4fc16564488a2fe92ec63f16b5d7bb1",
+  "observations": [
+    {
+      "index": 0,
+      "warmup": true,
+      "wallMs": 15.830637000000024
+    },
+    {
+      "index": 1,
+      "warmup": false,
+      "wallMs": 3.5483990000000176
+    }
+  ],
+  "processMemory": {
+    "rss": 162742272,
+    "heapTotal": 67874816,
+    "heapUsed": 42765688,
+    "external": 14108219,
+    "arrayBuffers": 4787813
+  },
+  "processResourceUsage": {
+    "userCPUTime": 638582,
+    "systemCPUTime": 168048,
+    "maxRSS": 158928,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 30097,
+    "majorPageFault": 0,
+    "swappedOut": 0,
+    "fsRead": 7816,
+    "fsWrite": 0,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 1380,
+    "involuntaryContextSwitches": 5
+  }
+}
