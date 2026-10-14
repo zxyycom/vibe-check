@@ -159,7 +159,8 @@ type ActionWithoutContext<T> = T extends unknown ? Omit<T, keyof SchedulerDecisi
 export function freezeDecisionWithContext(
   context: SchedulerDecisionContext,
   action: ActionWithoutContext<SchedulerDecision>,
-  candidateProjection?: () => readonly SchedulerAdmissionCandidateFact[]
+  candidateProjection?: () => readonly SchedulerAdmissionCandidateFact[],
+  eligibleCountProjection?: () => number
 ): SchedulerDecision {
   const trigger = freezeTrigger(action.trigger);
   if (action.kind === "admit" || action.kind === "await-running") {
@@ -169,6 +170,9 @@ export function freezeDecisionWithContext(
       trigger,
       get candidates() {
         return (candidates ??= candidateProjection?.() ?? action.candidates);
+      },
+      get eligibleCount() {
+        return eligibleCountProjection?.() ?? action.eligibleCount;
       },
       get blockers() {
         return context.blockers;

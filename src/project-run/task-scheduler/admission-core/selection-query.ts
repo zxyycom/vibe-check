@@ -1,9 +1,12 @@
 import type { AdmissionSelectionRejectionReason } from "../../../project-definition/scheduler-policy.ts";
 import type { PlannedTask, PlannedTaskGraph } from "../graph.ts";
-import { requiredTaskResourceClaimsForCompiled } from "./compiled-graph-lookup.ts";
+import {
+  requiredTaskMutexSlotsForCompiled,
+  requiredTaskResourceClaimsForCompiled
+} from "./compiled-graph-lookup.ts";
 import {
   numberFor,
-  pendingBlockerStageForSelection,
+  pendingRelationBlockerStageForSelection,
   type PendingBlockerStage
 } from "./selection-index.ts";
 import { compareScopeCapacityForCompiled } from "./selection-seed.ts";
@@ -27,7 +30,7 @@ export function selectionRejectionForPendingTask(
   state: AdmissionCoreState,
   taskSlot: number
 ): AdmissionSelectionRejectionReason | undefined {
-  const stage = pendingBlockerStageForSelection(state.selection, taskSlot);
+  const stage = pendingBlockerStageForCore(state, taskSlot);
   return stage === undefined
     ? capacityRejectionFor(state, taskSlot)
     : blockerPayloadFor(state, taskSlot, stage);
@@ -73,12 +76,12 @@ export function isAdmissionEligibleForPendingTask(
   taskSlot: number
 ): boolean {
   return (
-    pendingBlockerStageForSelection(state.selection, taskSlot) === undefined &&
+    pendingBlockerStageForCore(state, taskSlot) === undefined &&
     hasCapacityForPendingTask(state, taskSlot)
   );
 }
 
-function hasCapacityForPendingTask(state: AdmissionCoreState, taskSlot: number): boolean {
+export function hasCapacityForPendingTask(state: AdmissionCoreState, taskSlot: number): boolean {
   const running = state.selection.runningTotal;
   return (
     scopeCapacityBlockerFor(state, taskSlot, running) === undefined &&
@@ -199,7 +202,7 @@ export function pendingBlockerFactsForCore(
       numberFor(state.selection.pendingDependencies, taskSlot) > 0 ||
       numberFor(state.selection.nonCompletedDependencies, taskSlot) > 0 ||
       numberFor(state.selection.pendingObservations, taskSlot) > 0,
-    mutex: numberFor(state.selection.heldMutexBlockers, taskSlot) > 0,
+    mutex: isMutexBlockedForPendingTask(state, taskSlot),
     resourceCapacity: hasResourceShortageForPendingTask(state, taskSlot)
   });
 }
@@ -209,7 +212,7 @@ export function admissionQueueKindForCore(
   state: AdmissionCoreState,
   taskSlot: number
 ): "admissible-pending" | "capacity-blocked" | "mutex-blocked" | undefined {
-  const stage = pendingBlockerStageForSelection(state.selection, taskSlot);
+  const stage = pendingBlockerStageForCore(state, taskSlot);
   switch (stage) {
     case "depends-on-pending":
     case "observes-pending":
@@ -254,13 +257,37 @@ export function admissionCandidatesForCore(
   state: AdmissionCoreState
 ): readonly AdmissionCoreSelection[] {
   const candidates: AdmissionCoreSelection[] = [];
-  for (const taskSlot of state.selection.candidateTaskSlots
+  for (const taskSlot of state.selection.relationReadyTaskSlots
     .toArray()
     .sort((left, right) => left - right)) {
+    if (isMutexBlockedForPendingTask(state, taskSlot)) continue;
     const task = requiredTaskForCore(state, taskSlot);
     candidates.push(Object.freeze({ canAdmit: hasCapacityForPendingTask(state, taskSlot), task }));
   }
   return Object.freeze(candidates);
+}
+
+function pendingBlockerStageForCore(
+  state: AdmissionCoreState,
+  taskSlot: number
+): PendingBlockerStage | undefined {
+  const relation = pendingRelationBlockerStageForSelection(state.selection, taskSlot);
+  if (relation !== undefined) return relation;
+  return isMutexBlockedForPendingTask(state, taskSlot) ? "mutex-held" : undefined;
+}
+
+/** Shared dynamic mutex readiness; transition updates holders, never broadcasts to task cohorts. */
+export function isMutexBlockedForPendingTask(state: AdmissionCoreState, taskSlot: number): boolean {
+  if (
+    requiredTaskMutexSlotsForCompiled(state.compiled, taskSlot).some(
+      (mutexSlot) => numberFor(state.selection.mutexHolders, mutexSlot) > 0
+    )
+  )
+    return true;
+  if (state.selection.legacyRunningMutexes === undefined) return false;
+  return requiredTaskForCore(state, taskSlot).mutex.some(
+    (mutexId) => state.selection.legacyRunningMutexes?.includes(mutexId) === true
+  );
 }
 
 function isMutexHeld(state: AdmissionCoreState, mutexId: string): boolean {

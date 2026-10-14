@@ -1,7 +1,7 @@
+import { transitionReadyFrontier } from "./ready-frontier.ts";
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
   requiredReverseDependenciesForCompiled,
-  requiredReverseMutexOccurrencesForCompiled,
   requiredReverseObservationsForCompiled,
   requiredScopeTerminalSlotsForCompiled,
   requiredTaskMutexSlotsForCompiled,
@@ -11,7 +11,7 @@ import {
   enqueueForcedTaskSlots,
   freezeSelectionIndex,
   numberFor,
-  pendingBlockerStageForSelection,
+  pendingRelationBlockerStageForSelection,
   statusForSelection,
   statusForStore,
   withNumberDeltas,
@@ -36,7 +36,6 @@ interface MutableTransitionFacts {
   activeScopeSlots: readonly number[];
   activeScopes: NumberStore;
   forcedQueue: ForcedTaskQueue;
-  heldMutexBlockers: NumberStore;
   mutexHolders: NumberStore;
   nonCompletedDependencies: NumberStore;
   pendingDependencies: NumberStore;
@@ -67,21 +66,29 @@ export function transitionIndexedSelection(
       taskSlotsByStatus[facts.previous.kind].delete(taskSlot);
   if (status.kind !== "absent")
     taskSlotsByStatus[status.kind] = taskSlotsByStatus[status.kind].add(taskSlot);
-  let candidateTaskSlots = selection.candidateTaskSlots;
-  for (const slot of facts.affectedCandidateSlots) {
-    candidateTaskSlots =
-      statusForStore(facts.statuses, slot).kind === "pending" &&
-      pendingBlockerStageForSelection(facts, slot) === undefined
-        ? candidateTaskSlots.add(slot)
-        : candidateTaskSlots.delete(slot);
-  }
+  const relationReadyTaskSlots = selection.relationReadyTaskSlots.withMutations((batch) => {
+    for (const slot of facts.affectedCandidateSlots) {
+      if (
+        statusForStore(facts.statuses, slot).kind === "pending" &&
+        pendingRelationBlockerStageForSelection(facts, slot) === undefined
+      )
+        batch.add(slot);
+      else batch.delete(slot);
+    }
+  });
   return freezeSelectionIndex({
-    candidateTaskSlots,
+    relationReadyTaskSlots,
+    readyGroupFrontier: transitionReadyFrontier(
+      compiled,
+      selection.readyGroupFrontier,
+      selection.relationReadyTaskSlots,
+      relationReadyTaskSlots,
+      facts.affectedCandidateSlots
+    ),
     taskSlotsByStatus: Object.freeze(taskSlotsByStatus),
     activeScopeSlots: facts.activeScopeSlots,
     activeScopes: facts.activeScopes,
     forcedQueue: facts.forcedQueue,
-    heldMutexBlockers: facts.heldMutexBlockers,
     legacyRunningMutexes: selection.legacyRunningMutexes,
     mutexHolders: facts.mutexHolders,
     nonCompletedDependencies: facts.nonCompletedDependencies,
@@ -105,7 +112,6 @@ function initialTransitionFacts(
     activeScopeSlots: selection.activeScopeSlots,
     activeScopes: selection.activeScopes,
     forcedQueue: selection.forcedQueue,
-    heldMutexBlockers: selection.heldMutexBlockers,
     mutexHolders: selection.mutexHolders,
     nonCompletedDependencies: selection.nonCompletedDependencies,
     pendingDependencies: selection.pendingDependencies,
@@ -129,13 +135,11 @@ function applyRunningOccupancyDelta(
   if (previous.kind === "pending" && status.kind === "running") {
     facts.runningTotal += 1;
     facts.mutexHolders = withMutexHolderDelta(compiled, facts.mutexHolders, taskSlot, 1);
-    applyMutexBlockerDelta(compiled, facts, 1);
     facts.resourceInUse = withResourceClaimDelta(compiled, facts.resourceInUse, taskSlot, 1);
   } else if (previous.kind === "running" && status.kind === "settled") {
     facts.runningTotal -= 1;
     facts.remainingTaskCount -= 1;
     facts.mutexHolders = withMutexHolderDelta(compiled, facts.mutexHolders, taskSlot, -1);
-    applyMutexBlockerDelta(compiled, facts, -1);
     facts.resourceInUse = withResourceClaimDelta(compiled, facts.resourceInUse, taskSlot, -1);
   } else if (previous.kind === "pending" && status.kind === "settled") {
     facts.remainingTaskCount -= 1;
@@ -168,31 +172,6 @@ function withMutexHolderDelta(
       (mutexSlot) => [mutexSlot, delta] as const
     )
   );
-}
-
-/** Keeps blocker counters and their candidate invalidation fanout in the same transition stage. */
-function applyMutexBlockerDelta(
-  compiled: CompiledAdmissionGraph,
-  facts: MutableTransitionFacts,
-  delta: 1 | -1
-): void {
-  const deltas = mutexBlockerDeltasFor(compiled, facts.taskSlot, delta);
-  for (const [slot] of deltas) facts.affectedCandidateSlots.add(slot);
-  facts.heldMutexBlockers = withNumberDeltas(facts.heldMutexBlockers, deltas);
-}
-
-function mutexBlockerDeltasFor(
-  compiled: CompiledAdmissionGraph,
-  taskSlot: number,
-  delta: 1 | -1
-): readonly (readonly [number, number])[] {
-  const deltas: [number, number][] = [];
-  for (const mutexSlot of requiredTaskMutexSlotsForCompiled(compiled, taskSlot)) {
-    for (const blockedTaskSlot of requiredReverseMutexOccurrencesForCompiled(compiled, mutexSlot)) {
-      deltas.push([blockedTaskSlot, delta]);
-    }
-  }
-  return deltas;
 }
 
 /** Settlement changes only the changed task's relation reverse fanout and forced frontier. */

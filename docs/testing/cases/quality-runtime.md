@@ -245,8 +245,10 @@ Entities:
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > recomputes tighter-scope selection after capacity becomes available`
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > does not activate a cap for a scope with no activation task`
+- `bun|src/project-run/task-scheduler/admission-core/static-selection-query.test.ts|static admission group frontier > switches scope ties without backfilling blocked constrained work or mutating captured forks`
   Proves:
 - Effective Check parallel limits project to generic graph scope metadata. The shared engine uses the active minimum without preemption and does not make a non-executing scope consume capacity.
+- 静态选择在 inactive/active/closed scope 之间保留 ordinary 声明顺序与 constrained lexical tie 的切换；受约束层选中被资源阻塞者时返回 wait，不以 ordinary work backfill。
 
 ## Case WB-RUNTIME-CHECKPOINT-001: Frozen Check-facts snapshot is a two-entity projection
 
@@ -284,8 +286,8 @@ Entities:
 
 - `bun|src/project-run/task-scheduler/admission-core/compiled-graph.test.ts|prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it`
   Proves:
-- When invoked with a prepared graph, the Product-private compiler produces Scheduler lookup tables without rematerializing the graph or its frozen snapshot. Task/scope/mutex/resource declaration slots, capacities and per-Task claim units, duplicate mutex/relation occurrences, reverse dependency/observation/terminal mappings, activation membership and lexical public catalog order stay exact.
-- `prepareTaskGraph` remains the only untrusted-input validation/normalization boundary. The compiler's root-cap assertion is a defensive invariant for prepared input, not a second validation path.
+- The Product-private compiler rejects invalid root caps and builds Scheduler lookup tables from a prepared graph without rematerializing it or its frozen snapshot. Task/scope/mutex/resource declaration slots, capacities and per-Task claim units, duplicate mutex/relation occurrences, reverse dependency/observation/terminal mappings, activation membership and lexical public catalog order stay exact.
+- A wide prepared scope reads each activation declaration once instead of searching the whole activation list per Task; the exact activation flags still distinguish activation Tasks from the terminal.
 - The compiled object, its relation indexes, and tested slot lists retain their existing Object.freeze guards; this Case does not claim deep `Map` immutability or a public API. Forced reverse-slot priority and active-scope cap/ID ordering remain separately owned by the existing admission-core and Scheduler evidence.
 
 ## Case CHECK-NAMED-RESOURCE-CONCURRENCY-001: Check Tasks atomically share named resource capacity
@@ -643,10 +645,14 @@ Owner: `docs/development/scheduler.md#admission-state-与-real-shell`
 Entities:
 
 - `bun|src/project-run/task-scheduler/admission-core/scheduler-queries.test.ts|shared admission Core queries > shares ordered memberships and readiness across transitions without scanning the whole graph`
+- `bun|src/project-run/task-scheduler/admission-core/static-selection-query.test.ts|static admission group frontier > consumes wide equivalent heads without materializing candidates and prunes arbitrary selections in transitions`
+- `bun|src/project-run/task-scheduler/admission-core/static-selection-query.test.ts|static admission group frontier > switches scope ties without backfilling blocked constrained work or mutating captured forks`
 - `bun|src/project-run/task-scheduler/scheduler-blocker-summary.test.ts|Scheduler blocker summary > aggregates independent Core blockers even when primary scope or root capacity hides resources`
   Proves:
-- declaration-order pending/running/settled 与 lexical public catalog/inspection 共读 immutable memberships；重复关系与 mutex occurrence 的 admission/release 更新 readiness，暂时 resource shortage 的 candidate 不消失。保留 predecessor、独立 fork 和取消 successor 均不互相改变。
+- declaration-order pending/running/settled 与 lexical public catalog/inspection 共读 immutable memberships；重复关系更新 relation readiness，mutex occurrence 的 occupancy 变化由同源动态读取，暂时 resource shortage 的 candidate 不消失。保留 predecessor、独立 fork 和取消 successor 均不互相改变。
 - indexed consumer reads 用 whole-graph traversal guard 证明不重扫全图构造 memberships；query、public projection、transition 与 cancellation 仍返回完整有序事实。此结构证据不宣称 wall-clock 收益。
+- 宽约束等价组的 static head 读取不枚举 relation-ready members；任意非 head selection 和取消在 transition 闭合 live heads。
+- 延迟读取的完整 candidates/eligibleCount 仍冻结于原 captured Core，其它 fork 的推进不改变已捕获事实。
 - summary 的 dependency → mutex → resource priority 直接聚合 Core facts，即使 primary root/scoped rejection 遮住 resource reason 仍计入 shortage；measurement 使用同源 capacity classification。
 
 ## Case WB-RUNTIME-PREADMISSION-SEED-001: Pre-admission 初始化保持回调与错误顺序

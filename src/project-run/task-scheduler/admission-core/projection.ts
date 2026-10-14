@@ -53,7 +53,7 @@ export function inspectionForCore(state: AdmissionCoreState): AdmissionInspectio
         Object.freeze({ outcome, taskId: requiredTaskForCore(state, taskSlot).id })
       );
   }
-  const hasSelectablePending = state.selection.candidateTaskSlots.some((slot) =>
+  const hasSelectablePending = state.selection.relationReadyTaskSlots.some((slot) =>
     isAdmissionEligibleForPendingTask(state, slot)
   );
   return Object.freeze({

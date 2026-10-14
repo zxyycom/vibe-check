@@ -104,7 +104,6 @@ describe("prepared admission graph compiler", () => {
       [],
       []
     ]);
-    assert.deepEqual(compiled.relationIndexes.reverseMutexOccurrences, [[0, 0], [0, 1], [2]]);
     assert.deepEqual(compiled.relationIndexes.reverseDependencies, [[1, 1], [4], [3], [], []]);
     assert.deepEqual(compiled.relationIndexes.reverseObservations, [[2, 2], [], [], [], []]);
     assert.deepEqual(compiled.scopeSlotsByTerminalTaskSlot, [[], [], [], [1], [0]]);
@@ -124,5 +123,57 @@ describe("prepared admission graph compiler", () => {
     assert.equal(Object.isFrozen(compiled.taskMutexSlots[0]), true);
     assert.equal(Object.isFrozen(compiled.taskResourceClaims), true);
     assert.equal(Object.isFrozen(compiled.taskResourceClaims[0]), true);
+
+    const width = 128;
+    const wideTasks = Array.from({ length: width }, (_, slot) => ({
+      id: `wide-${slot}`,
+      scopeId: "wide"
+    }));
+    const wide = prepareTaskGraph(
+      {
+        tasks: [
+          ...wideTasks,
+          { id: "end", scopeId: "wide", observes: wideTasks.map((task) => task.id) }
+        ],
+        scopes: [
+          {
+            id: "wide",
+            maxParallel: 3,
+            activationTaskIds: wideTasks.map((task) => task.id),
+            terminalTaskId: "end"
+          }
+        ]
+      },
+      3
+    );
+    const scope = wide.scopes[0];
+    if (scope === undefined) assert.fail("wide scope is missing");
+    let activationOccurrences = 0;
+    const activationTaskIds = new Proxy(scope.activationTaskIds, {
+      get(target, key, receiver): unknown {
+        if (key === "includes") assert.fail("compiler repeatedly searched activation IDs per Task");
+        if (key === Symbol.iterator)
+          return () => {
+            const iterator = target.values();
+            return {
+              next() {
+                const next = iterator.next();
+                if (next.done !== true) activationOccurrences += 1;
+                return next;
+              }
+            };
+          };
+        return Reflect.get(target, key, receiver);
+      }
+    });
+    const indexed = compilePreparedAdmissionGraph(
+      Object.freeze({
+        ...wide,
+        scopes: Object.freeze([Object.freeze({ ...scope, activationTaskIds })])
+      }),
+      3
+    );
+    assert.equal(activationOccurrences, width);
+    assert.deepEqual(indexed.taskActivatesScope, [...wideTasks.map(() => true), false]);
   });
 });

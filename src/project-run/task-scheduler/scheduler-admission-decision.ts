@@ -1,3 +1,5 @@
+import { staticAdmissionSelectionPolicy } from "./admission-selection-policy.ts";
+import { staticAdmissionCandidateForCore } from "./admission-core/static-selection-query.ts";
 import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
 import type {
   AdmissionCandidate,
@@ -31,6 +33,7 @@ export interface SchedulerDecisionCycle {
 }
 
 export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecision {
+  if (cycle.policy === staticAdmissionSelectionPolicy) return decideStaticAdmission(cycle);
   const candidates = admissionCandidatesForCore(cycle.admissionCore);
   if (candidates.length === 0) return awaitDecision(cycle, candidates);
 
@@ -53,6 +56,49 @@ export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecisio
   return result.kind === "select"
     ? admitDecision(cycle, candidates, result)
     : awaitDecision(cycle, candidates, result);
+}
+
+/** Static execution consumes group heads; full boundary facts remain detached and demand-driven. */
+function decideStaticAdmission(cycle: SchedulerDecisionCycle): SchedulerDecision {
+  const capturedCore = cycle.admissionCore;
+  const candidate = staticAdmissionCandidateForCore(capturedCore);
+  let projectedCandidates: readonly AdmissionCandidate[] | undefined;
+  const candidates = () => (projectedCandidates ??= admissionCandidatesForCore(capturedCore));
+  const projectCandidateFacts = () => candidateFacts(candidates());
+  const projectEligibleCount = () => candidates().length;
+  if (candidate?.canAdmit === true) {
+    const proposal = Object.freeze({ kind: "select" as const, taskId: candidate.task.id });
+    return freezeDecisionWithContext(
+      cycle.context,
+      {
+        admissionPriority: candidate.task.admissionPriority,
+        candidates: Object.freeze([]),
+        eligibleCount: 0,
+        hardGuard: selectHardGuard(candidate.task.id),
+        kind: "admit",
+        proposal,
+        scopeToActivate: scopeToActivateForCore(capturedCore, candidate.task.id),
+        taskId: candidate.task.id,
+        trigger: cycle.trigger
+      },
+      projectCandidateFacts,
+      projectEligibleCount
+    );
+  }
+  if (capturedCore.selection.runningTotal === 0) throw new AdmissionPolicyFault("undrainable-wait");
+  return freezeDecisionWithContext(
+    cycle.context,
+    {
+      candidates: Object.freeze([]),
+      eligibleCount: 0,
+      hardGuard: waitHardGuard(),
+      kind: "await-running",
+      proposal: candidate === undefined ? null : Object.freeze({ kind: "wait" }),
+      trigger: cycle.trigger
+    },
+    projectCandidateFacts,
+    projectEligibleCount
+  );
 }
 
 function admitDecision(

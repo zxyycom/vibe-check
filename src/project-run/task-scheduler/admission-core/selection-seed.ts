@@ -1,5 +1,7 @@
 import { Set as PersistentSet } from "immutable";
 
+import { readyFrontierForSeed } from "./ready-frontier.ts";
+
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
   requiredTaskMutexSlotsForCompiled,
@@ -10,7 +12,7 @@ import {
   freezeSelectionIndex,
   persistentNumbersFor,
   persistentStatuses,
-  pendingBlockerStageForSelection,
+  pendingRelationBlockerStageForSelection,
   statusForStore,
   type AdmissionSelectionIndex,
   type CoreTaskStatus,
@@ -42,9 +44,6 @@ export function selectionIndexForSeed(
   const counters = seedTaskCounters(compiled, persistentStatus);
   const activeScopes = seedActiveScopes(compiled, activeScopeIds);
   const readiness = {
-    heldMutexBlockers: persistentNumbersFor(
-      heldMutexBlockersForSeed(compiled, counters.mutexHolders, legacyRunningMutexes)
-    ),
     pendingDependencies: persistentNumbersFor(counters.pendingDependencies),
     pendingObservations: persistentNumbersFor(counters.pendingObservations)
   };
@@ -57,13 +56,14 @@ export function selectionIndexForSeed(
     if (status.kind !== "absent")
       taskSlotsByStatus[status.kind] = taskSlotsByStatus[status.kind].add(slot);
   }
-  const candidateTaskSlots = taskSlotsByStatus.pending.filter(
-    (slot) => pendingBlockerStageForSelection(readiness, slot) === undefined
+  const relationReadyTaskSlots = taskSlotsByStatus.pending.filter(
+    (slot) => pendingRelationBlockerStageForSelection(readiness, slot) === undefined
   );
   return freezeSelectionIndex({
     ...readiness,
     taskSlotsByStatus: Object.freeze(taskSlotsByStatus),
-    candidateTaskSlots,
+    relationReadyTaskSlots,
+    readyGroupFrontier: readyFrontierForSeed(compiled, relationReadyTaskSlots),
     activeScopeSlots: activeScopeSlotsForSeed(compiled, persistentStatus, activeScopes),
     activeScopes: persistentNumbersFor(activeScopes),
     forcedQueue: forcedQueueForSeed(compiled, persistentStatus, counters),
@@ -158,34 +158,6 @@ function observationCountForSeed(
     }
   }
   return pending;
-}
-
-/** Legacy external mutexes and dynamic holder occurrences intentionally contribute independently. */
-function heldMutexBlockersForSeed(
-  compiled: CompiledAdmissionGraph,
-  mutexHolders: readonly number[],
-  legacyRunningMutexes: readonly string[] | undefined
-): number[] {
-  const blockers = compiled.graph.tasks.map(() => 0);
-  const legacyHeldMutexes = new Set(legacyRunningMutexes);
-  for (const [taskSlot, task] of compiled.graph.tasks.entries()) {
-    for (const [mutexOccurrence, mutexSlot] of requiredTaskMutexSlotsForCompiled(
-      compiled,
-      taskSlot
-    ).entries()) {
-      const holderCount = mutexHolders[mutexSlot];
-      if (holderCount === undefined) {
-        throw new Error(`admission core mutex slot is unknown: ${mutexSlot}`);
-      }
-      incrementCounter(blockers, taskSlot, holderCount, "mutex blocker");
-      const mutexId = task.mutex[mutexOccurrence];
-      if (mutexId === undefined) {
-        throw new Error(`admission core mutex occurrence is unknown: ${mutexOccurrence}`);
-      }
-      if (legacyHeldMutexes.has(mutexId)) incrementCounter(blockers, taskSlot, 1, "mutex blocker");
-    }
-  }
-  return blockers;
 }
 
 function incrementCounter(

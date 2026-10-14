@@ -1,10 +1,8 @@
+import {
+  compileAdmissionConstraintGroups,
+  type AdmissionConstraintGroups
+} from "./constraint-groups.ts";
 import type { PlannedTask, PlannedTaskGraph } from "../graph.ts";
-
-interface RelationStaticIndexes {
-  readonly reverseDependencies: readonly (readonly number[])[];
-  readonly reverseMutexOccurrences: readonly (readonly number[])[];
-  readonly reverseObservations: readonly (readonly number[])[];
-}
 
 interface ReverseRelationIndexes {
   readonly reverseDependencies: readonly (readonly number[])[];
@@ -31,7 +29,8 @@ export interface CompiledAdmissionGraph {
   readonly taskSlotsById: ReadonlyMap<string, number>;
   readonly taskIdsInPublicOrder: readonly string[];
   readonly taskPublicRanksBySlot: readonly number[];
-  readonly relationIndexes: RelationStaticIndexes;
+  readonly relationIndexes: ReverseRelationIndexes;
+  readonly constraintGroups: AdmissionConstraintGroups;
 }
 
 interface GraphSlotCatalog {
@@ -43,7 +42,6 @@ interface GraphSlotCatalog {
 
 interface MutexStaticIndexes {
   readonly mutexSlotById: ReadonlyMap<string, number>;
-  readonly reverseMutexOccurrences: readonly (readonly number[])[];
   readonly taskMutexSlots: readonly (readonly number[])[];
 }
 
@@ -65,6 +63,7 @@ interface PublicTaskOrder {
 }
 
 interface CompiledAdmissionGraphParts {
+  readonly constraintGroups: AdmissionConstraintGroups;
   readonly catalog: GraphSlotCatalog;
   readonly graph: PlannedTaskGraph;
   readonly maxParallel: number;
@@ -87,8 +86,15 @@ export function compilePreparedAdmissionGraph(
   const resourceIndexes = compileResourceStaticIndexes(graph);
   const scopeIndexes = compileScopeStaticIndexes(graph, catalog);
   const publicTaskOrder = compilePublicTaskOrder(graph, catalog.taskSlotsById);
+  const constraintGroups = compileAdmissionConstraintGroups({
+    graph,
+    maxParallel,
+    taskScopeSlots: scopeIndexes.taskScopeSlots,
+    taskActivatesScope: scopeIndexes.taskActivatesScope
+  });
 
   return assembleCompiledAdmissionGraph({
+    constraintGroups,
     catalog,
     graph,
     maxParallel,
@@ -141,15 +147,9 @@ function compileGraphSlotCatalog(graph: PlannedTaskGraph): GraphSlotCatalog {
 function compileMutexStaticIndexes(graph: PlannedTaskGraph): MutexStaticIndexes {
   const mutexSlotById = new Map<string, number>();
   const taskMutexSlots = graph.tasks.map((task) => mutexSlotsForTask(task, mutexSlotById));
-  const reverseMutexOccurrences = Array.from({ length: mutexSlotById.size }, () => [] as number[]);
-
-  for (const [taskSlot, mutexSlots] of taskMutexSlots.entries()) {
-    for (const mutexSlot of mutexSlots) reverseMutexOccurrences[mutexSlot]?.push(taskSlot);
-  }
 
   return {
     mutexSlotById,
-    reverseMutexOccurrences: freezeSlotLists(reverseMutexOccurrences),
     taskMutexSlots: freezeSlotLists(taskMutexSlots)
   };
 }
@@ -228,13 +228,11 @@ function compileScopeStaticIndexes(
     }
     scopeSlotsByTerminalTaskSlot[terminalTaskSlot]?.push(scopeSlot);
   }
+  const activationIdsByScope = graph.scopes.map((scope) => new Set(scope.activationTaskIds));
   const taskActivatesScope = graph.tasks.map((task) => {
     const scopeSlot =
       task.scopeId === undefined ? undefined : catalog.scopeSlotById.get(task.scopeId);
-    return (
-      scopeSlot !== undefined &&
-      graph.scopes[scopeSlot]?.activationTaskIds.includes(task.id) === true
-    );
+    return scopeSlot !== undefined && activationIdsByScope[scopeSlot]?.has(task.id) === true;
   });
   const taskScopeSlots = graph.tasks.map((task) =>
     task.scopeId === undefined ? undefined : catalog.scopeSlotById.get(task.scopeId)
@@ -280,12 +278,12 @@ function assembleCompiledAdmissionGraph(
   return Object.freeze({
     graph,
     maxParallel,
+    constraintGroups: parts.constraintGroups,
     mutexSlotById: mutexIndexes.mutexSlotById,
     resourceCapacityBySlot: resourceIndexes.resourceCapacityBySlot,
     resourceSlotById: resourceIndexes.resourceSlotById,
     relationIndexes: Object.freeze({
       reverseDependencies: relationIndexes.reverseDependencies,
-      reverseMutexOccurrences: mutexIndexes.reverseMutexOccurrences,
       reverseObservations: relationIndexes.reverseObservations
     }),
     scopesById: catalog.scopesById,

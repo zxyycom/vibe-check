@@ -1,11 +1,6 @@
-import { activeScopeIdsForCore } from "./admission-core/scheduler-queries.ts";
+import { staticAdmissionCandidateForCore } from "./admission-core/static-selection-query.ts";
 import type { PlannedTask, PlannedTaskGraph } from "./graph.ts";
 import type { AdmissionCoreState } from "./admission-core/core.ts";
-import {
-  isConstrainedScopeContinuation,
-  scopeForTask,
-  tighteningScopeForTask
-} from "./admission-scope-layers.ts";
 import type { SchedulerInspection } from "./scheduler-decision-inspection.ts";
 import type {
   AdmissionPolicyContext,
@@ -45,102 +40,9 @@ export const staticAdmissionSelectionPolicy: AdmissionSelectionPolicy = Object.f
 });
 
 function decideStaticAdmission(input: AdmissionPolicyInput): AdmissionPolicyDecision {
-  const activeScopeIds = new Set(activeScopeIdsForCore(input.admissionCore));
-  const tightening = selectTighteningCandidate(input, activeScopeIds);
-  if (tightening !== undefined) return proposalFor(tightening);
-
-  const continuation = selectConstrainedContinuation(input, activeScopeIds);
-  if (continuation !== undefined) return proposalFor(continuation);
-
-  return proposalFor(selectOrdinaryReadyCandidate(input.candidates));
-}
-
-function proposalFor(candidate: AdmissionCandidate): AdmissionPolicyDecision {
+  const candidate = staticAdmissionCandidateForCore(input.admissionCore);
+  if (candidate === undefined) throw new Error("static scheduler selection requires a candidate");
   return candidate.canAdmit
     ? Object.freeze({ kind: "select", taskId: candidate.task.id })
     : Object.freeze({ kind: "wait" });
-}
-
-function selectTighteningCandidate(
-  input: AdmissionPolicyInput,
-  activeScopeIds: ReadonlySet<string>
-): AdmissionCandidate | undefined {
-  let selected: AdmissionCandidate | undefined;
-  for (const candidate of input.candidates) {
-    if (
-      tighteningScopeForTask(
-        input.admissionCore.compiled,
-        input.admissionCore.compiled.maxParallel,
-        activeScopeIds,
-        candidate.task
-      ) === undefined
-    ) {
-      continue;
-    }
-    if (selected === undefined || compareConstrainedCandidates(input, candidate, selected) < 0) {
-      selected = candidate;
-    }
-  }
-  return selected;
-}
-
-function selectConstrainedContinuation(
-  input: AdmissionPolicyInput,
-  activeScopeIds: ReadonlySet<string>
-): AdmissionCandidate | undefined {
-  let selected: AdmissionCandidate | undefined;
-  for (const candidate of input.candidates) {
-    if (
-      !isConstrainedScopeContinuation(
-        input.admissionCore.compiled,
-        input.admissionCore.compiled.maxParallel,
-        activeScopeIds,
-        candidate.task
-      )
-    ) {
-      continue;
-    }
-    if (selected === undefined || compareConstrainedCandidates(input, candidate, selected) < 0) {
-      selected = candidate;
-    }
-  }
-  return selected;
-}
-
-function selectOrdinaryReadyCandidate(
-  candidates: readonly AdmissionCandidate[]
-): AdmissionCandidate {
-  const admissible = candidates.filter(({ canAdmit }) => canAdmit);
-  const selectable = admissible.length === 0 ? candidates : admissible;
-  const [first, ...remaining] = selectable;
-  if (first === undefined) throw new Error("static scheduler selection requires a candidate");
-  return remaining.reduce(
-    (selected, candidate) =>
-      candidate.task.admissionPriority > selected.task.admissionPriority ? candidate : selected,
-    first
-  );
-}
-
-function compareConstrainedCandidates(
-  input: AdmissionPolicyInput,
-  left: AdmissionCandidate,
-  right: AdmissionCandidate
-): number {
-  const leftScope = scopeForTask(input.admissionCore.compiled, left.task);
-  const rightScope = scopeForTask(input.admissionCore.compiled, right.task);
-  if (leftScope === undefined || rightScope === undefined) {
-    throw new Error("constrained task is missing a scope");
-  }
-  return (
-    leftScope.maxParallel - rightScope.maxParallel ||
-    right.task.admissionPriority - left.task.admissionPriority ||
-    compareText(leftScope.id, rightScope.id) ||
-    compareText(left.task.id, right.task.id)
-  );
-}
-
-function compareText(left: string, right: string): number {
-  if (left < right) return -1;
-  if (left > right) return 1;
-  return 0;
 }

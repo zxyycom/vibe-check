@@ -6,7 +6,7 @@
 
 ### Core 状态与查询职责
 
-`admission-core/**` 一次编译 immutable graph、named-resource slots 和公开排序 ranks，以 persistent List statuses/counters 与 Set memberships 保存 immutable dynamic state，同一 pure reducer/canonical effects 完成 selection transition。running seed、admission 与任意 settlement 都经过它更新 occupancy，使 static/custom proposals、standalone simulation 和 real shell 使用同一 legality。
+`admission-core/**` 一次编译 immutable graph、named-resource slots 和公开排序 ranks，以 persistent List statuses/counters、Set memberships 与 Map 分组 frontier 保存 immutable dynamic state，同一 pure reducer/canonical effects 完成 selection transition。running seed、admission 与任意 settlement 都经过它更新 occupancy，使 static/custom proposals、standalone simulation 和 real shell 使用同一 legality。
 
 raw Task graph 入口先校验 root cap 并执行 `prepareTaskGraph`；内部 prepared 入口只接受绑定 immutable graph 与
 同一 validated root cap 的私有 capability。Invocation 的已准备图由 strategy、execution 和 Scheduler 在本 Run 内复用；
@@ -14,17 +14,46 @@ raw Task graph 入口先校验 root cap 并执行 `prepareTaskGraph`；内部 pr
 
 `createAdmissionGraph` 从独立 static input 建立 initial state；custom callback 的 `admissionState` 从 live Core boundary 取得同型 immutable handle。二者只投影 frozen inspection/catalog/validation 和 hypothetical `select` / binary `settle` successor。静态 capacities/claims 用 canonical `{ resourceId, units }[]`；inspection 投影 occupancy，不提供 mutable counter 或资源操作 capability。同一 callback 重读保持 handle identity；旧 state 不随真实调度变动。
 
-Core 的查询职责分为两层，消费者直接读取所需事实或判断：
+Core 查询区分状态事实与选择判断，消费者直接读取所需内容：
 
 | 查询 owner | 责任与消费者 |
 | --- | --- |
 | `state-query.ts` | status、成员与 scope lifecycle 事实，供 selection、projection、ID 查询和 measurement 使用。 |
 | `selection-query.ts` | 基于状态事实完成 selection、readiness/capacity 判断与 rejection payload，供执行、推演和观察使用。 |
+| `static-selection-query.ts` | 按既有策略层级比较 constraint group heads，复用同源 mutex/capacity 判断。 |
 
-Core 独占 pending/running/settled task-slot memberships、relation+mutex-ready candidate membership、scope lifecycle 与 constraint occupancy。
-seed 以同一 relation/mutex predicate 建立 candidate membership；transition 只刷新变更 Task 与已有 relation/mutex reverse fanout。
-capacity 不进入 candidate membership：root count、active/activating scope 与 resource units 每次查询动态判断，因此暂时容量阻塞者
-不会永久退出 ready 集合，scope/资源 release 不需要另一套失效规则。persistent successor 不改旧 state 或另一个 fork。
+Core 独占 pending/running/settled task-slot memberships、relation-ready membership、scope lifecycle 与 constraint occupancy。
+seed 与 transition 以同一 relation predicate 维护 pending 且 depends/observes 已解决的成员；transition 只刷新变更 Task 与
+relation reverse fanout。mutex holders 按变更 Task 的声明 occurrences 更新，query 读取同源 holders 与 legacy external mutex
+判断当前 mutex readiness；重复 occurrences 的 accounting 与公开 rejection payload 完整保留。
+
+root count、active/activating scope 与 resource units 也在查询时动态判断。暂时被 mutex、scope 或 resource 阻塞的 Task
+保留 relation-ready membership，因此 release 后直接重判 readiness/capacity，无需广播 mutex cohort 或恢复成员。
+persistent successor 不改旧 state 或另一个 fork。
+
+### Constraint groups 与静态 frontier
+
+compiled graph 将动态 mutex/resource fit 和静态 scope layer 相同的 Task 编入同一 constraint group；
+tighter-than-root 指 scope 的 maxParallel 小于 root maxParallel：
+
+| 分组维度 | 等价条件 |
+| --- | --- |
+| Mutex | mutex ID 集合相同；occurrence 数量仍由 occupancy 和公开 rejection 各自保留。 |
+| Resource | canonical resource claims 相同。 |
+| Scope | tighter-than-root scope ID 与 activation 标记相同；non-tighter scope 可合组，实际 activation/close effects 仍按被选 Task 产生。 |
+
+每组 frontier 保存 relation-ready 成员的 ordinary/constrained 两种 persistent priority 顺序：priority 从高到低，随后分别按 declaration
+slot 或 lexical Task ID；相同顺序的 backing 可共享。tighter scope 的 non-activation Task 在 inactive 时走 ordinary，
+active 后走 continuation，故两类 tie order 必须分别维护。static layer 读取当前 active roots；真实 activation 读取
+inactive/active/closed lifecycle，once-activated counter 不能代替当前 active root。
+
+frontier 与 memberships 在同一 seed/transition owner 中维护，不拥有另一套 readiness 或 legality。任意 custom selection、forced
+settlement 与 cancellation 可移除非 head 成员；transition 当场推进受影响组的 live heads，延后留存的非 head tombstone 以后
+只在 transition 中弹出，query 不重复从旧 head 扫描。每条单调分支中，每个 Task 至多进入 relation-ready frontier 一次，各排序
+heap 中的对应节点至多弹出一次；旧 state/fork 保持自己的 persistent 分支。
+
+ready frontier 与 forced frontier 共用 Scheduler-private persistent Task queue 的不可变 backing；ready 的 preference 来自
+compiled group ranks，forced 保留 descending task-slot 顺序。成员、失效清理与 lifecycle 判断仍由各自 frontier owner 维护。
 
 ### Shell 执行与准入边界
 
@@ -32,26 +61,34 @@ real shell 拥有实际 pending Task 队列、runningById 的 Task/Promise、set
 measurement 与 RunResult；admission/cancellation 从这些负载中取得实际工作。scope lifecycle、mutex holders 与容量事实
 由 Core 提供。Shell 应用 reducer effects 后仍执行 callback-return hard guards。
 
-Scheduler 负责 graph validation、readiness、dependency/mutex admission、root/scoped budget、atomic named-resource accounting、cancellation、blocked settlement 与 Task lifecycle。每次 proposal 后重检 pending/candidate membership、capacity 与 lifecycle cutoff；`wait` 仅在 running work 可 drain 时合法。priority 是 immutable graph metadata，不存在旁路 map/list；static policy 在相同 priority 规则下优先考虑 `canAdmit` candidate，避免被资源阻塞的 Task 浪费 root slot。
+Scheduler 负责 graph validation、readiness、dependency/mutex admission、root/scoped budget、atomic named-resource accounting、cancellation、blocked settlement 与 Task lifecycle。每次 proposal 后重检 pending/candidate membership、capacity 与 lifecycle cutoff；`wait` 仅在 running work 可 drain 时合法。priority 是 immutable graph metadata，不存在旁路 map/list；static ordinary 层优先考虑 `canAdmit` candidate，避免被资源阻塞的 Task 浪费 root slot。
 
 policy 只返回决定，Scheduler 不解释公平、防饥饿或等待理由；static tightening/continuation 每轮重算，不保存 reservation、sticky target 或策略状态。Task engine 不解释 Check terminal grammar、Records、scanner payload 或 aggregation。
 
-static/no-observer 直接查询同一 core 的候选、active scopes 与容量，不构造完整 inspection、历史 DTO 或观察专用 candidate facts。diagnostic decision 的 blocker 与 candidate projection 延迟到该 captured boundary 的观察消费，不能读后来状态；启用 diagnostics 时完整动态 evidence 不因策略声明 subset 而削减。
+static/no-observer 单轮只消费同一 Core 各非空 constraint group 的 layer-specific live head、active scopes 与容量，
+完整 candidates、inspection、历史 DTO 和观察专用 facts 按消费需求构建。
 
 ### 观察与公开投影
 
-blocker summary 直接聚合 Core 的 pending/non-completed dependency、observation 与 held-mutex counters，resource claim fit
+blocker summary 直接聚合 Core 的 pending/non-completed dependency 与 observation counters，并查询同源动态 mutex readiness；resource claim fit
 与 selection 共用同一判断，不从 inspection DTO 重建 Map/Set。summary 的 dependency → mutex → resource 分类独立于
 public primary rejection：root/scoped capacity reason 不能遮住 resource shortage。measurement 同样直接读取 Core pending
 membership、readiness 和 capacity classification，不先构完整 inspection 或 public rejection payload。
 
-execution candidates 与 running/settled IDs、public catalog/inspection、Scheduler inspection、cancellation 共读 Core memberships，
+execution candidates 先从 relation-ready membership 动态筛除 held mutex；它与 running/settled IDs、public catalog/inspection、Scheduler inspection、cancellation 共读 Core memberships，
 只遍历所需成员而非每种 kind 重扫全图。candidate `canAdmit` 不缓存；public catalog 对全部 pending 投影 reason 是必要读取。
 声明顺序与 public lexical rank 排序、DTO 冻结、running mutex 去重呈现是合法边缘投影，不是新的状态/判断 owner。
 只有实际读取 `admissionState` 才构造 opaque public wrapper，catalog/inspection DTO 各自在 getter read 时物化；
 普通运行不为未消费的推演视图付出构造成本。
-static scope selection 复用当前 compiled graph 的 scope/activation 索引，
-仅为当前 active scopes 建 Set；候选 fold 保留 cap、priority、scope ID、Task ID 顺序和相等时的声明顺序。
+static scope selection 复用 compiled graph 的 scope/activation 与分组 rank 索引，仅为当前 active scopes 建 Set。
+group-head fold 按 tightening → constrained continuation → ordinary 选择：
+
+- **tightening / continuation：** 先按 cap 从小到大、priority 从高到低、scope ID / Task ID lexical 顺序选择，再判断 admission；被选 head 暂时不能运行时 wait，不以 ordinary work backfill。
+- **ordinary：** 先考虑 canAdmit，再按 priority 从高到低与声明顺序选择。
+
+custom seam 消费完整 declaration-order、frozen 的 relation/mutex candidates。diagnostic blocker、candidate facts 与 eligibleCount
+从同一 captured Core 延迟完整投影，后续 boundary 或其它 fork 的推进不改变这些事实；diagnostics 的完整动态 evidence
+不因策略声明 subset 而削减。
 
 graph diagnostic fingerprint 在 Scheduler invocation 内惰性计算一次，仍使用 immutable graph DTO 的原始 `JSON.stringify` 字节和 SHA-256；
 graph record 与后续 decision 引用同一值，不跨 Run 缓存，也不从 logger shape 推断事实需求。
@@ -128,7 +165,13 @@ learned helper 的 history/model tests 单独证明 local-state read、closed pa
 
 ## 状态索引与投影的成本边界
 
-Core 查询按所需 memberships 访问成员，transition 按变更 Task 和 reverse fanout 更新 readiness；成本包括 seed、
-persistent Set backing 与 fanout update。边缘投影另承担排序、member DTO/freeze 与 catalog reason 物化。
-结构证据只证明这些访问与更新路径；具体 workload 的 wall-clock 或内存收益需要对应测量。
+Core 查询按所需 memberships 访问成员，transition 按变更 Task 和 relation reverse fanout 更新 readiness；mutex occupancy 不承担
+cohort fanout。scope activation 编译先为每 scope 的 activation IDs 建 Set，再按 Task 查所属 scope。
+A 为 activation 声明总数、N 为 Task 数，标记阶段为 O(A+N)；graph validation 与其错误顺序不变。
+
+static 查询按当前 active roots 建 Set、按非空 group 数 G 访问 live heads，并读取这些 head 的 constraint 项；分组 rank 编译承担一次排序，frontier 承担
+persistent heap/Map/Set 更新与单调分支内的摊销 tombstone 弹出。wide/common-mutex 等 G 远小于 Task 数的形状不再每 boundary
+枚举整个 frontier；G=N 时仍可出现二次 group enumeration，不能据此宣称整个 Scheduler 普适 O(N log N)。
+custom/public/diagnostic 完整读取另承担 relation-ready 遍历、mutex 筛选、排序、member DTO/freeze 与 catalog reason 物化；
+measurement 与 Shell payload 的成本独立保留。结构证据只证明这些访问与更新路径；具体 workload 的 wall-clock 或内存收益需要对应测量。
 collector 的 clock、integrals、history、delay 与 Shell 的执行 payload 按上文职责独立维护。

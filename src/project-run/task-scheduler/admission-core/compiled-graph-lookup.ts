@@ -50,17 +50,6 @@ export function requiredReverseObservationsForCompiled(
   return observations;
 }
 
-export function requiredReverseMutexOccurrencesForCompiled(
-  compiled: CompiledAdmissionGraph,
-  mutexSlot: number
-): CompiledAdmissionGraph["relationIndexes"]["reverseMutexOccurrences"][number] {
-  const occurrences = compiled.relationIndexes.reverseMutexOccurrences[mutexSlot];
-  if (occurrences === undefined) {
-    throw new Error(`admission core mutex slot is unknown: ${mutexSlot}`);
-  }
-  return occurrences;
-}
-
 export function requiredScopeTerminalSlotsForCompiled(
   compiled: CompiledAdmissionGraph,
   taskSlot: number

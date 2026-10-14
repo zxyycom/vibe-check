@@ -1,5 +1,12 @@
 import { List, Set as PersistentSet } from "immutable";
 
+import type { ReadyGroupFrontier } from "./ready-frontier.ts";
+import {
+  mergeTaskQueues,
+  queueWithTask,
+  type PersistentTaskQueue
+} from "./persistent-task-queue.ts";
+
 import type { SchedulerSettlementKind } from "../scheduler-decision-model.ts";
 
 export type CoreTaskStatus =
@@ -20,15 +27,8 @@ export type PersistentIndexedStore<T> = Readonly<{
 export type NumberStore = PersistentIndexedStore<number>;
 export type StatusStore = PersistentIndexedStore<CoreTaskStatus>;
 
-/** Persistent leftist max-heap: task slots are the canonical forced-effect priority. */
-export type ForcedTaskQueue =
-  | undefined
-  | Readonly<{
-      readonly left: ForcedTaskQueue;
-      readonly rank: number;
-      readonly right: ForcedTaskQueue;
-      readonly taskSlot: number;
-    }>;
+/** Negative task slots retain canonical descending-slot forced-effect priority. */
+export type ForcedTaskQueue = PersistentTaskQueue | undefined;
 
 /** Primary relation/mutex blocker, shared by seed, transition and read-only query owners. */
 export type PendingBlockerStage = "depends-on-pending" | "mutex-held" | "observes-pending";
@@ -37,15 +37,14 @@ export type TaskPartitionKind = "pending" | "running" | "settled";
 export interface AdmissionSelectionIndex {
   /** Persistent memberships; order is applied only at consuming projection boundaries. */
   readonly taskSlotsByStatus: Readonly<Record<TaskPartitionKind, PersistentSet<number>>>;
-  /** Pending tasks with resolved relations and no held mutex; capacity is evaluated dynamically. */
-  readonly candidateTaskSlots: PersistentSet<number>;
+  /** Pending tasks with resolved relations; mutex and capacity are evaluated dynamically. */
+  readonly relationReadyTaskSlots: PersistentSet<number>;
+  readonly readyGroupFrontier: ReadyGroupFrontier;
   readonly activeScopeSlots: readonly number[];
   readonly activeScopes: NumberStore;
   readonly forcedQueue: ForcedTaskQueue;
   readonly legacyRunningMutexes: readonly string[] | undefined;
   readonly mutexHolders: NumberStore;
-  /** Per-task reverse-mutex occurrence count; candidate sieving never builds mutex payloads. */
-  readonly heldMutexBlockers: NumberStore;
   readonly nonCompletedDependencies: NumberStore;
   readonly pendingObservations: NumberStore;
   readonly pendingDependencies: NumberStore;
@@ -55,17 +54,14 @@ export interface AdmissionSelectionIndex {
   readonly statuses: StatusStore;
 }
 
-/** Shared relation/mutex readiness: seeds, transitions and public validation consume this predicate. */
-export function pendingBlockerStageForSelection(
-  selection: Pick<
-    AdmissionSelectionIndex,
-    "pendingDependencies" | "pendingObservations" | "heldMutexBlockers"
-  >,
+/** Shared relation readiness; mutex occupancy is judged dynamically by the query owner. */
+export function pendingRelationBlockerStageForSelection(
+  selection: Pick<AdmissionSelectionIndex, "pendingDependencies" | "pendingObservations">,
   taskSlot: number
-): PendingBlockerStage | undefined {
+): Exclude<PendingBlockerStage, "mutex-held"> | undefined {
   if (numberFor(selection.pendingDependencies, taskSlot) > 0) return "depends-on-pending";
   if (numberFor(selection.pendingObservations, taskSlot) > 0) return "observes-pending";
-  return numberFor(selection.heldMutexBlockers, taskSlot) > 0 ? "mutex-held" : undefined;
+  return undefined;
 }
 
 export function persistentStatuses(values: readonly CoreTaskStatus[]): StatusStore {
@@ -113,12 +109,13 @@ export function withNumberDeltas(
   if (deltas.length === 0) return store;
   const aggregated = new Map<number, number>();
   for (const [slot, delta] of deltas) aggregated.set(slot, (aggregated.get(slot) ?? 0) + delta);
-  let values = store.values;
-  for (const [slot, delta] of aggregated) {
-    const current = values.get(slot);
-    if (current === undefined) throw new Error(`admission core index slot is unknown: ${slot}`);
-    values = values.set(slot, current + delta);
-  }
+  const values = store.values.withMutations((batch) => {
+    for (const [slot, delta] of aggregated) {
+      const current = batch.get(slot);
+      if (current === undefined) throw new Error(`admission core index slot is unknown: ${slot}`);
+      batch.set(slot, current + delta);
+    }
+  });
   return Object.freeze({ values });
 }
 
@@ -132,7 +129,7 @@ export function withoutForcedTask(selection: AdmissionSelectionIndex): Admission
   if (root === undefined) return selection;
   return freezeSelectionIndex({
     ...selection,
-    forcedQueue: mergeForcedTaskQueues(root.left, root.right)
+    forcedQueue: mergeTaskQueues(root.left, root.right)
   });
 }
 
@@ -156,30 +153,6 @@ export function freezeSelectionIndex(selection: AdmissionSelectionIndex): Admiss
   return Object.freeze(selection);
 }
 
-function forcedQueueRank(queue: ForcedTaskQueue): number {
-  return queue?.rank ?? 0;
-}
-
-/** Merges by task slot; only the right spine is copied and retained branches stay shared. */
-function mergeForcedTaskQueues(left: ForcedTaskQueue, right: ForcedTaskQueue): ForcedTaskQueue {
-  if (left === undefined) return right;
-  if (right === undefined) return left;
-  if (left.taskSlot < right.taskSlot) return mergeForcedTaskQueues(right, left);
-  const mergedRight = mergeForcedTaskQueues(left.right, right);
-  const nextLeft =
-    forcedQueueRank(left.left) >= forcedQueueRank(mergedRight) ? left.left : mergedRight;
-  const nextRight = nextLeft === left.left ? mergedRight : left.left;
-  return Object.freeze({
-    left: nextLeft,
-    rank: forcedQueueRank(nextRight) + 1,
-    right: nextRight,
-    taskSlot: left.taskSlot
-  });
-}
-
 function forcedQueueWithTask(queue: ForcedTaskQueue, taskSlot: number): ForcedTaskQueue {
-  return mergeForcedTaskQueues(
-    queue,
-    Object.freeze({ left: undefined, rank: 1, right: undefined, taskSlot })
-  );
+  return queueWithTask(queue, { taskSlot, preferenceRank: -taskSlot });
 }
