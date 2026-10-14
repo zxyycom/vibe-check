@@ -1,4 +1,4 @@
-import { transitionReadyFrontier } from "./ready-frontier.ts";
+import { transitionSelectionFrontiers } from "./selection-frontiers.ts";
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
   requiredReverseDependenciesForCompiled,
@@ -76,15 +76,18 @@ export function transitionIndexedSelection(
       else batch.delete(slot);
     }
   });
+  const frontiers = transitionSelectionFrontiers({
+    compiled,
+    selection,
+    relationReadyTaskSlots,
+    activeScopeSlots: facts.activeScopeSlots,
+    affectedTaskSlots: facts.affectedCandidateSlots,
+    taskSlot,
+    activatedScopeSlot: transition.activatedScopeSlot
+  });
   return freezeSelectionIndex({
     relationReadyTaskSlots,
-    readyGroupFrontier: transitionReadyFrontier(
-      compiled,
-      selection.readyGroupFrontier,
-      selection.relationReadyTaskSlots,
-      relationReadyTaskSlots,
-      facts.affectedCandidateSlots
-    ),
+    ...frontiers,
     taskSlotsByStatus: Object.freeze(taskSlotsByStatus),
     activeScopeSlots: facts.activeScopeSlots,
     activeScopes: facts.activeScopes,

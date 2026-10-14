@@ -95,6 +95,7 @@ describe("static admission group frontier", () => {
       { taskId: "a", canAdmit: false },
       { taskId: "unrelated", canAdmit: true }
     ]);
+    assertReplacedHeadRevision();
   });
 
   it("consumes wide equivalent heads without materializing candidates and prunes arbitrary selections in transitions", () => {
@@ -158,6 +159,72 @@ describe("static admission group frontier", () => {
       assert.equal(admissionCandidatesForCore(released).length, width - 1);
       assert.equal(admissionCandidatesForCore(initial).length, width);
       assert.deepEqual(admissionStateForCore(initial).inspection.runningTaskIds, []);
+      assertHeterogeneousHeads(width);
     }
   });
 });
+
+/** Distinct groups must consume a ranked prefix, including blocked ordinary priority heads. */
+function assertHeterogeneousHeads(width: number): void {
+  const graph = prepareTaskGraph(
+    {
+      resourceCapacities: { worker: 1 },
+      tasks: Array.from({ length: width }, (_, slot) => ({
+        id: `unique-${slot}`,
+        mutex: [`mutex-${slot}`],
+        resourceClaims: slot < width / 2 || slot === width - 1 ? { worker: 1 } : {}
+      }))
+    },
+    4
+  );
+  const initial = createInitialAdmissionCoreState(compilePreparedAdmissionGraph(graph, 4));
+  assert.equal(initial.selection.readyGroupFrontier.size, width);
+  const frontier = new Proxy(initial.selection.readyGroupFrontier, {
+    get(target, key, receiver): unknown {
+      if (key === Symbol.iterator || ["values", "keys", "entries", "forEach"].includes(String(key)))
+        assert.fail(`static query enumerated all groups: ${String(key)}`);
+      return Reflect.get(target, key, receiver);
+    }
+  });
+  const captured: AdmissionCoreState = Object.freeze({
+    ...initial,
+    selection: Object.freeze({ ...initial.selection, readyGroupFrontier: frontier })
+  });
+  assert.equal(staticAdmissionCandidateForCore(captured)?.task.id, "unique-0");
+  const held = selectedCore(captured, `unique-${width - 1}`);
+  assert.equal(staticAdmissionCandidateForCore(held)?.task.id, `unique-${width / 2}`);
+  const released = settledCore(held, `unique-${width - 1}`);
+  assert.equal(staticAdmissionCandidateForCore(released)?.task.id, "unique-0");
+  assert.equal(staticAdmissionCandidateForCore(captured)?.task.id, "unique-0");
+  const cancelled = cancelPendingAdmissionCore(released).state;
+  assert.equal(staticAdmissionCandidateForCore(cancelled), undefined);
+}
+
+/** A temporarily displaced Task gets a new entry identity when it returns as group head. */
+function assertReplacedHeadRevision(): void {
+  const graph = prepareTaskGraph(
+    {
+      tasks: [
+        { id: "low", admissionPriority: -1 },
+        { id: "high", admissionPriority: 10, dependsOn: ["gate"] },
+        { id: "gate", mutex: ["gate"] }
+      ]
+    },
+    4
+  );
+  const initial = createInitialAdmissionCoreState(compilePreparedAdmissionGraph(graph, 4));
+  const oldEntry = initial.selection.staticGroupFrontier.queues.ordinary;
+  assert.equal(oldEntry?.taskSlot, 2);
+  const beforeHigh = settledCore(selectedCore(initial, "gate"), "gate");
+  assert.equal(staticAdmissionCandidateForCore(beforeHigh)?.task.id, "high");
+  const afterHigh = settledCore(selectedCore(beforeHigh, "high"), "high");
+  const returnedEntry = afterHigh.selection.staticGroupFrontier.queues.ordinary;
+  assert.equal(returnedEntry?.taskSlot, 0);
+  const groupSlot = initial.compiled.constraintGroups.taskGroupSlots[0];
+  assert.ok(groupSlot !== undefined);
+  assert.equal(initial.selection.staticGroupFrontier.revisions.get(groupSlot), 1);
+  assert.equal(afterHigh.selection.staticGroupFrontier.revisions.get(groupSlot), 3);
+  assert.equal(returnedEntry?.revision, 3);
+  assert.equal(staticAdmissionCandidateForCore(initial)?.task.id, "gate");
+  assert.equal(oldEntry?.revision, 1);
+}

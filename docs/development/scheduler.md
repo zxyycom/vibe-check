@@ -20,7 +20,7 @@ Core 查询区分状态事实与选择判断，消费者直接读取所需内容
 | --- | --- |
 | `state-query.ts` | status、成员与 scope lifecycle 事实，供 selection、projection、ID 查询和 measurement 使用。 |
 | `selection-query.ts` | 基于状态事实完成 selection、readiness/capacity 判断与 rejection payload，供执行、推演和观察使用。 |
-| `static-selection-query.ts` | 按既有策略层级比较 constraint group heads，复用同源 mutex/capacity 判断。 |
+| `static-selection-query.ts` | 按既有策略层级消费全局有序 group heads，复用同源 mutex/capacity 判断。 |
 
 Core 独占 pending/running/settled task-slot memberships、relation-ready membership、scope lifecycle 与 constraint occupancy。
 seed 与 transition 以同一 relation predicate 维护 pending 且 depends/observes 已解决的成员；transition 只刷新变更 Task 与
@@ -52,8 +52,15 @@ settlement 与 cancellation 可移除非 head 成员；transition 当场推进�
 只在 transition 中弹出，query 不重复从旧 head 扫描。每条单调分支中，每个 Task 至多进入 relation-ready frontier 一次，各排序
 heap 中的对应节点至多弹出一次；旧 state/fork 保持自己的 persistent 分支。
 
-ready frontier 与 forced frontier 共用 Scheduler-private persistent Task queue 的不可变 backing；ready 的 preference 来自
-compiled group ranks，forced 保留 descending task-slot 顺序。成员、失效清理与 lifecycle 判断仍由各自 frontier owner 维护。
+`static-frontier.ts` 为 tightening、continuation、ordinary 各保存一条全局有序 group-head queue。
+`selection-frontiers.ts` 在 relation 变更时更新受影响组，在实际 active-root 变化时重分类该 scope 的组；
+current active-root Set 与原有有序 roots 同步，历史 once-activated counter 仍只承接生命周期。
+每次 head 或 layer 改变推进 group revision，旧节点即使再次成为同一 Task head 也不能复活；transition 清理失效 roots，
+query 在跳过动态阻塞 head 时只处理所需有序前缀，保留旧 state/fork。
+
+ready、static 和 forced frontier 共用 Scheduler-private persistent Task queue 的不可变 backing。
+ready/static preference 来自 compiled 全局 ranks，仍保留每组相同的 ordinary/constrained 内部顺序；
+forced 保留 descending task-slot 顺序。revision 是 entry identity，不是 Task priority 或另一套 legality。
 
 ### Shell 执行与准入边界
 
@@ -65,7 +72,7 @@ Scheduler 负责 graph validation、readiness、dependency/mutex admission、roo
 
 policy 只返回决定，Scheduler 不解释公平、防饥饿或等待理由；static tightening/continuation 每轮重算，不保存 reservation、sticky target 或策略状态。Task engine 不解释 Check terminal grammar、Records、scanner payload 或 aggregation。
 
-static/no-observer 单轮只消费同一 Core 各非空 constraint group 的 layer-specific live head、active scopes 与容量，
+static/no-observer 单轮消费同一 Core 的 layer-specific 有序 group heads、active scopes 与容量，
 完整 candidates、inspection、历史 DTO 和观察专用 facts 按消费需求构建。
 
 ### 观察与公开投影
@@ -80,8 +87,8 @@ execution candidates 先从 relation-ready membership 动态筛除 held mutex；
 声明顺序与 public lexical rank 排序、DTO 冻结、running mutex 去重呈现是合法边缘投影，不是新的状态/判断 owner。
 只有实际读取 `admissionState` 才构造 opaque public wrapper，catalog/inspection DTO 各自在 getter read 时物化；
 普通运行不为未消费的推演视图付出构造成本。
-static scope selection 复用 compiled graph 的 scope/activation 与分组 rank 索引，仅为当前 active scopes 建 Set。
-group-head fold 按 tightening → constrained continuation → ordinary 选择：
+static scope selection 复用 compiled graph 的 scope/activation/rank 索引与 persistent active-root membership。
+三条 group-head queue 按 tightening → constrained continuation → ordinary 消费：
 
 - **tightening / continuation：** 先按 cap 从小到大、priority 从高到低、scope ID / Task ID lexical 顺序选择，再判断 admission；被选 head 暂时不能运行时 wait，不以 ordinary work backfill。
 - **ordinary：** 先考虑 canAdmit，再按 priority 从高到低与声明顺序选择。
@@ -169,9 +176,10 @@ Core 查询按所需 memberships 访问成员，transition 按变更 Task 和 re
 cohort fanout。scope activation 编译先为每 scope 的 activation IDs 建 Set，再按 Task 查所属 scope。
 A 为 activation 声明总数、N 为 Task 数，标记阶段为 O(A+N)；graph validation 与其错误顺序不变。
 
-static 查询按当前 active roots 建 Set、按非空 group 数 G 访问 live heads，并读取这些 head 的 constraint 项；分组 rank 编译承担一次排序，frontier 承担
-persistent heap/Map/Set 更新与单调分支内的摊销 tombstone 弹出。wide/common-mutex 等 G 远小于 Task 数的形状不再每 boundary
-枚举整个 frontier；G=N 时仍可出现二次 group enumeration，不能据此宣称整个 Scheduler 普适 O(N log N)。
+static 查询按 rank 消费必要的 group-head 前缀并读取其 constraint 项；有可运行高优先级 head 时，即使 G=N
+也无需枚举全部组。rank 编译承担一次全局排序，frontier 承担 persistent heap/Map/Set 更新、scope 重分类与 tombstone 清理。
+暂时阻塞的前缀仍需动态判断；全阻塞、复杂共享资源、custom/full observation 和 active-root 数量分别计成本，
+这一索引不构成整个 Scheduler 的普适复杂度上界。
 custom/public/diagnostic 完整读取另承担 relation-ready 遍历、mutex 筛选、排序、member DTO/freeze 与 catalog reason 物化；
 measurement 与 Shell payload 的成本独立保留。结构证据只证明这些访问与更新路径；具体 workload 的 wall-clock 或内存收益需要对应测量。
 collector 的 clock、integrals、history、delay 与 Shell 的执行 payload 按上文职责独立维护。

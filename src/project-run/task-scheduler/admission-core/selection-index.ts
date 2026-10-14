@@ -1,6 +1,7 @@
 import { List, Set as PersistentSet } from "immutable";
 
 import type { ReadyGroupFrontier } from "./ready-frontier.ts";
+import type { StaticGroupFrontier } from "./static-frontier.ts";
 import {
   mergeTaskQueues,
   queueWithTask,
@@ -40,6 +41,8 @@ export interface AdmissionSelectionIndex {
   /** Pending tasks with resolved relations; mutex and capacity are evaluated dynamically. */
   readonly relationReadyTaskSlots: PersistentSet<number>;
   readonly readyGroupFrontier: ReadyGroupFrontier;
+  readonly staticGroupFrontier: StaticGroupFrontier;
+  readonly activeScopeSlotSet: PersistentSet<number>;
   readonly activeScopeSlots: readonly number[];
   readonly activeScopes: NumberStore;
   readonly forcedQueue: ForcedTaskQueue;

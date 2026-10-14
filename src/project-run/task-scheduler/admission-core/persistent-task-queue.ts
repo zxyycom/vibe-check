@@ -13,18 +13,21 @@ export interface PersistentTaskQueue {
   readonly nullPathLength: number;
   readonly preferenceRank: number;
   readonly taskSlot: number;
+  /** Frontier-entry identity, independent of Task priority; zero for unversioned memberships. */
+  readonly revision: number;
 }
 
 export function queueWithTask(
   queue: PersistentTaskQueue | undefined,
-  task: Readonly<{ taskSlot: number; preferenceRank: number }>
+  task: Readonly<{ taskSlot: number; preferenceRank: number; revision?: number }>
 ): PersistentTaskQueue {
   const leaf = Object.freeze({
     left: undefined,
     right: undefined,
     nullPathLength: 1,
     preferenceRank: task.preferenceRank,
-    taskSlot: task.taskSlot
+    taskSlot: task.taskSlot,
+    revision: task.revision ?? 0
   });
   const next = mergeTaskQueues(queue, leaf);
   if (next === undefined) throw new Error("admission core Task insertion produced no queue");
@@ -49,6 +52,7 @@ export function mergeTaskQueues(
     right: nextRight,
     nullPathLength: (nextRight?.nullPathLength ?? 0) + 1,
     preferenceRank: left.preferenceRank,
-    taskSlot: left.taskSlot
+    taskSlot: left.taskSlot,
+    revision: left.revision
   });
 }

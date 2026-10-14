@@ -1,6 +1,7 @@
 import { Set as PersistentSet } from "immutable";
 
 import { readyFrontierForSeed } from "./ready-frontier.ts";
+import { staticFrontierForSeed } from "./static-frontier.ts";
 
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
@@ -59,12 +60,21 @@ export function selectionIndexForSeed(
   const relationReadyTaskSlots = taskSlotsByStatus.pending.filter(
     (slot) => pendingRelationBlockerStageForSelection(readiness, slot) === undefined
   );
+  const activeScopeSlots = activeScopeSlotsForSeed(compiled, persistentStatus, activeScopes);
+  const activeScopeSlotSet = PersistentSet(activeScopeSlots);
+  const readyGroupFrontier = readyFrontierForSeed(compiled, relationReadyTaskSlots);
   return freezeSelectionIndex({
     ...readiness,
     taskSlotsByStatus: Object.freeze(taskSlotsByStatus),
     relationReadyTaskSlots,
-    readyGroupFrontier: readyFrontierForSeed(compiled, relationReadyTaskSlots),
-    activeScopeSlots: activeScopeSlotsForSeed(compiled, persistentStatus, activeScopes),
+    readyGroupFrontier,
+    staticGroupFrontier: staticFrontierForSeed({
+      compiled,
+      readyGroupFrontier,
+      activeScopeSlots: activeScopeSlotSet
+    }),
+    activeScopeSlots,
+    activeScopeSlotSet,
     activeScopes: persistentNumbersFor(activeScopes),
     forcedQueue: forcedQueueForSeed(compiled, persistentStatus, counters),
     legacyRunningMutexes:

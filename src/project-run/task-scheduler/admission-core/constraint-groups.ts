@@ -2,14 +2,12 @@ import type { PlannedTaskGraph } from "../graph.ts";
 
 export interface AdmissionConstraintGroups {
   readonly taskGroupSlots: readonly number[];
-  /** Group-local derived order, not a second priority fact; priority remains graph metadata. */
+  /** Static derived orders, not priority facts; priority remains graph metadata. */
   readonly ordinaryPreferenceRanks: readonly number[];
   readonly constrainedPreferenceRanks: readonly number[];
-}
-
-interface ConstraintGroupMembers {
-  readonly taskSlots: number[];
-  readonly usesConstrainedOrder: boolean;
+  readonly groupScopeSlots: readonly (number | undefined)[];
+  readonly groupActivatesScope: readonly boolean[];
+  readonly scopeGroupSlots: readonly (readonly number[])[];
 }
 
 /** Members have identical dynamic mutex/resource fit and static scope-selection layer. */
@@ -23,8 +21,10 @@ export function compileAdmissionConstraintGroups(
 ): AdmissionConstraintGroups {
   const { graph, maxParallel, taskScopeSlots, taskActivatesScope } = input;
   const groupSlotsByKey = new Map<string, number>();
-  const members: ConstraintGroupMembers[] = [];
   const taskGroupSlots: number[] = [];
+  const groupScopeSlots: (number | undefined)[] = [];
+  const groupActivatesScope: boolean[] = [];
+  const scopeGroupSlots = graph.scopes.map(() => [] as number[]);
   for (const [taskSlot, task] of graph.tasks.entries()) {
     const scopeSlot = taskScopeSlots[taskSlot];
     const scope = scopeSlot === undefined ? undefined : graph.scopes[scopeSlot];
@@ -40,39 +40,71 @@ export function compileAdmissionConstraintGroups(
     if (groupSlot === undefined) {
       groupSlot = groupSlotsByKey.size;
       groupSlotsByKey.set(key, groupSlot);
-      members.push({ taskSlots: [], usesConstrainedOrder: constrainedScope !== undefined });
+      const constrainedScopeSlot = constrainedScope === undefined ? undefined : scopeSlot;
+      groupScopeSlots.push(constrainedScopeSlot);
+      groupActivatesScope.push(taskActivatesScope[taskSlot] === true);
+      if (constrainedScopeSlot !== undefined)
+        scopeGroupSlots[constrainedScopeSlot]?.push(groupSlot);
     }
-    const groupMembers = members[groupSlot];
-    if (groupMembers === undefined)
-      throw new Error(`admission core constraint group is unknown: ${groupSlot}`);
-    groupMembers.taskSlots.push(taskSlot);
     taskGroupSlots.push(groupSlot);
-  }
-  const ordinaryPreferenceRanks = graph.tasks.map(() => 0);
-  const constrainedPreferenceRanks = graph.tasks.map(() => 0);
-  for (const groupMembers of members) {
-    for (const order of ["ordinary", "constrained"] as const) {
-      const shouldUseLexicalTaskOrder =
-        order === "constrained" && groupMembers.usesConstrainedOrder;
-      groupMembers.taskSlots.sort((left, right) => {
-        const leftTask = graph.tasks[left];
-        const rightTask = graph.tasks[right];
-        if (leftTask === undefined || rightTask === undefined)
-          throw new Error("admission core group contains an unknown Task");
-        return (
-          rightTask.admissionPriority - leftTask.admissionPriority ||
-          (shouldUseLexicalTaskOrder ? compareText(leftTask.id, rightTask.id) : left - right)
-        );
-      });
-      const ranks = order === "ordinary" ? ordinaryPreferenceRanks : constrainedPreferenceRanks;
-      for (const [rank, taskSlot] of groupMembers.taskSlots.entries()) ranks[taskSlot] = rank;
-    }
   }
   return Object.freeze({
     taskGroupSlots: Object.freeze(taskGroupSlots),
+    ...compileGlobalPreferenceRanks(graph, maxParallel, taskScopeSlots),
+    groupScopeSlots: Object.freeze(groupScopeSlots),
+    groupActivatesScope: Object.freeze(groupActivatesScope),
+    scopeGroupSlots: Object.freeze(scopeGroupSlots.map((slots) => Object.freeze(slots)))
+  });
+}
+
+/** Global head ranks preserve ordinary declaration ties and constrained scope/task ties. */
+function compileGlobalPreferenceRanks(
+  graph: PlannedTaskGraph,
+  maxParallel: number,
+  taskScopeSlots: readonly (number | undefined)[]
+): Pick<AdmissionConstraintGroups, "ordinaryPreferenceRanks" | "constrainedPreferenceRanks"> {
+  const ordinarySlots = graph.tasks.map((_, slot) => slot);
+  ordinarySlots.sort((left, right) => {
+    const leftTask = graph.tasks[left];
+    const rightTask = graph.tasks[right];
+    if (leftTask === undefined || rightTask === undefined) throw new Error("unknown ranked Task");
+    return rightTask.admissionPriority - leftTask.admissionPriority || left - right;
+  });
+  const ordinaryPreferenceRanks = graph.tasks.map(() => 0);
+  for (const [rank, slot] of ordinarySlots.entries()) ordinaryPreferenceRanks[slot] = rank;
+  const constrainedSlots = ordinarySlots.filter((slot) => {
+    const scopeSlot = taskScopeSlots[slot];
+    return (
+      scopeSlot !== undefined && (graph.scopes[scopeSlot]?.maxParallel ?? maxParallel) < maxParallel
+    );
+  });
+  constrainedSlots.sort((left, right) => {
+    const leftTask = graph.tasks[left];
+    const rightTask = graph.tasks[right];
+    const leftScopeSlot = taskScopeSlots[left];
+    const rightScopeSlot = taskScopeSlots[right];
+    const leftScope = leftScopeSlot === undefined ? undefined : graph.scopes[leftScopeSlot];
+    const rightScope = rightScopeSlot === undefined ? undefined : graph.scopes[rightScopeSlot];
+    if (
+      leftTask === undefined ||
+      rightTask === undefined ||
+      leftScope === undefined ||
+      rightScope === undefined
+    )
+      throw new Error("constrained rank is missing its Task or scope");
+    return (
+      leftScope.maxParallel - rightScope.maxParallel ||
+      rightTask.admissionPriority - leftTask.admissionPriority ||
+      compareText(leftScope.id, rightScope.id) ||
+      compareText(leftTask.id, rightTask.id)
+    );
+  });
+  const constrainedPreferenceRanks = [...ordinaryPreferenceRanks];
+  for (const [rank, slot] of constrainedSlots.entries()) constrainedPreferenceRanks[slot] = rank;
+  return {
     ordinaryPreferenceRanks: Object.freeze(ordinaryPreferenceRanks),
     constrainedPreferenceRanks: Object.freeze(constrainedPreferenceRanks)
-  });
+  };
 }
 
 function compareText(left: string, right: string): number {

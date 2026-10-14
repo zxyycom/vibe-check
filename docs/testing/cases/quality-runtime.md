@@ -651,7 +651,7 @@ Entities:
   Proves:
 - declaration-order pending/running/settled 与 lexical public catalog/inspection 共读 immutable memberships；重复关系更新 relation readiness，mutex occurrence 的 occupancy 变化由同源动态读取，暂时 resource shortage 的 candidate 不消失。保留 predecessor、独立 fork 和取消 successor 均不互相改变。
 - indexed consumer reads 用 whole-graph traversal guard 证明不重扫全图构造 memberships；query、public projection、transition 与 cancellation 仍返回完整有序事实。此结构证据不宣称 wall-clock 收益。
-- 宽约束等价组的 static head 读取不枚举 relation-ready members；任意非 head selection 和取消在 transition 闭合 live heads。
+- static head 消费保留两类规模证据：宽等价组读取不枚举 relation-ready members，异构组按有序前缀跳过 ordinary 资源阻塞而不枚举全部 groups。非 head selection 与取消在 transition 闭合 live heads；release 恢复优先 head，旧 fork 保持。
 - 延迟读取的完整 candidates/eligibleCount 仍冻结于原 captured Core，其它 fork 的推进不改变已捕获事实。
 - summary 的 dependency → mutex → resource priority 直接聚合 Core facts，即使 primary root/scoped rejection 遮住 resource reason 仍计入 shortage；measurement 使用同源 capacity classification。
 
