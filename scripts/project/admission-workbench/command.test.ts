@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readdir, readFile, symlink, writeFile } from "node:fs/promises";
+import { copyFile, mkdtemp, readdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -82,6 +82,7 @@ test("command rejects malformed arguments inputs and unsafe output targets", asy
     assert.equal(error.status, "error");
     assert.equal(requiredRecord(error.error).code, "invalid-input");
   }
+  await assertInputBeforeExecutionLoad();
 });
 
 test("command returns nonzero error evidence with parsed identity for a public graph rejection", async () => {
@@ -133,6 +134,38 @@ interface CommandEvidence {
   }>[];
   readonly source: string;
   readonly status: "error" | "success";
+}
+
+/** The bootstrap has no execution module or installed package, so eager loading cannot pass. */
+async function assertInputBeforeExecutionLoad(): Promise<void> {
+  const root = await mkdtemp(join(tmpdir(), "admission-command-bootstrap-"));
+  try {
+    for (const file of [
+      "command.ts",
+      "command-output.ts",
+      "evidence.ts",
+      "scenario.ts",
+      "fixture-registry.ts",
+      "scenario-fixtures.ts",
+      "gate-shape-fixture.ts",
+      "fixture-model.ts"
+    ])
+      await copyFile(join("scripts/project/admission-workbench", file), join(root, file));
+    const entry = join(root, "command.ts");
+    const invalid = await execa(process.execPath, [entry, "chain", "--seed", "-1"], {
+      cwd: root,
+      reject: false
+    });
+    assert.equal(invalid.exitCode, 64);
+    assert.equal(requiredRecord(parsedRecord(invalid.stderr).error).code, "invalid-input");
+    const valid = await execa(process.execPath, [entry, "chain"], { cwd: root, reject: false });
+    assert.equal(valid.exitCode, 1);
+    assert.equal(valid.stdout, "");
+    assert.equal(parsedRecord(valid.stderr).status, "error");
+    assert.equal(parsedRecord(valid.stderr).candidateIdentity, null);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 }
 
 function parseEvidence(value: string): CommandEvidence {

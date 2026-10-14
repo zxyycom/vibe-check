@@ -130,6 +130,9 @@ bun run admission:simulate profile-variation --policy learned --seed 7 --replica
 非有限或非正 work、空倍率、未知或重复 ID、task/profile claims 不一致、非法图及未注册 policy 都会
 拒绝，不会修复或降级。
 
+命令先验收参数、scenario 形状与注册 policy，再加载 `command-execution.ts` 的 Product/模拟执行模块。
+上述先验输入拒绝不加载执行模块；通过这些验收后的装载失败经原 failure evidence 路径包含，退出 `1`，保留既有错误码映射。
+
 当前固定 fixture IDs 是：
 
 - 最小边界与手算 oracle：`empty`、`single`、`chain`、`two-shared-claims`；

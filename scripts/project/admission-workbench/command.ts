@@ -1,46 +1,21 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-import { createAdmissionGraph } from "@zxyycom/vibe-check";
-
 import {
   EVIDENCE_SCHEMA_VERSION,
   canonicalJsonText,
-  installedCandidateIdentity,
-  scenarioEvidenceIdentity,
-  type CandidateIdentity
+  installedCandidateIdentity
 } from "./evidence.ts";
-import {
-  prepareRegisteredPolicy,
-  registeredPolicyIdentity,
-  staticPolicy,
-  type PolicyIdentity
-} from "./policy.ts";
 import { CommandFailure, writeNewFile } from "./command-output.ts";
 import { FIXTURES } from "./fixture-registry.ts";
 import { validateScenario, type PolicyRegistryId, type Scenario } from "./scenario.ts";
-import { simulateEvidence, type SimulationEvidence } from "./simulate.ts";
+import type { ReplicateOptions, WorkbenchEvidence } from "./command-execution.ts";
 
 const USAGE =
   "usage: admission:simulate <scenario.json|fixture-id> [--policy static|learned] [--seed non-negative-integer] [--replicates positive-integer] [--out new-file]";
 
-interface CommandOptions {
+interface CommandOptions extends ReplicateOptions {
   readonly out?: string;
-  readonly policy: PolicyRegistryId;
-  readonly replicates: number;
-  readonly seed: number;
-}
-
-interface WorkbenchEvidence {
-  readonly candidateIdentity: CandidateIdentity;
-  readonly policyIdentity: PolicyIdentity;
-  readonly replicates: number;
-  readonly results: readonly SimulationEvidence[];
-  readonly scenarioIdentity: ReturnType<typeof scenarioEvidenceIdentity>;
-  readonly schemaVersion: typeof EVIDENCE_SCHEMA_VERSION;
-  readonly seed: number;
-  readonly source: "virtual";
-  readonly status: "error" | "success";
 }
 
 export async function runCommand(args: readonly string[]): Promise<number> {
@@ -50,6 +25,7 @@ export async function runCommand(args: readonly string[]): Promise<number> {
     outputPath = invocation.options.out;
     const scenario = await loadScenario(invocation.input);
     requireRegisteredPolicy(scenario, invocation.options.policy);
+    const { executeReplicates } = await import("./command-execution.ts");
     const evidence = await executeReplicates(
       scenario,
       invocation.options,
@@ -100,95 +76,6 @@ async function writeFailure(error: unknown, outputPath: string | undefined): Pro
     }
   }
   return error instanceof CommandFailure && error.code === "invalid-input" ? 64 : 1;
-}
-
-async function executeReplicates(
-  scenario: Scenario,
-  options: CommandOptions,
-  candidateIdentity: CandidateIdentity
-): Promise<WorkbenchEvidence> {
-  try {
-    createAdmissionGraph(scenario.graph);
-  } catch {
-    const policyIdentity = registeredPolicyIdentity(options.policy);
-    return workbenchEvidence({
-      candidateIdentity,
-      options,
-      policyIdentity,
-      results: Array.from({ length: options.replicates }, (_, replicate) =>
-        simulateEvidence(
-          scenario,
-          staticPolicy,
-          options.seed,
-          replicate,
-          policyIdentity,
-          candidateIdentity
-        )
-      ),
-      scenario
-    });
-  }
-  const results: SimulationEvidence[] = [];
-  let stablePolicyIdentity: PolicyIdentity | undefined;
-  for (let replicate = 0; replicate < options.replicates; replicate += 1) {
-    const policy = await prepareRegisteredPolicy(options.policy, scenario.graph.graph);
-    stablePolicyIdentity ??= policy.identity;
-    if (canonicalJsonText(stablePolicyIdentity) !== canonicalJsonText(policy.identity)) {
-      await policy.dispose();
-      throw new CommandFailure(
-        "policy-rejected",
-        "policy input identity changed across replicates"
-      );
-    }
-    try {
-      results.push(
-        simulateEvidence(
-          scenario,
-          policy.decide,
-          options.seed,
-          replicate,
-          policy.identity,
-          candidateIdentity
-        )
-      );
-    } finally {
-      await policy.dispose();
-    }
-  }
-  if (stablePolicyIdentity === undefined) {
-    throw new CommandFailure("invalid-input", "replicate count produced no policy identity");
-  }
-  return workbenchEvidence({
-    candidateIdentity,
-    options,
-    policyIdentity: stablePolicyIdentity,
-    results,
-    scenario
-  });
-}
-
-interface WorkbenchEvidenceInput {
-  readonly candidateIdentity: CandidateIdentity;
-  readonly options: CommandOptions;
-  readonly policyIdentity: PolicyIdentity;
-  readonly results: readonly SimulationEvidence[];
-  readonly scenario: Scenario;
-}
-
-function workbenchEvidence(input: WorkbenchEvidenceInput): WorkbenchEvidence {
-  return Object.freeze({
-    candidateIdentity: input.candidateIdentity,
-    policyIdentity: input.policyIdentity,
-    replicates: input.options.replicates,
-    results: Object.freeze(input.results),
-    scenarioIdentity: scenarioEvidenceIdentity(input.scenario),
-    schemaVersion: EVIDENCE_SCHEMA_VERSION,
-    seed: input.options.seed,
-    source: "virtual" as const,
-    status: input.results.some(({ status }) => status === "error")
-      ? ("error" as const)
-      : ("success" as const)
-  });
 }
 
 async function loadScenario(input: string): Promise<Scenario> {

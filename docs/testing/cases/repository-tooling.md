@@ -593,6 +593,7 @@ Entities:
 - static 是版本化的简单合法 baseline；learned prepared adapter 为每个 replicate 复制同一固定 history snapshot 到独占 absolute state directory，记录 projection/model/fallback identity，不调用 `complete`，且 history/setup 或非预期 prediction fallback 使比较失败。
 - makespan 与 slot·time、逐 named-resource unit·time 分开；四个调查 proxy profile 保留精确 median 与倍率且不冒充完整 Gate baseline，三档 contention/5.5x 长尾与 claimed-only Gate resource shape 都明确是合成或静态输入，virtual milliseconds 不等于 Gate timing。
 - CLI 成功 JSON 只写 stdout 或独占新建的显式文件；输入、已有目标、符号链接与 public graph failure 返回非零结构 evidence。运行 workbench 不调用 Gate entry、真实 Check 或 private Scheduler source。
+- 缺少执行模块的真实 bootstrap 仍先拒绝非法参数；有效输入才装载 execution，装载失败沿既有 failure evidence 结算为退出 `1`，不伪造 candidate identity。
 
 ## Case AUX-ADMISSION-WORKBENCH-SHARED-CLOSURE-001: Public shared closure distinguishes cancellation from virtual settlement
 
