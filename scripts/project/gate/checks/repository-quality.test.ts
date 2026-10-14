@@ -50,6 +50,15 @@ describe("repository quality Checks", () => {
     assert.equal(duplicateDetection.options.codeAreas["product-source"]?.findingPolicy, "blocking");
     assert.equal(fileMetrics.options.codeAreas["product-source"]?.findingPolicy, "blocking");
     assert.equal(markdownLinkValidation.options.findingPolicy, "blocking");
+    assert.equal(markdownLinkValidation.options.cache.enabled, true);
+    if (markdownLinkValidation.options.cache.enabled) {
+      assert.equal(isAbsolute(markdownLinkValidation.options.cache.directory), true);
+      assert.equal(
+        markdownLinkValidation.options.cache.directory,
+        join(repositoryRoot, ".cache", "vibe-check", "markdown-link-parse-facts")
+      );
+      assert.equal(Object.hasOwn(markdownLinkValidation.options.cache, "warnAboveBytes"), false);
+    }
     assert.equal(markdownLintCheck.options.findingPolicy, "non-blocking");
     assert.equal(markdownLintCheck.options.cache.enabled, true);
     if (markdownLintCheck.options.cache.enabled) {

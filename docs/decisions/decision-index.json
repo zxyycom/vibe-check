@@ -365,7 +365,8 @@
       "261012-bound-unclosable-tokenizer-tail-cost": "sha256:7c0d37be8708827791a0b3728bcd290dd8236d3a79102e94391f64ace81f2da6",
       "261013-declare-scheduler-context-demand": "sha256:03e5513930d9e8f8eea2970fd449590544b355eac777c4fe7f9f77ffc35a8591",
       "261013-warn-on-explicit-markdown-parse-cache-capacity": "sha256:303c4f09a20e15afc78151fcd2ec13c3e78cab9b885919f9e88e4bd8834dca8c",
-      "261013-weigh-performance-costs-against-scaling-benefits": "sha256:f683acd59be9bff15ce789368bcf39f642945069f7d29267ce03ef5ba612dfbb"
+      "261013-weigh-performance-costs-against-scaling-benefits": "sha256:f683acd59be9bff15ce789368bcf39f642945069f7d29267ce03ef5ba612dfbb",
+      "261014-enable-gate-markdown-parse-cache": "sha256:1f0c17ff2154da5835fe0354a47afbc4255d41f3081f211e60313b89f39b4da9"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7569,6 +7570,23 @@
       "decision": "结合绝对成本、规模趋势与维护风险决定采用，不要求每种规模都更快",
       "tags": [
         "algorithmic-complexity",
+        "performance",
+        "workflow-policy"
+      ],
+      "relations": []
+    },
+    "261014-enable-gate-markdown-parse-cache": {
+      "name": "enable-gate-markdown-parse-cache",
+      "sourcePath": "enable-gate-markdown-parse-cache.md",
+      "title": "为 Project Gate 启用本地 Markdown 解析缓存",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-14T08:24:24Z",
+      "purpose": "减少完整文档验收的重复解析，同时保留当前输入与目标验证。",
+      "background": "完整 Gate 中 Markdown 解析成本较高，用户已允许保存可删除的本地解析材料。",
+      "decision": "仅 Gate 显式启用现有 parse-facts cache，公共默认关闭与完整验收保持。",
+      "tags": [
+        "configuration",
         "performance",
         "workflow-policy"
       ],

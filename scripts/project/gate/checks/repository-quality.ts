@@ -237,6 +237,10 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
     }
   },
   markdownLinkValidation: {
+    cache: {
+      enabled: true,
+      directory: resolve(repositoryRoot, ".cache", "vibe-check", "markdown-link-parse-facts")
+    },
     files: {
       useDefaultExcludes: true,
       patterns: ["docs/**/*.md", "changes/**/*.md", ...repositoryExcludedPatterns]
