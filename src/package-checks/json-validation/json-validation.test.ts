@@ -46,13 +46,13 @@ function createProjectContext(root: string): CheckProjectContext {
   });
 }
 
-function runJsonValidation({
+async function runJsonValidation({
   fileConfiguration = DEFAULT_FILES,
   onRecordReported,
   options = DEFAULT_OPTIONS,
   root,
   signal = new AbortController().signal
-}: RunJsonValidationInput): JsonValidationExecution {
+}: RunJsonValidationInput): Promise<JsonValidationExecution> {
   const records: ObservedRecord[] = [];
   const context: CheckExecutionContext<ResolvedJsonValidationOptions> = Object.freeze({
     artifactDirectory: null,
@@ -69,7 +69,8 @@ function runJsonValidation({
     }),
     signal
   });
-  return Object.freeze({ result: executeJsonValidation(context), records: Object.freeze(records) });
+  const result = await executeJsonValidation(context);
+  return Object.freeze({ result, records: Object.freeze(records) });
 }
 
 function createTemporaryProjectRoot(): string {
@@ -143,7 +144,8 @@ describe("JSON validation default Check", () => {
         new AbortController().signal
       );
       assert.equal(invalidPreparation.status, "failure");
-      assert.deepEqual(runJsonValidation({ root, options: { maximumBytes: 0 } }).result, {
+      const invalidExecution = await runJsonValidation({ root, options: { maximumBytes: 0 } });
+      assert.deepEqual(invalidExecution.result, {
         status: "unavailable",
         reason: { code: "invalid-options" },
         messages: [
@@ -155,7 +157,7 @@ describe("JSON validation default Check", () => {
           }
         ]
       });
-      const result = runJsonValidation({ root });
+      const result = await runJsonValidation({ root });
       assert.deepEqual(result.result, {
         status: "failed",
         data: {
@@ -209,7 +211,7 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("uses only its included JSON paths without re-adding excluded paths", () => {
+  it("uses only its included JSON paths without re-adding excluded paths", async () => {
     const root = createTemporaryProjectRoot();
     try {
       mkdirSync(join(root, "generated"));
@@ -224,7 +226,7 @@ describe("JSON validation default Check", () => {
         ]
       });
 
-      assert.deepEqual(runJsonValidation({ fileConfiguration: files, root }), {
+      assert.deepEqual(await runJsonValidation({ fileConfiguration: files, root }), {
         records: [],
         result: {
           status: "passed",
@@ -242,7 +244,7 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("reports every closed document issue once with redacted Records and exact counts", () => {
+  it("reports every closed document issue once with redacted Records and exact counts", async () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "bom.json"), new Uint8Array([0xef, 0xbb, 0xbf]));
@@ -252,7 +254,7 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "too-large.json"), new Uint8Array(31));
       writeFileSync(join(root, "valid.json"), "null", "utf8");
 
-      const result = runJsonValidation({ options: { maximumBytes: 30 }, root });
+      const result = await runJsonValidation({ options: { maximumBytes: 30 }, root });
       assert.deepEqual(result.records, [
         { identity: { id: "bom.json" }, data: { path: "bom.json", reason: "bom" } },
         {
@@ -295,11 +297,11 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("settles all rejected selected inputs as non-blocking findings", () => {
+  it("settles all rejected selected inputs as non-blocking findings", async () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "ignored.JSON"), "{}", "utf8");
-      assert.deepEqual(runJsonValidation({ root }), {
+      assert.deepEqual(await runJsonValidation({ root }), {
         records: [
           {
             identity: { id: "/input-rejected/ignored.JSON" },
@@ -335,12 +337,12 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("is not applicable only when its file selection is empty", () => {
+  it("is not applicable only when its file selection is empty", async () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "ignored.JSON"), "{}", "utf8");
       assert.deepEqual(
-        runJsonValidation({
+        await runJsonValidation({
           fileConfiguration: Object.freeze({
             patterns: [...Object.freeze(["missing/**"])]
           }),
@@ -356,13 +358,13 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("retains accepted Records but becomes unavailable when a later eligible file disappears", () => {
+  it("retains accepted Records but becomes unavailable when a later eligible file disappears", async () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "bad.json"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "gone.json"), "{}", "utf8");
       writeFileSync(join(root, "notes.txt"), "not JSON", "utf8");
-      const result = runJsonValidation({
+      const result = await runJsonValidation({
         onRecordReported: () => {
           rmSync(join(root, "gone.json"), { force: true });
         },
@@ -403,14 +405,14 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("honors cancellation before and between file boundaries without final data", () => {
+  it("honors cancellation before and between file boundaries without final data", async () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "bad.json"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "later.json"), "{}", "utf8");
       const before = new AbortController();
       before.abort();
-      assert.deepEqual(runJsonValidation({ root, signal: before.signal }), {
+      assert.deepEqual(await runJsonValidation({ root, signal: before.signal }), {
         records: [],
         result: {
           status: "unavailable",
@@ -427,7 +429,7 @@ describe("JSON validation default Check", () => {
       });
 
       const between = new AbortController();
-      const result = runJsonValidation({
+      const result = await runJsonValidation({
         onRecordReported: () => {
           between.abort();
         },
@@ -449,6 +451,18 @@ describe("JSON validation default Check", () => {
           }
         ]
       });
+      const timer = new AbortController();
+      const timerResult = await runJsonValidation({
+        onRecordReported: () => {
+          setImmediate(() => {
+            timer.abort();
+          });
+        },
+        root,
+        signal: timer.signal
+      });
+      assert.deepEqual(timerResult.records, result.records);
+      assert.deepEqual(timerResult.result, result.result);
     } finally {
       rmSync(root, { force: true, recursive: true });
     }

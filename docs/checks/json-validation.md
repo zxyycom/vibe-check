@@ -88,6 +88,9 @@ strict-document boundary 先按 byte length 应用 `maximumBytes`，再依次区
 duplicate key；每个文档只返回最先成立的封闭 reason。合法文档只向 owning Check 交付不含 prototype 的深冻结私有值，
 不会保留 source、AST、key 或 parser detail；读取或边界执行失败结算为 unavailable，而不是伪装成 invalid document。
 
+文档保持顺序验收，每个文档前让出事件循环，使 timer/I/O 取消与其它 Check 可以推进。
+单个文档的同步读取和解析仍不可抢占；取消在可观察边界结算，不提供部分 final data。
+
 ## 效果与结果
 
 `invalidFileCount === 0` 时 outcome 为 `passed`；`invalidFileCount > 0` 时 outcome 为 `failed`。正常 final data 恰为：

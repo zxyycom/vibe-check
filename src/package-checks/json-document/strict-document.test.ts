@@ -55,7 +55,13 @@ describe("strict JSON document boundary", () => {
   it("returns BOM before fatal UTF-8 and strict grammar failures", () => {
     assertIssue(inspectBytes(new Uint8Array([0xef, 0xbb, 0xbf, 0xff])), "bom");
     assertIssue(inspectBytes(new Uint8Array([0xc3, 0x28])), "invalid-utf8");
-    for (const invalidSource of ["{/* comment */}", "[1,]", '{"a": 1,}', "{} {}"] as const) {
+    for (const invalidSource of [
+      "{/* comment */}",
+      "[1,]",
+      '{"a": 1,}',
+      "{} {}",
+      '{"a": 1, "a": 2,}'
+    ] as const) {
       assertIssue(inspectText(invalidSource), "invalid-json");
     }
   });
@@ -78,6 +84,13 @@ describe("strict JSON document boundary", () => {
     assertIssue(inspectText('{"a": 1, "a": 2}'), "duplicate-key");
     assertIssue(inspectText('{"a": 1, "\\u0061": 2}'), "duplicate-key");
     assertIssue(inspectText('{"outer": {"b": 1, "b": 2}}'), "duplicate-key");
+    assertIssue(inspectText('[{"__proto__": 1, "__proto__": 2}]'), "duplicate-key");
+    assertIssue(inspectText('{"constructor": 1, "constructor": 2}'), "duplicate-key");
+    assertValid(inspectText('{"__proto__": 1, "constructor": 2, "toString": 3}'), {
+      ["__proto__"]: 1,
+      constructor: 2,
+      toString: 3
+    });
     assertValid(inspectText('{"left": {"a": 1}, "right": {"a": 2}}'), {
       left: { a: 1 },
       right: { a: 2 }
@@ -91,6 +104,12 @@ describe("strict JSON document boundary", () => {
     const objectValue = result.jsonValue;
     assert.equal(Object.getPrototypeOf(objectValue), null);
     assert.equal(Object.isFrozen(objectValue), true);
+    assert.deepEqual(Object.getOwnPropertyDescriptor(objectValue, "number"), {
+      configurable: false,
+      enumerable: true,
+      value: Infinity,
+      writable: false
+    });
     const prototypeNamedValue = objectValue["__proto__"];
     if (prototypeNamedValue === undefined) throw new Error("expected __proto__ JSON value");
     assert.notEqual(prototypeNamedValue, null);

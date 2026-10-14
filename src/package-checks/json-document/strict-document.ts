@@ -34,6 +34,8 @@ interface StrictJsonDocumentReadInput {
 
 const UTF8_BOM = [0xef, 0xbb, 0xbf] as const;
 const UNAVAILABLE_DOCUMENT = Object.freeze({ kind: "unavailable" } as const);
+const DUPLICATE_KEY = Symbol("strict-json-duplicate-key");
+type StrictJsonProjection = StrictJsonValue | typeof DUPLICATE_KEY;
 
 function isPositiveSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
@@ -110,8 +112,8 @@ export function inspectStrictJsonBytes(bytes: Uint8Array): StrictJsonDocumentRes
   }
 
   try {
-    if (hasDuplicateKey(document.body)) return issue("duplicate-key");
-    return valid(toStrictJsonValue(document.body));
+    const jsonValue = toStrictJsonValue(document.body);
+    return jsonValue === DUPLICATE_KEY ? issue("duplicate-key") : valid(jsonValue);
   } catch {
     return UNAVAILABLE_DOCUMENT;
   }
@@ -134,24 +136,8 @@ function hasUtf8Bom(bytes: Uint8Array): boolean {
   return UTF8_BOM.every((byte, index) => bytes[index] === byte);
 }
 
-function hasDuplicateKey(node: ValueNode): boolean {
-  if (node.type === "Array") {
-    return node.elements.some((element) => hasDuplicateKey(element.value));
-  }
-  if (node.type !== "Object") return false;
-
-  const names = new Set<string>();
-  for (const member of node.members) {
-    if (member.name.type !== "String")
-      throw new TypeError("strict JSON object member must be a string");
-    if (names.has(member.name.value)) return true;
-    names.add(member.name.value);
-    if (hasDuplicateKey(member.value)) return true;
-  }
-  return false;
-}
-
-function toStrictJsonValue(node: ValueNode): StrictJsonValue {
+/** Grammar is already complete; own-key membership and safe value construction share one walk. */
+function toStrictJsonValue(node: ValueNode): StrictJsonProjection {
   switch (node.type) {
     case "Null":
       return null;
@@ -171,33 +157,29 @@ function toStrictJsonValue(node: ValueNode): StrictJsonValue {
   }
 }
 
-function strictJsonArray(node: Extract<ValueNode, { type: "Array" }>): StrictJsonArray {
-  return Object.freeze(node.elements.map((element) => toStrictJsonValue(element.value)));
+function strictJsonArray(node: Extract<ValueNode, { type: "Array" }>): StrictJsonProjection {
+  const elements: StrictJsonValue[] = [];
+  for (const element of node.elements) {
+    const value = toStrictJsonValue(element.value);
+    if (value === DUPLICATE_KEY) return DUPLICATE_KEY;
+    elements.push(value);
+  }
+  return Object.freeze(elements);
 }
 
-function strictJsonObject(node: Extract<ValueNode, { type: "Object" }>): StrictJsonObject {
+function strictJsonObject(node: Extract<ValueNode, { type: "Object" }>): StrictJsonProjection {
   const strictObject: Record<string, StrictJsonValue> = {};
   Object.setPrototypeOf(strictObject, null);
   for (const member of node.members) {
-    defineStrictJsonProperty(strictObject, member.name, member.value);
+    if (member.name.type !== "String")
+      throw new TypeError("strict JSON object member must be a string");
+    const name = member.name.value;
+    if (Object.hasOwn(strictObject, name)) return DUPLICATE_KEY;
+    const value = toStrictJsonValue(member.value);
+    if (value === DUPLICATE_KEY) return DUPLICATE_KEY;
+    strictObject[name] = value;
   }
   return Object.freeze(strictObject);
-}
-
-function defineStrictJsonProperty(
-  target: Record<string, StrictJsonValue>,
-  name: { readonly type: string; readonly value?: string },
-  value: ValueNode
-): void {
-  if (name.type !== "String" || name.value === undefined) {
-    throw new TypeError("strict JSON object member must be a string");
-  }
-  Object.defineProperty(target, name.value, {
-    configurable: false,
-    enumerable: true,
-    value: toStrictJsonValue(value),
-    writable: false
-  });
 }
 
 function issue(reason: JsonDocumentIssue): StrictJsonDocumentResult {

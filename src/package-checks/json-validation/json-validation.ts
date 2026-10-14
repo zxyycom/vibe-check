@@ -1,4 +1,5 @@
 import { resolve } from "node:path";
+import { setImmediate } from "node:timers/promises";
 
 import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
 import {
@@ -24,9 +25,9 @@ export type JsonValidationUnavailableCode =
   | "scan-input-unavailable";
 
 /** Validates the lower-case JSON subset selected by this Check's options. */
-export function executeJsonValidation(
+export async function executeJsonValidation(
   context: CheckExecutionContext<ResolvedJsonValidationOptions>
-): CheckResult<JsonValidationFinalData> {
+): Promise<CheckResult<JsonValidationFinalData>> {
   if (!validJsonValidationOptions(context.options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
@@ -36,18 +37,20 @@ export function executeJsonValidation(
   if (inputs.selectedPathCount === 0) return noEligibleInput();
   reportRejectedInputs(context, inputs.rejectedPaths);
   return appendRejectedInputMessage(
-    validateJsonPaths(context, inputs.acceptedPaths, inputs.rejectedPaths.length),
+    await validateJsonPaths(context, inputs.acceptedPaths, inputs.rejectedPaths.length),
     inputs.rejectedPaths.length
   );
 }
 
-function validateJsonPaths(
+async function validateJsonPaths(
   context: CheckExecutionContext<ResolvedJsonValidationOptions>,
   paths: readonly string[],
   rejectedInputCount: number
-): CheckResult<JsonValidationFinalData> {
+): Promise<CheckResult<JsonValidationFinalData>> {
   const counts = { invalidFileCount: 0, validFileCount: 0 };
   for (const path of paths) {
+    // File order stays sequential; timer/I/O cancellation and other Checks can progress between documents.
+    await setImmediate();
     if (context.signal.aborted) return unavailable("execution-cancelled");
     const document = readJsonDocument(context, path);
     if (context.signal.aborted) return unavailable("execution-cancelled");

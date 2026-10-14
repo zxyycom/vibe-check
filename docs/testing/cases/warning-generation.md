@@ -91,6 +91,7 @@ Proves:
 
 - `jsonValidation(options?)` fills a precise JSON file default plus byte authoring defaults and exposes a parser that enforces the five-count equations. JSON validation returns final data only after every accepted file is settled; each of the five closed document reasons produces exactly one safe `{ id: path }` / `{ path, reason }` Record and no JSON source, key, pointer, location, or parser detail.
 - Every selected unsupported path produces its own fixed non-blocking rejection Record and contributes to `rejectedInputCount` plus `issueCount`; only invalid documents fail the Check. Empty selected input is `not-applicable`, while all-rejected input is passed with a warning. Cancellation or a later unavailable document produces `unavailable` without final data while retaining already accepted Records.
+- File-boundary yielding lets a queued timer cancellation become observable before the next document; it retains the same accepted Record prefix and unavailable result as synchronous cancellation, without partial final data.
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-RESULTS-001: JSON Schema validation publishes safe domain facts and exact counts
 
