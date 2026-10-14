@@ -1,74 +1,25 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { rmSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import { run } from "../../project-run/run.ts";
-import { maintenanceReminders, type MaintenanceReminder } from "./maintenance-reminders.ts";
+import {
+  maintenanceReminders,
+  type MaintenanceReminder,
+  type ReminderEvaluation
+} from "./maintenance-reminders.ts";
 import { definition, onlyOutcome } from "./maintenance-reminders.test-support.ts";
 import { MaintenanceReminderMeasurementSession } from "./measurement.ts";
-
-const BASE = "a".repeat(40);
-const MIDDLE = "b".repeat(40);
-const HEAD = "c".repeat(40);
-
-type GitResponse = Readonly<{ readonly stdout?: string; readonly failed?: boolean }>;
-type GitPlan = Readonly<Record<string, readonly GitResponse[]>>;
-type GitCall = Readonly<{ readonly command: string; readonly args: readonly string[] }>;
-
-function scriptedGit(plan: GitPlan = {}): string {
-  const root = mkdtempSync(join(tmpdir(), "vibe-check-maintenance-reuse-"));
-  writeFileSync(
-    join(root, "responses.json"),
-    JSON.stringify({
-      [`rev-parse:HEAD^{commit}`]: [{ stdout: `${HEAD}\n` }],
-      [`rev-parse:${HEAD}^{commit}`]: [{ stdout: `${HEAD}\n` }],
-      [`rev-parse:${MIDDLE}^{commit}`]: [{ stdout: `${MIDDLE}\n` }],
-      [`rev-parse:${BASE}^{commit}`]: [{ stdout: `${BASE}\n` }],
-      "rev-list:HEAD": [{ stdout: `${HEAD}\n${MIDDLE}\n${BASE}\n` }],
-      [`diff-tree:${HEAD}`]: [{ stdout: "2\t0\ttracked.txt\n" }],
-      [`diff-tree:${MIDDLE}`]: [{ stdout: "1\t2\ttracked.txt\n" }],
-      ...plan
-    })
-  );
-  writeFileSync(join(root, "calls.json"), "[]");
-  const program = `
-import { readFileSync, writeFileSync } from "node:fs";
-import { basename } from "node:path";
-const command = basename(process.argv[1]);
-const args = process.argv.slice(2);
-const calls = JSON.parse(readFileSync("calls.json", "utf8"));
-const key = command + ":" + args.at(-1);
-const prior = calls.filter(call => call.command + ":" + call.args.at(-1) === key).length;
-calls.push({ command, args });
-writeFileSync("calls.json", JSON.stringify(calls));
-const responses = JSON.parse(readFileSync("responses.json", "utf8"))[key];
-if (!responses) throw new Error("Unexpected Git command: " + key);
-const response = responses[Math.min(prior, responses.length - 1)];
-if (response.failed) process.exitCode = 1;
-else process.stdout.write(response.stdout ?? "");
-`;
-  for (const command of ["rev-parse", "rev-list", "diff-tree"]) {
-    writeFileSync(join(root, command), program);
-  }
-  return root;
-}
-
-function calls(root: string): readonly GitCall[] {
-  const parsed: unknown = JSON.parse(readFileSync(join(root, "calls.json"), "utf8"));
-  assert.ok(Array.isArray(parsed));
-  return parsed.map((candidate: unknown): GitCall => {
-    assert.ok(typeof candidate === "object" && candidate !== null);
-    assert.ok("command" in candidate && typeof candidate.command === "string");
-    assert.ok("args" in candidate && Array.isArray(candidate.args));
-    const args = candidate.args.map((argument: unknown): string => {
-      assert.ok(typeof argument === "string");
-      return argument;
-    });
-    return { command: candidate.command, args };
-  });
-}
+import { completedResult } from "./assessment-results.ts";
+import {
+  BASE,
+  MIDDLE,
+  HEAD,
+  scriptedGit,
+  calls,
+  scriptedGitTransport,
+  type GitPlan
+} from "./measurement-reuse.test-support.ts";
 
 function reminder(id: string, baseCommit: string, mode: "advisory" | "enforcing" = "advisory") {
   return {
@@ -242,68 +193,103 @@ describe("maintenance reminders", () => {
       }
     ];
     for (const variant of variants) {
-      const root = scriptedGit(variant.plan);
-      try {
-        const entries = [
-          reminder("deep-failure", BASE, "enforcing"),
-          reminder("shallow-success", MIDDLE),
-          reminder("deep-recovery", BASE),
-          reminder("deep-repeat", BASE)
-        ];
-        const completed = await evaluate(root, entries);
-        const [failure, shallow, recovery, repeat] = entries;
-        assert.ok(
-          failure !== undefined &&
-            shallow !== undefined &&
-            recovery !== undefined &&
-            repeat !== undefined
-        );
-        const expected = {
-          status: "failed",
-          data: {
-            entries: [
-              {
-                assessment: "unavailable",
-                baseCommit: BASE,
-                changedLines: null,
-                commitCount: null,
-                exceeded: [],
-                headCommit: HEAD,
-                id: failure.id,
-                mode: failure.mode,
-                reason: variant.reason
-              },
-              measured(shallow, { commitCount: 1, changedLines: variant.shallowLines ?? 2 }),
-              measured(recovery, { commitCount: 2, changedLines: variant.deepLines ?? 5 }),
-              measured(repeat, { commitCount: 2, changedLines: variant.deepLines ?? 5 })
-            ]
-          }
-        };
-        assert.deepEqual(completed.outcome, expected);
-        assert.deepEqual(completed.result.checkMessages, [
-          {
-            checkId: "maintenance-reminders",
-            code: "maintenance-reminder-unavailable",
-            level: "error",
-            message: `deep-failure: Review deep-failure (${variant.reason})`
-          }
-        ]);
-        assert.deepEqual(maintenanceReminders(entries).parseData(expected.data), expected.data);
-        assert.equal(
-          calls(root).filter(
-            (call) =>
-              call.command === variant.retryCommand && call.args.at(-1) === variant.retryTarget
-          ).length,
-          2
-        );
-        assert.equal(
-          calls(root).filter((call) => call.command === "diff-tree" && call.args.at(-1) === BASE)
-            .length,
-          0
-        );
-      } finally {
-        rmSync(root, { force: true, recursive: true });
+      const entries = [
+        reminder("deep-failure", BASE, "enforcing"),
+        reminder("shallow-success", MIDDLE),
+        reminder("deep-recovery", BASE),
+        reminder("deep-repeat", BASE)
+      ];
+
+      const [failure, shallow, recovery, repeat] = entries;
+      assert.ok(
+        failure !== undefined &&
+          shallow !== undefined &&
+          recovery !== undefined &&
+          repeat !== undefined
+      );
+      const expected = {
+        status: "failed",
+        data: {
+          entries: [
+            {
+              assessment: "unavailable",
+              baseCommit: BASE,
+              changedLines: null,
+              commitCount: null,
+              exceeded: [],
+              headCommit: HEAD,
+              id: failure.id,
+              mode: failure.mode,
+              reason: variant.reason
+            },
+            measured(shallow, { commitCount: 1, changedLines: variant.shallowLines ?? 2 }),
+            measured(recovery, { commitCount: 2, changedLines: variant.deepLines ?? 5 }),
+            measured(repeat, { commitCount: 2, changedLines: variant.deepLines ?? 5 })
+          ]
+        }
+      };
+      const expectedMessages = [
+        {
+          code: "maintenance-reminder-unavailable",
+          level: "error" as const,
+          message: `deep-failure: Review deep-failure (${variant.reason})`
+        }
+      ];
+      const transport = scriptedGitTransport(variant.plan);
+      const session = new MaintenanceReminderMeasurementSession({
+        executeGitCommand: transport.execute,
+        executable: "git",
+        history: { commits: [HEAD, MIDDLE, BASE], headCommit: HEAD },
+        projectRoot: process.cwd(),
+        signal: new AbortController().signal
+      });
+      const evaluations: ReminderEvaluation[] = [];
+      for (const entry of entries) {
+        const measurement = await session.measure(entry);
+        assert.equal(measurement.kind, "succeeded");
+        if (measurement.kind !== "succeeded") throw new Error("measurement cancelled");
+        evaluations.push(measurement.value);
       }
+      const assessmentResult = completedResult(evaluations);
+      assert.deepEqual(assessmentResult, { ...expected, messages: expectedMessages });
+      // One failed-command/recovery case still exercises the real default transport and full Run.
+      if (variant === variants[0]) {
+        const root = scriptedGit(variant.plan);
+        try {
+          const completed = await evaluate(root, entries);
+          assert.deepEqual(completed.outcome, expected);
+          assert.deepEqual(
+            completed.result.checkMessages,
+            expectedMessages.map((message) => ({ checkId: "maintenance-reminders", ...message }))
+          );
+          assert.equal(
+            calls(root).filter(
+              (call) => call.command === "rev-parse" && call.args.at(-1) === `${BASE}^{commit}`
+            ).length,
+            2
+          );
+          assert.deepEqual(completed.result.snapshot.records, []);
+        } finally {
+          rmSync(root, { force: true, recursive: true });
+        }
+      }
+      assert.ok("data" in assessmentResult);
+      assert.deepEqual(
+        maintenanceReminders(entries).parseData(assessmentResult.data),
+        expected.data
+      );
+      assert.equal(
+        transport.calls.filter(
+          (call) =>
+            call.command === variant.retryCommand && call.args.at(-1) === variant.retryTarget
+        ).length,
+        2
+      );
+      assert.equal(
+        transport.calls.filter((call) => call.command === "diff-tree" && call.args.at(-1) === BASE)
+          .length,
+        0
+      );
     }
   });
 });

@@ -12,6 +12,7 @@ import type {
 } from "./maintenance-reminders.ts";
 
 type MeasurementSessionInput = Readonly<{
+  readonly executeGitCommand?: typeof runGit;
   readonly executable: string;
   readonly history: FirstParentHistory;
   readonly projectRoot: string;
@@ -29,12 +30,15 @@ type ReminderMeasureStage<T> =
 /** Successful immutable Git measurements live only for one ordered Check execution. */
 export class MaintenanceReminderMeasurementSession {
   readonly #input: MeasurementSessionInput;
+  /** Raw command-result boundary; session parsing, cache and assessments remain owned here. */
+  readonly #executeGitCommand: typeof runGit;
   readonly #historyIndices = new Map<string, number>();
   readonly #resolvedBases = new Map<string, number>();
   readonly #changedLinePrefixes: number[] = [0];
 
   constructor(input: MeasurementSessionInput) {
     this.#input = input;
+    this.#executeGitCommand = input.executeGitCommand ?? runGit;
     for (const [index, commit] of input.history.commits.entries()) {
       if (!this.#historyIndices.has(commit)) this.#historyIndices.set(commit, index);
     }
@@ -59,7 +63,7 @@ export class MaintenanceReminderMeasurementSession {
     const key = baseCommit.toLowerCase();
     const cachedIndex = this.#resolvedBases.get(key);
     if (cachedIndex !== undefined) return completeMeasure(cachedIndex);
-    const base = await runGit({
+    const base = await this.#executeGitCommand({
       args: ["rev-parse", "--verify", `${baseCommit}^{commit}`],
       executable: this.#input.executable,
       projectRoot: this.#input.projectRoot,
@@ -99,7 +103,7 @@ export class MaintenanceReminderMeasurementSession {
     readonly commit: string;
     readonly previousCount: number;
   }): Promise<ReminderMeasureStage<number>> {
-    const numstat = await runGit({
+    const numstat = await this.#executeGitCommand({
       args: ["diff-tree", "--no-commit-id", "--numstat", "-r", `${input.commit}^`, input.commit],
       executable: this.#input.executable,
       projectRoot: this.#input.projectRoot,

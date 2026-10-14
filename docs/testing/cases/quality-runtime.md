@@ -348,7 +348,7 @@ Entities:
 - `bun|src/package-checks/maintenance-reminders/measurement-reuse.test.ts|maintenance reminders > retries failed measurement steps while retaining usable shorter prefixes and ordered assessments`
   Proves:
 - One owning Check measures only committed first-parent activity after each base, excludes worktree/index delta and base itself, sums Git numstat additions/deletions, and treats merge, revert, binary, rename, and strict thresholds as declared by the quality owner.
-- Every measurable entry retains a parser-validated ordered clear/due assessment. A Git measurement failure retains a complete unavailable assessment with an actionable `reason`, plus an advisory warning or enforcing error/failure, rather than being mistaken for clear or discarded; due messages remain visible through progress and `RunResult.checkMessages`; cancellation instead closes the whole Check unavailable with an actionable error because no complete payload is formed.
+- 每个条目保留有序、经 parser 验收的 clear/due/unavailable assessment；七种测量失败/重试保留正确 reason、成功短前缀、安全累计与精确 retry 次数，默认真实 transport 的失败→恢复及两次 Run 复用仍独立验收。不可测量按 advisory/enforcing 保留 warning 或 error/failure，due message 可由 progress 与 readback 观察；取消则关闭 whole Check unavailable，不形成不完整 payload。
 
 ## Case WB-RUNTIME-SCHEDULER-PERFORMANCE-DIAGNOSTICS-001: Enabled Scheduler diagnostics retain bounded honest timing projections
 
