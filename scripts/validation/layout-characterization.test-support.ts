@@ -2,6 +2,11 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+export const PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS = {
+  lib: ["esnext"],
+  types: []
+} as const;
+
 const PRODUCT_OWNERS = [
   "check",
   "check-settlement",
@@ -96,6 +101,12 @@ export function createTargetLayout(): string {
 }
 
 export function writePackageToolContract(root: string): void {
+  // This fixture's Core uses no host globals; the real repository keeps its own compiler profile.
+  writeSource(
+    root,
+    "tsconfig.json",
+    JSON.stringify({ compilerOptions: PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS })
+  );
   writeSource(
     root,
     "src/check/public-contract.ts",

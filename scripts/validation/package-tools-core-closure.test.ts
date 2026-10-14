@@ -7,6 +7,7 @@ import { validateRepositoryLayout } from "./layout-characterization.ts";
 import {
   createTargetLayout,
   escapeRegExp,
+  PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS,
   writePackageToolContract,
   writeSource
 } from "./layout-characterization.test-support.ts";
@@ -30,6 +31,14 @@ it("enforces package-tool public contracts and Core closure", { timeout: 30_000 
     assert.doesNotThrow(() => {
       validatePackageToolsCoreNoEmit(validRoot);
     });
+    writeSource(
+      validRoot,
+      "src/check/type-error.ts",
+      'import { publicCallback } from "./public-contract.ts";\npublicCallback(1);\n'
+    );
+    assert.throws(() => {
+      validatePackageToolsCoreNoEmit(validRoot);
+    }, /package-tools-core-no-emit: .*type-error\.ts: TS2345/u);
   } finally {
     rmSync(validRoot, { force: true, recursive: true });
   }
@@ -84,6 +93,7 @@ it("enforces package-tool public contracts and Core closure", { timeout: 30_000 
           join(root, "tsconfig.json"),
           JSON.stringify({
             compilerOptions: {
+              ...PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS,
               allowImportingTsExtensions: true,
               baseUrl: ".",
               module: "nodenext",
