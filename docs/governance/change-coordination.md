@@ -86,6 +86,18 @@ Duplicate 的实现范围独立，但共享 Case、知识索引、稳定文档�
 Scheduler 补完落实现有 immutable state 与需求声明方向，不启动旧
 [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)，也不改变默认策略。
 
+### Scheduler frontier 与 Gate 测试成本
+
+以下两项在当前 `main` 基线独立实施，分别验收 Core 消费成本和测试成本；它们不改变策略或公共契约。
+
+| 当前 Change | 写入与验收边界 |
+| --- | --- |
+| [`optimize-scheduler-frontier-consumption`](../../changes/optimize-scheduler-frontier-consumption/proposal.md) | Core 约束分组、静态 frontier 消费与动态 mutex facts；保留策略层级、公开完整投影和不可变分支。 |
+| [`reduce-gate-test-fixture-and-probe-cost`](../../changes/reduce-gate-test-fixture-and-probe-cost/proposal.md) | 隔离 probe sequence 与 workspace adapter 路由证据；保留真实 CLI/validator 证明、Check 粒度和工程门槛。 |
+
+两个源码 owner 可并行；Case 账本和本页串行维护，性能采样独占且不与测试、profile 或 Gate 混跑。
+全部输入稳定后统一 candidate-backed 验收；提交与 Change 结项删除分别按当前任务授权执行。
+
 ### 并行与提交边界
 
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享

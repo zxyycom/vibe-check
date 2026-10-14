@@ -74,6 +74,7 @@ Entities:
 
 - `duplicateDetection(options?)` materializes frozen defaults for cache, package scanner, non-blocking area policy, minimum lines `4`, and minimum tokens `100`, while synchronously rejecting unknown or invalid constructor input, including public custom arguments. Its resolved Check consumes package or executable-only custom command policy, returns exact finding counts, exposes the strict attached/named parser, and reports every trusted Check-local supplemental Record with blocking state; an omitted finding policy produces passed-with-warning evidence, while explicit blocking still fails and preparation still rejects an invalid complete options replacement. Check-owned unavailable branches carry safe actionable messages. The raw cache remains Check-owned: a read failure is a miss while a write failure settles the Check unavailable; the portable package command resolves installed `jscpd` through active Bun and the adapter alone supplies availability and scan arguments to a custom executable.
 - Cache-off、少于两个输入和 dependency unavailable 不获取 cache-only 内容/hash、Git 与 cache directory。Cache-on 保留每次 availability/version 检查，scan 前取得一次身份供 lookup/write；扫描后的 source mutation 不回写该身份，后续内容、路径、version 或 scanner 下界变化使旧缓存失效。
+- 单个隔离 child 中的十次独立 Check/Run 逐次观察 cache identity、source mutation 和失败分支，每步 acquisition 计数独立快照。父端观察 child 失败与完整完成信号；builtin instrumentation 保持隔离，不污染共享测试 runner。
 
 ## Case WB-SCANNER-DUPLICATE-SCOPE-001: Duplicate detection compares the complete exact scope
 

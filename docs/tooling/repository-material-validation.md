@@ -49,6 +49,14 @@ Markdown 的源码检查使用 `sourcePath`，包内链接和 staging/tar/instal
 material task 的唯一名称是 `json`、`schema`、`examples`、`links` 和 `package-api-documentation`。
 根 validation adapter 默认运行全部 task；显式 focused selection 原样转发，不静默扩张或跳过。
 
+workspace process entry 与 focused dispatch 测试共用内部 `runWorkspaceValidation` adapter，证明责任如下：
+
+| 证据入口 | 直接证明 |
+| --- | --- |
+| 真实 CLI child | 默认全任务完成，以及退休入口拒绝。 |
+| focused adapter dispatch | 注入 material dispatch，核对参数顺序/重复、原样返回退出码与 unknown task 在 dispatch 前拒绝；不证明独立 focused process 或材料内容正确。 |
+| 真实材料与 validator 测试 | 材料集成、内容正确性和失败诊断；真实 links failure fixture 继续观察 stderr 与非零退出。 |
+
 schema/examples task 同时检查 current published material 的 generation drift，并用 checked-in schema 与 raw example bytes
 独立验证完整 v4 二文件集合；machine-artifact validator 不 import Product validator。历史 schema/example 材料只走显式 historical
 validation path，不进入 current traversal 或 runtime input。

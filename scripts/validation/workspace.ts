@@ -6,7 +6,11 @@ import {
   runMaterialValidationCli
 } from "./repository-material/workflow.ts";
 
-async function validate(argv: readonly string[]): Promise<void> {
+/** Internal adapter shared by the process entry and focused dispatch evidence. */
+export async function runWorkspaceValidation(
+  argv: readonly string[],
+  dependencies: Readonly<{ runMaterials?: typeof runMaterialValidationCli }> = {}
+): Promise<number> {
   if (argv.length > 0 && argv[0] !== "materials") {
     throw new Error(
       `usage: bun scripts/validation/workspace.ts [materials [json|schema|examples|links|${MATERIAL_TASK_NAMES.packageApiDocumentation}]...]`
@@ -15,7 +19,7 @@ async function validate(argv: readonly string[]): Promise<void> {
 
   const materialsOnly = argv[0] === "materials";
   const tasks = parseMaterialValidationTasks(argv.slice(materialsOnly ? 1 : 0));
-  const materialsExitCode = await runMaterialValidationCli({
+  const materialsExitCode = await (dependencies.runMaterials ?? runMaterialValidationCli)({
     argv: tasks,
     writeStderr: (message) => {
       console.error(message);
@@ -24,16 +28,16 @@ async function validate(argv: readonly string[]): Promise<void> {
       console.log(message);
     }
   });
-  if (materialsExitCode !== 0) {
-    process.exitCode = materialsExitCode;
-    return;
-  }
+  if (materialsExitCode !== 0) return materialsExitCode;
   if (!materialsOnly) {
     validateRepositoryLayout();
     runCommand("git", ["diff", "--check"], { report: reportProcessOutput });
   }
+  return 0;
 }
 
 if (import.meta.main) {
-  await runAsyncMain(() => validate(process.argv.slice(2)));
+  await runAsyncMain(async () => {
+    process.exitCode = await runWorkspaceValidation(process.argv.slice(2));
+  });
 }

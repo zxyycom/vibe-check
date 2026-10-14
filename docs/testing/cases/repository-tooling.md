@@ -221,6 +221,8 @@ Entities:
   Proves:
 
 - The root validation adapter runs every declared repository-material task by default and forwards an explicit focused selection without silently broadening or skipping it.
+- Default-all completion and retired-entry rejection retain real CLI process evidence.
+- Focused selection uses the same adapter called by main and observes exact argument order and repetition, unchanged nonzero exit return, and rejection before dispatch for unknown tasks. This proves adapter dispatch, not an independent focused process or material-content acceptance; the real links failure fixture separately observes ordered diagnostics, stderr-only failure and nonzero exit.
 
 ## Case AUX-DOCS-VALIDATION-REPORTING-001: In-process material validation keeps output reporter-owned
 

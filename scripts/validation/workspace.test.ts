@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import { runMaterialValidationCli } from "./repository-material/workflow.ts";
+import { runWorkspaceValidation } from "./workspace.ts";
 
 const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 const entrypoint = resolve(moduleDirectory, "workspace.ts");
@@ -25,15 +26,33 @@ test("root validate CLI runs every material task by default", () => {
 });
 
 test("root validate CLI forwards focused material selections", async () => {
-  const result = runValidate("materials", "json");
+  // Exercise the same adapter as main; default-all above retains real process/material integration.
+  for (const selection of [["json"], ["links", "json", "json"]]) {
+    for (const materialsExitCode of [0, 7]) {
+      const dispatches: Array<readonly string[]> = [];
+      const exitCode = await runWorkspaceValidation(["materials", ...selection], {
+        runMaterials: async ({ argv }) => {
+          dispatches.push(argv);
+          return materialsExitCode;
+        }
+      });
+      assert.equal(exitCode, materialsExitCode);
+      assert.deepEqual(dispatches, [selection]);
+    }
+  }
 
-  assert.equal(result.status, 0);
-  assert.equal(result.stderr, "");
-  assert.match(result.stdout, /strict JSON validation ok:/);
-  assert.doesNotMatch(
-    result.stdout,
-    /current machine artifact examples ok:|schema strict compile ok:|report examples ok:|markdown links ok:/
+  const invalidDispatches: Array<readonly string[]> = [];
+  await assert.rejects(
+    () =>
+      runWorkspaceValidation(["materials", "unknown"], {
+        runMaterials: async ({ argv }) => {
+          invalidDispatches.push(argv);
+          return 0;
+        }
+      }),
+    /unknown validation task/
   );
+  assert.deepEqual(invalidDispatches, []);
 
   const documentationRoot = mkdtempSync(join(tmpdir(), "vibe-check-docs-cli-failure-"));
   try {
