@@ -1,0 +1,20 @@
+[
+  {
+    "version": "3.3.12",
+    "manifestSource": "https://registry.npmjs.org/@humanwhocodes%2fmomoa/3.3.12",
+    "tarball": "https://registry.npmjs.org/@humanwhocodes/momoa/-/momoa-3.3.12.tgz",
+    "tarballSha256": "c8ba076b8cc8c74e23a1e1b7a575589ccaefad918331735f0a1730fb7d368bbd",
+    "esmBytes": 92472,
+    "esmSha256": "a57be4b2a3673d9efb20213e602918b291632279c92c7e284c0e0cf51d82b51e",
+    "equalToInstalledEsm": true
+  },
+  {
+    "version": "3.3.13",
+    "manifestSource": "https://registry.npmjs.org/@humanwhocodes%2fmomoa/3.3.13",
+    "tarball": "https://registry.npmjs.org/@humanwhocodes/momoa/-/momoa-3.3.13.tgz",
+    "tarballSha256": "5405d836253134096dddf2a9068f5f81972da51fb26a8ac4ae9ddded3a076cd1",
+    "esmBytes": 92472,
+    "esmSha256": "a57be4b2a3673d9efb20213e602918b291632279c92c7e284c0e0cf51d82b51e",
+    "equalToInstalledEsm": true
+  }
+]

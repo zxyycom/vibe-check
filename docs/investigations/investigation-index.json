@@ -2226,6 +2226,46 @@
         "serial-io"
       ],
       "title": "Markdown 路径游标候选的复制成本与完整 Check 对照"
+    },
+    "261015-evaluate-strict-json-parser-replacement": {
+      "formedAt": "2026-10-15T02:08:26Z",
+      "name": "evaluate-strict-json-parser-replacement",
+      "question": "在保留当前严格 JSON、安全值和结果契约时，原生解析组合是否比 Momoa 更值得采用，替换决定还需要哪些证据？",
+      "relations": [
+        {
+          "summary": "在当前契约和运行时下复核原生组合的收益与替换边界",
+          "target": "260824-confirm-momoa-with-bun-and-candidate-spike",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261015-evaluate-strict-json-parser-replacement/METHODS.md",
+        "261015-evaluate-strict-json-parser-replacement/corpus-manifest.csv",
+        "261015-evaluate-strict-json-parser-replacement/corpus.ts",
+        "261015-evaluate-strict-json-parser-replacement/evidence.json",
+        "261015-evaluate-strict-json-parser-replacement/measurements-summary.csv",
+        "261015-evaluate-strict-json-parser-replacement/momoa-artifact-comparison.json",
+        "261015-evaluate-strict-json-parser-replacement/momoa-control.ts",
+        "261015-evaluate-strict-json-parser-replacement/native-iterative-prototype.ts",
+        "261015-evaluate-strict-json-parser-replacement/native-prototype.ts",
+        "261015-evaluate-strict-json-parser-replacement/phase-samples.csv",
+        "261015-evaluate-strict-json-parser-replacement/phases.ts",
+        "261015-evaluate-strict-json-parser-replacement/prepare-corpus.py",
+        "261015-evaluate-strict-json-parser-replacement/registry-snapshot.json",
+        "261015-evaluate-strict-json-parser-replacement/run-measurements.py",
+        "261015-evaluate-strict-json-parser-replacement/samples.csv",
+        "261015-evaluate-strict-json-parser-replacement/source-manifest.sha256",
+        "261015-evaluate-strict-json-parser-replacement/verify-recursive.ts",
+        "261015-evaluate-strict-json-parser-replacement/verify.ts",
+        "261015-evaluate-strict-json-parser-replacement/worker.ts"
+      ],
+      "sourcePath": "evaluate-strict-json-parser-replacement.md",
+      "tags": [
+        "implementation-libraries",
+        "json-validation",
+        "performance"
+      ],
+      "title": "严格 JSON 解析器替换的收益与维护边界复查"
     }
   },
   "metadata": {},
@@ -2310,7 +2350,8 @@
       "261012-review-product-algorithmic-complexity": "sha256:640d5bc0ede06d31f27feb63d6e7b6b08da4bfde6f1bc305ecba31fb1b0270b5",
       "261012-verify-priority-complexity-optimizations": "sha256:d1cbc2171cbccbece597fdfc2f05dcfc0a689066e5b230fc80e48935beed30a6",
       "261013-evaluate-exact-key-membership-candidates": "sha256:4114f624580f04702349e3724c0691f8ea101267b2b7652245ff0930deff1c98",
-      "261013-evaluate-markdown-path-cursor": "sha256:d358687b9c5034d36ea805648003e01ef33a33bbcc129de084e5dd0fac99cc12"
+      "261013-evaluate-markdown-path-cursor": "sha256:d358687b9c5034d36ea805648003e01ef33a33bbcc129de084e5dd0fac99cc12",
+      "261015-evaluate-strict-json-parser-replacement": "sha256:e6e895e722dd5f6a281e645a85744d56321030a5955c914c907dda190454f9a0"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

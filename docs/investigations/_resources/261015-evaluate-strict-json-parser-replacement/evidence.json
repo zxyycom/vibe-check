@@ -1,0 +1,223 @@
+{
+  "recordedAt": "2026-10-15T02:24:04.095564+00:00",
+  "sourceRevision": "fc584f2bd52ad60da9d80d05bbe8097da4c6c57e",
+  "productSourceSha256": "e779ca583c95ba6b85a6cf035b3d29438427667f4ba12b0b9445a92c531094c1",
+  "baselinePrefixBytes": 6483,
+  "host": {
+    "platform": "Linux",
+    "machine": "x86_64",
+    "bun": "1.3.14",
+    "node": "24.18.0",
+    "cpuMax": "400000 100000",
+    "memoryMaxBytes": "6442450944"
+  },
+  "corpus": {
+    "documents": 449,
+    "bytes": 31434902,
+    "maximumDocumentBytes": 1772432,
+    "gateMaximumBytes": 2097152,
+    "packSha256": "2c12677776336345635f9d20990b64e7f93dcb95383675dd1926490988c179b8"
+  },
+  "method": {
+    "freshProcessPairsPerHost": 5,
+    "workersRunSerially": true,
+    "warmupTraversalsPerProcess": 1,
+    "measuredTraversalsPerProcess": 1,
+    "scope": "already-read bytes: BOM, fatal decode, grammar, duplicates, frozen values; excludes file IO, Check/Run and candidate startup"
+  },
+  "verification": {
+    "recursiveBun": {
+      "runtime": "v24.3.0",
+      "bun": "1.3.14",
+      "inputs": 3547,
+      "mismatches": 0,
+      "examples": [],
+      "stress": [
+        {
+          "depth": 1024,
+          "baseline": "valid",
+          "candidate": "valid"
+        },
+        {
+          "depth": 4096,
+          "baseline": "valid",
+          "candidate": "valid"
+        },
+        {
+          "depth": 16384,
+          "baseline": "unavailable",
+          "candidate": "valid"
+        }
+      ]
+    },
+    "recursiveNode": {
+      "runtime": "v24.18.0",
+      "bun": null,
+      "inputs": 3547,
+      "mismatches": 0,
+      "examples": [],
+      "stress": [
+        {
+          "depth": 1024,
+          "baseline": "valid",
+          "candidate": "valid"
+        },
+        {
+          "depth": 4096,
+          "baseline": "valid",
+          "candidate": "unavailable"
+        },
+        {
+          "depth": 16384,
+          "baseline": "unavailable",
+          "candidate": "unavailable"
+        }
+      ]
+    },
+    "iterativeBun": {
+      "runtime": "v24.3.0",
+      "bun": "1.3.14",
+      "inputs": 3547,
+      "mismatches": 0,
+      "examples": [],
+      "stress": [
+        {
+          "depth": 1024,
+          "baseline": "valid",
+          "candidate": "valid"
+        },
+        {
+          "depth": 4096,
+          "baseline": "valid",
+          "candidate": "valid"
+        },
+        {
+          "depth": 16384,
+          "baseline": "unavailable",
+          "candidate": "valid"
+        }
+      ]
+    },
+    "iterativeNode": {
+      "runtime": "v24.18.0",
+      "bun": null,
+      "inputs": 3547,
+      "mismatches": 0,
+      "examples": [],
+      "stress": [
+        {
+          "depth": 1024,
+          "baseline": "valid",
+          "candidate": "valid"
+        },
+        {
+          "depth": 4096,
+          "baseline": "valid",
+          "candidate": "valid"
+        },
+        {
+          "depth": 16384,
+          "baseline": "unavailable",
+          "candidate": "valid"
+        }
+      ]
+    }
+  },
+  "repositoryPhaseMedianMs": [
+    {
+      "host": "bun",
+      "mode": "momoa",
+      "decodeMs": 14.85840099999632,
+      "parseMs": 840.1423420000019,
+      "duplicateMs": 0,
+      "projectionMs": 362.8619100000046
+    },
+    {
+      "host": "bun",
+      "mode": "native",
+      "decodeMs": 13.370820999994976,
+      "parseMs": 45.89522300000135,
+      "duplicateMs": 109.83893599999556,
+      "projectionMs": 226.34338700000217
+    },
+    {
+      "host": "node",
+      "mode": "momoa",
+      "decodeMs": 13.583141000001888,
+      "parseMs": 537.5354749999956,
+      "duplicateMs": 0,
+      "projectionMs": 164.67553500000713
+    },
+    {
+      "host": "node",
+      "mode": "native",
+      "decodeMs": 11.957564000001412,
+      "parseMs": 46.98007100000268,
+      "duplicateMs": 144.6462710000012,
+      "projectionMs": 41.22765300000037
+    }
+  ],
+  "wholeWorkerMemoryObservation": [
+    {
+      "host": "bun",
+      "mode": "momoa",
+      "medianWholeWorkerPeakMiB": 511.03515625,
+      "samplesKiB": [
+        523300,
+        437172,
+        461084,
+        545976,
+        526036
+      ]
+    },
+    {
+      "host": "bun",
+      "mode": "native",
+      "medianWholeWorkerPeakMiB": 353.87890625,
+      "samplesKiB": [
+        361864,
+        356340,
+        362656,
+        368544,
+        362372
+      ]
+    },
+    {
+      "host": "node",
+      "mode": "momoa",
+      "medianWholeWorkerPeakMiB": 464.89453125,
+      "samplesKiB": [
+        476052,
+        476332,
+        475984,
+        469980,
+        476400
+      ]
+    },
+    {
+      "host": "node",
+      "mode": "native",
+      "medianWholeWorkerPeakMiB": 274.4453125,
+      "samplesKiB": [
+        333400,
+        281444,
+        281032,
+        280572,
+        280724
+      ]
+    }
+  ],
+  "engineering": {
+    "unchangedProductJsonTests": "24/24 across 9 files",
+    "probeTypecheck": "corrected invocation passed with explicit --types node; first failure retained in scratch",
+    "phaseAnnotation": "TypeScript emitted JavaScript identical before/after type-only interface annotation"
+  },
+  "notProven": [
+    "native Product integration, cancellation/Records/counts through its public Checks",
+    "native candidate artifact and isolated consumer acceptance",
+    "full Gate performance benefit",
+    "other parser candidates performance ranking",
+    "cross-version, all Unicode inputs or long-duration fuzz equivalence",
+    "per-document heap allocation or production memory guarantee"
+  ]
+}
