@@ -84,4 +84,45 @@ describe("JSON Schema validation default Check", () => {
       rmSync(root, { force: true, recursive: true });
     }
   });
+
+  it("rejects duplicate members in allowlisted remote schema bytes without exposing content", async () => {
+    const root = temporaryRoot();
+    try {
+      const schemaId = "https://schemas.example.test/root";
+      const remoteId = "https://schemas.example.test/catalog/common.json";
+      writeJson(root, "schema.json", strictSchema(schemaId, { $ref: remoteId }));
+      writeJson(root, "instance.json", {});
+      for (const source of [
+        `{"$id":"${remoteId}","type":"object","type":"object"}`,
+        `{"$id":"${remoteId}","CANARY":0,"\\u0043ANARY":0}`,
+        `{"$id":"${remoteId}","properties":{"a":{},"\\u0061":{}}}`
+      ]) {
+        await withFetch(
+          async () => new Response(source),
+          async () => {
+            const observed = await runJsonSchemaValidation({
+              options: allowlistedOptions(schemaId),
+              root
+            });
+            assert.equal(observed.result.status, "failed");
+            assert.deepEqual(
+              observed.records.map((record) => record.data),
+              [
+                {
+                  kind: "schema-compile",
+                  path: "schema.json",
+                  reason: "remote-document-invalid",
+                  schemaId
+                }
+              ]
+            );
+            assert.equal(JSON.stringify(observed).includes("CANARY"), false);
+            assert.equal(JSON.stringify(observed).includes(remoteId), false);
+          }
+        );
+      }
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
 });

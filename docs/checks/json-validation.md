@@ -84,9 +84,12 @@ const configJsonValidation = jsonValidation({
 constructor 补齐并冻结 closed options，获 Scheduler admission 后先 preparation，再按本页 suffix 规则完整分类输入。
 每个 rejected path 先发布 Record；accepted path 才读取、解析，无效文档另发 Record。
 
-strict-document boundary 先按 byte length 应用 `maximumBytes`，再依次区分 BOM、fatal UTF-8、strict JSON grammar 与 decoded
-duplicate key；每个文档只返回最先成立的封闭 reason。合法文档只向 owning Check 交付不含 prototype 的深冻结私有值，
-不会保留 source、AST、key 或 parser detail；读取或边界执行失败结算为 unavailable，而不是伪装成 invalid document。
+文档边界依次检查字节上限 `maximumBytes`、BOM、严格 UTF-8 解码、完整 JSON 语法和解码后的重复键，
+每个文档只返回首个成立的封闭 reason。查重按对象作用域进行；键名解码后精确比较，不做大小写折叠或 Unicode
+规范化。同值成员和转义后同名成员均视为重复，不同对象内的同名键互不影响。
+
+合法文档在 Product 内形成深冻结私有值：JSON 对象的原型为 `null`，数组保留数组原型。
+JSON 内容、键名和解析器错误细节均不进入公开结果。读取或内部处理失败结算为 `unavailable`，与文档问题区分。
 
 文档保持顺序验收，每个文档前让出事件循环，使 timer/I/O 取消与其它 Check 可以推进。
 单个文档的同步读取和解析仍不可抢占；取消在可观察边界结算，不提供部分 final data。

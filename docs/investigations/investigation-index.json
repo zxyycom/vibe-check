@@ -2351,7 +2351,7 @@
       "261012-verify-priority-complexity-optimizations": "sha256:d1cbc2171cbccbece597fdfc2f05dcfc0a689066e5b230fc80e48935beed30a6",
       "261013-evaluate-exact-key-membership-candidates": "sha256:4114f624580f04702349e3724c0691f8ea101267b2b7652245ff0930deff1c98",
       "261013-evaluate-markdown-path-cursor": "sha256:d358687b9c5034d36ea805648003e01ef33a33bbcc129de084e5dd0fac99cc12",
-      "261015-evaluate-strict-json-parser-replacement": "sha256:e6e895e722dd5f6a281e645a85744d56321030a5955c914c907dda190454f9a0"
+      "261015-evaluate-strict-json-parser-replacement": "sha256:c4d1a4cc8a281d7d42bcc6fe423f4c04007f10f624db70a3ff108c88ccdf9a65"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

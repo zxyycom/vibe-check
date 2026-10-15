@@ -1,6 +1,6 @@
 import { closeSync, fstatSync, openSync, readSync } from "node:fs";
 
-import { parse, type ValueNode } from "@humanwhocodes/momoa";
+import { hasDecodedDuplicateKeys } from "./decoded-duplicate-keys.ts";
 
 export type JsonDocumentIssue =
   | "too-large"
@@ -9,16 +9,16 @@ export type JsonDocumentIssue =
   | "invalid-json"
   | "duplicate-key";
 
-/**
- * A strict JSON value retained only inside Product source boundaries.
- * Objects have a null prototype and every aggregate is frozen, so document keys cannot affect ambient prototypes.
- */
 export type StrictJsonArray = readonly StrictJsonValue[];
 
 export interface StrictJsonObject {
   readonly [key: string]: StrictJsonValue;
 }
 
+/**
+ * A package-private JSON value with frozen containers and null-prototype objects.
+ * Arrays retain their array prototype; document property names remain private data.
+ */
 export type StrictJsonValue = null | boolean | number | string | StrictJsonArray | StrictJsonObject;
 
 export type StrictJsonDocumentResult =
@@ -34,8 +34,6 @@ interface StrictJsonDocumentReadInput {
 
 const UTF8_BOM = [0xef, 0xbb, 0xbf] as const;
 const UNAVAILABLE_DOCUMENT = Object.freeze({ kind: "unavailable" } as const);
-const DUPLICATE_KEY = Symbol("strict-json-duplicate-key");
-type StrictJsonProjection = StrictJsonValue | typeof DUPLICATE_KEY;
 
 function isPositiveSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
@@ -104,82 +102,43 @@ export function inspectStrictJsonBytes(bytes: Uint8Array): StrictJsonDocumentRes
     return issue("invalid-utf8");
   }
 
-  let document: ReturnType<typeof parse>;
+  let parsedValue: unknown;
   try {
-    document = parse(source, { allowTrailingCommas: false, mode: "json" });
+    parsedValue = JSON.parse(source);
   } catch (error) {
-    return isMomoaSyntaxError(error) ? issue("invalid-json") : UNAVAILABLE_DOCUMENT;
+    return error instanceof SyntaxError ? issue("invalid-json") : UNAVAILABLE_DOCUMENT;
   }
 
   try {
-    const jsonValue = toStrictJsonValue(document.body);
-    return jsonValue === DUPLICATE_KEY ? issue("duplicate-key") : valid(jsonValue);
+    if (hasDecodedDuplicateKeys(source)) return issue("duplicate-key");
+    finalizePrivateJsonValue(parsedValue);
+    return valid(parsedValue);
   } catch {
     return UNAVAILABLE_DOCUMENT;
   }
-}
-
-function isMomoaSyntaxError(error: unknown): boolean {
-  return (
-    error instanceof Error &&
-    hasNumericOwnProperty(error, "line") &&
-    hasNumericOwnProperty(error, "column") &&
-    hasNumericOwnProperty(error, "offset")
-  );
-}
-
-function hasNumericOwnProperty(error: object, propertyName: string): boolean {
-  return typeof Object.getOwnPropertyDescriptor(error, propertyName)?.value === "number";
 }
 
 function hasUtf8Bom(bytes: Uint8Array): boolean {
   return UTF8_BOM.every((byte, index) => bytes[index] === byte);
 }
 
-/** Grammar is already complete; own-key membership and safe value construction share one walk. */
-function toStrictJsonValue(node: ValueNode): StrictJsonProjection {
-  switch (node.type) {
-    case "Null":
-      return null;
-    case "Boolean":
-    case "Number":
-    case "String":
-      return node.value;
-    case "Array":
-      return strictJsonArray(node);
-    case "Object":
-      return strictJsonObject(node);
-    case "Infinity":
-    case "NaN":
-      throw new TypeError("strict JSON value node must not be a non-finite number");
-    default:
-      throw new TypeError("strict JSON value node must be a standard JSON node");
+/** Sets object prototypes to null and freezes every container in the fresh, unexposed JSON.parse tree. */
+function finalizePrivateJsonValue(parsedValue: unknown): asserts parsedValue is StrictJsonValue {
+  const pendingValues: unknown[] = [parsedValue];
+  while (pendingValues.length > 0) {
+    const member = pendingValues.pop();
+    const isJsonPrimitive =
+      member === null ||
+      typeof member === "boolean" ||
+      typeof member === "number" ||
+      typeof member === "string";
+    if (isJsonPrimitive) continue;
+    if (typeof member !== "object")
+      throw new TypeError("Native JSON value has an unsupported member type.");
+    if (!Array.isArray(member)) Object.setPrototypeOf(member, null);
+    for (const child of Object.values(member)) pendingValues.push(child);
+    Object.freeze(member);
   }
-}
-
-function strictJsonArray(node: Extract<ValueNode, { type: "Array" }>): StrictJsonProjection {
-  const elements: StrictJsonValue[] = [];
-  for (const element of node.elements) {
-    const value = toStrictJsonValue(element.value);
-    if (value === DUPLICATE_KEY) return DUPLICATE_KEY;
-    elements.push(value);
-  }
-  return Object.freeze(elements);
-}
-
-function strictJsonObject(node: Extract<ValueNode, { type: "Object" }>): StrictJsonProjection {
-  const strictObject: Record<string, StrictJsonValue> = {};
-  Object.setPrototypeOf(strictObject, null);
-  for (const member of node.members) {
-    if (member.name.type !== "String")
-      throw new TypeError("strict JSON object member must be a string");
-    const name = member.name.value;
-    if (Object.hasOwn(strictObject, name)) return DUPLICATE_KEY;
-    const value = toStrictJsonValue(member.value);
-    if (value === DUPLICATE_KEY) return DUPLICATE_KEY;
-    strictObject[name] = value;
-  }
-  return Object.freeze(strictObject);
 }
 
 function issue(reason: JsonDocumentIssue): StrictJsonDocumentResult {

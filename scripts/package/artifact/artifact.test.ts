@@ -138,7 +138,6 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
   it("declares the audited production dependency set", { timeout: 20_000 }, async () => {
     const { artifact } = await fixture();
     assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
-      "@humanwhocodes/momoa": "3.3.12",
       "@secretlint/core": "13.0.5",
       "@secretlint/secretlint-rule-privatekey": "13.0.5",
       ajv: "8.20.0",

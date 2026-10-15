@@ -17,7 +17,7 @@ relations:
 
 整体优化后，用户要求单独评估严格 JSON 解析器的替换价值，采用前另行讨论。
 调查基线为 `fc584f2bd52ad60da9d80d05bbe8097da4c6c57e`，使用 Momoa 3.3.12；
-[现有决定](../decisions/use-momoa-for-strict-json-document-boundary.md)接受 AST 成本，换取直接可审计的重复键证据。
+[形成时决定](../decisions/archive/use-momoa-for-strict-json-document-boundary.md)接受 AST 成本，换取直接可审计的重复键证据。
 
 [前序调查](confirm-momoa-with-bun-and-candidate-spike.md)完成于 2026-08-24，早于完整 Check 实现。
 本轮在已有严格文档边界、Schema 消费者和结果契约的条件下复查选型。

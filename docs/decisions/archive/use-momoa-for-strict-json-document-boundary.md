@@ -1,7 +1,7 @@
 ---
 title: 为严格 JSON 文档边界采用 Momoa
 id: 260824-use-momoa-for-strict-json-document-boundary
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-24T14:20:04Z
 purpose: 让严格 JSON Check 在受支持的 Product host 中可靠拒绝 decoded duplicate key，而不由 Product 自行实现完整 JSON parser。

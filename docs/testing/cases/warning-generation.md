@@ -24,7 +24,9 @@ Entities:
 - `bun|src/package-checks/file-metrics/finding-waivers.test.ts|fileMetrics finding waivers > reconciles declared waivers after SCC forms findings without settling them as actionable`
 - `bun|src/package-checks/file-metrics/finding-waivers.test.ts|fileMetrics finding waivers > audits unused waivers even when no eligible file reaches SCC`
 - `bun|src/package-checks/file-metrics/finding-waivers.test.ts|fileMetrics finding waivers > uses a waiver-audit Record identity outside the normal normalized-path domain`
-  Proves:
+
+Proves:
+
 - `fileMetrics` accepts only its declared, normalized `{ metric, path }` waiver identity and non-empty reason. SCC still receives the complete eligible exact input set; waiver reconciliation starts only after its complete finding set is formed.
 - An applied waiver retains its finding Record and reason while excluding it from actionable settlement. An unused waiver remains observable as an audit Record and warning, including the known empty-input case; the audit Record ID is outside the normal finding-path domain.
 
@@ -66,14 +68,15 @@ Entities:
 
 - `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > uses byte length with a strict greater-than limit before every document issue`
 - `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > returns BOM before fatal UTF-8 and strict grammar failures`
-- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > accepts every JSON root value only after Momoa strictly consumes it`
+- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > accepts every JSON root value only after complete strict grammar acceptance`
 - `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > detects decoded duplicate keys in each object without exposing the key or AST`
 - `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > returns a frozen private value without an object prototype or source/AST detail`
+- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > preserves deeply nested private objects and negative zero`
 - `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > maps a read failure to a closed unavailable result`
 
 Proves:
 
-- The package-private JSON document boundary applies its fixed byte, BOM, UTF-8, strict grammar and decoded duplicate-key order; a valid verdict carries a frozen null-prototype private JSON value for Product consumers, never source, AST or parser detail. Read or boundary failure remains unavailable rather than a document defect.
+- The package-private JSON document boundary applies its fixed byte, BOM, UTF-8, strict grammar and decoded duplicate-key order. Valid values retain negative zero and numeric overflow, freeze every container and give JSON objects null prototypes while preserving array prototypes; verdicts expose only closed issue facts or the private value. Read or boundary failure remains unavailable rather than a document defect.
 
 ## Case ADD-JSON-VALIDATION-RESULTS-001: JSON validation emits safe per-file facts and four-state outcomes
 
@@ -101,7 +104,8 @@ Entities:
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.default-contract.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.result-reporting.test.ts|JSON Schema validation default Check > accepts standard conditional keywords and format annotations without extra plugins`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.result-reporting.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
-  Proves:
+
+Proves:
 
 - `jsonSchemaValidation(options?)` fills partial authoring defaults and exposes a parser for exact binding, issue, reported-count and truncation invariants. Registered work publishes only the closed schema-document, schema-compile, instance-document, and keyword-violation facts with safe IDs, paths, pointers, and keywords; it never exposes engine text, source bytes, raw external identity, or credentials.
 - Normal final data keeps valid, invalid, blocked, and total issue counts truthful. A 100-Record display prefix changes neither the full failed assessment nor its issue count; failed results carry a safe message that identifies truncation, and `format` remains an annotation rather than a loaded plugin.
@@ -116,11 +120,14 @@ Entities:
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.allowlisted-reference.test.ts|JSON Schema validation default Check > uses an explicit HTTPS allowlist with omitted credentials and no redirect`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.reference-failure-boundaries.test.ts|JSON Schema validation default Check > maps an allowlisted transport failure to unavailable without remote detail`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.reference-failure-boundaries.test.ts|JSON Schema validation default Check > treats an allowlisted redirect as a safe schema failure without following it`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.reference-failure-boundaries.test.ts|JSON Schema validation default Check > rejects duplicate members in allowlisted remote schema bytes without exposing content`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.unsafe-schema-boundaries.test.ts|JSON Schema validation default Check > rejects credential-bearing, dynamic, recursive, and async schemas before any fetch or native diagnostic can escape`
-  Proves:
+
+Proves:
 
 - Reference resolution is offline by default. Only explicitly configured HTTPS sources may be requested with omitted credentials and no redirect; registered local schemas and the fixed catalog need no request.
 - Unapproved references, unsafe schema features, and redirects become safe failures, while an allowlisted transport failure is unavailable with an actionable message and without exposing remote detail.
+- Duplicate members in allowed remote schema bytes become a safe document failure before schema identity or keyword evaluation; neither the source nor its repeated key crosses the result boundary.
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-IDENTITY-OUTCOMES-001: JSON Schema identity and complete outcome boundaries remain explicit
 
@@ -129,9 +136,12 @@ Entities:
 
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
-  Proves:
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts|JSON Schema validation default Check > rejects duplicate local schema and instance members before keyword validation`
+
+Proves:
 
 - One Check-level root identity mode governs every configured schema without exposing document IDs. Scope or schema-document failures block their dependent bindings rather than inventing keyword results, and zero bindings settle as `not-applicable` without document work.
+- Decoded duplicate members are document issues for local schemas and instances; invalid full grammar takes precedence, schema failures block bindings, and instance failures retain exact invalid-binding counts.
 
 ## Case ADD-SECRET-DETECTION-FINDING-SETTLEMENT-001: Secret detection publishes safe findings and waiver audits
 

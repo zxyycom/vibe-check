@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@humanwhocodes/momoa':
-        specifier: 3.3.12
-        version: 3.3.12
       '@secretlint/core':
         specifier: 13.0.5
         version: 13.0.5
@@ -156,10 +153,6 @@ packages:
     resolution: {integrity: sha512-OQ4pcktMtg1hcQat/iCpX9r8HJ7mU/2SZVoGHA9id2gEfosvDw5m5RINQXsSRZXQW8bl45FW6FhdK0O2FiKjsw==}
     engines: {node: '>= 12.0.0'}
     hasBin: true
-
-  '@humanwhocodes/momoa@3.3.12':
-    resolution: {integrity: sha512-xS9xl4ieqTqhSZfKV3YXj/htwJCUxbgvkTVaK1fkESgrOzvoVSOTRQeQ8tTLOZUS0Csi2xqtJQXgVTRH5OEbHQ==}
-    engines: {node: '>=18'}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1134,8 +1127,6 @@ snapshots:
       '@ast-grep/cli-win32-arm64-msvc': 0.45.0
       '@ast-grep/cli-win32-ia32-msvc': 0.45.0
       '@ast-grep/cli-win32-x64-msvc': 0.45.0
-
-  '@humanwhocodes/momoa@3.3.12': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:

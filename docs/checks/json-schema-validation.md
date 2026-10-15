@@ -128,8 +128,10 @@ constructor 补齐并冻结 closed options；获 Scheduler admission 后先 prep
 按 identity policy 编译并验证 bindings。selected set 外的声明路径形成 `out-of-scope` issue，不扩大读取范围。
 schema document、compile 与 instance issues 均形成 Records。
 
-local schema 与 instance document 复用 [JSON Validation 工作原理](json-validation.md#工作原理)定义的 strict-document
-boundary；本指南只增加 schema identity、reference resolution、binding 与 engine settlement，不建立另一套 JSON 解析规则。
+本地 schema、instance 与受控远端 schema 共用 [JSON 文档边界](json-validation.md#工作原理)的完整语法、UTF-8 与重复键规则。
+本地字节上限由 `maximumBytes` 决定，远端上限见本页[I/O 与安全边界](#io-与安全边界)。
+远端 schema 的文档问题统一形成 `schema-compile / remote-document-invalid` issue。
+本指南拥有 schema identity、reference resolution、binding 与 engine settlement。
 
 ## 效果与结果
 

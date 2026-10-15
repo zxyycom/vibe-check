@@ -248,7 +248,7 @@ describe("JSON validation default Check", () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "bom.json"), new Uint8Array([0xef, 0xbb, 0xbf]));
-      writeFileSync(join(root, "duplicate.json"), '{"a":1,"a":2}', "utf8");
+      writeFileSync(join(root, "duplicate.json"), '{"a":1,"\\u0061":1}', "utf8");
       writeFileSync(join(root, "grammar.json"), "{", "utf8");
       writeFileSync(join(root, "utf8.json"), new Uint8Array([0xc3, 0x28]));
       writeFileSync(join(root, "too-large.json"), new Uint8Array(31));

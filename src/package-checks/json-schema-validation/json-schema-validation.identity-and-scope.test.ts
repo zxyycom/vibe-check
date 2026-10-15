@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
+import { rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import {
@@ -150,6 +151,72 @@ describe("JSON Schema validation default Check", () => {
         }),
         { records: [], result: { status: "not-applicable", reason: { code: "no-bindings" } } }
       );
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
+  it("rejects duplicate local schema and instance members before keyword validation", async () => {
+    const root = temporaryRoot();
+    const schemaId = "https://schemas.example.test/schema";
+    try {
+      for (const scenario of [
+        {
+          blockedBindingCount: 1,
+          kind: "schema-document",
+          path: "schema.json",
+          reason: "duplicate-key",
+          source: `{"$id":"${schemaId}","type":"object","type":"object"}`
+        },
+        {
+          blockedBindingCount: 0,
+          kind: "instance-document",
+          path: "instance.json",
+          reason: "duplicate-key",
+          source: '{"a":0,"\\u0061":0}'
+        },
+        {
+          blockedBindingCount: 0,
+          kind: "instance-document",
+          path: "instance.json",
+          reason: "invalid-json",
+          source: '{"a":0,"a":0,}'
+        }
+      ] as const) {
+        writeJson(root, "schema.json", strictSchema(schemaId, { type: "object" }));
+        writeJson(root, "instance.json", {});
+        writeFileSync(join(root, scenario.path), scenario.source);
+        const observed = await runJsonSchemaValidation({
+          options: offlineOptions({
+            bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
+            schemas: [{ id: schemaId, path: "schema.json" }]
+          }),
+          root
+        });
+        assert.equal(observed.result.status, "failed");
+        assert.deepEqual(observed.result.data, {
+          bindingCount: 1,
+          blockedBindingCount: scenario.blockedBindingCount,
+          invalidBindingCount: 1 - scenario.blockedBindingCount,
+          issueCount: 1,
+          issuesTruncated: false,
+          reportedIssueCount: 1,
+          schemaCount: 1,
+          validBindingCount: 0
+        });
+        assert.deepEqual(
+          observed.records.map((record) => record.data),
+          [
+            {
+              ...(scenario.kind === "instance-document" ? { bindingId: "instance" } : {}),
+              kind: scenario.kind,
+              path: scenario.path,
+              reason: scenario.reason,
+              schemaId
+            }
+          ]
+        );
+      }
     } finally {
       rmSync(root, { force: true, recursive: true });
     }

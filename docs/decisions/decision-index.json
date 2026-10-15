@@ -151,7 +151,7 @@
       "260824-complete-first-release-check-set-without-markdown-structure": "sha256:f5970f2eeec299fee60acabcb377b7b5dbc8ebd88b1893ececf0b6d334d1db43",
       "260824-publish-readable-esm-package-layout": "sha256:7825d9a4ca50df3acde7504aa83ef1185c64dd685a5358f46a9a3a0118c3fc6c",
       "260824-use-chinese-as-primary-language-for-public-documentation": "sha256:e6f9fdc953b0f46daf8b2614fb76b12c0957a8e2fa23a1bd12ca2451d1f292af",
-      "260824-use-momoa-for-strict-json-document-boundary": "sha256:9c75ef84dd447734a6b1ac515c74afe667a2e51825afa890713ae5e3abc203ed",
+      "260824-use-momoa-for-strict-json-document-boundary": "sha256:43c2ffe13521a38abcc0d15acc57de24266374cf05c24e217eb4a569f21d35c5",
       "260825-adopt-low-level-markdown-link-parser-architecture": "sha256:bd9ab19f8b7f4474f9d272a457c6dff960b9ffb1224ed77ca62ccfe04e9d9725",
       "260825-allow-controlled-json-schema-reference-sources": "sha256:405472beec2d42911ae96cbc3fdf030028cd163e6f8ed3364ae2b9213f3e2faa",
       "260825-define-offline-markdown-link-target-boundaries": "sha256:403e0b26f7668681666704098f79c7737a44de2bc31d5d5daf1045d737da6095",
@@ -366,7 +366,8 @@
       "261013-declare-scheduler-context-demand": "sha256:03e5513930d9e8f8eea2970fd449590544b355eac777c4fe7f9f77ffc35a8591",
       "261013-warn-on-explicit-markdown-parse-cache-capacity": "sha256:303c4f09a20e15afc78151fcd2ec13c3e78cab9b885919f9e88e4bd8834dca8c",
       "261013-weigh-performance-costs-against-scaling-benefits": "sha256:f683acd59be9bff15ce789368bcf39f642945069f7d29267ce03ef5ba612dfbb",
-      "261014-enable-gate-markdown-parse-cache": "sha256:1f0c17ff2154da5835fe0354a47afbc4255d41f3081f211e60313b89f39b4da9"
+      "261014-enable-gate-markdown-parse-cache": "sha256:1f0c17ff2154da5835fe0354a47afbc4255d41f3081f211e60313b89f39b4da9",
+      "261015-use-native-json-with-private-duplicate-scan": "sha256:fa125c180ddb9105e5f9c5bfeb38bf7100fd26e0a2c814afb92ea69a71ea8f8e"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -3160,9 +3161,9 @@
     },
     "260824-use-momoa-for-strict-json-document-boundary": {
       "name": "use-momoa-for-strict-json-document-boundary",
-      "sourcePath": "use-momoa-for-strict-json-document-boundary.md",
+      "sourcePath": "archive/use-momoa-for-strict-json-document-boundary.md",
       "title": "为严格 JSON 文档边界采用 Momoa",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-24T14:20:04Z",
       "purpose": "让严格 JSON Check 在受支持的 Product host 中可靠拒绝 decoded duplicate key，而不由 Product 自行实现完整 JSON parser。",
@@ -7591,6 +7592,29 @@
         "workflow-policy"
       ],
       "relations": []
+    },
+    "261015-use-native-json-with-private-duplicate-scan": {
+      "name": "use-native-json-with-private-duplicate-scan",
+      "sourcePath": "use-native-json-with-private-duplicate-scan.md",
+      "title": "严格 JSON 采用原生语法验收与私有查重",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-15T03:12:42Z",
+      "purpose": "保持严格 JSON 与重复键拒绝，以窄扫描责任降低解析成本",
+      "background": "两宿主原型已证明局部收益，用户确认由项目维护合法原文上的解码键查重",
+      "decision": "采用原生 JSON.parse 完整语法验收、私有解码键查重与迭代安全值投影，移除 Momoa",
+      "tags": [
+        "dependency-policy",
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "替代",
+          "target": "260824-use-momoa-for-strict-json-document-boundary",
+          "summary": "以原生语法和自有窄查重替换 AST 取证成本"
+        }
+      ]
     }
   }
 }
