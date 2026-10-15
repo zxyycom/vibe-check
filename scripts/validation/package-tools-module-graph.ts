@@ -62,9 +62,16 @@ export function resolveModule(
   root: string,
   sourcePath: string,
   specifier: string,
-  options: ts.CompilerOptions
+  options: ts.CompilerOptions,
+  cache?: ts.ModuleResolutionCache
 ): ResolvedModule | undefined {
-  const resolution = ts.resolveModuleName(specifier, sourcePath, options, ts.sys).resolvedModule;
+  const resolution = ts.resolveModuleName(
+    specifier,
+    sourcePath,
+    options,
+    ts.sys,
+    cache
+  ).resolvedModule;
   if (resolution === undefined)
     return specifier.startsWith("node:") ? { kind: "external" } : undefined;
   const path = resolve(resolution.resolvedFileName);

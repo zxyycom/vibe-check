@@ -76,6 +76,25 @@ test("documentation link validation retains every missing local-link occurrence 
       ],
       fileCount: 2
     });
+    const unicodeSource =
+      "😀[external](https://example.invalid) [first](same-missing.md) [second](same-missing.md)\n\n\uD800中😀 [third](other-missing.md)\n";
+    writeFileSync(path.join(docsDirectory, "a.md"), unicodeSource, "utf8");
+    const unicodeResult = collectMarkdownLinkDiagnostics({
+      markdownLinkRoots: ["docs/a.md"],
+      repositoryRoot
+    });
+    assert.deepEqual(
+      unicodeResult.diagnostics.map(({ data }) => ({
+        location: data.location,
+        occurrence: data.occurrence,
+        targetPath: data.targetPath
+      })),
+      [
+        { location: { line: 1, column: 38 }, occurrence: 2, targetPath: "docs/same-missing.md" },
+        { location: { line: 1, column: 63 }, occurrence: 3, targetPath: "docs/same-missing.md" },
+        { location: { line: 3, column: 5 }, occurrence: 4, targetPath: "docs/other-missing.md" }
+      ]
+    );
   } finally {
     rmSync(repositoryRoot, { force: true, recursive: true });
   }

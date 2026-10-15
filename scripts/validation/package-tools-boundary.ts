@@ -29,7 +29,8 @@ interface BoundaryValidationInput {
   readonly checker: ts.TypeChecker;
   readonly edge: ModuleEdge;
   readonly options: ts.CompilerOptions;
-  readonly publicSymbols: readonly PublicSymbol[];
+  readonly publicSymbols: ReadonlyMap<ts.Symbol, PublicSymbol>;
+  readonly resolutionCache: ts.ModuleResolutionCache;
   readonly repositoryPath: string;
   readonly root: string;
   readonly sourceFile: ts.SourceFile;
@@ -49,7 +50,15 @@ export function validatePackageToolsBoundary(root: string, violations: string[])
     rootNames: productionSourceFilesUnder(root, "src")
   });
   const checker = program.getTypeChecker();
-  const publicSymbols = publicSymbolsFromEntry(root, program, checker, violations);
+  const publicSymbols = new Map<ts.Symbol, PublicSymbol>();
+  for (const symbol of publicSymbolsFromEntry(root, program, checker, violations)) {
+    if (!publicSymbols.has(symbol.symbol)) publicSymbols.set(symbol.symbol, symbol);
+  }
+  const resolutionCache = ts.createModuleResolutionCache(
+    root,
+    (path) => (ts.sys.useCaseSensitiveFileNames ? path : path.toLowerCase()),
+    options
+  );
 
   for (const sourcePath of toolFiles) {
     const sourceFile = sourceFileFor(program, sourcePath, root, violations);
@@ -67,6 +76,7 @@ export function validatePackageToolsBoundary(root: string, violations: string[])
         edge,
         options,
         publicSymbols,
+        resolutionCache,
         repositoryPath,
         root,
         sourceFile,
@@ -201,7 +211,8 @@ function validateToolEdge(input: BoundaryValidationInput): void {
     input.root,
     input.sourceFile.fileName,
     input.edge.specifier,
-    input.options
+    input.options,
+    input.resolutionCache
   );
   if (resolvedModule === undefined) {
     reportUnresolvedToolModule(input, input.edge.specifier);
@@ -256,9 +267,7 @@ function validateToolBinding(
     );
     return;
   }
-  const publicSymbol = input.publicSymbols.find(
-    (candidate) => candidate.symbol === resolveAlias(input.checker, importedSymbol)
-  );
+  const publicSymbol = input.publicSymbols.get(resolveAlias(input.checker, importedSymbol));
   if (publicSymbol === undefined) {
     input.violations.push(
       `package-tools-private-product-symbol: ${input.repositoryPath} -> ${input.edge.specifier} (${bindingName.text})`

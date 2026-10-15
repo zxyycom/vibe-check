@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 import { checkPublishedMachineExamples } from "../../../docs/machine-artifacts/examples/command.ts";
 import { checkPublishedMachineSchemas } from "../../../docs/machine-artifacts/schemas.ts";
 import { toDocumentationAbsolutePath } from "../repository-paths.ts";
+import { canonicalJsonText } from "./canonical.ts";
 import {
   validateRepositoryMaterialsMachineArtifactSet,
   validatePublishedMachineArtifactExamples,
@@ -31,6 +32,42 @@ interface ExpectedDiagnostic {
 
 describe("independent repository material machine artifact validation", () => {
   it("accepts exactly the current v4 example and positive JSON grammar variants", () => {
+    const shared = { z: -0, a: ["😀", null, true] };
+    assert.equal(
+      canonicalJsonText({ right: shared, left: shared }),
+      '{"left":{"a":["😀",null,true],"z":0},"right":{"a":["😀",null,true],"z":0}}'
+    );
+    const cycle: Record<string, unknown> = {};
+    cycle.self = cycle;
+    let getterCalls = 0;
+    const accessor = Object.defineProperty({}, "a", {
+      enumerable: true,
+      get: () => {
+        getterCalls += 1;
+        return 1;
+      }
+    });
+    const nonEnumerable = Object.defineProperty({}, "a", { value: 1 });
+    const sparse = new Array<number>(3);
+    for (const invalid of [
+      cycle,
+      accessor,
+      nonEnumerable,
+      sparse,
+      { [Symbol("hidden")]: 1 },
+      new Date(0),
+      NaN,
+      Infinity,
+      undefined,
+      1n
+    ]) {
+      assert.equal(canonicalJsonText(invalid), undefined);
+    }
+    assert.equal(getterCalls, 0);
+    assert.equal(
+      canonicalJsonText(Object.assign(Object.create(null), { b: 2, a: 1 })),
+      '{"a":1,"b":2}'
+    );
     assert.equal(validatePublishedMachineArtifactExamples(), 1);
     const context = loadContext();
     context.artifacts.runJson = encoder.encode(`\t${JSON.stringify(context.run)}\r\n`);

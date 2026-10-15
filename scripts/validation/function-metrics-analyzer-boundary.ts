@@ -9,8 +9,10 @@ import {
 } from "./import-boundaries.ts";
 import {
   analyzeModuleSpecifiers,
+  readModuleSpecifierAnalysis,
   appendModuleSpecifierDiagnostics,
-  hasValueImportBinding
+  hasValueImportBinding,
+  type ModuleSpecifierAnalysis
 } from "./module-specifier-analysis.ts";
 
 const FUNCTION_METRICS_DIRECTORY = "src/package-checks/function-metrics";
@@ -43,14 +45,19 @@ interface ResolvedModuleSpecifier {
 export function validateFunctionMetricsAnalyzerBoundary(
   root: string,
   sourceFiles: readonly string[],
-  violations: string[]
+  violations: string[],
+  analysesBySourcePath = new Map<string, ModuleSpecifierAnalysis>()
 ): void {
   validateAnalyzerBoundaryFiles(root, violations);
   const portFacadeConsumers = new Set<string>();
   for (const sourcePath of sourceFiles) {
     const repositoryPath = relativePath(root, sourcePath);
     if (isFixtureSourcePath(repositoryPath)) continue;
-    const analysis = analyzeModuleSpecifiers(readFileSync(sourcePath, "utf8"), repositoryPath);
+    const analysis = readModuleSpecifierAnalysis({
+      sourcePath,
+      repositoryPath,
+      analysesBySourcePath
+    });
     appendModuleSpecifierDiagnostics(violations, analysis);
     const input: AnalyzerBoundaryInput = { repositoryPath, root, sourcePath, violations };
     const resolvedSpecifiers = resolveModuleSpecifiers(root, sourcePath, analysis.moduleSpecifiers);

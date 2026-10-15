@@ -17,7 +17,10 @@ export function contextFor(
   run: Run,
   candidates: AdmissionPolicyContext["candidates"]
 ): AdmissionPolicyContext {
-  const observations = Object.freeze([...run.observations]);
+  // Completed observations are immutable and append-only. Capture the visible prefix, not a
+  // live length, so retained contexts cannot observe later actions.
+  const observations = run.observations;
+  const measurementCount = observations.length;
   const capacityBlockedTaskCount = candidates.filter(({ canAdmit }) => !canAdmit).length;
   const mutexBlockedTaskCount = mutexBlockedCount(run);
   return Object.freeze({
@@ -48,21 +51,14 @@ export function contextFor(
         }),
         timing: Object.freeze({ availability: "available" as const }),
         timingFacts: Object.freeze({
-          acceptedWaitMs: observations.reduce(
-            (total, observation) =>
-              total +
-              (observation.interval.availability === "available"
-                ? observation.interval.contribution.acceptedWaitMs
-                : 0),
-            0
-          ),
+          acceptedWaitMs: run.closedObservationWaitMs,
           effectiveCapacitySlotMs: run.effectiveCapacitySlotMs,
           rootCapacitySlotMs: run.rootCapacitySlotMs,
           taskSlotMs: run.slotTimeMs
         })
       }),
-      measurementAt: (index: number) => observations[index],
-      measurementCount: observations.length
+      measurementAt: capturedObservationLookup(observations, measurementCount),
+      measurementCount
     }),
     runningTaskIds: run.state.inspection.runningTaskIds,
     runtime: Object.freeze({ abortRequested: false, cancelled: false }),
@@ -70,10 +66,21 @@ export function contextFor(
   });
 }
 
+function capturedObservationLookup(
+  observations: readonly SchedulerMeasurementActionObservation[],
+  measurementCount: number
+): AdmissionPolicyContext["measurement"]["measurementAt"] {
+  return (index) => {
+    if (!Number.isInteger(index) || index < 0 || index >= measurementCount) return undefined;
+    return observations[index];
+  };
+}
+
 export function closePendingObservation(run: Run): void {
   const pending = run.pendingObservation;
   if (pending === null) return;
   run.observations.push(freezeObservation(pending));
+  run.closedObservationWaitMs += pending.contribution.acceptedWaitMs;
   run.pendingObservation = null;
 }
 

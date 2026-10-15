@@ -158,18 +158,26 @@ function assertNonConflictingPackageTargets(
   checkGuides: readonly PackageCheckGuide[],
   machineMaterials: readonly PackageMachineMaterialMapping[]
 ): void {
-  const targets: string[] = [];
+  const registeredTargetPaths = new Set<string>();
+  const registeredAncestorPaths = new Set<string>();
   for (const entry of [...markdownDocuments, ...checkGuides, ...machineMaterials]) {
-    const conflict = targets.find(
-      (target) =>
-        target === entry.packagePath ||
-        target.startsWith(`${entry.packagePath}/`) ||
-        entry.packagePath.startsWith(`${target}/`)
-    );
-    if (conflict !== undefined) {
+    const ancestorPaths: string[] = [];
+    for (
+      let slashOffset = entry.packagePath.indexOf("/");
+      slashOffset !== -1;
+      slashOffset = entry.packagePath.indexOf("/", slashOffset + 1)
+    ) {
+      ancestorPaths.push(entry.packagePath.slice(0, slashOffset));
+    }
+    const hasConflictingTarget =
+      registeredTargetPaths.has(entry.packagePath) ||
+      registeredAncestorPaths.has(entry.packagePath) ||
+      ancestorPaths.some((ancestorPath) => registeredTargetPaths.has(ancestorPath));
+    if (hasConflictingTarget) {
       throw new Error(`conflicting package document target: ${entry.packagePath}`);
     }
-    targets.push(entry.packagePath);
+    registeredTargetPaths.add(entry.packagePath);
+    for (const ancestorPath of ancestorPaths) registeredAncestorPaths.add(ancestorPath);
   }
   const readme = markdownDocuments.find((document) => document.id === "readme");
   if (readme?.sourcePath !== "README.md" || readme.packagePath !== "README.md") {

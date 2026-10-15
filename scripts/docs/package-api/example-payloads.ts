@@ -16,34 +16,40 @@ export interface ExamplePayload {
   readonly sourcePath: string;
 }
 
+interface ExampleSourceCatalog {
+  readonly regions: ReadonlyMap<string, ExamplePayload>;
+  readonly sourcesByRepositoryPath: ReadonlyMap<string, string>;
+}
+
 export function collectExamplePayloads(
   repositoryRoot: string,
-  projections: readonly PackageApiExampleProjection[]
+  projections: readonly PackageApiExampleProjection[],
+  markdownDocuments = loadPackageDocuments(repositoryRoot).markdownDocuments
 ): ReadonlyMap<string, ExamplePayload> {
-  const markdownDocuments = loadPackageDocuments(repositoryRoot).markdownDocuments;
   const sourcePaths = collectExampleSourcePaths(repositoryRoot);
-  const regions = collectExampleRegions(repositoryRoot, sourcePaths);
+  const { regions, sourcesByRepositoryPath } = collectExampleSources(repositoryRoot, sourcePaths);
   const payloads = resolveProjectionPayloads(
-    repositoryRoot,
     projections,
-    sourcePaths,
     regions,
-    markdownDocuments
+    markdownDocuments,
+    sourcesByRepositoryPath
   );
   assertAllExampleInputsAreProjected(repositoryRoot, sourcePaths, regions, projections);
   return payloads;
 }
 
-function collectExampleRegions(
+function collectExampleSources(
   repositoryRoot: string,
   sourcePaths: readonly string[]
-): ReadonlyMap<string, ExamplePayload> {
+): ExampleSourceCatalog {
+  const sourcesByRepositoryPath = new Map<string, string>();
   const regionIds = new Set<string>();
   const regions = new Map<string, ExamplePayload>();
   for (const sourcePath of sourcePaths) {
     const content = readText(sourcePath);
     assertSourceText(sourcePath, content);
     const repositoryPath = toRepositoryPath(repositoryRoot, sourcePath);
+    sourcesByRepositoryPath.set(repositoryPath, content);
     for (const [regionId, regionContent] of readExampleRegions(repositoryPath, content)) {
       if (regionIds.has(regionId)) {
         throw new Error(`duplicate package API example region id: ${regionId}`);
@@ -54,19 +60,15 @@ function collectExampleRegions(
       regions.set(key, Object.freeze({ content: regionContent, sourcePath: repositoryPath }));
     }
   }
-  return regions;
+  return { regions, sourcesByRepositoryPath };
 }
 
 function resolveProjectionPayloads(
-  repositoryRoot: string,
   projections: readonly PackageApiExampleProjection[],
-  sourcePaths: readonly string[],
   regions: ReadonlyMap<string, ExamplePayload>,
-  markdownDocuments: readonly PackageMarkdownDocument[]
+  markdownDocuments: readonly PackageMarkdownDocument[],
+  sourcesByRepositoryPath: ReadonlyMap<string, string>
 ): ReadonlyMap<string, ExamplePayload> {
-  const sourcePathSet = new Set(
-    sourcePaths.map((sourcePath) => toRepositoryPath(repositoryRoot, sourcePath))
-  );
   const projectionIds = new Set<string>();
   const projectionRegions = new Set<string>();
   const usedMarkdownTargets = new Set<string>();
@@ -77,10 +79,10 @@ function resolveProjectionPayloads(
       throw new Error(`duplicate package API example projection id: ${projection.id}`);
     }
     projectionIds.add(projection.id);
-    if (!sourcePathSet.has(projection.sourcePath)) {
+    if (!sourcesByRepositoryPath.has(projection.sourcePath)) {
       throw new Error(`unknown package API example source: ${projection.sourcePath}`);
     }
-    const payload = payloadForProjection(projection, repositoryRoot, regions);
+    const payload = payloadForProjection(projection, regions, sourcesByRepositoryPath);
     const key =
       projection.regionId === undefined
         ? projection.sourcePath
@@ -178,34 +180,44 @@ type ExampleRegionBounds = Readonly<{
   readonly startLineIndex: number;
 }>;
 
+interface ExampleRegionParseState {
+  readonly bounds: Map<string, ExampleRegionBounds>;
+  readonly openRegions: { id: string; lineIndex: number }[];
+  readonly seenRegionIds: Set<string>;
+}
+
 function collectExampleRegionBounds(
   sourcePath: string,
   lines: readonly string[]
 ): ReadonlyMap<string, ExampleRegionBounds> {
-  const regionBounds = new Map<string, ExampleRegionBounds>();
-  const openRegions: { id: string; lineIndex: number }[] = [];
+  const state: ExampleRegionParseState = {
+    bounds: new Map(),
+    openRegions: [],
+    seenRegionIds: new Set()
+  };
   for (const [lineIndex, line] of lines.entries()) {
-    applyExampleRegionMarker(sourcePath, line, lineIndex, regionBounds, openRegions);
+    applyExampleRegionMarker(sourcePath, line, lineIndex, state);
   }
-  const open = openRegions.at(-1);
+  const open = state.openRegions.at(-1);
   if (open !== undefined)
     throw new Error(`unclosed package API example region ${open.id} in ${sourcePath}`);
-  return regionBounds;
+  return state.bounds;
 }
 
 function applyExampleRegionMarker(
   sourcePath: string,
   line: string,
   lineIndex: number,
-  regionBounds: Map<string, ExampleRegionBounds>,
-  openRegions: { id: string; lineIndex: number }[]
+  state: ExampleRegionParseState
 ): void {
+  const { bounds, openRegions, seenRegionIds } = state;
   const marker = exampleRegionMarker(line, sourcePath, lineIndex);
   if (marker === undefined) return;
   if (marker.kind === "start") {
-    if (regionBounds.has(marker.id) || openRegions.some((region) => region.id === marker.id)) {
+    if (seenRegionIds.has(marker.id)) {
       throw new Error(`duplicate package API example region ${marker.id} in ${sourcePath}`);
     }
+    seenRegionIds.add(marker.id);
     openRegions.push({ id: marker.id, lineIndex });
     return;
   }
@@ -215,10 +227,7 @@ function applyExampleRegionMarker(
       `unclosed package API example region ${marker.id} in ${sourcePath}:${lineIndex + 1}`
     );
   }
-  regionBounds.set(
-    open.id,
-    Object.freeze({ endLineIndex: lineIndex, startLineIndex: open.lineIndex })
-  );
+  bounds.set(open.id, Object.freeze({ endLineIndex: lineIndex, startLineIndex: open.lineIndex }));
 }
 
 function exampleRegionMarker(
@@ -268,8 +277,8 @@ function isExampleRegionMarker(line: string): boolean {
 
 function payloadForProjection(
   projection: PackageApiExampleProjection,
-  repositoryRoot: string,
-  regions: ReadonlyMap<string, ExamplePayload>
+  regions: ReadonlyMap<string, ExamplePayload>,
+  sourcesByRepositoryPath: ReadonlyMap<string, string>
 ): ExamplePayload {
   if (projection.regionId !== undefined) {
     const payload = regions.get(regionKey(projection.sourcePath, projection.regionId));
@@ -280,7 +289,9 @@ function payloadForProjection(
     }
     return payload;
   }
-  const content = readText(repositoryFilePath(repositoryRoot, projection.sourcePath));
+  const content = sourcesByRepositoryPath.get(projection.sourcePath);
+  if (content === undefined)
+    throw new Error(`unknown package API example source: ${projection.sourcePath}`);
   if (content.includes("package-api-example:")) {
     throw new Error(
       `full-file package API example cannot contain regions: ${projection.sourcePath}`

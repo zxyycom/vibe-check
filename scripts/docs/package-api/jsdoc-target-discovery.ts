@@ -78,11 +78,16 @@ function toRepositoryPath(repositoryRoot: string, filePath: string): string {
 }
 
 /** Finds every existing source JSDoc example target before projection replacement. */
-export function discoverJSDocExampleTargets(repositoryRoot: string): readonly JSDocTarget[] {
+export function discoverJSDocExampleTargets(
+  repositoryRoot: string,
+  captureSource?: (absoluteSourcePath: string, source: string, hasExampleMarker: boolean) => void
+): readonly JSDocTarget[] {
   const targets = new Map<string, JSDocTarget>();
   for (const sourcePath of sourcePathsIn(repositoryFilePath(repositoryRoot, "src"))) {
     const source = readFileSync(sourcePath, "utf8");
-    if (!source.includes("@example")) continue;
+    const hasExampleMarker = source.includes("@example");
+    captureSource?.(sourcePath, source, hasExampleMarker);
+    if (!hasExampleMarker) continue;
     const repositoryPath = toRepositoryPath(repositoryRoot, sourcePath);
     for (const match of source.matchAll(/\/\*\*[\s\S]*?\*\//g)) {
       if (match.index === undefined || !match[0].includes("@example")) continue;

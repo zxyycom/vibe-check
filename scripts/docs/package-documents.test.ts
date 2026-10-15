@@ -201,6 +201,24 @@ function invalidMappings(): readonly Readonly<{
           packagePath: "docs/output.md/child.json",
           sourcePath: "docs/output.md"
         })
+    },
+    {
+      diagnostic: /conflicting package document target: docs\/nested/,
+      mutate: (config) =>
+        config.machineMaterials.push(
+          { packagePath: "docs/nested/child.json", sourcePath: "docs/output.md" },
+          { packagePath: "docs/nested", sourcePath: "docs/output.md" },
+          { packagePath: "README.md", sourcePath: "docs/output.md" }
+        )
+    },
+    {
+      diagnostic: /conflicting package document target: docs\/same\/child.json/,
+      mutate: (config) =>
+        config.machineMaterials.push(
+          { packagePath: "docs/same", sourcePath: "docs/output.md" },
+          { packagePath: "docs/same-prefix/child.json", sourcePath: "docs/output.md" },
+          { packagePath: "docs/same/child.json", sourcePath: "docs/output.md" }
+        )
     }
   ];
 }

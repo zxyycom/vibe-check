@@ -1,8 +1,7 @@
-import { readFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 
 import {
-  analyzeModuleSpecifiers,
+  readModuleSpecifierAnalysis,
   appendModuleSpecifierDiagnostics,
   type ModuleSpecifierAnalysis
 } from "./module-specifier-analysis.ts";
@@ -18,7 +17,7 @@ const PRIVATE_PROCESS_EXECUTION_FILES = new Set([
 interface ImportBoundaryInput {
   readonly repositoryPath: string;
   readonly root: string;
-  readonly source: string;
+  readonly analysesBySourcePath: Map<string, ModuleSpecifierAnalysis>;
   readonly sourcePath: string;
   readonly violations: string[];
 }
@@ -26,7 +25,8 @@ interface ImportBoundaryInput {
 export function validateImportBoundaries(
   root: string,
   sourceFiles: readonly string[],
-  violations: string[]
+  violations: string[],
+  analysesBySourcePath = new Map<string, ModuleSpecifierAnalysis>()
 ): void {
   for (const sourcePath of sourceFiles) {
     const repositoryPath = relativePath(root, sourcePath);
@@ -34,7 +34,7 @@ export function validateImportBoundaries(
     const input: ImportBoundaryInput = {
       repositoryPath,
       root,
-      source: readFileSync(sourcePath, "utf8"),
+      analysesBySourcePath,
       sourcePath,
       violations
     };
@@ -128,7 +128,7 @@ function valueModuleSpecifiers(input: ImportBoundaryInput): readonly string[] {
 }
 
 function analyzeImportBoundarySource(input: ImportBoundaryInput): ModuleSpecifierAnalysis {
-  const analysis = analyzeModuleSpecifiers(input.source, input.repositoryPath);
+  const analysis = readModuleSpecifierAnalysis(input);
   appendModuleSpecifierDiagnostics(input.violations, analysis);
   return analysis;
 }

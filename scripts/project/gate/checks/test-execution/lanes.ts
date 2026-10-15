@@ -218,13 +218,15 @@ function freezeTestLanes(
 function assertCompletePartition(allFiles: readonly string[], lanes: ProjectGateTestLanes): void {
   const partitions = PROJECT_GATE_TEST_LANE_NAMES.map((lane) => lanes[lane]);
   const assignedFiles = partitions.flat();
-  if (assignedFiles.length !== new Set(assignedFiles).size) {
+  const assignedFileSet = new Set(assignedFiles);
+  const allFileSet = new Set(allFiles);
+  if (assignedFiles.length !== assignedFileSet.size) {
     throw new TypeError("Project Gate test execution subchecks contain duplicate files");
   }
   if (
     assignedFiles.length !== allFiles.length ||
-    assignedFiles.some((file) => !allFiles.includes(file)) ||
-    allFiles.some((file) => !assignedFiles.includes(file))
+    assignedFiles.some((file) => !allFileSet.has(file)) ||
+    allFiles.some((file) => !assignedFileSet.has(file))
   ) {
     throw new TypeError("Project Gate test execution subchecks do not cover the complete profile");
   }

@@ -1,14 +1,11 @@
-interface MarkdownHeading {
-  readonly level: number;
-  readonly lineIndex: number;
-  readonly path: readonly string[];
-}
-
-interface MarkdownFence {
-  readonly endLineIndex: number;
-  readonly info: string;
-  readonly startLineIndex: number;
-}
+import {
+  headingPathKey,
+  indexMarkdownTargets,
+  type MarkdownFence,
+  type MarkdownHeading,
+  type MarkdownStructure,
+  type MarkdownTargetIndex
+} from "./markdown-example-target-index.ts";
 
 export interface MarkdownExampleFenceReplacement {
   readonly headingPath: readonly string[];
@@ -25,11 +22,6 @@ interface OpenMarkdownFence {
   readonly info: string;
   readonly length: number;
   readonly startLineIndex: number;
-}
-
-interface MarkdownStructure {
-  readonly fences: readonly MarkdownFence[];
-  readonly headings: readonly MarkdownHeading[];
 }
 
 const PACKAGE_API_EXAMPLE_PROJECTION_MARKER = /^\s*<!--\s*\/?package-api-example:/m;
@@ -54,14 +46,38 @@ export function renderMarkdownExampleFences(
     structure
   );
   const sourceLines = input.sourceMarkdown.split("\n");
-  for (const replacement of locatedReplacements) {
-    sourceLines.splice(
-      replacement.fence.startLineIndex,
-      replacement.fence.endLineIndex - replacement.fence.startLineIndex + 1,
-      ...replacement.replacementLines
-    );
+  const replacementsAscendingByLine = locatedReplacements.toReversed();
+  const hasOverlappingFences = replacementsAscendingByLine.some(
+    (replacement, index) =>
+      index > 0 &&
+      replacement.fence.startLineIndex <=
+        (replacementsAscendingByLine[index - 1]?.fence.endLineIndex ?? -1)
+  );
+  // Ancestor and child heading targets can select the same fence. Preserve the existing ordered
+  // splice semantics for overlapping targets; only disjoint ranges admit one-pass construction.
+  if (hasOverlappingFences) {
+    for (const replacement of locatedReplacements) {
+      sourceLines.splice(
+        replacement.fence.startLineIndex,
+        replacement.fence.endLineIndex - replacement.fence.startLineIndex + 1,
+        ...replacement.replacementLines
+      );
+    }
+    return sourceLines.join("\n");
   }
-  return sourceLines.join("\n");
+  const chunks: string[] = [];
+  let nextSourceLineIndex = 0;
+  for (const replacement of replacementsAscendingByLine) {
+    if (nextSourceLineIndex < replacement.fence.startLineIndex)
+      chunks.push(
+        sourceLines.slice(nextSourceLineIndex, replacement.fence.startLineIndex).join("\n")
+      );
+    chunks.push(replacement.replacementLines.join("\n"));
+    nextSourceLineIndex = replacement.fence.endLineIndex + 1;
+  }
+  if (nextSourceLineIndex < sourceLines.length)
+    chunks.push(sourceLines.slice(nextSourceLineIndex).join("\n"));
+  return chunks.join("\n");
 }
 
 function assertMarkdownSourceText(documentPackagePath: string, sourceMarkdown: string): void {
@@ -177,6 +193,7 @@ function locateMarkdownExampleFenceReplacements(
 ): readonly LocatedMarkdownExampleFenceReplacement[] {
   const replacementPaths = new Set<string>();
   const locatedReplacements: LocatedMarkdownExampleFenceReplacement[] = [];
+  const index = indexMarkdownTargets(structure);
   for (const replacement of replacements) {
     const key = headingPathKey(replacement.headingPath);
     if (replacementPaths.has(key)) {
@@ -192,9 +209,13 @@ function locateMarkdownExampleFenceReplacements(
     const heading = requiredTargetHeading(
       documentPackagePath,
       replacement.headingPath,
-      structure.headings
+      index.headingsByPathKey
     );
-    const fence = requiredSectionTypeScriptFence(documentPackagePath, heading, structure);
+    const fence = requiredSectionTypeScriptFence(
+      documentPackagePath,
+      heading,
+      index.typeScriptFencesByHeading
+    );
     replacementPaths.add(key);
     locatedReplacements.push(
       Object.freeze({ fence, replacementLines: replacement.replacementLines })
@@ -210,9 +231,9 @@ function locateMarkdownExampleFenceReplacements(
 function requiredTargetHeading(
   documentPackagePath: string,
   headingPath: readonly string[],
-  headings: readonly MarkdownHeading[]
+  headingsByPathKey: MarkdownTargetIndex["headingsByPathKey"]
 ): MarkdownHeading {
-  const matches = headings.filter((heading) => sameHeadingPath(heading.path, headingPath));
+  const matches = headingsByPathKey.get(headingPathKey(headingPath)) ?? [];
   if (matches.length !== 1) {
     throw new Error(
       `expected exactly one package API Markdown heading target in ${documentPackagePath}: ${displayHeadingPath(headingPath)}; found ${matches.length}`
@@ -226,18 +247,9 @@ function requiredTargetHeading(
 function requiredSectionTypeScriptFence(
   documentPackagePath: string,
   heading: MarkdownHeading,
-  structure: MarkdownStructure
+  typeScriptFencesByHeading: MarkdownTargetIndex["typeScriptFencesByHeading"]
 ): MarkdownFence {
-  const nextPeer = structure.headings.find(
-    (candidate) => candidate.lineIndex > heading.lineIndex && candidate.level <= heading.level
-  );
-  const sectionEndLineIndex = nextPeer?.lineIndex ?? Number.POSITIVE_INFINITY;
-  const matches = structure.fences.filter(
-    (fence) =>
-      fence.startLineIndex > heading.lineIndex &&
-      fence.startLineIndex < sectionEndLineIndex &&
-      (fence.info === "ts" || fence.info === "typescript")
-  );
+  const matches = typeScriptFencesByHeading.get(heading) ?? [];
   if (matches.length !== 1) {
     throw new Error(
       `expected exactly one fenced TypeScript example under ${displayHeadingPath(heading.path)} in ${documentPackagePath}; found ${matches.length}`
@@ -246,14 +258,6 @@ function requiredSectionTypeScriptFence(
   const fence = matches[0];
   if (fence === undefined) throw new Error("package API Markdown TypeScript fence is missing");
   return fence;
-}
-
-function sameHeadingPath(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((value, index) => value === right[index]);
-}
-
-function headingPathKey(headingPath: readonly string[]): string {
-  return JSON.stringify(headingPath);
 }
 
 function displayHeadingPath(headingPath: readonly string[]): string {

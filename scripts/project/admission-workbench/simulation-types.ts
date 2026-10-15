@@ -156,6 +156,7 @@ export interface MutableObservation {
 
 export interface Run {
   acceptedWaitCount: number;
+  closedObservationWaitMs: number;
   admittedCount: number;
   boundaryIndex: number;
   coreEventCount: number;
@@ -176,6 +177,7 @@ export interface Run {
   rootCapacitySlotMs: number;
   readonly sampledWork: readonly SampledWork[];
   readonly scenario: Scenario;
+  readonly tasksById: ReadonlyMap<string, Scenario["graph"]["graph"]["tasks"][number]>;
   slotTimeMs: number;
   state: AdmissionState;
   readonly trace: TraceEvent[];

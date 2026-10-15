@@ -9,6 +9,7 @@ import {
 } from "./example-projections.ts";
 import { loadPackageDocuments } from "../package-documents.ts";
 import { renderPackageApiDocumentation } from "./render.ts";
+import { renderMarkdownExampleFences } from "./markdown-example-fences.ts";
 import { createPackageApiDocumentationFixture, PACKAGE_API_JSDOC_TARGETS } from "./test-support.ts";
 
 interface MarkdownExampleTargetFailureFixture {
@@ -18,6 +19,30 @@ interface MarkdownExampleTargetFailureFixture {
 
 describe("package API documentation renderer", () => {
   it("projects every registry source region to its declared Markdown fence and JSDoc target without changing payload bytes", () => {
+    const headings = Array.from({ length: 128 }, (_, index) => `Section ${index}`);
+    const sourceMarkdown = [
+      "# Fixture",
+      ...headings.map((heading) => `\n## ${heading}\n\n保留😀 prose\n\n~~~ts\nstale\n~~~`),
+      ""
+    ].join("\n");
+    assert.equal(
+      renderMarkdownExampleFences({
+        documentPackagePath: "docs/fixture.md",
+        sourceMarkdown,
+        replacements: headings.map((heading, index) => ({
+          headingPath: [heading],
+          replacementLines: ["```ts", `const value = ${index};`, "```"]
+        }))
+      }),
+      [
+        "# Fixture",
+        ...headings.map(
+          (heading, index) =>
+            `\n## ${heading}\n\n保留😀 prose\n\n\`\`\`ts\nconst value = ${index};\n\`\`\``
+        ),
+        ""
+      ].join("\n")
+    );
     const fixtureRoot = createPackageApiDocumentationFixture();
     try {
       const mapping = loadPackageDocuments(fixtureRoot);
@@ -78,6 +103,22 @@ describe("package API documentation renderer", () => {
           document.content.includes("<!-- package-api-example:")
         ),
         false
+      );
+      const quickStartSourcePath = join(fixtureRoot, "docs/examples/package-api/quick-start.ts");
+      writeFileSync(
+        quickStartSourcePath,
+        readFileSync(quickStartSourcePath, "utf8").replace(
+          "// #region package-api-example:quick-start\n",
+          `// #region package-api-example:quick-start\n// ${"`".repeat(128)}\n`
+        ),
+        "utf8"
+      );
+      const renderedWithLongBackticks = renderPackageApiDocumentation({
+        repositoryRoot: fixtureRoot
+      });
+      assert.equal(
+        renderedWithLongBackticks.readme.content.includes(`${"`".repeat(129)}ts\n`),
+        true
       );
     } finally {
       rmSync(fixtureRoot, { force: true, recursive: true });

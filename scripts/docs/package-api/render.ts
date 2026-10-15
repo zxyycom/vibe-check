@@ -48,7 +48,7 @@ export function renderPackageApiDocumentation(
   const repositoryRoot = resolve(input.repositoryRoot);
   const projections = input.projections ?? PACKAGE_API_EXAMPLE_PROJECTIONS;
   const documents = loadPackageDocuments(repositoryRoot).markdownDocuments;
-  const payloads = collectExamplePayloads(repositoryRoot, projections);
+  const payloads = collectExamplePayloads(repositoryRoot, projections, documents);
   const markdownDocuments = renderMarkdownDocuments(
     repositoryRoot,
     documents,
@@ -121,8 +121,10 @@ function markdownExampleFenceReplacements(
 }
 
 function fencedTypeScript(payload: string): string {
-  let fence = "```";
-  while (payload.includes(fence)) fence = `${fence}\``;
+  let longestBacktickRunLength = 0;
+  for (const match of payload.matchAll(/`+/g))
+    longestBacktickRunLength = Math.max(longestBacktickRunLength, match[0].length);
+  const fence = "`".repeat(Math.max(3, longestBacktickRunLength + 1));
   return `${fence}ts\n${payload}${fence}`;
 }
 

@@ -1,9 +1,25 @@
+import { readFileSync } from "node:fs";
+
 import * as ts from "typescript";
 
 export interface ModuleSpecifierAnalysis {
   readonly diagnostics: readonly string[];
   readonly moduleSpecifiers: readonly string[];
   readonly valueModuleSpecifiers: readonly string[];
+}
+
+/** Reads each path once into a caller-owned layout cache; no state survives that invocation. */
+export function readModuleSpecifierAnalysis(input: {
+  readonly sourcePath: string;
+  readonly repositoryPath: string;
+  readonly analysesBySourcePath: Map<string, ModuleSpecifierAnalysis>;
+}): ModuleSpecifierAnalysis {
+  const { sourcePath, repositoryPath, analysesBySourcePath } = input;
+  const existing = analysesBySourcePath.get(sourcePath);
+  if (existing !== undefined) return existing;
+  const analysis = analyzeModuleSpecifiers(readFileSync(sourcePath, "utf8"), repositoryPath);
+  analysesBySourcePath.set(sourcePath, analysis);
+  return analysis;
 }
 
 /** Parses one source text once and returns its stable module-specifier views. */

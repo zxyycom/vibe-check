@@ -123,6 +123,7 @@ function createRun(scenario: Scenario, seed: number, replicate: number): Run {
   const sampledWork = sampleScenarioWork(scenario, seed, replicate);
   return {
     acceptedWaitCount: 0,
+    closedObservationWaitMs: 0,
     admittedCount: 0,
     boundaryIndex: 0,
     coreEventCount: 0,
@@ -143,6 +144,7 @@ function createRun(scenario: Scenario, seed: number, replicate: number): Run {
     rootCapacitySlotMs: 0,
     sampledWork,
     scenario,
+    tasksById: new Map(scenario.graph.graph.tasks.map((task) => [task.taskId, task])),
     slotTimeMs: 0,
     state,
     trace: [],

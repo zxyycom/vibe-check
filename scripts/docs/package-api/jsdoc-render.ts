@@ -24,14 +24,24 @@ interface JSDocTarget {
   readonly sourcePath: string;
 }
 
+interface JSDocTargetSources {
+  readonly sourcesByAbsolutePath: ReadonlyMap<string, string>;
+  readonly targetsByKey: ReadonlyMap<string, JSDocTarget>;
+}
+
+interface JSDocSourceReplacements {
+  readonly source: string;
+  readonly replacements: JSDocReplacement[];
+}
+
 export function renderJSDocSources(
   repositoryRoot: string,
   projections: readonly PackageApiExampleProjection[],
   payloads: ReadonlyMap<string, ExamplePayload>
 ): readonly RenderedPackageApiFile[] {
   const grouped = groupJSDocProjections(projections, payloads);
-  const targets = knownJSDocTargets(repositoryRoot, grouped);
-  return renderJSDocTargetSources(repositoryRoot, targets, grouped);
+  const targetSources = collectJSDocTargetSources(repositoryRoot, grouped);
+  return renderJSDocTargetSources(repositoryRoot, targetSources, grouped);
 }
 
 function groupJSDocProjections(
@@ -59,14 +69,17 @@ function groupJSDocProjections(
   return grouped;
 }
 
-function knownJSDocTargets(
+function collectJSDocTargetSources(
   repositoryRoot: string,
   grouped: ReadonlyMap<string, readonly JSDocProjection[]>
-): ReadonlyMap<string, JSDocTarget> {
+): JSDocTargetSources {
+  const sourcesByAbsolutePath = new Map<string, string>();
   const targets = new Map<string, JSDocTarget>();
+  const requestedSources = new Set<string>();
   for (const targetProjections of grouped.values()) {
     const target = targetProjections[0];
     if (target === undefined) throw new Error("package API JSDoc projection is missing its target");
+    requestedSources.add(resolve(repositoryRoot, target.sourcePath));
     targets.set(
       jsdocTargetKey(target.sourcePath, target.declarationName),
       Object.freeze({
@@ -75,50 +88,77 @@ function knownJSDocTargets(
       })
     );
   }
-  for (const target of discoverJSDocExampleTargets(repositoryRoot)) {
+  for (const target of discoverJSDocExampleTargets(
+    repositoryRoot,
+    (sourcePath, source, hasExampleMarker) => {
+      if (hasExampleMarker || requestedSources.has(sourcePath))
+        sourcesByAbsolutePath.set(sourcePath, source);
+    }
+  )) {
     const key = jsdocTargetKey(target.sourcePath, target.declarationName);
     if (!targets.has(key)) targets.set(key, target);
   }
-  return targets;
+  return { sourcesByAbsolutePath, targetsByKey: targets };
 }
 
 function renderJSDocTargetSources(
   repositoryRoot: string,
-  targets: ReadonlyMap<string, JSDocTarget>,
+  targetSources: JSDocTargetSources,
   grouped: ReadonlyMap<string, readonly JSDocProjection[]>
 ): readonly RenderedPackageApiFile[] {
-  const replacementsBySource = new Map<string, JSDocReplacement[]>();
-  for (const [key, target] of targets) {
+  const replacementsBySource = new Map<string, JSDocSourceReplacements>();
+  for (const [key, target] of targetSources.targetsByKey) {
     const sourcePath = repositoryFilePath(repositoryRoot, target.sourcePath);
-    const source = readText(sourcePath);
+    const sourceReplacements = replacementsBySource.get(sourcePath) ?? {
+      source: targetSources.sourcesByAbsolutePath.get(sourcePath) ?? readText(sourcePath),
+      replacements: []
+    };
     const replacement = renderJSDocTarget(
-      source,
+      sourceReplacements.source,
       sourcePath,
       target.declarationName,
       grouped.get(key) ?? []
     );
-    const replacements = replacementsBySource.get(sourcePath) ?? [];
-    replacements.push(replacement);
-    replacementsBySource.set(sourcePath, replacements);
+    sourceReplacements.replacements.push(replacement);
+    replacementsBySource.set(sourcePath, sourceReplacements);
   }
 
-  const jsdocSources = [...replacementsBySource].map(([absolutePath, replacements]) =>
-    Object.freeze({ absolutePath, content: applyJSDocReplacements(absolutePath, replacements) })
+  const jsdocSources = [...replacementsBySource].map(([absolutePath, { source, replacements }]) =>
+    Object.freeze({
+      absolutePath,
+      content: applyJSDocReplacements(source, replacements)
+    })
   );
   return Object.freeze(
     jsdocSources.sort((left, right) => left.absolutePath.localeCompare(right.absolutePath))
   );
 }
 
-function applyJSDocReplacements(
-  absolutePath: string,
-  replacements: readonly JSDocReplacement[]
-): string {
-  let content = readText(absolutePath);
-  for (const replacement of replacements.toSorted((left, right) => right.start - left.start)) {
-    content = `${content.slice(0, replacement.start)}${replacement.content}${content.slice(replacement.end)}`;
+function applyJSDocReplacements(source: string, replacements: readonly JSDocReplacement[]): string {
+  const replacementsDescendingByOffset = replacements.toSorted(
+    (left, right) => right.start - left.start
+  );
+  const hasOverlappingReplacements = replacementsDescendingByOffset.some(
+    (replacement, index) =>
+      index > 0 &&
+      replacement.end > (replacementsDescendingByOffset[index - 1]?.start ?? source.length)
+  );
+  // Distinct declarations can resolve to overlapping comments. Retain ordered replacement
+  // semantics in that case; only disjoint original-source ranges permit one-pass construction.
+  if (hasOverlappingReplacements) {
+    let content = source;
+    for (const replacement of replacementsDescendingByOffset)
+      content = `${content.slice(0, replacement.start)}${replacement.content}${content.slice(replacement.end)}`;
+    return content;
   }
-  return content;
+  const chunks: string[] = [];
+  let nextSourceOffset = 0;
+  for (const replacement of replacementsDescendingByOffset.toReversed()) {
+    chunks.push(source.slice(nextSourceOffset, replacement.start), replacement.content);
+    nextSourceOffset = replacement.end;
+  }
+  chunks.push(source.slice(nextSourceOffset));
+  return chunks.join("");
 }
 
 function renderJSDocTarget(

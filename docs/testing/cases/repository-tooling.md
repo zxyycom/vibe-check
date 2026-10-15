@@ -145,7 +145,7 @@ Entities:
 - `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown example targets`
   Proves:
 
-- The renderer projects each allowlisted TypeScript payload byte-for-byte into the unique TypeScript fence under its declared natural heading path, or into a source JSDoc target. Its explicit published API-document registry keeps README as the sole entry, directly links each registered deeper guide from that entry, and closes those guides without treating arbitrary Markdown as package material. Published Markdown keeps headings, surrounding prose and ordinary links without projection comments.
+- The renderer projects each allowlisted TypeScript payload byte-for-byte into the unique TypeScript fence under its declared natural heading path, or into a source JSDoc target. Its explicit published API-document registry keeps README as the sole entry, directly links each registered deeper guide from that entry, and closes those guides without treating arbitrary Markdown as package material. Published Markdown keeps headings, surrounding prose and ordinary links without projection comments; many disjoint targets preserve all surrounding bytes, and a payload's longest backtick run determines a safe enclosing fence.
 - The `project-changes` runtime example is registered against the API mechanics guide and demonstrates one Git revision/region, its `changeFlag("source")` protected condition, the callback-visible effective flag set, file-centric successful evidence, and honest unavailable fallback; it does not require the documentation consumer itself to be a Git repository in order to execute.
 - The Gate-building guide owns ten independently projected runtime regions, including separate text and JSON diagnostic adapters; its managed payloads exclude acceptance setup and assertions, and do not combine the scenarios into one Definition.
 - The registry and renderer reject duplicate source/region/target identities, unsafe JSDoc tails, malformed heading paths, missing or duplicate heading targets, ambiguous or unclosed example fences, and package example projection markers. Heading paths follow authored ancestry even when heading levels skip; removing a JSDoc target clears its obsolete managed tail.
@@ -162,7 +162,7 @@ Entities:
   Proves:
 
 - Repository-local JSON maps Markdown, Check guide and machine-material sources to package paths. Distinct source and destination paths remain intact through rendering, raw machine-byte collection and package-local Markdown link validation, including a relocated machine schema; the candidate fingerprint changes for configuration-byte changes.
-- The loader rejects unknown fields, non-canonical or out-of-scope source/package paths, duplicate targets and file/ancestor target conflicts with the corresponding diagnostic.
+- The loader rejects unknown fields, non-canonical or out-of-scope source/package paths, duplicate targets and file/ancestor target conflicts with the corresponding diagnostic. Both ancestor insertion orders reject the first conflicting input, while sibling paths sharing only a textual prefix remain legal.
 - Changes to the explicitly registered internal example-acceptance support bytes invalidate the artifact fingerprint, independently of Markdown mapping changes.
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
@@ -241,7 +241,7 @@ Entities:
 
 - The repository-material workflow uses an explicit reporter only for success summaries and returns provider-approved typed expected diagnostics without recovering Gate facts from thrown text. Its direct CLI and workspace caller write each failed diagnostic presentation to stderr and exit nonzero. Without a reporter, the in-process Gate path remains console-silent.
 - Empty collections, noncanonical data, duplicate IDs and unsafe one-line presentation fail before direct CLI presentation. The Gate adapter deliberately projects only its safe `{ id, data }` subset, so a direct-CLI-only unsafe presentation cannot suppress the corresponding failed Record or focused command message.
-- JSON, schema, examples and links own their task-local ID/data/presentation. The link fixture proves every missing local-link occurrence has canonical repository-relative source/target, line, column and occurrence, in deterministic source-location order.
+- JSON, schema, examples and links own their task-local ID/data/presentation. The link fixture proves every missing local-link occurrence has canonical repository-relative source/target, line, code-point column and occurrence, in deterministic source-location order, including repeated targets, skipped external occurrences and astral Unicode before multiple diagnostics.
 - Workspace JSON validation creates one independent Product Run with the public `jsonValidation` constructor; BOM, invalid UTF-8 and duplicate-key fixtures prove it does not silently fall back to `JSON.parse` semantics or invoke the Project Gate.
 
 ## Case AUX-REPOSITORY-LAYOUT-001: Repository layout preserves module ownership and dependency direction
@@ -595,7 +595,7 @@ Entities:
 
 - Private runner 只从 exact installed package public entry 消费 `AdmissionGraph` 与 learned helper；版本化 scenario 对 profile/task claim、policy registry、有限正数和图输入保持 closed validation，非法 public graph 与非法 policy 不会被静默替换为平台选择。
 - FNV-1a UTF-8 NUL tuple 与 mulberry32 让同一 seed/replicate 可复放，并使不同 policy 共享同一 task 外生 work；空图不调用 policy，事件循环覆盖回填、scope、mutex、weighted/multi-resource、同刻 canonical settlement 与 `unsatisfied` forced block。
-- 错误 evidence 保留已经发生的 boundary、virtual time、action-observation 和 trace prefix，并保留可可靠解析的 scenario/profile/policy/candidate identity；正式 policy context 只含 public graph/state、候选、capacity/runtime 与已关闭 action-observation prefix，不暴露 sampled/remaining work、PRNG 或完整 trace。
+- 错误 evidence 保留已经发生的 boundary、virtual time、action-observation 和 trace prefix，并保留可可靠解析的 scenario/profile/policy/candidate identity；正式 policy context 只含 public graph/state、候选、capacity/runtime 与已关闭 action-observation prefix，不暴露 sampled/remaining work、PRNG 或完整 trace。保留的旧 context 只可读取捕获时已关闭的 observation 前缀；负数、非整数及越界索引返回 undefined，累计 wait 与该前缀一致且不随后续执行改变。
 - static 是版本化的简单合法 baseline；learned prepared adapter 为每个 replicate 复制同一固定 history snapshot 到独占 absolute state directory，记录 projection/model/fallback identity，不调用 `complete`，且 history/setup 或非预期 prediction fallback 使比较失败。
 - makespan 与 slot·time、逐 named-resource unit·time 分开；四个调查 proxy profile 保留精确 median 与倍率且不冒充完整 Gate baseline，三档 contention/5.5x 长尾与 claimed-only Gate resource shape 都明确是合成或静态输入，virtual milliseconds 不等于 Gate timing。
 - CLI 成功 JSON 只写 stdout 或独占新建的显式文件；输入、已有目标、符号链接与 public graph failure 返回非零结构 evidence。运行 workbench 不调用 Gate entry、真实 Check 或 private Scheduler source。

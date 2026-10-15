@@ -35,16 +35,20 @@ export function advanceRunning(run: Run): void {
 function computeRates(run: Run): void {
   run.rates.clear();
   const alpha = contentionAlpha(run.scenario.contention);
+  let resourcesById:
+    | ReadonlyMap<string, Run["state"]["inspection"]["resources"][number]>
+    | undefined;
   for (const taskId of run.state.inspection.runningTaskIds) {
-    const task = run.scenario.graph.graph.tasks.find((candidate) => candidate.taskId === taskId);
+    const task = run.tasksById.get(taskId);
     if (task === undefined) {
       throw new SimulationFault("invalid-input", `running task is absent from graph: ${taskId}`);
     }
     let rate = 1;
     for (const claim of task.resourceClaims) {
-      const occupancy = run.state.inspection.resources.find(
-        ({ resourceId }) => resourceId === claim.resourceId
+      resourcesById ??= new Map(
+        run.state.inspection.resources.map((resource) => [resource.resourceId, resource])
       );
+      const occupancy = resourcesById.get(claim.resourceId);
       if (occupancy === undefined) {
         throw new SimulationFault(
           "invalid-input",

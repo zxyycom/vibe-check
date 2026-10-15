@@ -117,13 +117,16 @@ export function listTestCaseTopics(options: { workspaceRoot: string }): {
   topics: Array<TestCaseTopic & { cases: number }>;
 } {
   const catalog = loadTestCaseCatalog(options);
+  const caseCounts = new Map<string, number>();
+  for (const testCase of catalog.cases)
+    caseCounts.set(testCase.topic, (caseCounts.get(testCase.topic) ?? 0) + 1);
   return {
     schemaVersion: 1,
     status: status(catalog.diagnostics),
     diagnostics: catalog.diagnostics,
     topics: catalog.topics.map((topic) => ({
       ...topic,
-      cases: catalog.cases.filter((testCase) => testCase.topic === topic.id).length
+      cases: caseCounts.get(topic.id) ?? 0
     }))
   };
 }

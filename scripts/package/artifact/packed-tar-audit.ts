@@ -46,8 +46,13 @@ export function auditCandidateArtifact(input: {
     throw new Error(`candidate artifact digest changed for ${input.artifactPath}`);
   }
   const entries = readTarEntries(input.artifactPath);
-  assertTarPackageDocumentation(entries, input.expectedDocuments);
-  assertTarMachineMaterials(entries, input.expectedMachineMaterials);
+  // Keep the first entry, matching Array.find; the existing inventory/legal audits still reject
+  // duplicates in their original order rather than changing failure precedence here.
+  const entriesByPath = new Map<string, TarEntry>();
+  for (const entry of entries)
+    if (!entriesByPath.has(entry.path)) entriesByPath.set(entry.path, entry);
+  assertTarPackageDocumentation(entriesByPath, input.expectedDocuments);
+  assertTarMachineMaterials(entriesByPath, input.expectedMachineMaterials);
   assertTarInventory(entries, input.expectedFiles);
   assertTarCoreMaterials(entries, input);
 }
@@ -144,11 +149,11 @@ function requiredTarEntry(entries: readonly TarEntry[], path: string): TarEntry 
 }
 
 function assertTarMachineMaterials(
-  entries: readonly TarEntry[],
+  entriesByPath: ReadonlyMap<string, TarEntry>,
   materials: readonly PackageMachineMaterial[]
 ): void {
   for (const material of materials) {
-    const entry = entries.find((candidate) => candidate.path === `package/${material.packagePath}`);
+    const entry = entriesByPath.get(`package/${material.packagePath}`);
     if (entry === undefined || !entry.content.equals(material.content)) {
       throw new Error(`candidate artifact machine material differs: ${material.packagePath}`);
     }
@@ -156,11 +161,11 @@ function assertTarMachineMaterials(
 }
 
 function assertTarPackageDocumentation(
-  entries: readonly TarEntry[],
+  entriesByPath: ReadonlyMap<string, TarEntry>,
   documents: readonly PackageDocumentationFile[]
 ): void {
   for (const document of documents) {
-    const entry = entries.find((candidate) => candidate.path === `package/${document.packagePath}`);
+    const entry = entriesByPath.get(`package/${document.packagePath}`);
     if (entry === undefined || !entry.content.equals(Buffer.from(document.content, "utf8"))) {
       throw new Error(`candidate artifact package documentation differs: ${document.packagePath}`);
     }

@@ -28,6 +28,14 @@ interface CoreClosureInput {
   readonly violations: string[];
 }
 
+interface CoreClosureTraversal {
+  readonly options: ts.CompilerOptions;
+  readonly pending: string[];
+  readonly resolutionCache: ts.ModuleResolutionCache;
+  readonly root: string;
+  readonly violations: string[];
+}
+
 /** Traverses the declared Core roots and reports imports that escape the Core production closure. */
 export function validateCoreClosure(
   root: string,
@@ -38,11 +46,17 @@ export function validateCoreClosure(
     productionSourceFilesUnder(root, directory)
   );
   const visited = new Set<string>();
+  const resolutionCache = ts.createModuleResolutionCache(
+    root,
+    (path) => (ts.sys.useCaseSensitiveFileNames ? path : path.toLowerCase()),
+    options
+  );
+  const traversal: CoreClosureTraversal = { options, pending, resolutionCache, root, violations };
   while (pending.length > 0) {
     const sourcePath = pending.pop();
     if (sourcePath === undefined || visited.has(sourcePath)) continue;
     visited.add(sourcePath);
-    collectCoreDependencies(root, sourcePath, options, pending, violations);
+    collectCoreDependencies(traversal, sourcePath);
   }
   return [...visited].sort();
 }
@@ -63,13 +77,8 @@ export function validateCoreNoEmit(
   }
 }
 
-function collectCoreDependencies(
-  root: string,
-  sourcePath: string,
-  options: ts.CompilerOptions,
-  pending: string[],
-  violations: string[]
-): void {
+function collectCoreDependencies(traversal: CoreClosureTraversal, sourcePath: string): void {
+  const { options, pending, resolutionCache, root, violations } = traversal;
   const sourceFile = ts.createSourceFile(
     sourcePath,
     readFileSync(sourcePath, "utf8"),
@@ -86,7 +95,7 @@ function collectCoreDependencies(
   });
   const input: CoreClosureInput = { pending, repositoryPath, root, violations };
   for (const edge of edges) {
-    const resolution = resolveModule(root, sourcePath, edge.specifier, options);
+    const resolution = resolveModule(root, sourcePath, edge.specifier, options, resolutionCache);
     if (resolution === undefined) {
       violations.push(
         `package-tools-core-unresolved-import: ${repositoryPath} -> ${edge.specifier}`

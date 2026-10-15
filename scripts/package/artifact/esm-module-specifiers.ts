@@ -13,7 +13,10 @@ export function rewriteRelativeEsmModuleExtensions(input: {
   readonly fileName: string;
   readonly source: string;
 }): string {
-  return rewriteModuleSpecifierTokens(input.source, relativeJavaScriptSpecifierRanges(input));
+  return rewriteRelativeJavaScriptSpecifierTokens(
+    input.source,
+    relativeJavaScriptSpecifierRanges(input)
+  );
 }
 
 /**
@@ -63,24 +66,30 @@ function relativeJavaScriptSpecifierRanges(input: {
 }): readonly ModuleSpecifierRange[] {
   return relativeEsmModuleSpecifierRanges(input)
     .filter((specifier) => specifier.text.endsWith(".js"))
-    .sort((left, right) => right.start - left.start);
+    .sort((left, right) => left.start - right.start);
 }
 
-function rewriteModuleSpecifierTokens(
+function rewriteRelativeJavaScriptSpecifierTokens(
   source: string,
   replacements: readonly ModuleSpecifierRange[]
 ): string {
-  let rewritten = source;
+  const chunks: string[] = [];
+  let nextSourceOffset = 0;
   for (const specifier of replacements) {
-    rewritten = replaceModuleSpecifierToken(rewritten, specifier);
+    chunks.push(
+      source.slice(nextSourceOffset, specifier.start),
+      JSON.stringify(`${specifier.text.slice(0, -".js".length)}.mjs`)
+    );
+    nextSourceOffset = specifier.end;
   }
-  return rewritten;
+  chunks.push(source.slice(nextSourceOffset));
+  return chunks.join("");
 }
 
 function replaceModuleSpecifierToken(
   source: string,
   specifier: ModuleSpecifierRange,
-  replacement = `${specifier.text.slice(0, -".js".length)}.mjs`
+  replacement: string
 ): string {
   return `${source.slice(0, specifier.start)}${JSON.stringify(replacement)}${source.slice(specifier.end)}`;
 }

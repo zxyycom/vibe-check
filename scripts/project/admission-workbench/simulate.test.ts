@@ -73,17 +73,62 @@ describe("admission workbench", () => {
   });
 
   it("provides only formal context and a real captured action-observation prefix", () => {
-    const contexts: AdmissionPolicyContext[] = [];
+    const capturedContexts: Array<{
+      readonly context: AdmissionPolicyContext;
+      readonly observations: readonly ReturnType<
+        AdmissionPolicyContext["measurement"]["measurementAt"]
+      >[];
+      readonly cumulative: AdmissionPolicyContext["measurement"]["cumulative"];
+    }> = [];
     const result = simulate(FIXTURES.backfill, (context) => {
-      contexts.push(context);
+      capturedContexts.push({
+        context,
+        observations: Array.from({ length: context.measurement.measurementCount }, (_, index) =>
+          context.measurement.measurementAt(index)
+        ),
+        cumulative: structuredClone(context.measurement.cumulative)
+      });
       return staticPolicy(context);
     });
-    assert.ok(contexts.length >= 3);
-    const initial = contexts[0];
-    const later = contexts.find(({ measurement }) => measurement.measurementCount > 0);
+    assert.ok(capturedContexts.length >= 3);
+    const initial = capturedContexts[0]?.context;
+    const later = capturedContexts.find(
+      ({ context }) => context.measurement.measurementCount > 0
+    )?.context;
     assert.ok(initial !== undefined);
     assert.ok(later !== undefined);
     assert.equal(initial.measurement.measurementCount, 0);
+    for (const { context, cumulative, observations } of capturedContexts) {
+      const measurement = context.measurement;
+      assert.deepEqual(measurement.cumulative, cumulative);
+      assert.deepEqual(
+        Array.from({ length: measurement.measurementCount }, (_, index) =>
+          measurement.measurementAt(index)
+        ),
+        observations
+      );
+      for (const invalidIndex of [
+        -1,
+        measurement.measurementCount,
+        measurement.measurementCount + 1,
+        0.5,
+        NaN,
+        Infinity
+      ]) {
+        assert.equal(measurement.measurementAt(invalidIndex), undefined);
+      }
+      const expectedWaitMs = result.actionObservations
+        .slice(0, measurement.measurementCount)
+        .reduce(
+          (total, entry) =>
+            total +
+            (entry.interval.availability === "available"
+              ? entry.interval.contribution.acceptedWaitMs
+              : 0),
+          0
+        );
+      assert.equal(measurement.cumulative.timingFacts?.acceptedWaitMs, expectedWaitMs);
+    }
     assert.equal(later.measurement.cumulative.timing.availability, "available");
     const observation = later.measurement.measurementAt(0);
     assert.equal(observation?.kind, "select");

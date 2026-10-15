@@ -26,6 +26,27 @@ describe("emitted ESM module specifiers", () => {
       "../re-export.mjs",
       "./dynamic.mjs"
     ]);
+    const imports = Array.from(
+      { length: 128 },
+      (_, index) => `import { value as local${index} } from './module-${index}.js';`
+    );
+    const denseSource = [
+      "// imports must retain surrounding bytes",
+      ...imports,
+      "const text = './module-127.js';",
+      ""
+    ].join("\n");
+    assert.equal(
+      rewriteRelativeEsmModuleExtensions({ fileName: "dense.mjs", source: denseSource }),
+      [
+        "// imports must retain surrounding bytes",
+        ...imports.map((line, index) =>
+          line.replace(`'./module-${index}.js'`, `"./module-${index}.mjs"`)
+        ),
+        "const text = './module-127.js';",
+        ""
+      ].join("\n")
+    );
 
     const workerSource = [
       'const worker = new URL("./analyzer-worker.ts", import.meta.url).href;',

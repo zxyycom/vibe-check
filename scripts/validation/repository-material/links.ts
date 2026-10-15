@@ -27,7 +27,9 @@ interface LocalLinkOccurrence {
   readonly occurrence: number;
   readonly repositoryRoot: string;
   readonly sourcePath: string;
-  readonly text: string;
+  readonly locationAtUtf16Offset: (
+    offset: number
+  ) => Readonly<{ readonly column: number; readonly line: number }>;
 }
 
 /** Validates local Markdown path targets and reports only explicit successful completion. */
@@ -79,6 +81,7 @@ function collectFileLinkDiagnostics(
   const sourcePath = canonicalRepositoryRelativePath(repositoryRoot, filePath);
   const text = fs.readFileSync(filePath, "utf8");
   const diagnostics: MissingLocalLinkDiagnostic[] = [];
+  const locationAtUtf16Offset = createMonotoneMarkdownLocationLookup(text);
   let occurrence = 0;
   for (const match of text.matchAll(linkPattern)) {
     occurrence += 1;
@@ -88,7 +91,7 @@ function collectFileLinkDiagnostics(
       occurrence,
       repositoryRoot,
       sourcePath,
-      text
+      locationAtUtf16Offset
     });
     if (diagnostic !== undefined) diagnostics.push(diagnostic);
   }
@@ -101,7 +104,7 @@ function missingLocalLinkDiagnostic(
   const targetPath = missingLocalTargetPath(input);
   if (targetPath === undefined) return undefined;
 
-  const location = markdownLocation(input.text, input.match.index ?? 0);
+  const location = input.locationAtUtf16Offset(input.match.index ?? 0);
   return missingLocalLinkRecord(input, location, targetPath);
 }
 
@@ -195,16 +198,26 @@ function resolveLocalTarget(
   return canonicalRepositoryRelativePath(repositoryRoot, absoluteTarget);
 }
 
-function markdownLocation(
-  source: string,
-  offset: number
-): Readonly<{ readonly column: number; readonly line: number }> {
-  const before = source.slice(0, offset);
-  const lastNewline = before.lastIndexOf("\n");
-  return Object.freeze({
-    column: codePointLength(before.slice(lastNewline + 1)) + 1,
-    line: before.split("\n").length
-  });
+/** Missing occurrences arrive in source order; each preceding code point is visited at most once. */
+function createMonotoneMarkdownLocationLookup(
+  source: string
+): LocalLinkOccurrence["locationAtUtf16Offset"] {
+  let utf16Offset = 0;
+  let line = 1;
+  let column = 1;
+  return (offset) => {
+    while (utf16Offset < offset) {
+      const codePoint = source.codePointAt(utf16Offset);
+      if (codePoint === 10) {
+        line += 1;
+        column = 1;
+      } else {
+        column += 1;
+      }
+      utf16Offset += codePoint !== undefined && codePoint > 0xffff ? 2 : 1;
+    }
+    return Object.freeze({ column, line });
+  };
 }
 
 function compareDiagnostics(
@@ -219,12 +232,6 @@ function compareDiagnostics(
     leftData.location.column - rightData.location.column ||
     leftData.occurrence - rightData.occurrence
   );
-}
-
-function codePointLength(value: string): number {
-  let length = 0;
-  for (const _character of value) length += 1;
-  return length;
 }
 
 function canonicalRepositoryRelativePath(repositoryRoot: string, absolutePath: string): string;

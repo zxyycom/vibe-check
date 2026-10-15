@@ -8,6 +8,7 @@ import { validateFunctionMetricsAnalyzerBoundary } from "./function-metrics-anal
 import { relativePath, validateImportBoundaries } from "./import-boundaries.ts";
 import { validatePackageToolsBoundary } from "./package-tools-boundary.ts";
 import { validateProjectGateRoot } from "./project-gate-layout.ts";
+import type { ModuleSpecifierAnalysis } from "./module-specifier-analysis.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -66,13 +67,14 @@ export function validateRepositoryLayout(
     ...sourceFilesUnder(root, "scripts")
   ].sort();
   const violations: string[] = [];
+  const analysesBySourcePath = new Map<string, ModuleSpecifierAnalysis>();
 
   validateRetiredSourceDirectories(root, violations);
   validateProductOwners(root, violations);
   validateProjectGateRoot(root, violations);
   validateSourceNames(root, sourceFiles, violations);
-  validateImportBoundaries(root, sourceFiles, violations);
-  validateFunctionMetricsAnalyzerBoundary(root, sourceFiles, violations);
+  validateImportBoundaries(root, sourceFiles, violations, analysesBySourcePath);
+  validateFunctionMetricsAnalyzerBoundary(root, sourceFiles, violations, analysesBySourcePath);
   validatePackageToolsBoundary(root, violations);
   validatePackageArtifactEntry(root, violations);
 

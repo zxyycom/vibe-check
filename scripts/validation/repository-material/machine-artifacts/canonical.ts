@@ -22,7 +22,8 @@ export function isCanonicalText(values: readonly string[]): boolean {
  */
 export function canonicalJsonText(value: unknown): string | undefined {
   try {
-    return serializeCanonicalJson(value, new Set<object>());
+    const chunks: string[] = [];
+    return serializeCanonicalJson(value, new Set<object>(), chunks) ? chunks.join("") : undefined;
   } catch {
     return undefined;
   }
@@ -32,16 +33,19 @@ function digest(text: string): string {
   return createHash("sha256").update(text).digest("hex");
 }
 
-function serializeCanonicalJson(value: unknown, ancestors: Set<object>): string | undefined {
+function serializeCanonicalJson(value: unknown, ancestors: Set<object>, chunks: string[]): boolean {
   const primitive = serializeCanonicalPrimitive(value);
-  if (primitive !== undefined) return primitive;
-  if (value === null || typeof value !== "object") return undefined;
-  if (ancestors.has(value)) return undefined;
+  if (primitive !== undefined) {
+    chunks.push(primitive);
+    return true;
+  }
+  if (value === null || typeof value !== "object") return false;
+  if (ancestors.has(value)) return false;
   ancestors.add(value);
   try {
     return Array.isArray(value)
-      ? serializeArray(value, ancestors)
-      : serializeObject(value, ancestors);
+      ? serializeArray(value, ancestors, chunks)
+      : serializeObject(value, ancestors, chunks);
   } finally {
     ancestors.delete(value);
   }
@@ -54,42 +58,57 @@ function serializeCanonicalPrimitive(value: unknown): string | undefined {
   return JSON.stringify(Object.is(value, -0) ? 0 : value);
 }
 
-function serializeArray(value: readonly unknown[], ancestors: Set<object>): string | undefined {
-  if (Object.getPrototypeOf(value) !== Array.prototype) return undefined;
-  if (Object.getOwnPropertySymbols(value).length > 0) return undefined;
+function serializeArray(
+  value: readonly unknown[],
+  ancestors: Set<object>,
+  chunks: string[]
+): boolean {
+  if (Object.getPrototypeOf(value) !== Array.prototype) return false;
+  if (Object.getOwnPropertySymbols(value).length > 0) return false;
   const names = Object.getOwnPropertyNames(value);
   if (
     names.length !== value.length + 1 ||
     names.some((name, index) => name !== `${index}` && name !== "length")
   ) {
-    return undefined;
+    return false;
   }
-  const values: string[] = [];
+  chunks.push("[");
   for (let index = 0; index < value.length; index += 1) {
     const descriptor = Object.getOwnPropertyDescriptor(value, `${index}`);
-    if (descriptor === undefined || !Object.hasOwn(descriptor, "value")) return undefined;
-    const text = serializeCanonicalJson(descriptor.value, ancestors);
-    if (text === undefined) return undefined;
-    values.push(text);
+    if (descriptor === undefined || !Object.hasOwn(descriptor, "value")) return false;
+    if (index > 0) chunks.push(",");
+    if (!serializeCanonicalJson(descriptor.value, ancestors, chunks)) return false;
   }
-  return `[${values.join(",")}]`;
+  chunks.push("]");
+  return true;
 }
 
-function serializeObject(value: object, ancestors: Set<object>): string | undefined {
+function serializeObject(value: object, ancestors: Set<object>, chunks: string[]): boolean {
+  const keys = canonicalObjectKeys(value);
+  if (keys === undefined) return false;
+  chunks.push("{");
+  let isFirstEntry = true;
+  for (const key of keys) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (descriptor === undefined) return false;
+    if (!Object.hasOwn(descriptor, "value")) return false;
+    if (!isFirstEntry) chunks.push(",");
+    isFirstEntry = false;
+    chunks.push(JSON.stringify(key), ":");
+    if (!serializeCanonicalJson(descriptor.value, ancestors, chunks)) return false;
+  }
+  chunks.push("}");
+  return true;
+}
+
+/** Validates the object container and ordered keys before serializing its entries. */
+function canonicalObjectKeys(value: object): readonly string[] | undefined {
   const prototype: unknown = Object.getPrototypeOf(value);
   if (prototype !== null && prototype !== Object.prototype) return undefined;
   if (Object.getOwnPropertySymbols(value).length > 0) return undefined;
   const keys = Object.keys(value).sort(compareText);
   if (keys.length !== Object.getOwnPropertyNames(value).length) return undefined;
-  const entries: string[] = [];
-  for (const key of keys) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    if (descriptor === undefined || !Object.hasOwn(descriptor, "value")) return undefined;
-    const text = serializeCanonicalJson(descriptor.value, ancestors);
-    if (text === undefined) return undefined;
-    entries.push(`${JSON.stringify(key)}:${text}`);
-  }
-  return `{${entries.join(",")}}`;
+  return keys;
 }
 
 function compareText(left: string, right: string): number {
