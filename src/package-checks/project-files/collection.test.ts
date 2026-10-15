@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { describe, it } from "node:test";
 
@@ -12,13 +12,48 @@ import {
   defaultProjectFileSelection,
   snapshotDefaultProjectFileSelection
 } from "./configuration.ts";
-
-function write(root: string, file: string): void {
-  fs.mkdirSync(dirname(join(root, file)), { recursive: true });
-  fs.writeFileSync(join(root, file), "content\n");
-}
+import {
+  measurePrefixCopies,
+  nativePatternFiles,
+  nativePatternLists,
+  observeCollectionAccesses,
+  write
+} from "./collection.test-support.ts";
 
 describe("quality input file collection", () => {
+  it("shares deep ancestor pruning without copying segment prefixes", () => {
+    const root = fs.mkdtempSync(join(tmpdir(), "collection-deep-prune-"));
+    const segments = ["prefix-cost", ...Array.from({ length: 24 }, (_, index) => `d${index}`)];
+    const file = `${segments.join("/")}/file.ts`;
+    try {
+      write(root, file);
+      const { value: sets, copiedPrefixSlots } = measurePrefixCopies(() => {
+        const selected = collectProjectFileSets(root, {
+          included: { patterns: ["**/*", "!**/absent/**"], useDefaultExcludes: false },
+          outer: { patterns: ["**/*", "!prefix-cost/d0/**"], useDefaultExcludes: false },
+          inner: { patterns: ["**/*", "!prefix-cost/d0/d1/**"], useDefaultExcludes: false }
+        });
+        assert.deepEqual(
+          collectProjectFileSets(root, {
+            outer: { patterns: ["**/*", "!prefix-cost/d0/**"], useDefaultExcludes: false },
+            inner: { patterns: ["**/*", "!prefix-cost/d0/d1/**"], useDefaultExcludes: false }
+          }),
+          new Map([
+            ["inner", []],
+            ["outer", []]
+          ])
+        );
+        return selected;
+      });
+      assert.deepEqual(sets.get("included"), [file]);
+      assert.deepEqual(sets.get("outer"), []);
+      assert.deepEqual(sets.get("inner"), []);
+      assert.equal(copiedPrefixSlots, 0);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("enumerates the filesystem independently of Git ignore rules", () => {
     const root = fs.mkdtempSync(join(tmpdir(), "collection-git-"));
     const originalPath = process.env.PATH;
@@ -130,39 +165,10 @@ describe("quality input file collection", () => {
 
   it("matches native complete lists consistently for collection and explicit paths", () => {
     const root = fs.mkdtempSync(join(tmpdir(), "collection-patterns-"));
-    const files = [
-      ".entry",
-      "src/.dot.ts",
-      "src/Safe_1-2.ts",
-      "src/a.ts",
-      "src/b.tsx",
-      "docs/a.md",
-      "docs/a b.md",
-      "src/référence.ts",
-      "src/square[1].ts",
-      "src/line\nbreak.ts"
-    ];
+    const files = nativePatternFiles;
     try {
       for (const file of files) write(root, file);
-      for (const patterns of [
-        ["src/a.ts", "src/.dot.ts", "src/a.ts", "src/Safe_1-2.ts", ".entry"],
-        ["src/référence.ts"],
-        ["docs/a b.md"],
-        ["src/square[[]1].ts"],
-        ["src//a.ts"],
-        ["src/**/*.{ts,tsx}", "!src/a.ts", "src/a.ts"],
-        ["src/**/@(a|b).@(ts|tsx)"],
-        ["!docs/**"],
-        ["**/*", "!src/**"],
-        ["**/*", "!src/**", "src/a.ts"],
-        ["!src/**", "!!src/**"],
-        ["!(docs)/**"],
-        ["./!(docs)/**"],
-        ["./src/*.ts"],
-        ["./src/a.ts"],
-        ["./src/*.ts", "!src/a.ts", "./src/a.ts"],
-        []
-      ]) {
+      for (const patterns of nativePatternLists) {
         const expected = files.filter((file) => matchesConfigPatterns(file, patterns)).sort();
         assert.deepEqual(
           collectProjectFiles(root, { patterns, useDefaultExcludes: false }),
@@ -213,40 +219,29 @@ describe("quality input file collection", () => {
 
   it("prunes excluded task bases and static paths before inspection", () => {
     const root = fs.mkdtempSync(join(tmpdir(), "collection-prune-"));
-    const originalStat = fs.lstatSync,
-      originalRead = fs.readdirSync;
-    const accesses: string[] = [];
     try {
       for (const file of ["src/a.ts", "blocked/a.ts", "node_modules/a.ts"]) write(root, file);
-      Reflect.set(fs, "lstatSync", (target: fs.PathLike) => {
-        accesses.push(resolve(String(target)));
-        return originalStat(target);
+      observeCollectionAccesses((accesses) => {
+        for (const patterns of [
+          ["blocked/**/*.ts", "!blocked/**"],
+          ["blocked/a.ts", "!blocked/**"],
+          ["node_modules/**/*.ts"],
+          ["node_modules/a.ts", "!node_modules/**", "node_modules/a.ts"]
+        ]) {
+          accesses.length = 0;
+          assert.deepEqual(
+            collectProjectFileSets(root, { selected: { patterns }, empty: { patterns: [] } }).get(
+              "selected"
+            ),
+            []
+          );
+          assert.deepEqual(
+            accesses.filter((target) => target !== root),
+            []
+          );
+        }
       });
-      Reflect.set(fs, "readdirSync", (target: fs.PathLike, options: { withFileTypes: true }) => {
-        accesses.push(resolve(String(target)));
-        return originalRead(target, options);
-      });
-      for (const patterns of [
-        ["blocked/**/*.ts", "!blocked/**"],
-        ["blocked/a.ts", "!blocked/**"],
-        ["node_modules/**/*.ts"],
-        ["node_modules/a.ts", "!node_modules/**", "node_modules/a.ts"]
-      ]) {
-        accesses.length = 0;
-        assert.deepEqual(
-          collectProjectFileSets(root, { selected: { patterns }, empty: { patterns: [] } }).get(
-            "selected"
-          ),
-          []
-        );
-        assert.deepEqual(
-          accesses.filter((target) => target !== root),
-          []
-        );
-      }
     } finally {
-      Reflect.set(fs, "lstatSync", originalStat);
-      Reflect.set(fs, "readdirSync", originalRead);
       fs.rmSync(root, { recursive: true, force: true });
     }
   });

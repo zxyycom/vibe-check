@@ -20,11 +20,16 @@ private `collectProjectFileSets(root, selections)` 在一个 Check 本次操作�
 `[A-Za-z0-9_.-]+` 且不是 `.` / `..`、pattern 长度不超过当前原生 parser 可接受范围时使用字面 Set membership；
 复杂语法、`./`、空 segment、超长 pattern 和其它字符仍交给完整原生列表 matcher，保留原有错误时点与上下文。
 固定默认数组全为正 pattern，首次实际需要默认层判断时在本次操作内以同一参数编译，随后复用正列表 OR；
-此层仍独立于用户重新包含。谓词不跨收集调用保留，不改变获取与 inspection 顺序；最终批次选择仍使用完整 micromatch 列表。
+此层仍独立于用户重新包含。谓词不跨收集调用保留，不改变获取与 inspection 顺序。共同批次选择在同一狭义 literal
+列表且 candidates 都是 normalized project-relative paths 时，以 candidate Set 按 pattern 首次出现顺序输出交集，
+保持原生正列表的顺序与去重；其它输入仍使用完整 micromatch 列表。此分支不改固定默认层、获取失败或原生错误时点。
 
 ### 访问剪枝与失败
 
 fs adapter 在 task base、静态路径及目录下沉前检查本次全部 selections：全部无需求才剪枝，空 selection 不制造需求，无法证明时继续访问。安全用户子树剪枝限末段负规则的整子树排除；不重建递归引擎，不把用户负规则永久下发为 fast-glob ignore。混合开关保持各自候选与输出。
+
+祖先检查按 slash offset 构造前缀并供全部 policies 共用，不反复 split、slice、join 增长的 segment 数组。
+每个 policy 可以由不同祖先证明排除，仍须全部 policy 无需求才能剪枝；prefix 字符总长度与 matcher 工作仍按实际输入承担。
 
 root 即使空 patterns 也必须是真实可读目录。glob 起点在父目录枚举中不存在时是无匹配；已观察到的必要路径 inspection/read 失败（含消失的 ENOENT）翻译为带绝对目标与 cause 的普通 Error，防止库吞掉真实错误。policy 跳过才允许 synthetic ENOENT。task 起点与静态后代验证路径分量，不能绕过目录链接的 no-follow。共享状态 operation-local，不承诺文件内容/原子快照或恶意并发替换隔离。
 

@@ -85,6 +85,7 @@ Owner: `docs/guides/collecting-project-files.md#共享的-files-选择语义`
 Entities:
 
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > matches native complete lists consistently for collection and explicit paths`
+- `bun|src/data-boundary/config-glob.test.ts|config path selection > preserves native batch order and fallback while indexing safe literal lists`
 - `bun|src/project-run/changes/git.test.ts|Project Run Git changes > uses native pattern lists for regions without collection default exclusions`
 - `bun|src/data-boundary/project-file-region-index.test.ts|project file-region index > matches complete native lists including explicit default-excluded and nonexistent paths`
   Proves:
@@ -92,6 +93,7 @@ Entities:
 - Run 对真实 Git delta 采用同一完整列表语义，支持 dot/brace/extglob/负-only/重新包含/空列表；build changed path 不套扫描默认排除。
 - 扫描前不存在的静态和动态 glob 起点是合法无匹配。
 - Core 对值文件域使用同一原生参数与列表语义，支持 brace/extglob/negative-only/reinclude/dot/大小写/换行路径和动态 ./ pattern；显式 build 文件不被默认排除。
+- 狭义字面路径列表与规范化候选的批次结果，保留固定版本原生 matcher 的 pattern 首现顺序及去重；复杂或未规范化输入、超长 pattern 保留原生结果或错误。操作量检查证明字面列表选择绕过逐 pattern×candidate 的原生正则比较。
 
 ## Case COLLECTION-PATH-IDENTITY-001: Selected pathname 保留真实身份
 
@@ -111,10 +113,12 @@ Owner: `docs/development/project-files.md#file-collection-mechanism`
 Entities:
 
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > prunes excluded task bases and static paths before inspection`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > shares deep ancestor pruning without copying segment prefixes`
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > distinguishes necessary access failures and disappearing directories from no-match`
   Proves:
 - 已证明无需求的 task base、静态路径和默认排除子树在 inspection/read 之前跳过，空 selection 不阻挡剪枝。
 - 范围外真实不可读目录不导致失败；范围内 EACCES 和已观察目录消失的 ENOENT 抛带路径 Error，不返回 partial 或成功空集合。
+- 多份 policy 可分别由不同祖先的排除规则证明无需求，只有全部 policy 均无需求才剪枝；深路径操作量检查证明前缀构造不再 slice/join 增长的 segment 数组。
 
 ## Case COLLECTION-NO-FOLLOW-001: 链接不成为普通候选
 

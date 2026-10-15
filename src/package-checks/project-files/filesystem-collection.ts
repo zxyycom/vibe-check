@@ -5,15 +5,17 @@ import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import type { FileSystemAdapter } from "fast-glob";
 import micromatch from "micromatch";
 
-import { CONFIG_GLOB_OPTIONS, matchesConfigPatterns } from "../../data-boundary/config-glob.ts";
+import {
+  CONFIG_GLOB_OPTIONS,
+  literalConfigPathSet,
+  matchesConfigPatterns
+} from "../../data-boundary/config-glob.ts";
 import { errorMessage } from "../host-environment/error-message.ts";
 import { DEFAULT_PROJECT_FILE_EXCLUDES } from "./configuration.ts";
 import type { ProjectFileSelection } from "./configuration.ts";
 
 type SubtreePruner = (path: string) => boolean;
 type SelectedPathPredicate = (path: string) => boolean;
-// micromatch 4.0.8's picomatch parser rejects longer patterns; preserve its error timing/context.
-const MAX_NATIVE_PATTERN_LENGTH = 64 * 1024;
 interface CollectionEntry extends fs.Dirent {
   readonly mayBeDirectory: boolean;
   getStats(): fs.Stats;
@@ -25,7 +27,7 @@ interface CollectionDirectory {
   readonly entriesByName: ReadonlyMap<string, readonly CollectionEntry[]>;
 }
 
-/** Acquisition is a superset; only the common native list matcher decides membership. */
+/** Acquisition is a superset; only the common list semantics decide membership. */
 export function collectionCandidatePatterns(selections: readonly ProjectFileSelection[]): string[] {
   const patterns = selections.flatMap((selection) => {
     const nonempty = selection.patterns.filter((pattern) => pattern !== "");
@@ -234,16 +236,27 @@ function createSubtreePruner(selections: readonly ProjectFileSelection[]): Subtr
       micromatch.matcher(pattern, CONFIG_GLOB_OPTIONS)
     )
   }));
-  return (path) =>
-    path !== "" &&
-    policies.every(
-      ({ isEmpty, excludes }) =>
-        isEmpty ||
-        path.split("/").some((_, index, parts) => {
-          const prefix = parts.slice(0, index + 1).join("/");
-          return excludes.some((matches) => matches(prefix));
-        })
-    );
+  return (path) => {
+    if (path === "") return false;
+    // Share lazily constructed ancestors while retaining policy/matcher order
+    // and short-circuiting. Different policies may exclude different ancestors.
+    const prefixes: string[] = [];
+    let nextEnd = path.indexOf("/");
+    return policies.every(({ isEmpty, excludes }) => {
+      if (isEmpty) return true;
+      if (excludes.length === 0) return false;
+      for (let index = 0; ; index += 1) {
+        let prefix = prefixes[index];
+        if (prefix === undefined) {
+          prefix = nextEnd === -1 ? path : path.slice(0, nextEnd);
+          prefixes.push(prefix);
+          if (nextEnd !== -1) nextEnd = path.indexOf("/", nextEnd + 1);
+        }
+        if (excludes.some((matches) => matches(prefix))) return true;
+        if (prefix === path) return false;
+      }
+    });
+  };
 }
 
 function subtreeExclusions(selection: ProjectFileSelection): readonly string[] {
@@ -296,16 +309,10 @@ function createSelectedPathPredicate(
 function createUserPathPredicate(patterns: readonly string[]): SelectedPathPredicate {
   // This deliberately narrow alphabet excludes glob, negation and escape syntax. Keep ./,
   // non-normalized segments and every other spelling on the complete native-list path.
-  const allLiteralPaths = patterns.every(
-    (pattern) =>
-      pattern.length <= MAX_NATIVE_PATTERN_LENGTH &&
-      pattern
-        .split("/")
-        .every((part) => /^[A-Za-z0-9_.-]+$/u.test(part) && part !== "." && part !== "..")
-  );
-  if (!allLiteralPaths) return (path) => matchesConfigPatterns(path, patterns);
-  const literalPaths = new Set(patterns);
-  return (path) => literalPaths.has(path);
+  const literalPaths = literalConfigPathSet(patterns);
+  return literalPaths === undefined
+    ? (path) => matchesConfigPatterns(path, patterns)
+    : (path) => literalPaths.has(path);
 }
 
 function isListNegative(pattern: string): boolean {

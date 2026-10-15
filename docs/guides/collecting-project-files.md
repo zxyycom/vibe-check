@@ -24,7 +24,7 @@ if (!Object.isFrozen(selectedPaths)) {
 
 selection 使用 `{ patterns, useDefaultExcludes?: boolean }`。`patterns` 是相对 project root、使用 `/` 的完整 micromatch 4.0.8 原生正/负列表。点号路径参与匹配；brace、extglob、globstar 和大小写敏感语义由同一后端解释。固定参数为 `dot: true`、`matchBase: false`、`nobrace: false`、`nocase: false`、`noext: false`、`noglobstar: false`、`posix: true`、`strictSlashes: false`。
 
-原生列表可以用 `!` 排除；后续正 pattern 可以重新包含用户负规则排除的路径。只有负规则的列表选择相应补集；空数组始终不选择路径。所有规则整体交给同一个 matcher，不对单个负 pattern 做 any 匹配。
+原生列表可以用 `!` 排除；后续正 pattern 可以重新包含用户负规则排除的路径。只有负规则的列表选择相应补集；空数组始终不选择路径。所有规则遵循同一完整列表语义，不对单个负 pattern 做 any 匹配。
 
 `useDefaultExcludes` 省略或 `true` 启用固定防呆层，只有 `false` 关闭，其它类型拒绝。最终范围是用户列表结果减去启用的默认排除；用户包含、重新包含或排列规则都不能绕过这一层。关闭仅移除默认数组，用户负规则、eligibility 与内容安全仍生效。
 
