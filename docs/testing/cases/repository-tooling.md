@@ -23,6 +23,7 @@ Entities:
 
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > packages approved docs and machine materials`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits documented public declarations`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > indexes adjacent Chinese JSDoc for each exported declaration`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits a readable ESM runtime layout and exact exports`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the audited production dependency set`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the approved distribution and discovery contract`
@@ -30,9 +31,11 @@ Entities:
 - `bun|scripts/package/artifact/manifest.test.ts|release manifest reader does not leak the caller's repository root`
 - `bun|scripts/package/artifact/manifest.test.ts|release manifest bytes invalidate the candidate fingerprint`
 - `bun|scripts/package/legal-materials.test.ts|package legal materials > fails closed in the translated-analyzer audit phase order`
-  Proves:
+
+Proves:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
+- Every name in the public declaration inventory has an exported declaration with adjacent Chinese JSDoc. Documentation from an earlier declaration, a non-JSDoc comment, an English-only comment or an unclosed comment cannot supply that adjacency.
 - The checked-in release manifest is the stable authoring owner; local/formal builds project only its version from an explicit repository root, while source and projection audits remain closed. The projected manifest uses the user-scoped `@zxyycom/vibe-check` identity and carries the fixed general-purpose quality-gate discovery description and keywords, the complete `MIT AND Apache-2.0 AND BSD-2-Clause` expression, Vibe Check's exact MIT text and `zxyycom` notice, minimum Node engine `>=24.18` without an unverified upper bound, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, Bun engine, or subpath export.
 - The byte-level allowlist carries `docs/output.md`, both current v4 schemas, the single definition-backed `mixed-outcomes` artifact set, upstream Lizard/Pygments license and provenance material, and the non-public emitted function-metrics Worker. It has one `licenses` material root with no parallel `third-party-licenses`, excludes historical or analyzer fixture material, and does not publish a root `THIRD_PARTY_NOTICES.md`.
 - The scoped `licenses/analyzer-translations-NOTICE.md` is copied from its repository source rather than generated from fixed narrative phrases. Material acceptance compares actual source/staging/tar/installed notice bytes while preserving the independent provenance and three upstream-license identity pins.

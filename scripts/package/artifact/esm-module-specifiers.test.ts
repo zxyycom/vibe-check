@@ -54,13 +54,25 @@ describe("emitted ESM module specifiers", () => {
   });
 
   it("rejects malformed emitted JavaScript before artifact normalization", () => {
-    assert.throws(
-      () =>
-        relativeEsmModuleSpecifiers({
-          fileName: "malformed.mjs",
-          source: 'import "./unfinished.js'
-        }),
-      /could not parse emitted ESM module malformed\.mjs/
-    );
+    for (const source of [
+      'import "./unfinished.js',
+      "export {",
+      "const value = ;",
+      'const value = "unfinished;',
+      "function value( {",
+      "/* unfinished",
+      'const worker = new URL("./analyzer-worker.ts", import.meta.url);\nimport "./broken.js'
+    ]) {
+      for (const normalize of [
+        relativeEsmModuleSpecifiers,
+        rewriteRelativeEsmModuleExtensions,
+        rewriteFunctionMetricsWorkerUrl
+      ]) {
+        assert.throws(
+          () => normalize({ fileName: "malformed.mjs", source }),
+          /could not parse emitted ESM module malformed\.mjs/
+        );
+      }
+    }
   });
 });

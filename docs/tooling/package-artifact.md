@@ -44,4 +44,7 @@ staging、tarball 与 installed candidate 核对 packaged material，并闭合 s
 
 artifact audit 在 pack 前验证根入口、公开运行时导出、可解析的相对 `.mjs` 引用、源码映射与 package 源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
 
+每次 ESM 范围提取或 Worker URL 处理只解析当前原文一次，语法诊断与结构遍历复用该 AST；诊断阶段只检查语法。
+公开声明验收按文件收集相邻中文 JSDoc，再完整核验公开清单；语言要求由[编码规范](../development/coding-style.md#64-package-对外说明含显式随包用户-markdown-与任务专题以中文叙述为主)拥有。
+
 文档内容与随包范围由[文档材料 registries](documentation.md#documentation-validation-and-package-material)拥有，不由 artifact audit 另建清单。修改 artifact 后先运行相邻测试，再用 `bun run check -- --all` 验证同一产物及 installed consumer。

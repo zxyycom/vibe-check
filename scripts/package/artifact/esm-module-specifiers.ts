@@ -1,3 +1,5 @@
+import { resolve } from "node:path";
+
 import * as ts from "typescript";
 
 interface ModuleSpecifierRange {
@@ -26,14 +28,7 @@ export function rewriteFunctionMetricsWorkerUrl(input: {
   readonly fileName: string;
   readonly source: string;
 }): string {
-  assertValidEmittedJavaScript(input);
-  const sourceFile = ts.createSourceFile(
-    input.fileName,
-    input.source,
-    ts.ScriptTarget.Latest,
-    false,
-    ts.ScriptKind.JS
-  );
+  const sourceFile = parseEmittedJavaScript(input);
   const matches: ModuleSpecifierRange[] = [];
   const visit = (node: ts.Node): void => {
     if (isFunctionMetricsWorkerUrl(node)) {
@@ -102,14 +97,7 @@ function relativeEsmModuleSpecifierRanges(input: {
   readonly fileName: string;
   readonly source: string;
 }): readonly ModuleSpecifierRange[] {
-  assertValidEmittedJavaScript(input);
-  const sourceFile = ts.createSourceFile(
-    input.fileName,
-    input.source,
-    ts.ScriptTarget.Latest,
-    false,
-    ts.ScriptKind.JS
-  );
+  const sourceFile = parseEmittedJavaScript(input);
   const specifiers: ModuleSpecifierRange[] = [];
   const visit = (node: ts.Node): void => {
     const moduleSpecifier = esmModuleSpecifier(node);
@@ -128,22 +116,42 @@ function relativeEsmModuleSpecifierRanges(input: {
   return Object.freeze(specifiers);
 }
 
-function assertValidEmittedJavaScript(input: {
+/** Validates syntax and returns that same AST; no dependency resolution, typecheck or emit is needed. */
+function parseEmittedJavaScript(input: {
   readonly fileName: string;
   readonly source: string;
-}): void {
-  const diagnostic = ts
-    .transpileModule(input.source, {
-      compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext },
-      fileName: input.fileName,
-      reportDiagnostics: true
-    })
-    .diagnostics?.find((item) => item.category === ts.DiagnosticCategory.Error);
+}): ts.SourceFile {
+  const fileName = resolve(input.fileName).replaceAll("\\", "/");
+  const sourceFile = ts.createSourceFile(
+    fileName,
+    input.source,
+    ts.ScriptTarget.Latest,
+    false,
+    ts.ScriptKind.JS
+  );
+  const options: ts.CompilerOptions = {
+    allowJs: true,
+    module: ts.ModuleKind.ESNext,
+    noEmit: true,
+    noLib: true,
+    noResolve: true,
+    target: ts.ScriptTarget.ESNext,
+    types: []
+  };
+  const host = ts.createCompilerHost(options);
+  host.getSourceFile = (requestedPath) => (requestedPath === fileName ? sourceFile : undefined);
+  host.fileExists = (requestedPath) => requestedPath === fileName;
+  host.readFile = (requestedPath) => (requestedPath === fileName ? input.source : undefined);
+  const program = ts.createProgram([fileName], options, host);
+  const diagnostic = program
+    .getSyntacticDiagnostics(sourceFile)
+    .find((item) => item.category === ts.DiagnosticCategory.Error);
   if (diagnostic !== undefined) {
     throw new Error(
       `could not parse emitted ESM module ${input.fileName}: ${ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`
     );
   }
+  return sourceFile;
 }
 
 function esmModuleSpecifier(node: ts.Node): ts.StringLiteral | undefined {

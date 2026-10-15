@@ -112,6 +112,33 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     assertEmittedPublicDocumentation(artifact.stagingDirectory);
   });
 
+  it("indexes adjacent Chinese JSDoc for each exported declaration", () => {
+    const documentedNames = documentedDeclarationNames([
+      "/** 中文说明 */\nexport declare const Constant: number;",
+      "/** @remarks 中文说明 */\nexport declare function Function<T>(): T;",
+      "/** 中文说明 */\texport interface Interface {}",
+      "/** 中文说明 */ export type Type = string;",
+      "/** 中文说明 */ export declare function Repeated(value: string): string;\n/** 中文说明 */ export declare function Repeated(value: number): number;",
+      "/** 中文说明 */ const internal = 0;\nexport type Detached = string;",
+      "/** 中文说明 */\n/** English only */\nexport type English = string;",
+      "/* 中文普通注释 */\nexport type OrdinaryComment = string;",
+      "/** 中文未闭合 export type Unclosed = string;",
+      "/** 中文说明 */ export type TypeSuffix = string;"
+    ]);
+    assert.deepEqual([...documentedNames].sort(), [
+      "Constant",
+      "Function",
+      "Interface",
+      "Repeated",
+      "Type",
+      "TypeSuffix"
+    ]);
+    assert.equal(
+      documentedDeclarationNames(["/** English only */ export type Type = string;"]).has("Type"),
+      false
+    );
+  });
+
   it("emits a readable ESM runtime layout and exact exports", { timeout: 20_000 }, async () => {
     const { artifact } = await fixture();
     assert.equal(artifact.files.includes("package/dist/esm/index.mjs"), true);
@@ -241,9 +268,10 @@ function assertEmittedPublicDocumentation(stagingDirectory: string): void {
     ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.types)
   ];
+  const documentedNames = documentedDeclarationNames(declarations);
   for (const publicRoot of publicRoots) {
     assert.equal(
-      declarations.some((source) => hasAdjacentChineseJSDoc(source, publicRoot)),
+      documentedNames.has(publicRoot),
       true,
       `emitted declaration is missing adjacent Chinese JSDoc for ${publicRoot}`
     );
@@ -328,12 +356,20 @@ function readFilePaths(root: string): readonly string[] {
   return Object.freeze(paths);
 }
 
-function hasAdjacentChineseJSDoc(source: string, declarationName: string): boolean {
-  const escapedName = declarationName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(
-    `/\\*\\*(?:(?!\\*\\/)[\\s\\S])*?[\\u3400-\\u9fff](?:(?!\\*\\/)[\\s\\S])*?\\*\\/\\s*export(?:\\s+declare)?\\s+(?:const|function|interface|type)\\s+${escapedName}\\b`
-  );
-  return pattern.test(source);
+/** Scans each emitted declaration once; only the immediately preceding JSDoc supplies its language. */
+function documentedDeclarationNames(sources: readonly string[]): ReadonlySet<string> {
+  const names = new Set<string>();
+  const declarationPattern =
+    /\s*export(?:\s+declare)?\s+(?:const|function|interface|type)\s+([A-Za-z_$][\w$]*)/y;
+  for (const source of sources) {
+    for (const comment of source.matchAll(/\/\*\*[\s\S]*?\*\//gu)) {
+      if (!/[\u3400-\u9fff]/u.test(comment[0])) continue;
+      declarationPattern.lastIndex = comment.index + comment[0].length;
+      const declarationName = declarationPattern.exec(source)?.[1];
+      if (declarationName !== undefined) names.add(declarationName);
+    }
+  }
+  return names;
 }
 
 function candidateDependencies(stagingDirectory: string): unknown {
