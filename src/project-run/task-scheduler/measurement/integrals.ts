@@ -38,21 +38,22 @@ export class SchedulerPerformanceIntegrals {
     pendingTasks: readonly AdmissionViablePendingTask[],
     timingAvailable: boolean
   ): void {
+    const counts = pendingCounts(pendingTasks);
     this.#peakAdmissionViablePendingTaskCount = Math.max(
       this.#peakAdmissionViablePendingTaskCount,
       pendingTasks.length
     );
     this.#peakMutexBlockedTaskCount = Math.max(
       this.#peakMutexBlockedTaskCount,
-      pendingCount(pendingTasks, "mutex-blocked")
+      counts.mutexBlocked
     );
     this.#peakCapacityBlockedTaskCount = Math.max(
       this.#peakCapacityBlockedTaskCount,
-      pendingCount(pendingTasks, "capacity-blocked")
+      counts.capacityBlocked
     );
     this.#peakAdmissiblePendingTaskCount = Math.max(
       this.#peakAdmissiblePendingTaskCount,
-      pendingCount(pendingTasks, "admissible-pending")
+      counts.admissiblePending
     );
     if (!timingAvailable) return;
     for (const pendingTask of pendingTasks) {
@@ -136,15 +137,13 @@ function intervalContribution(
   elapsedMs: number,
   state: SchedulerPerformanceState
 ): SchedulerMeasurementIntervalContribution | undefined {
+  const counts = pendingCounts(state.admissionViablePendingTasks);
   const contribution = Object.freeze({
-    admissiblePendingTaskMs:
-      elapsedMs * pendingCount(state.admissionViablePendingTasks, "admissible-pending"),
+    admissiblePendingTaskMs: elapsedMs * counts.admissiblePending,
     acceptedWaitMs: 0,
-    capacityBlockedTaskMs:
-      elapsedMs * pendingCount(state.admissionViablePendingTasks, "capacity-blocked"),
+    capacityBlockedTaskMs: elapsedMs * counts.capacityBlocked,
     effectiveCapacitySlotMs: elapsedMs * state.effectiveMaxParallel,
-    mutexBlockedTaskMs:
-      elapsedMs * pendingCount(state.admissionViablePendingTasks, "mutex-blocked"),
+    mutexBlockedTaskMs: elapsedMs * counts.mutexBlocked,
     rootCapacitySlotMs: elapsedMs * state.rootMaxParallel,
     taskSlotMs: elapsedMs * state.running
   });
@@ -169,9 +168,30 @@ function finiteAdmissionDelay(delay: MutableAdmissionDelayBreakdown): boolean {
   return Object.values(delay).every((value) => Number.isFinite(value) && value >= 0);
 }
 
-function pendingCount(
-  pendingTasks: readonly AdmissionViablePendingTask[],
-  kind: AdmissionViablePendingTask["kind"]
-): number {
-  return pendingTasks.filter((task) => task.kind === kind).length;
+function pendingCounts(pendingTasks: readonly AdmissionViablePendingTask[]): Readonly<{
+  admissiblePending: number;
+  capacityBlocked: number;
+  mutexBlocked: number;
+}> {
+  let admissiblePending = 0;
+  let capacityBlocked = 0;
+  let mutexBlocked = 0;
+  for (const task of pendingTasks) {
+    switch (task.kind) {
+      case "admissible-pending":
+        admissiblePending += 1;
+        break;
+      case "capacity-blocked":
+        capacityBlocked += 1;
+        break;
+      case "mutex-blocked":
+        mutexBlocked += 1;
+        break;
+      default: {
+        const unexpectedKind: never = task.kind;
+        throw new Error(`unexpected pending task category: ${String(unexpectedKind)}`);
+      }
+    }
+  }
+  return { admissiblePending, capacityBlocked, mutexBlocked };
 }

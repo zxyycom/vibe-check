@@ -11,18 +11,6 @@ interface PreparedTaskGraphValidationInput {
 
 type TaskRelationField = "dependsOn" | "observes";
 
-interface TaskRelationPathQuery {
-  readonly requiredRelatedTaskId: string;
-  readonly taskById: ReadonlyMap<string, PlannedTask>;
-  readonly taskId: string;
-}
-
-interface TaskRelationTraversal {
-  readonly pending: string[];
-  readonly query: TaskRelationPathQuery;
-  readonly visited: Set<string>;
-}
-
 /** Validates direct relations and scope structure after graph-shaped input is normalized. */
 export function validatePreparedTaskGraph(input: PreparedTaskGraphValidationInput): void {
   validateResourceClaims(input.resourceCapacities, input.tasks);
@@ -58,8 +46,10 @@ function validateTaskRelations(
   for (const task of tasks) {
     validateRelatedTaskIds(task, "dependsOn", task.dependsOn, taskById);
     validateRelatedTaskIds(task, "observes", task.observes, taskById);
+    if (task.dependsOn.length === 0 || task.observes.length === 0) continue;
+    const observationIds = new Set(task.observes);
     for (const dependencyId of task.dependsOn) {
-      if (task.observes.includes(dependencyId)) {
+      if (observationIds.has(dependencyId)) {
         throw new Error(`task ${task.id} cannot both depend on and observe task ${dependencyId}`);
       }
     }
@@ -187,34 +177,30 @@ function validateScopeTerminalReachability(
   tasks: readonly PlannedTask[],
   taskById: ReadonlyMap<string, PlannedTask>
 ): void {
+  if (tasks.every((task) => task.id === scope.terminalTaskId)) return;
+  const reachable = relatedTaskIdsReachableFrom(taskById, scope.terminalTaskId);
   for (const task of tasks) {
     if (task.id === scope.terminalTaskId) continue;
-    if (
-      !isRelatedToTask({ requiredRelatedTaskId: task.id, taskById, taskId: scope.terminalTaskId })
-    ) {
+    if (!reachable.has(task.id)) {
       throw new Error(`task scope ${scope.id} terminal task must relate to scoped task ${task.id}`);
     }
   }
 }
 
-function isRelatedToTask(query: TaskRelationPathQuery): boolean {
-  return traverseTaskRelations({
-    pending: [...relatedTaskIdsFor(query.taskById, query.taskId)],
-    query,
-    visited: new Set()
-  });
-}
-
-function traverseTaskRelations(traversal: TaskRelationTraversal): boolean {
-  while (traversal.pending.length > 0) {
-    const relatedTaskId = traversal.pending.pop();
-    if (relatedTaskId === undefined || traversal.visited.has(relatedTaskId)) continue;
-    if (relatedTaskId === traversal.query.requiredRelatedTaskId) return true;
-
-    traversal.visited.add(relatedTaskId);
-    traversal.pending.push(...relatedTaskIdsFor(traversal.query.taskById, relatedTaskId));
+/** One traversal per scope; declaration order below still owns the first unreachable-task error. */
+function relatedTaskIdsReachableFrom(
+  taskById: ReadonlyMap<string, PlannedTask>,
+  taskId: string
+): ReadonlySet<string> {
+  const pending = [...relatedTaskIdsFor(taskById, taskId)];
+  const visited = new Set<string>();
+  while (pending.length > 0) {
+    const relatedTaskId = pending.pop();
+    if (relatedTaskId === undefined || visited.has(relatedTaskId)) continue;
+    visited.add(relatedTaskId);
+    for (const nextTaskId of relatedTaskIdsFor(taskById, relatedTaskId)) pending.push(nextTaskId);
   }
-  return false;
+  return visited;
 }
 
 function relatedTaskIdsFor(

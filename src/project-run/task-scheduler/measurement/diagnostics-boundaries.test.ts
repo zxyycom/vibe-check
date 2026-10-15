@@ -4,10 +4,13 @@ import { describe, it } from "node:test";
 import type { DiagnosticObservation } from "../../diagnostic-logging/logger.ts";
 import { runTaskGraph } from "../scheduler.ts";
 import { recordingLogger, schedulerSummary, scriptedClock } from "../task-engine.test-support.ts";
+import { SchedulerPerformanceIntegrals } from "./integrals.ts";
+import type { AdmissionViablePendingTask } from "./diagnostics.ts";
 import { DECLARATIVE_FINGERPRINT, enabledDiagnostics } from "./diagnostics.test-support.ts";
 
 describe("Scheduler performance diagnostics", () => {
   it("distinguishes a valid zero-span summary from unavailable timing and retains discrete facts", async () => {
+    assertSinglePassCategoryCounts();
     const emptyClock = scriptedClock();
     const emptyObservations: DiagnosticObservation[] = [];
     await runTaskGraph({
@@ -101,3 +104,54 @@ describe("Scheduler performance diagnostics", () => {
     assert.equal(run.settlements[0]?.settlement.kind, "completed");
   });
 });
+
+/** Counting categories is one pass; exact per-Task interval accumulation stays unchanged. */
+function assertSinglePassCategoryCounts(): void {
+  let kindReads = 0;
+  const kinds: readonly AdmissionViablePendingTask["kind"][] = [
+    "mutex-blocked",
+    "capacity-blocked",
+    "admissible-pending"
+  ];
+  const pendingTasks: AdmissionViablePendingTask[] = kinds.map((kind, slot) => ({
+    taskId: `pending-${slot}`,
+    get kind() {
+      kindReads += 1;
+      return kind;
+    }
+  }));
+  const integrals = new SchedulerPerformanceIntegrals();
+  integrals.installPendingProjection(pendingTasks, true);
+  assert.equal(kindReads, pendingTasks.length);
+  assert.deepEqual(integrals.peaks(), {
+    admissionViablePendingTaskCount: 3,
+    admissiblePendingTaskCount: 1,
+    capacityBlockedTaskCount: 1,
+    mutexBlockedTaskCount: 1
+  });
+  kindReads = 0;
+  assert.equal(
+    integrals.addInterval(0.25, {
+      admissionViablePendingTasks: pendingTasks,
+      effectiveMaxParallel: 2,
+      rootMaxParallel: 4,
+      running: 1
+    }),
+    true
+  );
+  assert.equal(kindReads, pendingTasks.length * 2);
+  assert.deepEqual(integrals.totals(), {
+    acceptedWaitMs: 0,
+    admissiblePendingTaskMs: 0.25,
+    capacityBlockedTaskMs: 0.25,
+    effectiveCapacitySlotMs: 0.5,
+    mutexBlockedTaskMs: 0.25,
+    rootCapacitySlotMs: 1,
+    taskSlotMs: 0.25
+  });
+  assert.deepEqual(integrals.takeAdmissionDelay("pending-1"), {
+    admissiblePendingMs: 0,
+    capacityBlockedMs: 0.25,
+    mutexBlockedMs: 0
+  });
+}

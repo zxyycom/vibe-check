@@ -59,7 +59,7 @@ export function transitionIndexedSelection(
   const facts = initialTransitionFacts(selection, transition);
   applyRunningOccupancyDelta(compiled, facts);
   applySettlementRelationDelta(compiled, facts);
-  applyScopeLifecycleDelta(compiled, facts);
+  applyScopeLifecycleDelta(compiled, selection, facts);
   const taskSlotsByStatus = { ...selection.taskSlotsByStatus };
   if (facts.previous.kind !== "absent")
     taskSlotsByStatus[facts.previous.kind] =
@@ -228,6 +228,7 @@ function newlyForcedTaskSlots(
 /** Activation happens before terminal close, preserving the canonical scope lifecycle order. */
 function applyScopeLifecycleDelta(
   compiled: CompiledAdmissionGraph,
+  selection: AdmissionSelectionIndex,
   facts: MutableTransitionFacts
 ): void {
   const { activatedScopeSlot, previous, status, taskSlot } = facts;
@@ -241,6 +242,7 @@ function applyScopeLifecycleDelta(
   }
   if (previous.kind === "settled" || status.kind !== "settled") return;
   for (const scopeSlot of requiredScopeTerminalSlotsForCompiled(compiled, taskSlot)) {
+    if (!selection.activeScopeSlotSet.has(scopeSlot) && activatedScopeSlot !== scopeSlot) continue;
     facts.activeScopeSlots = Object.freeze(
       facts.activeScopeSlots.filter((candidate) => candidate !== scopeSlot)
     );

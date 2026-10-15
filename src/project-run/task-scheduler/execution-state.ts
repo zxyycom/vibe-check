@@ -110,7 +110,7 @@ export interface SchedulerState<TResult> {
   readonly execute: RunTaskGraphOptions<TResult>["execute"];
   readonly onTaskBlocked: RunTaskGraphOptions<TResult>["onTaskBlocked"];
   readonly onAdmissionCoreEffect: RunTaskGraphOptions<TResult>["onAdmissionCoreEffect"];
-  readonly pending: PlannedTask[];
+  readonly pending: Map<string, PlannedTask>;
   readonly runningById: Map<string, RunningTask<TResult>>;
   readonly settlementsByTaskId: Map<string, TaskSettlement<TResult>>;
   isCancelled: boolean;
@@ -126,7 +126,7 @@ export function createSchedulerState<TResult>(
     throw new TypeError("task engine admission policy must be a frozen policy value");
   }
   const compiledAdmissionGraph = compilePreparedAdmissionGraph(graph, options.maxParallel);
-  const pending = [...graph.tasks];
+  const pending = new Map(graph.tasks.map((task) => [task.id, task] as const));
   const settlementsByTaskId = new Map<string, TaskSettlement<TResult>>();
   recordPreAdmissionTaskResults(pending, settlementsByTaskId, options);
   const state: SchedulerState<TResult> = {
@@ -154,21 +154,18 @@ export function createSchedulerState<TResult>(
 }
 
 function recordPreAdmissionTaskResults<TResult>(
-  pending: PlannedTask[],
+  pending: Map<string, PlannedTask>,
   settlementsByTaskId: Map<string, TaskSettlement<TResult>>,
   options: Omit<RunTaskGraphOptions<TResult>, "graph">
 ): void {
   for (const result of options.preAdmissionTaskResults ?? []) {
-    const pendingIndex = pending.findIndex((task) => task.id === result.taskId);
-    if (pendingIndex < 0) {
+    const task = pending.get(result.taskId);
+    if (task === undefined) {
       throw new TypeError(
         `pre-admission task result references unknown or duplicate task ${result.taskId}`
       );
     }
-    const [task] = pending.splice(pendingIndex, 1);
-    if (task === undefined) {
-      throw new Error(`pre-admission task ${result.taskId} disappeared before settlement`);
-    }
+    pending.delete(task.id);
     const settlement: TaskSettlement<TResult> =
       options.isPrerequisiteSatisfied?.(result.value) === false
         ? { kind: "prerequisite-unsatisfied", value: result.value }
@@ -179,11 +176,8 @@ function recordPreAdmissionTaskResults<TResult>(
 
 export function cancelPendingTasks<TResult>(state: SchedulerState<TResult>): void {
   state.isCancelled = true;
-  while (state.pending.length > 0) {
-    const task = state.pending.shift();
-    if (task === undefined) {
-      throw new Error("task graph pending queue changed unexpectedly");
-    }
+  for (const task of state.pending.values()) {
+    state.pending.delete(task.id);
     recordSettlement(state, task, Object.freeze({ kind: "cancelled-before-start" }));
   }
 }

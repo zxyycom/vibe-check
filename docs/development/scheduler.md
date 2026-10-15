@@ -64,7 +64,7 @@ forced 保留 descending task-slot 顺序。revision 是 entry identity，不是
 
 ### Shell 执行与准入边界
 
-real shell 拥有实际 pending Task 队列、runningById 的 Task/Promise、settlement value/error、signal、diagnostic、
+real shell 以 declaration-order `Map<TaskId, Task>` 拥有实际 pending payload，另拥有 runningById 的 Task/Promise、settlement value/error、signal、diagnostic、
 measurement 与 RunResult；admission/cancellation 从这些负载中取得实际工作。scope lifecycle、mutex holders 与容量事实
 由 Core 提供。Shell 应用 reducer effects 后仍执行 callback-return hard guards。
 
@@ -183,3 +183,24 @@ static 查询按 rank 消费必要的 group-head 前缀并读取其 constraint �
 custom/public/diagnostic 完整读取另承担 relation-ready 遍历、mutex 筛选、排序、member DTO/freeze 与 catalog reason 物化；
 measurement 与 Shell payload 的成本独立保留。结构证据只证明这些访问与更新路径；具体 workload 的 wall-clock 或内存收益需要对应测量。
 collector 的 clock、integrals、history、delay 与 Shell 的执行 payload 按上文职责独立维护。
+
+### 静态图校验
+
+静态 validation 的 direct overlap 在完成两类引用校验后以 observation Set 查询，仍按 dependsOn 声明顺序报告首个 overlap。
+每个 multi-task scope 从 terminal 沿 depends/observes 做一次完整 reachability，再按该 scope 的 Task 声明顺序验证 membership；
+singleton terminal scope 不遍历关系。若 scope 可达子图为 Vₛ/Eₛ，reachability 为 O(Vₛ+Eₛ)，不再逐 member 重走；不同 scope
+仍独立校验，不宣称整个多 scope validation 为 O(V+E)。首错仍遵守 scope cap → terminal → activation → reachability 的原顺序。
+
+### Shell 与状态更新
+
+Shell 通过 pending Map 按 ID 查找/删除被准入、forced-block 或 pre-admission 的 Task；取消以剩余 declaration
+顺序逐个移除和结算。该 Map 只拥有 payload，不替代 Core membership。active-root 数组未变化时，transition 不重新搜索 active
+membership；关闭一个 inactive terminal 也不复制数组。真正 activation/active terminal closure 仍维护原有有序数组，动态 blocked
+head 前缀仍在查询时重新判断；它们的成本没有由本次局部消重消除。
+
+### Measurement 与完成顺序
+
+measurement 的 peak 与 interval 三类计数各用一次遍历，不创建三个 filter 数组；每个 pending Task 的 delay 仍按原 interval 顺序
+逐项相加和检查 finite/non-negative，保留浮点累计、overflow 与 timing-unavailable 边界。因此 demand-enabled measurement
+仍可能有累计二次的 pending classification/delay 工作，不能把这个常数改进描述为整体降阶。running completion 仍逐 wait 使用
+Promise.race：多个 completion 已 resolved 时，它按当前 running Map 的注册顺序取首；completion FIFO 不能替代这一行为。

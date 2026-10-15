@@ -62,7 +62,7 @@ export function applyCancellation<TResult>(
   state: SchedulerState<TResult>,
   decision: Extract<SchedulerDecision, { readonly kind: "cancel-pending" }>
 ): void {
-  const pendingTaskIds = state.pending.map((task) => task.id);
+  const pendingTaskIds = [...state.pending.keys()];
   if (!sameTaskIds(pendingTaskIds, decision.taskIds)) {
     throw new Error("scheduler cancellation decision no longer matches pending tasks");
   }
@@ -107,10 +107,9 @@ function takePendingTask<TResult>(
   taskId: string,
   action: string
 ): PlannedTask {
-  const index = state.pending.findIndex((task) => task.id === taskId);
-  if (index < 0) throw new Error(`task ${taskId} is not pending for ${action}`);
-  const [task] = state.pending.splice(index, 1);
-  if (task === undefined) throw new Error(`task ${taskId} disappeared during ${action}`);
+  const task = state.pending.get(taskId);
+  if (task === undefined) throw new Error(`task ${taskId} is not pending for ${action}`);
+  state.pending.delete(taskId);
   return task;
 }
 

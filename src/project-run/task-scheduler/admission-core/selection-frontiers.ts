@@ -55,6 +55,8 @@ function transitionActiveScopeMembership(
   }>
 ): Readonly<{ activeScopeSlotSet: PersistentSet<number>; changedScopeSlots: ReadonlySet<number> }> {
   const { compiled, selection, activeScopeSlots, taskSlot, activatedScopeSlot } = input;
+  if (activeScopeSlots === selection.activeScopeSlots)
+    return { activeScopeSlotSet: selection.activeScopeSlotSet, changedScopeSlots: new Set() };
   const candidates = new Set(requiredScopeTerminalSlotsForCompiled(compiled, taskSlot));
   if (activatedScopeSlot !== undefined) candidates.add(activatedScopeSlot);
   const changedScopeSlots = new Set<number>();

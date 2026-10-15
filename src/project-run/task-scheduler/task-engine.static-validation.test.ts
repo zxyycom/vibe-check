@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { validateTaskGraph } from "./graph.ts";
+import { prepareTaskGraph, validateTaskGraph, type PlannedTask } from "./graph.ts";
+import { validatePreparedTaskGraph } from "./graph-validation.ts";
 import { runTaskGraph } from "./scheduler.ts";
 
 describe("static task engine", () => {
@@ -129,7 +130,32 @@ describe("static task engine", () => {
         ]
       });
     });
+    assert.throws(
+      () => {
+        validateTaskGraph({
+          tasks: [
+            { id: "left" },
+            { id: "right" },
+            { id: "overlap-order", dependsOn: ["right", "left"], observes: ["left", "right"] }
+          ]
+        });
+      },
+      { message: "task overlap-order cannot both depend on and observe task right" }
+    );
+    assert.throws(
+      () => {
+        validateTaskGraph({
+          tasks: [
+            { id: "source" },
+            { id: "overlap-order", dependsOn: ["source"], observes: ["source", "missing"] }
+          ]
+        });
+      },
+      { message: "task overlap-order observes unknown task missing" }
+    );
     assertInterleavedScopeValidation();
+    assertLinearScopeReachability();
+    assertWideScopeRelations();
     await assert.rejects(
       () =>
         runTaskGraph({
@@ -200,4 +226,73 @@ function assertInterleavedScopeValidation(): void {
     },
     { message: "task scope zeta activation task must belong to the scope: missing" }
   );
+}
+
+/** Sparse legal scopes must not walk the same terminal chain once per member. */
+function assertLinearScopeReachability(): void {
+  for (const width of [32, 128]) {
+    const tasks = Array.from({ length: width }, (_, slot) => ({
+      id: `task-${slot}`,
+      scopeId: "chain",
+      observes: slot === 0 ? [] : [`task-${slot - 1}`]
+    }));
+    const graph = prepareTaskGraph(
+      {
+        tasks,
+        scopes: [
+          {
+            id: "chain",
+            maxParallel: 1,
+            activationTaskIds: ["task-0"],
+            terminalTaskId: `task-${width - 1}`
+          }
+        ]
+      },
+      1
+    );
+    let reads = 0;
+    const taskById = new Map(graph.tasks.map((task) => [task.id, task]));
+    const countedTasks = new Proxy(taskById, {
+      get(target, key): unknown {
+        if (key === "get")
+          return (taskId: string): PlannedTask | undefined => {
+            reads += 1;
+            return target.get(taskId);
+          };
+        const member: unknown = Reflect.get(target, key);
+        return typeof member === "function" ? member.bind(target) : member;
+      }
+    });
+    validatePreparedTaskGraph({
+      ...graph,
+      rootMaxParallel: 1,
+      taskById: countedTasks,
+      scopeById: new Map(graph.scopes.map((scope) => [scope.id, scope]))
+    });
+    assert.ok(reads <= 3 * width, `${width} sparse members caused ${reads} task lookups`);
+  }
+}
+
+/** Legal duplicate occurrences must not become function arguments during complete reachability. */
+function assertWideScopeRelations(): void {
+  const relations = Array<string>(131_072).fill("external");
+  const graph = prepareTaskGraph(
+    {
+      tasks: [
+        { id: "external" },
+        { id: "member", scopeId: "scope", dependsOn: relations },
+        { id: "terminal", scopeId: "scope", dependsOn: ["member"] }
+      ],
+      scopes: [
+        {
+          id: "scope",
+          maxParallel: 1,
+          activationTaskIds: ["member"],
+          terminalTaskId: "terminal"
+        }
+      ]
+    },
+    1
+  );
+  assert.deepEqual(graph.tasks[1]?.dependsOn, relations);
 }

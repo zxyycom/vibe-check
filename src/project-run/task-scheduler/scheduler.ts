@@ -102,7 +102,7 @@ export async function runPreparedTaskGraph<TResult>(
       if (!(error instanceof AdmissionPolicyFault)) throw error;
       const cancellation = cancelPendingAdmissionCore(state.admissionCore);
       state.admissionCore = cancellation.state;
-      diagnostics?.beforePendingSettlement(state.pending.map((task) => task.id));
+      diagnostics?.beforePendingSettlement([...state.pending.keys()]);
       if (diagnostics === undefined) applyAdmissionPolicyFault(state, error);
       else
         diagnostics.measureControlPath(() => {
@@ -120,7 +120,7 @@ export async function runPreparedTaskGraph<TResult>(
         if (state.signal?.aborted === true) {
           const cancellation = cancelPendingAdmissionCore(state.admissionCore);
           state.admissionCore = cancellation.state;
-          diagnostics?.beforePendingSettlement(state.pending.map((task) => task.id));
+          diagnostics?.beforePendingSettlement([...state.pending.keys()]);
           const lifecycleFault = new AdmissionPolicyFault("lifecycle-invalid-select");
           if (diagnostics === undefined) applyAdmissionPolicyFault(state, lifecycleFault);
           else

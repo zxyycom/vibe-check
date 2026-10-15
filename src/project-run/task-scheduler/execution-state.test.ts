@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { createSchedulerState, type PreAdmissionTaskResult } from "./execution-state.ts";
+import {
+  cancelPendingTasks,
+  createSchedulerState,
+  type PreAdmissionTaskResult
+} from "./execution-state.ts";
 import { prepareTaskGraph } from "./graph.ts";
 import { taskIdsForCore } from "./admission-core/scheduler-queries.ts";
 
@@ -50,7 +54,7 @@ describe("Scheduler pre-admission initialization", () => {
       { taskId: "first", value: 1 }
     ]);
     assert.deepEqual(calls, [0, 1]);
-    assert.deepEqual(state.pending, []);
+    assert.equal(state.pending.size, 0);
     assert.deepEqual(taskIdsForCore(state.admissionCore, "settled"), ["first", "second"]);
     assert.deepEqual(
       [...state.settlementsByTaskId],
@@ -61,5 +65,16 @@ describe("Scheduler pre-admission initialization", () => {
     );
     assert.equal(state.admissionCore.selection.runningTotal, 0);
     assert.equal(state.admissionCore.selection.remainingTaskCount, 0);
+    const partial = create([{ taskId: "second", value: 1 }]);
+    assert.deepEqual([...partial.pending.keys()], ["first"]);
+    cancelPendingTasks(partial);
+    assert.equal(partial.pending.size, 0);
+    assert.deepEqual(
+      [...partial.settlementsByTaskId],
+      [
+        ["second", { kind: "completed", value: 1 }],
+        ["first", { kind: "cancelled-before-start" }]
+      ]
+    );
   });
 });

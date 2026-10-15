@@ -96,6 +96,7 @@ describe("static admission group frontier", () => {
       { taskId: "unrelated", canAdmit: true }
     ]);
     assertReplacedHeadRevision();
+    assertUnchangedActiveRoots();
   });
 
   it("consumes wide equivalent heads without materializing candidates and prunes arbitrary selections in transitions", () => {
@@ -227,4 +228,46 @@ function assertReplacedHeadRevision(): void {
   assert.equal(returnedEntry?.revision, 3);
   assert.equal(staticAdmissionCandidateForCore(initial)?.task.id, "gate");
   assert.equal(oldEntry?.revision, 1);
+}
+
+/** Ordinary work and inactive terminal closure cannot change the active-root projection. */
+function assertUnchangedActiveRoots(): void {
+  const graph = prepareTaskGraph(
+    {
+      tasks: [
+        { id: "open", scopeId: "active" },
+        { id: "end", scopeId: "active", observes: ["open"] },
+        { id: "inactive", scopeId: "inactive" },
+        { id: "ordinary" }
+      ],
+      scopes: [
+        { id: "active", maxParallel: 4, activationTaskIds: ["open"], terminalTaskId: "end" },
+        { id: "inactive", maxParallel: 4, activationTaskIds: [], terminalTaskId: "inactive" }
+      ]
+    },
+    4
+  );
+  const initial = createInitialAdmissionCoreState(compilePreparedAdmissionGraph(graph, 4));
+  const active = selectedCore(initial, "open");
+  const roots = active.selection.activeScopeSlots;
+  const guardedRoots = new Proxy(roots, {
+    get(target, key, receiver): unknown {
+      if (key === "includes") assert.fail("unchanged active roots were searched");
+      return Reflect.get(target, key, receiver);
+    }
+  });
+  const guarded: AdmissionCoreState = Object.freeze({
+    ...active,
+    selection: Object.freeze({ ...active.selection, activeScopeSlots: guardedRoots })
+  });
+  const ordinary = settledCore(selectedCore(guarded, "ordinary"), "ordinary");
+  assert.equal(ordinary.selection.activeScopeSlots, guardedRoots);
+  const closedInactive = settledCore(selectedCore(ordinary, "inactive"), "inactive");
+  assert.equal(closedInactive.selection.activeScopeSlots, guardedRoots);
+  assert.deepEqual(
+    [...active.selection.activeScopeSlotSet],
+    [...closedInactive.selection.activeScopeSlotSet]
+  );
+  assert.deepEqual(roots, [0]);
+  assert.deepEqual(initial.selection.activeScopeSlots, []);
 }
