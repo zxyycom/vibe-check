@@ -81,7 +81,7 @@ export default defineConfig({
 [API 机制](../api-mechanics.md#随包-check-的构造器项目声明)拥有。本页拥有这些字段进入 Definition 后的同一套语义。
 
 构造器只关闭自己的顶层 input、复制安全值并补齐领域 options。它不替代 Definition normalization，也不预先决定
-跨 Check 的合法性。`defineConfig`/`run` 必须仍然验证并规范化完整 tree：所有 `checkId` 唯一、`displayName` 合法、
+跨 Check 的合法性。`defineConfig`/`run` 必须仍然验证并规范化完整 tree：可执行节点的 `checkId` 全树唯一、所有节点的 `displayName` 合法、
 container/executable 形状、children、flag condition、direct relations、mutex、parallel budget、priority 和 resource claim
 都按 ordinary Check grammar 处理。因而多个同类随包 Check 可共存，但每个实例必须有唯一 `checkId`；relation、selection
 和调度只在完整 Definition 中取得意义。
@@ -193,13 +193,22 @@ Definition 只提供 normalized static graph metadata，不能给 callback 暴�
 
 ## Recursive Check tree
 
-validation 要求全树唯一 checkId 和非空 displayName。execution 与 containment 独立：executable 也可有 children；container 只影响 scheduling inheritance，不创建单独的 published hierarchy。
+validation 要求可执行节点的 `checkId` 全树唯一、所有节点的 `displayName` 非空。解析器在展开 children 前检查重复
+executable ID，并以活动祖先的对象 identity 识别循环；两者在公开 Run 中均为
+`configuration / invalid-project-definition`，path 为 `definition.checks`。非循环共享 container 按每次 occurrence
+解析并保留各自 warning path；唯一性约束不适用于 container-only ID，合法树没有新增规模上限。
+失败分类取舍见[提前拒绝重复 executable](../decisions/reject-duplicate-executable-checks-before-expansion.md)。
+execution 与 containment 独立：executable 也可有 children；container 只影响 scheduling inheritance，不创建单独的 published hierarchy。
 
 公开 Run 的私有 validation handoff 保留本次已关闭的 parsed/resolved tree，Controls 通过后直接投影 normalized Checks
 与 declarative snapshot。独立 validator 返回 detached ordinary authoring，独立 normalizer 验证原始输入。
 每次 Run 都重新验证当前 Definition，复用范围限于本次 invocation；后续 author mutation 不回写既有 options、graph 或 fingerprint。
 
 root maxParallel 为正 safe integer，省略默认 4；admissionPriority 为有符号 safe integer，默认 0。normalization 按父子关系解析以下继承，具体 authoring 范围见[调度指南](../guides/scheduling.md)：maxParallel 和 admissionPriority 继承最近显式值；resourceClaims 继承整个 mapping，显式 `{}` 清空，不逐 key merge；dependsOn/observes/mutex 的 exact collection 完整替换（含空数组），inherit 则在父集合上 add/remove 后排序去重。normalized direct dependsOn 与 observes 不得包含同一 provider，二者只引用 executable IDs。
+
+resolver 在单次 traversal 内用可回滚集合承担实际 add/remove，exact 替换集合；退出节点总是恢复父 scope，兄弟节点互不污染。
+只有 executable 消费时才物化排序冻结的集合快照，未改变的 scope 可复用快照；container 深链不逐层复制增长前缀。
+成本仍包含每个 executable 必需的 effective collection 输出、递归深度和 path 字节，不承诺任意深树恒定空间。
 
 effective priority/claims 是 immutable graph metadata；admission 时原子取得全部 claims，贯穿 preparation/execution，任意 settlement 一起释放。declaration order 不代替 execution order，也不绕过 prerequisite、mutex、capacity 或 cancellation。
 

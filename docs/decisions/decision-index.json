@@ -367,6 +367,7 @@
       "261013-warn-on-explicit-markdown-parse-cache-capacity": "sha256:303c4f09a20e15afc78151fcd2ec13c3e78cab9b885919f9e88e4bd8834dca8c",
       "261013-weigh-performance-costs-against-scaling-benefits": "sha256:f683acd59be9bff15ce789368bcf39f642945069f7d29267ce03ef5ba612dfbb",
       "261014-enable-gate-markdown-parse-cache": "sha256:1f0c17ff2154da5835fe0354a47afbc4255d41f3081f211e60313b89f39b4da9",
+      "261015-reject-duplicate-executable-checks-before-expansion": "sha256:e6807bcb9bb4844d40cefa144b182ddd61944c2454cc8866c4b4419649995916",
       "261015-use-native-json-with-private-duplicate-scan": "sha256:fa125c180ddb9105e5f9c5bfeb38bf7100fd26e0a2c814afb92ea69a71ea8f8e"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
@@ -7590,6 +7591,23 @@
         "configuration",
         "performance",
         "workflow-policy"
+      ],
+      "relations": []
+    },
+    "261015-reject-duplicate-executable-checks-before-expansion": {
+      "name": "reject-duplicate-executable-checks-before-expansion",
+      "sourcePath": "reject-duplicate-executable-checks-before-expansion.md",
+      "title": "在展开前拒绝重复 executable Check 声明",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-15T06:12:18Z",
+      "purpose": "让无效共享声明在展开前失败，避免重复子树放大解析成本",
+      "background": "共享 executable DAG 会在规划拒绝前指数展开，用户接受提前映射为配置错误",
+      "decision": "在声明校验时提前拒绝重复 executable Check ID 与循环，不限制合法树规模",
+      "tags": [
+        "algorithmic-complexity",
+        "performance",
+        "product-contract"
       ],
       "relations": []
     },

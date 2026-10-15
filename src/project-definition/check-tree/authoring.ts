@@ -51,6 +51,8 @@ export interface MeaninglessCheckWarning {
 }
 
 interface ParseState {
+  readonly activeChecks: Set<unknown>;
+  readonly executableIds: Set<string>;
   readonly warnings: MeaninglessCheckWarning[];
 }
 
@@ -61,7 +63,7 @@ interface ParseState {
 export function parseCheckTreeAuthoring(value: unknown): ParsedCheckTree | undefined {
   const roots = snapshotClosedArray(value);
   if (roots === undefined) return undefined;
-  const state: ParseState = { warnings: [] };
+  const state: ParseState = { activeChecks: new Set(), executableIds: new Set(), warnings: [] };
   const checks: ParsedCheck[] = [];
   for (let index = 0; index < roots.length; index += 1) {
     const check = parseCheck(roots[index], `definition.checks[${index}]`, state);
@@ -75,38 +77,50 @@ export function parseCheckTreeAuthoring(value: unknown): ParsedCheckTree | undef
 }
 
 function parseCheck(value: unknown, path: string, state: ParseState): ParsedCheck | undefined {
+  // Repeated containers remain legal occurrences (including their warnings), but an
+  // active ancestor is a cycle and executable identities cannot be repeated.
+  if (state.activeChecks.has(value)) return undefined;
   const handoffProviderIdentity = getDefinedHandoffProviderIdentity(value);
   const data = parseCheckAuthoringData(value);
   if (data === undefined) return undefined;
   const prelude = parseCheckFieldPrelude(data, handoffProviderIdentity);
   if (prelude === undefined) return undefined;
-  const checks = parseChildren(data, path, state);
-  if (checks === undefined) return undefined;
-  const scheduling = parseCheckScheduling(data);
-  if (scheduling === undefined) return undefined;
-  const fields = parseCheckFields(data, prelude);
-  if (fields === undefined) return undefined;
-  warnForMeaninglessCheck(data, checks, fields, path, state);
-  return Object.freeze({
-    admissionPriority: scheduling.admissionPriority,
-    checkId: data.checkId,
-    checks,
-    definition: fields.definition,
-    dependsOn: scheduling.dependsOn,
-    displayName: data.displayName,
-    enabledByFlags: fields.enabledByFlags,
-    execute: fields.execute,
-    handoff: fields.handoff,
-    maxParallel: scheduling.maxParallel,
-    mutex: scheduling.mutex,
-    observes: scheduling.observes,
-    resourceClaims: scheduling.resourceClaims,
-    options: fields.options,
-    path,
-    parseData: fields.parseData,
-    prepare: fields.prepare,
-    omitQuietPassedRow: fields.omitQuietPassedRow
-  });
+  if (prelude.execute !== null) {
+    if (state.executableIds.has(data.checkId)) return undefined;
+    state.executableIds.add(data.checkId);
+  }
+  state.activeChecks.add(value);
+  try {
+    const checks = parseChildren(data, path, state);
+    if (checks === undefined) return undefined;
+    const scheduling = parseCheckScheduling(data);
+    if (scheduling === undefined) return undefined;
+    const fields = parseCheckFields(data, prelude);
+    if (fields === undefined) return undefined;
+    warnForMeaninglessCheck(data, checks, fields, path, state);
+    return Object.freeze({
+      admissionPriority: scheduling.admissionPriority,
+      checkId: data.checkId,
+      checks,
+      definition: fields.definition,
+      dependsOn: scheduling.dependsOn,
+      displayName: data.displayName,
+      enabledByFlags: fields.enabledByFlags,
+      execute: fields.execute,
+      handoff: fields.handoff,
+      maxParallel: scheduling.maxParallel,
+      mutex: scheduling.mutex,
+      observes: scheduling.observes,
+      resourceClaims: scheduling.resourceClaims,
+      options: fields.options,
+      path,
+      parseData: fields.parseData,
+      prepare: fields.prepare,
+      omitQuietPassedRow: fields.omitQuietPassedRow
+    });
+  } finally {
+    state.activeChecks.delete(value);
+  }
 }
 
 function parseChildren(

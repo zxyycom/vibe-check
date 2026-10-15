@@ -7,7 +7,11 @@ Entities:
 
 - `bun|src/project-definition/project-definition.authoring-defaults.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
 - `bun|src/project-definition/project-definition.recursive-checks.test.ts|Project Definition > normalizes ordinary recursive Checks without a Record catalog`
+- `bun|src/project-definition/project-definition.recursive-checks.test.ts|Project Definition > preserves shared container occurrences and warning paths`
+- `bun|src/project-definition/project-definition.recursive-checks.test.ts|Project Definition > rejects cyclic and repeated executable declarations before shared expansion`
 - `bun|src/project-definition/project-definition.scheduling-inheritance.test.ts|Project Definition > uses exact scheduling inheritance and rejects retired catalog fields`
+- `bun|src/project-definition/project-definition.scheduling-inheritance.test.ts|Project Definition > restores sibling collections after exact and overlapping inherited edits`
+- `bun|src/project-definition/project-definition.scheduling-inheritance.test.ts|Project Definition > materializes inherited collection prefixes only for executable consumers`
 - `bun|src/project-definition/project-definition.scheduling-inheritance.test.ts|Project Definition > normalizes signed admission priority by nearest explicit ancestor`
 - `bun|src/project-definition/project-definition.scheduling-inheritance.test.ts|Project Definition > normalizes closed named resource capacities and exact replacement claims`
 - `bun|src/project-definition/project-definition.quiet-pass-policy.test.ts|Project Definition > normalizes executable quiet-pass policy and rejects other declarations`
@@ -22,6 +26,8 @@ Entities:
 - Canonical declarative data preserves ordinary authored values without retaining author-controlled prototypes or callback identity; an executable provider must retain its parser while containers and malformed parser declarations fail closed. An exact `handoff: true` declaration is allowed only on an executable provider, preserves internal identity only to execution, and is stripped before declarative fingerprinting; container, non-true or own-undefined declarations fail closed.
 - Definition and RunControls use one closed directory grammar for machine publication and diagnostic logging: child, parent and absolute targets are valid without output I/O; empty, U+0000 and unknown output keys remain configuration failures before callbacks run.
 - Reusing a mutable authored Definition across Runs revalidates current Check identity, canonical options and resource capacities; later mutation changes the new graph/fingerprint without revising earlier frozen facts. The prepared Run path preserves the standalone validation/normalization declarative fingerprint for the same input.
+- 循环包含关系及同对象/不同对象的重复 executable ID 在 Definition 边界拒绝；公开 Run 返回 `configuration / invalid-project-definition`，定位 `definition.checks`，callback 调用数为零。测试共享 DAG 的反射访问随首次路径深度增长；非循环共享 container 保留每个声明位置的 warning path，container ID 可重复。
+- 三类继承集合保持先 remove 后 add、exact 清空/替换、排序去重与冻结快照；可执行父子节点、兄弟节点和独立根的集合互相隔离。单 executable 深继承只为最终有效集合排序，中间容器不物化增长前缀。
 
 ## Case WB-SCHEDULER-CONTEXT-DECLARATION-001: Scheduler context demand has closed phase grammar
 

@@ -2266,6 +2266,26 @@
         "performance"
       ],
       "title": "严格 JSON 解析器替换的收益与维护边界复查"
+    },
+    "261015-verify-invalid-check-tree-early-rejection": {
+      "formedAt": "2026-10-15T06:22:07Z",
+      "name": "verify-invalid-check-tree-early-rejection",
+      "question": "如何消除共享 executable 声明在失败前的指数展开，同时界定提前配置失败的兼容性变化？",
+      "relations": [
+        {
+          "summary": "闭合C04提前拒绝的实现与错误分类取舍",
+          "target": "261012-review-product-algorithmic-complexity",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "verify-invalid-check-tree-early-rejection.md",
+      "tags": [
+        "algorithmic-complexity",
+        "performance",
+        "project-definition"
+      ],
+      "title": "无效 Check 声明提前拒绝与兼容性验证"
     }
   },
   "metadata": {},
@@ -2351,7 +2371,8 @@
       "261012-verify-priority-complexity-optimizations": "sha256:d1cbc2171cbccbece597fdfc2f05dcfc0a689066e5b230fc80e48935beed30a6",
       "261013-evaluate-exact-key-membership-candidates": "sha256:4114f624580f04702349e3724c0691f8ea101267b2b7652245ff0930deff1c98",
       "261013-evaluate-markdown-path-cursor": "sha256:d358687b9c5034d36ea805648003e01ef33a33bbcc129de084e5dd0fac99cc12",
-      "261015-evaluate-strict-json-parser-replacement": "sha256:c4d1a4cc8a281d7d42bcc6fe423f4c04007f10f624db70a3ff108c88ccdf9a65"
+      "261015-evaluate-strict-json-parser-replacement": "sha256:c4d1a4cc8a281d7d42bcc6fe423f4c04007f10f624db70a3ff108c88ccdf9a65",
+      "261015-verify-invalid-check-tree-early-rejection": "sha256:367a0c9d9afbde6b6e3c9f2a18fb4d89e694346eb41dfb9687f282962b569fe9"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

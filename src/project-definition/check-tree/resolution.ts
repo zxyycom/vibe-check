@@ -35,11 +35,14 @@ export interface ResolvedCheckTree {
 
 interface InheritedScheduling {
   readonly admissionPriority: number;
-  readonly dependsOn: readonly string[];
   readonly maxParallel: number;
-  readonly mutex: readonly string[];
-  readonly observes: readonly string[];
   readonly resourceClaims: ResourceUnitMapping;
+}
+
+interface SchedulingCollections {
+  readonly dependsOn: ScopedCollection;
+  readonly mutex: ScopedCollection;
+  readonly observes: ScopedCollection;
 }
 
 /**
@@ -65,16 +68,18 @@ export function resolveParsedCheckTree(
 ): ResolvedCheckTree | undefined {
   if (!Number.isSafeInteger(rootMaxParallel) || rootMaxParallel <= 0) return undefined;
   const leaves: ResolvedCheckTreeLeaf[] = [];
+  const collections: SchedulingCollections = {
+    dependsOn: new ScopedCollection(),
+    mutex: new ScopedCollection(),
+    observes: new ScopedCollection()
+  };
   const root: InheritedScheduling = Object.freeze({
     admissionPriority: 0,
-    dependsOn: Object.freeze([]),
     maxParallel: rootMaxParallel,
-    mutex: Object.freeze([]),
-    observes: Object.freeze([]),
     resourceClaims: EMPTY_RESOURCE_UNIT_MAPPING
   });
   for (const check of parsed.checks) {
-    if (!flattenCheck(check, root, resourceCapacities, leaves)) return undefined;
+    if (!flattenCheck(check, root, collections, resourceCapacities, leaves)) return undefined;
   }
   return Object.freeze({ leaves: Object.freeze(leaves), warnings: parsed.warnings });
 }
@@ -82,17 +87,27 @@ export function resolveParsedCheckTree(
 function flattenCheck(
   check: ParsedCheck,
   inherited: InheritedScheduling,
+  collections: SchedulingCollections,
   resourceCapacities: ResourceUnitMapping,
   leaves: ResolvedCheckTreeLeaf[]
 ): boolean {
   const scheduling = resolveScheduling(check, inherited);
   if (!claimsFitCapacities(scheduling.resourceClaims, resourceCapacities)) return false;
-  const leaf = resolvedLeafFor(check, scheduling);
-  if (leaf !== undefined) leaves.push(leaf);
-  for (const child of check.checks) {
-    if (!flattenCheck(child, scheduling, resourceCapacities, leaves)) return false;
+  const restoreDependsOn = collections.dependsOn.enter(check.dependsOn);
+  const restoreMutex = collections.mutex.enter(check.mutex);
+  const restoreObserves = collections.observes.enter(check.observes);
+  try {
+    const leaf = resolvedLeafFor(check, scheduling, collections);
+    if (leaf !== undefined) leaves.push(leaf);
+    for (const child of check.checks) {
+      if (!flattenCheck(child, scheduling, collections, resourceCapacities, leaves)) return false;
+    }
+    return true;
+  } finally {
+    restoreObserves?.();
+    restoreMutex?.();
+    restoreDependsOn?.();
   }
-  return true;
 }
 
 function resolveScheduling(
@@ -101,17 +116,15 @@ function resolveScheduling(
 ): InheritedScheduling {
   return Object.freeze({
     admissionPriority: check.admissionPriority ?? inherited.admissionPriority,
-    dependsOn: resolveCollection(inherited.dependsOn, check.dependsOn),
     maxParallel: check.maxParallel ?? inherited.maxParallel,
-    mutex: resolveCollection(inherited.mutex, check.mutex),
-    observes: resolveCollection(inherited.observes, check.observes),
     resourceClaims: check.resourceClaims ?? inherited.resourceClaims
   });
 }
 
 function resolvedLeafFor(
   check: ParsedCheck,
-  scheduling: InheritedScheduling
+  scheduling: InheritedScheduling,
+  collections: SchedulingCollections
 ): ResolvedCheckTreeLeaf | undefined {
   const omitQuietPassedRow = check.omitQuietPassedRow;
   if (
@@ -123,13 +136,13 @@ function resolvedLeafFor(
     return Object.freeze({
       admissionPriority: scheduling.admissionPriority,
       definition: check.definition,
-      dependsOn: scheduling.dependsOn,
+      dependsOn: collections.dependsOn.snapshot(),
       ...(check.enabledByFlags === null ? {} : { enabledByFlags: check.enabledByFlags }),
       execute: check.execute,
       ...(check.handoff === null ? {} : { handoff: check.handoff }),
       maxParallel: scheduling.maxParallel,
-      mutex: scheduling.mutex,
-      observes: scheduling.observes,
+      mutex: collections.mutex.snapshot(),
+      observes: collections.observes.snapshot(),
       options: check.options,
       ...(check.prepare === null ? {} : { prepare: check.prepare }),
       resourceClaims: scheduling.resourceClaims,
@@ -149,16 +162,45 @@ function claimsFitCapacities(
   );
 }
 
-function resolveCollection(
-  inherited: readonly string[],
-  authored: ParsedCheckCollection | undefined
-): readonly string[] {
-  if (authored === undefined) return inherited;
-  if (authored.kind === "exact") return canonicalize(authored.values);
-  const removed = new Set(authored.remove);
-  return canonicalize([...inherited.filter((value) => !removed.has(value)), ...authored.add]);
-}
+/** One traversal owns mutations; exiting a node restores the exact parent scope. */
+class ScopedCollection {
+  #values = new Set<string>();
+  #snapshot: readonly string[] | undefined;
 
-function canonicalize(values: readonly string[]): readonly string[] {
-  return Object.freeze([...new Set(values)].sort());
+  snapshot(): readonly string[] {
+    this.#snapshot ??= Object.freeze([...this.#values].sort());
+    return this.#snapshot;
+  }
+
+  enter(authored: ParsedCheckCollection | undefined): (() => void) | undefined {
+    if (authored === undefined) return undefined;
+    const previousSnapshot = this.#snapshot;
+    if (authored.kind === "exact") {
+      const previousValues = this.#values;
+      this.#values = new Set(authored.values);
+      this.#snapshot = undefined;
+      return () => {
+        this.#values = previousValues;
+        this.#snapshot = previousSnapshot;
+      };
+    }
+    const removed: string[] = [];
+    const added: string[] = [];
+    for (const value of authored.remove) {
+      if (this.#values.delete(value)) removed.push(value);
+    }
+    for (const value of authored.add) {
+      if (!this.#values.has(value)) {
+        this.#values.add(value);
+        added.push(value);
+      }
+    }
+    if (removed.length === 0 && added.length === 0) return undefined;
+    this.#snapshot = undefined;
+    return () => {
+      for (const value of added) this.#values.delete(value);
+      for (const value of removed) this.#values.add(value);
+      this.#snapshot = previousSnapshot;
+    };
+  }
 }

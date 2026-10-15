@@ -9,8 +9,48 @@ import {
 } from "./project-definition.ts";
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 import { passed } from "./project-definition.test-support.ts";
+import { resolveCheckTree } from "./check-tree/resolution.ts";
+import {
+  deepInheritedMutexTree,
+  measureMutexSorting,
+  overlappingSchedulingCollections
+} from "./project-definition.scheduling-inheritance.test-support.ts";
 
 describe("Project Definition", () => {
+  it("restores sibling collections after exact and overlapping inherited edits", () => {
+    const normalized = normalizeProjectDefinition(
+      defineConfig({ checks: overlappingSchedulingCollections() })
+    );
+    for (const field of ["dependsOn", "mutex", "observes"] as const) {
+      assert.deepEqual(
+        normalized.checks.map((check) => [check.definition.checkId, check[field]]),
+        [
+          ["parent", ["a", "b", "z"]],
+          ["cleared", []],
+          ["replaced", ["replacement"]],
+          ["edited", ["child", "replacement"]],
+          ["restored-child", ["a", "b", "z"]],
+          ["restored-sibling", ["a", "z"]],
+          ["no-op", ["a", "z"]],
+          ["independent", []]
+        ]
+      );
+      for (const check of normalized.checks) assert.equal(Object.isFrozen(check[field]), true);
+    }
+  });
+
+  it("materializes inherited collection prefixes only for executable consumers", () => {
+    for (const size of [16, 64, 256]) {
+      const check = deepInheritedMutexTree(size);
+      const { value: tree, sortedElements } = measureMutexSorting(() =>
+        resolveCheckTree([check], 1)
+      );
+      assert.equal(tree?.leaves.length, 1);
+      assert.equal(tree.leaves[0]?.mutex.length, size);
+      assert.equal(sortedElements, size);
+    }
+  });
+
   it("uses exact scheduling inheritance and rejects retired catalog fields", () => {
     const inherited = defineCheck({
       checkId: "inherited-check",
