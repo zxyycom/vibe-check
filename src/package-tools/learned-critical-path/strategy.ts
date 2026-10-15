@@ -13,10 +13,11 @@ import type {
 import { prepareSchedulerDurationModel } from "./duration-model/preparation.ts";
 import {
   createLearnedSelectionGraph,
+  firstCandidateBy,
   learnedSelectionLayers,
   type LearnedSelectionGraph
 } from "./selection-layers.ts";
-import { staticDecision } from "./static-decision.ts";
+import { createStaticDecision } from "./static-decision.ts";
 import {
   type SchedulerPredictionInput,
   type SchedulerPredictionSnapshot,
@@ -54,7 +55,7 @@ export function createLearnedCriticalPathStrategy(
       const predictionInputs = predictionInputsFor(graph, options.identityForTask, model);
       if (predictionInputs === undefined) {
         observe(options, { kind: "history-unavailable", reason: "identity-invalid" });
-        return Object.freeze({ decide: staticDecision });
+        return Object.freeze({ decide: createStaticDecision(graph) });
       }
       const durationModel = await prepareSchedulerDurationModel({
         predictionInputs,
@@ -65,7 +66,7 @@ export function createLearnedCriticalPathStrategy(
       });
       if (durationModel.kind === "static-fallback") {
         observe(options, { kind: "history-unavailable", reason: "setup-failed" });
-        return Object.freeze({ decide: staticDecision });
+        return Object.freeze({ decide: createStaticDecision(graph) });
       }
       let decisionIndexes: LearnedDecisionIndexes;
       try {
@@ -77,7 +78,7 @@ export function createLearnedCriticalPathStrategy(
         );
       } catch {
         observe(options, { kind: "history-unavailable", reason: "setup-failed" });
-        return Object.freeze({ decide: staticDecision });
+        return Object.freeze({ decide: createStaticDecision(graph) });
       }
       return Object.freeze({
         decide: (context: AdmissionPolicyContext) =>
@@ -206,27 +207,24 @@ function selectLearnedCandidate(
 ): AdmissionPolicyContext["candidates"][number] {
   const layers = learnedSelectionLayers(context, indexes.graph);
   if (layers.tightening.length > 0)
-    return requiredFirst(
-      sortConstrained(layers.tightening, layers.taskById, layers.scopeById, indexes.scoreByTaskId)
+    return requiredCandidate(
+      firstCandidateBy(
+        layers.tightening,
+        learnedConstrainedComparator(layers.taskById, layers.scopeById, indexes.scoreByTaskId)
+      )
     );
   if (layers.continuation.length > 0)
-    return requiredFirst(
-      sortConstrained(layers.continuation, layers.taskById, layers.scopeById, indexes.scoreByTaskId)
+    return requiredCandidate(
+      firstCandidateBy(
+        layers.continuation,
+        learnedConstrainedComparator(layers.taskById, layers.scopeById, indexes.scoreByTaskId)
+      )
     );
-  return requiredFirst(
-    [...context.candidates].sort((left, right) =>
+  return requiredCandidate(
+    firstCandidateBy(context.candidates, (left, right) =>
       compareLearnedTasks(layers.taskById, indexes.scoreByTaskId, left.taskId, right.taskId)
     )
   );
-}
-
-function sortConstrained(
-  candidates: readonly AdmissionPolicyContext["candidates"][number][],
-  taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
-  scopeById: ReadonlyMap<string, SchedulerGraphSnapshot["scopes"][number]>,
-  scoreByTaskId: ReadonlyMap<string, number>
-): AdmissionPolicyContext["candidates"][number][] {
-  return [...candidates].sort(learnedConstrainedComparator(taskById, scopeById, scoreByTaskId));
 }
 
 function learnedConstrainedComparator(
@@ -299,8 +297,7 @@ function compareText(left: string, right: string): number {
   return 0;
 }
 
-function requiredFirst<T>(values: readonly T[]): T {
-  const first = values[0];
+function requiredCandidate<T>(first: T | undefined): T {
   if (first === undefined) throw new Error("learned strategy requires a candidate");
   return first;
 }

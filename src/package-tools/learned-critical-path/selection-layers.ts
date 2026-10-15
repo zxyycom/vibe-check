@@ -8,6 +8,7 @@ type Task = SchedulerGraphSnapshot["tasks"][number];
 type Scope = SchedulerGraphSnapshot["scopes"][number];
 
 export interface LearnedSelectionGraph {
+  readonly activationTaskIdsByScopeId: ReadonlyMap<string, ReadonlySet<string>>;
   readonly scopeById: ReadonlyMap<string, Scope>;
   readonly taskById: ReadonlyMap<string, Task>;
 }
@@ -20,6 +21,9 @@ export interface LearnedSelectionLayers extends LearnedSelectionGraph {
 /** Indexes the immutable public graph separately from each decision's boundary facts. */
 export function createLearnedSelectionGraph(graph: SchedulerGraphSnapshot): LearnedSelectionGraph {
   return Object.freeze({
+    activationTaskIdsByScopeId: new Map(
+      graph.scopes.map((scope) => [scope.id, new Set(scope.activationTaskIds)] as const)
+    ),
     scopeById: new Map(graph.scopes.map((scope) => [scope.id, scope] as const)),
     taskById: new Map(graph.tasks.map((task) => [task.taskId, task] as const))
   });
@@ -30,48 +34,34 @@ export function learnedSelectionLayers(
   context: AdmissionPolicyContext,
   graph: LearnedSelectionGraph = createLearnedSelectionGraph(context.graph)
 ): LearnedSelectionLayers {
-  const { taskById, scopeById } = graph;
+  const { taskById, scopeById, activationTaskIdsByScopeId } = graph;
   const activeScopeIds = new Set(context.activeScopeIds);
+  const continuation: Candidate[] = [];
+  const tightening: Candidate[] = [];
+  for (const candidate of context.candidates) {
+    const scope = scopeForCandidate(candidate, taskById, scopeById);
+    if (scope === undefined || scope.maxParallel >= context.capacity.maxParallel) continue;
+    if (activeScopeIds.has(scope.id)) continuation.push(candidate);
+    else if (activationTaskIdsByScopeId.get(scope.id)?.has(candidate.taskId) === true)
+      tightening.push(candidate);
+  }
   return Object.freeze({
-    continuation: Object.freeze(
-      context.candidates.filter((candidate) =>
-        isContinuation(candidate, taskById, scopeById, activeScopeIds, context.capacity.maxParallel)
-      )
-    ),
-    scopeById,
-    taskById,
-    tightening: Object.freeze(
-      context.candidates.filter((candidate) =>
-        isTightening(candidate, taskById, scopeById, activeScopeIds, context.capacity.maxParallel)
-      )
-    )
+    ...graph,
+    continuation: Object.freeze(continuation),
+    tightening: Object.freeze(tightening)
   });
 }
 
-function isTightening(
-  candidate: Candidate,
-  taskById: ReadonlyMap<string, Task>,
-  scopeById: ReadonlyMap<string, Scope>,
-  activeScopeIds: ReadonlySet<string>,
-  maxParallel: number
-): boolean {
-  const scope = scopeForCandidate(candidate, taskById, scopeById);
-  return (
-    scope?.activationTaskIds.includes(candidate.taskId) === true &&
-    !activeScopeIds.has(scope.id) &&
-    scope.maxParallel < maxParallel
-  );
-}
-
-function isContinuation(
-  candidate: Candidate,
-  taskById: ReadonlyMap<string, Task>,
-  scopeById: ReadonlyMap<string, Scope>,
-  activeScopeIds: ReadonlySet<string>,
-  maxParallel: number
-): boolean {
-  const scope = scopeForCandidate(candidate, taskById, scopeById);
-  return scope !== undefined && activeScopeIds.has(scope.id) && scope.maxParallel < maxParallel;
+/** Stable sort's first item without sorting or allocating an ordered copy. */
+export function firstCandidateBy(
+  candidates: readonly Candidate[],
+  compare: (left: Candidate, right: Candidate) => number
+): Candidate | undefined {
+  let first: Candidate | undefined;
+  for (const candidate of candidates) {
+    if (first === undefined || compare(candidate, first) < 0) first = candidate;
+  }
+  return first;
 }
 
 export function scopeForCandidate(

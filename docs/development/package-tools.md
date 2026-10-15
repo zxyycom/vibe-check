@@ -44,6 +44,15 @@ observation sequence。missing、malformed、incompatible 或 read-failed histor
 setup、prediction 或 score construction failure 使用 static decision fallback。record/write failure 与并发 last-writer
 只影响后续样本；observer failure 由 helper 包含。参数、安全与使用方法由[调度指南](../guides/learned-scheduling.md)拥有。
 
+learned 与 static fallback 在每次 preparation 建立 immutable graph 索引，包括 scope activation Sets。每次 decision
+单次遍历候选完成 tightening/continuation 分类，再按各层 comparator 线性取最小项，保持稳定 tie、层顺序和 wait。
+learned ordinary 的首选不可准入时仍 wait；fallback ordinary 先比较 canAdmit，再比较 priority/ID。候选数为 C 时，
+选择比较为 O(C)；完整 public candidates/context 的生产仍由 Scheduler 承担。
+
+factory 的[具体返回类型保证 prepare/decide 是可调用函数](../guides/scheduling.md#typescript-编写与槽位消费)，
+因此沿用 legacy/full callback context 及其完整 measurement/context 成本。helper 经普通公开 lifecycle 接线，
+history retention、样本、各层 comparator 与 observer 继续由上述 owner 维护。
+
 ## Caller-keyed cache boundary
 
 `src/package-tools/cache/**` 拥有 caller-keyed canonical JSON object 的 identity、untrusted disk envelope、

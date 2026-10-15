@@ -4,12 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { createAdmissionGraph } from "../../project-run/task-scheduler/admission-core/core.ts";
-import type {
-  AdmissionPolicyContext,
-  SchedulerGraphSnapshot
-} from "../../project-definition/project-definition.ts";
+import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 import { createLearnedCriticalPathStrategy } from "./strategy.ts";
+import { firstCandidateBy } from "./selection-layers.ts";
+import { context, contextFor, graph, graphFor, task } from "./strategy.test-support.ts";
 
 describe("public learned critical-path strategy", () => {
   it("uses the public scope layers and returns wait for an unavailable learned preference", async () => {
@@ -145,7 +143,47 @@ describe("public learned critical-path strategy", () => {
         stateDirectory
       });
       if (fallback.kind !== "prepared") throw new Error("expected prepared strategy");
-      const fallbackPrepared = await fallback.prepare({ graph: scopedGraph });
+      let graphReads = 0;
+      const countedGraph: SchedulerGraphSnapshot = {
+        ...scopedGraph,
+        get tasks() {
+          graphReads += 1;
+          return scopedGraph.tasks;
+        }
+      };
+      const fallbackPrepared = await fallback.prepare({ graph: countedGraph });
+      const preparedGraphReads = graphReads;
+      const fallbackContext = contextFor(scopedGraph, [
+        { canAdmit: true, taskId: "cap-two" },
+        { canAdmit: true, taskId: "cap-one" }
+      ]);
+      for (let boundary = 0; boundary < 8; boundary += 1) {
+        assert.deepEqual(fallbackPrepared.decide({ ...fallbackContext, graph: countedGraph }), {
+          kind: "select",
+          taskId: "cap-one"
+        });
+      }
+      assert.equal(graphReads, preparedGraphReads, "fallback rebuilt its prepared graph index");
+      const ordinaryFallback = await fallback.prepare({ graph: priorityGraph });
+      assert.deepEqual(
+        ordinaryFallback.decide(
+          contextFor(priorityGraph, [
+            { canAdmit: false, taskId: "high-priority" },
+            { canAdmit: true, taskId: "low-priority" }
+          ])
+        ),
+        { kind: "select", taskId: "low-priority" }
+      );
+      assert.deepEqual(
+        priority.decide(
+          contextFor(priorityGraph, [
+            { canAdmit: false, taskId: "high-priority" },
+            { canAdmit: true, taskId: "low-priority" }
+          ])
+        ),
+        { kind: "wait" }
+      );
+      assertLinearStableMinimum();
       assert.deepEqual(
         fallbackPrepared.decide(
           contextFor(scopedGraph, [
@@ -203,89 +241,22 @@ function preparedStrategy(stateDirectory: string, schedulerGraph: SchedulerGraph
   return strategy.prepare({ graph: schedulerGraph });
 }
 
-function task(
-  taskId: string,
-  overrides: Partial<SchedulerGraphSnapshot["tasks"][number]> = {}
-): SchedulerGraphSnapshot["tasks"][number] {
-  return Object.freeze({
-    admissionPriority: 0,
-    dependsOn: Object.freeze([]),
-    mutex: Object.freeze([]),
-    observes: Object.freeze([]),
-    resourceClaims: Object.freeze([]),
-    scopeId: null,
-    taskId,
-    ...overrides
-  });
-}
-
-function graph(): SchedulerGraphSnapshot {
-  return graphFor(
-    [task("ordinary", { admissionPriority: 99 }), task("activate", { scopeId: "limited" })],
-    Object.freeze([
-      Object.freeze({
-        activationTaskIds: Object.freeze(["activate"]),
-        id: "limited",
-        maxParallel: 1,
-        terminalTaskId: "activate"
-      })
-    ])
-  );
-}
-
-function graphFor(
-  tasks: readonly SchedulerGraphSnapshot["tasks"][number][],
-  scopes: readonly SchedulerGraphSnapshot["scopes"][number][] = Object.freeze([])
-): SchedulerGraphSnapshot {
-  return Object.freeze({
-    resourceCapacities: Object.freeze([]),
-    scopes: Object.freeze(scopes),
-    tasks: Object.freeze(tasks)
-  });
-}
-
-function contextFor(
-  schedulerGraph: SchedulerGraphSnapshot,
-  candidates: readonly { readonly canAdmit: boolean; readonly taskId: string }[],
-  activeScopeIds: readonly string[] = []
-): AdmissionPolicyContext {
-  return {
-    activeScopeIds,
-    admissionState: createAdmissionGraph({ graph: schedulerGraph, maxParallel: 4 }).initialState(),
-    candidates,
-    capacity: { effectiveMaxParallel: 4, maxParallel: 4, running: 0 },
-    graph: schedulerGraph,
-    measurement: emptyMeasurement(),
-    runningTaskIds: [],
-    runtime: { abortRequested: false, cancelled: false },
-    settledTaskIds: []
-  };
-}
-
-function emptyMeasurement(): AdmissionPolicyContext["measurement"] {
-  return Object.freeze({
-    cumulative: Object.freeze({
-      declarativeFingerprint: "test",
-      discrete: Object.freeze({ acceptedWaitCount: 0, admittedCount: 0, maxRunning: 0 }),
-      peaks: Object.freeze({
-        admissionViablePendingTaskCount: 0,
-        admissiblePendingTaskCount: 0,
-        capacityBlockedTaskCount: 0,
-        mutexBlockedTaskCount: 0
-      }),
-      timing: Object.freeze({
-        availability: "unavailable" as const,
-        reason: "clock-threw" as const
-      })
-    }),
-    measurementAt: () => undefined,
-    measurementCount: 0
-  });
-}
-
-function context(
-  candidates: readonly { readonly canAdmit: boolean; readonly taskId: string }[],
-  activeScopeIds: readonly string[] = []
-): AdmissionPolicyContext {
-  return contextFor(graph(), candidates, activeScopeIds);
+/** A minimum keeps stable ties and requires only one comparison per subsequent candidate. */
+function assertLinearStableMinimum(): void {
+  for (const width of [32, 512]) {
+    const candidates = Array.from({ length: width }, (_, slot) => ({
+      canAdmit: slot % 2 === 0,
+      taskId: String((slot * 37) % width)
+    }));
+    const compare = (left: (typeof candidates)[number], right: (typeof candidates)[number]) =>
+      (Number(right.taskId) % 7) - (Number(left.taskId) % 7);
+    let comparisons = 0;
+    const selected = firstCandidateBy(candidates, (left, right) => {
+      comparisons += 1;
+      return compare(left, right);
+    });
+    assert.equal(selected, [...candidates].sort(compare)[0]);
+    assert.equal(comparisons, width - 1);
+    assert.equal(firstCandidateBy([], compare), undefined);
+  }
 }

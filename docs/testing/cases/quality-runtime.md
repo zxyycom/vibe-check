@@ -432,7 +432,7 @@ Entities:
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a caller-owned absolute state directory`
   Proves:
 
-- The exported learned factory builds an ordinary prepared custom strategy from caller-owned history location and identity projection. It captures its immutable graph/prediction before admission, compares critical-path score within existing layers, and keeps generic relation, mutex, capacity, cancellation and drain guards authoritative.
+- 公开 learned factory 用调用方提供的 history 位置和 identity 构造普通 prepared custom strategy；在 admission 前捕获 immutable graph/prediction，fallback 在同次 preparation 后复用静态索引。各层以原 comparator 线性取首并保留稳定 tie；learned 首选不可准入时返回 wait，fallback ordinary 优先选择可准入者而非受阻的高 priority 候选。relation、mutex、capacity、取消和 drain guards 始终决定最终合法性。
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-DIAGNOSTICS-001: Learned caller observations stay bounded and non-quality-bearing
 
