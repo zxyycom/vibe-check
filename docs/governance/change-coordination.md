@@ -56,8 +56,8 @@ Case 账本、来源映射、知识索引与本协调页由主线程串行协调
 ### 按需上下文与准备事实优化
 
 本轮三个 Change 各自拥有独立 Outcome；局部 exact-key membership 与 Markdown component cursor 改动
-按各自源码 owner 直接验收，不扩张旧性能 Plan。本轮 Git 提交已获授权；已启用 hook 的受限自动推送遵循
-[工作区提交规则](../tooling/workspace.md#local-post-commit-auto-push)，Change 结项删除仍须另行授权。
+按各自源码 owner 直接验收，不扩张旧性能 Plan。Git 提交与 Change 结项删除分别由当前任务明确授权；
+已启用 hook 的受限自动推送遵循[工作区提交规则](../tooling/workspace.md#local-post-commit-auto-push)。
 
 | 当前 Change | 写入与验收边界 |
 | --- | --- |
@@ -175,6 +175,24 @@ pending outcome、observer 与 drain 语义后才能激活。若它先激活，�
 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 命名 consumer、安全 input acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据齐备；恢复时重新形成 Plan。 |
 | [`decide-file-metrics-public-scc-expansion`](../../changes/decide-file-metrics-public-scc-expansion/proposal.md) | 出现当前 executable-only contract 无法满足的具体 consumer outcome，再评审独立 public contract。 |
 | [`refine-agent-document-routing`](../../changes/refine-agent-document-routing/proposal.md) | 用户明确恢复后，以代表性任务重新评估 AGENTS、导航和领域 owner 的路由边界。 |
+
+### 普查后的语义保持成本优化
+
+下列 Change 分别验收声明处理、文件匹配、调度、learned helper 与工具链的重复成本。
+无效声明的提前配置失败由独立 Decision 约束；其余切面保持既有行为，旧 learned backfill 实验仍按前述证据队列进入条件处理：
+
+| 当前 Change | 写入与验收边界 |
+| --- | --- |
+| [`bound-check-tree-processing-cost`](../../changes/bound-check-tree-processing-cost/proposal.md) | 声明解析与继承集合；重复 executable ID 提前配置失败由[独立决策](../decisions/reject-duplicate-executable-checks-before-expansion.md)约束，合法树行为不变。 |
+| [`reduce-project-file-matching-work`](../../changes/reduce-project-file-matching-work/proposal.md) | 深路径前缀与窄 literal selection；原生 pattern fallback、默认排除、文件身份与授权保持。 |
+| [`reduce-scheduler-repeated-work`](../../changes/reduce-scheduler-repeated-work/proposal.md) | 图验证、Shell membership 与精确 measurement 的局部重复工作；不改变结算顺序、浮点累加顺序和 immutable 分支。 |
+| [`reduce-learned-strategy-computation`](../../changes/reduce-learned-strategy-computation/proposal.md) | 私有候选计算与 fallback 索引；保留层序、comparator、first-only wait 和公开 callable 回调保证。 |
+| [`reduce-tooling-repeated-work`](../../changes/reduce-tooling-repeated-work/proposal.md) | 文档、package、Gate、workbench 和验证工具的局部索引与一次拼接；不跳过完整性或安全验收。 |
+
+源码写入按 owner 互斥；共享 Case Topic、知识索引与本页安排唯一写入者。性能计时独占，
+与测试、计数、构建和 Gate 分开；输入稳定后统一运行 candidate-backed required 与 complete Gate，并由非实施代理
+按实际 diff 反查行为和文档。Analyzer、缓存容量管理、schema 跨 binding 快照、默认 timeout 与安全探测在这些 Change 范围之外。
+提交与结项分别遵循下文[Worktree 与合入规则](#worktree-与合入规则)和当前任务授权。
 
 ## Worktree 与合入规则
 
