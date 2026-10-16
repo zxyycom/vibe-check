@@ -148,20 +148,17 @@ owner 时，实施与提交必须串行。
 
 ### 全局声明式上下文与 Scheduler 底层重构
 
-声明式上下文已交付，当前契约由 [API 机制](../api-mechanics.md#声明式-callback-context)与
-[调度指南](../guides/scheduling.md)拥有。底层重构从该稳定交付建立基线，实施步骤与门禁由自身 tasks 拥有。
-
-| 当前 Change | 独立交付与进入条件 |
-| --- | --- |
-| [`restructure-scheduler-incremental-state`](../../changes/restructure-scheduler-incremental-state/proposal.md) | 上下文交付并提交后，复核该基线，完成 typed 成员索引、统一变化传播、查询与等待统计的独立重构和验收。 |
+声明式上下文与底层状态重构均已交付；当前契约由 [API 机制](../api-mechanics.md#声明式-callback-context)、
+[调度指南](../guides/scheduling.md)与 [Scheduler owner](../development/scheduler.md)拥有。
+本节不保留已结项 Change 的阶段、计划或性能证据副本。
 
 共享 Scheduler、Definition、Invocation、公开类型、Case 和稳定文档的写入与提交串行协调。
 底层项优化已请求数据的维护和计算，不重新打开已交付上下文 API 或把需求开关迁移混入性能结论。
 
 ### Scheduler 证据队列
 
-底层状态重构与以下策略证据队列分别验收；共用 Scheduler owner 的源码和 Case 写入串行，性能采样使用独占窗口。
-前者交付改变数据模型或观察输入时，策略队列继续前重新核对其输入与验收基线。
+以下策略证据队列与已交付的底层状态重构独立验收；共用 Scheduler owner 的源码和 Case 写入串行，性能采样使用独占窗口。
+策略队列继续前，以当前 Scheduler 数据模型与观察输入重新核对其输入和验收基线。
 
 Scheduler 的当前行为由 runtime、Architecture、API mechanics、
 [统一 Invocation 策略生命周期 Decision](../decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md)

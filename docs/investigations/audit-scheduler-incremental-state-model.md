@@ -17,10 +17,16 @@ relations:
 ## 形成时背景
 
 本轮由用户要求“先完整结构普查，再讨论”而形成，服务当时处于 Draft 的 Change
-[`restructure-scheduler-incremental-state`](../../changes/restructure-scheduler-incremental-state/proposal.md)。
+`restructure-scheduler-incremental-state`。
 用户提出 `Map<string, Set<TaskID>>`，希望状态集合、约束分组与 frontier 不再各自重复维护同一变化，
-并允许重新讨论公开观察与统计语义。本报告记录调查当时的候选和待确认边界；底层重构的执行安排由
-[Scheduler Change](../../changes/restructure-scheduler-incremental-state/proposal.md)承接。
+并允许重新讨论公开观察与统计语义。本报告记录调查当时的候选和待确认边界，不以之后的实施结果改写形成时结论。
+底层重构 Change 已结项，其 Plan 与实施采用证据分别可从验收提交恢复：
+
+```text
+git show 14a64e5e659f30adde357e95f6b7d446dc147149:changes/restructure-scheduler-incremental-state/proposal.md
+git show 14a64e5e659f30adde357e95f6b7d446dc147149:changes/restructure-scheduler-incremental-state/evidence/README.md
+```
+
 声明式上下文 Change 已结项，其 Plan 可从
 `git show de9cf844534b1b799b9c7e0dd75f7ff0dfba7c14:changes/adopt-declarative-callback-contexts/proposal.md`
 恢复。当前上下文契约见 [API 机制](../api-mechanics.md#声明式-callback-context)，不以本报告的形成时认识代替。
