@@ -196,7 +196,7 @@ repository-private scope 只让 TypeScript、current Schemas 和 examples 进入
 metrics，但仍由显式 documentation contract 严格验证。repository defaults 还排除 `**/archive/**`；这是本项目配置，不是
 package 的公共默认值。
 
-Markdown Link 保留完整的 `docs/**/*.md` / `changes/**/*.md` 输入与既有安全边界；Gate 显式设置 `limits.maxTargetReads: 2_000`，为仓库规模提供有限余量。该计数按 logical target occurrence 消耗，不等于实际文件读取次数；其余 limits 和 Product 默认值不变，达到预算仍结算为 `unavailable`，不降级放行。
+Markdown Link 保留完整的 `docs/**/*.md` / `changes/**/*.md` 输入与既有安全边界；Gate 显式设置 `limits.maxTargetReads: 3_000`，为仓库规模提供有限余量。该计数按 logical target occurrence 消耗，不等于实际文件读取次数；其余 limits 和 Product 默认值不变，达到预算仍结算为 `unavailable`，不降级放行。
 
 三个 metrics Check 的 `product-source` area 具有一个共同排除范围和一项差异：
 
