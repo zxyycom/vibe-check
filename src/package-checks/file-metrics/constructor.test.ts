@@ -1,3 +1,4 @@
+import { prepareCheckOptions } from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -171,7 +172,8 @@ describe("fileMetrics constructor and direct callback", () => {
         /fileMetrics options must match/
       );
     }
-    const invalidPreparation = await defaultCheck.prepare!(
+    const invalidPreparation = await prepareCheckOptions(
+      defaultCheck.prepare!,
       { ...defaultCheck.options, codeAreas: {} },
       new AbortController().signal
     );

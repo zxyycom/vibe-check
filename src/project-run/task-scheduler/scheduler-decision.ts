@@ -34,7 +34,9 @@ export function decideScheduler(
   snapshot: SchedulerSnapshot,
   trigger: SchedulerTrigger,
   policy: AdmissionSelectionPolicy = staticAdmissionSelectionPolicy,
-  measurement?: () => AdmissionPolicyContext["measurement"],
+  measurement?: () => Readonly<
+    Partial<Pick<AdmissionPolicyContext, "cumulative" | "actionHistory">>
+  >,
   admissionCore?: AdmissionCoreState
 ): SchedulerDecision {
   const core =
@@ -75,7 +77,9 @@ export function decideSchedulerFromCore(
     readonly runtime: Pick<SchedulerSnapshot, "isAbortRequested" | "isCancelled">;
     readonly trigger: SchedulerTrigger;
     readonly policy: AdmissionSelectionPolicy;
-    readonly measurement?: () => AdmissionPolicyContext["measurement"];
+    readonly measurement?: () => Readonly<
+      Partial<Pick<AdmissionPolicyContext, "cumulative" | "actionHistory">>
+    >;
     /** Preserves standalone snapshot cancellation order when one was supplied. */
     readonly pendingTaskIds?: readonly string[];
   }>

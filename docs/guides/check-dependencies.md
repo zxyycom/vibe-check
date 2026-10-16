@@ -14,6 +14,7 @@
 ## 完整运行示例
 
 ```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const CHANGED_FILES_DATA_VERSION = 1 as const;
@@ -54,7 +55,7 @@ const analyzeChangedFiles = defineCheck({
   checkId: "analyze-changed-files",
   displayName: "Analyze changed files",
   dependsOn: [changedFiles.checkId],
-  execute({ dependencies }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
     const read = dependencies.get(changedFiles);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
 
@@ -69,7 +70,7 @@ const analyzeChangedFiles = defineCheck({
       status: "passed",
       data: { analyzedByteCount: firstFileBytes.byteLength, analyzedFileCount: data.files.length }
     };
-  }
+  } })
 });
 
 const definition = defineConfig({
@@ -141,6 +142,10 @@ TypeScript 拒绝 async 或返回 `PromiseLike` 的 parser，即使推断结果�
 parser 接收 Check-facts-owned 的 detached、deep-frozen canonical object，而不是原始 author object 或 JSON 文本。provider 拥有 shape、版本、业务不变量与抛错策略；Product 不自动调用 parser，也不另建 parser-rejection result。consumer 在自己的 execution 中调用 parser 时，未捕获的抛错沿用 Check execution 的失败边界。
 
 同版本可信 provider 若已有测试保证 shape，可以把 parser 用作 identity/type anchor；这不是对 JavaScript、cast、跨版本 artifact 或不可信输入的运行时验证。此类输入应由 provider 显式验证。每个随包 Check 的同名 `parseData` 与 package-root parser 只解析单个 final-data object，不替代 [machine publication/schema 验证](../output.md)。
+
+consumer 的 execution 通过 `defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback })`
+显式请求 dependencies，业务 options 是 callback 第一参数。需求仅决定 facade 生产与交付，不扩大以下 direct relation 授权；
+不请求 facade 时，上游等待、hard prerequisite guards 与 handoff settlement 仍执行。
 
 ## Direct relation 与读取规则
 

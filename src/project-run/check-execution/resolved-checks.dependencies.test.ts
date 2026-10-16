@@ -1,3 +1,5 @@
+import { createProjectContextSource } from "../project-context.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -128,21 +130,24 @@ describe("Package Run direct Check execution", () => {
       checks: [
         normalized(() => upstreamCase.terminalResult, { checkId: "source", displayName: "Source" }),
         normalized(
-          (context) => {
-            dependentCalls += 1;
-            assert.equal(Object.isFrozen(context), true);
-            const { dependencies } = context;
-            assert.equal(Object.isFrozen(dependencies), true);
-            observedRead = dependencies.get("source");
-            assert.equal(Object.isFrozen(observedRead), true);
-            if (!observedRead.ok) assert.equal(Object.isFrozen(observedRead.error), true);
-            return { status: "passed", data: { dependent: true } };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, context) => {
+              dependentCalls += 1;
+              assert.equal(Object.isFrozen(context), true);
+              const { dependencies } = context;
+              assert.equal(Object.isFrozen(dependencies), true);
+              observedRead = dependencies.get("source");
+              assert.equal(Object.isFrozen(observedRead), true);
+              if (!observedRead.ok) assert.equal(Object.isFrozen(observedRead.error), true);
+              return { status: "passed", data: { dependent: true } };
+            }
+          }),
           { checkId: "dependent", observes: ["source"], displayName: "Dependent" }
         )
       ],
       maxParallel: 1,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     assert.equal(execution.kind, "completed");
@@ -189,18 +194,21 @@ describe("Package Run direct Check execution", () => {
           displayName: "Ambient"
         }),
         normalized(
-          (context) => {
-            const { dependencies } = context;
-            directRead = dependencies.get("middle");
-            directList = dependencies.list();
-            transitiveRead = dependencies.get("ambient");
-            malformedRead = Reflect.apply(
-              (checkId: string) => dependencies.get(checkId),
-              undefined,
-              [42]
-            );
-            return { status: "passed", data: { dependent: true } };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, context) => {
+              const { dependencies } = context;
+              directRead = dependencies.get("middle");
+              directList = dependencies.list();
+              transitiveRead = dependencies.get("ambient");
+              malformedRead = Reflect.apply(
+                (checkId: string) => dependencies.get(checkId),
+                undefined,
+                [42]
+              );
+              return { status: "passed", data: { dependent: true } };
+            }
+          }),
           {
             checkId: "dependent",
             dependsOn: ["middle"],
@@ -211,7 +219,7 @@ describe("Package Run direct Check execution", () => {
       ],
       diagnosticLogger: recordingLogger(observations),
       maxParallel: 1,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
 

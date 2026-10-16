@@ -1,6 +1,5 @@
 import type {
-  AdmissionPolicyMeasurement,
-  SchedulerDecisionMeasurementCumulative,
+  SchedulerActionHistory,
   SchedulerMeasurementActionObservation,
   SchedulerMeasurementEffect,
   SchedulerMeasurementIntervalContribution,
@@ -52,10 +51,10 @@ export class SchedulerPolicyMeasurement {
     this.#actionObservations.push(completedObservation(action, interval));
   }
 
-  public snapshot(cumulative: SchedulerDecisionMeasurementCumulative): AdmissionPolicyMeasurement {
+  public snapshot(): SchedulerActionHistory {
     const endCount = this.#actionObservations.length;
     const measurementAt = Object.freeze((index: number) => this.#measurementAt(index, endCount));
-    return Object.freeze({ cumulative, measurementAt, measurementCount: endCount });
+    return Object.freeze({ measurementAt, measurementCount: endCount });
   }
 
   #begin(action: AcceptedPolicyAction, baseline: SchedulerMeasurementIntervalContribution): void {

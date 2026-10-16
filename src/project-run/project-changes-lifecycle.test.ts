@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -29,15 +30,21 @@ describe("Package Run project changes", () => {
               checkId: "change-aware",
               displayName: "Change aware",
               enabledByFlags: { when: RUNTIME_CHANGE_FLAG },
-              prepare: (options, _signal, project) => {
-                preparedProject = project;
-                return { preparedOptions: options, status: "success" };
-              },
-              execute: ({ project }) => {
-                calls += 1;
-                executedProject = project;
-                return { data: {}, status: "passed" };
-              }
+              prepare: defineContextCallback("check.prepare", {
+                contextNeeds: ["project"],
+                callback: (options, { project }) => {
+                  preparedProject = project;
+                  return { preparedOptions: options, status: "success" };
+                }
+              }),
+              execute: defineContextCallback("check.execute", {
+                contextNeeds: ["project"],
+                callback: (options, { project }) => {
+                  calls += 1;
+                  executedProject = project;
+                  return { data: {}, status: "passed" };
+                }
+              })
             }
           ],
           outputs: disabledOutputs()
@@ -116,10 +123,13 @@ describe("Package Run project changes", () => {
               checkId: "change-aware",
               displayName: "Change aware",
               enabledByFlags: { when: RUNTIME_CHANGE_FLAG },
-              execute: ({ project }) => {
-                observed = project;
-                return { data: {}, status: "passed" };
-              }
+              execute: defineContextCallback("check.execute", {
+                contextNeeds: ["project"],
+                callback: (options, { project }) => {
+                  observed = project;
+                  return { data: {}, status: "passed" };
+                }
+              })
             }
           ],
           outputs: disabledOutputs()

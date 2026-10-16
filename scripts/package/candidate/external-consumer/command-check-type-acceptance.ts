@@ -25,28 +25,28 @@ const commandInput: CommandCheckInput<"isolated-command-check"> = {
 };
 const installedCommandCheck: CommandCheck<"isolated-command-check"> = commandCheck(commandInput);
 const installedCommandExecute: (
-  context: Parameters<typeof installedCommandCheck.execute>[0]
+  options: ResolvedCommandCheckOptions, context: CheckExecutionContext
 ) => CheckResult<CommandCheckFinalData> | Promise<CheckResult<CommandCheckFinalData>> =
-  installedCommandCheck.execute;
+  installedCommandCheck.execute.callback;
 const ordinaryAfterCommand = commandCheck({
   ...commandInput,
   checkId: "ordinary-after-command",
   afterCommand: {
-    execute: ({ command, records }) => {
+    execute: defineContextCallback("command.complete", { contextNeeds: ["records"], callback: ({ command }, { records }) => {
       records.report({ id: "ordinary-after-command" }, { stderrLength: command.stderr.length });
       return { status: "passed", data: { stdout: command.stdout } };
-    }
+    } })
   }
 });
 const ordinaryAfterCommandExecute: (
-  context: Parameters<typeof ordinaryAfterCommand.execute>[0]
+  options: ResolvedCommandCheckOptions, context: CheckExecutionContext
 ) => CheckResult<{ readonly stdout: string }> | Promise<CheckResult<{ readonly stdout: string }>> =
-  ordinaryAfterCommand.execute;
+  ordinaryAfterCommand.execute.callback;
 const typedAfterCommand = commandCheck({
   ...commandInput,
   checkId: "typed-after-command",
   afterCommand: {
-    execute: ({ command }) => ({ status: "passed", data: { source: command.stdout } }),
+    execute: ({ command }, {  }) => ({ status: "passed", data: { source: command.stdout } }),
     parseData: (data) => {
       if (typeof data.source !== "string") throw new TypeError("typed command data is invalid");
       return { source: data.source };
@@ -95,4 +95,18 @@ void [
   typedAfterCommand,
   typedAfterCommandParser
 ];
+
+const { environment: ignoredStaticEnvironment, ...resolvedCommandInput } = commandInput;
+const resolvedEnvironmentCommand = commandCheck({
+  ...resolvedCommandInput,
+  checkId: "declared-environment-command",
+  resolveEnvironment: defineContextCallback("command.environment", {
+    contextNeeds: ["project", "signal"],
+    callback(options, { project, signal }) {
+      void signal.aborted;
+      return { mode: "exact", variables: { ROOT: project.root, EXE: options.executable } };
+    }
+  })
+});
+void [ignoredStaticEnvironment, resolvedEnvironmentCommand];
 `;

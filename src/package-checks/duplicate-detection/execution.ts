@@ -1,4 +1,4 @@
-import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
+import type { DeepReadonly, CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import {
   reconcileFindingWaivers,
   type FindingWaiverReconciliation
@@ -45,44 +45,39 @@ export type DuplicateDetectionUnavailableReasonCode =
 
 /** Default Check callback；scanner configuration 由其完整 options 拥有。 */
 export async function executeDuplicateDetection(
-  context: CheckExecutionContext<ResolvedDuplicateDetectionOptions>
+  options: DeepReadonly<ResolvedDuplicateDetectionOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records">
 ): Promise<CheckResult<DuplicateDetectionFinalData>> {
-  if (!validResolvedDuplicateDetectionOptions(context.options))
-    return unavailable("invalid-options");
+  if (!validResolvedDuplicateDetectionOptions(options)) return unavailable("invalid-options");
 
   let exactInput: DuplicateDetectionExactInputSet;
   try {
-    exactInput = prepareExactInputSet(context.project.root, context.options);
+    exactInput = prepareExactInputSet(context.project.root, options);
   } catch {
     return unavailable("source-unavailable");
   }
   if (exactInput.approvedExactPaths.length < 2) {
-    return noEligibleDuplicateInputResult(context);
+    return noEligibleDuplicateInputResult(options, context);
   }
   const measurement = await measureDuplicateDetection({
-    cache: context.options.cache,
-    dependency: context.options.scanner,
+    cache: options.cache,
+    dependency: options.scanner,
     exactInput
   });
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
-  const candidates = buildDuplicateRecordCandidates(
-    measurement.fragments,
-    context.options.codeAreas
-  );
+  const candidates = buildDuplicateRecordCandidates(measurement.fragments, options.codeAreas);
   if (candidates === undefined) return unavailable("external-result-invalid");
-  const reconciliation = reconcileDuplicateFindingWaivers(
-    candidates,
-    context.options.findingWaivers
-  );
+  const reconciliation = reconcileDuplicateFindingWaivers(candidates, options.findingWaivers);
   reportReconciledCodeQualityFindingRecords(context, reconciliation);
   reportFindingWaiverAudits(context, reconciliation, duplicateDetectionWaiverAuditRecord);
   return settleDuplicateFindings(reconciliation);
 }
 
 function noEligibleDuplicateInputResult(
-  context: CheckExecutionContext<ResolvedDuplicateDetectionOptions>
+  options: DeepReadonly<ResolvedDuplicateDetectionOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records">
 ): CheckResult<DuplicateDetectionFinalData> {
-  const reconciliation = reconcileDuplicateFindingWaivers([], context.options.findingWaivers);
+  const reconciliation = reconcileDuplicateFindingWaivers([], options.findingWaivers);
   reportFindingWaiverAudits(context, reconciliation, duplicateDetectionWaiverAuditRecord);
   return appendCheckMessages(
     Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } }),

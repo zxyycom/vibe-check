@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -8,7 +9,7 @@ import { assertFrozenSchedulerGraphSnapshot, scriptedClock } from "../task-engin
 import { DECLARATIVE_FINGERPRINT } from "./diagnostics.test-support.ts";
 
 describe("Scheduler terminal effects", () => {
-  it("awaits ordered hooks over one immutable terminal context without exposing Task values", async () => {
+  it("awaits ordered hooks over exact immutable terminal views without exposing Task values", async () => {
     const calls: string[] = [];
     let successes = 0;
     const contexts: SchedulerMeasurementContext[] = [];
@@ -21,16 +22,22 @@ describe("Scheduler terminal effects", () => {
         declarativeFingerprint: DECLARATIVE_FINGERPRINT
       }),
       terminalEffects: [
-        async (context) => {
-          calls.push("first-start");
-          contexts.push(context);
-          await Promise.resolve();
-          calls.push("first-end");
-        },
-        (context) => {
-          calls.push("second");
-          contexts.push(context);
-        }
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: async (context) => {
+            calls.push("first-start");
+            contexts.push(context);
+            await Promise.resolve();
+            calls.push("first-end");
+          }
+        }),
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: (context) => {
+            calls.push("second");
+            contexts.push(context);
+          }
+        })
       ],
       onTerminalEffectsSettled: () => {
         successes += 1;
@@ -39,7 +46,7 @@ describe("Scheduler terminal effects", () => {
 
     assert.deepEqual(calls, ["first-start", "first-end", "second"]);
     assert.equal(successes, 1);
-    assert.equal(contexts[0], contexts[1]);
+    assert.notEqual(contexts[0], contexts[1]);
     const context = contexts[0];
     if (context === undefined) assert.fail("expected terminal measurement context");
     assertTerminalMeasurementContext(context);
@@ -63,10 +70,13 @@ describe("Scheduler terminal effects", () => {
         logger
       }),
       terminalEffects: [
-        async () => {
-          await Promise.resolve();
-          calls.push("caller");
-        }
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: async () => {
+            await Promise.resolve();
+            calls.push("caller");
+          }
+        })
       ]
     });
     assert.deepEqual(calls, ["summary", "caller"]);
@@ -90,10 +100,13 @@ describe("Scheduler terminal effects", () => {
         }
       }),
       terminalEffects: [
-        () => {
-          calls.push("caller");
-          throw new Error("caller failure");
-        }
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: () => {
+            calls.push("caller");
+            throw new Error("caller failure");
+          }
+        })
       ],
       onTerminalEffectFailure: () => {
         callerFailureCount += 1;
@@ -117,15 +130,26 @@ describe("Scheduler terminal effects", () => {
         declarativeFingerprint: DECLARATIVE_FINGERPRINT
       }),
       terminalEffects: [
-        () => {
-          calls.push("sync");
-          throw new Error("sync failure");
-        },
-        async () => {
-          calls.push("async");
-          throw new Error("async failure");
-        },
-        () => calls.push("after")
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: () => {
+            calls.push("sync");
+            throw new Error("sync failure");
+          }
+        }),
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: async () => {
+            calls.push("async");
+            throw new Error("async failure");
+          }
+        }),
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: () => {
+            calls.push("after");
+          }
+        })
       ],
       onTerminalEffectFailure: () => {
         failures += 1;
@@ -148,23 +172,25 @@ function assertTerminalMeasurementContext(context: SchedulerMeasurementContext):
   assert.equal(Object.isFrozen(context.execution), true);
   assert.equal(Object.isFrozen(context.execution.settledTasks), true);
   assert.equal(Object.isFrozen(context.execution.settledTasks[0]), true);
-  assert.equal(Object.isFrozen(context.rawMeasurement), true);
-  assert.equal(Object.isFrozen(context.rawMeasurement.discrete), true);
-  assert.equal(Object.isFrozen(context.rawMeasurement.peaks), true);
-  const timingFacts = context.rawMeasurement.timingFacts;
+  assert.equal(Object.isFrozen(context.runMeasurement), true);
+  assert.equal(Object.isFrozen(context.runMeasurement.discrete), true);
+  assert.equal(Object.isFrozen(context.runMeasurement.peaks), true);
+  const timingFacts = context.runMeasurement.timingFacts;
   if (timingFacts !== undefined) {
     assert.equal(Object.isFrozen(timingFacts), true);
-    assert.equal(Object.isFrozen(timingFacts.admissions), true);
-    assert.equal(Object.isFrozen(timingFacts.admissions[0]), true);
-    assert.equal(Object.isFrozen(timingFacts.admissions[0]?.admissionDelay), true);
+    assert.equal("admissions" in timingFacts, false);
+    if (!("admissions" in context.taskTimings)) assert.fail("expected available task timings");
+    assert.equal(Object.isFrozen(context.taskTimings.admissions), true);
+    assert.equal(Object.isFrozen(context.taskTimings.admissions[0]), true);
+    assert.equal(Object.isFrozen(context.taskTimings.admissions[0]?.admissionDelay), true);
   }
   assert.deepEqual(context.execution.admittedTaskIds, ["first", "second"]);
   assert.deepEqual(context.execution.settledTasks, [
     { kind: "completed", taskId: "first" },
     { kind: "completed", taskId: "second" }
   ]);
-  assert.equal("values" in context.rawMeasurement, false);
-  assert.equal("topAdmissionDelays" in context.rawMeasurement, false);
+  assert.equal("values" in context.runMeasurement, false);
+  assert.equal("topAdmissionDelays" in context.runMeasurement, false);
   const firstSettledTask = context.execution.settledTasks[0];
   if (firstSettledTask === undefined) throw new Error("expected first settled task");
   assert.equal("error" in firstSettledTask, false);

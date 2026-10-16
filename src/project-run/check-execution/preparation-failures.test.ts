@@ -1,3 +1,4 @@
+import { createProjectContextSource } from "../project-context.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -94,7 +95,7 @@ describe("Package Run direct Check execution", () => {
       ],
       diagnosticLogger: recordingLogger(observations),
       maxParallel: 2,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     return {

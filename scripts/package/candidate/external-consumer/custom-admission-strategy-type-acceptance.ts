@@ -3,7 +3,7 @@ export const CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE = String.raw`const
   kind: "custom",
   strategy: {
     kind: "simple",
-    decide(context): AdmissionProposal {
+    decide: defineContextCallback("scheduler.decide", { contextNeeds: ["activeScopeIds","admissionState","candidates","capacity","graph","runningTaskIds","runtime","settledTaskIds"], callback: (context): AdmissionProposal => {
       const firstTask = context.graph.tasks[0];
       const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
       const capacity = context.capacity.effectiveMaxParallel;
@@ -23,38 +23,38 @@ export const CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE = String.raw`const
       return candidate === undefined
         ? { kind: "wait" }
         : { kind: "select", taskId: candidate.taskId };
-    }
+    } })
   }
 });
 const preparedCustomAdmissionPolicy: AdmissionPolicy = defineAdmissionPolicy({
   kind: "custom",
   strategy: {
     kind: "prepared",
-    async prepare(context) {
+    prepare: defineContextCallback("scheduler.prepare", { contextNeeds: ["graph"], callback: async (context) => {
       const graph: SchedulerGraphSnapshot = context.graph;
       void graph;
       return {
-        decide(decision): AdmissionProposal {
+        decide: defineContextCallback("scheduler.decide", { contextNeeds: ["candidates"], callback: (decision): AdmissionProposal => {
           const candidate = decision.candidates.find(({ canAdmit }) => canAdmit);
           return candidate === undefined
             ? { kind: "wait" }
             : { kind: "select", taskId: candidate.taskId };
-        },
-        async terminalEffect(terminal): Promise<void> {
+        } }),
+        terminalEffect: defineContextCallback("scheduler.terminal", { contextNeeds: ["execution","graph","runMeasurement","taskTimings"], callback: async (terminal): Promise<void> => {
           const sealed: SchedulerMeasurementContext = terminal;
           void sealed.execution.settledTasks;
-        }
+        } })
       };
-    }
+    } })
   }
 });
 // Declared callbacks preserve literal needs and selected, readonly phase context.
-const declaredDecision = defineSchedulerContextCallback("decision", {
+const declaredDecision = defineContextCallback("scheduler.decide", {
   contextNeeds: ["candidates", "runtime"],
   callback(context) {
     const selected: Readonly<Pick<AdmissionPolicyContext, "candidates" | "runtime">> = context;
-    // @ts-expect-error a subset callback cannot read undeclared measurement.
-    void context.measurement;
+    // @ts-expect-error a subset callback cannot read undeclared cumulative.
+    void context.cumulative;
     // @ts-expect-error selected candidates remain readonly.
     context.candidates.push({});
     const candidate = selected.candidates.find(({ canAdmit }) => canAdmit);
@@ -65,7 +65,7 @@ const declaredDecision = defineSchedulerContextCallback("decision", {
 });
 const declaredNeeds: readonly ["candidates", "runtime"] = declaredDecision.contextNeeds;
 const widenedNeeds: readonly (keyof AdmissionPolicyContext)[] = ["candidates"];
-const widenedDecision = defineSchedulerContextCallback("decision", {
+const widenedDecision = defineContextCallback("scheduler.decide", {
   contextNeeds: widenedNeeds,
   callback(context) {
     // @ts-expect-error a widened array does not guarantee candidates will actually be requested.
@@ -73,21 +73,21 @@ const widenedDecision = defineSchedulerContextCallback("decision", {
     return { kind: "wait" };
   }
 });
-function uncertainDecision(token: "candidates" | "measurement") {
-  return defineSchedulerContextCallback("decision", {
+function uncertainDecision(token: "candidates" | "cumulative") {
+  return defineContextCallback("scheduler.decide", {
     contextNeeds: [token, "runtime"],
     callback(context) {
       void context.runtime.cancelled;
       // @ts-expect-error a union token cannot guarantee the candidates field.
       void context.candidates;
-      // @ts-expect-error a union token cannot guarantee measurement either.
-      void context.measurement;
+      // @ts-expect-error a union token cannot guarantee cumulative either.
+      void context.cumulative;
       return { kind: "wait" };
     }
   });
 }
 function sharedHeadTerminalNeeds(needs: readonly ["graph"] | readonly ["graph", "execution"]) {
-  return defineSchedulerContextCallback("terminal", {
+  return defineContextCallback("scheduler.terminal", {
     contextNeeds: needs,
     callback(context) {
       void context.graph;
@@ -99,7 +99,7 @@ function sharedHeadTerminalNeeds(needs: readonly ["graph"] | readonly ["graph", 
 function reorderedTerminalNeeds(
   needs: readonly ["graph", "execution"] | readonly ["execution", "graph"]
 ) {
-  return defineSchedulerContextCallback("terminal", {
+  return defineContextCallback("scheduler.terminal", {
     contextNeeds: needs,
     callback(context) {
       // @ts-expect-error union-valued positions conservatively guarantee no graph field.
@@ -110,10 +110,10 @@ function reorderedTerminalNeeds(
   });
 }
 void [sharedHeadTerminalNeeds, reorderedTerminalNeeds];
-const declaredShape: DeclaredSchedulerContextCallback<
-  "decision", readonly ["candidates", "runtime"]
+const declaredShape: DeclaredContextCallback<
+  [], AdmissionPolicyContext, readonly ["candidates", "runtime"], AdmissionProposal
 > = declaredDecision;
-const noneDecision = defineSchedulerContextCallback("decision", {
+const noneDecision = defineContextCallback("scheduler.decide", {
   contextNeeds: [],
   callback(context) {
     // @ts-expect-error none does not guarantee any decision fields.
@@ -121,42 +121,42 @@ const noneDecision = defineSchedulerContextCallback("decision", {
     return { kind: "wait" };
   }
 });
-const fullDecision: FullSchedulerContextCallback<"decision"> = defineSchedulerContextCallback(
-  "decision", {
+const fullDecision: EmptyContextCallback<[], AdmissionProposal> = defineContextCallback(
+  "scheduler.decide", {
     callback(context) {
-      const full: AdmissionPolicyContext = context;
-      void [full.graph, full.measurement, full.admissionState];
+      // @ts-expect-error Omitted needs is empty, not full.
+      void context.graph;
       return { kind: "wait" };
     }
   }
 );
-const undefinedDecision = defineSchedulerContextCallback("decision", {
+const undefinedDecision = defineContextCallback("scheduler.decide", {
   contextNeeds: undefined,
   callback(context) {
-    const full: AdmissionPolicyContext = context;
-    void full.capacity;
+    // @ts-expect-error Explicit undefined is empty, not full.
+    void context.capacity;
     return { kind: "wait" };
   }
 });
-const storedDecision: SchedulerContextCallbackInput<AdmissionPolicyContext, AdmissionProposal> =
+const storedDecision: ContextCallbackInput<[], AdmissionPolicyContext, AdmissionProposal> =
   declaredDecision;
-const decisionPhase: SchedulerContextPhase = "decision";
-const phaseContext = (context: SchedulerContextByPhase["decision"]): AdmissionPolicyContext => context;
-const phaseResult: SchedulerContextResultByPhase["decision"] = { kind: "wait" };
+const decisionPhase: CallbackContextPhase = "scheduler.decide";
+const phaseContext = (context: CallbackContextByPhase["scheduler.decide"]): AdmissionPolicyContext => context;
+const phaseResult: AdmissionProposal = { kind: "wait" };
 defineConfig({ scheduler: { terminalEffects: [(context) => {
-  const full: SchedulerMeasurementContext = context;
-  void [full.graph, full.execution, full.rawMeasurement];
+  // @ts-expect-error A plain function receives no injected fields.
+  void context.graph;
   return { ignoredLegacyReturn: true };
 }] } });
-const declaredTerminal = defineSchedulerContextCallback("terminal", {
+const declaredTerminal = defineContextCallback("scheduler.terminal", {
   contextNeeds: ["execution"],
   async callback(context) {
     void context.execution.settledTasks;
-    // @ts-expect-error terminal subset does not guarantee rawMeasurement.
-    void context.rawMeasurement;
+    // @ts-expect-error terminal subset does not guarantee runMeasurement.
+    void context.runMeasurement;
   }
 });
-const declaredPreparation = defineSchedulerContextCallback("preparation", {
+const declaredPreparation = defineContextCallback("scheduler.prepare", {
   contextNeeds: ["graph"],
   async callback(context) {
     const graph: SchedulerGraphSnapshot = context.graph;
@@ -164,7 +164,7 @@ const declaredPreparation = defineSchedulerContextCallback("preparation", {
     return { decide: declaredDecision, terminalEffect: declaredTerminal };
   }
 });
-const nonePreparation = defineSchedulerContextCallback("preparation", {
+const nonePreparation = defineContextCallback("scheduler.prepare", {
   contextNeeds: [],
   callback(context) {
     // @ts-expect-error none preparation does not guarantee graph.
@@ -179,22 +179,28 @@ const legacyPreparationDeclaredResult = defineAdmissionPolicy({
   kind: "custom",
   strategy: {
     kind: "prepared",
-    async prepare(context) {
+    prepare: defineContextCallback("scheduler.prepare", { contextNeeds: ["graph"], callback: async (context) => {
       void context.graph;
       return { decide: declaredDecision, terminalEffect: declaredTerminal };
-    }
+    } })
   }
 });
 defineConfig({ scheduler: {
   admissionPolicy: declaredPreparedPolicy,
   terminalEffects: [
     declaredTerminal,
-    defineSchedulerContextCallback("terminal", { contextNeeds: [], callback() {} }),
-    defineSchedulerContextCallback("terminal", {
-      callback(context) { const full: SchedulerMeasurementContext = context; void full.rawMeasurement; }
+    defineContextCallback("scheduler.terminal", { contextNeeds: [], callback() {} }),
+    defineContextCallback("scheduler.terminal", {
+      callback(context) {
+        // @ts-expect-error Omitted needs does not grant terminal data.
+        void context.runMeasurement;
+      }
     }),
-    defineSchedulerContextCallback("terminal", {
-      contextNeeds: undefined, callback(context) { void context.graph; }
+    defineContextCallback("scheduler.terminal", {
+      contextNeeds: undefined, callback(context) {
+        // @ts-expect-error Undefined needs is empty.
+        void context.graph;
+      }
     })
   ]
 } });
@@ -216,15 +222,15 @@ const rawDescriptorStrategy: CustomAdmissionStrategy = {
   }
 };
 // @ts-expect-error needs must be keys of the selected phase.
-defineSchedulerContextCallback("decision", { contextNeeds: ["execution"], callback: () => ({ kind: "wait" }) });
+defineContextCallback("scheduler.decide", { contextNeeds: ["execution"], callback: () => ({ kind: "wait" }) });
 // @ts-expect-error preparation cannot request decision fields.
-defineSchedulerContextCallback("preparation", { contextNeeds: ["runtime"], callback: () => ({ decide: noneDecision }) });
-// @ts-expect-error terminal cannot request an online measurement prefix.
-defineSchedulerContextCallback("terminal", { contextNeeds: ["measurement"], callback() {} });
+defineContextCallback("scheduler.prepare", { contextNeeds: ["runtime"], callback: () => ({ decide: noneDecision }) });
+// @ts-expect-error terminal cannot request an online cumulative prefix.
+defineContextCallback("scheduler.terminal", { contextNeeds: ["cumulative"], callback() {} });
 // @ts-expect-error helper descriptors are exact, not generic option bags.
-defineSchedulerContextCallback("decision", { contextNeeds: [], callback: () => ({ kind: "wait" }), unsupported: true });
+defineContextCallback("scheduler.decide", { contextNeeds: [], callback: () => ({ kind: "wait" }), unsupported: true });
 // @ts-expect-error declared decisions must also return a synchronous proposal.
-defineSchedulerContextCallback("decision", { contextNeeds: [], async callback() { return { kind: "wait" }; } });
+defineContextCallback("scheduler.decide", { contextNeeds: [], async callback() { return { kind: "wait" }; } });
 defineAdmissionPolicy({
   kind: "custom",
   strategy: {
@@ -246,7 +252,7 @@ defineAdmissionPolicy({
   strategy: {
     kind: "prepared",
     // @ts-expect-error descriptor preparation does not weaken exact prepared-result keys.
-    prepare: defineSchedulerContextCallback("preparation", {
+    prepare: defineContextCallback("scheduler.prepare", {
       contextNeeds: [], callback: () => ({ decide: noneDecision, unsupported: true })
     })
   }
@@ -318,12 +324,12 @@ defineConfig({
       kind: "custom",
       strategy: {
         kind: "simple",
-        decide: (context) => {
+        decide: defineContextCallback("scheduler.decide", { contextNeeds: ["candidates"], callback: (context) => {
           const candidate = context.candidates[0];
           return candidate === undefined
             ? { kind: "wait" as const }
             : { kind: "select" as const, taskId: candidate.taskId };
-        }
+        } })
       }
     }
   }

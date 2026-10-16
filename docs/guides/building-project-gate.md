@@ -123,6 +123,7 @@ const definition = defineConfig({
 把昂贵准备放在 provider，把独立判断留在 consumer。下面用固定清单摘要代替真实构建，按[公共运行约定](#运行本页示例)观察数据与责任关系：
 
 ```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
 
 const manifest = defineCheck({
@@ -152,24 +153,24 @@ const size = defineCheck({
   checkId: "artifact-size",
   displayName: "Artifact size",
   dependsOn: [manifest.checkId],
-  execute({ dependencies }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
     const read = dependencies.get(manifest.checkId);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const data = manifest.parseData(read.data);
     return data.totalBytes <= 100_000 ? { status: "passed", data } : { status: "failed", data };
-  }
+  } })
 });
 
 const contents = defineCheck({
   checkId: "artifact-contents",
   displayName: "Artifact contents",
   dependsOn: [manifest.checkId],
-  execute({ dependencies }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
     const read = dependencies.get(manifest.checkId);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const data = manifest.parseData(read.data);
     return data.fileCount > 0 ? { status: "passed", data } : { status: "failed", data };
-  }
+  } })
 });
 
 const definition = defineConfig({
@@ -195,6 +196,7 @@ const definition = defineConfig({
 按[公共运行约定](#运行本页示例)执行下面的组合，比较 `dependsOn` 与 `observes` 对上游失败的处理：
 
 ```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
 
 const config = defineCheck({
@@ -214,13 +216,13 @@ const audit = defineCheck({
   checkId: "audit-config",
   displayName: "Audit configuration",
   observes: [config.checkId],
-  execute({ dependencies }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
     const outcomes = dependencies.list().map(({ checkId, outcome }) => ({
       checkId,
       status: outcome.status
     }));
     return { status: "passed", data: { outcomes } };
-  }
+  } })
 });
 
 const definition = defineConfig({
@@ -397,6 +399,7 @@ Git evidence 可信但零命中，与 Git 不可用不同。不可用时会提�
 用 `cacheJsonByKey` 保存自己计算的大小，而不是上次的通过结论。下面每次都读取当前文件，用同一份 bytes 生成 key 并计算；调用步骤见[运行本页示例](#运行本页示例)：
 
 ```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -420,7 +423,7 @@ const gzipSize = defineCheck({
   checkId: "gzip-size",
   displayName: "Gzip size",
   options: { maximumBytes: 100_000 },
-  async execute({ options, project }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["project"], callback: async (options: { readonly maximumBytes: number }, { project }) => {
     const source = await readFile(resolve(project.root, "dist/app.js"));
     const level = 9;
     const key = JSON.stringify({
@@ -448,7 +451,7 @@ const gzipSize = defineCheck({
     return data.compressedBytes <= maximumBytes
       ? { status: "passed", data }
       : { status: "failed", data };
-  }
+  } })
 });
 
 const definition = defineConfig({
@@ -538,6 +541,7 @@ const definition = defineConfig({
 假设现有工具约定每行输出 `config/app.json:<行号>: MISSING_NAME`，退出 `0` 表示通过，普通非零退出表示检查失败。下面固定输出一行模拟它，按[公共运行约定](#运行本页示例)执行；替换成真实命令时，parser 也要遵循真实协议。
 
 ```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import {
   commandCheck,
   defineConfig,
@@ -561,7 +565,7 @@ function parseTextDiagnostics(text: string) {
 }
 
 const afterCommand = {
-  execute({ command, records }: AfterCommandContext): CheckResult<DiagnosticData> {
+  execute: defineContextCallback("command.complete", { contextNeeds: ["records"], callback: ({ command }, { records }): CheckResult<DiagnosticData> => {
     if (command.exitCode === 0) return { status: "passed", data: { exitCode: 0 } };
     let diagnostics;
     try {
@@ -577,7 +581,7 @@ const afterCommand = {
       status: "failed",
       data: { exitCode: command.exitCode, diagnosticsAvailable: true }
     };
-  }
+  } })
 };
 
 const check = commandCheck({
@@ -606,6 +610,7 @@ const definition = defineConfig({
 另一个工具输出 `{ errors: [...] }`，使用 `filename`、`location.row` 和工具错误码 `CFG001`；项目则需要 `path`、`line` 和 `missing-name`。先验证源结构，再做字段、错误码和公开范围的转换，而不是把 JSON 原样塞进 Record。此片段独立使用[公共运行约定](#运行本页示例)。
 
 ```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import {
   commandCheck,
   defineConfig,
@@ -642,7 +647,7 @@ function projectJsonDiagnostics(text: string) {
 }
 
 const afterCommand = {
-  execute({ command, records }: AfterCommandContext): CheckResult<DiagnosticData> {
+  execute: defineContextCallback("command.complete", { contextNeeds: ["records"], callback: ({ command }, { records }): CheckResult<DiagnosticData> => {
     if (command.exitCode === 0) {
       return { status: "passed", data: { exitCode: 0 } };
     }
@@ -660,7 +665,7 @@ const afterCommand = {
       status: "failed",
       data: { exitCode: command.exitCode, diagnosticsAvailable: true }
     };
-  }
+  } })
 };
 
 const check = commandCheck({

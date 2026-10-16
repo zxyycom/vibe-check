@@ -1,3 +1,4 @@
+import { prepareCheckOptions } from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -129,7 +130,13 @@ describe("default Check direct callbacks", () => {
       /markdownLinkValidation final data/
     );
     assert.equal(
-      (await defaultCheck.prepare!(MARKDOWN_LINK_OPTIONS, new AbortController().signal)).status,
+      (
+        await prepareCheckOptions(
+          defaultCheck.prepare!,
+          MARKDOWN_LINK_OPTIONS,
+          new AbortController().signal
+        )
+      ).status,
       "success"
     );
     for (const options of [

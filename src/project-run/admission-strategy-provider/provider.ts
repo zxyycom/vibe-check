@@ -30,7 +30,7 @@ export function createAdmissionStrategyProvider(
         case "static":
           return staticPreparedStrategy();
         case "custom":
-          return prepareCustomAdmissionStrategy(input.admissionPolicy, input.graph);
+          return prepareCustomAdmissionStrategy(input.admissionPolicy, () => input.graph);
       }
     }
   });

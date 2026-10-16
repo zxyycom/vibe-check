@@ -29,7 +29,11 @@ export function admissionSelectionPolicyFor(
   const consumer = normalizeSchedulerContextCallback("decision", decide);
   if (consumer === undefined) throw new TypeError("invalid custom scheduler decision callback");
   return Object.freeze({
-    ...(consumer.contextNeeds.includes("measurement")
+    measurementNeeds: Object.freeze(
+      consumer.contextNeeds.filter((key) => key === "cumulative" || key === "actionHistory")
+    ),
+    ...(consumer.contextNeeds.includes("cumulative") ||
+    consumer.contextNeeds.includes("actionHistory")
       ? { requiresMeasurement: true as const }
       : {}),
     decide: (input: AdmissionPolicyInput) => invokeCustomPolicy(consumer, input)
@@ -77,10 +81,15 @@ function admissionPolicyContext(
       case "graph":
         context.graph = input.graphSnapshot;
         break;
-      case "measurement":
-        if (input.measurement === undefined)
-          throw new Error("custom admission policy requires measurement");
-        context.measurement = input.measurement;
+      case "cumulative":
+        if (input.measurement?.cumulative === undefined)
+          throw new Error("cumulative measurement was not enabled");
+        context.cumulative = input.measurement.cumulative;
+        break;
+      case "actionHistory":
+        if (input.measurement?.actionHistory === undefined)
+          throw new Error("action history was not enabled");
+        context.actionHistory = input.measurement.actionHistory;
         break;
       case "runningTaskIds":
         context.runningTaskIds = taskIdsForCore(core, "running");

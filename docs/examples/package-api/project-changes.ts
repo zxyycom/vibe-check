@@ -1,11 +1,12 @@
 // #region package-api-example:project-changes
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { changeFlag, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const sourceChanged = defineCheck({
   checkId: "source-changed",
   displayName: "Source changed",
   enabledByFlags: { when: changeFlag("source") },
-  execute: ({ project }) => {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["project"], callback: (options, { project }) => {
     const changes = project.changes;
     if (changes === undefined) {
       return { status: "unavailable", reason: { code: "changes-not-configured" } };
@@ -18,7 +19,7 @@ const sourceChanged = defineCheck({
         matchedPaths: changes.ok ? changes.files.map(({ path }) => path) : []
       }
     };
-  }
+  } })
 });
 
 const definition = defineConfig({

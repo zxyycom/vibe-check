@@ -1,18 +1,24 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
-
 import { assertEventsInOrder } from "./invocation-event-order.test-support.ts";
-
 import type { Check } from "../../check/check.ts";
 import {
   defineConfig,
-  type AdmissionPolicyContext,
   type CustomAdmissionStrategy
 } from "../../project-definition/project-definition.ts";
 import { executeValidatedRun } from "./run.ts";
 import type { RunResult } from "../result.ts";
-
 const PASSED = Object.freeze({ data: Object.freeze({}), status: "passed" as const });
 
+const firstCandidateDecision = defineContextCallback("scheduler.decide", {
+  contextNeeds: ["candidates"],
+  callback({ candidates }) {
+    const candidate = candidates.find(({ canAdmit }) => canAdmit);
+    return candidate === undefined
+      ? { kind: "wait" }
+      : { kind: "select", taskId: candidate.taskId };
+  }
+});
 /** Proves the public prepared lifecycle runs after generic terminal Hooks with frozen public contexts. */
 export async function assertPublicPreparedStrategyRunsOnce(): Promise<void> {
   const events: string[] = [];
@@ -28,23 +34,32 @@ export async function assertPublicPreparedStrategyRunsOnce(): Promise<void> {
           kind: "custom",
           strategy: {
             kind: "prepared",
-            async prepare(context) {
-              events.push("prepare");
-              assert.equal(Object.isFrozen(context), true);
-              assert.equal(Object.isFrozen(context.graph), true);
-              await Promise.resolve();
-              return {
-                decide(decision) {
-                  events.push("decide");
-                  return selectFirstCandidate(decision);
-                },
-                terminalEffect(terminal) {
-                  assert.equal(Object.isFrozen(terminal), true);
-                  assert.equal("terminalMeasurement" in terminal, false);
-                  events.push("complete");
-                }
-              };
-            }
+            prepare: defineContextCallback("scheduler.prepare", {
+              contextNeeds: ["graph"],
+              callback: async function (context) {
+                events.push("prepare");
+                assert.equal(Object.isFrozen(context), true);
+                assert.equal(Object.isFrozen(context.graph), true);
+                await Promise.resolve();
+                return {
+                  decide: defineContextCallback("scheduler.decide", {
+                    contextNeeds: ["candidates"],
+                    callback: function (decision) {
+                      events.push("decide");
+                      return firstCandidateDecision.callback(decision);
+                    }
+                  }),
+                  terminalEffect: defineContextCallback("scheduler.terminal", {
+                    contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+                    callback: function (terminal) {
+                      assert.equal(Object.isFrozen(terminal), true);
+                      assert.equal("terminalMeasurement" in terminal, false);
+                      events.push("complete");
+                    }
+                  })
+                };
+              }
+            })
           }
         },
         terminalEffects: [() => events.push("generic")]
@@ -53,14 +68,12 @@ export async function assertPublicPreparedStrategyRunsOnce(): Promise<void> {
     {},
     []
   );
-
   assert.equal(result.kind, "completed");
   assertEventsInOrder({ events, required: ["prepare", "decide", "generic", "complete"] });
   assert.equal(events.filter((event) => event === "prepare").length, 1);
   assert.equal(events.filter((event) => event === "complete").length, 1);
   assert.deepEqual(result.outputs.terminalEffects, { enabled: true, status: "succeeded" });
 }
-
 /** Proves each overlapping invocation owns only the closure its prepared strategy returned. */
 export async function assertPublicPreparedClosuresStayIsolated(): Promise<void> {
   const release = deferred<void>();
@@ -86,31 +99,34 @@ export async function assertPublicPreparedClosuresStayIsolated(): Promise<void> 
         kind: "custom",
         strategy: {
           kind: "prepared",
-          prepare() {
-            preparation += 1;
-            const runId = preparation;
-            return {
-              decide(context) {
-                events.push(`decide-${runId}`);
-                return selectFirstCandidate(context);
-              },
-              terminalEffect() {
-                events.push(`complete-${runId}`);
-              }
-            };
-          }
+          prepare: defineContextCallback("scheduler.prepare", {
+            callback: function () {
+              preparation += 1;
+              const runId = preparation;
+              return {
+                decide: defineContextCallback("scheduler.decide", {
+                  contextNeeds: ["candidates"],
+                  callback: function (context) {
+                    events.push(`decide-${runId}`);
+                    return firstCandidateDecision.callback(context);
+                  }
+                }),
+                terminalEffect: () => {
+                  events.push(`complete-${runId}`);
+                }
+              };
+            }
+          })
         }
       },
       maxParallel: 1
     }
   });
-
   const first = executeValidatedRun(definition, {}, []);
   const second = executeValidatedRun(definition, {}, []);
   await bothStarted.promise;
   release.resolve();
   const results = await Promise.all([first, second]);
-
   assert.deepEqual(
     results.map((result) => result.kind),
     ["completed", "completed"]
@@ -121,7 +137,6 @@ export async function assertPublicPreparedClosuresStayIsolated(): Promise<void> 
     "complete-2"
   ]);
 }
-
 /** Proves preparation failure remains pre-Scheduler while preserving the pre-enabled output state. */
 export async function assertPublicPreparationFailure(): Promise<void> {
   for (const [name, prepare, genericHooks, expectedOutput] of [
@@ -144,7 +159,9 @@ export async function assertPublicPreparationFailure(): Promise<void> {
     const definition = customDefinition(
       {
         kind: "prepared",
-        prepare: () => ({ decide: selectFirstCandidate })
+        prepare: () => ({
+          decide: firstCandidateDecision
+        })
       },
       genericHooks,
       () => {
@@ -158,7 +175,6 @@ export async function assertPublicPreparationFailure(): Promise<void> {
     }
     Reflect.set(policy.strategy, "prepare", prepare);
     const result = await executeValidatedRun(definition, {}, []);
-
     assert.equal(executions, 0, name);
     assert.equal(result.kind, "execution", name);
     assert.equal(
@@ -169,7 +185,6 @@ export async function assertPublicPreparationFailure(): Promise<void> {
     assert.deepEqual(result.outputs.terminalEffects, expectedOutput, name);
   }
 }
-
 /** Proves public completion failure joins the aggregate without replacing Scheduler's primary failure. */
 export async function assertPublicCompletionFailurePreservesPrimaryResult(): Promise<void> {
   const events: string[] = [];
@@ -197,7 +212,6 @@ export async function assertPublicCompletionFailurePreservesPrimaryResult(): Pro
     {},
     []
   );
-
   assert.equal(result.kind, "execution");
   assert.equal(
     result.kind === "execution" ? result.diagnostic.code : undefined,
@@ -206,18 +220,22 @@ export async function assertPublicCompletionFailurePreservesPrimaryResult(): Pro
   assertEventsInOrder({ events, required: ["decide", "generic", "complete"] });
   assert.deepEqual(result.outputs.terminalEffects, { enabled: true, status: "failed" });
 }
-
 /** Proves only concrete generic Hooks or a returned completion can enable terminal measurement output. */
 export async function assertMeasurementOutputParticipants(): Promise<void> {
   const simple = await executeValidatedRun(
-    customDefinition({ kind: "simple", decide: selectFirstCandidate }),
+    customDefinition({
+      kind: "simple",
+      decide: firstCandidateDecision
+    }),
     {},
     []
   );
   const preparedWithoutComplete = await executeValidatedRun(
     customDefinition({
       kind: "prepared",
-      prepare: () => ({ decide: selectFirstCandidate })
+      prepare: () => ({
+        decide: firstCandidateDecision
+      })
     }),
     {},
     []
@@ -226,14 +244,16 @@ export async function assertMeasurementOutputParticipants(): Promise<void> {
     customDefinition(
       {
         kind: "prepared",
-        prepare: () => ({ decide: selectFirstCandidate, terminalEffect: () => undefined })
+        prepare: () => ({
+          decide: firstCandidateDecision,
+          terminalEffect: () => undefined
+        })
       },
       [() => Promise.reject(new Error("generic failure"))]
     ),
     {},
     []
   );
-
   assert.deepEqual(resultWithOutputs(simple).outputs.terminalEffects, {
     enabled: false,
     status: "disabled"
@@ -251,7 +271,6 @@ export async function assertMeasurementOutputParticipants(): Promise<void> {
     }
   );
 }
-
 function customDefinition(
   strategy: CustomAdmissionStrategy,
   terminalEffects: readonly (() => void | Promise<void>)[] = [],
@@ -269,29 +288,14 @@ function customDefinition(
     }
   });
 }
-
-function selectFirstCandidate(
-  context: AdmissionPolicyContext
-): { readonly kind: "select"; readonly taskId: string } | Readonly<{ readonly kind: "wait" }> {
-  const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
-  return candidate === undefined
-    ? ({ kind: "wait" } as const)
-    : ({ kind: "select", taskId: candidate.taskId } as const);
-}
-
-function resultWithOutputs(
-  result: RunResult
-): Exclude<RunResult, Readonly<{ readonly kind: "configuration" }>> {
+function resultWithOutputs(result: RunResult) {
   if (result.kind === "configuration") assert.fail("expected validated Run result");
   return result;
 }
-
 function check(checkId: string, execute: NonNullable<Check["execute"]>): Check {
   return { checkId, displayName: checkId, execute: execute };
 }
-
 export { assertEventsInOrder as assertOrdered } from "./invocation-event-order.test-support.ts";
-
 export function deferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void;
   const promise = new Promise<T>((resolvePromise) => {

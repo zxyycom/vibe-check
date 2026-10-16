@@ -1,3 +1,4 @@
+import { prepareCheckOptions, NO_DEPENDENCIES } from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -15,7 +16,6 @@ import { executeJsonValidation } from "./json-validation.ts";
 import { jsonValidation } from "./default-check.ts";
 import { parseJsonValidationData } from "./final-data.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
-import { NO_DEPENDENCIES } from "../check-execution.test-support.ts";
 
 const DEFAULT_FILES = Object.freeze({
   patterns: [...Object.freeze(["**/*"])]
@@ -54,11 +54,10 @@ async function runJsonValidation({
   signal = new AbortController().signal
 }: RunJsonValidationInput): Promise<JsonValidationExecution> {
   const records: ObservedRecord[] = [];
-  const context: CheckExecutionContext<ResolvedJsonValidationOptions> = Object.freeze({
+  const context: CheckExecutionContext = Object.freeze({
     artifactDirectory: null,
     dependencies: NO_DEPENDENCIES,
     invocationId: "invocation/v1:direct-check-test",
-    options: Object.freeze({ ...options, files: fileConfiguration }),
     project: createProjectContext(root),
     records: Object.freeze({
       report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
@@ -69,7 +68,10 @@ async function runJsonValidation({
     }),
     signal
   });
-  const result = await executeJsonValidation(context);
+  const result = await executeJsonValidation(
+    Object.freeze({ ...options, files: fileConfiguration }),
+    context
+  );
   return Object.freeze({ result, records: Object.freeze(records) });
 }
 
@@ -136,7 +138,8 @@ describe("JSON validation default Check", () => {
           }),
         /jsonValidation final data/
       );
-      const invalidPreparation = await defaultCheck.prepare!(
+      const invalidPreparation = await prepareCheckOptions(
+        defaultCheck.prepare!,
         {
           ...defaultCheck.options,
           maximumBytes: 0

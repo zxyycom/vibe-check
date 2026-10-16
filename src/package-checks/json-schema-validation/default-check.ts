@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import {
   resolvePackageCheckAuthoringInput,
@@ -64,7 +65,10 @@ export function jsonSchemaValidation(
   }
   return defineCheck({
     ...input.definition,
-    execute: executeJsonSchemaValidation,
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["project", "records", "signal"],
+      callback: executeJsonSchemaValidation
+    }),
     parseData: parseJsonSchemaValidationData,
     prepare: (preparedOptions) =>
       validJsonSchemaValidationOptions(preparedOptions)

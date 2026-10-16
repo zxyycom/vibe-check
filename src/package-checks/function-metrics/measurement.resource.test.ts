@@ -251,8 +251,8 @@ describe("functionMetrics resource admission", () => {
       }, 0);
       try {
         const observed = await execute(
-          (context) =>
-            executeFunctionMetrics(context, {
+          (options, context) =>
+            executeFunctionMetrics(options, context, {
               measurement: {
                 createWorker: () => {
                   workerStarted = true;

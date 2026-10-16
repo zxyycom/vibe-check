@@ -1,7 +1,12 @@
+import type {
+  DeepReadonly,
+  CheckExecutionContext,
+  CheckMessage,
+  CheckResult
+} from "../../check/check.ts";
 import { resolve } from "node:path";
 import { setImmediate } from "node:timers/promises";
 
-import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
 import {
   readStrictJsonDocument,
   type JsonDocumentIssue
@@ -26,24 +31,26 @@ export type JsonValidationUnavailableCode =
 
 /** Validates the lower-case JSON subset selected by this Check's options. */
 export async function executeJsonValidation(
-  context: CheckExecutionContext<ResolvedJsonValidationOptions>
+  options: DeepReadonly<ResolvedJsonValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): Promise<CheckResult<JsonValidationFinalData>> {
-  if (!validJsonValidationOptions(context.options)) return unavailable("invalid-options");
+  if (!validJsonValidationOptions(options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
-  const inputs = jsonInputPaths(context);
+  const inputs = jsonInputPaths(options, context);
   if (inputs === undefined) return unavailable("scan-input-unavailable");
   if (context.signal.aborted) return unavailable("execution-cancelled");
   if (inputs.selectedPathCount === 0) return noEligibleInput();
-  reportRejectedInputs(context, inputs.rejectedPaths);
+  reportRejectedInputs(options, context, inputs.rejectedPaths);
   return appendRejectedInputMessage(
-    await validateJsonPaths(context, inputs.acceptedPaths, inputs.rejectedPaths.length),
+    await validateJsonPaths(options, context, inputs.acceptedPaths, inputs.rejectedPaths.length),
     inputs.rejectedPaths.length
   );
 }
 
 async function validateJsonPaths(
-  context: CheckExecutionContext<ResolvedJsonValidationOptions>,
+  options: DeepReadonly<ResolvedJsonValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   paths: readonly string[],
   rejectedInputCount: number
 ): Promise<CheckResult<JsonValidationFinalData>> {
@@ -52,7 +59,7 @@ async function validateJsonPaths(
     // File order stays sequential; timer/I/O cancellation and other Checks can progress between documents.
     await setImmediate();
     if (context.signal.aborted) return unavailable("execution-cancelled");
-    const document = readJsonDocument(context, path);
+    const document = readJsonDocument(options, context, path);
     if (context.signal.aborted) return unavailable("execution-cancelled");
     if (document.kind === "unavailable") return unavailable("document-unavailable");
     if (document.kind === "valid") {
@@ -61,7 +68,7 @@ async function validateJsonPaths(
     }
 
     counts.invalidFileCount += 1;
-    reportInvalidDocument(context, path, document.reason);
+    reportInvalidDocument(options, context, path, document.reason);
   }
 
   return resultForValidationCounts(paths.length, rejectedInputCount, counts);
@@ -74,10 +81,11 @@ interface JsonInputPaths {
 }
 
 function jsonInputPaths(
-  context: CheckExecutionContext<ResolvedJsonValidationOptions>
+  options: DeepReadonly<ResolvedJsonValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): JsonInputPaths | undefined {
   try {
-    const selectedPaths = collectProjectFiles(context.project.root, context.options.files);
+    const selectedPaths = collectProjectFiles(context.project.root, options.files);
     const partition = partitionProjectFilesByEligibility(selectedPaths, isJsonInputPath);
     return Object.freeze({ ...partition, selectedPathCount: selectedPaths.length });
   } catch {
@@ -94,17 +102,19 @@ function noEligibleInput(): CheckResult<JsonValidationFinalData> {
 }
 
 function readJsonDocument(
-  context: CheckExecutionContext<ResolvedJsonValidationOptions>,
+  options: DeepReadonly<ResolvedJsonValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   path: string
 ) {
   return readStrictJsonDocument({
     filePath: resolve(context.project.root, path),
-    maximumBytes: context.options.maximumBytes
+    maximumBytes: options.maximumBytes
   });
 }
 
 function reportInvalidDocument(
-  context: CheckExecutionContext<ResolvedJsonValidationOptions>,
+  options: DeepReadonly<ResolvedJsonValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   path: string,
   reason: JsonDocumentIssue
 ): void {
@@ -139,7 +149,8 @@ function resultForValidationCounts(
 }
 
 function reportRejectedInputs(
-  context: CheckExecutionContext<ResolvedJsonValidationOptions>,
+  options: DeepReadonly<ResolvedJsonValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   paths: readonly string[]
 ): void {
   for (const path of paths) {

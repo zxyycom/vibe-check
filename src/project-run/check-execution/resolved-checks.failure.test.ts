@@ -1,3 +1,5 @@
+import { createProjectContextSource } from "../project-context.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -21,11 +23,14 @@ describe("Package Run direct Check execution", () => {
 async function assertDuplicateRecordConflict(): Promise<void> {
   const observations: DiagnosticObservation[] = [];
   const result = await execute(
-    (context) => {
-      context.records.report({ id: "retained" }, { value: true });
-      context.records.report({ id: "retained" }, { value: false });
-      return { status: "passed", data: {} };
-    },
+    defineContextCallback("check.execute", {
+      contextNeeds: ["records"],
+      callback: (options, context) => {
+        context.records.report({ id: "retained" }, { value: true });
+        context.records.report({ id: "retained" }, { value: false });
+        return { status: "passed", data: {} };
+      }
+    }),
     { diagnosticLogger: recordingLogger(observations) }
   );
 
@@ -137,7 +142,7 @@ async function assertHostileValueIsContained(
   const result = await executeResolvedChecks({
     checks: fixture.checks,
     maxParallel: 2,
-    project: PROJECT,
+    project: createProjectContextSource(PROJECT),
     signal: undefined
   });
 
@@ -154,20 +159,23 @@ function hostileValueFixture(
 ) {
   let reporter: ClosedReporter | undefined;
   const contained = normalized(
-    (context) => {
-      reporter = context.records;
-      context.records.report({ id: "retained" }, { retained: true });
-      if (input.channel === "record") {
-        context.records.report({ id: "invalid" }, { hostile: input.hostile.value });
+    defineContextCallback("check.execute", {
+      contextNeeds: ["records"],
+      callback: (options, context) => {
+        reporter = context.records;
+        context.records.report({ id: "retained" }, { retained: true });
+        if (input.channel === "record") {
+          context.records.report({ id: "invalid" }, { hostile: input.hostile.value });
+        }
+        if (input.channel === "final") {
+          return { status: "passed", data: { hostile: input.hostile.value } };
+        }
+        if (input.channel === "messages") {
+          return malformedHostileMessageAttachment(input.hostile);
+        }
+        return { status: "passed", data: { valid: true } };
       }
-      if (input.channel === "final") {
-        return { status: "passed", data: { hostile: input.hostile.value } };
-      }
-      if (input.channel === "messages") {
-        return malformedHostileMessageAttachment(input.hostile);
-      }
-      return { status: "passed", data: { valid: true } };
-    },
+    }),
     { checkId: "contained", maxParallel: 2 }
   );
   const independent = normalized(() => ({ status: "passed", data: { independent: true } }), {
@@ -243,13 +251,18 @@ async function assertTrustedInvariantFaultEscapes(): Promise<void> {
     () =>
       executeCheckCallback({
         artifactDirectory: null,
-        check: normalized((context) => {
-          context.dependencies.get("source");
-          return { status: "passed", data: {} };
-        }),
+        check: normalized(
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, context) => {
+              context.dependencies.get("source");
+              return { status: "passed", data: {} };
+            }
+          })
+        ),
         dependencies: throwingDependencies,
         invocationId: "invocation/v1:direct-check-execution",
-        project: PROJECT,
+        project: createProjectContextSource(PROJECT),
         scope: createCoreCheckSession([
           { definition: { checkId: "direct-check", displayName: "direct-check" } }
         ]).openCheckScope("direct-check"),

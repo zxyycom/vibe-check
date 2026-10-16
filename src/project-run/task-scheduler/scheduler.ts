@@ -141,7 +141,7 @@ export async function runPreparedTaskGraph<TResult>(
           throw new Error("shared admission core omitted a Scheduler admission effect");
         }
         state.admissionCore = selection.transition.state;
-        diagnostics?.beforeAdmission(decision.taskId, [...state.runningById.keys()]);
+        diagnostics?.beforeAdmission(decision.taskId, () => [...state.runningById.keys()]);
         if (diagnostics === undefined) applyAdmission(state, decision);
         else
           diagnostics.measureControlPath(() => {

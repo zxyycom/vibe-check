@@ -3,16 +3,15 @@ import { createHash } from "node:crypto";
 import type { CheckExecutionContext } from "../../check/check.ts";
 import { MAX_REPORTED_JSON_SCHEMA_ISSUES } from "./final-data.ts";
 import type { JsonSchemaValidationRecordData } from "./json-schema-validation.ts";
-import type { ResolvedJsonSchemaValidationOptions } from "./options.ts";
 
 /** Owns the invocation-local issue count, display cap, and deterministic Record identity ordinal. */
 export class SchemaIssueCollector {
   #count = 0;
   #reportedCount = 0;
   readonly #issueOccurrences = new Map<string, number>();
-  readonly #checkContext: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>;
+  readonly #checkContext: Pick<CheckExecutionContext, "records">;
 
-  constructor(context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>) {
+  constructor(context: Pick<CheckExecutionContext, "records">) {
     this.#checkContext = context;
   }
 

@@ -1,6 +1,8 @@
 import type {
   CheckDependencies,
-  CheckExecution,
+  CheckPreparation,
+  CheckPreparationContext,
+  CheckPreparationResult,
   CheckExecutionContext,
   CheckHandoffProvider,
   CheckResult,
@@ -9,6 +11,11 @@ import type {
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { normalizeContextCallback } from "../data-boundary/context-callback.ts";
+import {
+  CHECK_EXECUTION_CONTEXT_KEYS,
+  CHECK_PREPARATION_CONTEXT_KEYS
+} from "../check/context-callback.ts";
 
 export const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
   get: (dependency: string | CheckHandoffProvider) =>
@@ -28,23 +35,33 @@ export interface ReportedCheckRecord {
 }
 
 /** Executes one Check callback with an isolated project context and captured Records. */
-export async function executeCheck<Options extends object>(
-  callback: CheckExecution<Options>,
+export function executeCheck<Options extends object>(
+  callback:
+    | ((options: never, context: never) => CheckResult | Promise<CheckResult>)
+    | Readonly<{
+        contextNeeds?: readonly (keyof CheckExecutionContext)[] | undefined;
+        callback: (options: never, context: never) => CheckResult | Promise<CheckResult>;
+      }>,
   options: DeepReadonly<Options>,
   root: string,
-  signal: AbortSignal = new AbortController().signal
+  signal?: AbortSignal
 ): Promise<
   Readonly<{
     readonly records: readonly ReportedCheckRecord[];
     readonly result: CheckResult;
   }>
-> {
+>;
+export async function executeCheck(
+  callback: unknown,
+  options: object,
+  root: string,
+  signal: AbortSignal = new AbortController().signal
+) {
   const records: ReportedCheckRecord[] = [];
-  const context: CheckExecutionContext<Options> = Object.freeze({
+  const context: CheckExecutionContext = Object.freeze({
     artifactDirectory: null,
     dependencies: NO_DEPENDENCIES,
     invocationId: "invocation/v1:direct-check-test",
-    options,
     project: Object.freeze({ flags: Object.freeze([]), root }),
     records: Object.freeze({
       report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
@@ -53,7 +70,15 @@ export async function executeCheck<Options extends object>(
     }),
     signal
   });
-  const result = await callback(context);
+  // Named executors are called with an explicit full fixture; stored descriptors keep exact views.
+  const invocation: unknown =
+    typeof callback === "function"
+      ? Reflect.apply(callback, undefined, [options, context])
+      : normalizeContextCallback<[options: object], CheckExecutionContext>(
+          callback,
+          CHECK_EXECUTION_CONTEXT_KEYS
+        )!.invoke(context, options);
+  const result = await invocation;
   return Object.freeze({ records: Object.freeze(records), result });
 }
 
@@ -64,4 +89,18 @@ export function createTypeScriptSourceRoot(prefix: string): string {
   writeFileSync(join(root, "src", "a.ts"), "export const a = 1;\n", "utf8");
   writeFileSync(join(root, "src", "b.ts"), "export const b = 2;\n", "utf8");
   return root;
+}
+
+/** Direct slot calls explicitly narrow function/descriptor; no Run is created. */
+export function prepareCheckOptions<Options extends object, Prepared extends object>(
+  prepare: CheckPreparation<Options, Prepared>,
+  options: DeepReadonly<Options>,
+  signal: AbortSignal
+): CheckPreparationResult<Prepared> | Promise<CheckPreparationResult<Prepared>>;
+export function prepareCheckOptions(prepare: unknown, options: object, signal: AbortSignal) {
+  const source: CheckPreparationContext = { signal, project: { flags: [], root: process.cwd() } };
+  return normalizeContextCallback<[options: object], CheckPreparationContext>(
+    prepare,
+    CHECK_PREPARATION_CONTEXT_KEYS
+  )!.invoke(source, options);
 }

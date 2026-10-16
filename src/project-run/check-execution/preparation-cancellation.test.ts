@@ -1,3 +1,5 @@
+import { createProjectContextSource } from "../project-context.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -19,7 +21,7 @@ describe("Package Run direct Check execution", () => {
     await prepareCheck({
       check: normalized(() => ({ status: "passed", data: {} }), { checkId: "skipped" }),
       diagnosticLogger: recordingLogger(observations),
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     const controller = new AbortController();
@@ -29,7 +31,7 @@ describe("Package Run direct Check execution", () => {
         prepareCheck({
           check: normalized(() => ({ status: "passed", data: {} }), { checkId }),
           diagnosticLogger: recordingLogger(observations),
-          project: PROJECT,
+          project: createProjectContextSource(PROJECT),
           signal: controller.signal
         })
       )
@@ -85,7 +87,7 @@ describe("Package Run direct Check execution", () => {
         }
       }),
       diagnosticLogger: recordingLogger(afterCallbackObservations),
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: afterCallbackController.signal
     });
     const afterCallbackDetails = diagnosticDetailsRecord(afterCallbackObservations[0]?.details);
@@ -119,25 +121,28 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "cooperative-block",
-            prepare: async (_options, signal) => {
-              observedAllBlockedSignal = signal;
-              cooperativePreparationEntered.resolve();
-              await new Promise<void>((resolve) => {
-                signal.addEventListener(
-                  "abort",
-                  () => {
-                    resolve();
-                  },
-                  { once: true }
-                );
-              });
-              return { status: "success", preparedOptions: {} };
-            }
+            prepare: defineContextCallback("check.prepare", {
+              contextNeeds: ["signal"],
+              callback: async (_options, { signal }) => {
+                observedAllBlockedSignal = signal;
+                cooperativePreparationEntered.resolve();
+                await new Promise<void>((resolve) => {
+                  signal.addEventListener(
+                    "abort",
+                    () => {
+                      resolve();
+                    },
+                    { once: true }
+                  );
+                });
+                return { status: "success", preparedOptions: {} };
+              }
+            })
           }
         )
       ],
       maxParallel: 2,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: allBlockedController.signal
     });
     await cooperativePreparationEntered.promise;
@@ -186,16 +191,19 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "deferred",
-            prepare: (_options, signal) => {
-              assert.equal(signal, partialReadyController.signal);
-              deferredPreparationEntered.resolve();
-              return deferredPreparation.promise;
-            }
+            prepare: defineContextCallback("check.prepare", {
+              contextNeeds: ["signal"],
+              callback: (_options, { signal }) => {
+                assert.equal(signal, partialReadyController.signal);
+                deferredPreparationEntered.resolve();
+                return deferredPreparation.promise;
+              }
+            })
           }
         )
       ],
       maxParallel: 2,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: partialReadyController.signal
     });
     await deferredPreparationEntered.promise;

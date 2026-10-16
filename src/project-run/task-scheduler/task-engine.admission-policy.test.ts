@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -54,18 +55,34 @@ describe("task engine admission policy", () => {
   it("adapts custom select from a detached frozen full-graph context", async () => {
     let received: AdmissionPolicyContext | undefined;
     const selected: string[] = [];
-    const policy = admissionSelectionPolicyFor((context) => {
-      received ??= context;
-      const admissible = context.candidates.find((candidate) => candidate.canAdmit);
-      if (admissible === undefined) return { kind: "wait" };
-      return {
-        kind: "select",
-        taskId:
-          context.candidates.find(
-            (candidate) => candidate.canAdmit && candidate.taskId === "second"
-          )?.taskId ?? admissible.taskId
-      };
-    });
+    const policy = admissionSelectionPolicyFor(
+      defineContextCallback("scheduler.decide", {
+        contextNeeds: [
+          "activeScopeIds",
+          "admissionState",
+          "candidates",
+          "capacity",
+          "graph",
+          "cumulative",
+          "actionHistory",
+          "runningTaskIds",
+          "runtime",
+          "settledTaskIds"
+        ],
+        callback: (context) => {
+          received ??= context;
+          const admissible = context.candidates.find((candidate) => candidate.canAdmit);
+          if (admissible === undefined) return { kind: "wait" };
+          return {
+            kind: "select",
+            taskId:
+              context.candidates.find(
+                (candidate) => candidate.canAdmit && candidate.taskId === "second"
+              )?.taskId ?? admissible.taskId
+          };
+        }
+      })
+    );
 
     const graph = {
       resourceCapacities: { browser: 2 },

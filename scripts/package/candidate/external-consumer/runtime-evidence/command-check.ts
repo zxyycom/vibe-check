@@ -5,6 +5,14 @@ import { isRecord } from "./values.ts";
 /** Verifies command Check behavior through the installed package root only. */
 export function assertCommandCheckRuntimeEvidence(value: unknown): void {
   if (!isRecord(value)) throw new TypeError("installed command Check evidence must be an object");
+  assert.deepEqual(value.contextDeclarations, {
+    businessInputs: true,
+    completionFields: ["records"],
+    emptyFields: [],
+    environmentFields: ["project"],
+    frozen: true,
+    passed: true
+  });
   assert.deepEqual(value.main, {
     composed: { exitCode: 0, status: "passed" },
     defaultCanary: { reason: "command-start-failed", status: "unavailable" },

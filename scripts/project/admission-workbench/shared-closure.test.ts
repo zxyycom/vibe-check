@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { createAdmissionGraph, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import {
+  createAdmissionGraph,
+  defineCheck,
+  defineConfig,
+  defineContextCallback,
+  run
+} from "@zxyycom/vibe-check";
 
 describe("admission workbench shared closure", () => {
   it("drains an admitted real Check while cancellation closes pending work before it starts", async () => {
@@ -18,15 +24,18 @@ describe("admission workbench shared closure", () => {
           defineCheck({
             checkId: "running-check",
             displayName: "Running Check",
-            execute: async ({ signal }) => {
-              events.push("running");
-              entered.resolve();
-              controller.abort();
-              assert.equal(signal.aborted, true);
-              await release.promise;
-              events.push("drained");
-              return { status: "passed", data: {} };
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["signal"],
+              callback: async (_options, { signal }) => {
+                events.push("running");
+                entered.resolve();
+                controller.abort();
+                assert.equal(signal.aborted, true);
+                await release.promise;
+                events.push("drained");
+                return { status: "passed", data: {} };
+              }
+            })
           }),
           defineCheck({
             checkId: "pending-check",

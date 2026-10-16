@@ -1,5 +1,5 @@
 import { normalizeSchedulerContextCallback } from "../../project-definition/scheduler-context-validation.ts";
-import type { CheckProjectContext } from "../../check/check.ts";
+import type { CheckProjectContextSource } from "../project-context.ts";
 import type { PreparedAdmissionStrategy } from "../admission-strategy-provider/prepared-admission-strategy.ts";
 import { executePreparedChecks } from "../check-execution/resolved-checks.ts";
 import type { ResolvedCheckExecution } from "../check-execution/resolved-execution-result.ts";
@@ -15,7 +15,7 @@ type SchedulerAdapterInput = Readonly<{
   readonly invocation: Invocation;
   readonly prepared: PreparedCheckExecution;
   readonly preparedStrategy: PreparedAdmissionStrategy;
-  readonly project: CheckProjectContext;
+  readonly project: CheckProjectContextSource;
 }>;
 
 /** Bridges one prepared invocation to resolved Check execution and contains task-engine faults. */
@@ -40,7 +40,7 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
         : {
             schedulerTerminalContextNeeds:
               preparedStrategy.terminalContextNeeds ??
-              (["graph", "execution", "rawMeasurement"] as const)
+              (["graph", "execution", "runMeasurement", "taskTimings"] as const)
           }),
       onSchedulerTerminalEffectFailure: () => {
         invocation.outputs.failed("terminalEffects");
@@ -67,7 +67,13 @@ function schedulerPerformanceDiagnostics(input: SchedulerAdapterInput) {
     invocation.normalized.scheduler.terminalEffects.some(
       (effect) =>
         normalizeSchedulerContextCallback("terminal", effect)?.contextNeeds.includes(
-          "rawMeasurement"
+          "runMeasurement"
+        ) === true
+    ) ||
+    invocation.normalized.scheduler.terminalEffects.some(
+      (effect) =>
+        normalizeSchedulerContextCallback("terminal", effect)?.contextNeeds.includes(
+          "taskTimings"
         ) === true
     ) ||
     preparedStrategy.admissionPolicy.requiresMeasurement === true ||

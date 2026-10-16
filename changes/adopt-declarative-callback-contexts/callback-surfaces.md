@@ -1,7 +1,7 @@
 # Callback 覆盖与生产边界
 
 本表是本 Change 的实施清单，按当前 [package root](../../src/index.ts) 公开面、相邻类型与实际调用入口核对。
-目标契约由 [Design](design.md)定义；表中的目标签名尚待实施，不描述当前运行时。实施者按行迁移并以 [Tasks](tasks.md)记录证据。
+目标契约由 [Design](design.md)定义；实施者按行迁移并以 [Tasks](tasks.md)记录已完成的实施与验证，不以本表代替运行时证据。
 
 ## 纳入声明式 context 的位置
 
@@ -65,8 +65,8 @@ Project Gate 的 `resultContributor` 是 `scripts/**` 自有契约，保持原�
 
 ## 实施定位与证据集合
 
-- 类型与声明：`src/check/**`、`src/project-definition/scheduler-context-*`、通用 helper；现有
-  [helper 正反例](../../src/package-tools/scheduler-context/define-scheduler-context-callback.test.ts)证明基础推导，新增跨扩展点原型证明本项接线。
+- 类型与声明：`src/check/**`、`src/project-definition/scheduler-context-*`、通用 helper；
+  [helper 正反例](../../src/package-tools/context-callback/define-context-callback.test.ts)与跨扩展点类型用例共同证明声明推导和业务输入接线。
 - runtime：`src/project-run/check-execution/**`、`src/project-run/admission-strategy-provider/**`、`src/project-run/task-scheduler/**` 与 command constructor/execution。
 - 消费者：全部 `src/package-checks/**` 的普通 Check、`src/package-tools/learned-critical-path/**` 的策略与 recording、`scripts/project/**`、当前 development/workbench 和测试 support。
 - 交付材料：root API inventory、公开指南与 API examples、JSDoc、installed TS/JS consumer fixtures；按 [Tasks](tasks.md)分别证明生产成本、运行语义和包外用法。

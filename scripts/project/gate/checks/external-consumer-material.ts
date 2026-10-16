@@ -1,3 +1,11 @@
+import {
+  defineContextCallback,
+  commandCheck,
+  type AfterCommandContext,
+  type AfterCommandInput,
+  type CheckDependencies,
+  type CheckResult
+} from "@zxyycom/vibe-check";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -13,12 +21,6 @@ import {
   type ExternalConsumerMaterialData,
   validateExternalConsumerMaterialPhysical
 } from "../../../package/candidate/external-consumer/input.ts";
-import {
-  commandCheck,
-  type AfterCommandContext,
-  type CheckDependencies,
-  type CheckResult
-} from "@zxyycom/vibe-check";
 import { failedProcessResult, processTranscriptPath } from "./process/transcript.ts";
 import type { ProcessInvocation } from "../../../process-execution/command.ts";
 import {
@@ -80,21 +82,28 @@ export function createExternalConsumerMaterialCheck(
     executable: invocation.command,
     output: { mode: "transcript" },
     outputByteLimit: externalConsumerOutputByteLimit,
-    resolveEnvironment: ({ dependencies }) =>
-      resolveExternalConsumerProviderEnvironment({
-        dependencies,
-        lease: input.lease,
-        preparedCandidateCheckId: input.preparedCandidateCheckId
-      }),
+    resolveEnvironment: defineContextCallback("command.environment", {
+      contextNeeds: ["dependencies"],
+      callback: (options, { dependencies }) =>
+        resolveExternalConsumerProviderEnvironment({
+          dependencies,
+          lease: input.lease,
+          preparedCandidateCheckId: input.preparedCandidateCheckId
+        })
+    }),
     timeoutMs: input.timeoutMs,
     workingDirectory: invocation.cwd,
     afterCommand: {
-      execute: (context) =>
-        settleExternalConsumerProviderCommand({
-          context,
-          lease: input.lease,
-          preparedCandidateCheckId: input.preparedCandidateCheckId
-        }),
+      execute: defineContextCallback("command.complete", {
+        contextNeeds: ["artifactDirectory", "dependencies", "records"],
+        callback: (completed, context) =>
+          settleExternalConsumerProviderCommand({
+            completed,
+            context,
+            lease: input.lease,
+            preparedCandidateCheckId: input.preparedCandidateCheckId
+          })
+      }),
       parseData: parseExternalConsumerMaterialData
     }
   });
@@ -136,17 +145,19 @@ export function resolveExternalConsumerProviderEnvironment(
 /** Settles provider output only after Product has finalized the command transcript. */
 export function settleExternalConsumerProviderCommand(
   input: Readonly<{
-    readonly context: AfterCommandContext;
+    readonly context: Pick<AfterCommandContext, "artifactDirectory" | "dependencies" | "records">;
+    readonly completed: AfterCommandInput;
     readonly lease: ExternalConsumerMaterialLease;
     readonly preparedCandidateCheckId: string;
   }>
 ): CheckResult<ExternalConsumerMaterialData> {
-  const { context, lease, preparedCandidateCheckId } = input;
+  const { context, completed, lease, preparedCandidateCheckId } = input;
   if (context.artifactDirectory === null)
     return unavailableExternalConsumerMaterial("command-transcript-unavailable");
-  if (context.command.exitCode !== 0) return unavailableExternalConsumerCommand(context);
+  if (completed.command.exitCode !== 0)
+    return unavailableExternalConsumerCommand(completed, context);
   try {
-    const data = parseExternalConsumerMaterialData(JSON.parse(context.command.stdout));
+    const data = parseExternalConsumerMaterialData(JSON.parse(completed.command.stdout));
     validateExternalConsumerMaterialPhysical(data);
     return Object.freeze({
       status: "passed",
@@ -194,13 +205,14 @@ function unavailableExternalConsumerMaterial(
 
 /** Retains generic failure evidence without claiming typed provider material after a nonzero command. */
 function unavailableExternalConsumerCommand(
-  context: AfterCommandContext
+  completed: AfterCommandInput,
+  context: Pick<AfterCommandContext, "artifactDirectory" | "records">
 ): CheckResult<ExternalConsumerMaterialData> {
   if (context.artifactDirectory === null)
     return unavailableExternalConsumerMaterial("command-transcript-unavailable");
   const failed = failedProcessResult(context, {
-    command: context.options.executable,
-    exitCode: context.command.exitCode,
+    command: completed.options.executable,
+    exitCode: completed.command.exitCode,
     logPath: processTranscriptPath(context.artifactDirectory),
     signal: null
   });

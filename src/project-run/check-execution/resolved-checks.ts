@@ -1,4 +1,5 @@
-import type { CheckMessage, CheckProjectContext } from "../../check/check.ts";
+import type { CheckProjectContextSource } from "../project-context.ts";
+import type { CheckMessage } from "../../check/check.ts";
 import type {
   NormalizedCheck,
   SchedulerMeasurementContext,
@@ -43,7 +44,7 @@ export type ResolvedCheckExecutionInput = Readonly<{
   readonly invocationId?: string;
   /** 冻结的 invocation paths；仅 private direct-execution tests 可以省略。 */
   readonly paths?: ResolvedInvocationPaths;
-  readonly project: CheckProjectContext;
+  readonly project: CheckProjectContextSource;
   readonly signal: AbortSignal | undefined;
   readonly clock?: CheckExecutionClock;
   /** Core-owner Check lifecycle channel. */

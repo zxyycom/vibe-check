@@ -1,4 +1,6 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import {
+  type DeepReadonly,
   defineCheck,
   type CheckExecutionContext,
   type CheckResult,
@@ -199,7 +201,10 @@ function createMaintenanceRemindersCheck<Id extends string>(
 ): TypedCheckWithOptions<Id, MaintenanceReminderOptions, typeof parseMaintenanceRemindersData> {
   return defineCheck({
     ...definition,
-    execute: executeMaintenanceReminders,
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["project", "signal"],
+      callback: executeMaintenanceReminders
+    }),
     parseData: parseMaintenanceRemindersData,
     prepare: (options) =>
       validMaintenanceReminderOptions(options)
@@ -259,16 +264,16 @@ export function validMaintenanceReminderOptions(
 }
 
 async function executeMaintenanceReminders(
-  context: CheckExecutionContext<MaintenanceReminderOptions>
+  options: DeepReadonly<MaintenanceReminderOptions>,
+  context: Pick<CheckExecutionContext, "project" | "signal">
 ): Promise<CheckResult<MaintenanceRemindersFinalData>> {
-  if (!validMaintenanceReminderOptions(context.options))
-    return unavailableResult("invalid-options");
+  if (!validMaintenanceReminderOptions(options)) return unavailableResult("invalid-options");
   if (context.signal.aborted)
     return unavailableResult(WHOLE_CHECK_UNAVAILABLE_CODE.executionCancelled);
 
   try {
     const history = await resolveFirstParentHistory({
-      executable: context.options.git.executable,
+      executable: options.git.executable,
       projectRoot: context.project.root,
       signal: context.signal
     });
@@ -278,20 +283,20 @@ async function executeMaintenanceReminders(
 
     if (history.kind === "unavailable") {
       return completedResult(
-        context.options.entries.map((entry) =>
+        options.entries.map((entry) =>
           reminderEvaluation(entry, unavailableAssessment(entry, null, history.reason))
         )
       );
     }
 
     const measurements = new MaintenanceReminderMeasurementSession({
-      executable: context.options.git.executable,
+      executable: options.git.executable,
       history: history.value,
       projectRoot: context.project.root,
       signal: context.signal
     });
     const evaluations: ReminderEvaluation[] = [];
-    for (const entry of context.options.entries) {
+    for (const entry of options.entries) {
       const measurement = await measurements.measure(entry);
       if (measurement.kind === "cancelled") {
         return unavailableResult(WHOLE_CHECK_UNAVAILABLE_CODE.executionCancelled);

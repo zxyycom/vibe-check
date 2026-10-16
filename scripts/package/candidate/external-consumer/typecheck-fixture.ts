@@ -62,7 +62,7 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   debugChangeFlags,
   formatChangeFlagDebugReport,
   defineAdmissionPolicy,
-  defineSchedulerContextCallback,
+  defineContextCallback,
   defineCheck,
   defineConfig,
   defaultProjectFileSelection,
@@ -144,13 +144,13 @@ const directCheck = defineCheck({
   admissionPriority: 2,
   checkId: "isolated-public-import",
   displayName: "Isolated public import",
-  execute: (context) => {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["project", "records"], callback: (_options, context) => {
     const selected = context.project.flags.includes("isolated-consumer");
     context.records.report({ id: "selection" }, { selected });
     return selected
       ? { status: "passed", data: { selected } }
       : { status: "failed", data: { selected } };
-  }
+  } })
 });
 ${COMMAND_CHECK_TYPE_ACCEPTANCE_SOURCE}
 ${CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE}
@@ -209,7 +209,7 @@ const changedFilesConsumer = defineCheck({
   checkId: "isolated-changed-files-consumer",
   displayName: "Isolated changed-files consumer",
   observes: [changedFiles.checkId],
-  execute: ({ dependencies }) => {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (_options, { dependencies }) => {
     if (!directRelationIds(dependencies).includes(changedFiles.checkId)) {
       return { status: "unavailable", reason: { code: "changed-files-data-not-declared" } };
     }
@@ -221,8 +221,10 @@ const changedFilesConsumer = defineCheck({
       return { status: "unavailable", reason: { code: "changed-files-data-unavailable" } };
     }
     const parsedChangedFiles = changedFiles.parseData(observation.outcome.data);
-    return { status: observation.outcome.status, data: { fileCount: parsedChangedFiles.files.length } };
-  }
+    return observation.outcome.status === "passed"
+      ? { status: "passed", data: { fileCount: parsedChangedFiles.files.length } }
+      : { status: "failed", data: { fileCount: parsedChangedFiles.files.length } };
+  } })
 });
 
 ${PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE}
@@ -417,7 +419,7 @@ void [
   collectProjectFiles,
   createLearnedCriticalPathStrategy,
   defineAdmissionPolicy,
-  defineSchedulerContextCallback,
+  defineContextCallback,
   cacheResult,
   selectedProjectFiles,
   defineCheck,

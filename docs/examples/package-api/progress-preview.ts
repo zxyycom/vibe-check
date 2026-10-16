@@ -1,4 +1,5 @@
 // #region package-api-example:progress-preview
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import {
   defineCheck,
   defineConfig,
@@ -17,10 +18,10 @@ const headAndTail: ProgressPreviewFormatter = ({ text, maxCodePoints }) => {
 const detail = defineCheck({
   checkId: "detail",
   displayName: "Detail",
-  execute: ({ records }) => {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["records"], callback: (options, { records }) => {
     records.report({ id: "long-detail" }, { text: "a verbose diagnostic value" });
     return { status: "passed", data: {} };
-  }
+  } })
 });
 
 const definition = defineConfig({

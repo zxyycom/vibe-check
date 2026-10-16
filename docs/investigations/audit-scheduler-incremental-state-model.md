@@ -32,7 +32,7 @@ relations:
 公开行为由[调度指南](../guides/scheduling.md)、[模拟分支指南](../guides/simulating-admission.md)与类型拥有，
 内部不变量由 [Scheduler owner](../development/scheduler.md)拥有；本报告只保存形成时认识。
 调查时以 [immutable state](../decisions/provide-immutable-admission-graph-state.md)、
-[阶段需求](../decisions/declare-scheduler-context-demand.md)与
+[阶段需求](../decisions/archive/declare-scheduler-context-demand.md)与
 [规模收益取舍](../decisions/weigh-performance-costs-against-scaling-benefits.md)为判断基线。
 
 ## 调查目的

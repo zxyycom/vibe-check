@@ -158,8 +158,8 @@ describe("functionMetrics admission cancellation", () => {
         ]
       });
       const observed = await execute(
-        (context) =>
-          executeFunctionMetrics(context, {
+        (options, context) =>
+          executeFunctionMetrics(options, context, {
             measurement: {
               createWorker: () => {
                 const worker = createNodeFunctionMetricsWorker();

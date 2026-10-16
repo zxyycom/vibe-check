@@ -20,7 +20,7 @@ const preservedOptionShapesCheck = defineCheck<"isolated-option-shapes", Callbac
     payload: 42,
     tagged: ["count", 1]
   },
-  execute: ({ options }) => {
+  execute: (options, {  }) => {
     const command: CallbackOptionShapes["command"] = options.command;
     const executable: string = options.command[0];
     if (options.tagged[0] === "count") {
@@ -50,4 +50,32 @@ defineConfig({
     measurementHooks: []
   }
 });
+
+const preparedContextCheck = defineCheck({
+  checkId: "isolated-prepared-context", displayName: "Isolated prepared context",
+  options: { source: "input" },
+  prepare: defineContextCallback("check.prepare", {
+    contextNeeds: ["signal"],
+    callback(options: { readonly source: string }, { signal }) {
+      void signal.aborted;
+      return { status: "success", preparedOptions: { length: options.source.length } };
+    }
+  }),
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["records"],
+    callback(options: { readonly length: number }, { records }) {
+      records.report({ id: "length" }, { length: options.length });
+      return { status: "passed", data: { length: options.length } };
+    }
+  })
+});
+const rejectedImplicitContext: Check = {
+  checkId: "implicit-context", displayName: "Implicit context",
+  // @ts-expect-error A plain function cannot read injected fields by an explicit full context annotation.
+  execute: (_options: object, context: CheckExecutionContext) => {
+    void context.signal;
+    return { status: "passed", data: {} };
+  }
+};
+void [preparedContextCheck, rejectedImplicitContext];
 `;

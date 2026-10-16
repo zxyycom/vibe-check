@@ -76,31 +76,32 @@ describe("admission workbench", () => {
     const capturedContexts: Array<{
       readonly context: AdmissionPolicyContext;
       readonly observations: readonly ReturnType<
-        AdmissionPolicyContext["measurement"]["measurementAt"]
+        AdmissionPolicyContext["actionHistory"]["measurementAt"]
       >[];
-      readonly cumulative: AdmissionPolicyContext["measurement"]["cumulative"];
+      readonly cumulative: AdmissionPolicyContext["cumulative"];
     }> = [];
     const result = simulate(FIXTURES.backfill, (context) => {
       capturedContexts.push({
         context,
-        observations: Array.from({ length: context.measurement.measurementCount }, (_, index) =>
-          context.measurement.measurementAt(index)
+        observations: Array.from({ length: context.actionHistory.measurementCount }, (_, index) =>
+          context.actionHistory.measurementAt(index)
         ),
-        cumulative: structuredClone(context.measurement.cumulative)
+        cumulative: structuredClone(context.cumulative)
       });
       return staticPolicy(context);
     });
+    assert.equal(result.policyContextId, "public-admission-policy-context-v2");
     assert.ok(capturedContexts.length >= 3);
     const initial = capturedContexts[0]?.context;
     const later = capturedContexts.find(
-      ({ context }) => context.measurement.measurementCount > 0
+      ({ context }) => context.actionHistory.measurementCount > 0
     )?.context;
     assert.ok(initial !== undefined);
     assert.ok(later !== undefined);
-    assert.equal(initial.measurement.measurementCount, 0);
+    assert.equal(initial.actionHistory.measurementCount, 0);
     for (const { context, cumulative, observations } of capturedContexts) {
-      const measurement = context.measurement;
-      assert.deepEqual(measurement.cumulative, cumulative);
+      const measurement = context.actionHistory;
+      assert.deepEqual(context.cumulative, cumulative);
       assert.deepEqual(
         Array.from({ length: measurement.measurementCount }, (_, index) =>
           measurement.measurementAt(index)
@@ -127,10 +128,10 @@ describe("admission workbench", () => {
               : 0),
           0
         );
-      assert.equal(measurement.cumulative.timingFacts?.acceptedWaitMs, expectedWaitMs);
+      assert.equal(context.cumulative.timingFacts?.acceptedWaitMs, expectedWaitMs);
     }
-    assert.equal(later.measurement.cumulative.timing.availability, "available");
-    const observation = later.measurement.measurementAt(0);
+    assert.equal(later.cumulative.timing.availability, "available");
+    const observation = later.actionHistory.measurementAt(0);
     assert.equal(observation?.kind, "select");
     assert.deepEqual(observation?.effects[0], { kind: "admitted", taskId: "A" });
     assert.equal("sampledWork" in initial, false);

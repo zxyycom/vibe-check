@@ -1,4 +1,4 @@
-import type { CheckExecution, CheckResult } from "../../check/check.ts";
+import type { CheckResult } from "../../check/check.ts";
 import {
   createTypeScriptSourceRoot,
   executeCheck,
@@ -45,7 +45,7 @@ export function createMarkdownLintTestRoot(prefix: string): string {
 }
 
 export async function executeMarkdownLintCheck(
-  callback: CheckExecution<ResolvedMarkdownLintOptions>,
+  callback: Parameters<typeof executeCheck>[0],
   options: ResolvedMarkdownLintOptions,
   root: string,
   signal: AbortSignal = new AbortController().signal

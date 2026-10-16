@@ -1,9 +1,10 @@
+import type { CheckProjectContextSource } from "../project-context.ts";
+import { normalizeCheckExecution } from "../../check/context-callback.ts";
 import type {
   CheckDependencies,
   CheckExecutionContext,
   CheckMessage,
-  CheckOutcome,
-  CheckProjectContext
+  CheckOutcome
 } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { CoreInvariantFailure, type TrustedCheckScope } from "../../check-settlement/session.ts";
@@ -35,13 +36,13 @@ interface CheckCallbackInput {
   readonly dependencies: CheckDependencies;
   readonly diagnosticLogger?: DiagnosticLogger;
   readonly invocationId: string;
-  readonly project: CheckProjectContext;
+  readonly project: CheckProjectContextSource;
   readonly scope: TrustedCheckScope;
   readonly signal: AbortSignal;
 }
 
 interface CheckReporterLifecycle {
-  readonly records: CheckExecutionContext<object>["records"];
+  readonly records: CheckExecutionContext["records"];
   close(): void;
 }
 
@@ -49,20 +50,17 @@ interface CheckReporterLifecycle {
 export async function executeCheckCallback(input: CheckCallbackInput): Promise<CallbackExecution> {
   const checkId = input.check.definition.checkId;
   const checkTags = diagnosticTags(`CHECK:${checkId}`, "EXECUTION");
-  const reporter = createCheckReporter(input.scope, input.diagnosticLogger, checkTags, checkId);
+  const execution = normalizeCheckExecution(input.check.execute)!;
+  const reporter = execution.contextNeeds.includes("records")
+    ? createCheckReporter(input.scope, input.diagnosticLogger, checkTags, checkId)
+    : undefined;
   let result: CallbackExecution;
   let consoleMessages = EMPTY_MESSAGES;
   try {
-    const context = Object.freeze({
-      artifactDirectory: input.artifactDirectory,
-      dependencies: input.dependencies,
-      invocationId: input.invocationId,
-      options: input.check.options,
-      project: input.project,
-      records: reporter.records,
-      signal: input.signal
-    });
-    const invocation = await invokeWithCapturedConsole(() => input.check.execute(context));
+    const context = createCheckExecutionContextSource(input, reporter?.records);
+    const invocation = await invokeWithCapturedConsole(() =>
+      execution.invoke(context, input.check.options)
+    );
     consoleMessages = invocation.messages;
     if (invocation.kind === "threw") throw invocation.error;
     const callbackResult = invocation.output;
@@ -92,9 +90,29 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
       consoleMessages
     );
   } finally {
-    reporter.close();
+    reporter?.close();
   }
   return result;
+}
+
+function createCheckExecutionContextSource(
+  input: CheckCallbackInput,
+  records: CheckExecutionContext["records"] | undefined
+): Readonly<Partial<CheckExecutionContext>> {
+  return Object.freeze({
+    get artifactDirectory() {
+      return input.artifactDirectory;
+    },
+    get dependencies() {
+      return input.dependencies;
+    },
+    invocationId: input.invocationId,
+    get project() {
+      return input.project.getContext();
+    },
+    ...(records === undefined ? {} : { records }),
+    signal: input.signal
+  });
 }
 
 function createCheckReporter(

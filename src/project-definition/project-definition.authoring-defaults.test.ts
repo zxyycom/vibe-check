@@ -1,14 +1,12 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { resolve } from "node:path";
 import { describe, it } from "node:test";
-
 import { defineAdmissionPolicy } from "../package-tools/admission-policy/define-admission-policy.ts";
 import { defineConfig, normalizeProjectDefinition } from "./project-definition.ts";
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 import type { ProjectDefinition } from "./project-definition.ts";
-
 const passed = () => ({ status: "passed" as const, data: {} });
-
 describe("Project Definition", () => {
   it("creates a plain value with Product-owned authoring defaults", () => {
     const definition = defineConfig({});
@@ -20,7 +18,6 @@ describe("Project Definition", () => {
     assert.equal(Object.getPrototypeOf(definition), Object.prototype);
   });
 });
-
 function assertDefinitionDefaults(definition: ProjectDefinition): void {
   assert.deepEqual(definition.checks, []);
   assert.deepEqual(definition.outputs, {
@@ -47,7 +44,6 @@ function assertDefinitionDefaults(definition: ProjectDefinition): void {
       .declarative.scheduler
   );
 }
-
 function assertLegacyLifecycleAuthoringRejected(definition: ProjectDefinition): void {
   for (const check of [
     {
@@ -80,7 +76,6 @@ function assertLegacyLifecycleAuthoringRejected(definition: ProjectDefinition): 
     false
   );
 }
-
 function assertProgressRenderingValidation(definition: ProjectDefinition): void {
   const directDefinition: ProjectDefinition = {
     ...definition,
@@ -114,7 +109,6 @@ function assertProgressRenderingValidation(definition: ProjectDefinition): void 
   });
   assert.equal(configured.ok, true);
   if (configured.ok) assert.equal(configured.value.outputs.progressRendering.formatter, formatter);
-
   for (const progressRendering of [
     { enabled: false, recordPreviewLimit: -1 },
     { enabled: false, messagePreviewLimit: 1.5 },
@@ -136,34 +130,35 @@ function assertProgressRenderingValidation(definition: ProjectDefinition): void 
     }
   }
 }
-
 function assertCustomAdmissionPolicy(): void {
   const policy = defineAdmissionPolicy({
     kind: "custom",
     strategy: {
       kind: "simple",
-      decide(context) {
-        const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
-        return candidate === undefined
-          ? { kind: "wait" as const }
-          : { kind: "select" as const, taskId: candidate.taskId };
-      }
+      decide: defineContextCallback("scheduler.decide", {
+        contextNeeds: ["candidates"],
+        callback: function (this: void, context) {
+          const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
+          return candidate === undefined
+            ? { kind: "wait" as const }
+            : { kind: "select" as const, taskId: candidate.taskId };
+        }
+      })
     }
   });
   const customDefinition = defineConfig({ scheduler: { admissionPolicy: policy } });
   assert.equal(customDefinition.scheduler.admissionPolicy, policy);
   assert.equal(validateProjectDefinition(customDefinition).ok, true);
   const normalized = normalizeProjectDefinition(customDefinition);
-  assert.equal(normalized.scheduler.admissionPolicy.kind, "custom");
-  if (normalized.scheduler.admissionPolicy.kind === "custom") {
-    assert.equal(normalized.scheduler.admissionPolicy.strategy.kind, "simple");
-    assert.equal(
-      normalized.scheduler.admissionPolicy.strategy.kind === "simple" &&
-        normalized.scheduler.admissionPolicy.strategy.decide,
-      Reflect.get(Reflect.get(policy, "strategy"), "decide")
-    );
-    assert.equal(Object.isFrozen(normalized.scheduler.admissionPolicy.strategy), true);
-  }
+  assert.ok(normalized.scheduler.admissionPolicy.kind === "custom");
+  assert.ok(normalized.scheduler.admissionPolicy.strategy.kind === "simple");
+  const normalizedDecide = normalized.scheduler.admissionPolicy.strategy.decide;
+  assert.notEqual(normalizedDecide, policy.strategy.decide);
+  assert.ok(typeof normalizedDecide === "object", "Expected descriptor snapshot");
+  assert.equal(normalizedDecide.callback, policy.strategy.decide.callback);
+  assert.deepEqual(normalizedDecide.contextNeeds, ["candidates"]);
+  assert.equal(Object.isFrozen(normalizedDecide), true);
+  assert.equal(Object.isFrozen(normalized.scheduler.admissionPolicy.strategy), true);
   const prepared = defineConfig({
     scheduler: {
       admissionPolicy: {
@@ -181,7 +176,6 @@ function assertCustomAdmissionPolicy(): void {
     strategy: { kind: "prepared" }
   });
 }
-
 function assertSchedulerValidation(definition: ProjectDefinition): void {
   assert.equal(
     validateProjectDefinition({ ...definition, scheduler: { maxParallel: 1 } }).ok,
@@ -264,7 +258,6 @@ function assertSchedulerValidation(definition: ProjectDefinition): void {
     assert.equal(validateProjectDefinition({ ...definition, scheduler }).ok, false);
   }
 }
-
 function assertOutputDirectoryValidation(definition: ProjectDefinition): void {
   for (const directory of ["nested/output", "../outside-project", resolve("vibe-check-output")]) {
     assert.equal(

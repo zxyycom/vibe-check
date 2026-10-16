@@ -1,4 +1,4 @@
-import type { SchedulerRawMeasurement } from "../../../project-definition/project-definition.ts";
+import type { SchedulerTaskTimings } from "../../../project-definition/project-definition.ts";
 import {
   freezeSchedulerHistoryModel,
   isBoundedDurationMs,
@@ -10,9 +10,10 @@ import {
 } from "./bounded-history.ts";
 import type { SchedulerPredictionSnapshot, SchedulerTaskPrediction } from "./prediction.ts";
 
-type SchedulerMeasurementAdmission = NonNullable<
-  SchedulerRawMeasurement["timingFacts"]
->["admissions"][number];
+type TimedAdmissions = Extract<
+  SchedulerTaskTimings,
+  { readonly admissions: unknown }
+>["admissions"];
 
 export type SchedulerHistoryRecordingObservation =
   | Readonly<{
@@ -35,7 +36,7 @@ export interface SchedulerHistoryRecording {
 export function recordSchedulerHistory(input: {
   readonly history: SchedulerHistoryModel;
   readonly prediction: SchedulerPredictionSnapshot;
-  readonly rawMeasurement: SchedulerRawMeasurement;
+  readonly taskTimings: SchedulerTaskTimings;
   readonly settledTasks: readonly Readonly<{
     readonly kind: SchedulerDurationSettlementKind;
     readonly taskId: string;
@@ -43,9 +44,8 @@ export function recordSchedulerHistory(input: {
   readonly maxSamplesPerSeries?: number;
   readonly maxSeries?: number;
 }): SchedulerHistoryRecording {
-  const rawMeasurement = input.rawMeasurement;
-  const timingFacts = rawMeasurement.timingFacts;
-  if (rawMeasurement.timing.availability !== "available" || timingFacts === undefined) {
+  const taskTimings = input.taskTimings;
+  if (!("admissions" in taskTimings)) {
     return Object.freeze({
       history: input.history,
       observation: Object.freeze({
@@ -56,12 +56,12 @@ export function recordSchedulerHistory(input: {
     });
   }
 
-  return recordedHistory(input, timingFacts.admissions);
+  return recordedHistory(input, taskTimings.admissions);
 }
 
 function recordedHistory(
   input: Parameters<typeof recordSchedulerHistory>[0],
-  admissions: readonly SchedulerMeasurementAdmission[]
+  admissions: TimedAdmissions
 ): SchedulerHistoryRecording {
   const merged = mergeVerifiedAdmissionSamples({
     admissions,
@@ -96,7 +96,7 @@ type VerifiedAdmissionMerge = Readonly<{
 
 /** Applies valid admissions in Scheduler order and returns the updated identity histories. */
 function mergeVerifiedAdmissionSamples(input: {
-  readonly admissions: readonly SchedulerMeasurementAdmission[];
+  readonly admissions: TimedAdmissions;
   readonly history: SchedulerHistoryModel;
   readonly prediction: SchedulerPredictionSnapshot;
   readonly settledByTaskId: ReadonlyMap<string, SchedulerDurationSettlementKind>;

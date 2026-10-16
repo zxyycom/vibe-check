@@ -1,3 +1,4 @@
+import { prepareCheckOptions } from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -67,7 +68,8 @@ describe("functionMetrics constructor", () => {
       );
     }
 
-    const invalidPreparation = await check.prepare!(
+    const invalidPreparation = await prepareCheckOptions(
+      check.prepare!,
       { ...check.options, codeAreas: {} },
       new AbortController().signal
     );
@@ -135,8 +137,8 @@ describe("functionMetrics analyzer execution", () => {
       });
       const controller = new AbortController();
       const observed = await execute(
-        (context) =>
-          executeFunctionMetrics(context, {
+        (options, context) =>
+          executeFunctionMetrics(options, context, {
             measurement: {
               createWorker: (): FunctionMetricsWorkerPort => {
                 workerStarted += 1;

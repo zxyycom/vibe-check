@@ -18,30 +18,36 @@ describe("public learned critical-path strategy", () => {
         stateDirectory
       });
       if (strategy.kind !== "prepared") throw new Error("expected prepared strategy");
-      const prepared = await strategy.prepare({ graph: graph() });
-      const tightening = prepared.decide(
+      const prepared = await strategy.prepare.callback({ graph: graph() });
+      const tightening = prepared.decide.callback(
         context([
           { canAdmit: true, taskId: "ordinary" },
           { canAdmit: true, taskId: "activate" }
         ])
       );
       assert.deepEqual(tightening, { kind: "select", taskId: "activate" });
-      const wait = prepared.decide(context([{ canAdmit: false, taskId: "ordinary" }]));
+      const wait = prepared.decide.callback(context([{ canAdmit: false, taskId: "ordinary" }]));
       assert.deepEqual(wait, { kind: "wait" });
       const changingBoundary = context([
         { canAdmit: true, taskId: "ordinary" },
         { canAdmit: true, taskId: "activate" }
       ]);
-      assert.deepEqual(prepared.decide(changingBoundary), { kind: "select", taskId: "activate" });
+      assert.deepEqual(prepared.decide.callback(changingBoundary), {
+        kind: "select",
+        taskId: "activate"
+      });
       assert.deepEqual(
-        prepared.decide({
+        prepared.decide.callback({
           ...changingBoundary,
           activeScopeIds: ["limited"],
           capacity: { effectiveMaxParallel: 1, maxParallel: 1, running: 0 }
         }),
         { kind: "select", taskId: "ordinary" }
       );
-      assert.deepEqual(prepared.decide(changingBoundary), { kind: "select", taskId: "activate" });
+      assert.deepEqual(prepared.decide.callback(changingBoundary), {
+        kind: "select",
+        taskId: "activate"
+      });
     } finally {
       await rm(stateDirectory, { force: true, recursive: true });
     }
@@ -57,7 +63,7 @@ describe("public learned critical-path strategy", () => {
       ]);
       const learned = await preparedStrategy(stateDirectory, rankedGraph);
       assert.deepEqual(
-        learned.decide(
+        learned.decide.callback(
           contextFor(rankedGraph, [
             { canAdmit: true, taskId: "high-priority" },
             { canAdmit: true, taskId: "critical-tail" }
@@ -71,7 +77,7 @@ describe("public learned critical-path strategy", () => {
       ]);
       const tied = await preparedStrategy(stateDirectory, tieGraph);
       assert.deepEqual(
-        tied.decide(
+        tied.decide.callback(
           contextFor(tieGraph, [
             { canAdmit: true, taskId: "z" },
             { canAdmit: true, taskId: "a" }
@@ -85,7 +91,7 @@ describe("public learned critical-path strategy", () => {
       ]);
       const priority = await preparedStrategy(stateDirectory, priorityGraph);
       assert.deepEqual(
-        priority.decide(
+        priority.decide.callback(
           contextFor(priorityGraph, [
             { canAdmit: true, taskId: "low-priority" },
             { canAdmit: true, taskId: "high-priority" }
@@ -117,7 +123,7 @@ describe("public learned critical-path strategy", () => {
       );
       const scoped = await preparedStrategy(stateDirectory, scopedGraph);
       assert.deepEqual(
-        scoped.decide(
+        scoped.decide.callback(
           contextFor(scopedGraph, [
             { canAdmit: true, taskId: "cap-two" },
             { canAdmit: true, taskId: "cap-one" }
@@ -126,7 +132,7 @@ describe("public learned critical-path strategy", () => {
         { kind: "select", taskId: "cap-one" }
       );
       assert.deepEqual(
-        scoped.decide(
+        scoped.decide.callback(
           contextFor(
             scopedGraph,
             [
@@ -151,22 +157,22 @@ describe("public learned critical-path strategy", () => {
           return scopedGraph.tasks;
         }
       };
-      const fallbackPrepared = await fallback.prepare({ graph: countedGraph });
+      const fallbackPrepared = await fallback.prepare.callback({ graph: countedGraph });
       const preparedGraphReads = graphReads;
       const fallbackContext = contextFor(scopedGraph, [
         { canAdmit: true, taskId: "cap-two" },
         { canAdmit: true, taskId: "cap-one" }
       ]);
       for (let boundary = 0; boundary < 8; boundary += 1) {
-        assert.deepEqual(fallbackPrepared.decide({ ...fallbackContext, graph: countedGraph }), {
+        assert.deepEqual(fallbackPrepared.decide.callback(fallbackContext), {
           kind: "select",
           taskId: "cap-one"
         });
       }
       assert.equal(graphReads, preparedGraphReads, "fallback rebuilt its prepared graph index");
-      const ordinaryFallback = await fallback.prepare({ graph: priorityGraph });
+      const ordinaryFallback = await fallback.prepare.callback({ graph: priorityGraph });
       assert.deepEqual(
-        ordinaryFallback.decide(
+        ordinaryFallback.decide.callback(
           contextFor(priorityGraph, [
             { canAdmit: false, taskId: "high-priority" },
             { canAdmit: true, taskId: "low-priority" }
@@ -175,7 +181,7 @@ describe("public learned critical-path strategy", () => {
         { kind: "select", taskId: "low-priority" }
       );
       assert.deepEqual(
-        priority.decide(
+        priority.decide.callback(
           contextFor(priorityGraph, [
             { canAdmit: false, taskId: "high-priority" },
             { canAdmit: true, taskId: "low-priority" }
@@ -185,7 +191,7 @@ describe("public learned critical-path strategy", () => {
       );
       assertLinearStableMinimum();
       assert.deepEqual(
-        fallbackPrepared.decide(
+        fallbackPrepared.decide.callback(
           contextFor(scopedGraph, [
             { canAdmit: true, taskId: "cap-two" },
             { canAdmit: true, taskId: "cap-one" }
@@ -224,8 +230,10 @@ describe("public learned critical-path strategy", () => {
         stateDirectory
       });
       if (strategy.kind !== "prepared") throw new Error("expected prepared strategy");
-      const prepared = await strategy.prepare({ graph: graph() });
-      assert.doesNotThrow(() => prepared.decide(context([{ canAdmit: true, taskId: "ordinary" }])));
+      const prepared = await strategy.prepare.callback({ graph: graph() });
+      assert.doesNotThrow(() =>
+        prepared.decide.callback(context([{ canAdmit: true, taskId: "ordinary" }]))
+      );
     } finally {
       await rm(stateDirectory, { force: true, recursive: true });
     }
@@ -238,7 +246,7 @@ function preparedStrategy(stateDirectory: string, schedulerGraph: SchedulerGraph
     stateDirectory
   });
   if (strategy.kind !== "prepared") throw new Error("expected prepared strategy");
-  return strategy.prepare({ graph: schedulerGraph });
+  return strategy.prepare.callback({ graph: schedulerGraph });
 }
 
 /** A minimum keeps stable ties and requires only one comparison per subsequent candidate. */

@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { rmSync } from "node:fs";
@@ -110,10 +111,13 @@ describe("change flag debugging", () => {
           defineCheck({
             checkId: "observe",
             displayName: "Observe",
-            execute: ({ project }) => {
-              observed = project.changes;
-              return { status: "passed", data: {} };
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["project"],
+              callback: (_options, { project }) => {
+                observed = project.changes;
+                return { status: "passed", data: {} };
+              }
+            })
           })
         ],
         outputs: {

@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -53,15 +54,18 @@ describe("Package Run diagnostic logging output", () => {
       checkId: "handoff-consumer",
       displayName: "Handoff consumer",
       dependsOn: [provider.checkId],
-      execute: ({ dependencies }) => {
-        const read = dependencies.get(provider);
-        if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
-        consumerReadSameReference = read.handoff === fileBytes;
-        return {
-          status: "passed",
-          data: { byteCount: read.handoff.get("handoff-private-byte")?.byteLength ?? 0 }
-        };
-      }
+      execute: defineContextCallback("check.execute", {
+        contextNeeds: ["dependencies"],
+        callback: (options, { dependencies }) => {
+          const read = dependencies.get(provider);
+          if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
+          consumerReadSameReference = read.handoff === fileBytes;
+          return {
+            status: "passed",
+            data: { byteCount: read.handoff.get("handoff-private-byte")?.byteLength ?? 0 }
+          };
+        }
+      })
     });
     try {
       const result = await executeValidatedRun(

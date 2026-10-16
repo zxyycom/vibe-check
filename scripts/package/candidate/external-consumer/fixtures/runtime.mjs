@@ -1,3 +1,4 @@
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
@@ -213,7 +214,7 @@ const firstChangedFilesConsumer = defineCheck({
   checkId: "first-changed-files-consumer",
   displayName: "First changed-files consumer",
   observes: [failedChangedFiles.checkId],
-  execute: ({ dependencies }) => {
+  execute: { contextNeeds: ["dependencies"], callback: (_options, { dependencies }) => {
     const observation = dependencies
       .list()
       .find(({ checkId }) => checkId === failedChangedFiles.checkId);
@@ -228,14 +229,14 @@ const firstChangedFilesConsumer = defineCheck({
         observedStatus: observation.outcome.status
       }
     };
-  }
+  } }
 });
 
 const secondChangedFilesConsumer = defineCheck({
   checkId: "second-changed-files-consumer",
   displayName: "Second changed-files consumer",
   dependsOn: [changedFiles.checkId],
-  execute: ({ dependencies }) => {
+  execute: { contextNeeds: ["dependencies"], callback: (_options, { dependencies }) => {
     const read = dependencies.get(changedFiles);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const parsedChangedFiles = changedFiles.parseData(read.data);
@@ -252,7 +253,7 @@ const secondChangedFilesConsumer = defineCheck({
         handoffIdentity: read.handoff === changedFileBytes
       }
     };
-  }
+  } }
 });
 
 let blockedChangedFilesConsumerCalls = 0;
@@ -647,7 +648,7 @@ async function observeAdmissionSimulation(projectRoot) {
           kind: "custom",
           strategy: {
             kind: "simple",
-            decide(context) {
+            decide: defineContextCallback("scheduler.decide", { contextNeeds: ["admissionState","candidates"], callback: (context) => {
               if (!lookaheadSelected) {
                 const selected = context.admissionState.select(second.checkId);
                 if (!selected.accepted)
@@ -662,7 +663,7 @@ async function observeAdmissionSimulation(projectRoot) {
               return candidate === undefined
                 ? { kind: "wait" }
                 : { kind: "select", taskId: candidate.taskId };
-            }
+            } })
           }
         },
         maxParallel: 1
@@ -694,14 +695,14 @@ async function observeAdmissionSimulation(projectRoot) {
           kind: "custom",
           strategy: {
             kind: "simple",
-            decide(context) {
+            decide: defineContextCallback("scheduler.decide", { contextNeeds: ["admissionState"], callback: (context) => {
               hardGuardCallbackCount += 1;
               if (!context.admissionState.validateSelection(guarded.checkId).accepted) {
                 throw new Error("installed hard-guard callback did not receive an admissible task");
               }
               controller.abort();
               return { kind: "select", taskId: guarded.checkId };
-            }
+            } })
           }
         },
         maxParallel: 1

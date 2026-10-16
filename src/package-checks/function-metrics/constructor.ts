@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import {
   resolvePackageCheckAuthoringInput,
@@ -55,7 +56,10 @@ export function functionMetrics(
   }
   return defineCheck({
     ...input.definition,
-    execute: executeFunctionMetrics,
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["project", "records", "signal"],
+      callback: executeFunctionMetrics
+    }),
     parseData: parseFunctionMetricsData,
     prepare: (preparedOptions) =>
       validResolvedFunctionMetricsOptions(preparedOptions)

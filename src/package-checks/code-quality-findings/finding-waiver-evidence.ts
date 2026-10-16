@@ -12,7 +12,7 @@ interface CodeQualityFindingCandidate {
   readonly id: string;
 }
 
-type FindingRecordContext = Pick<CheckExecutionContext<object>, "records">;
+type FindingRecordContext = Pick<CheckExecutionContext, "records">;
 
 const FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX = "/finding-waiver-audit/";
 

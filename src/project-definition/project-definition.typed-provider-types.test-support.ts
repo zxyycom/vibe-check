@@ -66,7 +66,7 @@ function _typeCheckProviderOptionsAndComposition() {
     parseData(data): { readonly count: number } {
       return { count: typeof data.count === "number" ? data.count : 0 };
     },
-    execute({ options }) {
+    execute: (options) => {
       return { status: "passed", data: { count: options.maximum } };
     }
   });
@@ -177,7 +177,7 @@ function _typeCheckHandoffProviderAuthoring() {
     handoff: true,
     options: { prefix: "src/" },
     prepare: (options) => ({ status: "success", preparedOptions: options }),
-    async execute({ options }) {
+    execute: async (options) => {
       const path = `${options.prefix}index.ts`;
       return {
         status: "passed",
@@ -213,8 +213,8 @@ function _typeCheckHandoffProviderAuthoring() {
     displayName: "Inconsistent passed handoffs",
     // @ts-expect-error every passed branch must return the same handoff type.
     handoff: true,
+    // @ts-expect-error every passed branch must return the same handoff type.
     execute: () =>
-      // @ts-expect-error every passed branch must return the same handoff type.
       chooseMapHandoff
         ? { status: "passed" as const, data: {}, handoff: new Map<string, Uint8Array>() }
         : { status: "passed" as const, data: {}, handoff: { close: () => undefined } }

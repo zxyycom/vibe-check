@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import {
   resolvePackageCheckAuthoringInput,
@@ -58,7 +59,10 @@ export function duplicateDetection(
   }
   return defineCheck({
     ...input.definition,
-    execute: executeDuplicateDetection,
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["project", "records"],
+      callback: executeDuplicateDetection
+    }),
     parseData: parseDuplicateDetectionData,
     prepare: (preparedOptions) =>
       validResolvedDuplicateDetectionOptions(preparedOptions)

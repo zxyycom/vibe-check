@@ -19,19 +19,26 @@ export type DecisionPolicy = (context: AdmissionPolicyContext) => AdmissionPropo
 export type LearnedStrategyFactory = typeof createLearnedCriticalPathStrategy;
 
 /** Fixed registry/fixture adapter inputs; not an arbitrary public callback-slot interpreter. */
-type FunctionValuedPolicy =
+type DescriptorPolicy =
   | Extract<AdmissionPolicy, { readonly kind: "static" }>
   | Readonly<{
       readonly kind: "custom";
       readonly strategy:
-        | Readonly<{ readonly kind: "simple"; readonly decide: DecisionPolicy }>
+        | Readonly<{
+            readonly kind: "simple";
+            readonly decide: Readonly<{ readonly callback: DecisionPolicy }>;
+          }>
         | Readonly<{
             readonly kind: "prepared";
-            readonly prepare: (
-              context: CustomAdmissionPreparationContext
-            ) =>
-              | Readonly<{ readonly decide: DecisionPolicy }>
-              | Promise<Readonly<{ readonly decide: DecisionPolicy }>>;
+            readonly prepare: Readonly<{
+              readonly callback: (
+                context: CustomAdmissionPreparationContext
+              ) =>
+                | Readonly<{ readonly decide: Readonly<{ readonly callback: DecisionPolicy }> }>
+                | Promise<
+                    Readonly<{ readonly decide: Readonly<{ readonly callback: DecisionPolicy }> }>
+                  >;
+            }>;
           }>;
     }>;
 
@@ -121,9 +128,9 @@ export function registeredPolicyIdentity(policyId: PolicyRegistryId): PolicyIden
     : learnedIdentity(REGISTERED_LEARNED_FIXTURE);
 }
 
-/** Adapts function-valued registry/fixtures and calls prepared `prepare` exactly once. */
+/** Directly calls descriptor callbacks from fixed registry/fixtures and calls prepared `prepare` exactly once. */
 export async function preparePolicyDefinition(
-  policy: FunctionValuedPolicy,
+  policy: DescriptorPolicy,
   identity: PolicyIdentity,
   graph?: SchedulerGraphSnapshot
 ): Promise<PreparedPolicyHandle> {
@@ -140,19 +147,19 @@ export async function preparePolicyDefinition(
   if (policy.strategy.kind === "simple") {
     return Object.freeze({
       assertValid: () => undefined,
-      decide: policy.strategy.decide,
-      directDecide: policy.strategy.decide,
+      decide: policy.strategy.decide.callback,
+      directDecide: policy.strategy.decide.callback,
       dispose: async () => undefined,
       identity,
       stateDirectory: null
     });
   }
   if (graph === undefined) throw new TypeError("prepared policy requires a graph");
-  const prepared = await policy.strategy.prepare({ graph });
+  const prepared = await policy.strategy.prepare.callback({ graph });
   return Object.freeze({
     assertValid: () => undefined,
-    decide: prepared.decide,
-    directDecide: prepared.decide,
+    decide: prepared.decide.callback,
+    directDecide: prepared.decide.callback,
     dispose: async () => undefined,
     identity,
     stateDirectory: null
@@ -184,13 +191,13 @@ export async function prepareLearnedPolicyWithFactory(
       stateDirectory: writableState.stateDirectory
     });
     if (strategy.kind !== "prepared") throw new TypeError("learned strategy is not prepared");
-    const prepared = await strategy.prepare({ graph });
+    const prepared = await strategy.prepare.callback({ graph });
     validation.assertValid();
     return learnedPolicyHandle(
       fixture,
       modelOptions,
       writableState,
-      prepared.decide,
+      prepared.decide.callback,
       validation.assertValid
     );
   } catch (error) {

@@ -1,13 +1,5 @@
-import { dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
-import { workspaceFormatInvocation } from "../../development/format.ts";
-import { workspaceFormatTargets } from "../../development/format-targets.ts";
-import { lintInvocation } from "../../development/lint.ts";
-import { typecheckInvocation } from "../../development/typecheck.ts";
-import type { ProcessInvocation } from "../../process-execution/command.ts";
 import {
+  defineContextCallback,
   commandCheck,
   createLearnedCriticalPathStrategy,
   defineConfig,
@@ -17,6 +9,15 @@ import {
   type RunControls,
   type SchedulerGraphSnapshot
 } from "@zxyycom/vibe-check";
+import { dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
+import { workspaceFormatInvocation } from "../../development/format.ts";
+import { workspaceFormatTargets } from "../../development/format-targets.ts";
+import { lintInvocation } from "../../development/lint.ts";
+import { typecheckInvocation } from "../../development/typecheck.ts";
+import type { ProcessInvocation } from "../../process-execution/command.ts";
 
 import type { ProjectGateResultContributor } from "./runtime/result-contributor.ts";
 import { evaluateProjectGatePerformance } from "./runtime/performance-observation.ts";
@@ -189,12 +190,16 @@ export function createLintProductCheck(input?: LintProductCheckInput) {
     timeoutMs: projectGateCommandTimeoutMs,
     workingDirectory: invocation.cwd,
     afterCommand: {
-      execute: (context) =>
-        settleProjectGateCommand({
-          command: invocation.command,
-          context,
-          failureProjection
-        })
+      execute: defineContextCallback("command.complete", {
+        contextNeeds: ["artifactDirectory", "records"],
+        callback: ({ command: completedCommand }, context) =>
+          settleProjectGateCommand({
+            command: invocation.command,
+            completedCommand,
+            context,
+            failureProjection
+          })
+      })
     }
   });
 }

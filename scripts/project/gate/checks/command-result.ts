@@ -1,4 +1,4 @@
-import type { AfterCommandContext, CheckResult } from "@zxyycom/vibe-check";
+import type { AfterCommandContext, CompletedCommand, CheckResult } from "@zxyycom/vibe-check";
 
 import {
   safeProcessFailureRecords,
@@ -10,18 +10,19 @@ import { failedProcessResult, processTranscriptPath } from "./process/transcript
 export function settleProjectGateCommand(
   input: Readonly<{
     readonly command: string;
-    readonly context: AfterCommandContext;
+    readonly context: Pick<AfterCommandContext, "artifactDirectory" | "records">;
+    readonly completedCommand: CompletedCommand;
     readonly failureProjection?: ProcessFailureProjection;
   }>
 ): CheckResult {
-  const { command, context, failureProjection } = input;
+  const { command, context, completedCommand, failureProjection } = input;
   if (context.artifactDirectory === null) {
     return Object.freeze({
       status: "unavailable" as const,
       reason: Object.freeze({ code: "command-transcript-unavailable" })
     });
   }
-  if (context.command.exitCode === 0) {
+  if (completedCommand.exitCode === 0) {
     return Object.freeze({
       status: "passed" as const,
       data: Object.freeze({ exitCode: 0 })
@@ -30,10 +31,10 @@ export function settleProjectGateCommand(
   const failureRecords =
     failureProjection === undefined
       ? undefined
-      : safeProcessFailureRecords(failureProjection, context.command.stdout);
+      : safeProcessFailureRecords(failureProjection, completedCommand.stdout);
   return failedProcessResult(context, {
     command,
-    exitCode: context.command.exitCode,
+    exitCode: completedCommand.exitCode,
     logPath: processTranscriptPath(context.artifactDirectory),
     signal: null,
     ...(failureRecords === undefined ? {} : { failureRecords })

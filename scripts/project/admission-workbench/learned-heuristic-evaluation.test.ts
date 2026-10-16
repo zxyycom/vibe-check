@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import type { AdmissionPolicyContext } from "@zxyycom/vibe-check";
+import { defineContextCallback, type AdmissionPolicyContext } from "@zxyycom/vibe-check";
 
 import { compareSuites } from "./learned-heuristic-comparison.ts";
 import type { CostSummary, Protocol, Suite } from "./learned-heuristic-evaluation-types.ts";
@@ -83,20 +83,26 @@ type ObservedFactoryOptions = Readonly<{
 const fallbackAfterDecisionFactory: LearnedStrategyFactory = (options: ObservedFactoryOptions) =>
   Object.freeze({
     kind: "prepared" as const,
-    prepare: async () =>
-      Object.freeze({
-        decide: (context: AdmissionPolicyContext) => {
-          const observation = options.observe?.({
-            kind: "history-unavailable",
-            reason: "setup-failed"
-          });
-          if (observation !== undefined) void observation.then(undefined, () => undefined);
-          const selected = context.candidates.find(({ canAdmit }) => canAdmit);
-          return selected === undefined
-            ? Object.freeze({ kind: "wait" as const })
-            : Object.freeze({ kind: "select" as const, taskId: selected.taskId });
-        }
-      })
+    prepare: defineContextCallback("scheduler.prepare", {
+      contextNeeds: ["graph"],
+      callback: async () =>
+        Object.freeze({
+          decide: defineContextCallback("scheduler.decide", {
+            contextNeeds: ["activeScopeIds", "candidates", "capacity"],
+            callback: (context) => {
+              const observation = options.observe?.({
+                kind: "history-unavailable",
+                reason: "setup-failed"
+              });
+              if (observation !== undefined) void observation.then(undefined, () => undefined);
+              const selected = context.candidates.find(({ canAdmit }) => canAdmit);
+              return selected === undefined
+                ? Object.freeze({ kind: "wait" as const })
+                : Object.freeze({ kind: "select" as const, taskId: selected.taskId });
+            }
+          })
+        })
+    })
   });
 
 function suiteFor(makespanMs: number): Suite {

@@ -1,3 +1,4 @@
+import type { LearnedDecisionContext } from "./strategy-contract.ts";
 import type {
   AdmissionPolicyContext,
   SchedulerGraphSnapshot
@@ -31,8 +32,8 @@ export function createLearnedSelectionGraph(graph: SchedulerGraphSnapshot): Lear
 
 /** Projects the public graph and boundary facts into the Scheduler's two constrained selection layers. */
 export function learnedSelectionLayers(
-  context: AdmissionPolicyContext,
-  graph: LearnedSelectionGraph = createLearnedSelectionGraph(context.graph)
+  context: LearnedDecisionContext,
+  graph: LearnedSelectionGraph
 ): LearnedSelectionLayers {
   const { taskById, scopeById, activationTaskIdsByScopeId } = graph;
   const activeScopeIds = new Set(context.activeScopeIds);

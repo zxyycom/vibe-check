@@ -16,13 +16,20 @@ import type { PreparedAdmissionStrategy } from "./prepared-admission-strategy.ts
 /** Builds the exact Run-local Scheduler handoff and optional terminal participant for custom strategy. */
 export async function prepareCustomAdmissionStrategy(
   policy: Extract<AdmissionPolicy, { readonly kind: "custom" }>,
-  graph: SchedulerGraphSnapshot
+  graph: () => SchedulerGraphSnapshot
 ): Promise<PreparedAdmissionStrategy> {
   const strategy = policy.strategy;
   if (strategy.kind === "simple") {
     return preparedCustomAdmissionStrategy({ decide: strategy.decide });
   }
-  const prepared = await prepareCustomStrategy(strategy.prepare, Object.freeze({ graph }));
+  const prepared = await prepareCustomStrategy(
+    strategy.prepare,
+    Object.freeze({
+      get graph() {
+        return graph();
+      }
+    })
+  );
   return preparedCustomAdmissionStrategy(prepared);
 }
 
@@ -34,9 +41,7 @@ async function prepareCustomStrategy(
   try {
     const callback = normalizeSchedulerContextCallback("preparation", prepare);
     if (callback === undefined) throw new AdmissionStrategyPreparationFailure();
-    prepared = await callback.invoke(
-      callback.contextNeeds.includes("graph") ? context : Object.freeze({})
-    );
+    prepared = await callback.invoke(context);
   } catch {
     throw new AdmissionStrategyPreparationFailure();
   }
@@ -74,7 +79,9 @@ function preparedCustomAdmissionStrategy(
   return Object.freeze({
     admissionPolicy: admissionSelectionPolicyFor(strategy.decide),
     completion,
-    requiresTerminalMeasurement: terminal?.contextNeeds.includes("rawMeasurement") === true,
+    requiresTerminalMeasurement:
+      terminal?.contextNeeds.includes("runMeasurement") === true ||
+      terminal?.contextNeeds.includes("taskTimings") === true,
     ...(terminal === undefined ? {} : { terminalContextNeeds: terminal.contextNeeds })
   });
 }

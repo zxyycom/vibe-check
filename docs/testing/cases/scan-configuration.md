@@ -38,7 +38,7 @@ Entities:
 - `bun|src/project-definition/scheduler-context-validation.test.ts|Scheduler context declaration validation > validates Definition descriptors before callbacks and excludes needs from the declarative fingerprint`
   Proves:
 
-- Scheduler descriptors reject unknown fields, wrong-phase tokens, sparse arrays and accessors without invoking author code. Valid needs are detached, deduplicated and frozen; omitted or own-undefined needs retain full context while an empty list requests none.
+- Scheduler descriptors reject unknown fields, wrong-phase tokens, sparse arrays and accessors without invoking author code. Valid needs are detached, deduplicated and frozen; functions, omitted or own-undefined needs, and an empty list all request no context fields.
 - Definition validates descriptors before callbacks run, and changing callback demand does not change the declarative fingerprint.
 
 ## Case WB-PROJECT-DEFINITION-FLAG-ENABLEMENT-001: Flag enablement is closed executable identity
@@ -101,11 +101,9 @@ Owner: `docs/guides/scheduling.md#自定义准入-policy`
 Entities:
 
 - `bun|src/package-tools/admission-policy/define-admission-policy.test.ts|admission policy authoring > preserves policy identity and closed generic authoring types`
-- `bun|src/package-tools/scheduler-context/define-scheduler-context-callback.test.ts|Scheduler context callback authoring > preserves descriptor identity and phase selected types through policy and direct Definition`
   Proves:
 
 - `defineAdmissionPolicy` returns the original policy value while preserving static and custom literal inference. Its generic authoring surface contextually types simple and synchronous/asynchronous prepared callbacks, admits only synchronous decision proposals, and rejects unknown fields at the static, custom-policy and prepared-result boundaries.
-- `defineSchedulerContextCallback` preserves the original descriptor identity and carries phase-selected callback types through policy and direct Definition authoring; the helper does not normalize or replace runtime validation.
 
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link authoring defaults remain partial and bounded
 
@@ -292,3 +290,13 @@ Proves:
 
 - 精确 waiver 接受完整 public rule catalog、规范 root-relative path 和同行正安全位置，包括 point range；resolved 数组、waiver、identity、range 与两端位置均独立冻结，调用方后续修改不改变配置。
 - 未知字段、缺少位置、倒置或跨行 range、非法位置或路径、空 reason、重复结构 identity、稀疏数组、特殊属性及 hostile accessor/proxy 被闭合边界拒绝；不调用 getter，非法 resolved waiver 在读取 source 前结算为 `invalid-options`。
+
+## Case API-CONTEXT-CALLBACK-AUTHORING-001: Context declarations preserve phase-selected business callback types
+
+Owner: `docs/api-mechanics.md#声明与类型`
+Entities:
+
+- `bun|src/package-tools/context-callback/define-context-callback.test.ts|preserves business input and selected context types across callback phases`
+  Proves:
+
+- `defineContextCallback` preserves descriptor identity and business input/result inference for all seven phases; exact selected fields, empty defaults, phase restrictions, synchronous decisions and conservative widened/union demand are checked by the paired TypeScript acceptance evidence. Check preparation conversion, typed final data and provider handoff remain assignable through `defineCheck`.

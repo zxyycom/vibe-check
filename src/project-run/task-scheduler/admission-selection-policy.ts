@@ -16,7 +16,9 @@ export interface AdmissionPolicyInput {
   /** Shared immutable core at this decision boundary; only custom context projects its public handle. */
   readonly admissionCore: AdmissionCoreState;
   /** Scheduler-owned decision-boundary measurement, present only for custom policy. */
-  readonly measurement?: AdmissionPolicyContext["measurement"];
+  readonly measurement?: Readonly<
+    Partial<Pick<AdmissionPolicyContext, "cumulative" | "actionHistory">>
+  >;
   readonly candidates: readonly AdmissionCandidate[];
   readonly graph: PlannedTaskGraph;
   readonly graphSnapshot: SchedulerGraphSnapshot;
@@ -32,6 +34,7 @@ export type AdmissionPolicyDecision =
 export interface AdmissionSelectionPolicy {
   /** Only custom policies require Scheduler sampling before every callback. */
   readonly requiresMeasurement?: true;
+  readonly measurementNeeds?: readonly ("cumulative" | "actionHistory")[];
   readonly decide: (input: AdmissionPolicyInput) => AdmissionPolicyDecision;
 }
 

@@ -1,3 +1,5 @@
+import { createProjectContextSource } from "../project-context.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -79,19 +81,24 @@ describe("Package Run direct Check execution", () => {
           handoff: definedHandoff(provider)
         }),
         normalized(
-          ({ dependencies }) => {
-            const read = dependencies.get(provider);
-            assert.equal(read.ok, true);
-            if (!read.ok) throw new Error("direct provider handoff was unavailable");
-            assert.deepEqual(read.data, { source: "canonical" });
-            firstConsumerHandoff = read.handoff;
-            foreignProviderRead = dependencies.get(foreignProvider);
-            lookalikeProviderRead = Reflect.apply(dependencies.get.bind(dependencies), undefined, [
-              Object.freeze({ checkId: "handoff-provider", handoff: true })
-            ]);
-            observeDependencies?.(dependencies);
-            return { status: "passed", data: { consumer: "first" } };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, { dependencies }) => {
+              const read = dependencies.get(provider);
+              assert.equal(read.ok, true);
+              if (!read.ok) throw new Error("direct provider handoff was unavailable");
+              assert.deepEqual(read.data, { source: "canonical" });
+              firstConsumerHandoff = read.handoff;
+              foreignProviderRead = dependencies.get(foreignProvider);
+              lookalikeProviderRead = Reflect.apply(
+                dependencies.get.bind(dependencies),
+                undefined,
+                [Object.freeze({ checkId: "handoff-provider", handoff: true })]
+              );
+              observeDependencies?.(dependencies);
+              return { status: "passed", data: { consumer: "first" } };
+            }
+          }),
           {
             checkId: "handoff-first-consumer",
             dependsOn: ["handoff-provider"],
@@ -99,13 +106,16 @@ describe("Package Run direct Check execution", () => {
           }
         ),
         normalized(
-          ({ dependencies }) => {
-            const read = dependencies.get(provider);
-            assert.equal(read.ok, true);
-            if (!read.ok) throw new Error("direct provider handoff was unavailable");
-            secondConsumerHandoff = read.handoff;
-            return { status: "passed", data: { consumer: "second" } };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, { dependencies }) => {
+              const read = dependencies.get(provider);
+              assert.equal(read.ok, true);
+              if (!read.ok) throw new Error("direct provider handoff was unavailable");
+              secondConsumerHandoff = read.handoff;
+              return { status: "passed", data: { consumer: "second" } };
+            }
+          }),
           {
             checkId: "handoff-second-consumer",
             dependsOn: ["handoff-provider"],
@@ -113,10 +123,13 @@ describe("Package Run direct Check execution", () => {
           }
         ),
         normalized(
-          ({ dependencies }) => {
-            observedProviderRead = dependencies.get(provider);
-            return { status: "passed", data: { consumer: "observer" } };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, { dependencies }) => {
+              observedProviderRead = dependencies.get(provider);
+              return { status: "passed", data: { consumer: "observer" } };
+            }
+          }),
           {
             checkId: "handoff-observer",
             observes: ["handoff-provider"],
@@ -129,10 +142,13 @@ describe("Package Run direct Check execution", () => {
           displayName: "Handoff middle"
         }),
         normalized(
-          ({ dependencies }) => {
-            transitiveProviderRead = dependencies.get(provider);
-            return { status: "passed", data: { consumer: "transitive" } };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, { dependencies }) => {
+              transitiveProviderRead = dependencies.get(provider);
+              return { status: "passed", data: { consumer: "transitive" } };
+            }
+          }),
           {
             checkId: "handoff-transitive-consumer",
             dependsOn: ["handoff-middle"],
@@ -141,7 +157,7 @@ describe("Package Run direct Check execution", () => {
         )
       ],
       maxParallel: 3,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     assert.equal(execution.kind, "completed");

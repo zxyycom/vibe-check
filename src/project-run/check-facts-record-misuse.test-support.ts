@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 
 import { defineConfig } from "../project-definition/project-definition.ts";
@@ -49,16 +50,21 @@ export async function assertInvalidRecordUseIsContained(): Promise<void> {
   const result = await run(
     definition([
       check({
-        execute: (context) => {
-          retainedReporter = context.records;
-          context.records.report({ id: "retained" }, { value: true });
-          context.records.report({ id: "retained" }, { value: false });
-          return {
-            status: "passed",
-            data: { result: true },
-            messages: [{ level: "warning", code: "retained", message: "This must not be accepted" }]
-          };
-        }
+        execute: defineContextCallback("check.execute", {
+          contextNeeds: ["records"],
+          callback: (options, context) => {
+            retainedReporter = context.records;
+            context.records.report({ id: "retained" }, { value: true });
+            context.records.report({ id: "retained" }, { value: false });
+            return {
+              status: "passed",
+              data: { result: true },
+              messages: [
+                { level: "warning", code: "retained", message: "This must not be accepted" }
+              ]
+            };
+          }
+        })
       })
     ])
   );

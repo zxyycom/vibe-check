@@ -6,8 +6,8 @@
 
 | 需求 | 使用方式 | 不要用它做什么 |
 | --- | --- | --- |
-| 规则可直接测量并结算 | `execute(context)` | 不要在 callback 外留下未等待的工作。 |
-| 执行前验证或把 authoring options 变成 invocation-local 的准备值 | `prepare(options, signal, project?)` 后接 `execute(context)` | 它不是全局启动 hook；只在本 Check 已获准入后运行。 |
+| 规则可直接测量并结算 | `execute(options, context)` | 不要在 callback 外留下未等待的工作。 |
+| 执行前验证或把 authoring options 变成 invocation-local 的准备值 | `prepare(options, context)` 后接 `execute(options, context)` | 它不是全局启动 hook；只在本 Check 已获准入后运行。 |
 | 保存不决定终态的逐项事实 | `context.records.report({ id }, data)` | Record 不能替代 `passed`、`failed`、`not-applicable` 或 `unavailable`。 |
 | 读取已声明上游结果 | `dependsOn` 或 `observes`，再从 `context.dependencies` 读取 | 不能读取未声明、传递或任意已运行的 Check。 |
 | 向 direct prerequisite consumer 交接 same-Run reference | 在 provider 上声明 `handoff: true`，并在 `passed` result 返回 `handoff` | 不能用它发布到 RunResult、machine、progress、diagnostic 或 cache；不扩大 `observes` 权限。 |
@@ -19,6 +19,7 @@
 下例同时展示 options 验证、取消、Record、message 和 terminal data。例子的固定输入只为独立运行；接入项目时应以自己拥有的读取或测量逻辑替换它。
 
 ```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 function hasValidLicensePolicyOptions(options: object): boolean {
@@ -41,7 +42,7 @@ const licensePolicy = defineCheck({
       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
   },
   omitQuietPassedRow: true,
-  execute({ options, records, signal }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["records","signal"], callback: (options: { readonly denied: readonly string[] }, { records, signal }) => {
     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
 
     const deniedCount = options.denied.length;
@@ -54,7 +55,7 @@ const licensePolicy = defineCheck({
       };
     }
     return { status: "passed", data: { deniedCount: 0 } };
-  }
+  } })
 });
 ```
 
@@ -125,11 +126,30 @@ condition 不命中也按普通 lifecycle 调度；`observes` 永不进入 closu
 省略 propagation 保持 direct-match selection。Definition 拥有 closed validation、snapshot/fingerprint；Run 拥有
 effective selection 和 callback projection。
 
+## Callback 声明与字段
+
+共同 descriptor、类型推导、验证与精确视图规则见[声明式 callback context](../api-mechanics.md#声明式-callback-context)。
+Check 的 `prepare` 与 `execute` 都以 options 为第一业务参数，普通 function 默认没有框架字段。
+需要字段时使用 `defineContextCallback`；options 是业务输入，signal/project 等框架字段属于 context。
+
+| helper phase | 可声明的完整顶层字段 |
+| --- | --- |
+| `check.prepare` | `signal`、`project` |
+| `check.execute` | `artifactDirectory`、`dependencies`、`invocationId`、`project`、`records`、`signal` |
+
+`CheckPreparationContext` 与 `CheckExecutionContext` 分别定义两个阶段的完整字段 schema；实际 callback 只取得选中字段。
+Definition validation 在 author work 前固定声明，非法 descriptor 是配置失败，不等同于 preparation 或 execution throw。
+project 视图、dependencies facade、Record reporter 只在有需求时建立；artifact path 还可能因既有输出义务建立。
+取消、direct relation guards、console capture、settlement 和配置的 Git/flag 工作不因零需求消失。
+请求 `records` 后，reporter 仍在本 Check lifecycle 结束时关闭，关闭后的写入仍被拒绝；声明不延长其生命周期。
+
 ## `prepare`：准备、阻止或带 fallback 继续
 
-`prepare(options, signal, project?)` 收到 authoring options 的深度只读视图、这次 Run 的同一取消 signal，以及同 `execute` 一致的只读 project context。Product 每次 Run 都传入第三参数；公开 callback 类型把它标为 optional，以兼容调用方直接调用既有两参数 callback。需要读取它时先处理 optional value，而不是推断配置 `changes` 时 Product 会省略 project。authored 与 prepared options 同形时可省略 `prepare`；两种 shape 不同时，TypeScript 要求提供它。它只能返回以下三种结果（每种都可附有序 `messages`）：
+`prepare(options, context)` 的第一参数是 authoring options 的深度只读视图，第二参数只含本 callback 声明的框架字段。
+需要取消 signal 或 project 时，分别声明 `signal` / `project`；双方声明 project 时，它们取得同一 Run 的冻结 project 值，
+不是同一个外层 callback context。authored 与 prepared options 同形时可省略 `prepare`；两种 shape 不同时，TypeScript 要求提供它。它只能返回以下三种结果（每种都可附有序 `messages`）：
 
-- `{ status: "success", preparedOptions }`：把准备后的 object 交给 `execute` 的 `context.options`。
+- `{ status: "success", preparedOptions }`：把准备后的 object 交给 `execute` 的第一业务参数 `options`。
 - `{ status: "failure", action: "block", reason }`：本 Check 使用该 reason 直接结算为 `unavailable`，不接受 `fallback`，不会运行 `execute`。
 - `{ status: "failure", action: "continue", fallback, reason, messages? }`：以 `fallback` 继续执行。`reason` 是 Check-owned diagnostic identity，不会单独形成 outcome；需要让调用方观察准备诊断时，在 `messages` 返回说明，随后仍以 execution 的 terminal outcome 为准。
 
@@ -137,12 +157,11 @@ effective selection 和 callback projection。
 
 ## `execute` 可读取与可写入的内容
 
-`execute(context)` 的输入是 Product 提供、不可变或受控的 callback context：
+`execute(options, context)` 的第一参数是本 Check 已准备并冻结的 options；第二参数仅交付自己声明的框架字段：
 
 | 输入 | 可以做什么 | 边界 |
 | --- | --- | --- |
 | `invocationId` | 关联本次 Run 的工作。 | 同一次 Run 的 callback 使用相同 ID，不是跨 Run state。 |
-| `options` | 使用本 Check 已准备的 options。 | 不修改；不是原始 authoring object。 |
 | `project.root` / `project.flags` / `project.changes` | 使用本次规范化的绝对根目录、同一 effective flag 集，以及已配置时同一次冻结的 change result。 | caller token 与 derived change token 在注入后都只按 presence 参与选择和 callback；`changes` evidence 不证明环境或权限。 |
 | `dependencies` | 读取已声明 direct `dependsOn` / `observes` 的终态。 | `get` 不授权未声明或传递依赖；`list` 不是全局执行历史。 |
 | `artifactDirectory` | 写本 Check 的 invocation-local artifact；未授权时为 `null`。 | 不推导 sibling、machine、diagnostic 或跨 Run state 的路径。 |

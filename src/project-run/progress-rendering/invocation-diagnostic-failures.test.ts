@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,10 +18,13 @@ describe("Package Run diagnostic logging output", () => {
       const result = await executeValidatedRun(
         definition([
           check({
-            execute: ({ records }) => {
-              records.report({ id: "accepted" }, { source: "callback" });
-              return { status: "passed", data: { accepted: true } };
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["records"],
+              callback: (options, { records }) => {
+                records.report({ id: "accepted" }, { source: "callback" });
+                return { status: "passed", data: { accepted: true } };
+              }
+            })
           })
         ]),
         {

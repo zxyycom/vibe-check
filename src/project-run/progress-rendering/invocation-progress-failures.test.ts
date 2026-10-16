@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -80,10 +81,13 @@ describe("Package Run progress rendering outputs", () => {
       definition(
         [
           check({
-            execute: ({ records }) => {
-              records.report({ id: "accepted" }, { source: "callback" });
-              return PASSED;
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["records"],
+              callback: (options, { records }) => {
+                records.report({ id: "accepted" }, { source: "callback" });
+                return PASSED;
+              }
+            })
           })
         ],
         true
@@ -138,13 +142,16 @@ describe("Package Run progress rendering outputs", () => {
       const source = definition(
         [
           check({
-            execute: ({ records }) => {
-              records.report({ id: "accepted" }, { source: "callback" });
-              return {
-                ...PASSED,
-                messages: [{ level: "info" as const, code: "accepted", message: "message" }]
-              };
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["records"],
+              callback: (options, { records }) => {
+                records.report({ id: "accepted" }, { source: "callback" });
+                return {
+                  ...PASSED,
+                  messages: [{ level: "info" as const, code: "accepted", message: "message" }]
+                };
+              }
+            })
           })
         ],
         true
@@ -180,14 +187,20 @@ describe("Package Run progress rendering outputs", () => {
       definition(
         [
           check({
-            execute: ({ records }) => {
-              records.report({ id: "accepted" }, { source: "callback" });
-              const untypedReporter: Readonly<{
-                report(identity: unknown, data: unknown): void;
-              }> = records;
-              untypedReporter.report({ extra: true, id: "rejected" }, { source: "invalid-record" });
-              return PASSED;
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["records"],
+              callback: (options, { records }) => {
+                records.report({ id: "accepted" }, { source: "callback" });
+                const untypedReporter: Readonly<{
+                  report(identity: unknown, data: unknown): void;
+                }> = records;
+                untypedReporter.report(
+                  { extra: true, id: "rejected" },
+                  { source: "invalid-record" }
+                );
+                return PASSED;
+              }
+            })
           })
         ],
         true
@@ -221,12 +234,15 @@ describe("Package Run progress rendering outputs", () => {
         [
           check({
             checkId: "slow",
-            execute: async (context) => {
-              context.records.report({ id: "sample" }, { metric: "score" });
-              slowStarted.resolve(undefined);
-              await slow.promise;
-              return PASSED;
-            },
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["records"],
+              callback: async (options, context) => {
+                context.records.report({ id: "sample" }, { metric: "score" });
+                slowStarted.resolve(undefined);
+                await slow.promise;
+                return PASSED;
+              }
+            }),
             maxParallel: 2
           })
         ],

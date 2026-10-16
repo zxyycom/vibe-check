@@ -1,3 +1,4 @@
+import type { DeclaredContextCallback } from "../../data-boundary/context-callback.ts";
 import type {
   AdmissionPolicyContext,
   AdmissionProposal,
@@ -38,13 +39,34 @@ export type LearnedCriticalPathObservation =
     }>
   | Readonly<{ readonly kind: "recording-unavailable" }>;
 
-/** 此 helper 返回具体可调用的 prepare/decide；公开 strategy 输入槽另外接受 descriptor。 */
+/** learned decision 只读取真实选择所需的当前边界字段。 */
+export type LearnedDecisionContext = Pick<
+  AdmissionPolicyContext,
+  "activeScopeIds" | "candidates" | "capacity"
+>;
+
+/** helper 返回精确 descriptor；直接调用时调用方提供其声明的 context。 */
 export type LearnedCriticalPathStrategy = Readonly<{
   readonly kind: "prepared";
-  readonly prepare: (context: CustomAdmissionPreparationContext) => Promise<
-    Readonly<{
-      readonly decide: (context: AdmissionPolicyContext) => AdmissionProposal;
-      readonly terminalEffect?: (context: SchedulerMeasurementContext) => Promise<void>;
-    }>
+  readonly prepare: DeclaredContextCallback<
+    [],
+    CustomAdmissionPreparationContext,
+    readonly ["graph"],
+    Promise<
+      Readonly<{
+        readonly decide: DeclaredContextCallback<
+          [],
+          AdmissionPolicyContext,
+          readonly ["activeScopeIds", "candidates", "capacity"],
+          AdmissionProposal
+        >;
+        readonly terminalEffect?: DeclaredContextCallback<
+          [],
+          SchedulerMeasurementContext,
+          readonly ["execution", "taskTimings"],
+          Promise<void>
+        >;
+      }>
+    >
   >;
 }>;

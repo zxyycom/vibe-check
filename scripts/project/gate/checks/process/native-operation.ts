@@ -1,4 +1,9 @@
-import { defineCheck, type Check, type CheckResult } from "@zxyycom/vibe-check";
+import {
+  defineContextCallback,
+  defineCheck,
+  type Check,
+  type CheckResult
+} from "@zxyycom/vibe-check";
 
 import {
   safeNativeOperationResult,
@@ -31,10 +36,9 @@ export function createNativeOperationCheck(
     ) => NativeOperationResult | Promise<NativeOperationResult>;
   }>
 ): Check {
-  return defineCheck({
-    checkId: input.checkId,
-    displayName: input.displayName,
-    execute: async ({ project, records, signal }): Promise<CheckResult> => {
+  const execute = defineContextCallback("check.execute", {
+    contextNeeds: ["project", "records", "signal"],
+    callback: async (options, { project, records, signal }): Promise<CheckResult> => {
       if (signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
       try {
         const operationResult: unknown = await input.operation(project.root, signal);
@@ -53,6 +57,7 @@ export function createNativeOperationCheck(
       }
     }
   });
+  return defineCheck({ checkId: input.checkId, displayName: input.displayName, execute });
 }
 
 function passedResult(): CheckResult {

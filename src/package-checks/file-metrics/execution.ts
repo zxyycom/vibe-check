@@ -1,4 +1,9 @@
-import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
+import type {
+  DeepReadonly,
+  CheckExecutionContext,
+  CheckMessage,
+  CheckResult
+} from "../../check/check.ts";
 import {
   createProjectFileRegionIndex,
   type ProjectFileRegionIndex
@@ -50,29 +55,30 @@ interface CollectedFileMetricsScope extends FileMetricsExactInputSet {
 
 /** 使用 resolved area policy 和 scanner selection 执行一次完整的 file-metrics measurement。 */
 export async function executeFileMetrics(
-  context: CheckExecutionContext<ResolvedFileMetricsOptions>
+  options: DeepReadonly<ResolvedFileMetricsOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records">
 ): Promise<CheckResult<FileMetricsFinalData>> {
-  if (!isValidResolvedFileMetricsOptions(context.options)) return unavailable("invalid-options");
+  if (!isValidResolvedFileMetricsOptions(options)) return unavailable("invalid-options");
 
   let collectedScope: CollectedFileMetricsScope;
   try {
-    collectedScope = collectAreaScope(context.project.root, context.options.codeAreas);
+    collectedScope = collectAreaScope(context.project.root, options.codeAreas);
   } catch {
     return unavailable("source-unavailable");
   }
   if (collectedScope.approvedExactPaths.length === 0) {
-    return noEligibleInputResult(context);
+    return noEligibleInputResult(options, context);
   }
-  const measurement = await measureFileMetrics(collectedScope, context.options.scanner);
+  const measurement = await measureFileMetrics(collectedScope, options.scanner);
   if (measurement.kind !== "complete") return measurementFailureResult(measurement);
   const candidates = buildFileRecordCandidates(measurement.metrics, {
     membership: collectedScope.membership,
-    codeAreas: context.options.codeAreas
+    codeAreas: options.codeAreas
   });
   if (candidates === undefined) return unavailable("external-result-invalid");
-  const reconciliation = reconcileFileMetricWaivers(candidates, context.options.findingWaivers);
+  const reconciliation = reconcileFileMetricWaivers(candidates, options.findingWaivers);
   reportReconciledCodeQualityFindingRecords(context, reconciliation);
-  reportWaiverAuditRecords(context, reconciliation);
+  reportWaiverAuditRecords(options, context, reconciliation);
   const settlement = settleFindings(
     reconciliation.findings.map(({ disposition, finding }) => ({
       actionable: disposition !== "waived",
@@ -89,10 +95,11 @@ export async function executeFileMetrics(
 }
 
 function noEligibleInputResult(
-  context: CheckExecutionContext<ResolvedFileMetricsOptions>
+  options: DeepReadonly<ResolvedFileMetricsOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records">
 ): CheckResult<FileMetricsFinalData> {
-  const reconciliation = reconcileFileMetricWaivers([], context.options.findingWaivers);
-  reportWaiverAuditRecords(context, reconciliation);
+  const reconciliation = reconcileFileMetricWaivers([], options.findingWaivers);
+  reportWaiverAuditRecords(options, context, reconciliation);
   return appendWaiverMessages(
     Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } }),
     reconciliation
@@ -111,7 +118,8 @@ function reconcileFileMetricWaivers(
 }
 
 function reportWaiverAuditRecords(
-  context: CheckExecutionContext<ResolvedFileMetricsOptions>,
+  options: DeepReadonly<ResolvedFileMetricsOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records">,
   reconciliation: FindingWaiverReconciliation<FileRecordCandidate>
 ): void {
   reportFindingWaiverAudits(context, reconciliation, fileMetricsWaiverAuditRecord);

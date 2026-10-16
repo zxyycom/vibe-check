@@ -1,3 +1,4 @@
+import { createProjectContextSource } from "../project-context.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -18,9 +19,9 @@ describe("Package Run direct Check execution", () => {
     const result = await executeResolvedChecks({
       checks: [
         normalized(
-          (context) => {
-            frozenFallback = Object.isFrozen(context.options);
-            assert.deepEqual(context.options, { value: 2 });
+          (options) => {
+            frozenFallback = Object.isFrozen(options);
+            assert.deepEqual(options, { value: 2 });
             return {
               status: "passed",
               data: {},
@@ -54,7 +55,7 @@ describe("Package Run direct Check execution", () => {
       ],
       diagnosticLogger: recordingLogger(observations),
       maxParallel: 2,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     assert.equal(result.kind, "completed");

@@ -209,7 +209,6 @@ export type {
   InheritableCheckCollection
 } from "./check/check.ts";
 export { defineAdmissionPolicy } from "./package-tools/admission-policy/define-admission-policy.ts";
-export { defineSchedulerContextCallback } from "./package-tools/scheduler-context/define-scheduler-context-callback.ts";
 export { defineConfig } from "./project-definition/project-definition.ts";
 export { createLearnedCriticalPathStrategy } from "./package-tools/learned-critical-path/strategy.ts";
 export type {
@@ -220,7 +219,7 @@ export { createAdmissionGraph } from "./project-run/task-scheduler/admission-cor
 export type {
   AdmissionPolicy,
   AdmissionPolicyContext,
-  AdmissionPolicyMeasurement,
+  SchedulerActionHistory,
   AdmissionProposal,
   AdmissionCatalog,
   AdmissionGraph,
@@ -250,17 +249,11 @@ export type {
   SchedulerMeasurementActionObservationInterval,
   SchedulerMeasurementActionObservation,
   SchedulerMeasurementEffect,
-  SchedulerRawMeasurement,
+  SchedulerRunMeasurement,
+  SchedulerTaskTimings,
   SchedulerPolicy
 } from "./project-definition/project-definition.ts";
-export type {
-  SchedulerContextByPhase,
-  SchedulerContextPhase,
-  SchedulerContextResultByPhase,
-  SchedulerContextCallbackInput,
-  DeclaredSchedulerContextCallback,
-  FullSchedulerContextCallback
-} from "./project-definition/scheduler-context-callback.ts";
+
 export type {
   ProjectChangeFlagRegion,
   ProjectChangeSource,
@@ -275,3 +268,21 @@ export type {
 export { run } from "./project-run/run.ts";
 export type { RunOutputStatus, RunOutputStatuses } from "./project-run/outputs/status.ts";
 export type { RunResult } from "./project-run/result.ts";
+
+export { defineContextCallback } from "./package-tools/context-callback/define-context-callback.ts";
+export type {
+  CallbackContextByPhase,
+  CallbackContextPhase
+} from "./package-tools/context-callback/define-context-callback.ts";
+export type {
+  ContextCallbackInput,
+  DeclaredContextCallback,
+  EmptyContextCallback,
+  SelectedCallbackContext
+} from "./data-boundary/context-callback.ts";
+export type { CheckPreparationContext } from "./check/check.ts";
+export type {
+  AfterCommandInput,
+  CommandCheckExecution,
+  ResolvedCommandCheckOptions
+} from "./package-checks/command-check/contract.ts";

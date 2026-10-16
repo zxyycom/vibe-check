@@ -1,7 +1,7 @@
 ---
 title: 将默认 Scheduler summary 统一为 terminal measurement Hook
 id: 260902-unify-default-summary-with-terminal-measurement-hooks
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T02:34:23Z
 purpose: 让内置 summary 与 caller measurement Hook 共享一条有序 terminal delivery 边界。

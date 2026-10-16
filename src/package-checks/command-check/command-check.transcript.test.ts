@@ -66,7 +66,8 @@ describe("commandCheck transcripts", () => {
         },
         output: { mode: "transcript" }
       });
-      const finalFailureExecution = finalFailure.execute(
+      const finalFailureExecution = finalFailure.execute.callback(
+        finalFailure.options,
         createCommandCheckExecutionContext(finalFailure.options, root, finalFailureArtifact)
       );
       const finalTranscriptPath = join(finalFailureArtifact, "process.log");

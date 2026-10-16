@@ -54,7 +54,7 @@ const definition = defineConfig({
 ```
 
 `PackageCheckAuthoringOptions` 可作为可复用的项目声明片段从 package root 导入。构造器返回原生 typed
-Check：项目字段成为 Check 声明，领域字段才形成 `.options` 和 execution `context.options`。完整字段、默认、
+Check：项目字段成为 Check 声明，领域字段才形成 `.options` 和 execution 的业务 options 参数。完整字段、默认、
 关系与验证责任见 [API 机制](./docs/api-mechanics.md#随包-check-的构造器项目声明)；每个领域字段见对应 Check 指南。
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics`、`markdownLint` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。

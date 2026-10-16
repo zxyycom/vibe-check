@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -12,7 +13,6 @@ import {
 } from "./command-check.test-support.ts";
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import { run } from "../../project-run/run.ts";
-import type { CommandEnvironmentContext } from "./contract.ts";
 
 describe("commandCheck terminal settlement", () => {
   it("does not invoke afterCommand for incomplete process results and delegates callback settlement to Core", async () => {
@@ -30,7 +30,10 @@ describe("commandCheck terminal settlement", () => {
         timeoutMs: 20
       });
       assert.deepEqual(
-        await incomplete.execute(createCommandCheckExecutionContext(incomplete.options, root)),
+        await incomplete.execute.callback(
+          incomplete.options,
+          createCommandCheckExecutionContext(incomplete.options, root)
+        ),
         {
           status: "unavailable",
           reason: { code: "command-timeout" }
@@ -136,16 +139,19 @@ describe("commandCheck terminal settlement", () => {
     try {
       await assertCommandRunCancelsDuringExecution(
         createCommandCheckFixture({
-          resolveEnvironment: ({ signal }: CommandEnvironmentContext) =>
-            new Promise((resolveEnvironment) => {
-              signal.addEventListener(
-                "abort",
-                () => {
-                  resolveEnvironment({ mode: "exact" });
-                },
-                { once: true }
-              );
-            })
+          resolveEnvironment: defineContextCallback("command.environment", {
+            contextNeeds: ["signal"],
+            callback: (options, { signal }) =>
+              new Promise<import("./contract.ts").CommandCheckEnvironment>((resolveEnvironment) => {
+                signal.addEventListener(
+                  "abort",
+                  () => {
+                    resolveEnvironment({ mode: "exact" });
+                  },
+                  { once: true }
+                );
+              })
+          })
         }),
         root,
         20

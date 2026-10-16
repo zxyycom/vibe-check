@@ -1,7 +1,8 @@
+import type { ContextCallbackInput } from "../data-boundary/context-callback.ts";
 import type { CanonicalJsonObject, CanonicalJsonValue } from "../data-boundary/canonical-json.ts";
 import type { InheritableCheckCollection } from "./inherited-collection.ts";
 import type { CheckFlagEnablement } from "./flag-enablement.ts";
-import type { CheckProjectContext } from "./project-context.ts";
+import type { CheckExecutionContext, CheckPreparationContext } from "./context-callback.ts";
 import { registerHandoffProviderIdentity } from "./handoff-provider-identity.ts";
 
 export {
@@ -61,6 +62,7 @@ export type CheckResourceClaims = Readonly<Record<string, number>>;
 export type { CheckFlagCondition, CheckFlagEnablement } from "./flag-enablement.ts";
 export type { ProjectChanges } from "./project-changes.ts";
 export type { CheckProjectContext } from "./project-context.ts";
+export type { CheckExecutionContext, CheckPreparationContext } from "./context-callback.ts";
 
 /**
  * Check callback 的 terminal result。
@@ -167,18 +169,6 @@ export type DeepReadonly<Value> = Value extends readonly unknown[]
   : Value extends object
     ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
     : Value;
-
-/** callback 写入 supplemental Record 时的 Check-local identity。 */
-interface RecordIdentityInput {
-  /** 在当前 Check 内唯一的 Record ID。 */
-  readonly id: string;
-}
-
-/** callback 写入 supplemental Records 的 Product-owned reporter。 */
-interface CheckRecordReporter {
-  /** 记录一个补充事实；它不决定 Check 的 terminal status。 */
-  report(identity: RecordIdentityInput, data: object): void;
-}
 
 /** 读取已声明 direct relation final data 时的失败原因。 */
 export type DependencyReadError = Readonly<
@@ -287,58 +277,39 @@ export interface CheckDependencies {
   list(): readonly DependencyObservation[];
 }
 
-/**
- * Check callback 收到的 Product-owned execution context。
- *
- * @typeParam Options - 此 Check preparation 后传给 execution 的 options shape。
- */
-export interface CheckExecutionContext<Options extends object> {
-  /** 当前 Check 的 absolute invocation artifact directory；caller 未授予时为 `null`。 */
-  readonly artifactDirectory: string | null;
-  /** 读取当前 Check 的已声明 direct relations。 */
-  readonly dependencies: CheckDependencies;
-  /** 同一次 invocation 内由 Product 统一提供的 identity。 */
-  readonly invocationId: string;
-  /** 深度只读、canonical 的 invocation-local prepared Check options。 */
-  readonly options: DeepReadonly<Options>;
-  /** 已规范化的项目根与 flags。 */
-  readonly project: CheckProjectContext;
-  /** 写入 supplemental Records 的 reporter。 */
-  readonly records: CheckRecordReporter;
-  /** 本次 invocation 的 cancellation signal。 */
-  readonly signal: AbortSignal;
-}
+/** 广义 Check collection 擦除业务 input；具体 options 仍保留精确只读类型。 */
+type StoredCheckOptions<Options extends object> = object extends Options
+  ? never
+  : DeepReadonly<Options>;
 
 /**
  * 一个 Check 的 callback signature。
  *
- * @typeParam Options - callback 从 context 读取的 prepared options shape。
+ * @typeParam Options - callback 第一个业务参数的 prepared options shape。
  * @returns terminal Check result 或其 Promise。
  */
-export type CheckExecution<Options extends object = object> = (
-  this: void,
-  context: CheckExecutionContext<Options>
-) => CheckExecutionResult;
+export type CheckExecution<Options extends object = object> = ContextCallbackInput<
+  [options: StoredCheckOptions<Options>],
+  CheckExecutionContext,
+  CheckExecutionResult
+>;
 
 /**
  * 在 Check execution 前，可选地为本次 invocation 准备 options。
  *
  * @remarks `signal` 与同一次 callback execution 使用同一个 cancellation signal；`project` 与 execution
- * 收到同一个冻结 project context。实现应在可等待工作中协作退出，而不是留下悬挂 work。bivariant callback
- * 保持具体 options Check 可进入普通递归 Check collection；Product 仍只会用该 Check 自己的 authored options 调用它。精确结果见
+ * 收到同一个冻结 project context。实现应在可等待工作中协作退出，而不是留下悬挂 work。广义 Check collection
+ * 仅擦除业务 input 的静态类型；具体 options Check 保持严格的 context 边界，Product 只用该 Check 自己的 authored options 调用它。精确结果见
  * {@link CheckPreparationResult}。
  */
 export type CheckPreparation<
   AuthoredOptions extends object = object,
   PreparedOptions extends object = AuthoredOptions
-> = {
-  bivarianceHack(
-    this: void,
-    options: DeepReadonly<AuthoredOptions>,
-    signal: AbortSignal,
-    project?: CheckProjectContext
-  ): CheckPreparationResult<PreparedOptions> | Promise<CheckPreparationResult<PreparedOptions>>;
-}["bivarianceHack"];
+> = ContextCallbackInput<
+  [options: StoredCheckOptions<AuthoredOptions>],
+  CheckPreparationContext,
+  CheckPreparationResult<PreparedOptions> | Promise<CheckPreparationResult<PreparedOptions>>
+>;
 
 /**
  * Check-owned preparation 的判别结果。
@@ -409,7 +380,11 @@ interface ExecutableCheckFields<
   ExecutionResult = CheckExecutionResult
 > {
   /** 可执行节点的 callback；拥有本字段的节点产生一个 terminal Check fact。 */
-  execute(this: void, context: CheckExecutionContext<PreparedOptions>): ExecutionResult;
+  readonly execute: ContextCallbackInput<
+    [options: StoredCheckOptions<PreparedOptions>],
+    CheckExecutionContext,
+    ExecutionResult
+  >;
   /**
    * `true` 时，progress renderer 不保留没有 accepted Record 或 message 的 passed row；运行中与所有保留的
    * 终态 row 都无编号。该 policy 只属于 executable Check，不继承给 child Checks。
@@ -581,10 +556,19 @@ type HandoffTerminalResultConstraint<Result> =
     ? never
     : unknown;
 
-type HandoffExecution<PreparedOptions extends object, FinalData extends object = object> = (
-  this: void,
-  context: CheckExecutionContext<PreparedOptions>
-) => CheckExecutionResult<FinalData, object>;
+type HandoffExecution<
+  PreparedOptions extends object,
+  FinalData extends object = object
+> = ContextCallbackInput<
+  [options: StoredCheckOptions<PreparedOptions>],
+  CheckExecutionContext,
+  CheckExecutionResult<FinalData, object>
+>;
+type ExecutionReturn<E> = E extends (...args: never[]) => infer R
+  ? R
+  : E extends { readonly callback: (...args: never[]) => infer R }
+    ? R
+    : never;
 
 export type TypedCheckWithOptions<
   Id extends string,
@@ -646,6 +630,7 @@ export type TypedHandoffCheckWithoutOptions<
  * @remarks 此函数负责 authoring inference；{@link run} 负责 Project Definition validation。
  * @example 定义带 options、Records 与 messages 的自定义 Check
  * ```ts
+ * import { defineContextCallback } from "@zxyycom/vibe-check";
  * import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
  *
  * function hasValidLicensePolicyOptions(options: object): boolean {
@@ -668,7 +653,7 @@ export type TypedHandoffCheckWithoutOptions<
  *       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
  *   },
  *   omitQuietPassedRow: true,
- *   execute({ options, records, signal }) {
+ *   execute: defineContextCallback("check.execute", { contextNeeds: ["records","signal"], callback: (options: { readonly denied: readonly string[] }, { records, signal }) => {
  *     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
  *
  *     const deniedCount = options.denied.length;
@@ -681,7 +666,7 @@ export type TypedHandoffCheckWithoutOptions<
  *       };
  *     }
  *     return { status: "passed", data: { deniedCount: 0 } };
- *   }
+ *   } })
  * });
  * ```
  */
@@ -698,14 +683,14 @@ export function defineCheck<
       readonly parseData?: undefined;
       readonly execute: Execution;
     }> &
-    HandoffTerminalResultConstraint<ReturnType<Execution>>
+    HandoffTerminalResultConstraint<ExecutionReturn<Execution>>
 ): HandoffCheckWithOptions<
   Id,
   AuthoredOptions,
-  HandoffFromTerminalResult<ReturnType<Execution>>,
+  HandoffFromTerminalResult<ExecutionReturn<Execution>>,
   PreparedOptions
 > &
-  CheckHandoffProvider<Id, HandoffFromTerminalResult<ReturnType<Execution>>>;
+  CheckHandoffProvider<Id, HandoffFromTerminalResult<ExecutionReturn<Execution>>>;
 export function defineCheck<
   const Id extends string,
   const Execution extends HandoffExecution<EmptyCheckOptions>
@@ -717,9 +702,9 @@ export function defineCheck<
       readonly parseData?: undefined;
       readonly execute: Execution;
     }> &
-    HandoffTerminalResultConstraint<ReturnType<Execution>>
-): HandoffCheckWithoutOptions<Id, HandoffFromTerminalResult<ReturnType<Execution>>> &
-  CheckHandoffProvider<Id, HandoffFromTerminalResult<ReturnType<Execution>>>;
+    HandoffTerminalResultConstraint<ExecutionReturn<Execution>>
+): HandoffCheckWithoutOptions<Id, HandoffFromTerminalResult<ExecutionReturn<Execution>>> &
+  CheckHandoffProvider<Id, HandoffFromTerminalResult<ExecutionReturn<Execution>>>;
 export function defineCheck<
   const Id extends string,
   AuthoredOptions extends object,
@@ -734,15 +719,15 @@ export function defineCheck<
       readonly parseData: Parser;
       readonly execute: Execution;
     }> &
-    HandoffTerminalResultConstraint<ReturnType<Execution>>
+    HandoffTerminalResultConstraint<ExecutionReturn<Execution>>
 ): TypedHandoffCheckWithOptions<
   Id,
   AuthoredOptions,
   Parser,
-  HandoffFromTerminalResult<ReturnType<Execution>>,
+  HandoffFromTerminalResult<ExecutionReturn<Execution>>,
   PreparedOptions
 > &
-  CheckHandoffProvider<Id, HandoffFromTerminalResult<ReturnType<Execution>>>;
+  CheckHandoffProvider<Id, HandoffFromTerminalResult<ExecutionReturn<Execution>>>;
 export function defineCheck<
   const Id extends string,
   const Parser extends CheckDataParser,
@@ -755,9 +740,13 @@ export function defineCheck<
       readonly parseData: Parser;
       readonly execute: Execution;
     }> &
-    HandoffTerminalResultConstraint<ReturnType<Execution>>
-): TypedHandoffCheckWithoutOptions<Id, Parser, HandoffFromTerminalResult<ReturnType<Execution>>> &
-  CheckHandoffProvider<Id, HandoffFromTerminalResult<ReturnType<Execution>>>;
+    HandoffTerminalResultConstraint<ExecutionReturn<Execution>>
+): TypedHandoffCheckWithoutOptions<
+  Id,
+  Parser,
+  HandoffFromTerminalResult<ExecutionReturn<Execution>>
+> &
+  CheckHandoffProvider<Id, HandoffFromTerminalResult<ExecutionReturn<Execution>>>;
 export function defineCheck<
   const Id extends string,
   AuthoredOptions extends object,

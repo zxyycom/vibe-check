@@ -106,6 +106,7 @@ test("external consumer provider binds typed output to invocation provenance", a
   assert.deepEqual(
     settleExternalConsumerProviderCommand({
       context: completed.context,
+      completed: completed.completed,
       lease,
       preparedCandidateCheckId: "prepared-package-candidate"
     }),
@@ -185,6 +186,7 @@ test("external consumer provider keeps nonzero output unavailable with generic e
   assert.deepEqual(
     settleExternalConsumerProviderCommand({
       context: completed.context,
+      completed: completed.completed,
       lease,
       preparedCandidateCheckId: "prepared-package-candidate"
     }),

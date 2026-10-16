@@ -8,7 +8,7 @@ Check、Scheduler 与 command Check 的扩展点目前以不同签名提供框�
 调用方难以从声明判断自己实际依赖什么，生产者也无法稳定地关闭无人使用的投影、历史和逐 Task 测量。
 
 本次将业务输入与框架注入分开，以通用 helper 自动推导声明字段，并把采集开关固定在相应生命周期开始之前。
-现有 [Scheduler helper](../../src/package-tools/scheduler-context/define-scheduler-context-callback.ts) 已证明声明驱动类型推导的基本路径；本项推广该能力并兑现运行时精确交付。
+本项以[通用 helper](../../src/package-tools/context-callback/define-context-callback.ts)承接声明驱动类型推导，并兑现运行时精确交付。
 
 ## Outcome
 

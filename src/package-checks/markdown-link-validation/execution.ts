@@ -1,7 +1,7 @@
+import type { DeepReadonly, CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import path from "node:path";
 
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
-import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
@@ -67,10 +67,11 @@ type MarkdownLinkTraversal =
 
 /** 验证本 Check 选中的 Markdown source 的离线本地链接完整性。 */
 export async function executeMarkdownLinkValidation(
-  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>
+  options: DeepReadonly<ResolvedMarkdownLinkValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): Promise<CheckResult<MarkdownLinkValidationFinalData>> {
-  if (!validMarkdownLinkValidationOptions(context.options)) return unavailable("invalid-options");
-  const prepared = await prepareMarkdownTraversal(context);
+  if (!validMarkdownLinkValidationOptions(options)) return unavailable("invalid-options");
+  const prepared = await prepareMarkdownTraversal(options, context);
   if (prepared.kind === "result") return prepared.result;
   const { rejectedPaths, traversal, resolver } = prepared;
 
@@ -80,7 +81,7 @@ export async function executeMarkdownLinkValidation(
   return appendCheckMessages(
     settledMarkdownTraversalResult({
       findingCount: traversal.candidates.length,
-      findingPolicy: context.options.findingPolicy,
+      findingPolicy: options.findingPolicy,
       occurrenceCount: traversal.occurrenceCount,
       rejectedInputCount: rejectedPaths.length,
       sourceFileCount: traversal.sourceFileCount,
@@ -90,7 +91,7 @@ export async function executeMarkdownLinkValidation(
       ...markdownFindingMessages(
         traversal.candidates,
         rejectedPaths,
-        context.options.findingPolicy === "blocking"
+        options.findingPolicy === "blocking"
       ),
       ...resolver.cacheMessages
     ]
@@ -110,19 +111,20 @@ type PreparedMarkdownTraversal =
     }>;
 
 async function prepareMarkdownTraversal(
-  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>
+  options: DeepReadonly<ResolvedMarkdownLinkValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): Promise<PreparedMarkdownTraversal> {
   if (context.signal.aborted) return result(unavailable("cancelled"));
   const created = await createMarkdownLocalResolver(
     context.project.root,
-    context.options.limits.maxTargetReads,
-    context.options.cache,
+    options.limits.maxTargetReads,
+    options.cache,
     context.signal
   );
   if (!created.ok) return result(unavailable(created.reason));
   let prepared: PreparedMarkdownTraversal;
   try {
-    prepared = await prepareCreatedMarkdownTraversal(context, created.resolver);
+    prepared = await prepareCreatedMarkdownTraversal(options, context, created.resolver);
   } finally {
     await created.resolver.finalize();
   }
@@ -133,18 +135,19 @@ async function prepareMarkdownTraversal(
 }
 
 async function prepareCreatedMarkdownTraversal(
-  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>,
+  options: DeepReadonly<ResolvedMarkdownLinkValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   resolver: MarkdownLocalResolver
 ): Promise<PreparedMarkdownTraversal> {
   if (context.signal.aborted) return result(unavailable("cancelled"));
-  const sourceDiscovery = discoverMarkdownSourcePaths(context.project, context.options.files);
+  const sourceDiscovery = discoverMarkdownSourcePaths(context.project, options.files);
   if (sourceDiscovery.kind === "unavailable") return result(unavailable(sourceDiscovery.reason));
   if (sourceDiscovery.selectedPathCount === 0) return result(noEligibleInput());
   if (context.signal.aborted) return result(unavailable("cancelled"));
-  reportRejectedInputs(context, sourceDiscovery.rejectedPaths);
+  reportRejectedInputs(options, context, sourceDiscovery.rejectedPaths);
   const traversal = await traverseMarkdownSources(sourceDiscovery.sourcePaths, {
     resolver,
-    options: context.options,
+    options: options,
     signal: context.signal
   });
   if (traversal.kind === "unavailable") {
@@ -179,7 +182,7 @@ function noEligibleInput(): CheckResult<MarkdownLinkValidationFinalData> {
 }
 
 function discoverMarkdownSourcePaths(
-  project: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>["project"],
+  project: CheckExecutionContext["project"],
   files: ProjectFileSelection
 ): MarkdownSourceDiscovery {
   try {
@@ -197,7 +200,8 @@ function discoverMarkdownSourcePaths(
 }
 
 function reportRejectedInputs(
-  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>,
+  options: DeepReadonly<ResolvedMarkdownLinkValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   paths: readonly string[]
 ): void {
   for (const selectedPath of paths) {

@@ -38,6 +38,8 @@ export function coreDecisionContext(core: AdmissionCoreState): SchedulerDecision
       return (blockers ??= summarizeSchedulerBlockers(core));
     },
     capacity,
-    graphIdentity: core.compiled.graph.schedulerGraphSnapshot
+    get graphIdentity() {
+      return core.compiled.graph.schedulerGraphSnapshot;
+    }
   });
 }

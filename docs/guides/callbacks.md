@@ -68,13 +68,12 @@ const check = defineCheck({
 | prepared 策略终态作用 | **当前公开**：prepared `terminalEffect` | public effects 后、sealed context 存在时至多一次；与数组共享 `outputs.terminalEffects`。 | Scheduler owner |
 | 必达资源释放 | **逻辑保留** | 没有当前公开消费者；terminalEffect 不是 `finally`。 | future Change |
 
-Scheduler 的 `prepare`、`decide`、Definition `terminalEffects[]` 与 prepared `terminalEffect` 槽位都接受 function
-或 `{ contextNeeds?, callback }`。function 提供完整 context；descriptor 声明阶段字段，类型化编写使用
-`defineSchedulerContextCallback(...)`。字段、同阶段共享对象与 full/none 规则由
-[调度指南](scheduling.md#声明-callback-的-context-需求)完整定义；适用范围限于这些 Scheduler 槽位。
+Check prepare/execute、Scheduler prepare/decide/terminal 与 command environment/complete 使用同一
+[声明式 context 规则](../api-mechanics.md#声明式-callback-context)：业务 input 独立，普通 function 默认空需求，
+需要字段用 `defineContextCallback` 声明，按消费者精确交付冻结视图。各位置的合法字段与失败时点由对应专题拥有。
 
-terminal effect 在 drain 并 seal 后读取同阶段共享的冻结 context；function 获得完整 `SchedulerMeasurementContext`，
-descriptor 保证声明字段。none、graph/execution-only effect 同样依序调用，交付不要求 `rawMeasurement`。
+terminal effect 在 drain 并 seal 后读取自身声明的冻结字段，空需求和 graph/execution-only effect 同样依序调用；
+交付不要求 timing collector，不保证不同消费者外层 context identity 相同。
 effect 不能修改 Scheduler 或 Check 结果；任一公开或 prepared effect 失败会使 `outputs.terminalEffects` 为 failed。
 正常 completed Run 映射为 `kind: "output"` / `scheduler-terminal-effects-failed`，取消或其它 primary failure 保持原结果。
 

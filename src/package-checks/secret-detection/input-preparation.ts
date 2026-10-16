@@ -1,3 +1,4 @@
+import type { DeepReadonly, CheckExecutionContext } from "../../check/check.ts";
 import {
   closeSync,
   constants,
@@ -9,7 +10,6 @@ import {
 } from "node:fs";
 import { resolve } from "node:path";
 
-import type { CheckExecutionContext } from "../../check/check.ts";
 import {
   classifySecretDetectionBytes,
   type SecretDetectionCoverageGapReason
@@ -40,7 +40,8 @@ export type PreparedSecretDetectionInputs = Readonly<
 
 /** Reads and classifies the already-selected paths before the detector can receive text. */
 export function prepareSecretDetectionInputs(
-  context: CheckExecutionContext<ResolvedSecretDetectionOptions>,
+  options: DeepReadonly<ResolvedSecretDetectionOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   selectedPaths: readonly string[]
 ): PreparedSecretDetectionInputs {
   const coverageGaps: SecretCoverageGap[] = [];
@@ -49,16 +50,12 @@ export function prepareSecretDetectionInputs(
 
   for (const [index, path] of selectedPaths.entries()) {
     if (context.signal.aborted) return Object.freeze({ kind: "cancelled" });
-    const selectionLimit = selectionLimitGaps(
-      context.options.maximumFileCount,
-      selectedPaths,
-      index
-    );
+    const selectionLimit = selectionLimitGaps(options.maximumFileCount, selectedPaths, index);
     if (selectionLimit !== undefined) {
       coverageGaps.push(...selectionLimit);
       break;
     }
-    const prepared = prepareSelectedInput(context, path, consumedBytes);
+    const prepared = prepareSelectedInput(options, context, path, consumedBytes);
     if (prepared.kind === "cancelled" || prepared.kind === "unavailable") return prepared;
     if (prepared.kind === "coverage-gap") {
       consumedBytes += prepared.consumedBytes;
@@ -113,7 +110,8 @@ function selectionLimitGaps(
 }
 
 function prepareSelectedInput(
-  context: CheckExecutionContext<ResolvedSecretDetectionOptions>,
+  options: DeepReadonly<ResolvedSecretDetectionOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   path: string,
   consumedBytes: number
 ): PreparedSelectedInput {
@@ -121,7 +119,7 @@ function prepareSelectedInput(
   const read = readBoundedRegularFile({
     consumedBytes,
     filePath: resolve(context.project.root, path),
-    options: context.options
+    options: options
   });
   if (read.kind === "unavailable") return read;
   if (read.kind === "coverage-gap") {
@@ -134,7 +132,7 @@ function prepareSelectedInput(
   }
   if (context.signal.aborted) return Object.freeze({ kind: "cancelled" });
 
-  const classification = classifySecretDetectionBytes(read.bytes, context.options.maximumFileBytes);
+  const classification = classifySecretDetectionBytes(read.bytes, options.maximumFileBytes);
   if (classification.kind === "coverage-gap") {
     return Object.freeze({
       consumedBytes: read.bytes.byteLength,

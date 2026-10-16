@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -30,10 +31,13 @@ describe("Package Run diagnostic logging output", () => {
           },
           check({
             checkId: "hostile-callback",
-            execute: ({ records }) => {
-              records.report({ id: "hostile" }, hostile);
-              return { status: "passed", data: hostile };
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["records"],
+              callback: (options, { records }) => {
+                records.report({ id: "hostile" }, hostile);
+                return { status: "passed", data: hostile };
+              }
+            })
           })
         ],
         false

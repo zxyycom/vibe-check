@@ -18,6 +18,7 @@ Definition 仅含 ordinary Check tree、可选 changes、scheduler 与默认 out
 import {
   defineCheck,
   defineConfig,
+  defineContextCallback,
   duplicateDetection,
   fileMetrics,
   functionMetrics,
@@ -29,21 +30,24 @@ import {
 const licenses = defineCheck({
   checkId: "licenses",
   displayName: "Dependency licenses",
-  async execute({ records, signal }) {
-    if (signal.aborted)
-      return { status: "unavailable", reason: { code: "cancelled" } };
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["records", "signal"],
+    async callback(_options, { records, signal }) {
+      if (signal.aborted)
+        return { status: "unavailable", reason: { code: "cancelled" } };
 
-    const disallowed = await inspectDependencyLicenses();
-    for (const dependency of disallowed) {
-      records.report(
-        { id: `dependency:${dependency.name}` },
-        { license: dependency.license, name: dependency.name },
-      );
+      const disallowed = await inspectDependencyLicenses();
+      for (const dependency of disallowed) {
+        records.report(
+          { id: `dependency:${dependency.name}` },
+          { license: dependency.license, name: dependency.name },
+        );
+      }
+      return disallowed.length === 0
+        ? { status: "passed", data: { disallowedCount: 0 } }
+        : { status: "failed", data: { disallowedCount: disallowed.length } };
     }
-    return disallowed.length === 0
-      ? { status: "passed", data: { disallowedCount: 0 } }
-      : { status: "failed", data: { disallowedCount: disallowed.length } };
-  },
+  }),
 });
 
 export default defineConfig({
@@ -87,7 +91,7 @@ container/executable 形状、children、flag condition、direct relations、mut
 和调度只在完整 Definition 中取得意义。
 
 投影后的项目字段进入 declarative snapshot 与 fingerprint，遵循对应 ordinary Check 字段既有的 inclusion 规则；
-领域 options 保持为 constructor-resolved `.options`，并在 admitted task 中作为 execution `context.options` 使用。构造器
+领域 options 保持为 constructor-resolved `.options`，并在 admitted task 中作为 execution 第一业务参数 `options` 使用。构造器
 返回的 native typed Check 没有额外 adapter 或第二 execution model；改变项目声明不会改变 package-owned `prepare`、
 `execute`、`parseData` 或 handoff。
 
@@ -145,12 +149,11 @@ identity/source/closure 不进入。closed validation 拒绝 unknown fields；�
 async/thenable。prepare failure 由 Invocation 在 Scheduler 启动前映射，不是 Definition validation 执行 callback。维护时
 同时核对 helper authoring types、direct-value validation 和 [Scheduler handoff](scheduler.md)。
 
-策略 preparation/decision 与 terminal callback slot 接受 function 或 closed `{ contextNeeds?, callback }`。
-Definition 中的 descriptor 在任何 author work 前验证；prepared 返回值中的 descriptor 由 Invocation 在
-`admission-strategy-preparation-failed` 边界验证。需求是当前 phase 的 dense 字段数组，复制、去重、按固定字段顺序冻结；
-省略或自有 undefined 为 full，显式空列表为 none。未知字段、非法 token、accessor、sparse array 均拒绝。
-`defineSchedulerContextCallback` 改善 phase/tuple authoring inference，运行时验证仍归上述边界；需求与 callback
-同属 runtime 配置，不进入 declarative snapshot/fingerprint。
+共同 descriptor grammar 与默认空需求见[公开契约](../api-mechanics.md#声明式-callback-context)。
+Definition 使用 Core 数据边界 snapshot 固定 Check prepare/execute、simple decide、strategy prepare 和 Definition terminal effects，
+在任何 author work 前拒绝非法声明。Invocation 在 prepared result 返回后验证并固定 decide/terminalEffect，
+失败映射为 `admission-strategy-preparation-failed`。两个边界均复制、去重、按阶段字段顺序冻结需求，
+callback 与需求保留在 runtime 配置，不进入 declarative snapshot/fingerprint；`defineContextCallback` 只负责类型推导。
 
 #### Learned critical-path strategy helper
 
@@ -162,7 +165,7 @@ caller identity projection 与 model controls。调用方提供的配置和 clos
 
 ### Scheduler terminal effects
 
-`scheduler.terminalEffects` 是 Definition-owned runtime consumer array，entry 为原 function 或上节的 terminal descriptor。normalization 复制、冻结列表与需求，省略时为空。callback identity/source/closure 和 contextNeeds 不进入 snapshot/fingerprint，RunControls.outputs 不能注入或覆盖它。
+`scheduler.terminalEffects` 是 Definition-owned runtime consumer array，entry 为普通 function 或 terminal descriptor。normalization 复制、冻结列表与需求，省略时为空。callback identity/source/closure 和 contextNeeds 不进入 snapshot/fingerprint，RunControls.outputs 不能注入或覆盖它。
 
 context、ordered delivery 和 prepared `terminalEffect` 的接线见 [Scheduler terminal-effect delivery](scheduler.md#terminal-effects-与-delivery)；公开 status 与 failure priority 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
 
@@ -174,7 +177,7 @@ Definition 只提供 normalized static graph metadata，不能给 callback 暴�
 
 公开的 authoring 与结果 grammar 由[自定义 Check 的 `prepare` 契约](../guides/extending-check-lifecycle.md#prepare准备阻止或带-fallback-继续)定义；通用 final data/Record/messages 由 [API 机制](../api-mechanics.md#terminal-resultrecords-与-messages)定义。本节维护 Definition 与 invocation 之间的实现边界：
 
-- Definition 只保留 trusted preparation function，不执行它，也不把 callback identity/source/closure 放入 declarative fingerprint。Run 完成 graph validation 与 flag control 后，才由 admitted Task 执行 preparation；它使用同一次 cancellation signal，受 direct relations、mutex、capacity 和 priority 约束。
+- Definition 验证并 snapshot trusted preparation/execution callback 与需求，不执行 callback，也不把 callback identity/source/closure 或 needs 放入 declarative fingerprint。Run 完成 graph validation 与 flag control 后，才由 admitted Task 执行 preparation；它使用同一次 cancellation signal，受 direct relations、mutex、capacity 和 priority 约束。
 - prepared/fallback 重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value，不回写 authored options 或 fingerprint。throw 映射 preparation-threw；malformed result/message/reason 或 noncanonical prepared/fallback 映射 invalid-preparation-result；失败只结算 owning Check，不升级为 Definition configuration failure。
 - preparation block 没有 author-execution started fact、duration 为 null，但保留 accepted preparation messages、terminal fact、aggregation 和 settled lifecycle。prerequisite-blocked Task 则不运行 preparation/execution，也没有 author Record/message；direct blocker facts 由 settlement 保存。
 - console/author message 依照 preparation、execution 的先后次序交付；即使 execution 后续抛错，已经接受的 preparation messages 仍保留。通用 terminal grammar 由 settlement 验证，Definition 不解释任何 Check 领域 data。

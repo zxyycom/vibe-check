@@ -1,3 +1,4 @@
+import { createProjectContextSource } from "../project-context.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -97,7 +98,7 @@ describe("Package Run direct Check execution", () => {
       }),
       invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 2,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
 
@@ -147,7 +148,7 @@ describe("Package Run direct Check execution", () => {
       diagnosticLogger: recordingLogger(observations),
       invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 1,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: controller.signal
     });
     assert.equal(cancelled.kind, "cancelled");

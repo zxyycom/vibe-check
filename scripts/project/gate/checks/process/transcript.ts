@@ -50,7 +50,7 @@ export function processTranscriptReference(logPath: string): string {
 
 /** Produces the standard failure Record and presentation-safe terminal message. */
 export function failedProcessResult(
-  context: Pick<CheckExecutionContext<object>, "records">,
+  context: Pick<CheckExecutionContext, "records">,
   input: Readonly<{
     readonly command: string;
     readonly exitCode: number;

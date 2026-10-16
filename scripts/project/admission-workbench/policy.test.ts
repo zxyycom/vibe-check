@@ -3,7 +3,7 @@ import { access, readFile, writeFile } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
 import { test } from "node:test";
 
-import type { AdmissionPolicy, AdmissionPolicyContext } from "@zxyycom/vibe-check";
+import { defineContextCallback, type AdmissionPolicy } from "@zxyycom/vibe-check";
 
 import {
   prepareLearnedPolicy,
@@ -74,20 +74,27 @@ test("formal simple and prepared adapters prepare once and never complete virtua
     kind: "custom",
     strategy: Object.freeze({
       kind: "prepared",
-      prepare: () => {
-        prepareCount += 1;
-        return Object.freeze({
-          terminalEffect: () => {
-            completeCount += 1;
-          },
-          decide: (context: AdmissionPolicyContext) => {
-            const selected = context.candidates.find(({ canAdmit }) => canAdmit);
-            return selected === undefined
-              ? Object.freeze({ kind: "wait" as const })
-              : Object.freeze({ kind: "select" as const, taskId: selected.taskId });
-          }
-        });
-      }
+      prepare: defineContextCallback("scheduler.prepare", {
+        callback: () => {
+          prepareCount += 1;
+          return Object.freeze({
+            terminalEffect: defineContextCallback("scheduler.terminal", {
+              callback: () => {
+                completeCount += 1;
+              }
+            }),
+            decide: defineContextCallback("scheduler.decide", {
+              contextNeeds: ["candidates"],
+              callback: (context) => {
+                const selected = context.candidates.find(({ canAdmit }) => canAdmit);
+                return selected === undefined
+                  ? Object.freeze({ kind: "wait" as const })
+                  : Object.freeze({ kind: "select" as const, taskId: selected.taskId });
+              }
+            })
+          });
+        }
+      })
     })
   }) satisfies AdmissionPolicy;
   const identity: PolicyIdentity = Object.freeze({
@@ -112,14 +119,11 @@ test("formal simple and prepared adapters prepare once and never complete virtua
   await handle.dispose();
   assert.equal(prepareCount, 1);
   assert.equal(completeCount, 0);
-  const descriptorOnlyFixture = {
+  const functionOnlyFixture = {
     kind: "custom",
-    strategy: {
-      kind: "simple",
-      decide: { contextNeeds: [], callback: () => ({ kind: "wait" }) }
-    }
+    strategy: { kind: "simple", decide: () => ({ kind: "wait" as const }) }
   } satisfies AdmissionPolicy;
-  // @ts-expect-error This private fixture adapter accepts functions, not arbitrary public slots.
-  const callableFixture: Parameters<typeof preparePolicyDefinition>[0] = descriptorOnlyFixture;
-  void callableFixture;
+  // @ts-expect-error This fixed direct-call adapter requires a descriptor, not a public storage slot.
+  const declaredFixture: Parameters<typeof preparePolicyDefinition>[0] = functionOnlyFixture;
+  void declaredFixture;
 });

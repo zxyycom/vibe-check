@@ -1,4 +1,4 @@
-import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
+import type { DeepReadonly, CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import type { JsonDocumentIssue } from "../json-document/strict-document.ts";
 import { compileSchemaSet, type SchemaCompileReason } from "./schema-engine.ts";
@@ -64,32 +64,34 @@ export type JsonSchemaValidationRecordData =
 
 /** Validates only explicitly registered/bound JSON files inside the current global scan scope. */
 export async function executeJsonSchemaValidation(
-  context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>
+  options: DeepReadonly<ResolvedJsonSchemaValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): Promise<CheckResult<JsonSchemaValidationFinalData>> {
-  if (!validJsonSchemaValidationOptions(context.options)) return unavailable("invalid-options");
+  if (!validJsonSchemaValidationOptions(options)) return unavailable("invalid-options");
 
   try {
-    return await execute(context);
+    return await execute(options, context);
   } catch {
     return unavailable("engine-unavailable");
   }
 }
 
 async function execute(
-  context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>
+  options: DeepReadonly<ResolvedJsonSchemaValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): Promise<CheckResult<JsonSchemaValidationFinalData>> {
   if (context.signal.aborted) return unavailable("execution-cancelled");
-  if (context.options.bindings.length === 0) return noBindingsResult();
-  const selectedPaths = selectedProjectPaths(context);
+  if (options.bindings.length === 0) return noBindingsResult();
+  const selectedPaths = selectedProjectPaths(options, context);
   if (selectedPaths === undefined) return unavailable("scan-input-unavailable");
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
   const issueCollector = new SchemaIssueCollector(context);
-  const loaded = await loadConfiguredSchemas(context, selectedPaths, issueCollector);
+  const loaded = await loadConfiguredSchemas(options, context, selectedPaths, issueCollector);
   if (loaded.kind === "unavailable") return unavailable(loaded.code);
   const compilation = await compileSchemaSet({
-    referenceResolution: context.options.referenceResolution,
-    schemaIdentity: context.options.schemaIdentity,
+    referenceResolution: options.referenceResolution,
+    schemaIdentity: options.schemaIdentity,
     schemas: loaded.value.schemas,
     signal: context.signal
   });
@@ -97,23 +99,25 @@ async function execute(
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
   const schemaFailures = new Set(loaded.value.failures);
-  reportCompilationFailures(context, compilation.compiledSchemaSet, schemaFailures, issueCollector);
-  const bindings = await validateSchemaBindings(
+  reportCompilationFailures(options, compilation.compiledSchemaSet, schemaFailures, issueCollector);
+  const bindings = await validateSchemaBindings({
+    options,
     context,
     selectedPaths,
-    compilation.compiledSchemaSet,
+    compiled: compilation.compiledSchemaSet,
     schemaFailures,
     issueCollector
-  );
+  });
   if (bindings.kind === "unavailable") return unavailable(bindings.code);
-  return completedValidationResult(context, bindings.value, issueCollector);
+  return completedValidationResult(options, context, bindings.value, issueCollector);
 }
 
 function selectedProjectPaths(
-  context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>
+  options: DeepReadonly<ResolvedJsonSchemaValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): ReadonlySet<string> | undefined {
   try {
-    return new Set(collectProjectFiles(context.project.root, context.options.files));
+    return new Set(collectProjectFiles(context.project.root, options.files));
   } catch {
     return undefined;
   }
@@ -124,7 +128,8 @@ function noBindingsResult(): CheckResult<JsonSchemaValidationFinalData> {
 }
 
 function completedValidationResult(
-  context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>,
+  options: DeepReadonly<ResolvedJsonSchemaValidationOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   bindings: Readonly<{
     readonly blockedBindingCount: number;
     readonly invalidBindingCount: number;
@@ -133,13 +138,13 @@ function completedValidationResult(
   issueCollector: SchemaIssueCollector
 ): CheckResult<JsonSchemaValidationFinalData> {
   const data = Object.freeze({
-    bindingCount: context.options.bindings.length,
+    bindingCount: options.bindings.length,
     blockedBindingCount: bindings.blockedBindingCount,
     invalidBindingCount: bindings.invalidBindingCount,
     issueCount: issueCollector.count,
     issuesTruncated: issueCollector.truncated,
     reportedIssueCount: issueCollector.reportedCount,
-    schemaCount: context.options.schemas.length,
+    schemaCount: options.schemas.length,
     validBindingCount: bindings.validBindingCount
   });
   if (issueCollector.count === 0) return Object.freeze({ data, status: "passed" });

@@ -1,3 +1,4 @@
+import type { ContextCallbackInput } from "../../data-boundary/context-callback.ts";
 import type {
   Check,
   CheckDataParser,
@@ -43,20 +44,25 @@ export interface CompletedCommand {
 /** spawn 前 environment resolver 可读取的最小 invocation context。 */
 export interface CommandEnvironmentContext {
   readonly dependencies: CheckDependencies;
-  readonly options: DeepReadonly<ResolvedCommandCheckOptions>;
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal;
 }
 
 /** 完整 command 后 caller-owned settlement 可读取的 context。 */
-export type AfterCommandContext = CheckExecutionContext<ResolvedCommandCheckOptions> &
-  Readonly<{ readonly command: CompletedCommand }>;
+export type AfterCommandContext = CheckExecutionContext;
+
+/** 完整 command 的业务输入；不注入到 context。 */
+export interface AfterCommandInput {
+  readonly options: DeepReadonly<ResolvedCommandCheckOptions>;
+  readonly command: CompletedCommand;
+}
 
 /** 完整 command 的 caller-owned settlement callback。 */
-export type AfterCommandExecution<FinalData extends object = object> = (
-  this: void,
-  context: AfterCommandContext
-) => CheckResult<FinalData> | Promise<CheckResult<FinalData>>;
+export type AfterCommandExecution<FinalData extends object = object> = ContextCallbackInput<
+  [input: Readonly<AfterCommandInput>],
+  AfterCommandContext,
+  CheckResult<FinalData> | Promise<CheckResult<FinalData>>
+>;
 
 /** command 完成后的可选 caller-owned settlement 与 typed-provider parser。 */
 export type AfterCommand<FinalData extends object = object> = Readonly<{
@@ -65,10 +71,11 @@ export type AfterCommand<FinalData extends object = object> = Readonly<{
 }>;
 
 /** spawn 前解析此次 command closed environment policy 的 callback。 */
-export type CommandEnvironmentResolver = (
-  this: void,
-  context: CommandEnvironmentContext
-) => CommandCheckEnvironment | Promise<CommandCheckEnvironment>;
+export type CommandEnvironmentResolver = ContextCallbackInput<
+  [options: DeepReadonly<ResolvedCommandCheckOptions>],
+  CommandEnvironmentContext,
+  CommandCheckEnvironment | Promise<CommandCheckEnvironment>
+>;
 
 /** command Check 自己产生的 stable unavailable reason code。 */
 export type CommandCheckUnavailableReasonCode =
@@ -137,32 +144,32 @@ export interface ResolvedCommandCheckOptions {
   readonly workingDirectory: string | null;
 }
 
+/** command constructor 固定的 execution descriptor；直接调用仍需调用方提供能力。 */
+export interface CommandCheckExecution<FinalData extends object = object> {
+  readonly contextNeeds: readonly (keyof CheckExecutionContext)[];
+  readonly callback: (
+    options: DeepReadonly<ResolvedCommandCheckOptions>,
+    context: CheckExecutionContext
+  ) => CheckResult<FinalData> | Promise<CheckResult<FinalData>>;
+}
+
 /** 可放入普通 Project Definition 的 process-backed Check。 */
-export type CommandCheck<Id extends string = string> = CheckWithOptions<
-  Id,
-  ResolvedCommandCheckOptions
+export type CommandCheck<Id extends string = string> = Omit<
+  CheckWithOptions<Id, ResolvedCommandCheckOptions>,
+  "execute"
 > &
-  Readonly<{
-    execute(
-      this: void,
-      context: CheckExecutionContext<ResolvedCommandCheckOptions>
-    ): CheckResult<CommandCheckFinalData> | Promise<CheckResult<CommandCheckFinalData>>;
-  }>;
+  Readonly<{ readonly execute: CommandCheckExecution<CommandCheckFinalData> }>;
 
 /** 带 caller-owned completion callback 的 ordinary command Check。 */
 export type CommandCheckWithAfterCommand<Id extends string, FinalData extends object> = Omit<
   CheckWithOptions<Id, ResolvedCommandCheckOptions>,
   "execute"
 > &
-  Readonly<{
-    execute(
-      this: void,
-      context: CheckExecutionContext<ResolvedCommandCheckOptions>
-    ): CheckResult<FinalData> | Promise<CheckResult<FinalData>>;
-  }>;
+  Readonly<{ readonly execute: CommandCheckExecution<FinalData> }>;
 
 /** 带 caller-owned completion callback 与 parser 的 typed-provider command Check。 */
-export type TypedCommandCheck<
-  Id extends string,
-  Parser extends CheckDataParser
-> = TypedCheckWithOptions<Id, ResolvedCommandCheckOptions, Parser>;
+export type TypedCommandCheck<Id extends string, Parser extends CheckDataParser> = Omit<
+  TypedCheckWithOptions<Id, ResolvedCommandCheckOptions, Parser>,
+  "execute"
+> &
+  Readonly<{ readonly execute: CommandCheckExecution<ReturnType<Parser>> }>;

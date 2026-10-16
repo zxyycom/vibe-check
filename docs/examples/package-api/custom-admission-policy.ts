@@ -1,5 +1,5 @@
 // #region package-api-example:custom-admission-policy
-import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { defineContextCallback, defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const executionOrder: string[] = [];
 
@@ -27,7 +27,7 @@ const preferPublish = defineAdmissionPolicy({
   kind: "custom",
   strategy: {
     kind: "simple",
-    decide(context) {
+    decide: defineContextCallback("scheduler.decide", { contextNeeds: ["candidates","graph"], callback: (context) => {
       const publishTask = context.graph.tasks.find((task) => task.taskId === publish.checkId);
       const publishCandidate = context.candidates.find(
         (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
@@ -40,7 +40,7 @@ const preferPublish = defineAdmissionPolicy({
       return nextCandidate === undefined
         ? { kind: "wait" }
         : { kind: "select", taskId: nextCandidate.taskId };
-    }
+    } })
   }
 });
 

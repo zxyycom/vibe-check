@@ -1,3 +1,5 @@
+import { defineContextCallback } from "../context-callback/define-context-callback.ts";
+import type { LearnedDecisionContext } from "./strategy-contract.ts";
 import type {
   AdmissionPolicyContext,
   AdmissionProposal,
@@ -17,16 +19,17 @@ type Task = SchedulerGraphSnapshot["tasks"][number];
 type Scope = SchedulerGraphSnapshot["scopes"][number];
 
 /** One Run-local index also serves every static fallback boundary. */
-export function createStaticDecision(
-  graph: SchedulerGraphSnapshot
-): (context: AdmissionPolicyContext) => AdmissionProposal {
+export function createStaticDecision(graph: SchedulerGraphSnapshot) {
   const indexes = createLearnedSelectionGraph(graph);
-  return (context) => staticDecision(context, indexes);
+  return defineContextCallback("scheduler.decide", {
+    contextNeeds: ["activeScopeIds", "candidates", "capacity"],
+    callback: (context) => staticDecision(context, indexes)
+  });
 }
 
 /** Preserves ordinary static selection when learned preparation cannot form a ranking. */
 function staticDecision(
-  context: AdmissionPolicyContext,
+  context: LearnedDecisionContext,
   graph: LearnedSelectionGraph
 ): AdmissionProposal {
   const layers = learnedSelectionLayers(context, graph);

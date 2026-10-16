@@ -1,3 +1,4 @@
+import { prepareCheckOptions } from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { describe, it } from "node:test";
@@ -95,7 +96,8 @@ describe("JSON Schema validation default Check", () => {
         bindings: [{ id: "bad", instancePath: "bad.json", schemaId }],
         schemas: [{ id: schemaId, path: "schema.json" }]
       });
-      const invalidPreparation = await defaultCheck.prepare!(
+      const invalidPreparation = await prepareCheckOptions(
+        defaultCheck.prepare!,
         {
           ...invalidOptions,
           maximumBytes: 0

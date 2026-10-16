@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { basename, resolve as resolvePath } from "node:path";
 
@@ -9,20 +10,23 @@ export async function runWithCapturedContext(root: string) {
   let received: CapturedContext | undefined;
   const source = definition([
     check({
-      execute: (context) => {
-        received = {
-          artifactDirectory: context.artifactDirectory,
-          contextFrozen: Object.isFrozen(context),
-          dependencyRead: context.dependencies.get("missing"),
-          dependenciesFrozen: Object.isFrozen(context.dependencies),
-          invocationId: context.invocationId,
-          options: context.options,
-          projectKeys: Object.keys(context.project).sort(),
-          root: context.project.root,
-          signal: context.signal
-        };
-        return PASSED;
-      }
+      execute: defineContextCallback("check.execute", {
+        contextNeeds: ["artifactDirectory", "dependencies", "invocationId", "project", "signal"],
+        callback: (options, context) => {
+          received = {
+            artifactDirectory: context.artifactDirectory,
+            contextFrozen: Object.isFrozen(context),
+            dependencyRead: context.dependencies.get("missing"),
+            dependenciesFrozen: Object.isFrozen(context.dependencies),
+            invocationId: context.invocationId,
+            options: options,
+            projectKeys: Object.keys(context.project).sort(),
+            root: context.project.root,
+            signal: context.signal
+          };
+          return PASSED;
+        }
+      })
     })
   ]);
   const result = await runWhileDateSerializationFails(source, root);
@@ -62,17 +66,20 @@ export async function assertCheckArtifactPathContext(root: string): Promise<void
     checkIds.map((checkId) =>
       check({
         checkId,
-        execute: (context) => {
-          observations.push(
-            Object.freeze({
-              artifactDirectory: context.artifactDirectory,
-              contextKeys: Object.keys(context).sort(),
-              invocationId: context.invocationId,
-              project: context.project
-            })
-          );
-          return PASSED;
-        }
+        execute: defineContextCallback("check.execute", {
+          contextNeeds: ["artifactDirectory", "invocationId", "project"],
+          callback: (options, context) => {
+            observations.push(
+              Object.freeze({
+                artifactDirectory: context.artifactDirectory,
+                contextKeys: Object.keys(context).sort(),
+                invocationId: context.invocationId,
+                project: context.project
+              })
+            );
+            return PASSED;
+          }
+        })
       })
     )
   );
@@ -108,15 +115,7 @@ export async function assertCheckArtifactPathContext(root: string): Promise<void
   );
   for (const observation of observations) {
     assert.equal(Object.isFrozen(observation.project), true);
-    assert.deepEqual(observation.contextKeys, [
-      "artifactDirectory",
-      "dependencies",
-      "invocationId",
-      "options",
-      "project",
-      "records",
-      "signal"
-    ]);
+    assert.deepEqual(observation.contextKeys, ["artifactDirectory", "invocationId", "project"]);
     assert.notEqual(observation.artifactDirectory, null);
     if (observation.artifactDirectory === null) continue;
     assert.equal(resolvePath(observation.artifactDirectory, ".."), expectedArtifactBaseDirectory);

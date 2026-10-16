@@ -8,7 +8,7 @@
 
 - [公开调度指南](../../docs/guides/scheduling.md)拥有输入、顺序、失败与取消承诺；[Scheduler](../../docs/development/scheduler.md)拥有 reducer、shell、需求闭包、measurement 与终态交付。
 - [Project Definition](../../docs/development/project-definition.md)拥有 closed validation、normalization 与 fingerprint；[Project Run](../../docs/development/project-run.md)拥有策略准备和 Run-local handoff；[package tools](../../docs/development/package-tools.md)拥有 authoring helper。
-- [需求声明 Decision](../../docs/decisions/declare-scheduler-context-demand.md)拥有长期方向。沿用既有[不可变 state](../../docs/decisions/provide-immutable-admission-graph-state.md)、[完整 diagnostics](../../docs/decisions/keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context.md)、[captured prefix](../../docs/decisions/observe-post-action-policy-measurement.md)、[terminal effects](../../docs/decisions/name-scheduler-terminal-consumers-as-effects.md)及[统一 runner](../../docs/decisions/unify-default-summary-with-terminal-measurement-hooks.md)约束。
+- 本 Change 形成时的[需求声明方向](../../docs/decisions/archive/declare-scheduler-context-demand.md)已修订归档；以下为形成时沿用的[不可变 state](../../docs/decisions/provide-immutable-admission-graph-state.md)、[完整 diagnostics](../../docs/decisions/keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context.md)、[captured prefix](../../docs/decisions/archive/observe-post-action-policy-measurement.md)、[terminal effects](../../docs/decisions/archive/name-scheduler-terminal-consumers-as-effects.md)及[统一 runner](../../docs/decisions/archive/unify-default-summary-with-terminal-measurement-hooks.md)依据。
 - [诊断独立性](../../docs/decisions/keep-run-diagnostics-independent-of-optional-strategies.md)排除 learned 特殊通道；[规模取舍](../../docs/decisions/weigh-performance-costs-against-scaling-benefits.md)要求同时保留规模收益、小输入绝对代价和噪声。
 
 | 消费阶段 | 事实与生命周期义务 |

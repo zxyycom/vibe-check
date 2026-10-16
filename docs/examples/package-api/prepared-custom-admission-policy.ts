@@ -3,7 +3,7 @@ import {
   defineAdmissionPolicy,
   defineCheck,
   defineConfig,
-  defineSchedulerContextCallback,
+  defineContextCallback,
   run
 } from "@zxyycom/vibe-check";
 
@@ -21,13 +21,13 @@ const strategy = defineAdmissionPolicy({
   kind: "custom",
   strategy: {
     kind: "prepared",
-    prepare: defineSchedulerContextCallback("preparation", {
+    prepare: defineContextCallback("scheduler.prepare", {
       contextNeeds: [],
       async callback() {
         // 模拟异步读取调用方自己的配置，并将其捕获在本 Run 的 closure 中。
         const preferredTaskId = await Promise.resolve("second");
         return {
-          decide: defineSchedulerContextCallback("decision", {
+          decide: defineContextCallback("scheduler.decide", {
             contextNeeds: ["candidates", "runtime"],
             callback(context) {
               if (context.runtime.abortRequested || context.runtime.cancelled) {
@@ -41,7 +41,7 @@ const strategy = defineAdmissionPolicy({
                 : { kind: "select", taskId: next.taskId };
             }
           }),
-          terminalEffect: defineSchedulerContextCallback("terminal", {
+          terminalEffect: defineContextCallback("scheduler.terminal", {
             contextNeeds: ["execution"],
             callback(terminal) {
               settledTaskCount = terminal.execution.settledTasks.length;

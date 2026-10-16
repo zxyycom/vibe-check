@@ -12,12 +12,10 @@
   `appendCheckMessages` 与 Finding message 投影；Finding facts、明细位置和 terminal outcome 由 Check owner 定义。
 - `admission-policy/define-admission-policy.ts` 拥有 `defineAdmissionPolicy(...)` 的 exact authoring types、
   inference 与声明 JSDoc；defaults、validation、normalization 与 fingerprint 由 Project Definition 定义。
-- `scheduler-context/define-scheduler-context-callback.ts` 拥有 `defineSchedulerContextCallback(...)` 的
-  phase-specific literal tuple / selected `Pick` inference 与 descriptor exact authoring；不调用 callback。
-  公共槽位与阶段类型由 Project Definition 拥有，descriptor grammar、snapshot 与 normalization 仍由 Definition
-  或 prepared-result boundary 校验；阶段需求并集、事实物化与 terminal delivery 由 Scheduler 拥有。
-  helper 的类型只保证自身声明字段，同阶段共享对象可以含额外字段；公开规则见
-  [Scheduler callback 的 context 需求](../guides/scheduling.md#声明-callback-的-context-需求)。
+- `context-callback/define-context-callback.ts` 拥有 `defineContextCallback(...)` 的 phase-specific literal tuple / selected fields
+  inference、业务参数和结果贯通，不执行 callback。工具只引用公开契约，Core 不依赖它。
+  descriptor snapshot/精确投影归 Core 数据边界；合法字段和运行边界分别由 Check、Definition/Scheduler、command 拥有。
+  公开规则见[声明式 callback context](../api-mechanics.md#声明式-callback-context)，生产需求并集不等同于交付字段并集。
 - `cache/cache-json-by-key.ts` 拥有 caller-keyed JSON 的本地缓存机制，见[缓存边界](#caller-keyed-cache-boundary)。
 - `finding-waivers/reconciliation.ts` 拥有按调用方语义 identity 对账 Finding waiver 的纯函数，使用公开 Core 数据工具
   规范化和比较身份；Record 发布和 Check outcome 由采用方负责，工具不拥有 Run 或 Gate 生命周期。
@@ -47,10 +45,11 @@ setup、prediction 或 score construction failure 使用 static decision fallbac
 learned 与 static fallback 在每次 preparation 建立 immutable graph 索引，包括 scope activation Sets。每次 decision
 单次遍历候选完成 tightening/continuation 分类，再按各层 comparator 线性取最小项，保持稳定 tie、层顺序和 wait。
 learned ordinary 的首选不可准入时仍 wait；fallback ordinary 先比较 canAdmit，再比较 priority/ID。候选数为 C 时，
-选择比较为 O(C)；完整 public candidates/context 的生产仍由 Scheduler 承担。
+选择比较为 O(C)；所请求 public candidates/context 的生产仍由 Scheduler 承担。
 
-factory 的[具体返回类型保证 prepare/decide 是可调用函数](../guides/scheduling.md#typescript-编写与槽位消费)，
-因此沿用 legacy/full callback context 及其完整 measurement/context 成本。helper 经普通公开 lifecycle 接线，
+factory 的 prepare/decide/terminal callbacks 使用具体 descriptor：prepare 请求 graph，decision 请求
+activeScopeIds/candidates/capacity，recording 请求 execution/taskTimings；identityForTask/observe 保持直接业务输入。
+工具经普通公开 lifecycle 接线，不启用无消费者的 cumulative/actionHistory；
 history retention、样本、各层 comparator 与 observer 继续由上述 owner 维护。
 
 ## Caller-keyed cache boundary

@@ -1,6 +1,6 @@
+import type { DeepReadonly, CheckExecutionContext } from "../../check/check.ts";
 import { resolve } from "node:path";
 
-import type { CheckExecutionContext } from "../../check/check.ts";
 import { readStrictJsonDocument } from "../json-document/strict-document.ts";
 import {
   normalizeValidationErrors,
@@ -32,17 +32,18 @@ export interface BindingCounts {
   readonly validBindingCount: number;
 }
 
-type SchemaContext = CheckExecutionContext<ResolvedJsonSchemaValidationOptions>;
+type SchemaContext = Pick<CheckExecutionContext, "project" | "signal">;
 
 export async function loadConfiguredSchemas(
+  options: DeepReadonly<ResolvedJsonSchemaValidationOptions>,
   context: SchemaContext,
   selectedPaths: ReadonlySet<string>,
   issueCollector: SchemaIssueCollector
 ): Promise<Stage<LoadedSchemaStage>> {
   const failures = new Set<string>();
   const schemas: LoadedSchema[] = [];
-  for (const schema of context.options.schemas) {
-    const outcome = loadConfiguredSchema(context, selectedPaths, schema, issueCollector);
+  for (const schema of options.schemas) {
+    const outcome = loadConfiguredSchema(options, context, selectedPaths, schema, issueCollector);
     if (outcome.kind === "unavailable") return outcome;
     if (outcome.kind === "failure") failures.add(schema.id);
     else schemas.push(outcome.value);
@@ -56,6 +57,7 @@ type SchemaLoadOutcome =
   | Readonly<{ readonly code: JsonSchemaValidationUnavailableCode; readonly kind: "unavailable" }>;
 
 function loadConfiguredSchema(
+  options: DeepReadonly<ResolvedJsonSchemaValidationOptions>,
   context: SchemaContext,
   selectedPaths: ReadonlySet<string>,
   schema: ResolvedJsonSchemaValidationOptions["schemas"][number],
@@ -68,7 +70,7 @@ function loadConfiguredSchema(
   }
   const document = readStrictJsonDocument({
     filePath: resolve(context.project.root, schema.path),
-    maximumBytes: context.options.maximumBytes
+    maximumBytes: options.maximumBytes
   });
   if (context.signal.aborted) return unavailable("execution-cancelled");
   if (document.kind === "unavailable") return unavailable("document-unavailable");
@@ -90,12 +92,12 @@ function schemaDocumentIssue(
 }
 
 export function reportCompilationFailures(
-  context: SchemaContext,
+  options: DeepReadonly<ResolvedJsonSchemaValidationOptions>,
   compiled: CompiledSchemaSet,
   failures: Set<string>,
   issueCollector: SchemaIssueCollector
 ): void {
-  for (const schema of context.options.schemas) {
+  for (const schema of options.schemas) {
     const reason = compiled.failures.get(schema.id);
     if (reason === undefined) continue;
     failures.add(schema.id);
@@ -106,22 +108,11 @@ export function reportCompilationFailures(
 }
 
 export async function validateSchemaBindings(
-  context: SchemaContext,
-  selectedPaths: ReadonlySet<string>,
-  compiled: CompiledSchemaSet,
-  schemaFailures: ReadonlySet<string>,
-  issueCollector: SchemaIssueCollector
+  input: Omit<BindingValidationInput, "binding">
 ): Promise<Stage<BindingCounts>> {
   const counts = { blockedBindingCount: 0, invalidBindingCount: 0, validBindingCount: 0 };
-  for (const binding of context.options.bindings) {
-    const outcome = validateSchemaBinding({
-      binding,
-      compiled,
-      context,
-      issueCollector,
-      schemaFailures,
-      selectedPaths
-    });
+  for (const binding of input.options.bindings) {
+    const outcome = validateSchemaBinding({ ...input, binding });
     if (outcome.kind === "unavailable") return outcome;
     counts[outcome.kind] += 1;
   }
@@ -136,22 +127,25 @@ interface BindingValidationInput {
   readonly binding: ResolvedJsonSchemaValidationOptions["bindings"][number];
   readonly compiled: CompiledSchemaSet;
   readonly context: SchemaContext;
+  readonly options: DeepReadonly<ResolvedJsonSchemaValidationOptions>;
   readonly issueCollector: SchemaIssueCollector;
   readonly schemaFailures: ReadonlySet<string>;
   readonly selectedPaths: ReadonlySet<string>;
 }
 
 function validateSchemaBinding(input: Readonly<BindingValidationInput>): BindingOutcome {
-  const { binding, compiled, context, issueCollector, schemaFailures, selectedPaths } = input;
+  const { binding, compiled, context, options, issueCollector, schemaFailures, selectedPaths } =
+    input;
   if (context.signal.aborted) return unavailable("execution-cancelled");
   const inScope = selectedPaths.has(binding.instancePath);
   if (!inScope) issueCollector.add(instanceDocumentIssue(binding, "out-of-scope"));
   if (schemaFailures.has(binding.schemaId)) return { kind: "blockedBindingCount" };
   if (!inScope) return { kind: "invalidBindingCount" };
-  return validateBoundDocument(context, compiled, binding, issueCollector);
+  return validateBoundDocument(options, context, compiled, binding, issueCollector);
 }
 
 function validateBoundDocument(
+  options: DeepReadonly<ResolvedJsonSchemaValidationOptions>,
   context: SchemaContext,
   compiled: CompiledSchemaSet,
   binding: ResolvedJsonSchemaValidationOptions["bindings"][number],
@@ -159,7 +153,7 @@ function validateBoundDocument(
 ): BindingOutcome {
   const document = readStrictJsonDocument({
     filePath: resolve(context.project.root, binding.instancePath),
-    maximumBytes: context.options.maximumBytes
+    maximumBytes: options.maximumBytes
   });
   if (context.signal.aborted) return unavailable("execution-cancelled");
   if (document.kind === "unavailable") return unavailable("document-unavailable");

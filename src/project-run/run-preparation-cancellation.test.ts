@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -19,20 +20,23 @@ describe("Package Run", () => {
             }
           }),
           options: {},
-          prepare: async (_options, signal) => {
-            assert.equal(signal, controller.signal);
-            preparationEntered.resolve();
-            await new Promise<void>((resolve) => {
-              signal.addEventListener(
-                "abort",
-                () => {
-                  resolve();
-                },
-                { once: true }
-              );
-            });
-            return { status: "success", preparedOptions: {} };
-          }
+          prepare: defineContextCallback("check.prepare", {
+            contextNeeds: ["signal"],
+            callback: async (_options, { signal }) => {
+              assert.equal(signal, controller.signal);
+              preparationEntered.resolve();
+              await new Promise<void>((resolve) => {
+                signal.addEventListener(
+                  "abort",
+                  () => {
+                    resolve();
+                  },
+                  { once: true }
+                );
+              });
+              return { status: "success", preparedOptions: {} };
+            }
+          })
         }
       ]),
       { signal: controller.signal }

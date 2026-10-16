@@ -184,8 +184,10 @@ export interface AdmissionPolicyContext {
   readonly runningTaskIds: readonly string[];
   /** 当前已结算的 Task IDs；不携带 Check result、data 或 message。 */
   readonly settledTaskIds: readonly string[];
-  /** 调用前已 flush 的有界累计事实与 captured action-observation prefix。 */
-  readonly measurement: AdmissionPolicyMeasurement;
+  /** 调用前已 flush 的有界累计事实；独立于历史及逐 Task timing。 */
+  readonly cumulative: SchedulerDecisionMeasurementCumulative;
+  /** 当前调用边界固定的 action observation prefix。 */
+  readonly actionHistory: SchedulerActionHistory;
   /** 本轮与生命周期有关的最小只读事实。 */
   readonly runtime: Readonly<{
     readonly abortRequested: boolean;
@@ -199,11 +201,11 @@ export interface CustomAdmissionPreparationContext {
   readonly graph: SchedulerGraphSnapshot;
 }
 
-/** prepared custom strategy 为当前 Run 返回的同步选择与可选 terminal completion。 */
+/** prepared custom strategy 为当前 Run 返回的同步选择与可选 terminal effect。 */
 export interface PreparedCustomAdmissionStrategy {
   /** Scheduler 每轮同步调用；不得返回 Promise 或 thenable。 */
   readonly decide: SchedulerContextCallbackInput<AdmissionPolicyContext, AdmissionProposal>;
-  /** Scheduler 的 generic Hooks 完成后，才以 sealed terminal context 调用一次。 */
+  /** Scheduler 的 generic terminal effects 完成后，才以 sealed terminal context 调用一次。 */
   readonly terminalEffect?: SchedulerContextCallbackInput<
     SchedulerMeasurementContext,
     void | Promise<void>
@@ -354,9 +356,7 @@ export type SchedulerMeasurementActionObservation =
     }>;
 
 /** custom policy 的有界 decision-boundary measurement reader。 */
-export interface AdmissionPolicyMeasurement {
-  /** 当前 decision boundary 的累计标量；完整逐 Task table 只属于终态 measurement。 */
-  readonly cumulative: SchedulerDecisionMeasurementCumulative;
+export interface SchedulerActionHistory {
   /** 当前 invocation 已捕获且不可变的 action observation prefix 长度。 */
   readonly measurementCount: number;
   /** 只读取当前 context 冻结的 observation prefix；越界 index 返回 `undefined`。 */
@@ -441,11 +441,9 @@ export interface SchedulerMeasurementAdmission {
   readonly taskId: string;
 }
 
-export interface SchedulerMeasurementTimingFacts {
+export interface SchedulerRunMeasurementTimingFacts {
   /** 已接受 wait action 累计延续的毫秒数。 */
   readonly acceptedWaitMs: number;
-  /** 进入过 admission-viable pending 集合的逐 Task timing facts。 */
-  readonly admissions: readonly SchedulerMeasurementAdmission[];
   /** effective capacity slot 的累计毫秒积分。 */
   readonly effectiveCapacitySlotMs: number;
   /** Terminal Scheduler monotonic-clock timestamp in milliseconds. */
@@ -462,7 +460,7 @@ export interface SchedulerMeasurementTimingFacts {
   readonly taskSlotMs: number;
 }
 
-interface SchedulerRawMeasurementFacts {
+interface SchedulerRunMeasurementFacts {
   /** normalized declarative Definition 的匹配 fingerprint；不包含 controls 或 runtime facts。 */
   readonly declarativeFingerprint: string;
   /** 即使 timing unavailable 也保留的离散终态事实。 */
@@ -482,14 +480,14 @@ interface SchedulerRawMeasurementFacts {
   readonly peaks: SchedulerMeasurementPeakCounts;
 }
 
-interface AvailableSchedulerRawMeasurement extends SchedulerRawMeasurementFacts {
+interface AvailableSchedulerRunMeasurement extends SchedulerRunMeasurementFacts {
   /** available 表示完整终态 timingFacts 可读。 */
   readonly timing: Readonly<{ readonly availability: "available" }>;
   /** 基于 Scheduler monotonic clock 形成的完整终态 timing facts。 */
-  readonly timingFacts: SchedulerMeasurementTimingFacts;
+  readonly timingFacts: SchedulerRunMeasurementTimingFacts;
 }
 
-interface UnavailableSchedulerRawMeasurement extends SchedulerRawMeasurementFacts {
+interface UnavailableSchedulerRunMeasurement extends SchedulerRunMeasurementFacts {
   readonly timing: Readonly<{
     readonly availability: "unavailable";
     readonly reason: SchedulerMeasurementTimingUnavailableReason;
@@ -497,13 +495,27 @@ interface UnavailableSchedulerRawMeasurement extends SchedulerRawMeasurementFact
   readonly timingFacts?: never;
 }
 
-/** Scheduler-owned terminal 一阶事实；全部二级 summary 都由 Hook 投影。 */
-export type SchedulerRawMeasurement =
-  | AvailableSchedulerRawMeasurement
-  | UnavailableSchedulerRawMeasurement;
+/** Scheduler-owned terminal 一阶事实；全部二级 summary 都由 terminal consumer 投影。 */
+export type SchedulerRunMeasurement =
+  | AvailableSchedulerRunMeasurement
+  | UnavailableSchedulerRunMeasurement;
+
+/** 独立逐 Task timing；不可用分支不包含伪造数值。 */
+export type SchedulerTaskTimings =
+  | Readonly<{
+      readonly timing: Readonly<{ readonly availability: "available" }>;
+      /** 进入过 admission-viable pending 集合的逐 Task timing facts，按原 Task ID 顺序。 */
+      readonly admissions: readonly SchedulerMeasurementAdmission[];
+    }>
+  | Readonly<{
+      readonly timing: Readonly<{
+        readonly availability: "unavailable";
+        readonly reason: SchedulerMeasurementTimingUnavailableReason;
+      }>;
+    }>;
 
 /**
- * 一次 Scheduler 终态 Hook 可读取的递归冻结上下文；不包含 Task 值、错误或可变 engine 对象。
+ * 一次 Scheduler 终态 effect 可读取的递归冻结上下文；不包含 Task 值、错误或可变 engine 对象。
  */
 export interface SchedulerMeasurementContext {
   /** 本次 Scheduler 实际使用的 normalized frozen graph。 */
@@ -526,7 +538,9 @@ export interface SchedulerMeasurementContext {
     }>[];
   }>;
   /** Scheduler-owned 一阶计数与可选 timing facts。 */
-  readonly rawMeasurement: SchedulerRawMeasurement;
+  readonly runMeasurement: SchedulerRunMeasurement;
+  /** 与 Run aggregate 独立采集的逐 Task timing。 */
+  readonly taskTimings: SchedulerTaskTimings;
 }
 
 /** 一次 terminal Scheduler measurement 的 caller-owned sync/async consumer。 */

@@ -1,6 +1,6 @@
+import type { CheckProjectContextSource } from "../project-context.ts";
 /** Handles one admitted Check's preparation boundary and ready callback handoff. */
 
-import type { CheckProjectContext } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import type { ResolvedInvocationPaths } from "../invocation/paths.ts";
 import { checkIdentity } from "./execution-finalization.ts";
@@ -17,7 +17,7 @@ export type AdmittedCheckExecutionInput = CheckExecutionState &
     readonly onAdmittedCheck: ((check: NormalizedCheck) => void) | undefined;
     readonly invocationId: string;
     readonly paths: ResolvedInvocationPaths | undefined;
-    readonly project: CheckProjectContext;
+    readonly project: CheckProjectContextSource;
     readonly signal: AbortSignal;
   }>;
 

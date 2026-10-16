@@ -5,7 +5,7 @@ import { describe, it } from "node:test";
 
 import type { CheckExecutionContext } from "../../check/check.ts";
 import { executeValidatedRun } from "../../project-run/invocation/run.ts";
-import { maintenanceReminders, type MaintenanceReminderOptions } from "./maintenance-reminders.ts";
+import { maintenanceReminders } from "./maintenance-reminders.ts";
 import {
   FULL_BASE,
   capturedProgressWriter,
@@ -77,7 +77,7 @@ describe("maintenance reminders", () => {
       ]);
       const controller = new AbortController();
       controller.abort();
-      const context: CheckExecutionContext<MaintenanceReminderOptions> = {
+      const context: CheckExecutionContext = {
         artifactDirectory: null,
         dependencies: {
           get: () =>
@@ -88,7 +88,6 @@ describe("maintenance reminders", () => {
           list: () => Object.freeze([])
         },
         invocationId: "invocation/v1:direct-check-test",
-        options: check.options,
         project: {
           flags: [],
           root
@@ -98,26 +97,31 @@ describe("maintenance reminders", () => {
       };
       assert.notEqual(check.execute, undefined);
       if (check.execute === undefined) throw new Error("maintenance reminders must be executable");
-      assert.deepEqual(
-        await check.execute({
-          ...context,
-          options: { ...check.options, git: { executable: "" } },
-          signal: new AbortController().signal
-        }),
+      const execute = typeof check.execute === "function" ? check.execute : check.execute.callback;
+      const invalidResult: unknown = await Reflect.apply(execute, undefined, [
+        { ...check.options, git: { executable: "" } },
         {
-          status: "unavailable",
-          reason: { code: "invalid-options" },
-          messages: [
-            {
-              code: "invalid-options",
-              level: "error",
-              message:
-                "maintenanceReminders options are invalid; recreate the Check with maintenanceReminders(entries) or restore its complete resolved options."
-            }
-          ]
+          ...context,
+          signal: new AbortController().signal
         }
-      );
-      assert.deepEqual(await check.execute(context), {
+      ]);
+      assert.deepEqual(invalidResult, {
+        status: "unavailable",
+        reason: { code: "invalid-options" },
+        messages: [
+          {
+            code: "invalid-options",
+            level: "error",
+            message:
+              "maintenanceReminders options are invalid; recreate the Check with maintenanceReminders(entries) or restore its complete resolved options."
+          }
+        ]
+      });
+      const cancelledResult: unknown = await Reflect.apply(execute, undefined, [
+        check.options,
+        context
+      ]);
+      assert.deepEqual(cancelledResult, {
         status: "unavailable",
         reason: { code: "execution-cancelled" },
         messages: [

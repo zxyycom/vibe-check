@@ -1,3 +1,5 @@
+import { createProjectContextSource } from "../project-context.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -27,11 +29,14 @@ async function assertContainedDiagnosticOmitsHandoff(): Promise<void> {
     checkId: "contained-handoff-provider",
     displayName: "Contained handoff provider",
     handoff: true,
-    execute: ({ records }) => {
-      records.report({ id: "duplicate" }, { ordinal: 1 });
-      records.report({ id: "duplicate" }, { ordinal: 2 });
-      return { status: "passed", data: { visible: true }, handoff };
-    }
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["records"],
+      callback: (options, { records }) => {
+        records.report({ id: "duplicate" }, { ordinal: 1 });
+        records.report({ id: "duplicate" }, { ordinal: 2 });
+        return { status: "passed", data: { visible: true }, handoff };
+      }
+    })
   });
 
   const execution = await executeHandoffProvider(provider, observations, undefined);
@@ -108,7 +113,7 @@ function executeHandoffProvider(
     ],
     diagnosticLogger: recordingLogger(observations),
     maxParallel: 1,
-    project: PROJECT,
+    project: createProjectContextSource(PROJECT),
     signal
   });
 }

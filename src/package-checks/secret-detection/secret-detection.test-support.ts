@@ -55,11 +55,10 @@ export function runSecretDetection(
     maximumTotalBytes: 8_388_608,
     ...overrides
   });
-  const context: CheckExecutionContext<ResolvedSecretDetectionOptions> = Object.freeze({
+  const context: CheckExecutionContext = Object.freeze({
     artifactDirectory: null,
     dependencies: NO_DEPENDENCIES,
     invocationId: "invocation/v1:direct-check-test",
-    options,
     project: Object.freeze({ flags: Object.freeze([]), root }),
     records: Object.freeze({
       report(identity: Readonly<{ readonly id: string }>, data: object): void {
@@ -68,7 +67,7 @@ export function runSecretDetection(
     }),
     signal
   });
-  return executeSecretDetection(context).then((result) =>
+  return executeSecretDetection(options, context).then((result) =>
     Object.freeze({ records: Object.freeze(records), result })
   );
 }
@@ -82,17 +81,17 @@ export function settleDuplicateSafeFindings(
   }>
 ): SecretDetectionExecution {
   const records: ObservedRecord[] = [];
-  const context: CheckExecutionContext<ResolvedSecretDetectionOptions> = Object.freeze({
+  const options: ResolvedSecretDetectionOptions = Object.freeze({
+    files: EXPLICIT_FILES,
+    findingWaivers: Object.freeze([{ identity, reason: "A unique finding only." }]),
+    maximumFileBytes: 1_048_576,
+    maximumFileCount: 2_048,
+    maximumTotalBytes: 8_388_608
+  });
+  const context: CheckExecutionContext = Object.freeze({
     artifactDirectory: null,
     dependencies: NO_DEPENDENCIES,
     invocationId: "invocation/v1:direct-check-test",
-    options: Object.freeze({
-      files: EXPLICIT_FILES,
-      findingWaivers: Object.freeze([{ identity, reason: "A unique finding only." }]),
-      maximumFileBytes: 1_048_576,
-      maximumFileCount: 2_048,
-      maximumTotalBytes: 8_388_608
-    }),
     project: Object.freeze({ flags: Object.freeze([]), root: "/unused" }),
     records: Object.freeze({
       report(recordIdentity: Readonly<{ readonly id: string }>, data: object): void {
@@ -106,6 +105,7 @@ export function settleDuplicateSafeFindings(
     ...identity
   });
   const result = settleSecretDetectionFindings(
+    options,
     context,
     2,
     Object.freeze([issue, issue]),

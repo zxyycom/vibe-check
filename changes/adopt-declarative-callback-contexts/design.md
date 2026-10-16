@@ -6,13 +6,13 @@
 
 当前公开签名由 [Check lifecycle](../../docs/guides/extending-check-lifecycle.md)、[Scheduler](../../docs/guides/scheduling.md)与
 [command Check](../../docs/guides/command-check.md)拥有；[覆盖清单](callback-surfaces.md)连接实际公开槽位、调用入口和本次目标。
-`defineSchedulerContextCallback` 已有 literal tuple、宽化、union 与阶段错误的类型证据，新 helper 在此基础上推广。
+通用 helper 的类型证据须覆盖 literal tuple、宽化、union 与阶段错误，并贯通下表各阶段的业务输入和结果。
 
 已确认：`options` 属于业务输入；框架字段必须显式声明并自动推导类型；需求在生产开始前固定；默认无需求；一次 breaking 切换。
 允许改变 terminal context 外层共享 identity，执行顺序、取消、权限、失败优先级与 snapshot 隔离继续保持。
 
-[需求声明 Decision](../../docs/decisions/declare-scheduler-context-demand.md)仍描述当前已实现的 full 默认与共享 union；
-相关 summary、terminal 命名和在线观察 Decision 的演进范围见下方迁移表。本 Plan 记录目标，不提前改变现行记录。
+[精确声明 Decision](../../docs/decisions/declare-exact-callback-contexts.md)已确立默认空与按消费者精确交付的方向；
+相关 summary、terminal 与在线观察的后继记录见下方迁移表。四项记录在完整实现与验收前保持 `unaligned`。
 [immutable admission state](../../docs/decisions/provide-immutable-admission-graph-state.md)继续约束状态与推演。
 
 ## Goals / Non-Goals
@@ -127,9 +127,9 @@ Check 需求只关闭可选注入生产：执行取消、relation guards、sessi
 
 | 对象 | 实施动作与完成证据 |
 | --- | --- |
-| 需求声明方向 | 演进 [261013](../../docs/decisions/declare-scheduler-context-demand.md)：替换 full 默认、union 交付与旧 identity，承接静态需求、按需生产、领域事实源及交付与采集分离。 |
-| summary / terminal 方向 | 复核并按真实改变演进 [260902 summary](../../docs/decisions/unify-default-summary-with-terminal-measurement-hooks.md)的共享 identity 与 [260914 terminal effects](../../docs/decisions/name-scheduler-terminal-consumers-as-effects.md)的 measurement DTO 保留承诺；完整承接命名、顺序、writer containment、not-run 与 failure priority。 |
-| 在线观察方向 | 演进 [260902 post-action measurement](../../docs/decisions/observe-post-action-policy-measurement.md)的公共聚合形状；保留 post-state interval、无因果主张、固定 prefix 和唯一 collector。实现前形成未来方向，完整验收后核对各后继 alignment。 |
+| 需求声明方向 | 实现 [261016 精确声明](../../docs/decisions/declare-exact-callback-contexts.md)：默认空与精确交付，保留静态需求、按需生产、领域事实源及交付与采集分离。 |
+| summary / terminal 方向 | 实现 [261016 summary](../../docs/decisions/deliver-summary-through-exact-terminal-views.md)的独立外层视图与 [261016 terminal effects](../../docs/decisions/preserve-terminal-effects-with-grouped-measurements.md)的分组 DTO；保持命名、顺序、writer containment、not-run 与 failure priority。 |
+| 在线观察方向 | 实现 [261016 分组观察](../../docs/decisions/separate-post-action-observation-demands.md)；保留 post-state interval、无因果主张、固定 prefix 和唯一 collector。完整验收后核对四项后继记录的 alignment。 |
 | Check / command | 业务 input 移到第一参数、框架字段加声明；command 汇总自身执行义务与两个下游需求，上游取得并集、下游各取精确字段。所有随包 Check、typed provider、handoff 和直接调用测试同步迁移。 |
 | Scheduler / learned | simple/prepared/effects 改用新 helper；learned 只声明 graph、实际 decision 字段与记录样本所需 taskTimings/execution，移除 legacy/full callable 依赖；identity/observe 的业务签名保持。 |
 | 仓库 consumer | 更新 `scripts/project/**`、开发 benchmark/workbench、当前可执行 examples、fixtures 与测试 support；历史 Investigation 正文保留形成时语义，仍参与当前编译/运行的历史代码按其受管入口处理。 |

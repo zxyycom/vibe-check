@@ -26,7 +26,9 @@ export interface SchedulerDecisionCycle {
   readonly context: SchedulerDecisionContext;
   readonly policy: AdmissionSelectionPolicy;
   /** Invoked immediately before the private policy seam enters a custom callback. */
-  readonly measurement?: () => AdmissionPolicyContext["measurement"];
+  readonly measurement?: () => Readonly<
+    Partial<Pick<AdmissionPolicyContext, "cumulative" | "actionHistory">>
+  >;
   readonly state: SchedulerInspection;
   readonly runtime: Pick<SchedulerInspection, "isAbortRequested" | "isCancelled">;
   readonly trigger: SchedulerTrigger;
@@ -45,7 +47,9 @@ export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecisio
         runtime: cycle.runtime,
         candidates,
         graph: cycle.admissionCore.compiled.graph,
-        graphSnapshot: cycle.context.graphIdentity,
+        get graphSnapshot() {
+          return cycle.context.graphIdentity;
+        },
         get inspection() {
           return cycle.state;
         },

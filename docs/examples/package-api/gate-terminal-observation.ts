@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { run } from "@zxyycom/vibe-check";
 
 // #region package-api-example:gate-terminal-observation
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
 
 const config = defineCheck({
@@ -28,13 +29,13 @@ const audit = defineCheck({
   checkId: "audit-config",
   displayName: "Audit configuration",
   observes: [config.checkId],
-  execute({ dependencies }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
     const outcomes = dependencies.list().map(({ checkId, outcome }) => ({
       checkId,
       status: outcome.status
     }));
     return { status: "passed", data: { outcomes } };
-  }
+  } })
 });
 
 const definition = defineConfig({
@@ -57,7 +58,8 @@ const observed = completed(
           ...consumer,
           execute(context) {
             consumerExecutions += 1;
-            return consumerExecute(context);
+            if (typeof consumerExecute !== "function") throw new Error("Expected no-demand function");
+            return Reflect.apply(consumerExecute, undefined, [{}, {}]);
           }
         }),
         audit

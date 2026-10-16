@@ -40,10 +40,11 @@ describe("commandCheck authoring", () => {
       { ...command.options, outputByteLimit: 1.5 },
       { ...command.options, workingDirectory: "bad\0directory" }
     ]) {
-      const prepared: unknown = await Reflect.apply(command.prepare!, undefined, [
-        invalidOptions,
-        new AbortController().signal
-      ]);
+      const prepared: unknown = await Reflect.apply(
+        typeof command.prepare === "function" ? command.prepare : command.prepare!.callback,
+        undefined,
+        [invalidOptions, new AbortController().signal]
+      );
       assert.deepEqual(prepared, {
         status: "failure",
         action: "block",

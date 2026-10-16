@@ -1,5 +1,6 @@
+import { CHECK_EXECUTION_CONTEXT_KEYS } from "../../check/context-callback.ts";
+import type { CheckExecutionContext, Check, CheckDataParser } from "../../check/check.ts";
 import { executeCommandCheck } from "./execution.ts";
-import type { Check, CheckDataParser } from "../../check/check.ts";
 import { resolveCommandCheckInput } from "./options.ts";
 import type {
   AfterCommand,
@@ -115,11 +116,14 @@ export function commandCheck(input: CommandCheckImplementationInput): Check {
       : { resourceClaims: commandInput.resourceClaims }),
     checkId: commandInput.checkId,
     displayName: commandInput.displayName,
-    execute: (context: Parameters<CommandCheck["execute"]>[0]) =>
-      executeCommandCheck(context, {
-        afterCommand: resolved.afterCommand,
-        resolveEnvironment: resolved.resolveEnvironment
-      }),
+    execute: {
+      contextNeeds: executionContextNeeds(resolved),
+      callback: (options: ResolvedCommandCheckOptions, context: CheckExecutionContext) =>
+        executeCommandCheck(options, context, {
+          afterCommand: resolved.afterCommand,
+          resolveEnvironment: resolved.resolveEnvironment
+        })
+    },
     options: resolved.options,
     prepare: (options: ResolvedCommandCheckOptions) =>
       isRevalidatedCommandOptions(options, commandInput.checkId, commandInput.displayName)
@@ -149,4 +153,16 @@ function isRevalidatedCommandOptions<Id extends string>(
       ...(options.workingDirectory === null ? {} : { workingDirectory: options.workingDirectory })
     }) !== undefined
   );
+}
+
+function executionContextNeeds(
+  resolved: NonNullable<ReturnType<typeof resolveCommandCheckInput>>
+): readonly (keyof CheckExecutionContext)[] {
+  const requested = new Set<keyof CheckExecutionContext>(["project", "signal"]);
+  if (resolved.options.output.mode === "transcript") requested.add("artifactDirectory");
+  for (const slot of [resolved.resolveEnvironment, resolved.afterCommand?.execute]) {
+    if (slot === undefined || typeof slot === "function") continue;
+    for (const key of slot.contextNeeds ?? []) requested.add(key);
+  }
+  return Object.freeze(CHECK_EXECUTION_CONTEXT_KEYS.filter((key) => requested.has(key)));
 }

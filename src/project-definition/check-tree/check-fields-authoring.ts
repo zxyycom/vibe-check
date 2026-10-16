@@ -1,3 +1,4 @@
+import { snapshotCheckExecution, snapshotCheckPreparation } from "../../check/context-callback.ts";
 import type { CheckDescriptor } from "../../check/descriptor.ts";
 import { type Check, type CheckFlagEnablement, type CheckPreparation } from "../../check/check.ts";
 import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
@@ -160,7 +161,7 @@ function parseExecution(
   data: CheckAuthoringData
 ): NonNullable<Check["execute"]> | null | undefined {
   if (!Object.hasOwn(data, "execute")) return null;
-  return isTrustedFunction<NonNullable<Check["execute"]>>(data.execute) ? data.execute : undefined;
+  return snapshotCheckExecution(data.execute);
 }
 
 function parseHandoff(
@@ -180,7 +181,7 @@ function parseDataParser(data: CheckAuthoringData): TrustedDataParser | null | u
 
 function parsePreparation(data: CheckAuthoringData): CheckPreparation | null | undefined {
   if (!Object.hasOwn(data, "prepare")) return null;
-  return isTrustedFunction<CheckPreparation>(data.prepare) ? data.prepare : undefined;
+  return snapshotCheckPreparation(data.prepare);
 }
 
 function isTrustedFunction<FunctionType extends (...parameters: never[]) => unknown>(

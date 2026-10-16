@@ -219,7 +219,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
           functionName: "createProjectGateEntries",
           metric: "function-code-density",
           path: "scripts/project/gate/definition.ts",
-          startLine: 203
+          startLine: 208
         },
         reason:
           "Gate 的完整顺序 manifest 是低分支的声明清单；按行数拆分会隐藏 Check 顺序和选择，其他函数指标仍阻断。"

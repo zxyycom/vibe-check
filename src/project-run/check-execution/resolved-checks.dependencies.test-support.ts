@@ -1,3 +1,5 @@
+import { createProjectContextSource } from "../project-context.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 
 import type { CheckOutcome, DependencyObservation } from "../../check/check.ts";
@@ -38,11 +40,14 @@ export async function assertDirectDependencyLists(): Promise<void> {
         displayName: "Ambient source"
       }),
       normalized(
-        ({ dependencies }) => {
-          observedList = dependencies.list();
-          repeatedList = dependencies.list();
-          return { status: "passed", data: { dependent: true } };
-        },
+        defineContextCallback("check.execute", {
+          contextNeeds: ["dependencies"],
+          callback: (options, { dependencies }) => {
+            observedList = dependencies.list();
+            repeatedList = dependencies.list();
+            return { status: "passed", data: { dependent: true } };
+          }
+        }),
         {
           checkId: "dependent",
           observes: [
@@ -57,7 +62,7 @@ export async function assertDirectDependencyLists(): Promise<void> {
     ],
     diagnosticLogger: recordingLogger(observations),
     maxParallel: 1,
-    project: PROJECT,
+    project: createProjectContextSource(PROJECT),
     signal: undefined
   });
 
@@ -122,13 +127,18 @@ export async function assertEmptyDependencyList(): Promise<void> {
   let observedList: readonly DependencyObservation[] | undefined;
   const execute = await executeResolvedChecks({
     checks: [
-      normalized(({ dependencies }) => {
-        observedList = dependencies.list();
-        return { status: "passed", data: {} };
-      })
+      normalized(
+        defineContextCallback("check.execute", {
+          contextNeeds: ["dependencies"],
+          callback: (options, { dependencies }) => {
+            observedList = dependencies.list();
+            return { status: "passed", data: {} };
+          }
+        })
+      )
     ],
     maxParallel: 1,
-    project: PROJECT,
+    project: createProjectContextSource(PROJECT),
     signal: undefined
   });
   assert.equal(execute.kind, "completed");

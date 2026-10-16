@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -19,13 +20,29 @@ import {
 describe("task engine admission policy", () => {
   it("preserves the caller closure across overlapping custom Runs without a Scheduler callback lock", async () => {
     let callbackCalls = 0;
-    const policy = admissionSelectionPolicyFor((context) => {
-      callbackCalls += 1;
-      const candidate = context.candidates.find((item) => item.canAdmit);
-      return candidate === undefined
-        ? { kind: "wait" }
-        : { kind: "select", taskId: candidate.taskId };
-    });
+    const policy = admissionSelectionPolicyFor(
+      defineContextCallback("scheduler.decide", {
+        contextNeeds: [
+          "activeScopeIds",
+          "admissionState",
+          "candidates",
+          "capacity",
+          "graph",
+          "cumulative",
+          "actionHistory",
+          "runningTaskIds",
+          "runtime",
+          "settledTaskIds"
+        ],
+        callback: (context) => {
+          callbackCalls += 1;
+          const candidate = context.candidates.find((item) => item.canAdmit);
+          return candidate === undefined
+            ? { kind: "wait" }
+            : { kind: "select", taskId: candidate.taskId };
+        }
+      })
+    );
 
     await Promise.all([
       runTaskGraph({

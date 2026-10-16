@@ -1,4 +1,11 @@
 import {
+  defineContextCallback,
+  defineCheck,
+  type Check,
+  type CheckResult,
+  type CheckExecutionContext
+} from "@zxyycom/vibe-check";
+import {
   runTestEvidenceRuleTests,
   testEvidenceRuleTestFailureMessage,
   testEvidenceRuleTestInvocations,
@@ -7,7 +14,6 @@ import {
 } from "../../../../test-evidence/ast-grep/rule-tests.ts";
 import { expectedAstGrepVersionLine } from "../../../../test-evidence/ast-grep/command.ts";
 import { type ProcessResult } from "../../../../process-execution/execution.ts";
-import { defineCheck, type Check, type CheckResult } from "@zxyycom/vibe-check";
 
 import {
   failedProcessResult,
@@ -24,7 +30,7 @@ const UNAVAILABLE_REASON_CODE = Object.freeze({
 } as const);
 
 type UnavailableReasonCode = (typeof UNAVAILABLE_REASON_CODE)[keyof typeof UNAVAILABLE_REASON_CODE];
-type RuleTestCheckContext = Parameters<NonNullable<Check["execute"]>>[0];
+type RuleTestCheckContext = Pick<CheckExecutionContext, "records">;
 
 interface RuleTestExecution {
   readonly invocations: TestEvidenceRuleTestInvocations;
@@ -52,26 +58,29 @@ export function createTestEvidenceRuleTestsCheck(
   return defineCheck({
     checkId: "test-evidence-rule-tests",
     displayName: "Test evidence ast-grep rule tests",
-    execute: async (context): Promise<CheckResult> => {
-      if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["artifactDirectory", "project", "records", "signal"],
+      callback: async (options, context): Promise<CheckResult> => {
+        if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
 
-      const execution = await executeRuleTestWorkflow(
-        context.project.root,
-        context.signal,
-        dependencies
-      );
-      if (typeof execution === "string") return unavailable(execution);
+        const execution = await executeRuleTestWorkflow(
+          context.project.root,
+          context.signal,
+          dependencies
+        );
+        if (typeof execution === "string") return unavailable(execution);
 
-      const transcript = writeRuleTestTranscript(
-        execution,
-        context.artifactDirectory,
-        dependencies
-      );
-      if (!transcript.ok) return unavailable(UNAVAILABLE_REASON_CODE.transcriptUnavailable);
+        const transcript = writeRuleTestTranscript(
+          execution,
+          context.artifactDirectory,
+          dependencies
+        );
+        if (!transcript.ok) return unavailable(UNAVAILABLE_REASON_CODE.transcriptUnavailable);
 
-      if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
-      return settleRuleTestResult(execution.result, transcript.path, context);
-    }
+        if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
+        return settleRuleTestResult(execution.result, transcript.path, context);
+      }
+    })
   });
 }
 

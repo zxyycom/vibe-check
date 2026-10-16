@@ -1,7 +1,7 @@
 ---
 title: 以 policy action 后状态观察修订准入 measurement
 id: 260902-observe-post-action-policy-measurement
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T02:56:32Z
 purpose: 让下一次 custom admission policy 读取上一 accepted action 之后完整且无因果主张的 Scheduler 一阶观察。

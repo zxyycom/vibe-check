@@ -14,7 +14,7 @@ export type SchedulerDurationModelPreparation =
       readonly readObservation: Awaited<ReturnType<typeof loadSchedulerHistory>>["observation"];
       readonly retainedSeriesCount: number;
       readonly record: (
-        terminalMeasurement: SchedulerMeasurementContext
+        terminalMeasurement: Pick<SchedulerMeasurementContext, "execution" | "taskTimings">
       ) => Promise<SchedulerDurationModelRecordObservation>;
     }>
   | Readonly<{ readonly kind: "static-fallback" }>;
@@ -52,7 +52,7 @@ export async function prepareSchedulerDurationModel(input: {
           const recorded = recordSchedulerHistory({
             history: loaded.history,
             prediction,
-            rawMeasurement: terminalMeasurement.rawMeasurement,
+            taskTimings: terminalMeasurement.taskTimings,
             settledTasks: terminalMeasurement.execution.settledTasks,
             ...(input.maxSamplesPerSeries === undefined
               ? {}

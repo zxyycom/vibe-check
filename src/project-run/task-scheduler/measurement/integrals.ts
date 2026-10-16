@@ -1,5 +1,9 @@
 import type { SchedulerMeasurementIntervalContribution } from "../../../project-definition/project-definition.ts";
-import type { AdmissionViablePendingTask, SchedulerPerformanceState } from "./diagnostics.ts";
+import type {
+  AdmissionViablePendingTask,
+  SchedulerPerformanceState,
+  SchedulerMeasurementGroups
+} from "./diagnostics.ts";
 
 export type AdmissionDelayBreakdown = Readonly<{
   readonly admissiblePendingMs: number;
@@ -32,30 +36,38 @@ export class SchedulerPerformanceIntegrals {
   #peakMutexBlockedTaskCount = 0;
   #peakCapacityBlockedTaskCount = 0;
   #peakAdmissiblePendingTaskCount = 0;
-  readonly #admissionDelayByTaskId = new Map<string, MutableAdmissionDelayBreakdown>();
+  readonly #admissionDelayByTaskId: Map<string, MutableAdmissionDelayBreakdown> | undefined;
+  readonly #groups: SchedulerMeasurementGroups;
+
+  constructor(groups: SchedulerMeasurementGroups) {
+    this.#groups = groups;
+    this.#admissionDelayByTaskId = groups.taskTimings ? new Map() : undefined;
+  }
 
   public installPendingProjection(
     pendingTasks: readonly AdmissionViablePendingTask[],
     timingAvailable: boolean
   ): void {
-    const counts = pendingCounts(pendingTasks);
-    this.#peakAdmissionViablePendingTaskCount = Math.max(
-      this.#peakAdmissionViablePendingTaskCount,
-      pendingTasks.length
-    );
-    this.#peakMutexBlockedTaskCount = Math.max(
-      this.#peakMutexBlockedTaskCount,
-      counts.mutexBlocked
-    );
-    this.#peakCapacityBlockedTaskCount = Math.max(
-      this.#peakCapacityBlockedTaskCount,
-      counts.capacityBlocked
-    );
-    this.#peakAdmissiblePendingTaskCount = Math.max(
-      this.#peakAdmissiblePendingTaskCount,
-      counts.admissiblePending
-    );
-    if (!timingAvailable) return;
+    if (this.#groups.cumulative || this.#groups.runMeasurement) {
+      const counts = pendingCounts(pendingTasks);
+      this.#peakAdmissionViablePendingTaskCount = Math.max(
+        this.#peakAdmissionViablePendingTaskCount,
+        pendingTasks.length
+      );
+      this.#peakMutexBlockedTaskCount = Math.max(
+        this.#peakMutexBlockedTaskCount,
+        counts.mutexBlocked
+      );
+      this.#peakCapacityBlockedTaskCount = Math.max(
+        this.#peakCapacityBlockedTaskCount,
+        counts.capacityBlocked
+      );
+      this.#peakAdmissiblePendingTaskCount = Math.max(
+        this.#peakAdmissiblePendingTaskCount,
+        counts.admissiblePending
+      );
+    }
+    if (!timingAvailable || this.#admissionDelayByTaskId === undefined) return;
     for (const pendingTask of pendingTasks) {
       if (this.#admissionDelayByTaskId.has(pendingTask.taskId)) continue;
       this.#admissionDelayByTaskId.set(pendingTask.taskId, {
@@ -68,22 +80,27 @@ export class SchedulerPerformanceIntegrals {
 
   /** Returns false when an interval cannot be represented as finite non-negative totals. */
   public addInterval(elapsedMs: number, state: SchedulerPerformanceState): boolean {
-    const contribution = intervalContribution(elapsedMs, state);
-    if (contribution === undefined) return false;
-    this.#taskSlotMs += contribution.taskSlotMs;
-    this.#rootCapacitySlotMs += contribution.rootCapacitySlotMs;
-    this.#effectiveCapacitySlotMs += contribution.effectiveCapacitySlotMs;
-    this.#mutexBlockedTaskMs += contribution.mutexBlockedTaskMs;
-    this.#capacityBlockedTaskMs += contribution.capacityBlockedTaskMs;
-    this.#admissiblePendingTaskMs += contribution.admissiblePendingTaskMs;
-    if (!finiteContribution(this.totals())) return false;
-    return this.#addAdmissionDelay(elapsedMs, state.admissionViablePendingTasks);
+    if (this.#groups.cumulative || this.#groups.runMeasurement || this.#groups.actionHistory) {
+      const contribution = intervalContribution(elapsedMs, state, this.#groups.actionHistory);
+      if (contribution === undefined) return false;
+      this.#taskSlotMs += contribution.taskSlotMs;
+      this.#rootCapacitySlotMs += contribution.rootCapacitySlotMs;
+      this.#effectiveCapacitySlotMs += contribution.effectiveCapacitySlotMs;
+      this.#mutexBlockedTaskMs += contribution.mutexBlockedTaskMs;
+      this.#capacityBlockedTaskMs += contribution.capacityBlockedTaskMs;
+      this.#admissiblePendingTaskMs += contribution.admissiblePendingTaskMs;
+      if (!finiteContribution(this.totals())) return false;
+    }
+    return (
+      this.#admissionDelayByTaskId === undefined ||
+      this.#addAdmissionDelay(elapsedMs, state.admissionViablePendingTasks)
+    );
   }
 
   public takeAdmissionDelay(taskId: string): AdmissionDelayBreakdown | undefined {
-    const delay = this.#admissionDelayByTaskId.get(taskId);
+    const delay = this.#admissionDelayByTaskId?.get(taskId);
     if (delay === undefined) return undefined;
-    this.#admissionDelayByTaskId.delete(taskId);
+    this.#admissionDelayByTaskId?.delete(taskId);
     return Object.freeze({ ...delay });
   }
 
@@ -92,7 +109,7 @@ export class SchedulerPerformanceIntegrals {
     readonly taskId: string;
   }>[] {
     return Object.freeze(
-      [...this.#admissionDelayByTaskId].map(([taskId, admissionDelay]) =>
+      [...(this.#admissionDelayByTaskId ?? [])].map(([taskId, admissionDelay]) =>
         Object.freeze({ admissionDelay: Object.freeze({ ...admissionDelay }), taskId })
       )
     );
@@ -124,7 +141,7 @@ export class SchedulerPerformanceIntegrals {
     pendingTasks: readonly AdmissionViablePendingTask[]
   ): boolean {
     for (const pendingTask of pendingTasks) {
-      const delay = this.#admissionDelayByTaskId.get(pendingTask.taskId);
+      const delay = this.#admissionDelayByTaskId?.get(pendingTask.taskId);
       if (delay === undefined) continue;
       addDelay(delay, pendingTask.kind, elapsedMs);
       if (!finiteAdmissionDelay(delay)) return false;
@@ -135,9 +152,12 @@ export class SchedulerPerformanceIntegrals {
 
 function intervalContribution(
   elapsedMs: number,
-  state: SchedulerPerformanceState
+  state: SchedulerPerformanceState,
+  withQueue: boolean
 ): SchedulerMeasurementIntervalContribution | undefined {
-  const counts = pendingCounts(state.admissionViablePendingTasks);
+  const counts = withQueue
+    ? pendingCounts(state.admissionViablePendingTasks)
+    : { admissiblePending: 0, capacityBlocked: 0, mutexBlocked: 0 };
   const contribution = Object.freeze({
     admissiblePendingTaskMs: elapsedMs * counts.admissiblePending,
     acceptedWaitMs: 0,

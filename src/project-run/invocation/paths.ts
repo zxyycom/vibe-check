@@ -124,20 +124,26 @@ function resolveCheckArtifactDirectories(
   checkArtifactBaseDirectory: string | null,
   checkIds: readonly string[]
 ): ResolvedCheckArtifactDirectoryIndex {
-  const directories = new Map<string, string>();
-  const checkIdByEncodedDirectory = new Map<string, string>();
-  if (checkArtifactBaseDirectory !== null) {
-    for (const checkId of checkIds) {
+  let directories: Map<string, string> | undefined;
+  let checkIdByEncodedDirectory: Map<string, string> | undefined;
+  return Object.freeze({
+    get(checkId: string): string | undefined {
+      if (checkArtifactBaseDirectory === null || !checkIds.includes(checkId)) return undefined;
+      const existing = directories?.get(checkId);
+      if (existing !== undefined) return existing;
       const encodedDirectory = encodeCheckArtifactDirectory(checkId);
-      const priorCheckId = checkIdByEncodedDirectory.get(encodedDirectory);
+      const priorCheckId = checkIdByEncodedDirectory?.get(encodedDirectory);
       if (priorCheckId !== undefined && priorCheckId !== checkId) {
         throw new Error("Distinct Check IDs resolved to one artifact directory");
       }
+      directories ??= new Map();
+      checkIdByEncodedDirectory ??= new Map();
       checkIdByEncodedDirectory.set(encodedDirectory, checkId);
-      directories.set(checkId, join(checkArtifactBaseDirectory, encodedDirectory));
+      const directory = join(checkArtifactBaseDirectory, encodedDirectory);
+      directories.set(checkId, directory);
+      return directory;
     }
-  }
-  return Object.freeze({ get: (checkId: string) => directories.get(checkId) });
+  });
 }
 
 /**

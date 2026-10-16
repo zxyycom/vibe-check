@@ -91,7 +91,7 @@ describe("Project Definition", () => {
       displayName: "Child check",
       options: { maximum: 3 },
       prepare: (preparedOptions) => ({ status: "success", preparedOptions }),
-      execute({ options }) {
+      execute: (options) => {
         assert.equal(options.maximum, 3);
         return passed();
       }

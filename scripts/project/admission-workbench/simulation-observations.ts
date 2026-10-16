@@ -33,30 +33,30 @@ export function contextFor(
     candidates,
     capacity: run.state.inspection.capacity,
     graph: run.scenario.graph.graph,
-    measurement: Object.freeze({
-      cumulative: Object.freeze({
-        declarativeFingerprint: run.declarativeFingerprint,
-        discrete: Object.freeze({
-          acceptedWaitCount: run.acceptedWaitCount,
-          admittedCount: run.admittedCount,
-          maxRunning: run.maxRunning
-        }),
-        peaks: Object.freeze({
-          ...run.peaks,
-          capacityBlockedTaskCount: Math.max(
-            run.peaks.capacityBlockedTaskCount,
-            capacityBlockedTaskCount
-          ),
-          mutexBlockedTaskCount: Math.max(run.peaks.mutexBlockedTaskCount, mutexBlockedTaskCount)
-        }),
-        timing: Object.freeze({ availability: "available" as const }),
-        timingFacts: Object.freeze({
-          acceptedWaitMs: run.closedObservationWaitMs,
-          effectiveCapacitySlotMs: run.effectiveCapacitySlotMs,
-          rootCapacitySlotMs: run.rootCapacitySlotMs,
-          taskSlotMs: run.slotTimeMs
-        })
+    cumulative: Object.freeze({
+      declarativeFingerprint: run.declarativeFingerprint,
+      discrete: Object.freeze({
+        acceptedWaitCount: run.acceptedWaitCount,
+        admittedCount: run.admittedCount,
+        maxRunning: run.maxRunning
       }),
+      peaks: Object.freeze({
+        ...run.peaks,
+        capacityBlockedTaskCount: Math.max(
+          run.peaks.capacityBlockedTaskCount,
+          capacityBlockedTaskCount
+        ),
+        mutexBlockedTaskCount: Math.max(run.peaks.mutexBlockedTaskCount, mutexBlockedTaskCount)
+      }),
+      timing: Object.freeze({ availability: "available" as const }),
+      timingFacts: Object.freeze({
+        acceptedWaitMs: run.closedObservationWaitMs,
+        effectiveCapacitySlotMs: run.effectiveCapacitySlotMs,
+        rootCapacitySlotMs: run.rootCapacitySlotMs,
+        taskSlotMs: run.slotTimeMs
+      })
+    }),
+    actionHistory: Object.freeze({
       measurementAt: capturedObservationLookup(observations, measurementCount),
       measurementCount
     }),
@@ -69,7 +69,7 @@ export function contextFor(
 function capturedObservationLookup(
   observations: readonly SchedulerMeasurementActionObservation[],
   measurementCount: number
-): AdmissionPolicyContext["measurement"]["measurementAt"] {
+): AdmissionPolicyContext["actionHistory"]["measurementAt"] {
   return (index) => {
     if (!Number.isInteger(index) || index < 0 || index >= measurementCount) return undefined;
     return observations[index];

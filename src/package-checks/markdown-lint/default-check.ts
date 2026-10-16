@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import {
   resolvePackageCheckAuthoringInput,
@@ -69,7 +70,10 @@ export function markdownLint(
   }
   return defineCheck({
     ...input.definition,
-    execute: executeMarkdownLint,
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["project", "records", "signal"],
+      callback: executeMarkdownLint
+    }),
     parseData: parseMarkdownLintData,
     prepare: (preparedOptions) =>
       validMarkdownLintOptions(preparedOptions)

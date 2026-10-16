@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -43,10 +44,13 @@ function publishedChecks(dependent: () => void): Check[] {
       checkId: "quiet-pass-support",
       displayName: "Quiet-pass support",
       omitQuietPassedRow: true,
-      execute: (context) => {
-        context.records.report({ id: "support-record" }, { retained: true });
-        return { status: "passed", data: { supporting: true } };
-      }
+      execute: defineContextCallback("check.execute", {
+        contextNeeds: ["records"],
+        callback: (_options, context) => {
+          context.records.report({ id: "support-record" }, { retained: true });
+          return { status: "passed", data: { supporting: true } };
+        }
+      })
     },
     {
       checkId: "message-source",

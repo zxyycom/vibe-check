@@ -1,8 +1,8 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import {
   defineCheck,
   type Check,
   type CheckExecution,
-  type CheckPreparation,
   type CheckPreparationResult,
   type CheckWithOptions
 } from "../check/check.ts";
@@ -16,17 +16,20 @@ function _typeCheckPreparedOptionConversion() {
     checkId: "prepared-from-optional-authored",
     displayName: "Prepared from optional authored",
     options: {},
-    prepare(authored, signal, project) {
-      const maybeMaximum: number | undefined = authored.maximum;
-      void maybeMaximum;
-      void signal.aborted;
-      const root = project?.root;
-      const changes = project?.changes;
-      void root;
-      void changes;
-      return { status: "success", preparedOptions: { maximum: authored.maximum ?? 1 } };
-    },
-    execute({ options }) {
+    prepare: defineContextCallback("check.prepare", {
+      contextNeeds: ["project", "signal"],
+      callback(authored: { readonly maximum?: number }, { signal, project }) {
+        const maybeMaximum: number | undefined = authored.maximum;
+        void maybeMaximum;
+        void signal.aborted;
+        const root = project?.root;
+        const changes = project?.changes;
+        void root;
+        void changes;
+        return { status: "success", preparedOptions: { maximum: authored.maximum ?? 1 } };
+      }
+    }),
+    execute: (options) => {
       const requiredMaximum: number = options.maximum;
       void requiredMaximum;
       return { status: "passed", data: {} };
@@ -39,24 +42,25 @@ function _typeCheckPreparedOptionConversion() {
     // @ts-expect-error block preparation results physically omit fallback, including undefined.
     fallback: undefined
   };
-  const optionalProjectPreparation: CheckPreparation<{ readonly maximum: number }> = (
-    options,
-    signal,
-    project
-  ) => {
-    const optionalRoot: string | undefined = project?.root;
-    void options.maximum;
-    void signal.aborted;
-    void optionalRoot;
-    return { status: "success", preparedOptions: options };
-  };
-  const oldTwoArgumentDirectCall = optionalProjectPreparation(
+  const declaredPreparation = defineContextCallback("check.prepare", {
+    contextNeeds: ["signal", "project"],
+    callback(options: { readonly maximum: number }, { signal, project }) {
+      const root: string = project.root;
+      void signal.aborted;
+      void root;
+      return { status: "success", preparedOptions: options };
+    }
+  });
+  const directCall = declaredPreparation.callback(
     { maximum: 1 },
-    new AbortController().signal
+    {
+      signal: new AbortController().signal,
+      project: { flags: [], root: "/" }
+    }
   );
+  void directCall;
   void preparedFromOptionalAuthored;
   void invalidBlockedPreparation;
-  if (oldTwoArgumentDirectCall instanceof Promise) oldTwoArgumentDirectCall.catch(() => undefined);
 }
 
 function _typeCheckPreparedOptionConversionIsRequired() {
@@ -68,7 +72,7 @@ function _typeCheckPreparedOptionConversionIsRequired() {
     checkId: "missing-prepared-conversion",
     displayName: "Missing prepared conversion",
     options: {},
-    execute: ({ options }) => ({ status: "passed", data: { maximum: options.maximum } })
+    execute: (options) => ({ status: "passed", data: { maximum: options.maximum } })
   };
   // @ts-expect-error CheckWithOptions retains the same required conversion invariant.
   const missingPreparedCheckWithOptions: CheckWithOptions<
@@ -90,31 +94,37 @@ function _typeCheckCheckExecutionContext() {
     displayName: "Typed check",
     options: { maximum: 5 },
     prepare: (options) => ({ status: "success", preparedOptions: options }),
-    execute({ options, project, records, signal }) {
-      const maximum: number = options.maximum;
-      void maximum;
-      void project.root;
-      void signal.aborted;
-      records.report({ id: "sample" }, { nested: { value: true } });
-      // @ts-expect-error Record identities are closed at the public write boundary.
-      records.report({ id: "sample", checkId: "typed-check" }, {});
-      return { status: "passed", data: { maximum } };
-    }
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["project", "records", "signal"],
+      callback: (options: { readonly maximum: number }, { project, records, signal }) => {
+        const maximum: number = options.maximum;
+        void maximum;
+        void project.root;
+        void signal.aborted;
+        records.report({ id: "sample" }, { nested: { value: true } });
+        // @ts-expect-error Record identities are closed at the public write boundary.
+        records.report({ id: "sample", checkId: "typed-check" }, {});
+        return { status: "passed", data: { maximum } };
+      }
+    })
   });
   const noOptions = defineCheck({
     checkId: "no-options",
     displayName: "No options",
-    execute({ dependencies, options }) {
-      // @ts-expect-error no-options execute receives an empty options object.
-      void options.unknown;
-      const read = dependencies.get("typed-check");
-      // @ts-expect-error dependency reads do not accept a caller-selected Data generic.
-      dependencies.get<{ readonly source: string }>("typed-check");
-      void read;
-      return { status: "not-applicable" };
-    }
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["dependencies"],
+      callback: (options, { dependencies }) => {
+        // @ts-expect-error no-options execute receives an empty options object.
+        void options.unknown;
+        const read = dependencies.get("typed-check");
+        // @ts-expect-error dependency reads do not accept a caller-selected Data generic.
+        dependencies.get<{ readonly source: string }>("typed-check");
+        void read;
+        return { status: "not-applicable" };
+      }
+    })
   });
-  const standalone: CheckExecution<{ readonly floor: number }> = ({ options }) => {
+  const standalone: CheckExecution<{ readonly floor: number }> = (options) => {
     const floor: number = options.floor;
     void floor;
     return { status: "failed", data: { floor } };
@@ -140,7 +150,7 @@ function _typeCheckDeepReadonlyOptionProjection() {
     readonly optional: OptionalTuple;
     readonly payload: unknown;
     readonly tagged: TaggedValue;
-  }> = ({ options }) => {
+  }> = (options) => {
     const command: Command = options.command;
     const optional: OptionalTuple = options.optional;
     const executable: string = options.command[0];
@@ -224,22 +234,25 @@ function _typeCheckProviderHandoffRead() {
     checkId: "handoff-consumer",
     displayName: "Handoff consumer",
     dependsOn: ["handoff-provider"],
-    execute({ dependencies }) {
-      const read = dependencies.get(provider);
-      if (read.ok) {
-        const checkId: "handoff-provider" = read.checkId;
-        read.handoff.close();
-        void checkId;
-      } else {
-        const code: "dependency-not-declared" | "upstream-handoff-unavailable" = read.error.code;
-        void code;
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["dependencies"],
+      callback: (options, { dependencies }) => {
+        const read = dependencies.get(provider);
+        if (read.ok) {
+          const checkId: "handoff-provider" = read.checkId;
+          read.handoff.close();
+          void checkId;
+        } else {
+          const code: "dependency-not-declared" | "upstream-handoff-unavailable" = read.error.code;
+          void code;
+        }
+        // @ts-expect-error ordinary providers have no declared handoff capability.
+        dependencies.get(ordinaryProvider);
+        // @ts-expect-error provider reads require a Check returned by defineCheck, not an object lookalike.
+        dependencies.get({ checkId: "forged-provider", handoff: true });
+        return { status: "not-applicable" };
       }
-      // @ts-expect-error ordinary providers have no declared handoff capability.
-      dependencies.get(ordinaryProvider);
-      // @ts-expect-error provider reads require a Check returned by defineCheck, not an object lookalike.
-      dependencies.get({ checkId: "forged-provider", handoff: true });
-      return { status: "not-applicable" };
-    }
+    })
   });
   void consumer;
 }

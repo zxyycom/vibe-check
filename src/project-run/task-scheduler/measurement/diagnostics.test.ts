@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -26,13 +27,18 @@ describe("Scheduler performance diagnostics", () => {
   it("keeps control-path and decision observation separate while integrating real running slots", async () => {
     const clock = scriptedClock();
     const observations: DiagnosticObservation[] = [];
-    const customPolicy = admissionSelectionPolicyFor((context) => {
-      clock.advance("custom-selection", 5);
-      const candidate = context.candidates.find((item) => item.canAdmit);
-      return candidate === undefined
-        ? { kind: "wait" }
-        : { kind: "select", taskId: candidate.taskId };
-    });
+    const customPolicy = admissionSelectionPolicyFor(
+      defineContextCallback("scheduler.decide", {
+        contextNeeds: ["candidates"],
+        callback: (context) => {
+          clock.advance("custom-selection", 5);
+          const candidate = context.candidates.find((item) => item.canAdmit);
+          return candidate === undefined
+            ? { kind: "wait" }
+            : { kind: "select", taskId: candidate.taskId };
+        }
+      })
+    );
     const logger: DiagnosticLogger = Object.freeze({
       close: () => "disabled" as const,
       observe: (observation: DiagnosticObservation) => {

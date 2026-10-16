@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { defineSchedulerContextCallback } from "../../package-tools/scheduler-context/define-scheduler-context-callback.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import { admissionSelectionPolicyFor } from "./custom-admission-policy.ts";
 import { runTaskGraph } from "./scheduler.ts";
 
@@ -8,7 +8,7 @@ describe("Scheduler context demand", () => {
   it("provides detached candidates/runtime without implicit historical or measurement fields", async () => {
     const contexts: object[] = [];
     const policy = admissionSelectionPolicyFor(
-      defineSchedulerContextCallback("decision", {
+      defineContextCallback("scheduler.decide", {
         contextNeeds: ["candidates", "runtime"],
         callback(context) {
           assert.deepEqual(Object.keys(context).sort(), ["candidates", "runtime"]);
@@ -34,7 +34,7 @@ describe("Scheduler context demand", () => {
     assert.equal(result.terminalContext, undefined);
   });
 
-  it("unions graph/execution/none terminal consumers over one sealed object and one admission source", async () => {
+  it("projects exact graph/execution/none terminal views from one sealed boundary", async () => {
     const contexts: object[] = [];
     const calls: string[] = [];
     let terminalEffectFailures = 0;
@@ -47,7 +47,7 @@ describe("Scheduler context demand", () => {
       maxParallel: 1,
       preAdmissionTaskResults: [{ taskId: "seed", value: true }],
       terminalEffects: [
-        defineSchedulerContextCallback("terminal", {
+        defineContextCallback("scheduler.terminal", {
           contextNeeds: ["graph"],
           callback(context) {
             contexts.push(context);
@@ -55,7 +55,7 @@ describe("Scheduler context demand", () => {
             assert.equal(context.graph.tasks.length, 3);
           }
         }),
-        defineSchedulerContextCallback("terminal", {
+        defineContextCallback("scheduler.terminal", {
           contextNeeds: [],
           async callback(context) {
             contexts.push(context);
@@ -63,7 +63,7 @@ describe("Scheduler context demand", () => {
             throw new Error("contained");
           }
         }),
-        defineSchedulerContextCallback("terminal", {
+        defineContextCallback("scheduler.terminal", {
           contextNeeds: ["execution"],
           callback(context) {
             contexts.push(context);
@@ -76,9 +76,12 @@ describe("Scheduler context demand", () => {
     });
     assert.deepEqual(calls, ["graph", "none", "execution"]);
     assert.equal(terminalEffectFailures, 1);
-    assert.equal(contexts[0], contexts[1]);
-    assert.equal(contexts[1], contexts[2]);
-    assert.equal(contexts[0], result.terminalContext);
+    assert.notEqual(contexts[0], contexts[1]);
+    assert.notEqual(contexts[1], contexts[2]);
+    assert.notEqual(contexts[0], result.terminalContext);
+    assert.deepEqual(Object.keys(contexts[0] ?? {}), ["graph"]);
+    assert.deepEqual(Object.keys(contexts[1] ?? {}), []);
+    assert.deepEqual(Object.keys(contexts[2] ?? {}), ["execution"]);
     assert.deepEqual(Object.keys(result.terminalContext ?? {}).sort(), ["execution", "graph"]);
     assert.equal(Object.isFrozen(result.terminalContext), true);
   });
@@ -89,7 +92,7 @@ describe("Scheduler context demand", () => {
       let proposals = 0;
       let delivered = 0;
       const policy = admissionSelectionPolicyFor(
-        defineSchedulerContextCallback("decision", {
+        defineContextCallback("scheduler.decide", {
           contextNeeds: [],
           callback() {
             proposals++;
@@ -108,7 +111,7 @@ describe("Scheduler context demand", () => {
           controller.abort();
         },
         terminalEffects: [
-          defineSchedulerContextCallback("terminal", {
+          defineContextCallback("scheduler.terminal", {
             contextNeeds: [],
             callback(context) {
               assert.deepEqual(Object.keys(context), []);

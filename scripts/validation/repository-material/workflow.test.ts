@@ -1,3 +1,4 @@
+import type { CheckExecutionContext } from "../../../src/index.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -185,20 +186,33 @@ async function invokeMaterialValidationCheck(
   const records: Array<
     Readonly<{ readonly data: object; readonly identity: { readonly id: string } }>
   > = [];
-  const result = await check.execute({
+  const context: CheckExecutionContext = {
     artifactDirectory: null,
     dependencies: {
       get: dependencyNotDeclared,
       list: () => Object.freeze([])
     },
     invocationId,
-    options: {},
     project: { flags: [], root: process.cwd() },
     records: {
       report: (identity, data) => records.push(Object.freeze({ data, identity }))
     },
     signal: new AbortController().signal
-  });
+  };
+  const execute = check.execute;
+  const invocation: unknown = Reflect.apply(
+    typeof execute === "function" ? execute : execute.callback,
+    undefined,
+    [
+      {},
+      typeof execute === "function"
+        ? Object.freeze({})
+        : Object.freeze(
+            Object.fromEntries((execute.contextNeeds ?? []).map((key) => [key, context[key]]))
+          )
+    ]
+  );
+  const result = await invocation;
   return Object.freeze({ records, result });
 }
 

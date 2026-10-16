@@ -17,14 +17,14 @@ const handoffConsumer = defineCheck({
   checkId: "isolated-handoff-consumer",
   displayName: "Isolated handoff consumer",
   dependsOn: [handoffProvider.checkId],
-  execute: ({ dependencies }) => {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (_options, { dependencies }) => {
     const read = dependencies.get(handoffProvider);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const parsed: Readonly<{ readonly version: 1 }> = handoffProvider.parseData(read.data);
     const handoff: Map<string, Uint8Array> = read.handoff;
     void [parsed, handoff];
     return { status: "passed", data: {} };
-  }
+  } })
 });
 void handoffConsumer;
 `;

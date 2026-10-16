@@ -1,46 +1,52 @@
-import { isAbsolute, resolve } from "node:path";
-
-import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
-import { runProcess } from "../host-environment/process.ts";
-import { isValidResolvedCommandCheckOptions, resolveCommandCheckEnvironment } from "./options.ts";
-import { closedTranscript, runningTranscript, writeCommandTranscript } from "./transcript.ts";
+import { normalizeContextCallback } from "../../data-boundary/context-callback.ts";
 import type {
+  CommandEnvironmentContext,
+  AfterCommandInput,
+  AfterCommandContext,
   AfterCommand,
   CommandCheckFinalData,
   CommandEnvironmentResolver,
   CommandCheckUnavailableReasonCode,
   ResolvedCommandCheckOptions
 } from "./contract.ts";
+import { isAbsolute, resolve } from "node:path";
+
+import type { CheckExecutionContext, CheckResult, DeepReadonly } from "../../check/check.ts";
+import { runProcess } from "../host-environment/process.ts";
+import { isValidResolvedCommandCheckOptions, resolveCommandCheckEnvironment } from "./options.ts";
+import { closedTranscript, runningTranscript, writeCommandTranscript } from "./transcript.ts";
 
 type CommandProcessResult = Awaited<ReturnType<typeof runProcess>> &
   Readonly<{ readonly isCanceled?: true; readonly isMaxBuffer?: true; readonly timedOut?: true }>;
 
 /** Executes one validated no-shell command and releases all child material after optional transcript persistence. */
 export async function executeCommandCheck(
-  context: CheckExecutionContext<ResolvedCommandCheckOptions>,
+  options: DeepReadonly<ResolvedCommandCheckOptions>,
+  context: CheckExecutionContext,
   executionExtensions: Readonly<{
     readonly afterCommand?: AfterCommand | undefined;
     readonly resolveEnvironment?: CommandEnvironmentResolver | undefined;
   }> = {}
 ): Promise<CheckResult> {
-  if (!isValidResolvedCommandCheckOptions(context.options)) return unavailable("invalid-options");
+  if (!isValidResolvedCommandCheckOptions(options)) return unavailable("invalid-options");
 
   const environment = await resolveExecutionEnvironment(
+    options,
     context,
     executionExtensions.resolveEnvironment
   );
   if (environment === undefined) return unavailable("command-environment-resolution-failed");
 
-  return executeResolvedCommand(context, environment, executionExtensions.afterCommand);
+  return executeResolvedCommand(options, context, environment, executionExtensions.afterCommand);
 }
 
 /** Runs one resolved command, preserving requested transcripts before caller-owned settlement. */
 async function executeResolvedCommand(
-  context: CheckExecutionContext<ResolvedCommandCheckOptions>,
+  options: DeepReadonly<ResolvedCommandCheckOptions>,
+  context: CheckExecutionContext,
   environment: ResolvedCommandCheckOptions["environment"],
   afterCommand: AfterCommand | undefined
 ): Promise<CheckResult> {
-  const { options } = context;
   if (!(await writeRunningCommandTranscript(context.artifactDirectory, options.output.mode))) {
     return unavailable("command-transcript-unavailable");
   }
@@ -67,7 +73,7 @@ async function executeResolvedCommand(
   ) {
     return unavailable("command-transcript-unavailable");
   }
-  return settleCommandResult(context, result, terminal.result, afterCommand);
+  return settleCommandResult(options, context, result, terminal.result, afterCommand);
 }
 
 /** Writes the running marker only where output policy and artifact capability both allow it. */
@@ -100,15 +106,29 @@ async function writeClosedCommandTranscript(
 
 /** Lets the caller settle only complete numeric exits; all other terminal causes remain Product-owned. */
 function settleCommandResult(
-  context: CheckExecutionContext<ResolvedCommandCheckOptions>,
+  options: DeepReadonly<ResolvedCommandCheckOptions>,
+  context: CheckExecutionContext,
   result: CommandProcessResult,
   defaultResult: CheckResult<CommandCheckFinalData>,
   afterCommand: AfterCommand | undefined
 ): CheckResult | Promise<CheckResult> {
   if (afterCommand === undefined || !isCompleteCommandResult(result)) return defaultResult;
-  return afterCommand.execute(
+  const completion = normalizeContextCallback<
+    [AfterCommandInput],
+    AfterCommandContext,
+    CheckResult | Promise<CheckResult>
+  >(afterCommand.execute, [
+    "artifactDirectory",
+    "dependencies",
+    "invocationId",
+    "project",
+    "records",
+    "signal"
+  ])!;
+  return completion.invoke(
+    context,
     Object.freeze({
-      ...context,
+      options,
       command: Object.freeze({
         exitCode: result.status,
         stderr: result.stderr,
@@ -119,19 +139,17 @@ function settleCommandResult(
 }
 
 async function resolveExecutionEnvironment(
-  context: CheckExecutionContext<ResolvedCommandCheckOptions>,
+  options: DeepReadonly<ResolvedCommandCheckOptions>,
+  context: CheckExecutionContext,
   resolver: CommandEnvironmentResolver | undefined
 ): Promise<ResolvedCommandCheckOptions["environment"] | undefined> {
-  if (resolver === undefined) return context.options.environment;
+  if (resolver === undefined) return options.environment;
   try {
-    const environment = await resolver(
-      Object.freeze({
-        dependencies: context.dependencies,
-        options: context.options,
-        project: context.project,
-        signal: context.signal
-      })
-    );
+    const normalized = normalizeContextCallback<
+      [DeepReadonly<ResolvedCommandCheckOptions>],
+      CommandEnvironmentContext
+    >(resolver, ["dependencies", "project", "signal"])!;
+    const environment = await normalized.invoke(context, options);
     return resolveCommandCheckEnvironment(environment);
   } catch {
     return undefined;

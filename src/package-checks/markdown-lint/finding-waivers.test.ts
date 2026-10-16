@@ -1,3 +1,5 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
+import type { ResolvedMarkdownLintOptions } from "./options.ts";
 import assert from "node:assert/strict";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -168,12 +170,16 @@ describe("Markdown lint finding waivers", () => {
     }).options;
     const publish = (resolvedOptions: typeof options) =>
       executeMarkdownLintCheck(
-        (context) =>
-          publishMarkdownLintTraversal(
-            context,
-            { kind: "complete", candidates, sourceFileCount: 1 },
-            []
-          ),
+        defineContextCallback("check.execute", {
+          contextNeeds: ["project", "records", "signal"],
+          callback: (executionOptions: ResolvedMarkdownLintOptions, context) =>
+            publishMarkdownLintTraversal(
+              executionOptions,
+              context,
+              { kind: "complete", candidates, sourceFileCount: 1 },
+              []
+            )
+        }),
         resolvedOptions,
         "/not-read-by-publication"
       );

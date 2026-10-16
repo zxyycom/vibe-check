@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import {
   resolvePackageCheckAuthoringInput,
@@ -50,7 +51,10 @@ export function secretDetection(
   }
   return defineCheck({
     ...input.definition,
-    execute: executeSecretDetection,
+    execute: defineContextCallback("check.execute", {
+      contextNeeds: ["project", "records", "signal"],
+      callback: executeSecretDetection
+    }),
     parseData: parseSecretDetectionData,
     prepare: (preparedOptions) =>
       validSecretDetectionOptions(preparedOptions)

@@ -26,7 +26,7 @@ const sourceMetrics = fileMetrics({
 ```
 
 返回值仍是原生 typed Check。项目声明字段不会进入 `sourceMetrics.options` 或执行时的
-`context.options`；完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+execution 的业务 options 参数；完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
 
 ## 最小用法
 

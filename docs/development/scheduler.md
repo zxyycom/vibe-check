@@ -134,27 +134,47 @@ custom throw、thenable、malformed proposal、illegal select 或不可 drain wa
 
 ## Measurement collector 与 immutable context
 
-消费者需求按 preparation、decision、terminal 分别验证并合并，只生产对应 phase 请求的字段与必需依赖。同一 phase 共享冻结对象，类型只保证自身声明字段；其它消费者可能增加字段，因此需求不是权限隔离。未声明的 legacy callback 保留 full；none 只是不增加字段需求，不取消调用。各次 decision boundary 的动态投影 detached，静态 graph 可在同一 Run 复用。
+消费者需求按所属边界验证和固定，在 Scheduler 启动前收齐并汇总真实依赖及执行/诊断义务，形成不可变生产配置。
+function、缺省/undefined needs 和 [] 均为零需求；生产并集不作为交付字段集合。
+每个消费者只取得自己声明的 own data fields，外层冻结且不保证跨消费者 identity 相同。
+同 Run graph 按需构造一次并复用，同 boundary 不可变投影可共享；旧 state/fork/reader 不随后续执行改变。
 
-存在 effective diagnostics、decision measurement 或 terminal rawMeasurement demand 时才创建 invocation-local collector。它通过 private handoff 接收 clock 和已有 declarative fingerprint；static 或 opt-in custom 无采集需求时不创建 collector、不读取其额外 clock。terminal none/graph/execution 不因此启动完整采集，另一 phase 的 raw demand 也不强迫 decision 构建未请求的历史 DTO。原 function 的 full 需求与 diagnostics 仍保留完整采集成本。
+存在 cumulative、actionHistory、runMeasurement、taskTimings 或 effective diagnostics 的真实依赖时才创建
+invocation-local timing collector，通过 private handoff 接收 clock 与既有 declarative fingerprint。
+仅 execution/state 或零需求且无诊断义务时，不创建 collector、不读额外 measurement clock；Check duration clock 属既有结算义务。
 
-每次请求在线 measurement 的实际 custom callback 前，collector flush open interval、append 已完成 action observation，再创建 captured-prefix reader。一个 Run 只冻结一次 graph DTO；context 的 `measurementCount` 固定 end-count，`measurementAt(index)` 同步读取此前 prefix，越界返回 undefined，旧 context 不能看见以后 append。cumulative view 只含 bounded scalar/peak/discrete facts，避免每轮复制 graph、完整 per-Task table 或 history。
+| 启用组 | 维护与物化边界 |
+| --- | --- |
+| cumulative | 保持 bounded counters/peaks、accepted wait 与 slot/capacity integrals；decision 前 flush、固定 view；不维护 history、逐 Task delay/chronology 或 Run tail。 |
+| actionHistory | 首个 accepted action 前启用 sequence/effects/post-state interval；下一实际 callback 前 append frozen observation，交付 captured end-count reader；不建逐 Task delay 表。 |
+| runMeasurement | 保持 Run counters/peaks、Run timing、control/diagnostic timing 与 tail，seal 时物化；不含 admissions，也不启用 history 或逐 Task delay 表。 |
+| taskTimings | 从首个采样前启用 admission-viable 分类 delay 与 admission/settlement chronology；seal 时按原顺序物化；不启用 history、Run tail 或无消费者 aggregate DTO。 |
 
-每条 observation 从 accepted select/wait 的 post-state 延续到下次实际 custom callback 前，包含期间 admitted/settled effects，只描述占用状态而不宣称 action causality。interval 使用 closed timing union：available 才有数值 contribution，unavailable 只有 reason；合法 zero span 不等于 timing fault。
+组间只因真实生产依赖共享中间量，不能先 full 后裁剪。diagnostics 的完整 decision/summary 证据是独立固定义务，
+但不无条件启用无人使用的 actionHistory。字段与统计公开含义由[调度指南](../guides/scheduling.md#在线选择时读取-observation-prefix)定义。
 
-collector 在 admission、pending/running settlement、accepted wait 和 terminal boundary 采样，独占 interval attribution、mutex/capacity/admissible 分类、slot/capacity integral、wait accumulator、per-Task admission table、peaks 和 tail active sequence。它不创建第二套 Scheduler state 或 boundary event ledger。clock throw、non-finite/backward sample、invalid interval/integral 只令 raw timing unavailable，不改变 admission、取消或 settlement。
+每次实际 custom callback 前，启用的 history flush open interval、append 已完成 action observation，再创建固定 prefix reader。
+它从 accepted select/wait 的 post-state 延续到下次实际 callback 前，包含期间 admitted/settled effects，不宣称 action causality。
+blocked/cancel/settlement 不创建 callback，只有 pending action 才形成 since-action effect；policy fault 不形成有效 action。
 
-可选 `ShellAdmissionFacts` 由 execution owner 在成功 pending-to-running 且安装 running entry 后记录 first-admission 顺序，
-是 terminal execution 与 collector admittedCount 的共同来源；pre-admission、blocked 和 pending cancellation 不算 admitted。
-settled terminal projection 以既有 settlements 为唯一来源。无 execution/raw/online demand 时不采集 admission 顺序。
+所有启用 timing 组共享唯一 collector clock、原采样边界与 first-fault validity。clock throw/non-finite/backward 或
+启用计算的 invalid interval/integral 使后续 timing 不可用；关闭组不为发现 fault 而计算。合法 zero span 仍有效。
+cumulative/runMeasurement 保留离散事实和 peaks，taskTimings 不交付伪造数值，history 保留离散 action/effects 并以不可用 interval 继续。
+每个 reader 固定自身边界的 availability、数值与 prefix，之后 fault/append 不回写旧 view；原单位、interval 归属与逐项累加次序保持。
 
-terminal raw facts 保留 declarative fingerprint、离散 lifecycle、queue peaks；timing 可用时另含 shell/slot/capacity/wait accumulations、每个 admission-viable Task 的分类 delay table 与 admission/settlement boundaries。Task value/error/callback、clock、mutable collection 和 human summary projections 不进入 raw facts。summary 的 top-N、ratio、queue total 与 tail contributor 由[人读输出 owner](human-output.md#scheduler-summary-projections)推导。
+shell 继续拥有真实执行离散事实，collector 独占 clock、interval、积分和 history，不创建第二 Scheduler state 或 admissions truth。
+可选 ShellAdmissionFacts 在成功 pending-to-running 且安装 running entry 后记录 first-admission 顺序；pre-admission、blocked、
+pending cancellation 不算 admitted，settled projection 只消费既有 settlements。只有 execution 或其它真实顺序依赖才建此 ledger。
+
+terminal runMeasurement 保留 fingerprint、离散 lifecycle、queue peaks 和可用时的 Run timing；taskTimings 单独交付
+closed timing union 与可用时的 admissions。Task value/error/callback、clock、mutable collections 和 human summary projection 不进入观察 facts。
+summary 的 top-N、ratio、queue total 与 tail contributor 由[人读输出 owner](human-output.md#scheduler-summary-projections)推导。
 
 ## Terminal effects 与 delivery
 
-停止 admission 且全部 started work drain 后，Scheduler 一次形成并冻结 terminal phase union：按需包含 canonical graph、admitted/settled kind-only execution 与 raw measurement。交付与 collector 是否存在分离，none/graph/execution-only effect 仍取得 sealed context；没有 collector 不能作为跳过 effect 的条件。diagnostic-enabled internal summary wrapper 与 caller terminal effects 使用同一 ordered runner 和**同一 context object identity**，prepared effect 也消费该对象；summary wrapper 包含 projection/writer failure，runner 只执行各 wrapper 的 failure policy，不识别 summary identity。
+停止 admission 且全部 started work drain 后，Scheduler seal 同一终态事实边界，按需要生产 graph、admitted/settled kind-only execution、Run measurement 与逐 Task timings，再为每个消费者分别投影精确冻结视图。交付与 collector 是否存在分离，none/graph/execution-only effect 仍取得 sealed context；没有 collector 不能作为跳过 effect 的条件。diagnostic-enabled internal summary wrapper 与 caller terminal effects 使用同一 ordered runner，不保证外层 context identity 相同，prepared effect 也按自己的需求取得精确视图；summary wrapper 包含 projection/writer failure，runner 只执行各 wrapper 的 failure policy，不识别 summary identity。
 
-sync/async terminal effects 逐个 await，effect elapsed 不计 raw measurement；一个 caller terminal effect throw/reject 不阻止后续 terminal effect，也不改写 sealed facts。Scheduler 返回完成 delivery 的 context 后，Invocation 才交付 `terminalEffect`；成功 terminalEffect 不能覆盖已记录的 generic terminal effect failure。
+sync/async terminal effects 逐个 await，effect elapsed 不计已 seal 的 measurement；一个 caller terminal effect throw/reject 不阻止后续 terminal effect，也不改写 sealed facts。Scheduler 返回完成 delivery 的 sealed terminal facts 后，Invocation 才交付 `terminalEffect`；成功 terminalEffect 不能覆盖已记录的 generic terminal effect failure。
 
 nonempty caller terminal effects 或 successful prepared result 实际含 terminalEffect 才启用 terminalEffects output；无 sealed context 时 enabled output 保持 not-run。所有实际 participants 成功才 succeeded，任一失败即 failed。无 primary failure 时按输出指南形成保留完整 facts 的 output failure；已有 cancellation、policy fault 或其它 primary failure 时只记录 terminal effect status，不覆盖 primary kind/diagnostic。pre-work/planning 没有 context，不交付 terminal effects；summary writer failure 属于 diagnostic writer containment，不是 caller terminal effect failure。
 

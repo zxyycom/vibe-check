@@ -1,5 +1,5 @@
 import { isFullTerminalContext } from "../task-scheduler/scheduler-terminal-context.ts";
-import type { CheckProjectContext } from "../../check/check.ts";
+import type { CheckProjectContextSource } from "../project-context.ts";
 import type { CheckAggregation } from "../controls/contract.ts";
 import { createAdmissionStrategyProvider } from "../admission-strategy-provider/provider.ts";
 import { AdmissionStrategyPreparationFailure } from "../admission-strategy-provider/custom-strategy-preparation.ts";
@@ -7,7 +7,7 @@ import type { PreparedAdmissionStrategy } from "../admission-strategy-provider/p
 import type { PreparedCheckExecution } from "../check-execution/prepared-check-execution.ts";
 import type { ResolvedCheckExecution } from "../check-execution/resolved-execution-result.ts";
 import { prepareProjectChanges } from "../changes/git.ts";
-import { createProjectContext } from "../project-context.ts";
+import { createProjectContextSource } from "../project-context.ts";
 import type { OutputStatuses } from "../outputs/status.ts";
 import { isCancelled, type NonConfigurationRunResult } from "../result.ts";
 import { mapResolvedExecutionToRunCandidate } from "./candidate.ts";
@@ -38,10 +38,10 @@ export async function executePlannedInvocation(
     invocation,
     prepared,
     aggregation,
-    createProjectContext({
+    createProjectContextSource({
       ...(preparedChanges === undefined ? {} : { changes: preparedChanges.projectChanges }),
       flags: effectiveFlags,
-      paths: invocation.paths
+      root: invocation.paths.projectRoot
     })
   );
 }
@@ -49,7 +49,7 @@ async function executePreparedInvocation(
   invocation: Invocation,
   prepared: PreparedCheckExecution,
   aggregation: CheckAggregation | undefined,
-  project: CheckProjectContext
+  project: CheckProjectContextSource
 ): Promise<NonConfigurationRunResult> {
   if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "planning");
   let preparedStrategy: PreparedAdmissionStrategy;
@@ -93,7 +93,9 @@ async function prepareAdmissionStrategy(
     invocation.admissionStrategyProviderFactory ?? createAdmissionStrategyProvider;
   const provider = admissionStrategyProviderFactory({
     admissionPolicy: invocation.normalized.scheduler.admissionPolicy,
-    graph: prepared.taskGraph.graph.schedulerGraphSnapshot
+    get graph() {
+      return prepared.taskGraph.graph.schedulerGraphSnapshot;
+    }
   });
   return provider.prepare();
 }
@@ -122,13 +124,7 @@ async function completeAdmissionStrategyAfterTerminalDelivery(
       return;
     case "terminal-effect":
       try {
-        if (typeof preparedStrategy.completion.terminalEffect === "function") {
-          if (!isFullTerminalContext(terminalContext))
-            throw new Error("legacy private completion requires full terminal context");
-          await preparedStrategy.completion.terminalEffect(terminalContext);
-        } else {
-          await preparedStrategy.completion.terminalEffect.invoke(terminalContext);
-        }
+        await preparedStrategy.completion.terminalEffect.invoke(terminalContext);
         outputs.succeeded("terminalEffects");
       } catch {
         outputs.failed("terminalEffects");

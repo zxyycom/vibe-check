@@ -75,7 +75,7 @@ export interface DeclarativeProjectOutputs extends Omit<ProjectOutputs, "progres
 export type {
   AdmissionPolicy,
   AdmissionPolicyContext,
-  AdmissionPolicyMeasurement,
+  SchedulerActionHistory,
   AdmissionProposal,
   AdmissionCatalog,
   AdmissionGraph,
@@ -105,10 +105,11 @@ export type {
   SchedulerMeasurementIntervalContribution,
   SchedulerMeasurementPeakCounts,
   SchedulerMeasurementTiming,
-  SchedulerMeasurementTimingFacts,
+  SchedulerRunMeasurementTimingFacts,
   SchedulerMeasurementTimingUnavailableReason,
   SchedulerPolicy,
-  SchedulerRawMeasurement
+  SchedulerRunMeasurement,
+  SchedulerTaskTimings
 } from "./scheduler-policy.ts";
 import type {
   AdmissionPolicy,

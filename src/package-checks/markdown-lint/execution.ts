@@ -1,7 +1,7 @@
+import type { DeepReadonly, CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import path from "node:path";
 import { realpath } from "node:fs/promises";
 
-import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { appendCheckMessages } from "../../package-tools/finding-presentation/finding-presentation.ts";
 import { reconcileFindingWaivers } from "../../package-tools/finding-waivers/reconciliation.ts";
 import { reportFindingWaiverAudits } from "../code-quality-findings/finding-waiver-evidence.ts";
@@ -47,18 +47,20 @@ type Traversal =
 
 /** Executes one bounded, ordered lint pass over the exact selected Markdown source paths. */
 export async function executeMarkdownLint(
-  context: CheckExecutionContext<ResolvedMarkdownLintOptions>
+  options: DeepReadonly<ResolvedMarkdownLintOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): Promise<CheckResult<MarkdownLintFinalData>> {
-  return validMarkdownLintOptions(context.options)
-    ? executeResolvedMarkdownLint(context)
+  return validMarkdownLintOptions(options)
+    ? executeResolvedMarkdownLint(options, context)
     : unavailable("invalid-options");
 }
 
 async function executeResolvedMarkdownLint(
-  context: CheckExecutionContext<ResolvedMarkdownLintOptions>
+  options: DeepReadonly<ResolvedMarkdownLintOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): Promise<CheckResult<MarkdownLintFinalData>> {
   if (context.signal.aborted) return unavailable("cancelled");
-  const discovered = discoverSources(context);
+  const discovered = discoverSources(options, context);
   if (discovered.kind === "unavailable") return unavailable(discovered.reason);
   if (discovered.selectedPathCount === 0) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
@@ -69,29 +71,25 @@ async function executeResolvedMarkdownLint(
   }
   const root = await canonicalProjectRoot(context.project.root);
   if (root === undefined) return unavailable("project-root-unavailable");
-  const traversal = await traverseSources(
-    discovered.sourcePaths,
-    root,
-    context.options,
-    context.signal
-  );
+  const traversal = await traverseSources(discovered.sourcePaths, root, options, context.signal);
   if (traversal.kind === "unavailable")
     return appendRejected(unavailable(traversal.reason), discovered.rejectedPaths.length);
   if (context.signal.aborted)
     return appendRejected(unavailable("cancelled"), discovered.rejectedPaths.length);
-  return publishMarkdownLintTraversal(context, traversal, discovered.rejectedPaths);
+  return publishMarkdownLintTraversal(options, context, traversal, discovered.rejectedPaths);
 }
 
 /** Reconciles only a complete traversal, then publishes all evidence and the live policy outcome. */
 export function publishMarkdownLintTraversal(
-  context: CheckExecutionContext<ResolvedMarkdownLintOptions>,
+  options: DeepReadonly<ResolvedMarkdownLintOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   traversal: Extract<Traversal, { readonly kind: "complete" }>,
   rejectedPaths: readonly string[]
 ): CheckResult<MarkdownLintFinalData> {
   const reconciliation = reconcileFindingWaivers({
     findings: traversal.candidates,
     identify: markdownLintFindingIdentity,
-    waivers: context.options.findingWaivers
+    waivers: options.findingWaivers
   });
   const actionable: MarkdownLintRecordCandidate[] = [];
   for (const finding of reconciliation.findings) {
@@ -107,7 +105,7 @@ export function publishMarkdownLintTraversal(
   }
   reportFindingWaiverAudits(context, reconciliation, markdownLintWaiverAuditRecord);
   const findingCount = traversal.candidates.length + rejectedPaths.length;
-  const blocking = context.options.findingPolicy === "blocking";
+  const blocking = options.findingPolicy === "blocking";
   const result: CheckResult<MarkdownLintFinalData> = Object.freeze({
     status: actionable.length > 0 && blocking ? "failed" : "passed",
     data: Object.freeze({
@@ -127,7 +125,10 @@ export function publishMarkdownLintTraversal(
   ]);
 }
 
-function discoverSources(context: CheckExecutionContext<ResolvedMarkdownLintOptions>):
+function discoverSources(
+  options: DeepReadonly<ResolvedMarkdownLintOptions>,
+  context: Pick<CheckExecutionContext, "project">
+):
   | Readonly<{
       readonly kind: "complete";
       readonly sourcePaths: readonly string[];
@@ -136,7 +137,7 @@ function discoverSources(context: CheckExecutionContext<ResolvedMarkdownLintOpti
     }>
   | Readonly<{ readonly kind: "unavailable"; readonly reason: "source-unavailable" }> {
   try {
-    const selectedPaths = collectProjectFiles(context.project.root, context.options.files);
+    const selectedPaths = collectProjectFiles(context.project.root, options.files);
     const partition = partitionProjectFilesByEligibility(selectedPaths, isMarkdownPath);
     return Object.freeze({
       kind: "complete" as const,

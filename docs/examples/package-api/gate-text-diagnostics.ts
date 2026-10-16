@@ -1,6 +1,7 @@
 import { assertConfigurationDiagnostics } from "../package-api-support/gate-example-acceptance.ts";
 
 // #region package-api-example:gate-text-diagnostics
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import {
   commandCheck,
   defineConfig,
@@ -24,7 +25,7 @@ function parseTextDiagnostics(text: string) {
 }
 
 const afterCommand = {
-  execute({ command, records }: AfterCommandContext): CheckResult<DiagnosticData> {
+  execute: defineContextCallback("command.complete", { contextNeeds: ["records"], callback: ({ command }, { records }): CheckResult<DiagnosticData> => {
     if (command.exitCode === 0) return { status: "passed", data: { exitCode: 0 } };
     let diagnostics;
     try {
@@ -40,7 +41,7 @@ const afterCommand = {
       status: "failed",
       data: { exitCode: command.exitCode, diagnosticsAvailable: true }
     };
-  }
+  } })
 };
 
 const check = commandCheck({

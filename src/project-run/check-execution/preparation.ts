@@ -1,4 +1,6 @@
-import type { CheckMessage, CheckOutcome, CheckProjectContext } from "../../check/check.ts";
+import type { CheckProjectContextSource } from "../project-context.ts";
+import { normalizeCheckPreparation } from "../../check/context-callback.ts";
+import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { snapshotJsonObject } from "../../check/options-snapshot.ts";
 import {
@@ -51,7 +53,7 @@ type PreparationResolutionResult =
 type PrepareCheckInput = Readonly<{
   readonly check: NormalizedCheck;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
-  readonly project: CheckProjectContext;
+  readonly project: CheckProjectContextSource;
   readonly signal: AbortSignal | undefined;
 }>;
 
@@ -193,7 +195,15 @@ function resolveReadyPreparationResult(
 
 async function invokePreparation(input: PrepareCheckInput): Promise<PreparationInvocation> {
   return invokeWithCapturedConsole(() =>
-    input.check.prepare!(input.check.options, input.signal ?? INERT_SIGNAL, input.project)
+    normalizeCheckPreparation(input.check.prepare)!.invoke(
+      {
+        signal: input.signal ?? INERT_SIGNAL,
+        get project() {
+          return input.project.getContext();
+        }
+      },
+      input.check.options
+    )
   );
 }
 

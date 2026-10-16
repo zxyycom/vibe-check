@@ -1,3 +1,5 @@
+import { createProjectContextSource } from "../project-context.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -54,7 +56,7 @@ describe("Package Run direct Check execution", () => {
       ],
       invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 2,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     await Promise.resolve();
@@ -105,17 +107,20 @@ describe("Package Run direct Check execution", () => {
           }
         ),
         normalized(
-          (context) => {
-            assert.deepEqual(context.dependencies.get("blocked"), {
-              ok: false,
-              error: {
-                code: "upstream-data-unavailable",
-                checkId: "blocked",
-                status: "unavailable"
-              }
-            });
-            return { status: "passed", data: {} };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, context) => {
+              assert.deepEqual(context.dependencies.get("blocked"), {
+                ok: false,
+                error: {
+                  code: "upstream-data-unavailable",
+                  checkId: "blocked",
+                  status: "unavailable"
+                }
+              });
+              return { status: "passed", data: {} };
+            }
+          }),
           { checkId: "observer", observes: ["blocked"] }
         )
       ],
@@ -126,7 +131,7 @@ describe("Package Run direct Check execution", () => {
       },
       invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 1,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     assert.equal(result.kind, "completed");
@@ -216,7 +221,7 @@ describe("Package Run direct Check execution", () => {
         ],
         invocationLifecycle: { selectionSettled: () => undefined },
         maxParallel: 1,
-        project: PROJECT,
+        project: createProjectContextSource(PROJECT),
         signal: undefined
       });
 
@@ -244,16 +249,19 @@ describe("Package Run direct Check execution", () => {
           dependsOn: ["source"]
         }),
         normalized(
-          ({ dependencies }) => {
-            observed = dependencies.get("blocked");
-            return { status: "passed", data: {} };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, { dependencies }) => {
+              observed = dependencies.get("blocked");
+              return { status: "passed", data: {} };
+            }
+          }),
           { checkId: "observer", observes: ["blocked"] }
         )
       ],
       invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 1,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
 

@@ -1,6 +1,6 @@
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
-import type { CheckExecution, CheckResult } from "../../check/check.ts";
+import type { CheckResult } from "../../check/check.ts";
 import {
   createTypeScriptSourceRoot,
   executeCheck,
@@ -36,7 +36,7 @@ export function createMarkdownTestRoot(prefix: string): string {
 }
 
 export async function execute(
-  callback: CheckExecution<ResolvedMarkdownLinkValidationOptions>,
+  callback: Parameters<typeof executeCheck>[0],
   options: ResolvedMarkdownLinkValidationOptions,
   root: string,
   files: ProjectFileSelection = FILES,

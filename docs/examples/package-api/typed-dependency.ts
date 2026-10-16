@@ -1,4 +1,5 @@
 // #region package-api-example:typed-dependency
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const CHANGED_FILES_DATA_VERSION = 1 as const;
@@ -39,7 +40,7 @@ const analyzeChangedFiles = defineCheck({
   checkId: "analyze-changed-files",
   displayName: "Analyze changed files",
   dependsOn: [changedFiles.checkId],
-  execute({ dependencies }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
     const read = dependencies.get(changedFiles);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
 
@@ -54,7 +55,7 @@ const analyzeChangedFiles = defineCheck({
       status: "passed",
       data: { analyzedByteCount: firstFileBytes.byteLength, analyzedFileCount: data.files.length }
     };
-  }
+  } })
 });
 
 const definition = defineConfig({

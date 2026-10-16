@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { SchedulerRawMeasurement } from "../../../project-definition/project-definition.ts";
+import type { SchedulerTaskTimings } from "../../../project-definition/project-definition.ts";
 import {
   emptySchedulerHistory,
   MAX_SCHEDULER_HISTORY_SERIES,
@@ -17,67 +17,26 @@ function availableMeasurement(
     readonly settledAtMonotonicMs: number | null;
     readonly taskId: string;
   }>[]
-): SchedulerRawMeasurement {
+): SchedulerTaskTimings {
   return Object.freeze({
-    declarativeFingerprint: "sha256:measurement",
-    discrete: Object.freeze({
-      acceptedWaitCount: 0,
-      admittedCount: admissions.filter((admission) => admission.admittedAtMonotonicMs !== null)
-        .length,
-      completionTailActiveTaskIds: Object.freeze([]),
-      lastSettledTaskId: null,
-      maxRunning: 1
-    }),
-    peaks: Object.freeze({
-      admissiblePendingTaskCount: 0,
-      admissionViablePendingTaskCount: 0,
-      capacityBlockedTaskCount: 0,
-      mutexBlockedTaskCount: 0
-    }),
     timing: Object.freeze({ availability: "available" as const }),
-    timingFacts: Object.freeze({
-      acceptedWaitMs: 0,
-      admissions: Object.freeze(
-        admissions.map((admission) =>
-          Object.freeze({
-            admissionDelay: Object.freeze({
-              admissiblePendingMs: 0,
-              capacityBlockedMs: 0,
-              mutexBlockedMs: 0
-            }),
-            admittedAtMonotonicMs: admission.admittedAtMonotonicMs,
-            settledAtMonotonicMs: admission.settledAtMonotonicMs,
-            taskId: admission.taskId
-          })
-        )
-      ),
-      effectiveCapacitySlotMs: 0,
-      endedAtMonotonicMs: 0,
-      rootCapacitySlotMs: 0,
-      schedulerControlPathMs: 0,
-      schedulerDecisionObservationMs: 0,
-      startedAtMonotonicMs: 0,
-      taskSlotMs: 0
-    })
+    admissions: Object.freeze(
+      admissions.map((admission) =>
+        Object.freeze({
+          admissionDelay: Object.freeze({
+            admissiblePendingMs: 0,
+            capacityBlockedMs: 0,
+            mutexBlockedMs: 0
+          }),
+          ...admission
+        })
+      )
+    )
   });
 }
 
-function unavailableMeasurement(): SchedulerRawMeasurement {
+function unavailableMeasurement(): SchedulerTaskTimings {
   return Object.freeze({
-    declarativeFingerprint: "sha256:measurement",
-    discrete: Object.freeze({
-      acceptedWaitCount: 0,
-      admittedCount: 0,
-      completionTailActiveTaskIds: Object.freeze([]),
-      lastSettledTaskId: null,
-      maxRunning: 0
-    }),
-    peaks: Object.freeze({
-      admissiblePendingTaskCount: 0,
-      admissionViablePendingTaskCount: 0,
-      capacityBlockedTaskCount: 0,
-      mutexBlockedTaskCount: 0
-    }),
     timing: Object.freeze({ availability: "unavailable" as const, reason: "clock-threw" as const })
   });
 }
@@ -97,7 +56,7 @@ function recordOneSample(input: {
   return recordSchedulerHistory({
     history: input.history,
     prediction: input.prediction,
-    rawMeasurement: availableMeasurement([
+    taskTimings: availableMeasurement([
       { admittedAtMonotonicMs: 10, settledAtMonotonicMs: 10 + input.durationMs, taskId }
     ]),
     settledTasks: [settled(taskId, input.settlementKind)]
@@ -140,7 +99,7 @@ describe("scheduler duration recording", () => {
     const merged = recordSchedulerHistory({
       history: emptySchedulerHistory(),
       prediction: sharedPrediction,
-      rawMeasurement: availableMeasurement([
+      taskTimings: availableMeasurement([
         { admittedAtMonotonicMs: 0, settledAtMonotonicMs: 2, taskId: "first" },
         { admittedAtMonotonicMs: 2, settledAtMonotonicMs: 5, taskId: "second" }
       ]),
@@ -161,7 +120,7 @@ describe("scheduler duration recording", () => {
     const recorded = recordSchedulerHistory({
       history: initial,
       prediction: cold,
-      rawMeasurement: availableMeasurement([
+      taskTimings: availableMeasurement([
         { admittedAtMonotonicMs: 0, settledAtMonotonicMs: 10, taskId: "fast" },
         { admittedAtMonotonicMs: 0, settledAtMonotonicMs: 30, taskId: "slow" },
         { admittedAtMonotonicMs: null, settledAtMonotonicMs: null, taskId: "unknown" }
@@ -177,7 +136,7 @@ describe("scheduler duration recording", () => {
     const timingUnavailable = recordSchedulerHistory({
       history: recorded.history,
       prediction: createSchedulerPredictionSnapshot(recorded.history, inputs),
-      rawMeasurement: unavailableMeasurement(),
+      taskTimings: unavailableMeasurement(),
       settledTasks: [settled("fast")]
     });
     assert.equal(timingUnavailable.observation.status, "timing-unavailable");
@@ -194,7 +153,7 @@ describe("scheduler duration recording", () => {
     const recorded = recordSchedulerHistory({
       history: emptySchedulerHistory(),
       prediction,
-      rawMeasurement: availableMeasurement(
+      taskTimings: availableMeasurement(
         ids.map((taskId, index) => ({
           admittedAtMonotonicMs: index,
           settledAtMonotonicMs: index + 1,

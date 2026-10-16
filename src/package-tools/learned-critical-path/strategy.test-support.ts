@@ -56,32 +56,22 @@ export function contextFor(
     candidates,
     capacity: { effectiveMaxParallel: 4, maxParallel: 4, running: 0 },
     graph: schedulerGraph,
-    measurement: emptyMeasurement(),
-    runningTaskIds: [],
-    runtime: { abortRequested: false, cancelled: false },
-    settledTaskIds: []
-  };
-}
-
-function emptyMeasurement(): AdmissionPolicyContext["measurement"] {
-  return Object.freeze({
-    cumulative: Object.freeze({
+    cumulative: {
       declarativeFingerprint: "test",
-      discrete: Object.freeze({ acceptedWaitCount: 0, admittedCount: 0, maxRunning: 0 }),
-      peaks: Object.freeze({
+      discrete: { acceptedWaitCount: 0, admittedCount: 0, maxRunning: 0 },
+      peaks: {
         admissionViablePendingTaskCount: 0,
         admissiblePendingTaskCount: 0,
         capacityBlockedTaskCount: 0,
         mutexBlockedTaskCount: 0
-      }),
-      timing: Object.freeze({
-        availability: "unavailable" as const,
-        reason: "clock-threw" as const
-      })
-    }),
-    measurementAt: () => undefined,
-    measurementCount: 0
-  });
+      },
+      timing: { availability: "unavailable", reason: "clock-threw" }
+    },
+    actionHistory: { measurementAt: () => undefined, measurementCount: 0 },
+    runningTaskIds: [],
+    runtime: { abortRequested: false, cancelled: false },
+    settledTaskIds: []
+  };
 }
 
 export function context(

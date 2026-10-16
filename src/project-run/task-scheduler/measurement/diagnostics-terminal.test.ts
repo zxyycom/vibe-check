@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -19,11 +20,27 @@ describe("Scheduler performance diagnostics terminal drains", () => {
     const observations: DiagnosticObservation[] = [];
     let policyDiagnosticAttempts = 0;
     let calls = 0;
-    const policy = admissionSelectionPolicyFor(() => {
-      calls += 1;
-      if (calls === 1) return { kind: "select", taskId: "started" };
-      throw new Error("policy fault");
-    });
+    const policy = admissionSelectionPolicyFor(
+      defineContextCallback("scheduler.decide", {
+        contextNeeds: [
+          "activeScopeIds",
+          "admissionState",
+          "candidates",
+          "capacity",
+          "graph",
+          "cumulative",
+          "actionHistory",
+          "runningTaskIds",
+          "runtime",
+          "settledTaskIds"
+        ],
+        callback: () => {
+          calls += 1;
+          if (calls === 1) return { kind: "select", taskId: "started" };
+          throw new Error("policy fault");
+        }
+      })
+    );
     const logger: DiagnosticLogger = Object.freeze({
       close: () => "failed" as const,
       observe: (observation: DiagnosticObservation) => {

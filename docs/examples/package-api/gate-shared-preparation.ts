@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { run } from "@zxyycom/vibe-check";
 
 // #region package-api-example:gate-shared-preparation
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
 
 const manifest = defineCheck({
@@ -38,24 +39,24 @@ const size = defineCheck({
   checkId: "artifact-size",
   displayName: "Artifact size",
   dependsOn: [manifest.checkId],
-  execute({ dependencies }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
     const read = dependencies.get(manifest.checkId);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const data = manifest.parseData(read.data);
     return data.totalBytes <= 100_000 ? { status: "passed", data } : { status: "failed", data };
-  }
+  } })
 });
 
 const contents = defineCheck({
   checkId: "artifact-contents",
   displayName: "Artifact contents",
   dependsOn: [manifest.checkId],
-  execute({ dependencies }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
     const read = dependencies.get(manifest.checkId);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const data = manifest.parseData(read.data);
     return data.fileCount > 0 ? { status: "passed", data } : { status: "failed", data };
-  }
+  } })
 });
 
 const definition = defineConfig({
@@ -70,7 +71,9 @@ const countedManifest = defineCheck({
   ...manifest,
   execute(context) {
     preparations += 1;
-    return manifest.execute(context);
+    const execute = manifest.execute;
+    if (typeof execute !== "function") throw new Error("Expected no-demand function");
+    return Reflect.apply(execute, undefined, [{}, {}]);
   }
 });
 const passed = completed(

@@ -156,7 +156,8 @@ create 新建普通文件；已有文件或符号链接一律拒绝且不覆盖�
 `.cache/vibe-check/admission-workbench/`，不要把临时 evidence 当作稳定 owner 或提交到仓库。
 
 当前私有 evidence IDs 为：scenario/schema `1`、policy `1`、
-`public-admission-policy-context-v1`、`admission-workbench-trace-v1`。每个成功 result 记录 exact
+`public-admission-policy-context-v2`、`admission-workbench-trace-v1`。context v2 使用独立的 `cumulative`
+与 `actionHistory` 字段；历史 v1 evidence 保持形成时的字段版本，重放时须配套其当时的 consumer。每个成功 result 记录 exact
 installed package version 与 entry SHA-256、scenario/profile/policy/history/model/fallback identity、
 seed/replicate、完整合成假设、sampled-work commitment、makespan、slot·time、逐 named resource 的
 unit·time、正式 action-observation prefix 与 ordered trace。资源指标按 resource ID 分开，不能跨资源

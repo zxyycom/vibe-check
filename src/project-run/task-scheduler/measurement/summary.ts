@@ -1,7 +1,8 @@
 import type {
   SchedulerMeasurementAdmission,
-  SchedulerMeasurementTimingFacts,
-  SchedulerRawMeasurement
+  SchedulerRunMeasurementTimingFacts,
+  SchedulerRunMeasurement,
+  SchedulerTaskTimings
 } from "../../../project-definition/project-definition.ts";
 
 const TOP_TASK_LIMIT = 3;
@@ -17,14 +18,16 @@ type AdmissionDelaySummary = Readonly<{
 
 /** Projects raw Scheduler measurement into the bounded diagnostic summary. */
 export function summaryFromSchedulerMeasurement(
-  raw: SchedulerRawMeasurement
+  raw: SchedulerRunMeasurement,
+  tasks: SchedulerTaskTimings
 ): Readonly<Record<string, unknown>> {
   const alwaysAvailable = alwaysAvailableSummary(raw);
-  if (!hasTimingFacts(raw)) return Object.freeze({ ...alwaysAvailable, timing: raw.timing });
+  if (!hasTimingFacts(raw) || !("admissions" in tasks))
+    return Object.freeze({ ...alwaysAvailable, timing: raw.timing });
 
   const timingFacts = raw.timingFacts;
-  const delayTotals = admissionDelayTotals(timingFacts.admissions);
-  const lastAdmissionAt = latestAdmissionAt(timingFacts.admissions);
+  const delayTotals = admissionDelayTotals(tasks.admissions);
+  const lastAdmissionAt = latestAdmissionAt(tasks.admissions);
   return Object.freeze({
     ...alwaysAvailable,
     timing: raw.timing,
@@ -38,18 +41,18 @@ export function summaryFromSchedulerMeasurement(
     effectiveSlotUtilization: ratio(timingFacts.taskSlotMs, timingFacts.effectiveCapacitySlotMs),
     acceptedWaitMs: timingFacts.acceptedWaitMs,
     ...delayTotals,
-    topAdmissionDelays: topAdmissionDelays(timingFacts.admissions),
+    topAdmissionDelays: topAdmissionDelays(tasks.admissions),
     completionTailMs:
       lastAdmissionAt === null ? null : timingFacts.endedAtMonotonicMs - lastAdmissionAt,
     topCompletionTailContributors: topCompletionTailContributors(
       raw.discrete.completionTailActiveTaskIds,
-      timingFacts.admissions,
+      tasks.admissions,
       lastAdmissionAt
     )
   });
 }
 
-function alwaysAvailableSummary(raw: SchedulerRawMeasurement): Readonly<Record<string, unknown>> {
+function alwaysAvailableSummary(raw: SchedulerRunMeasurement): Readonly<Record<string, unknown>> {
   return Object.freeze({
     declarativeFingerprint: raw.declarativeFingerprint,
     discrete: Object.freeze({
@@ -150,10 +153,10 @@ function topCompletionTailContributors(
   );
 }
 
-function hasTimingFacts(raw: SchedulerRawMeasurement): raw is SchedulerRawMeasurement &
+function hasTimingFacts(raw: SchedulerRunMeasurement): raw is SchedulerRunMeasurement &
   Readonly<{
     readonly timing: Readonly<{ readonly availability: "available" }>;
-    readonly timingFacts: SchedulerMeasurementTimingFacts;
+    readonly timingFacts: SchedulerRunMeasurementTimingFacts;
   }> {
   return raw.timing.availability === "available";
 }

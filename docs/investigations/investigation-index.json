@@ -2395,7 +2395,7 @@
       "261012-verify-priority-complexity-optimizations": "sha256:d1cbc2171cbccbece597fdfc2f05dcfc0a689066e5b230fc80e48935beed30a6",
       "261013-evaluate-exact-key-membership-candidates": "sha256:4114f624580f04702349e3724c0691f8ea101267b2b7652245ff0930deff1c98",
       "261013-evaluate-markdown-path-cursor": "sha256:d358687b9c5034d36ea805648003e01ef33a33bbcc129de084e5dd0fac99cc12",
-      "261015-audit-scheduler-incremental-state-model": "sha256:4243a572fd89fa27f744bdfa0e23ea5e355437802c32313b56bb41e86e5d5bc8",
+      "261015-audit-scheduler-incremental-state-model": "sha256:743d2ed3966b4e675e4848886fd6d6dba6a0333ad5da05dc32044e1a2628519d",
       "261015-evaluate-strict-json-parser-replacement": "sha256:c4d1a4cc8a281d7d42bcc6fe423f4c04007f10f624db70a3ff108c88ccdf9a65",
       "261015-verify-invalid-check-tree-early-rejection": "sha256:367a0c9d9afbde6b6e3c9f2a18fb4d89e694346eb41dfb9687f282962b569fe9"
     },

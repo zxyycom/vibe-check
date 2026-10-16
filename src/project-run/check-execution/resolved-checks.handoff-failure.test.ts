@@ -1,3 +1,5 @@
+import { createProjectContextSource } from "../project-context.ts";
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -66,10 +68,13 @@ async function assertMalformedHandoffResults(): Promise<void> {
           handoff: definedHandoff(provider)
         }),
         normalized(
-          ({ dependencies }) => {
-            read = dependencies.get(provider);
-            return { status: "passed", data: { dependent: true } };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, { dependencies }) => {
+              read = dependencies.get(provider);
+              return { status: "passed", data: { dependent: true } };
+            }
+          }),
           {
             checkId: "malformed-handoff-consumer",
             dependsOn: ["malformed-handoff"],
@@ -78,7 +83,7 @@ async function assertMalformedHandoffResults(): Promise<void> {
         )
       ],
       maxParallel: 2,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     assert.equal(result.kind, "completed");
@@ -104,10 +109,13 @@ async function assertUnflaggedHandoffResults(): Promise<void> {
           displayName: provider.displayName
         }),
         normalized(
-          ({ dependencies }) => {
-            read = dependencies.get("unflagged-handoff");
-            return { status: "passed", data: { dependent: true } };
-          },
+          defineContextCallback("check.execute", {
+            contextNeeds: ["dependencies"],
+            callback: (options, { dependencies }) => {
+              read = dependencies.get("unflagged-handoff");
+              return { status: "passed", data: { dependent: true } };
+            }
+          }),
           {
             checkId: "unflagged-handoff-consumer",
             dependsOn: ["unflagged-handoff"],
@@ -117,7 +125,7 @@ async function assertUnflaggedHandoffResults(): Promise<void> {
       ],
       diagnosticLogger: recordingLogger(observations),
       maxParallel: 2,
-      project: PROJECT,
+      project: createProjectContextSource(PROJECT),
       signal: undefined
     });
     assert.equal(result.kind, "completed");

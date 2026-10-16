@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -198,19 +199,22 @@ describe("Scheduler terminal effect output", () => {
           {
             checkId: "waiting",
             displayName: "Waiting",
-            execute: async ({ signal }) => {
-              entered?.();
-              await new Promise<void>((resolve) => {
-                signal.addEventListener(
-                  "abort",
-                  () => {
-                    resolve();
-                  },
-                  { once: true }
-                );
-              });
-              return { data: {}, status: "passed" };
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["signal"],
+              callback: async (options, { signal }) => {
+                entered?.();
+                await new Promise<void>((resolve) => {
+                  signal.addEventListener(
+                    "abort",
+                    () => {
+                      resolve();
+                    },
+                    { once: true }
+                  );
+                });
+                return { data: {}, status: "passed" };
+              }
+            })
           }
         ],
         outputs: {

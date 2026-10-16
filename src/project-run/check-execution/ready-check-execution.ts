@@ -1,6 +1,6 @@
+import type { CheckProjectContextSource } from "../project-context.ts";
 /** Executes and settles a Check after its task-local preparation has admitted it. */
 
-import type { CheckProjectContext } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { artifactDirectoryForCheck, type ResolvedInvocationPaths } from "../invocation/paths.ts";
 import { diagnosticTags, summarizeDiagnosticValue } from "../diagnostic-logging/logger.ts";
@@ -21,7 +21,7 @@ export type ReadyCheckExecutionInput = CheckExecutionState &
     readonly invocationId: string;
     readonly paths: ResolvedInvocationPaths | undefined;
     readonly prepare: ReadyCheckPreparationResolution;
-    readonly project: CheckProjectContext;
+    readonly project: CheckProjectContextSource;
     readonly signal: AbortSignal;
   }>;
 
@@ -48,20 +48,25 @@ export async function executeReadyCheck(input: ReadyCheckExecutionInput): Promis
   );
   const startedAt = input.clock.now();
   const callback = await executeCheckCallback({
-    artifactDirectory:
-      input.paths === undefined ? null : artifactDirectoryForCheck(input.paths, checkId),
+    get artifactDirectory() {
+      return input.paths === undefined ? null : artifactDirectoryForCheck(input.paths, checkId);
+    },
     check,
-    dependencies: createCheckDependencies({
-      checkId,
-      directDependsOnCheckIds: check.dependsOn,
-      diagnosticLogger: input.diagnosticLogger,
-      directRelationCheckIds: directRelationCheckIds(check),
-      handoffsByCheckId: input.handoffsByCheckId,
-      session: input.session
-    }),
+    get dependencies() {
+      return createCheckDependencies({
+        checkId,
+        directDependsOnCheckIds: check.dependsOn,
+        diagnosticLogger: input.diagnosticLogger,
+        directRelationCheckIds: directRelationCheckIds(check),
+        handoffsByCheckId: input.handoffsByCheckId,
+        session: input.session
+      });
+    },
     ...(input.diagnosticLogger === undefined ? {} : { diagnosticLogger: input.diagnosticLogger }),
     invocationId: input.invocationId,
-    project: input.project,
+    get project() {
+      return input.project;
+    },
     scope,
     signal: input.signal
   });

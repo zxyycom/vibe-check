@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 
 import type { DiagnosticObservation } from "../../diagnostic-logging/logger.ts";
@@ -86,20 +87,36 @@ export async function mixedQueuePressureSummary(): Promise<Readonly<Record<strin
   const observations: DiagnosticObservation[] = [];
   const releaseHolder = createDeferred<void>();
   let acceptedMixedPressureWait = false;
-  const policy = admissionSelectionPolicyFor((context) => {
-    if (
-      !acceptedMixedPressureWait &&
-      context.candidates.some((candidate) => candidate.taskId === "b-capacity")
-    ) {
-      acceptedMixedPressureWait = true;
-      clock.advance("mixed queue pressure", 10);
-      return { kind: "wait" };
-    }
-    const candidate = context.candidates.find((item) => item.canAdmit);
-    return candidate === undefined
-      ? { kind: "wait" }
-      : { kind: "select", taskId: candidate.taskId };
-  });
+  const policy = admissionSelectionPolicyFor(
+    defineContextCallback("scheduler.decide", {
+      contextNeeds: [
+        "activeScopeIds",
+        "admissionState",
+        "candidates",
+        "capacity",
+        "graph",
+        "cumulative",
+        "actionHistory",
+        "runningTaskIds",
+        "runtime",
+        "settledTaskIds"
+      ],
+      callback: (context) => {
+        if (
+          !acceptedMixedPressureWait &&
+          context.candidates.some((candidate) => candidate.taskId === "b-capacity")
+        ) {
+          acceptedMixedPressureWait = true;
+          clock.advance("mixed queue pressure", 10);
+          return { kind: "wait" };
+        }
+        const candidate = context.candidates.find((item) => item.canAdmit);
+        return candidate === undefined
+          ? { kind: "wait" }
+          : { kind: "select", taskId: candidate.taskId };
+      }
+    })
+  );
   const running = runTaskGraph({
     admissionPolicy: policy,
     diagnosticLogger: recordingLogger(observations),

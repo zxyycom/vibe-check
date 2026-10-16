@@ -7,7 +7,7 @@ import type { Scenario } from "./scenario.ts";
 
 export const EVIDENCE_SCHEMA_VERSION = 1 as const;
 export const TRACE_VOCABULARY_ID = "admission-workbench-trace-v1" as const;
-export const POLICY_CONTEXT_ID = "public-admission-policy-context-v1" as const;
+export const POLICY_CONTEXT_ID = "public-admission-policy-context-v2" as const;
 export const SEED_DERIVATION_ID = "fnv1a32-nul-tuple+mulberry32-v1" as const;
 
 export interface CandidateIdentity {

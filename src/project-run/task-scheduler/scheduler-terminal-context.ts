@@ -9,6 +9,7 @@ export function isFullTerminalContext(
   return (
     context.graph !== undefined &&
     context.execution !== undefined &&
-    context.rawMeasurement !== undefined
+    context.runMeasurement !== undefined &&
+    context.taskTimings !== undefined
   );
 }

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { defineConfig } from "../project-definition/project-definition.ts";
-import { defineSchedulerContextCallback } from "../package-tools/scheduler-context/define-scheduler-context-callback.ts";
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import { run } from "./run.ts";
 
 const OUTPUTS = {
@@ -12,7 +12,7 @@ const OUTPUTS = {
 const PASSED = { status: "passed", data: {} } as const;
 
 describe("Package Run Scheduler context demand", () => {
-  it("shares generic and prepared terminal phase unions while keeping preparation and decision independent", async () => {
+  it("delivers exact generic and prepared terminal views while keeping phases independent", async () => {
     let generic: object | undefined;
     const calls: string[] = [];
     const result = await run(
@@ -24,13 +24,13 @@ describe("Package Run Scheduler context demand", () => {
             kind: "custom",
             strategy: {
               kind: "prepared",
-              prepare: defineSchedulerContextCallback("preparation", {
+              prepare: defineContextCallback("scheduler.prepare", {
                 contextNeeds: [],
                 callback(preparation) {
                   assert.deepEqual(Object.keys(preparation), []);
                   calls.push("prepare");
                   return {
-                    decide: defineSchedulerContextCallback("decision", {
+                    decide: defineContextCallback("scheduler.decide", {
                       contextNeeds: ["candidates"],
                       callback(context) {
                         assert.deepEqual(Object.keys(context), ["candidates"]);
@@ -40,12 +40,12 @@ describe("Package Run Scheduler context demand", () => {
                           : { kind: "select", taskId: candidate.taskId };
                       }
                     }),
-                    terminalEffect: defineSchedulerContextCallback("terminal", {
+                    terminalEffect: defineContextCallback("scheduler.terminal", {
                       contextNeeds: ["execution"],
                       callback(context) {
                         calls.push("prepared");
-                        assert.equal(context, generic);
-                        assert.deepEqual(Object.keys(context).sort(), ["execution", "graph"]);
+                        assert.notEqual(context, generic);
+                        assert.deepEqual(Object.keys(context), ["execution"]);
                         assert.deepEqual(context.execution.admittedTaskIds, ["a"]);
                       }
                     })
@@ -55,7 +55,7 @@ describe("Package Run Scheduler context demand", () => {
             }
           },
           terminalEffects: [
-            defineSchedulerContextCallback("terminal", {
+            defineContextCallback("scheduler.terminal", {
               contextNeeds: ["graph"],
               async callback(context) {
                 calls.push("generic");
@@ -72,47 +72,44 @@ describe("Package Run Scheduler context demand", () => {
     assert.deepEqual(result.outputs.terminalEffects, { enabled: true, status: "succeeded" });
   });
 
-  it("preserves raw and legacy full terminal consumers when mixed with explicit none", async () => {
-    for (const mode of ["raw", "legacy"] as const) {
-      const contexts: object[] = [];
-      const raw = defineSchedulerContextCallback("terminal", {
-        contextNeeds: ["rawMeasurement"],
-        callback(context) {
-          assert.equal(context.rawMeasurement.discrete.admittedCount, 1);
-          contexts.push(context);
+  it("delivers independently declared terminal groups and frozen empty function contexts", async () => {
+    const contexts: object[] = [];
+    const result = await run(
+      defineConfig({
+        checks: [{ checkId: "a", displayName: "A", execute: () => PASSED }],
+        outputs: OUTPUTS,
+        scheduler: {
+          terminalEffects: [
+            defineContextCallback("scheduler.terminal", {
+              contextNeeds: ["runMeasurement"],
+              callback(context) {
+                assert.deepEqual(Object.keys(context), ["runMeasurement"]);
+                assert.equal(context.runMeasurement.discrete.admittedCount, 1);
+                assert.equal("admissions" in (context.runMeasurement.timingFacts ?? {}), false);
+                contexts.push(context);
+              }
+            }),
+            defineContextCallback("scheduler.terminal", {
+              contextNeeds: ["taskTimings"],
+              callback(context) {
+                assert.deepEqual(Object.keys(context), ["taskTimings"]);
+                assert.ok("admissions" in context.taskTimings);
+                contexts.push(context);
+              }
+            }),
+            (context) => {
+              assert.deepEqual(Object.keys(context), []);
+              assert.equal(Object.isFrozen(context), true);
+              contexts.push(context);
+            }
+          ]
         }
-      });
-      const result = await run(
-        defineConfig({
-          checks: [{ checkId: "a", displayName: "A", execute: () => PASSED }],
-          outputs: OUTPUTS,
-          scheduler: {
-            terminalEffects: [
-              mode === "raw"
-                ? raw
-                : (context) => {
-                    assert.equal(context.rawMeasurement.discrete.admittedCount, 1);
-                    assert.equal(context.graph.tasks.length, 1);
-                    assert.deepEqual(context.execution.admittedTaskIds, ["a"]);
-                    contexts.push(context);
-                  },
-              defineSchedulerContextCallback("terminal", {
-                contextNeeds: [],
-                callback(context) {
-                  contexts.push(context);
-                }
-              })
-            ]
-          }
-        })
-      );
-      assert.equal(result.kind, "completed");
-      assert.equal(contexts[0], contexts[1]);
-      assert.deepEqual(
-        Object.keys(contexts[0] ?? {}).sort(),
-        mode === "raw" ? ["rawMeasurement"] : ["execution", "graph", "rawMeasurement"]
-      );
-    }
+      })
+    );
+    assert.equal(result.kind, "completed");
+    assert.equal(contexts.length, 3);
+    assert.notEqual(contexts[0], contexts[1]);
+    assert.notEqual(contexts[1], contexts[2]);
   });
 
   it("rejects malformed prepared-return needs before admission and leaves generic effects not-run", async () => {
@@ -137,7 +134,7 @@ describe("Package Run Scheduler context demand", () => {
             strategy: {
               kind: "prepared",
               prepare() {
-                const decide = defineSchedulerContextCallback("decision", {
+                const decide = defineContextCallback("scheduler.decide", {
                   contextNeeds: [],
                   callback: () => ({ kind: "wait" })
                 });
@@ -147,7 +144,7 @@ describe("Package Run Scheduler context demand", () => {
             }
           },
           terminalEffects: [
-            defineSchedulerContextCallback("terminal", {
+            defineContextCallback("scheduler.terminal", {
               contextNeeds: [],
               callback: () => {
                 effects++;

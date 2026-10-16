@@ -120,7 +120,12 @@ function assertSinglePassCategoryCounts(): void {
       return kind;
     }
   }));
-  const integrals = new SchedulerPerformanceIntegrals();
+  const integrals = new SchedulerPerformanceIntegrals({
+    cumulative: true,
+    actionHistory: true,
+    runMeasurement: true,
+    taskTimings: true
+  });
   integrals.installPendingProjection(pendingTasks, true);
   assert.equal(kindReads, pendingTasks.length);
   assert.deepEqual(integrals.peaks(), {

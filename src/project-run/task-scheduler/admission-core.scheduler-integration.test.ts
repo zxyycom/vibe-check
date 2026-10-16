@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -44,13 +45,29 @@ describe("Scheduler admission core integration", () => {
     const replayEvents: string[] = [];
 
     const run = await runTaskGraph({
-      admissionPolicy: admissionSelectionPolicyFor((context) => {
-        contexts.push(context);
-        const candidate = context.candidates.find((item) => item.canAdmit);
-        if (candidate === undefined) return { kind: "wait" };
-        assert.equal(context.admissionState.validateSelection(candidate.taskId).accepted, true);
-        return { kind: "select", taskId: candidate.taskId };
-      }),
+      admissionPolicy: admissionSelectionPolicyFor(
+        defineContextCallback("scheduler.decide", {
+          contextNeeds: [
+            "activeScopeIds",
+            "admissionState",
+            "candidates",
+            "capacity",
+            "graph",
+            "cumulative",
+            "actionHistory",
+            "runningTaskIds",
+            "runtime",
+            "settledTaskIds"
+          ],
+          callback: (context) => {
+            contexts.push(context);
+            const candidate = context.candidates.find((item) => item.canAdmit);
+            if (candidate === undefined) return { kind: "wait" };
+            assert.equal(context.admissionState.validateSelection(candidate.taskId).accepted, true);
+            return { kind: "select", taskId: candidate.taskId };
+          }
+        })
+      ),
       diagnosticLogger: Object.freeze({
         close: () => "disabled" as const,
         observe: (observation: DiagnosticObservation): void => {
@@ -99,8 +116,8 @@ describe("Scheduler admission core integration", () => {
     ]);
     const sourceSettlementMeasurement = contexts
       .flatMap((context) =>
-        Array.from({ length: context.measurement.measurementCount }, (_, index) =>
-          context.measurement.measurementAt(index)
+        Array.from({ length: context.actionHistory.measurementCount }, (_, index) =>
+          context.actionHistory.measurementAt(index)
         )
       )
       .find(
@@ -176,16 +193,35 @@ describe("Scheduler admission core integration", () => {
 
     let terminalLastSettledTaskId: string | null | undefined;
     await runTaskGraph({
-      admissionPolicy: admissionSelectionPolicyFor(() => ({ kind: "select", taskId: "source" })),
+      admissionPolicy: admissionSelectionPolicyFor(
+        defineContextCallback("scheduler.decide", {
+          contextNeeds: [
+            "activeScopeIds",
+            "admissionState",
+            "candidates",
+            "capacity",
+            "graph",
+            "cumulative",
+            "actionHistory",
+            "runningTaskIds",
+            "runtime",
+            "settledTaskIds"
+          ],
+          callback: () => ({ kind: "select", taskId: "source" })
+        })
+      ),
       execute: () => {
         throw new Error("expected source failure");
       },
       graph: { tasks: graph.tasks.slice(0, 3) },
       maxParallel: 1,
       terminalEffects: [
-        (context) => {
-          terminalLastSettledTaskId = context.rawMeasurement.discrete.lastSettledTaskId;
-        }
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: (context) => {
+            terminalLastSettledTaskId = context.runMeasurement.discrete.lastSettledTaskId;
+          }
+        })
       ],
       performanceDiagnostics: Object.freeze({
         clock: Object.freeze({ now: () => 0 }),

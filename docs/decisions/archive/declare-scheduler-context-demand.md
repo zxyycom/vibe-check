@@ -1,7 +1,7 @@
 ---
 title: 以阶段需求声明控制 Scheduler 上下文成本
 id: 261013-declare-scheduler-context-demand
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-13T04:41:36Z
 purpose: 让消费者声明所需事实并由 Core 统一构建，同时保留旧回调契约
@@ -26,8 +26,8 @@ relations: []
   不将需求声明改为必填，保留旧 function authoring 的完整 context、调用顺序与失败语义。
   callback 输入槽拓宽为 function/descriptor 联合后，直接调用已标注槽位类型的代码须先收窄；
   输入槽不是直接调用接口，不承诺所有既有 TypeScript 类型消费都零修改。
-- [调度指南](../guides/scheduling.md)已有不可变上下文、终态共享 identity、顺序交付和失败语义；
-  [内部 owner](../development/scheduler.md)已有唯一 reducer 和 collector。减少成本不能另造执行真相或弱化这些保证。
+- [调度指南](../../guides/scheduling.md)已有不可变上下文、终态共享 identity、顺序交付和失败语义；
+  [内部 owner](../../development/scheduler.md)已有唯一 reducer 和 collector。减少成本不能另造执行真相或弱化这些保证。
 - preparation、decision 和 terminal 消费的事实与失败时点不同；跨阶段合并会令廉价消费者负担无关生命周期成本。
 
 ## 决策

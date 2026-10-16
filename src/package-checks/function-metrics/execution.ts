@@ -1,4 +1,9 @@
-import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
+import type {
+  DeepReadonly,
+  CheckExecutionContext,
+  CheckMessage,
+  CheckResult
+} from "../../check/check.ts";
 import {
   reconcileFindingWaivers,
   type FindingWaiverReconciliation
@@ -49,37 +54,41 @@ export type FunctionMetricsUnavailableReasonCode =
 
 /** Default Check callback；一次扫描完整 area exact-input union。 */
 export async function executeFunctionMetrics(
-  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>,
+  options: DeepReadonly<ResolvedFunctionMetricsOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   dependencies: Readonly<{
     readonly measurement?: Partial<FunctionMeasurementDependencies>;
   }> = {}
 ): Promise<CheckResult<FunctionMetricsFinalData>> {
-  if (!validResolvedFunctionMetricsOptions(context.options)) return unavailable("invalid-options");
+  if (!validResolvedFunctionMetricsOptions(options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("cancelled");
 
   let prepared: PreparedFunctionInputs;
   try {
-    prepared = prepareFunctionInputs(context.project.root, context.options.codeAreas);
+    prepared = prepareFunctionInputs(context.project.root, options.codeAreas);
   } catch {
     return unavailable("source-unavailable");
   }
   if (context.signal.aborted) return unavailable("cancelled");
-  return executePreparedFunctionMetrics(context, prepared, dependencies);
+  return executePreparedFunctionMetrics(options, context, prepared, dependencies);
 }
 
 async function executePreparedFunctionMetrics(
-  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>,
+  options: DeepReadonly<ResolvedFunctionMetricsOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   prepared: PreparedFunctionInputs,
   dependencies: Readonly<{
     readonly measurement?: Partial<FunctionMeasurementDependencies>;
   }>
 ): Promise<CheckResult<FunctionMetricsFinalData>> {
   if (prepared.selectedPathCount === 0) {
-    return noEligibleFunctionInputResult(context);
+    return noEligibleFunctionInputResult(options, context);
   }
-  reportInputRejections(context, prepared.rejectedCandidates);
+  for (const candidate of prepared.rejectedCandidates) {
+    context.records.report({ id: candidate.id }, candidate.data);
+  }
   if (prepared.exactInput.approvedExactPaths.length === 0) {
-    const reconciliation = reconcileFunctionMetricWaivers([], context.options.findingWaivers);
+    const reconciliation = reconcileFunctionMetricWaivers([], options.findingWaivers);
     reportFindingWaiverAudits(context, reconciliation, functionMetricsWaiverAuditRecord);
     return settleFunctionFindings(reconciliation, prepared.rejectedCandidates);
   }
@@ -97,29 +106,27 @@ async function executePreparedFunctionMetrics(
     );
   }
   const analysis = analyzeFunctionMetrics(measurement.metrics);
-  if (analysis === undefined) {
-    return appendInputRejectedMessage(
-      unavailable("analysis-failed"),
-      prepared.rejectedCandidates.length
-    );
-  }
-  const candidates = buildFunctionRecordCandidates(analysis, prepared.exactInput.areas);
+  const candidates =
+    analysis === undefined
+      ? undefined
+      : buildFunctionRecordCandidates(analysis, prepared.exactInput.areas);
   if (candidates === undefined) {
     return appendInputRejectedMessage(
       unavailable("analysis-failed"),
       prepared.rejectedCandidates.length
     );
   }
-  const reconciliation = reconcileFunctionMetricWaivers(candidates, context.options.findingWaivers);
+  const reconciliation = reconcileFunctionMetricWaivers(candidates, options.findingWaivers);
   reportReconciledCodeQualityFindingRecords(context, reconciliation);
   reportFindingWaiverAudits(context, reconciliation, functionMetricsWaiverAuditRecord);
   return settleFunctionFindings(reconciliation, prepared.rejectedCandidates);
 }
 
 function noEligibleFunctionInputResult(
-  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>
+  options: DeepReadonly<ResolvedFunctionMetricsOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): CheckResult<FunctionMetricsFinalData> {
-  const reconciliation = reconcileFunctionMetricWaivers([], context.options.findingWaivers);
+  const reconciliation = reconcileFunctionMetricWaivers([], options.findingWaivers);
   reportFindingWaiverAudits(context, reconciliation, functionMetricsWaiverAuditRecord);
   return appendCheckMessages(
     Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } }),
@@ -213,15 +220,6 @@ function collectAreaInputs(
     rejectedCodeAreasByPath,
     selectedPaths
   });
-}
-
-function reportInputRejections(
-  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>,
-  candidates: readonly FunctionInputRejectedCandidate[]
-): void {
-  for (const candidate of candidates) {
-    context.records.report({ id: candidate.id }, candidate.data);
-  }
 }
 
 function settleFunctionFindings(

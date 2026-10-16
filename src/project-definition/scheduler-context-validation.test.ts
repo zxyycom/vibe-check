@@ -25,7 +25,7 @@ describe("Scheduler context declaration validation", () => {
       assert.fail("expected descriptor");
     assert.equal(snapshot.callback, callback);
     assert.deepEqual(snapshot.contextNeeds, ["graph"]);
-    needs.push("rawMeasurement");
+    needs.push("runMeasurement");
     assert.deepEqual(snapshot.contextNeeds, ["graph"]);
     assert.equal(Object.isFrozen(snapshot), true);
     assert.equal(Object.isFrozen(snapshot.contextNeeds), true);
@@ -61,15 +61,11 @@ describe("Scheduler context declaration validation", () => {
     for (const value of malformed)
       assert.equal(snapshotSchedulerContextCallback("terminal", value), undefined);
     assert.equal(getterCalls, 0);
-    assert.deepEqual(normalizeSchedulerContextCallback("terminal", callback)?.contextNeeds, [
-      "execution",
-      "graph",
-      "rawMeasurement"
-    ]);
+    assert.deepEqual(normalizeSchedulerContextCallback("terminal", callback)?.contextNeeds, []);
     assert.deepEqual(
       normalizeSchedulerContextCallback("terminal", { callback, contextNeeds: undefined })
         ?.contextNeeds,
-      ["execution", "graph", "rawMeasurement"]
+      []
     );
     assert.deepEqual(
       normalizeSchedulerContextCallback("terminal", { callback, contextNeeds: [] })?.contextNeeds,

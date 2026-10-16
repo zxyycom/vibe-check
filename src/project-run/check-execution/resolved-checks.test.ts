@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -11,10 +12,15 @@ describe("Package Run direct Check execution", () => {
       { level: "warning" as const, code: "watch", message: "Two details" },
       { level: "error" as const, code: "failure", message: "Three details" }
     ];
-    const result = await execute((context) => {
-      context.records.report({ id: "sample" }, { durationMs: 12 });
-      return { status: "passed", data: { summary: "ok" }, messages };
-    });
+    const result = await execute(
+      defineContextCallback("check.execute", {
+        contextNeeds: ["records"],
+        callback: (options, context) => {
+          context.records.report({ id: "sample" }, { durationMs: 12 });
+          return { status: "passed", data: { summary: "ok" }, messages };
+        }
+      })
+    );
 
     assert.equal(result.kind, "completed");
     assert.deepEqual(result.snapshot.checks[0]?.outcome, {

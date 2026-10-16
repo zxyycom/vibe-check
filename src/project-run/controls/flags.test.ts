@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -46,11 +47,14 @@ async function assertFlagEnablementMode(
         preparationCalls += 1;
         return { status: "success", preparedOptions: options };
       },
-      execute: ({ project }) => {
-        controlledCalls += 1;
-        observedFlags.push(project.flags);
-        return PASSED;
-      }
+      execute: defineContextCallback("check.execute", {
+        contextNeeds: ["project"],
+        callback: (options, { project }) => {
+          controlledCalls += 1;
+          observedFlags.push(project.flags);
+          return PASSED;
+        }
+      })
     },
     {
       checkId: "dependent",
@@ -65,13 +69,16 @@ async function assertFlagEnablementMode(
       checkId: "observer",
       displayName: "Observer",
       observes: ["flag-controlled"],
-      execute: ({ dependencies }) => {
-        observerCalls += 1;
-        const [observation] = dependencies.list();
-        assert(observation !== undefined);
-        observedStatuses.push(observation.outcome.status);
-        return PASSED;
-      }
+      execute: defineContextCallback("check.execute", {
+        contextNeeds: ["dependencies"],
+        callback: (options, { dependencies }) => {
+          observerCalls += 1;
+          const [observation] = dependencies.list();
+          assert(observation !== undefined);
+          observedStatuses.push(observation.outcome.status);
+          return PASSED;
+        }
+      })
     }
   ]);
 
@@ -193,15 +200,18 @@ describe("Package Run flags", () => {
       {
         checkId: "flag-aware",
         displayName: "Flag-aware",
-        execute: (context) => {
-          assert.equal(Object.isFrozen(context.project.flags), true);
-          assert.throws(
-            () => Object.defineProperty(context.project.flags, "0", { value: "mutated" }),
-            TypeError
-          );
-          snapshots.push(context.project.flags);
-          return PASSED;
-        }
+        execute: defineContextCallback("check.execute", {
+          contextNeeds: ["project"],
+          callback: (options, context) => {
+            assert.equal(Object.isFrozen(context.project.flags), true);
+            assert.throws(
+              () => Object.defineProperty(context.project.flags, "0", { value: "mutated" }),
+              TypeError
+            );
+            snapshots.push(context.project.flags);
+            return PASSED;
+          }
+        })
       }
     ]);
     await run(source);

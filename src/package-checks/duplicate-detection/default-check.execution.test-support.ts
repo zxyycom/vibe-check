@@ -1,9 +1,13 @@
+import {
+  prepareCheckOptions,
+  createTypeScriptSourceRoot,
+  executeCheck
+} from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { chmodSync, existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { createTypeScriptSourceRoot, executeCheck } from "../check-execution.test-support.ts";
 import { duplicateDetection } from "./default-check.ts";
 import { executeDuplicateDetection } from "./execution.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
@@ -59,7 +63,8 @@ export async function assertInvalidOptionsAreRejected(
   root: string,
   executable: string
 ): Promise<void> {
-  const invalidPreparation = await check.prepare!(
+  const invalidPreparation = await prepareCheckOptions(
+    check.prepare!,
     { ...options, codeAreas: {} },
     new AbortController().signal
   );

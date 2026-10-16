@@ -261,14 +261,14 @@
       "260902-isolate-lizard-port-behind-check-private-interface": "sha256:2a42f14be2878d055bb59c9d1837be86c6401c8ffab8ab8c7bc3a8c89f42734b",
       "260902-keep-repository-quality-findings-advisory-through-release": "sha256:dc3025469fcd78df79a08078b27667191b0a656928f999b2b181a3e3b78d9bdf",
       "260902-learn-check-task-durations-for-critical-path-admission": "sha256:73acba8e58ee51febc69c358ceb7070d440a8ee955cce970b398fa0e7c371b56",
-      "260902-observe-post-action-policy-measurement": "sha256:04d73f83ae6bdee657300a25065464f0479b2a7ded8dbfe62937fdbc51dc2a9d",
+      "260902-observe-post-action-policy-measurement": "sha256:979868c0e88b2bd0f2cc57c033b246b8b23c250524899c93a93716985a3db086",
       "260902-preserve-applicable-upstream-licenses-for-translated-analyzers": "sha256:269a48ae43f1be81262336c355faf41f8c8b45e1d49416ddebd3e6be5e2fcd99",
       "260902-preserve-primary-run-failures-over-measurement-hook-output": "sha256:c0034e07d5ae0eeb735129a98d06c8c0031543e9c5274e3e9aae9293a11a93ff",
       "260902-provide-decision-boundary-admission-measurement": "sha256:a80286db3533126a85a483d02de3a52174122c29233670a1648c2cf874827c3f",
       "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers": "sha256:b513d6d7ef250ea198bc57e9592c44d7cd300e594dc0010916935b8b150e3140",
       "260902-track-lizard-supported-languages-with-upstream-advisory": "sha256:0eadf275cd5dc02e5355b078b0a9c9c0b8a8c37eabf7fc148c548bc3a1f61e76",
       "260902-treat-flag-control-settlements-as-scheduler-results": "sha256:07a0aa2eed049839d410c5fe64dd3cc92042107bb3ef511c689b9c9e2fcc2f92",
-      "260902-unify-default-summary-with-terminal-measurement-hooks": "sha256:4e362eb3436da1ea753fe404f3e77029183e9de66a116f6115ac8fbcd36c5619",
+      "260902-unify-default-summary-with-terminal-measurement-hooks": "sha256:6171c82d61d4919eea25698384f1b4bef391a661401c93a3c2c6e3fcd3387bf6",
       "260903-add-secret-detection-to-package-check-contract": "sha256:66a576630037940d53aeecc511f4e485b6398feee13989542455f022c04eeb7c",
       "260903-adopt-invocation-scoped-custom-admission-strategy-authoring": "sha256:abffd56175789f508fdcfccef2dc76d605776afda9e7449129c35df84d6eb7ad",
       "260903-adopt-selected-lizard-extensions-in-product-owned-analyzer": "sha256:8aa2ce7bd9cb962ff08b8452ed326fb9ed1c2d599cdb2da744176f5c510e6b7b",
@@ -338,7 +338,7 @@
       "260912-provide-public-data-boundaries-for-tool-isolation": "sha256:627f25a57429c48cfd7a459310cbc664a566f7c775e2ac90246a111902df5f3e",
       "260914-configure-progress-previews-and-quiet-pass-presentation": "sha256:591c3f6c75f2d3dd1f57156bcc0ec04d4984809eeadfc8e188cb0a2dba748bd4",
       "260914-keep-check-observation-as-logical-lifecycle-positions": "sha256:37e476daeafc31783a842ee01d0cb46bc87abe8925af86065e2973b644d5f7b1",
-      "260914-name-scheduler-terminal-consumers-as-effects": "sha256:954a86bcb99d6b398cdb0a775fe4517b3ed27ffd8847148be917c5ef9e8bb1e2",
+      "260914-name-scheduler-terminal-consumers-as-effects": "sha256:94701b411c5842ba5e7b6f34802e1f3c3b154d9f9ebded9f77080da86f6e8d5b",
       "260914-narrow-project-gate-to-result-contribution": "sha256:c8093695eeae49b9fe58b9f50cd350481a298c4e706b7b35a7a95cf06d663c4e",
       "260914-unify-project-change-flags-as-effective-flags": "sha256:f61d2b400b55f35d459c0933b611c9ab28468421307c55b4ad85a73557fbcd4d",
       "260914-use-prepare-and-execute-check-authoring-names": "sha256:a4f1c485d6be5e4998df6915ef8b83ad7b0bc8c802ec773be304c2f6f0b3f3e0",
@@ -347,7 +347,7 @@
       "260915-keep-package-quality-advisory-with-default-gate-aggregation": "sha256:8bd357cc49a4058d0b721e953a79bba37505aee4a646b55b2b0ea1962f695d8d",
       "260915-provide-bounded-markdown-lint-check": "sha256:37fb68f0951b63c35527be3ec0c95d6af659f29eeca2abc22a7570a75f77a36d",
       "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b",
-      "260920-configure-package-checks-through-constructor-options": "sha256:c45c93f46e0435fd1ec5de0403366d078a839b0b802fc30a142d8c7ba6bd0958",
+      "260920-configure-package-checks-through-constructor-options": "sha256:5bfb97f0f60af82f16afc762d6a26903c94fd513ed48ae57d531ea13cd30c811",
       "260920-extend-command-check-with-caller-owned-completion": "sha256:d31e73e1254bad1dc7805296b64317b4676e3f1b00b54f66df8a8259c1b71a55",
       "260922-adopt-project-gate-markdown-lint-advisory": "sha256:ed1894b1d12ca3452942282ceb2beca1b43f90b704b81cf4505e088171a03ac1",
       "260922-adopt-repository-material-change-selection": "sha256:ff6c031fbeeb91834bf60da131f5010161b9828ee20d6d9a5b21c4352e187890",
@@ -363,12 +363,16 @@
       "261010-unify-file-selection-with-default-excludes": "sha256:b864debed85b047c249b2ef3867c41a99b648526a8c8c8d222015d8509b3b6e2",
       "261011-align-nullish-coalescing-with-short-circuit-function-metrics": "sha256:cf106af43518a331361eda94c81f038d4e85e910c4443c8973a3d863ee2ec5a7",
       "261012-bound-unclosable-tokenizer-tail-cost": "sha256:7c0d37be8708827791a0b3728bcd290dd8236d3a79102e94391f64ace81f2da6",
-      "261013-declare-scheduler-context-demand": "sha256:03e5513930d9e8f8eea2970fd449590544b355eac777c4fe7f9f77ffc35a8591",
+      "261013-declare-scheduler-context-demand": "sha256:07da48d56d2909ead77c9d6d96ec7db15139061de11d34f26763fce248a12e5d",
       "261013-warn-on-explicit-markdown-parse-cache-capacity": "sha256:303c4f09a20e15afc78151fcd2ec13c3e78cab9b885919f9e88e4bd8834dca8c",
       "261013-weigh-performance-costs-against-scaling-benefits": "sha256:f683acd59be9bff15ce789368bcf39f642945069f7d29267ce03ef5ba612dfbb",
       "261014-enable-gate-markdown-parse-cache": "sha256:1f0c17ff2154da5835fe0354a47afbc4255d41f3081f211e60313b89f39b4da9",
       "261015-reject-duplicate-executable-checks-before-expansion": "sha256:e6807bcb9bb4844d40cefa144b182ddd61944c2454cc8866c4b4419649995916",
-      "261015-use-native-json-with-private-duplicate-scan": "sha256:fa125c180ddb9105e5f9c5bfeb38bf7100fd26e0a2c814afb92ea69a71ea8f8e"
+      "261015-use-native-json-with-private-duplicate-scan": "sha256:fa125c180ddb9105e5f9c5bfeb38bf7100fd26e0a2c814afb92ea69a71ea8f8e",
+      "261016-declare-exact-callback-contexts": "sha256:9c6f9de9c155a49cc92813791e2b9663a52672c8d53d9c98f96c207edf91b990",
+      "261016-deliver-summary-through-exact-terminal-views": "sha256:e8622178a792f8ecc17b9b03a207efe9dc26a5d691a1241e3428525f4b475434",
+      "261016-preserve-terminal-effects-with-grouped-measurements": "sha256:10a981906c448061f2eff146c4d77ba192ffb737d35ec59bfe5304b9ca17dc1f",
+      "261016-separate-post-action-observation-demands": "sha256:fca9f294283ee764e3e81973ca443516a2db4badc6570754236988dc0abb7498"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -5420,9 +5424,9 @@
     },
     "260902-observe-post-action-policy-measurement": {
       "name": "observe-post-action-policy-measurement",
-      "sourcePath": "observe-post-action-policy-measurement.md",
+      "sourcePath": "archive/observe-post-action-policy-measurement.md",
       "title": "以 policy action 后状态观察修订准入 measurement",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-02T02:56:32Z",
       "purpose": "让下一次 custom admission policy 读取上一 accepted action 之后完整且无因果主张的 Scheduler 一阶观察。",
@@ -5585,9 +5589,9 @@
     },
     "260902-unify-default-summary-with-terminal-measurement-hooks": {
       "name": "unify-default-summary-with-terminal-measurement-hooks",
-      "sourcePath": "unify-default-summary-with-terminal-measurement-hooks.md",
+      "sourcePath": "archive/unify-default-summary-with-terminal-measurement-hooks.md",
       "title": "将默认 Scheduler summary 统一为 terminal measurement Hook",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-02T02:34:23Z",
       "purpose": "让内置 summary 与 caller measurement Hook 共享一条有序 terminal delivery 边界。",
@@ -6996,9 +7000,9 @@
     },
     "260914-name-scheduler-terminal-consumers-as-effects": {
       "name": "name-scheduler-terminal-consumers-as-effects",
-      "sourcePath": "name-scheduler-terminal-consumers-as-effects.md",
+      "sourcePath": "archive/name-scheduler-terminal-consumers-as-effects.md",
       "title": "将 Scheduler 终态消费者命名为 terminal effects",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-14T06:21:06Z",
       "purpose": "让 Definition 与 prepared strategy 的终态函数按只读副作用职责共享准确输出身份",
@@ -7524,9 +7528,9 @@
     },
     "261013-declare-scheduler-context-demand": {
       "name": "declare-scheduler-context-demand",
-      "sourcePath": "declare-scheduler-context-demand.md",
+      "sourcePath": "archive/declare-scheduler-context-demand.md",
       "title": "以阶段需求声明控制 Scheduler 上下文成本",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-13T04:41:36Z",
       "purpose": "让消费者声明所需事实并由 Core 统一构建，同时保留旧回调契约",
@@ -7631,6 +7635,95 @@
           "type": "替代",
           "target": "260824-use-momoa-for-strict-json-document-boundary",
           "summary": "以原生语法和自有窄查重替换 AST 取证成本"
+        }
+      ]
+    },
+    "261016-declare-exact-callback-contexts": {
+      "name": "declare-exact-callback-contexts",
+      "sourcePath": "declare-exact-callback-contexts.md",
+      "title": "以静态声明交付精确 callback context",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-16T07:28:12Z",
+      "purpose": "让业务输入与框架能力分离，并按固定需求生产和精确交付",
+      "background": "兼容 full 默认和阶段 union 交付使隐藏依赖与无消费者的生产持续存在",
+      "decision": "统一 Check、Scheduler 与 command 的默认空声明，保持领域事实与生命周期",
+      "tags": [
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261013-declare-scheduler-context-demand",
+          "summary": "将 Scheduler 兼容 union 扩展为全局默认空精确交付"
+        }
+      ]
+    },
+    "261016-deliver-summary-through-exact-terminal-views": {
+      "name": "deliver-summary-through-exact-terminal-views",
+      "sourcePath": "deliver-summary-through-exact-terminal-views.md",
+      "title": "以精确终态视图保持统一 summary delivery",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-16T07:28:16Z",
+      "purpose": "保持 summary 与 caller effects 的顺序和故障边界而不绑定外层 identity",
+      "background": "终态需求精确交付与旧 summary 共享完整 context identity 冲突",
+      "decision": "统一 terminal runner 并分别投影所需字段，summary 自行包含 writer failure",
+      "tags": [
+        "product-contract",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260902-unify-default-summary-with-terminal-measurement-hooks",
+          "summary": "保留统一交付及故障包含，取消共享外层身份"
+        }
+      ]
+    },
+    "261016-preserve-terminal-effects-with-grouped-measurements": {
+      "name": "preserve-terminal-effects-with-grouped-measurements",
+      "sourcePath": "preserve-terminal-effects-with-grouped-measurements.md",
+      "title": "以分组测量保持 terminal effects 契约",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-16T07:28:20Z",
+      "purpose": "保持终态 effect 的准确命名、交付机会与失败优先级",
+      "background": "旧命名决策保留全部 measurement DTO，阻止按独立需求拆分观察成本",
+      "decision": "保留 terminalEffects 流水线并以 runMeasurement 与 taskTimings 替换 raw DTO",
+      "tags": [
+        "product-contract",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260914-name-scheduler-terminal-consumers-as-effects",
+          "summary": "保留 effect 与输出语义，改为独立分组 measurement DTO"
+        }
+      ]
+    },
+    "261016-separate-post-action-observation-demands": {
+      "name": "separate-post-action-observation-demands",
+      "sourcePath": "separate-post-action-observation-demands.md",
+      "title": "将累计观察与 action prefix 分为独立需求",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-16T07:28:23Z",
+      "purpose": "保持 post-action 观察含义与旧 prefix 隔离，同时避免强制维护无消费者历史",
+      "background": "聚合 measurement 把有界累计、action history 与终态逐 Task 维护成本绑定",
+      "decision": "以 cumulative、actionHistory、runMeasurement、taskTimings 独立启用同一 collector",
+      "tags": [
+        "configuration",
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260902-observe-post-action-policy-measurement",
+          "summary": "拆分公共观察字段，保留后状态区间与固定前缀"
         }
       ]
     }

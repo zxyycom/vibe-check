@@ -1,3 +1,4 @@
+import { normalizeSchedulerContextCallback } from "../../project-definition/scheduler-context-validation.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -133,9 +134,9 @@ describe("Package Run admission strategy lifecycle", () => {
                 admissionPolicy: malformedPolicy,
                 completion: Object.freeze({
                   kind: "terminal-effect" as const,
-                  terminalEffect: () => {
+                  terminalEffect: normalizeSchedulerContextCallback("terminal", () => {
                     events.push("complete");
-                  }
+                  })!
                 }),
                 observeAdmittedTask: undefined,
                 requiresTerminalMeasurement: true

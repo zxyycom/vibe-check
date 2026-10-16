@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -69,12 +70,15 @@ describe("Package Run progress rendering outputs", () => {
           check({
             checkId: "quiet-pass-records",
             omitQuietPassedRow: true,
-            execute: ({ records }) => {
-              for (let index = 1; index <= 6; index += 1) {
-                records.report({ id: `record-${index}` }, { index, text: "x".repeat(260) });
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["records"],
+              callback: (options, { records }) => {
+                for (let index = 1; index <= 6; index += 1) {
+                  records.report({ id: `record-${index}` }, { index, text: "x".repeat(260) });
+                }
+                return { status: "passed", data: {}, messages };
               }
-              return { status: "passed", data: {}, messages };
-            }
+            })
           })
         ],
         true
@@ -123,18 +127,21 @@ describe("Package Run progress rendering outputs", () => {
         [
           check({
             checkId: "configured-preview",
-            execute: ({ records }) => {
-              records.report({ id: "one" }, { order: 1 });
-              records.report({ id: "two" }, { order: 2 });
-              return {
-                status: "passed",
-                data: {},
-                messages: [
-                  { level: "info", code: "one", message: "first message" },
-                  { level: "info", code: "two", message: "second message" }
-                ]
-              };
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["records"],
+              callback: (options, { records }) => {
+                records.report({ id: "one" }, { order: 1 });
+                records.report({ id: "two" }, { order: 2 });
+                return {
+                  status: "passed",
+                  data: {},
+                  messages: [
+                    { level: "info", code: "one", message: "first message" },
+                    { level: "info", code: "two", message: "second message" }
+                  ]
+                };
+              }
+            })
           })
         ],
         true

@@ -45,7 +45,7 @@ export function measurementRecordingProposal(
     contexts.push(context);
     if (contexts.length === 1) {
       assert.equal(
-        Reflect.set(context.measurement.cumulative.timing as object, "availability", "unavailable"),
+        Reflect.set(context.cumulative.timing as object, "availability", "unavailable"),
         false
       );
     }
@@ -70,9 +70,9 @@ function assertMeasurementPrefix(contexts: readonly AdmissionPolicyContext[]): v
   const last = requiredAdmissionPolicyContext(contexts, 39);
   assert.equal(contexts.length, 40);
   assert.equal(new Set(contexts.map((context) => context.graph)).size, 1);
-  assert.equal(first.measurement.measurementCount, 0);
-  assert.equal(first.measurement.measurementAt(0), undefined);
-  assert.deepEqual(second.measurement.measurementAt(0), {
+  assert.equal(first.actionHistory.measurementCount, 0);
+  assert.equal(first.actionHistory.measurementAt(0), undefined);
+  assert.deepEqual(second.actionHistory.measurementAt(0), {
     interval: {
       availability: "available",
       contribution: {
@@ -90,11 +90,11 @@ function assertMeasurementPrefix(contexts: readonly AdmissionPolicyContext[]): v
     sequence: 1,
     taskId: "task-0"
   });
-  assert.equal(second.measurement.measurementCount, 1);
-  assert.equal(second.measurement.measurementAt(1), undefined);
-  assert.equal(first.measurement.measurementAt(39), undefined);
-  assert.equal(first.measurement.cumulative.discrete.admittedCount, 0);
-  const terminalTimingFacts = last.measurement.cumulative.timingFacts;
+  assert.equal(second.actionHistory.measurementCount, 1);
+  assert.equal(second.actionHistory.measurementAt(1), undefined);
+  assert.equal(first.actionHistory.measurementAt(39), undefined);
+  assert.equal(first.cumulative.discrete.admittedCount, 0);
+  const terminalTimingFacts = last.cumulative.timingFacts;
   if (terminalTimingFacts === undefined) assert.fail("expected available cumulative timing facts");
   assert.equal("admissions" in terminalTimingFacts, false);
 }
@@ -105,10 +105,10 @@ function assertMeasurementImmutability(
 ): void {
   const first = requiredAdmissionPolicyContext(contexts, 0);
   const second = requiredAdmissionPolicyContext(contexts, 1);
-  assert.equal(Object.isFrozen(second.measurement), true);
-  assert.equal(Object.isFrozen(second.measurement.measurementAt), true);
-  assert.equal(Object.isFrozen(second.measurement.measurementAt(0)), true);
-  const firstTiming = first.measurement.cumulative.timing;
+  assert.equal(Object.isFrozen(second.actionHistory), true);
+  assert.equal(Object.isFrozen(second.actionHistory.measurementAt), true);
+  assert.equal(Object.isFrozen(second.actionHistory.measurementAt(0)), true);
+  const firstTiming = first.cumulative.timing;
   assert.equal(Object.isFrozen(firstTiming), true);
   assert.equal(Reflect.set(firstTiming as object, "availability", "unavailable"), false);
   assert.deepEqual(firstTiming, { availability: "available" });

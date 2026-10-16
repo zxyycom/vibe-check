@@ -19,7 +19,7 @@ collector 拥有 clock、区间归属与 timing。immutable successor 同时服�
 
 本项在[上下文 Change](../adopt-declarative-callback-contexts/design.md)完整交付后实施：先核对新的字段、
 固定需求时点和按需生产边界，再获取 baseline。该顺序避免用本项补前项迁移，也不把旧源码成本冒充新基线。
-阶段需求与 immutable 方向分别遵循[需求 Decision](../../docs/decisions/declare-scheduler-context-demand.md)和
+阶段需求与 immutable 方向分别遵循[需求 Decision](../../docs/decisions/declare-exact-callback-contexts.md)和
 [状态 Decision](../../docs/decisions/provide-immutable-admission-graph-state.md)；具体 API 以届时已交付 owner 为准。
 
 ## Goals / Non-Goals

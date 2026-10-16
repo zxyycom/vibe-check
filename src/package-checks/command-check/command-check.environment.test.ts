@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -11,7 +12,6 @@ import {
   createCommandCheckFixture,
   executeCommandCheckFixture
 } from "./command-check.test-support.ts";
-import type { AfterCommandContext, CommandEnvironmentContext } from "./contract.ts";
 
 const CANARY_OUTPUT = "command-output-canary";
 
@@ -72,22 +72,28 @@ describe("commandCheck environment", () => {
           'if (process.env.RESOLVED_COMMAND_ENVIRONMENT !== "yes") process.exit(17); process.stdout.write("resolved"); process.exitCode = 13'
         ],
         afterCommand: {
-          execute: (callbackContext: AfterCommandContext) => {
-            settled = callbackContext.command;
-            callbackContext.records.report(
-              { id: "command-completion" },
-              { exitCode: callbackContext.command.exitCode }
-            );
-            return { status: "failed", data: { source: "after-command" } };
-          }
+          execute: defineContextCallback("command.complete", {
+            contextNeeds: ["records"],
+            callback: ({ command: completedCommand }, callbackContext) => {
+              settled = completedCommand;
+              callbackContext.records.report(
+                { id: "command-completion" },
+                { exitCode: completedCommand.exitCode }
+              );
+              return { status: "failed", data: { source: "after-command" } };
+            }
+          })
         },
-        resolveEnvironment: (resolverContext: CommandEnvironmentContext) => {
-          resolverCalls += 1;
-          assert.equal(resolverContext.project.root, root);
-          assert.equal(resolverContext.dependencies.list().length, 0);
-          assert.equal(resolverContext.signal.aborted, false);
-          return { mode: "exact", variables: { RESOLVED_COMMAND_ENVIRONMENT: "yes" } };
-        }
+        resolveEnvironment: defineContextCallback("command.environment", {
+          contextNeeds: ["dependencies", "project", "signal"],
+          callback: (options, resolverContext) => {
+            resolverCalls += 1;
+            assert.equal(resolverContext.project.root, root);
+            assert.equal(resolverContext.dependencies.list().length, 0);
+            assert.equal(resolverContext.signal.aborted, false);
+            return { mode: "exact", variables: { RESOLVED_COMMAND_ENVIRONMENT: "yes" } };
+          }
+        })
       });
       const result = await run(
         defineConfig({
@@ -136,7 +142,10 @@ describe("commandCheck environment", () => {
           resolveEnvironment
         });
         assert.deepEqual(
-          await command.execute(createCommandCheckExecutionContext(command.options, root)),
+          await command.execute.callback(
+            command.options,
+            createCommandCheckExecutionContext(command.options, root)
+          ),
           {
             status: "unavailable",
             reason: { code: "command-environment-resolution-failed" }

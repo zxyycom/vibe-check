@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 
 import type { DependencyObservation } from "../check/check.ts";
@@ -23,10 +24,13 @@ export async function assertInheritedDependencyList(): Promise<void> {
         checks: [
           check({
             checkId: "inherited-list-dependent",
-            execute: ({ dependencies }) => {
-              observedList = dependencies.list();
-              return { status: "passed", data: { dependent: true } };
-            }
+            execute: defineContextCallback("check.execute", {
+              contextNeeds: ["dependencies"],
+              callback: (options, { dependencies }) => {
+                observedList = dependencies.list();
+                return { status: "passed", data: { dependent: true } };
+              }
+            })
           })
         ]
       }

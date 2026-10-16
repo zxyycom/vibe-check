@@ -10,6 +10,10 @@
       "description": "四态 Check final data、supplemental Record、Check-facts 生命周期与 duplicate cache 的运行时契约。"
     },
     {
+      "id": "scheduler-runtime",
+      "description": "Scheduler 准入、资源、measurement、terminal effects 与 learned strategy 的运行时契约。"
+    },
+    {
       "id": "report-output",
       "description": "Machine v4 DTO/schema、独立 validator、two-file publication、排序、fingerprint 与诊断契约。"
     },

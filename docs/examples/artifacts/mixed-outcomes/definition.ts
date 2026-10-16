@@ -1,3 +1,4 @@
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig, inherit, jsonValidation } from "@zxyycom/vibe-check";
 
 interface ReleaseInputsData {
@@ -48,7 +49,7 @@ const releaseInputs = defineCheck({
     };
   },
   omitQuietPassedRow: true,
-  execute({ options, signal }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["signal"], callback: (options: { readonly files: readonly string[] }, { signal }) => {
     if (signal.aborted) {
       return { status: "unavailable", reason: { code: "execution-cancelled" } };
     }
@@ -56,7 +57,7 @@ const releaseInputs = defineCheck({
       status: "passed",
       data: { files: [...options.files], version: 1 as const }
     };
-  }
+  } })
 });
 
 // 一个 downstream policy：观察内置 Check 和 typed provider 的 terminal outcome，再读取可用 final data。
@@ -66,7 +67,7 @@ const releasePolicy = defineCheck({
   observes: inherit({ add: [releaseInputs.checkId] }),
   options: { minimumFileCount: 2 },
   omitQuietPassedRow: true,
-  execute({ dependencies, options, records }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies","records"], callback: (options: { readonly minimumFileCount: number }, { dependencies, records }) => {
     const manifestRead = dependencies.get(packageManifest.checkId);
     if (!manifestRead.ok) {
       return {
@@ -138,15 +139,14 @@ const releasePolicy = defineCheck({
         }
       ]
     };
-  }
+  } })
 });
 
 const optionalDocumentation = defineCheck({
   checkId: "example-optional-documentation",
   displayName: "Example optional documentation",
   options: { enabled: false },
-  execute: ({ options }) =>
-    options.enabled
+  execute: (options, {  }) => options.enabled
       ? { status: "passed", data: { reviewed: true } }
       : { status: "not-applicable", reason: { code: "documentation-disabled" } }
 });

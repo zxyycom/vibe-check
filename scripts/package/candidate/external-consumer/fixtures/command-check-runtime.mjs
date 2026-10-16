@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
-import { commandCheck, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { commandCheck, defineCheck, defineConfig, defineContextCallback, run } from "@zxyycom/vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
@@ -136,11 +136,13 @@ const defaultPublicMaterial = JSON.stringify({
   snapshot: mainResult.snapshot
 });
 const cancellation = await cancellationEvidence(projectRoot);
+const contextDeclarations = await declaredContextEvidence(projectRoot);
 
 process.stdout.write(
   "__VIBE_CHECK_COMMAND_CHECK_RUN__" +
     JSON.stringify({
       cancellation,
+      contextDeclarations,
       main: commandOutcomes(mainResult),
       publicSurface: {
         defaultCanariesAbsent: ![
@@ -261,4 +263,57 @@ async function waitForFile(path) {
     if (Date.now() >= deadline) throw new Error("cancelled command did not signal readiness");
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
+}
+
+async function declaredContextEvidence(root) {
+  let environmentFields, completionFields, emptyFields;
+  let frozen = true, businessInputs = true;
+  const needs = ["project"];
+  const environment = {
+    contextNeeds: needs,
+    callback(options, context) {
+      businessInputs &&= options.executable === process.execPath;
+      environmentFields = Object.keys(context);
+      frozen &&= Object.isFrozen(context);
+      return { mode: "exact", variables: { DECLARED_PROJECT_ROOT: context.project.root } };
+    }
+  };
+  const checked = commandCheck({
+    checkId: "declared-command", displayName: "Declared command",
+    executable: process.execPath,
+    arguments: ["--eval", "if (!process.env.DECLARED_PROJECT_ROOT) process.exit(11)"],
+    outputByteLimit: 256, timeoutMs: 5_000,
+    resolveEnvironment: environment,
+    afterCommand: {
+      execute: defineContextCallback("command.complete", {
+        contextNeeds: ["records"],
+        callback({ options, command }, context) {
+          businessInputs &&= options.executable === process.execPath && command.exitCode === 0;
+          completionFields = Object.keys(context);
+          frozen &&= Object.isFrozen(context);
+          context.records.report({ id: "declared-completion" }, { complete: true });
+          return { status: "passed", data: { exitCode: command.exitCode } };
+        }
+      })
+    }
+  });
+  needs.splice(0);
+  environment.callback = () => { throw new Error("constructor failed to fix callback"); };
+  const empty = commandCheck({
+    checkId: "empty-command", displayName: "Empty command",
+    executable: process.execPath, arguments: ["--eval", "process.exit(0)"],
+    outputByteLimit: 256, timeoutMs: 5_000,
+    resolveEnvironment(_options, context) {
+      emptyFields = Object.keys(context);
+      frozen &&= Object.isFrozen(context);
+      return { mode: "exact" };
+    }
+  });
+  const result = await run(defineConfig({ checks: [checked, empty], outputs: {
+    diagnosticLogging: { enabled: false }, machinePublication: { enabled: false }, progressRendering: { enabled: false }
+  } }), { projectRoot: root });
+  return {
+    businessInputs, completionFields, emptyFields, environmentFields, frozen,
+    passed: result.kind === "completed" && result.snapshot.checks.every(({ outcome }) => outcome.status === "passed") && result.snapshot.records.length === 1
+  };
 }

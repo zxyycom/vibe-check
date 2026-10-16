@@ -1,3 +1,4 @@
+import { createProjectContextSource } from "../project-context.ts";
 import {
   getDefinedHandoffProviderIdentity,
   type HandoffProviderIdentity
@@ -74,7 +75,7 @@ export function execute(
       : { diagnosticLogger: options.diagnosticLogger }),
     ...(options.checkLifecycle === undefined ? {} : { checkLifecycle: options.checkLifecycle }),
     maxParallel: 1,
-    project: PROJECT,
+    project: createProjectContextSource(PROJECT),
     signal: undefined
   });
 }

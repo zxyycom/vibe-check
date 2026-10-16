@@ -38,14 +38,15 @@ TS/JS、TSX/JSX 与 Vue 的真实 `??` 按单 token、每项 CCN +1 和完整贡
    `CheckPreflight` / `CheckPreflightResult` → `CheckPreparation` / `CheckPreparationResult`，旧字段不保留兼容别名。
    按原因码分类时，将 `preflight-threw`、`invalid-preflight-result` 改为
    `preparation-threw`、`invalid-preparation-result`。
-   `prepare(options, signal, project?)` 每次 Run 都取得与 `execute` 一致的冻结项目上下文，
-   但公开类型的第三参数可省略，读取前须处理该分支；同时复核 options 深度只读类型推导。
+   Check callback 统一为 `prepare(options, context)` / `execute(options, context)`；options 不再属于 context。
+   普通 function 默认无字段，需要 signal/project/records 等能力时使用 `defineContextCallback` 显式声明；
+   双方请求的 project 仍为同 Run 的冻结值。同步复核 options 深度只读及 typed provider/handoff 推导。
    见[自定义 Check](./guides/extending-check-lifecycle.md)。
 2. **调整调度终态回调与状态读取。**
    `scheduler.measurementHooks`、`SchedulerMeasurementHook` 与已准备策略的 `complete` 分别改为
    `scheduler.terminalEffects`、`SchedulerTerminalEffect` 与 `terminalEffect`。
    状态改读 `RunResult.outputs.terminalEffects`，诊断码改为 `scheduler-terminal-effects-failed`。
-   没有终态测量时不保证调用，资源释放不能依赖它。
+   未形成 sealed terminal boundary 时不保证调用，资源释放不能依赖它；零需求 effect 到达该边界仍交付。
    见[调度扩展](./guides/scheduling.md#已准备的-custom-strategy)。
 3. **复核聚合结果与定制函数的失败处理。**
    `completed` / `output` 默认带 `aggregate`：有效 Check 非空且全部 `passed` 才为 `passed`，
@@ -68,6 +69,27 @@ TS/JS、TSX/JSX 与 Vue 的真实 `??` 按单 token、每项 CCN +1 和完整贡
    进度新增配置数与实际省略数，启用策略的行不编号，普通行仍按全局完成数编号。
    `maintenanceReminders` 保持默认省略安静通过行；随包构造器接受 boolean，可用 `false` 撤销默认。
    见[进度呈现](./guides/run-outputs.md#progress-rendering)。
+
+### 声明式 callback context 迁移
+
+本次是一次 breaking 切换，不保留旧 helper、旧字段或运行时兼容层。
+除了上面的 Check 签名，还需逐项核对：
+
+| 原用法 | 新用法与升级影响 |
+| --- | --- |
+| function 或缺省 needs 隐式读取完整 context | 默认零需求，仍调用并传冻结空对象；需要字段用 `defineContextCallback(phase, { contextNeeds, callback })`。 |
+| `defineSchedulerContextCallback` 与 preparation/decision/terminal phase | 改用通用 helper 及 `scheduler.prepare` / `scheduler.decide` / `scheduler.terminal`；Check 和 command 使用自己的 phase。 |
+| `measurement.cumulative` / `measurementCount` / `measurementAt` | decision 分别声明 `cumulative` / `actionHistory`；prefix reader 位于 actionHistory 下，只有需要 history 才维护。 |
+| terminal `rawMeasurement` | 按任务分别声明 `runMeasurement`（原 Run facts，去除 admissions）和 `taskTimings`（独立 timing availability 与可用 admissions）。 |
+| command resolver 单 context、completion 把 command/options 混入 context | environment 改为 `(options, context)`；completion 改为 `({ options, command }, context)`，各自声明所需框架字段。 |
+| 同阶段 union 或 terminal 共享外层 identity | 各自只有声明的 own data fields，冻结且无跨消费者外层 identity 保证；同 Run 的冻结底层事实可复用。 |
+| 具体 learned/command callback 当作旧 function 调用 | 具体 descriptor 使用 `.callback` 并自行提供 input/context；广义槽位先收窄，不绕过 raw descriptor 的 never 边界。 |
+
+运行项目类型检查及实际安装包的 TS/JS consumer，并执行代表性 Run，特别核对旧 closure 的隐式字段读取；
+TypeScript 无法发现全部 JavaScript/closure 依赖。顺序、取消、direct dependency/artifact 权限、终态失败优先级和旧快照隔离保持。
+需要恢复旧版本时，同时恢复旧包和匹配的调用方代码/声明；不要把新 helper/签名与旧包混用。
+完整规则见[共同声明](./api-mechanics.md#声明式-callback-context)、[Check](./guides/extending-check-lifecycle.md)、
+[Scheduler](./guides/scheduling.md)与[command](./guides/command-check.md)。
 
 ### 新能力与现有 Check 修复
 

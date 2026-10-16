@@ -1,4 +1,9 @@
-import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
+import type {
+  DeepReadonly,
+  CheckExecutionContext,
+  CheckMessage,
+  CheckResult
+} from "../../check/check.ts";
 import { appendCheckMessages } from "../../package-tools/finding-presentation/finding-presentation.ts";
 import { reconcileFindingWaivers } from "../../package-tools/finding-waivers/reconciliation.ts";
 import { reportFindingWaiverAudits } from "../code-quality-findings/finding-waiver-evidence.ts";
@@ -37,28 +42,30 @@ export type SecretDetectionUnavailableReasonCode =
 
 /** Executes the fixed in-process detector only for this Check's exact explicit input selection. */
 export async function executeSecretDetection(
-  context: CheckExecutionContext<ResolvedSecretDetectionOptions>
+  options: DeepReadonly<ResolvedSecretDetectionOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">
 ): Promise<CheckResult<SecretDetectionFinalData>> {
-  if (!validSecretDetectionOptions(context.options)) return unavailable("invalid-options");
+  if (!validSecretDetectionOptions(options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
   let selectedPaths: readonly string[];
   try {
-    selectedPaths = collectProjectFiles(context.project.root, context.options.files);
+    selectedPaths = collectProjectFiles(context.project.root, options.files);
   } catch {
     return unavailable("scan-input-unavailable");
   }
   if (context.signal.aborted) return unavailable("execution-cancelled");
   if (selectedPaths.length === 0)
-    return settleSecretDetectionFindings(context, selectedPaths.length, [], []);
+    return settleSecretDetectionFindings(options, context, selectedPaths.length, [], []);
 
-  const prepared = prepareSecretDetectionInputs(context, selectedPaths);
+  const prepared = prepareSecretDetectionInputs(options, context, selectedPaths);
   if (prepared.kind === "unavailable") return unavailable("source-unavailable");
   if (prepared.kind === "cancelled") return unavailable("execution-cancelled");
 
-  const detected = await detectApprovedInputs(context, prepared.inputs);
+  const detected = await detectApprovedInputs(options, context, prepared.inputs);
   if (detected.kind === "unavailable") return unavailable(detected.code);
   return settleSecretDetectionFindings(
+    options,
     context,
     selectedPaths.length,
     detected.issues,
@@ -72,7 +79,8 @@ type DetectedIssues = Readonly<
 >;
 
 async function detectApprovedInputs(
-  context: CheckExecutionContext<ResolvedSecretDetectionOptions>,
+  options: DeepReadonly<ResolvedSecretDetectionOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   inputs: readonly ApprovedTextInput[]
 ): Promise<DetectedIssues> {
   const issues: SecretDetectionIssue[] = [];
@@ -94,7 +102,8 @@ async function detectApprovedInputs(
 }
 
 export function settleSecretDetectionFindings(
-  context: CheckExecutionContext<ResolvedSecretDetectionOptions>,
+  options: DeepReadonly<ResolvedSecretDetectionOptions>,
+  context: Pick<CheckExecutionContext, "project" | "records" | "signal">,
   selectedFileCount: number,
   issues: readonly SecretDetectionIssue[],
   coverageGaps: readonly SecretCoverageGap[]
@@ -102,7 +111,7 @@ export function settleSecretDetectionFindings(
   const reconciliation = reconcileFindingWaivers({
     findings: issues,
     identify: secretFindingIdentity,
-    waivers: context.options.findingWaivers
+    waivers: options.findingWaivers
   });
   const waivedFindingCount = reconciliation.findings.filter(
     (finding) => finding.disposition === "waived"

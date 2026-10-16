@@ -14,9 +14,7 @@ export type PreparedAdmissionStrategyCompletion =
     }>
   | Readonly<{
       readonly kind: "terminal-effect";
-      readonly terminalEffect:
-        | NormalizedSchedulerContextCallback<"terminal">
-        | ((context: SchedulerMeasurementContext) => void | Promise<void>);
+      readonly terminalEffect: NormalizedSchedulerContextCallback<"terminal">;
     }>;
 
 /** The invocation-scoped handoff from an admission provider to Scheduler and terminal delivery. */

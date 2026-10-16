@@ -52,4 +52,4 @@ Core 按阶段 union + 私有生产依赖闭包构造共享投影；static 使�
 - [Project Definition](../../docs/development/project-definition.md)：closed grammar、normalization 与 fingerprint；[package tools](../../docs/development/package-tools.md)：exact authoring helper。
 - [公开调度指南](../../docs/guides/scheduling.md)、[测试策略](../../docs/testing/strategy.md)、[文档导航](../../docs/navigation.md)的 API/package/示例交付入口。
 - [Workspace tooling](../../docs/tooling/workspace.md#virtual-admission-workbench)：exact-candidate workbench 固定 registry / function-valued fixture 的私有适配契约。
-- [需求声明 Decision](../../docs/decisions/declare-scheduler-context-demand.md)（261013-declare-scheduler-context-demand，active/aligned）：完整方向已由 root 根据源码、独立审查和最终安装包验收核对。
+- [需求声明 Decision](../../docs/decisions/archive/declare-scheduler-context-demand.md)（261013-declare-scheduler-context-demand）：形成时为 active/aligned，完整方向已按当时源码、独立审查和安装包验收核对；该方向现已修订归档。

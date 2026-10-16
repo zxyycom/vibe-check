@@ -39,7 +39,7 @@ Git snapshot → derived change flags ───────┼→ canonical effe
 Git snapshot ──────────────────────────────└→ project.changes (files or unavailable reason)
 ```
 
-同一个 frozen `project` context 交给 `prepare` 和 `execute`。可信成功只把命中 region 的稳定 `{ path, flags }` records
+`prepare` 和 `execute` 各自声明 project 时，共用首次需要注入才构建的 frozen `project` 值；Git/flag 工作仍由 configured selection 义务决定。可信成功只把命中 region 的稳定 `{ path, flags }` records
 放进 `project.changes.files`；可信零命中为空 files，effective flags 因而只含 caller flags。Git/repository/revision/path
 不能形成可信结果时，`project.changes` 只含 unavailable reason，全部 declared change flags 仍注入同一个 effective
 set，以保守选择。未配置 changes 时不获取 Git、`project.changes` 为 `undefined`，effective flags 等于 canonical caller flags。
@@ -59,23 +59,23 @@ unstaged 与 untracked paths 合并，rename 的 old/new 和 delete 的 old path
 | ------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | project root                                                             | `RunControls.projectRoot`，省略时为 Product current working directory   | absolute effective root                                                                   | `project.root`                                                         |
 | project flags                                                            | caller `RunControls.flags`，以及配置 changes 后的 Product-derived flags | 去重、排序、冻结的唯一 effective set；未配置 changes 时等于 canonical caller flags           | `project.flags`                                                        |
-| project changes                                                          | Definition 的可选 `changes`                                             | 冻结的成功 file evidence 或 unavailable reason；不配置时不运行 Git             | 配置时的 `project.changes`；prepare 与 execute 见同一 context identity |
+| project changes                                                          | Definition 的可选 `changes`                                             | 冻结的成功 file evidence 或 unavailable reason；不配置时不运行 Git             | 配置时的 `project.changes`；prepare 与 execute 请求时共享同一 project 值 |
 | Check artifact base                                                      | 仅 `RunControls.checkArtifactBaseDirectory`                             | absolute base 或 `null`，不进入 Definition fingerprint                                    | 当前 Check 的 `artifactDirectory` 或 `null`                            |
 | Gate exact Check base                                                    | Gate 选择 exact absolute `<invocation>/checks/` 后作为同一 control 传入 | Product 直接使用该 base，不创建另一层 invocation directory                                | 当前 Check 仍只见自己的 directory                                      |
 | machine / diagnostic target                                              | Definition defaults 加对应 output override                              | owner-private absolute target；diagnostic 按 owner-channel `RunResult` file readback 投影 | 不可见                                                                 |
 | progress transcript target                                               | 仅 `RunControls.progressLogFile`                                        | current-Run absolute target 或 `null`；terminal 仍为 primary presentation                 | 不可见                                                                 |
 | scheduler history、Check cache、candidate state、external-tool workspace | 各自 owner 的 options / lifecycle                                       | 不属于 invocation path representation                                                     | 不可见                                                                 |
 
-callback capability 按上表投影；完整 context shape 由[Check authoring 指南](../guides/extending-check-lifecycle.md)定义。Check artifactDirectory 从 stable Check ID 确定性派生，采用 bounded filesystem-safe encoding，避免 traversal、component-length 和直接 sanitize collision；raw ID 留在 Check facts。
+callback capability 按上表投影；合法字段与精确交付由[Check authoring 指南](../guides/extending-check-lifecycle.md)定义。Check artifactDirectory 从 stable Check ID 确定性派生，采用 bounded filesystem-safe encoding，避免 traversal、component-length 和直接 sanitize collision；raw ID 留在 Check facts。
 
-options 为 canonical authored snapshot 或 invocation-local prepared/fallback；file selection、领域 policy 与 cache 留在 owning options。
+options 作为第一业务参数，是 canonical authored snapshot 或 invocation-local prepared/fallback；file selection、领域 policy 与 cache 留在 owning options。
 dependencies 的授权与引用生命周期见[依赖交接](#依赖读取与引用生命周期)。artifact base、sibling namespace、output target 和 scheduler/cross-Run state 不进入 callback context。
 
 invalid Definition 或 Controls 在 author work 前返回 configuration result。aggregation 函数只在完整 settlement 后执行；抛错、非 `Error` throwable、Promise/thenable 或非法四态返回会越过普通 Run catch，使 `run` Promise 拒绝。拒绝路径关闭 invocation-owned diagnostics 和 progress writer，且不让清理错误掩盖原 aggregation error。ordinary callback throw、malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，output failure priority 和 readback 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
 
 ## Check 执行与依赖交接
 
-Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution；独立 ready preparation 可并行，不能形成全局 barrier。每项 `prepare(options, signal, project)` 和后续 `execute` 接收同一个冻结 project context。change flag flow 见[Change preparation and flag projection](#change-preparation-and-flag-projection)，preparation snapshot 与 Definition grammar 见[Project Definition](project-definition.md)。
+Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution；独立 ready preparation 可并行，不能形成全局 barrier。每项 `prepare(options, context)` 和后续 `execute(options, context)` 独立获得精确声明视图；双方请求 project 时共享冻结 project 值。change flag flow 见[Change preparation and flag projection](#change-preparation-and-flag-projection)，preparation snapshot 与 Definition grammar 见[Project Definition](project-definition.md)。
 
 pre-work cancellation 之后、Git acquisition 之前，一次私有 preparation 将 normalized Checks、validated static graph
 与 root maxParallel 绑定为同一个 invocation-local capability。strategy preparation、Check execution 与 Scheduler 复用该成果；
@@ -87,14 +87,16 @@ Scheduler 是 Run-private child，使用共同 immutable admission reducer 维�
 ### 策略生命周期
 
 Invocation 拥有 `prepare` / `terminalEffect`，Scheduler 只接收同步 policy。prepared result 验证后，decision 与 terminal
-需求分别固定并交给 Scheduler：effect 存在决定交付，measurement/raw demand 或 effective diagnostics 决定完整采集。
+需求分别固定并交给 Scheduler：effect 存在决定交付，cumulative/actionHistory/runMeasurement/taskTimings 需求及 effective diagnostics 分别决定采集组。
 diagnostics enabled fact 由 Invocation 显式传递，logger 方法形状不作为需求依据，disabled core logger 不作为 Scheduler observer。
-Scheduler drain 后 seal terminal context、交付 generic effects；返回该 context 后 Invocation 才交付 `terminalEffect`。
+Scheduler drain 后 seal terminal context、交付 generic effects；返回 sealed terminal facts 后 Invocation 才按 prepared 声明投影并交付 `terminalEffect`。
 [完整生命周期与 failure containment](scheduler.md#public-prepared-admission-strategy-lifecycle)说明交接，公开使用见[调度指南](../guides/scheduling.md)。
 
 ### Check 执行与结算
 
-每个 admitted callback 只接收[本次调用](#invocation-and-results)投影的 Check-local capability。
+每个 admitted callback 以 options 为第一业务参数，仅在第二 context 参数接收自身声明的[Check-local capability](#invocation-and-results)。
+project 视图、dependency facade、Record reporter 及可选 artifact path 按需求建立；没有需求不取消 guards、
+settlement、console capture、取消检查、已配置 Git/flags 或既有输出责任。已创建 reporter 在原 close 边界关闭，late writes 仍被拒绝。
 execution owner 验证 terminal result 和 messages attachment，将 stripped four-state result 交给 settlement；只有 settlement
 接受后，accepted Records 与 detached author messages 才进入 private lifecycle feedback，messages 另进入 RunResult readback。
 

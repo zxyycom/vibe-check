@@ -1,4 +1,5 @@
 // #region package-api-example:custom-check-definition
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 function hasValidLicensePolicyOptions(options: object): boolean {
@@ -21,7 +22,7 @@ const licensePolicy = defineCheck({
       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
   },
   omitQuietPassedRow: true,
-  execute({ options, records, signal }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["records","signal"], callback: (options: { readonly denied: readonly string[] }, { records, signal }) => {
     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
 
     const deniedCount = options.denied.length;
@@ -34,7 +35,7 @@ const licensePolicy = defineCheck({
       };
     }
     return { status: "passed", data: { deniedCount: 0 } };
-  }
+  } })
 });
 // #endregion package-api-example:custom-check-definition
 

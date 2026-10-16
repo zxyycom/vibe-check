@@ -44,17 +44,17 @@ const changeAwareCheck = defineCheck({
     propagateDependsOn: true
   } satisfies CheckFlagEnablement,
   options: { evidenceAvailable: false },
-  prepare: (options, _signal, project) => ({
+  prepare: defineContextCallback("check.prepare", { contextNeeds: ["project"], callback: (options: { readonly evidenceAvailable: boolean }, { project }) => ({
     preparedOptions: { ...options, evidenceAvailable: project?.changes?.ok === true },
     status: "success"
-  }),
-  execute: ({ options, project }) => ({
+  }) }),
+  execute: defineContextCallback("check.execute", { contextNeeds: ["project"], callback: (options: { readonly evidenceAvailable: boolean }, { project }) => ({
     data: {
       evidenceAvailable: options.evidenceAvailable,
       fileCount: project.changes?.ok === true ? project.changes.files.length : 0
     },
     status: "passed"
-  })
+  }) })
 });
 const changeAwareDefinition = defineConfig({
   changes: sourceChanges,

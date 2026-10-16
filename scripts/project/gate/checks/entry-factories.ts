@@ -1,11 +1,11 @@
-import type { ProcessInvocation } from "../../../process-execution/command.ts";
-import { PLAIN_TEXT_PROCESS_ENV } from "../../../process-execution/execution.ts";
 import {
+  defineContextCallback,
   commandCheck,
-  type AfterCommandContext,
   type Check,
   type CheckDependencies
 } from "@zxyycom/vibe-check";
+import type { ProcessInvocation } from "../../../process-execution/command.ts";
+import { PLAIN_TEXT_PROCESS_ENV } from "../../../process-execution/execution.ts";
 
 import type { ProjectGatePreset } from "../runtime/catalog.ts";
 import type { ProcessFailureProjection } from "./process/failure-projection.ts";
@@ -83,24 +83,31 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     timeoutMs: timeoutMs ?? DEFAULT_GATE_COMMAND_TIMEOUT_MS,
     workingDirectory: invocation.cwd
   };
-  const settle = (context: AfterCommandContext) =>
-    settleProjectGateCommand({
-      command: invocation.command,
-      context,
-      ...(failureProjection === undefined ? {} : { failureProjection })
-    });
+  const settle = defineContextCallback("command.complete", {
+    contextNeeds: ["artifactDirectory", "records"],
+    callback: ({ command: completedCommand }, context) =>
+      settleProjectGateCommand({
+        command: invocation.command,
+        completedCommand,
+        context,
+        ...(failureProjection === undefined ? {} : { failureProjection })
+      })
+  });
   let check: Check;
   if (dataDependency !== undefined) {
     check = commandCheck({
       ...commonInput,
       dependsOn: [dataDependency.checkId],
-      resolveEnvironment: (context) =>
-        resolveDependencyEnvironment(
-          context.dependencies,
-          dataDependency,
-          invocationEnvironmentOverrides,
-          environmentOverrides
-        ),
+      resolveEnvironment: defineContextCallback("command.environment", {
+        contextNeeds: ["dependencies"],
+        callback: (options, context) =>
+          resolveDependencyEnvironment(
+            context.dependencies,
+            dataDependency,
+            invocationEnvironmentOverrides,
+            environmentOverrides
+          )
+      }),
       afterCommand: { execute: settle }
     });
   } else {

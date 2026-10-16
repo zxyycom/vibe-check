@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -14,7 +15,23 @@ describe("task engine admission policy", () => {
   it("shares one frozen graph while exposing only decision-boundary measurement scalars", async () => {
     const contexts: AdmissionPolicyContext[] = [];
     let terminalTiming: unknown;
-    const policy = admissionSelectionPolicyFor(measurementRecordingProposal(contexts));
+    const policy = admissionSelectionPolicyFor(
+      defineContextCallback("scheduler.decide", {
+        contextNeeds: [
+          "activeScopeIds",
+          "admissionState",
+          "candidates",
+          "capacity",
+          "graph",
+          "cumulative",
+          "actionHistory",
+          "runningTaskIds",
+          "runtime",
+          "settledTaskIds"
+        ],
+        callback: measurementRecordingProposal(contexts)
+      })
+    );
 
     await runTaskGraph({
       admissionPolicy: policy,
@@ -26,9 +43,12 @@ describe("task engine admission policy", () => {
         declarativeFingerprint: "measurement-sharing"
       }),
       terminalEffects: [
-        (context) => {
-          terminalTiming = context.rawMeasurement.timing;
-        }
+        defineContextCallback("scheduler.terminal", {
+          contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+          callback: (context) => {
+            terminalTiming = context.runMeasurement.timing;
+          }
+        })
       ]
     });
 
@@ -63,11 +83,11 @@ describe("task engine admission policy", () => {
     await settled;
 
     const afterSettlement = contexts.at(-1);
-    assert.equal(afterSettlement?.measurement.measurementCount, 2);
-    assert.equal(afterSettlement?.measurement.measurementAt(2), undefined);
+    assert.equal(afterSettlement?.actionHistory.measurementCount, 2);
+    assert.equal(afterSettlement?.actionHistory.measurementAt(2), undefined);
     assert.deepEqual(
-      afterSettlement?.measurement.measurementAt(
-        (afterSettlement?.measurement.measurementCount ?? 1) - 1
+      afterSettlement?.actionHistory.measurementAt(
+        (afterSettlement?.actionHistory.measurementCount ?? 1) - 1
       ),
       {
         interval: {
@@ -123,7 +143,7 @@ describe("task engine admission policy", () => {
         })
       });
 
-      const observation = contexts[1]?.measurement.measurementAt(0);
+      const observation = contexts[1]?.actionHistory.measurementAt(0);
       assert.deepEqual(observation, {
         effects: [{ kind: "admitted", taskId: "first" }],
         interval: { availability: "unavailable", reason: failure.reason },
@@ -140,11 +160,27 @@ describe("task engine admission policy", () => {
 });
 
 function recordingAdmissionPolicy(contexts: AdmissionPolicyContext[]) {
-  return admissionSelectionPolicyFor((context) => {
-    contexts.push(context);
-    const candidate = context.candidates.find((item) => item.canAdmit);
-    return candidate === undefined
-      ? { kind: "wait" }
-      : { kind: "select", taskId: candidate.taskId };
-  });
+  return admissionSelectionPolicyFor(
+    defineContextCallback("scheduler.decide", {
+      contextNeeds: [
+        "activeScopeIds",
+        "admissionState",
+        "candidates",
+        "capacity",
+        "graph",
+        "cumulative",
+        "actionHistory",
+        "runningTaskIds",
+        "runtime",
+        "settledTaskIds"
+      ],
+      callback: (context) => {
+        contexts.push(context);
+        const candidate = context.candidates.find((item) => item.canAdmit);
+        return candidate === undefined
+          ? { kind: "wait" }
+          : { kind: "select", taskId: candidate.taskId };
+      }
+    })
+  );
 }

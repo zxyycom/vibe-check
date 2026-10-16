@@ -180,7 +180,9 @@ export function freezeDecisionWithContext(
       get capacity() {
         return context.capacity;
       },
-      graphIdentity: context.graphIdentity
+      get graphIdentity() {
+        return context.graphIdentity;
+      }
     });
   }
   let detached = action;
@@ -197,6 +199,8 @@ export function freezeDecisionWithContext(
     get capacity() {
       return context.capacity;
     },
-    graphIdentity: context.graphIdentity
+    get graphIdentity() {
+      return context.graphIdentity;
+    }
   });
 }

@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../context-callback/define-context-callback.ts";
 import { isAbsolute } from "node:path";
 
 import {
@@ -7,8 +8,7 @@ import {
 import type {
   AdmissionPolicyContext,
   AdmissionProposal,
-  SchedulerGraphSnapshot,
-  SchedulerMeasurementContext
+  SchedulerGraphSnapshot
 } from "../../project-definition/project-definition.ts";
 import { prepareSchedulerDurationModel } from "./duration-model/preparation.ts";
 import {
@@ -29,6 +29,7 @@ import {
 } from "./critical-path-ranking.ts";
 
 import type {
+  LearnedDecisionContext,
   LearnedCriticalPathObservation,
   LearnedCriticalPathStrategy,
   LearnedCriticalPathStrategyOptions
@@ -51,46 +52,54 @@ export function createLearnedCriticalPathStrategy(
   const model = modelOptions(options);
   return Object.freeze({
     kind: "prepared" as const,
-    prepare: async ({ graph }) => {
-      const predictionInputs = predictionInputsFor(graph, options.identityForTask, model);
-      if (predictionInputs === undefined) {
-        observe(options, { kind: "history-unavailable", reason: "identity-invalid" });
-        return Object.freeze({ decide: createStaticDecision(graph) });
-      }
-      const durationModel = await prepareSchedulerDurationModel({
-        predictionInputs,
-        stateDirectory: options.stateDirectory,
-        coldStartDurationMs: model.coldStartDurationMs,
-        maxSamplesPerSeries: model.sampleWindow,
-        maxSeries: model.maxHistorySeries
-      });
-      if (durationModel.kind === "static-fallback") {
-        observe(options, { kind: "history-unavailable", reason: "setup-failed" });
-        return Object.freeze({ decide: createStaticDecision(graph) });
-      }
-      let decisionIndexes: LearnedDecisionIndexes;
-      try {
-        const criticalPath = createSchedulerCriticalPathSnapshot(graph, durationModel.prediction);
-        decisionIndexes = createLearnedDecisionIndexes(
-          graph,
-          durationModel.prediction,
-          criticalPath
-        );
-      } catch {
-        observe(options, { kind: "history-unavailable", reason: "setup-failed" });
-        return Object.freeze({ decide: createStaticDecision(graph) });
-      }
-      return Object.freeze({
-        decide: (context: AdmissionPolicyContext) =>
-          learnedDecision(context, decisionIndexes, options),
-        terminalEffect: async (context: SchedulerMeasurementContext) => {
-          const recorded = await durationModel.record(context);
-          if (recorded.kind === "failed" || recorded.writeObservation === "failed") {
-            observe(options, { kind: "recording-unavailable" });
-          }
+    prepare: defineContextCallback("scheduler.prepare", {
+      contextNeeds: ["graph"],
+      callback: async ({ graph }) => {
+        const predictionInputs = predictionInputsFor(graph, options.identityForTask, model);
+        if (predictionInputs === undefined) {
+          observe(options, { kind: "history-unavailable", reason: "identity-invalid" });
+          return Object.freeze({ decide: createStaticDecision(graph) });
         }
-      });
-    }
+        const durationModel = await prepareSchedulerDurationModel({
+          predictionInputs,
+          stateDirectory: options.stateDirectory,
+          coldStartDurationMs: model.coldStartDurationMs,
+          maxSamplesPerSeries: model.sampleWindow,
+          maxSeries: model.maxHistorySeries
+        });
+        if (durationModel.kind === "static-fallback") {
+          observe(options, { kind: "history-unavailable", reason: "setup-failed" });
+          return Object.freeze({ decide: createStaticDecision(graph) });
+        }
+        let decisionIndexes: LearnedDecisionIndexes;
+        try {
+          const criticalPath = createSchedulerCriticalPathSnapshot(graph, durationModel.prediction);
+          decisionIndexes = createLearnedDecisionIndexes(
+            graph,
+            durationModel.prediction,
+            criticalPath
+          );
+        } catch {
+          observe(options, { kind: "history-unavailable", reason: "setup-failed" });
+          return Object.freeze({ decide: createStaticDecision(graph) });
+        }
+        return Object.freeze({
+          decide: defineContextCallback("scheduler.decide", {
+            contextNeeds: ["activeScopeIds", "candidates", "capacity"],
+            callback: (context) => learnedDecision(context, decisionIndexes, options)
+          }),
+          terminalEffect: defineContextCallback("scheduler.terminal", {
+            contextNeeds: ["execution", "taskTimings"],
+            callback: async (context) => {
+              const recorded = await durationModel.record(context);
+              if (recorded.kind === "failed" || recorded.writeObservation === "failed") {
+                observe(options, { kind: "recording-unavailable" });
+              }
+            }
+          })
+        });
+      }
+    })
   });
 }
 
@@ -177,7 +186,7 @@ function predictionInputsFor(
 }
 
 function learnedDecision(
-  context: AdmissionPolicyContext,
+  context: LearnedDecisionContext,
   indexes: LearnedDecisionIndexes,
   options: LearnedCriticalPathStrategyOptions
 ): AdmissionProposal {
@@ -202,7 +211,7 @@ function learnedDecision(
 }
 
 function selectLearnedCandidate(
-  context: AdmissionPolicyContext,
+  context: LearnedDecisionContext,
   indexes: LearnedDecisionIndexes
 ): AdmissionPolicyContext["candidates"][number] {
   const layers = learnedSelectionLayers(context, indexes.graph);

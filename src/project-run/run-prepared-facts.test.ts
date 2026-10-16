@@ -1,6 +1,6 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-
 import {
   defineConfig,
   createDeclarativeFingerprint,
@@ -11,14 +11,12 @@ import {
 import type { Check } from "../check/check.ts";
 import { run } from "./run.ts";
 import { validateProjectDefinition } from "../project-definition/project-definition-validation.ts";
-
 const OUTPUTS = {
   diagnosticLogging: { enabled: false },
   machinePublication: { enabled: false },
   progressRendering: { enabled: false }
 } as const;
 const PASSED = { status: "passed", data: {} } as const;
-
 describe("Package Run prepared facts", () => {
   it("shares one immutable graph through strategy preparation decision and terminal delivery", async () => {
     let preparedGraph: SchedulerGraphSnapshot | undefined;
@@ -71,37 +69,60 @@ describe("Package Run prepared facts", () => {
             kind: "custom",
             strategy: {
               kind: "prepared",
-              prepare(context) {
-                preparedGraph = context.graph;
-                assert.equal(Object.isFrozen(context.graph), true);
-                assert.equal(Object.isFrozen(context.graph.tasks), true);
-                assert.equal(context.graph.tasks.length, 3);
-                assert.equal(context.graph.tasks[0]?.resourceClaims[0]?.units, 1);
-                assert.equal(context.graph.scopes[0]?.maxParallel, 2);
-                return {
-                  decide(decision) {
-                    assert.equal(decision.graph, preparedGraph);
-                    assert.equal(decision.capacity.maxParallel, 3);
-                    decisionCount += 1;
-                    const candidate = decision.candidates.find((entry) => entry.canAdmit);
-                    return candidate === undefined
-                      ? { kind: "wait" }
-                      : { kind: "select", taskId: candidate.taskId };
-                  },
-                  terminalEffect(terminal) {
-                    assert.equal(terminal, genericContext);
-                    assert.equal(terminal.graph, preparedGraph);
-                    preparedTerminalCount += 1;
-                  }
-                };
-              }
+              prepare: defineContextCallback("scheduler.prepare", {
+                contextNeeds: ["graph"],
+                callback: function (context) {
+                  preparedGraph = context.graph;
+                  assert.equal(Object.isFrozen(context.graph), true);
+                  assert.equal(Object.isFrozen(context.graph.tasks), true);
+                  assert.equal(context.graph.tasks.length, 3);
+                  assert.equal(context.graph.tasks[0]?.resourceClaims[0]?.units, 1);
+                  assert.equal(context.graph.scopes[0]?.maxParallel, 2);
+                  return {
+                    decide: defineContextCallback("scheduler.decide", {
+                      contextNeeds: [
+                        "activeScopeIds",
+                        "admissionState",
+                        "candidates",
+                        "capacity",
+                        "graph",
+                        "cumulative",
+                        "actionHistory",
+                        "runningTaskIds",
+                        "runtime",
+                        "settledTaskIds"
+                      ],
+                      callback: function (decision) {
+                        assert.equal(decision.graph, preparedGraph);
+                        assert.equal(decision.capacity.maxParallel, 3);
+                        decisionCount += 1;
+                        const candidate = decision.candidates.find((entry) => entry.canAdmit);
+                        return candidate === undefined
+                          ? { kind: "wait" }
+                          : { kind: "select", taskId: candidate.taskId };
+                      }
+                    }),
+                    terminalEffect: defineContextCallback("scheduler.terminal", {
+                      contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+                      callback: function (terminal) {
+                        assert.notEqual(terminal, genericContext);
+                        assert.equal(terminal.graph, preparedGraph);
+                        preparedTerminalCount += 1;
+                      }
+                    })
+                  };
+                }
+              })
             }
           },
           terminalEffects: [
-            (context) => {
-              assert.equal(context.graph, preparedGraph);
-              genericContext = context;
-            }
+            defineContextCallback("scheduler.terminal", {
+              contextNeeds: ["graph", "execution", "runMeasurement", "taskTimings"],
+              callback: (context) => {
+                assert.equal(context.graph, preparedGraph);
+                genericContext = context;
+              }
+            })
           ]
         }
       })
@@ -125,18 +146,17 @@ describe("Package Run prepared facts", () => {
     assert.equal(preparedTerminalCount, 1);
     assert.equal(result.outputs.terminalEffects.status, "succeeded");
   });
-
   it("revalidates the same mutable authored Definition for each Run without revising earlier facts", async () => {
     const options = { value: 1 };
     const capacities = { worker: 1 };
-    const authored: Check = {
+    const authored: Check<{ readonly value: number }> = {
       checkId: "first",
       displayName: "First",
       options,
       resourceClaims: { worker: 1 },
-      execute(context) {
-        assert.equal(Object.isFrozen(context.options), true);
-        const value = "value" in context.options ? context.options.value : undefined;
+      execute: (preparedOptions) => {
+        assert.equal(Object.isFrozen(preparedOptions), true);
+        const value = "value" in preparedOptions ? preparedOptions.value : undefined;
         assert.equal(typeof value, "number");
         return { status: "passed", data: { value } };
       }
@@ -152,17 +172,34 @@ describe("Package Run prepared facts", () => {
           kind: "custom",
           strategy: {
             kind: "prepared",
-            prepare(context) {
-              graphs.push(context.graph);
-              return {
-                decide(decision) {
-                  const candidate = decision.candidates.find((entry) => entry.canAdmit);
-                  return candidate === undefined
-                    ? { kind: "wait" }
-                    : { kind: "select", taskId: candidate.taskId };
-                }
-              };
-            }
+            prepare: defineContextCallback("scheduler.prepare", {
+              contextNeeds: ["graph"],
+              callback: function (context) {
+                graphs.push(context.graph);
+                return {
+                  decide: defineContextCallback("scheduler.decide", {
+                    contextNeeds: [
+                      "activeScopeIds",
+                      "admissionState",
+                      "candidates",
+                      "capacity",
+                      "graph",
+                      "cumulative",
+                      "actionHistory",
+                      "runningTaskIds",
+                      "runtime",
+                      "settledTaskIds"
+                    ],
+                    callback: function (decision) {
+                      const candidate = decision.candidates.find((entry) => entry.canAdmit);
+                      return candidate === undefined
+                        ? { kind: "wait" }
+                        : { kind: "select", taskId: candidate.taskId };
+                    }
+                  })
+                };
+              }
+            })
           }
         }
       }

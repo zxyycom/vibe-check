@@ -31,6 +31,7 @@ Check terminal `messages` 是有序的人读补充信息；consumer 仍按 outco
 需要在终端中保留长文本的前后片段时，把同步 `formatter` 写进 Definition。它接收冻结的 `{ kind, text, maxCodePoints }`：`kind` 是 `"record"` 或 `"message"`，`text` 是选中项未转义、未截断的默认正文（Record 为 local ID 加 canonical JSON，message 为正文），`maxCodePoints` 是当前文本预算。Product 仅对数量限制内的项调用一次，先 Records 后 messages；返回值仍由 Product 转义并限长。如下例把长文本折叠为头尾片段，并在本次 Run 单独缩小 Record 数量：
 
 ```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import {
   defineCheck,
   defineConfig,
@@ -49,10 +50,10 @@ const headAndTail: ProgressPreviewFormatter = ({ text, maxCodePoints }) => {
 const detail = defineCheck({
   checkId: "detail",
   displayName: "Detail",
-  execute: ({ records }) => {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["records"], callback: (options, { records }) => {
     records.report({ id: "long-detail" }, { text: "a verbose diagnostic value" });
     return { status: "passed", data: {} };
-  }
+  } })
 });
 
 const definition = defineConfig({

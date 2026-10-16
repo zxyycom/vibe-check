@@ -46,7 +46,8 @@ const measuredRunners = runners.map((runner) => {
       activeRunners += 1;
       peakRunners = Math.max(peakRunners, activeRunners);
       try {
-        return await execute(context);
+        if (typeof execute !== "function") throw new Error("Expected no-demand function");
+        return await Reflect.apply(execute, undefined, [{}, {}]);
       } finally {
         activeRunners -= 1;
       }
@@ -59,7 +60,8 @@ const measuredMetadata = defineCheck({
   ...metadata,
   execute(context) {
     metadataOverlapped = activeRunners === 2;
-    return metadataExecute(context);
+    if (typeof metadataExecute !== "function") throw new Error("Expected no-demand function");
+    return Reflect.apply(metadataExecute, undefined, [{}, {}]);
   }
 });
 assert.deepEqual(

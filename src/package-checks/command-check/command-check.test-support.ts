@@ -28,6 +28,7 @@ export async function executeCommandCheckFixture(
   signal?: AbortSignal
 ): Promise<CheckResult> {
   return executeCommandCheck(
+    options,
     createCommandCheckExecutionContext(options, root, artifactDirectory, signal)
   );
 }
@@ -38,12 +39,11 @@ export function createCommandCheckExecutionContext(
   root: string,
   artifactDirectory: string | null = null,
   signal?: AbortSignal
-): CheckExecutionContext<ResolvedCommandCheckOptions> {
+): CheckExecutionContext {
   return Object.freeze({
     artifactDirectory,
     dependencies: NO_DEPENDENCIES,
     invocationId: "invocation/v1:command-check-direct-test",
-    options,
     project: Object.freeze({ flags: Object.freeze([]), root }),
     records: Object.freeze({ report: () => undefined }),
     signal: signal ?? new AbortController().signal

@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 
 import { type DependencyReadResult, inherit } from "../check/check.ts";
@@ -13,11 +14,14 @@ export async function assertUnavailableDependencyRead(): Promise<void> {
       check({
         checkId: "dependent",
         observes: ["unavailable"],
-        execute: (context) => {
-          dependentCalls += 1;
-          read = context.dependencies.get("unavailable");
-          return read.ok ? PASSED : { status: "unavailable", reason: { code: read.error.code } };
-        }
+        execute: defineContextCallback("check.execute", {
+          contextNeeds: ["dependencies"],
+          callback: (_options, context) => {
+            dependentCalls += 1;
+            read = context.dependencies.get("unavailable");
+            return read.ok ? PASSED : { status: "unavailable", reason: { code: read.error.code } };
+          }
+        })
       })
     ])
   );
@@ -89,11 +93,14 @@ function inheritedContainer(setRead: (read: DependencyReadResult) => void) {
     checks: [
       check({
         checkId: "inherited-dependent",
-        execute: (context) => {
-          const read = context.dependencies.get("inherited-source");
-          setRead(read);
-          return { status: "passed", data: { dependent: true } };
-        }
+        execute: defineContextCallback("check.execute", {
+          contextNeeds: ["dependencies"],
+          callback: (_options, context) => {
+            const read = context.dependencies.get("inherited-source");
+            setRead(read);
+            return { status: "passed", data: { dependent: true } };
+          }
+        })
       })
     ]
   };

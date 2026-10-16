@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -19,48 +20,66 @@ describe("admission policy authoring", () => {
       kind: "custom",
       strategy: {
         kind: "simple",
-        decide(context) {
-          const typedContext: AdmissionPolicyContext = context;
-          const candidate = typedContext.candidates.find(({ canAdmit }) => canAdmit);
-          return candidate === undefined
-            ? { kind: "wait" as const }
-            : { kind: "select" as const, taskId: candidate.taskId };
-        }
+        decide: defineContextCallback("scheduler.decide", {
+          contextNeeds: ["candidates"],
+          callback(context) {
+            const typedContext: Pick<AdmissionPolicyContext, "candidates"> = context;
+            const candidate = typedContext.candidates.find(({ canAdmit }) => canAdmit);
+            return candidate === undefined
+              ? { kind: "wait" as const }
+              : { kind: "select" as const, taskId: candidate.taskId };
+          }
+        })
       }
     });
     const preparedPolicy = defineAdmissionPolicy({
       kind: "custom",
       strategy: {
         kind: "prepared",
-        prepare(context) {
-          void context.graph;
-          return {
-            decide(decision) {
-              const candidate = decision.candidates.find(({ canAdmit }) => canAdmit);
-              return candidate === undefined
-                ? { kind: "wait" as const }
-                : { kind: "select" as const, taskId: candidate.taskId };
-            },
-            terminalEffect(terminal) {
-              void terminal.execution.settledTasks;
-            }
-          };
-        }
+        prepare: defineContextCallback("scheduler.prepare", {
+          contextNeeds: ["graph"],
+          callback(context) {
+            void context.graph;
+            return {
+              decide: defineContextCallback("scheduler.decide", {
+                contextNeeds: ["candidates"],
+                callback(decision) {
+                  const candidate = decision.candidates.find(({ canAdmit }) => canAdmit);
+                  return candidate === undefined
+                    ? { kind: "wait" as const }
+                    : { kind: "select" as const, taskId: candidate.taskId };
+                }
+              }),
+              terminalEffect: defineContextCallback("scheduler.terminal", {
+                contextNeeds: ["execution"],
+                callback(terminal) {
+                  void terminal.execution.settledTasks;
+                }
+              })
+            };
+          }
+        })
       }
     });
     const asynchronouslyPreparedPolicy = defineAdmissionPolicy({
       kind: "custom",
       strategy: {
         kind: "prepared",
-        async prepare(context) {
-          void context.graph;
-          return {
-            decide: () => ({ kind: "wait" as const }),
-            async terminalEffect(terminal) {
-              void terminal.execution.settledTasks;
-            }
-          };
-        }
+        prepare: defineContextCallback("scheduler.prepare", {
+          contextNeeds: ["graph"],
+          async callback(context) {
+            void context.graph;
+            return {
+              decide: () => ({ kind: "wait" as const }),
+              terminalEffect: defineContextCallback("scheduler.terminal", {
+                contextNeeds: ["execution"],
+                async callback(terminal) {
+                  void terminal.execution.settledTasks;
+                }
+              })
+            };
+          }
+        })
       }
     });
     const policies: readonly AdmissionPolicy[] = [

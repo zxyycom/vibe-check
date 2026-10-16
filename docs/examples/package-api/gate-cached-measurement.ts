@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
 // #region package-api-example:gate-cached-measurement
+import { defineContextCallback } from "@zxyycom/vibe-check";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -32,7 +33,7 @@ const gzipSize = defineCheck({
   checkId: "gzip-size",
   displayName: "Gzip size",
   options: { maximumBytes: 100_000 },
-  async execute({ options, project }) {
+  execute: defineContextCallback("check.execute", { contextNeeds: ["project"], callback: async (options: { readonly maximumBytes: number }, { project }) => {
     const source = await readFile(resolve(project.root, "dist/app.js"));
     const level = 9;
     const key = JSON.stringify({
@@ -60,7 +61,7 @@ const gzipSize = defineCheck({
     return data.compressedBytes <= maximumBytes
       ? { status: "passed", data }
       : { status: "failed", data };
-  }
+  } })
 });
 
 const definition = defineConfig({

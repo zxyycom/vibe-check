@@ -29,7 +29,7 @@ export function schedulerTerminalContextPlan<TResult>(
   const requests = new Set<keyof SchedulerMeasurementContext>([
     ...unionSchedulerContextNeeds("terminal", effects),
     ...(options.terminalContextNeeds ?? []),
-    ...(withSummary ? (["graph", "execution", "rawMeasurement"] as const) : [])
+    ...(withSummary ? (["runMeasurement", "taskTimings"] as const) : [])
   ]);
   return Object.freeze({
     contextNeeds: Object.freeze([...requests]),
@@ -120,9 +120,13 @@ function terminalContext<TResult>(
         });
         break;
       }
-      case "rawMeasurement":
-        if (diagnostics === undefined) throw new Error("terminal measurement was not collected");
-        context.rawMeasurement = diagnostics.rawMeasurement();
+      case "runMeasurement":
+        if (diagnostics === undefined) throw new Error("Run measurement was not collected");
+        context.runMeasurement = diagnostics.runMeasurement();
+        break;
+      case "taskTimings":
+        if (diagnostics === undefined) throw new Error("Task timings were not collected");
+        context.taskTimings = diagnostics.taskTimings();
         break;
     }
   }

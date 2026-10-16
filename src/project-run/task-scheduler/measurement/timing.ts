@@ -3,7 +3,7 @@ import type {
   SchedulerMeasurementTiming,
   SchedulerMeasurementTimingUnavailableReason
 } from "../../../project-definition/project-definition.ts";
-import type { SchedulerPerformanceState } from "./diagnostics.ts";
+import type { SchedulerPerformanceState, SchedulerMeasurementGroups } from "./diagnostics.ts";
 import {
   SchedulerPerformanceIntegrals,
   type AdmissionDelayBreakdown,
@@ -25,7 +25,8 @@ export type SchedulerPerformanceTimingSnapshot = Readonly<{
 /** Owns monotonic clock boundaries and delegates numeric interval accumulation. */
 export class SchedulerPerformanceTiming {
   readonly #clock: Readonly<{ now(): number }>;
-  readonly #integrals = new SchedulerPerformanceIntegrals();
+  readonly #integrals: SchedulerPerformanceIntegrals;
+  readonly #groups: SchedulerMeasurementGroups;
   #lastBoundaryAt: number | undefined;
   readonly #startedAt: number | undefined;
   #lastState: SchedulerPerformanceState;
@@ -37,7 +38,13 @@ export class SchedulerPerformanceTiming {
   #acceptedWaitMs = 0;
   #acceptedWaitCount = 0;
 
-  public constructor(clock: Readonly<{ now(): number }>, initial: SchedulerPerformanceState) {
+  public constructor(
+    clock: Readonly<{ now(): number }>,
+    initial: SchedulerPerformanceState,
+    groups: SchedulerMeasurementGroups
+  ) {
+    this.#groups = groups;
+    this.#integrals = new SchedulerPerformanceIntegrals(groups);
     this.#clock = clock;
     this.#lastState = initial;
     this.#maxRunning = initial.running;
@@ -79,6 +86,10 @@ export class SchedulerPerformanceTiming {
   }
 
   public beginAcceptedWait(): void {
+    if (!this.#groups.cumulative && !this.#groups.actionHistory && !this.#groups.runMeasurement) {
+      this.boundary();
+      return;
+    }
     this.#acceptedWaitCount += 1;
     const boundary = this.boundary();
     if (boundary !== undefined && this.#acceptedWaitStartedAt === undefined) {
@@ -112,6 +123,10 @@ export class SchedulerPerformanceTiming {
     SchedulerPerformanceIntegrals["pendingAdmissionDelays"]
   > {
     return this.#integrals.pendingAdmissionDelays();
+  }
+
+  public get availability(): SchedulerMeasurementTiming {
+    return this.#timing;
   }
 
   public snapshot(): SchedulerPerformanceTimingSnapshot {
@@ -157,7 +172,7 @@ export class SchedulerPerformanceTiming {
     startedAt: number | undefined,
     endedAt: number | undefined
   ): void {
-    if (startedAt === undefined || endedAt === undefined) return;
+    if (!this.#groups.runMeasurement || startedAt === undefined || endedAt === undefined) return;
     const elapsedMs = endedAt - startedAt;
     if (!validElapsed(elapsedMs)) {
       this.#markUnavailable("interval-invalid");

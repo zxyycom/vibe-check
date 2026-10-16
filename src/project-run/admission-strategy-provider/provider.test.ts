@@ -1,3 +1,7 @@
+import {
+  createAdmissionCoreFromSettlements,
+  compilePreparedAdmissionGraph
+} from "../task-scheduler/admission-core/core.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -30,9 +34,57 @@ describe("admission strategy provider", () => {
       }
     }).prepare();
     assert.equal(Object.isFrozen(customPrepared.admissionPolicy), true);
-    assert.equal(customPrepared.admissionPolicy.requiresMeasurement, true);
+    assert.equal(customPrepared.admissionPolicy.requiresMeasurement, undefined);
     assert.equal(customPrepared.requiresTerminalMeasurement, false);
     assert.equal(customPrepared.completion.kind, "none");
+  });
+
+  it("does not project graph for empty preparation and fixes prepared needs before execution", async () => {
+    let graphReads = 0;
+    const needs: ("candidates" | "runtime")[] = ["candidates"];
+    let decisionContext: object | undefined;
+    const prepared = await createAdmissionStrategyProvider({
+      admissionPolicy: {
+        kind: "custom",
+        strategy: {
+          kind: "prepared",
+          prepare(context) {
+            assert.deepEqual(Object.keys(context), []);
+            assert.equal(Object.isFrozen(context), true);
+            return {
+              decide: {
+                contextNeeds: needs,
+                callback(selectedContext: never) {
+                  decisionContext = selectedContext;
+                  return { kind: "wait" as const };
+                }
+              }
+            };
+          }
+        }
+      },
+      get graph(): never {
+        graphReads++;
+        throw new Error("unrequested graph projection");
+      }
+    }).prepare();
+    needs.splice(0, 1, "runtime");
+    assert.equal(graphReads, 0);
+    const graph = prepareTaskGraph({ tasks: [{ id: "a" }] }, 1);
+    const core = createAdmissionCoreFromSettlements(compilePreparedAdmissionGraph(graph, 1), []);
+    prepared.admissionPolicy.decide({
+      admissionCore: core,
+      candidates: [],
+      graph,
+      get graphSnapshot(): never {
+        throw new Error("unrequested graph");
+      },
+      get inspection(): never {
+        throw new Error("unrequested inspection");
+      },
+      runtime: { isAbortRequested: false, isCancelled: false }
+    });
+    assert.deepEqual(Object.keys(decisionContext ?? {}), ["candidates"]);
   });
 });
 

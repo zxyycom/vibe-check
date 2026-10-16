@@ -120,9 +120,12 @@ export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): Plan
     tasks
   });
 
+  let snapshot: SchedulerGraphSnapshot | undefined;
   return Object.freeze({
     resourceCapacities,
-    schedulerGraphSnapshot: schedulerGraphSnapshot(tasks, scopes, resourceCapacities),
+    get schedulerGraphSnapshot() {
+      return (snapshot ??= schedulerGraphSnapshot(tasks, scopes, resourceCapacities));
+    },
     tasks: Object.freeze(tasks),
     scopes: Object.freeze(scopes)
   });

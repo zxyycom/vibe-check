@@ -54,10 +54,10 @@ export default defineConfig({
 
 ## 自定义准入 policy
 
-原 function 形式的 `decide(context)` 读取 frozen 的 graph、候选和 immutable `admissionState`，只返回 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`。Scheduler 独占 readiness、mutex、容量、Task 启动与结算；策略只能提出 proposal，不能保证 proposal 会被接受。
+声明对应字段的 `decide` 读取 frozen 的 graph、候选和 immutable `admissionState`，只返回 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`。Scheduler 独占 readiness、mutex、容量、Task 启动与结算；策略只能提出 proposal，不能保证 proposal 会被接受。
 
 ```ts
-import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { defineContextCallback, defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const executionOrder: string[] = [];
 
@@ -85,7 +85,7 @@ const preferPublish = defineAdmissionPolicy({
   kind: "custom",
   strategy: {
     kind: "simple",
-    decide(context) {
+    decide: defineContextCallback("scheduler.decide", { contextNeeds: ["candidates","graph"], callback: (context) => {
       const publishTask = context.graph.tasks.find((task) => task.taskId === publish.checkId);
       const publishCandidate = context.candidates.find(
         (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
@@ -98,7 +98,7 @@ const preferPublish = defineAdmissionPolicy({
       return nextCandidate === undefined
         ? { kind: "wait" }
         : { kind: "select", taskId: nextCandidate.taskId };
-    }
+    } })
   }
 });
 
@@ -126,78 +126,74 @@ if (executionOrder.join(",") !== "compile,publish") {
 
 ### 声明 callback 的 context 需求
 
-需要减少回调未消费字段的构建成本时，使用 `{ contextNeeds?, callback }` descriptor；TypeScript 中通过
-`defineSchedulerContextCallback(phase, descriptor)` 编写。simple `decide`、prepared `prepare`、其返回的
-`decide` / `terminalEffect`，以及 `scheduler.terminalEffects[]` 都接受 descriptor 或 function。
+simple `decide`、prepared `prepare`、返回的 `decide` / `terminalEffect` 和 `scheduler.terminalEffects[]`
+均接受[共同 callback 声明](../api-mechanics.md#声明式-callback-context)。普通 function 或省略 needs 都是零需求；
+需要字段时用 `defineContextCallback(phase, descriptor)`。
 
-function 保留完整 context；descriptor 省略 `contextNeeds` 或自有 `undefined` 表示 **full**。显式 `[]`
-表示 **none**：该消费者不增加字段需求，仍按正常生命周期获调用。三个阶段只接受以下顶层字段，不接受子路径或其它阶段字段：
-
-| `phase` | 可声明字段 |
+| helper phase | 可声明的完整顶层字段 |
 | --- | --- |
-| `preparation` | `graph` |
-| `decision` | `graph`、`admissionState`、`candidates`、`capacity`、`activeScopeIds`、`runningTaskIds`、`settledTaskIds`、`measurement`、`runtime` |
-| `terminal` | `graph`、`execution`、`rawMeasurement` |
+| `scheduler.prepare` | `graph` |
+| `scheduler.decide` | `graph`、`admissionState`、`candidates`、`capacity`、`activeScopeIds`、`runningTaskIds`、`settledTaskIds`、`cumulative`、`actionHistory`、`runtime` |
+| `scheduler.terminal` | `graph`、`execution`、`runMeasurement`、`taskTimings` |
 
 #### TypeScript 编写与槽位消费
 
-helper 保留 literal tuple 对应的只读 `Pick` 和回调结果类型，静态可读字段限于声明保证。推荐 literal tuple；
-已宽化的数组、某个位置的 union token 或 tuple union 只保证每种可能输入都确定请求的字段，不把可能出现的 key 全部视为保证。
+helper 保留阶段参数、结果和 literal needs 的只读字段推导；具体 descriptor 直接调用 `.callback(context)`。
+广义 function/descriptor 槽位须先收窄；直接调用须自行提供符合类型的 context，不自动构造 Scheduler 能力。
+`createLearnedCriticalPathStrategy` 返回具体 descriptor callbacks，按其类型提供 context 后调用 `.callback`。
+宽化/union needs 与 raw descriptor 的安全边界见[共同类型规则](../api-mechanics.md#声明与类型)。
 
-function 具有完整 contextual typing；**直接写 raw TypeScript descriptor 时，callback context 为 `never`**，
-需要读字段时使用 helper。helper 不执行 callback，不替代 validation；直接 descriptor 在 runtime 同样合法。
-`SchedulerContextByPhase`、`SchedulerContextPhase` 与 `SchedulerContextResultByPhase` 描述阶段输入和结果；
-`DeclaredSchedulerContextCallback` / `FullSchedulerContextCallback` 描述 helper 返回形状。
+#### 运行时验证与精确视图
 
-`SchedulerContextCallbackInput` 是存储输入的槽位类型，不是直接调用接口。升级后 `SchedulerTerminalEffect`、
-`PreparedCustomAdmissionStrategy` 等 callback 槽位包含 function/descriptor 联合；取出已标注为槽位类型的值直接调用时，
-须先以 `typeof value === "function"` 收窄。descriptor 由 Core 验证并构建 context 后调用，不能绕过 `never`
-存储边界。兼容承诺覆盖旧 function 的编写、完整 context、顺序与失败语义，并不表示所有既有类型消费代码都无需修改。
-`createLearnedCriticalPathStrategy` 的具体返回类型仍保证 function `prepare` / `decide` 可调用。
-
-#### 运行时验证与共享对象
-
-需求在所属边界验证、复制、去重并冻结，调用方随后修改数组不会影响本 Run。descriptor 只接受自有 data 字段
-`callback` 与可选 `contextNeeds`：callback 必须是函数，needs 必须是无空洞的合法字段数组，拒绝 getter、
-unknown 字段和动态需求函数。Definition 内非法声明在 author work 前形成 configuration failure；prepared 返回的
-非法声明形成 `admission-strategy-preparation-failed`。`contextNeeds` 与 callback 一样不进入 declarative fingerprint。
-
-Core 合并**同阶段**需求与固定执行／诊断义务，在该边界构造共享冻结对象。每个 callback 只依赖自身声明字段；
-对象可能包含同阶段其它消费者要求的额外字段，**需求不是权限隔离或精确物理裁剪保证**。不同阶段独立；
-新的 decision boundary 使用新的冻结快照。Definition effects 和 prepared `terminalEffect` 共享同一 sealed context identity。
+Definition 在 author work 前验证和固定 simple/prepare/Definition effects；prepared 返回后的 decide/effect 在
+Scheduler 启动前固定，非法结果形成 `admission-strategy-preparation-failed`。原声明后续 mutation 不影响本 Run。
+所有需求及内部执行/诊断义务只合并为生产配置，**每个 callback 仅含自身声明字段**。
+外层冻结，不保证不同 consumers 的 identity 相同；同 Run graph 与同 boundary 的不可变底层事实可以共享。
+没有需求不影响 terminal 调用；未 seal 的早期失败仍不调用 effects。
 
 #### 选择需求与采集成本
 
-- 只需当前候选和取消状态时，decision 声明 `["candidates", "runtime"]`；需要在线观察前缀时增加 `measurement`。
-- terminal 按任务选择 none、`graph` 或 `execution`；需要完整 raw facts 时声明 `rawMeasurement` 或保留 function。
-- 没有其它采集义务时，上述不需 measurement/rawMeasurement 的消费者不启动完整 timing/history 采集，terminal 仍正常交付。
-- 同阶段一个 full 消费者保留该阶段完整成本，但不会令其它阶段自动 full。已启用的 scheduler diagnostics 始终保留完整证据。
+- 只需当前候选和取消状态时，decision 声明 `["candidates", "runtime"]`；只需累计统计请求 `cumulative`，需要观察前缀才增加 `actionHistory`。
+- terminal 按任务请求 `graph` / `execution`、Run 汇总 `runMeasurement` 或逐 Task 的 `taskTimings`；没有字段也可保留 effect 的副作用。
+- 仅 `cumulative` 不维护 action history、逐 Task delay/chronology；仅 `taskTimings` 不维护 history、Run tail 或无人消费的 aggregate DTO。
+  只有真实生产依赖才共享中间量，不先 full 再裁剪。
+- 无 timing 需求且无诊断义务时不创建 timing collector、不读额外 measurement clock；terminal 仍正常交付。
+  已启用 diagnostics 保持其自身完整证据，但不为此无条件维护无人使用的 action history。
 
-需求只改变事实生产；selection proposal、真实准入 guards、取消和错误规则仍完整执行。
+需求只改变可选事实生产；selection proposal、准入 hard guards、取消和错误规则仍完整执行。
 
 ### 在线选择时读取 observation prefix
 
-原 function 或声明了 `measurement` 的 custom `decide` 可通过 `context.measurement` 读取当前 decision boundary 已冻结的**观察前缀**：
+声明 `cumulative` 可读取当前 decision boundary 前已 flush 的冻结累计 counters、peaks 和 timing availability；
+只有 `timing.availability === "available"` 才有 `timingFacts`。声明 `actionHistory` 可通过 `SchedulerActionHistory` 读取独立的冻结**观察前缀**：
 
-- `cumulative` 提供当前累计的离散计数、peaks 和 timing availability；只有 `timing.availability === "available"` 才有 `timingFacts`。
-- `measurementCount` 是当前已捕获 action observation 的数量。
-- `measurementAt(index)` 只读取这个 context 冻结的 prefix；`0 <= index < measurementCount` 之外返回 `undefined`。每项说明上一次 accepted `select` 或 `wait` 后的 effects 与 interval，不声明某个 action 导致了时长、critical path 或 CPU 使用。
+- `actionHistory.measurementCount` 是当前捕获 action observation 的 end-count。
+- `actionHistory.measurementAt(index)` 只读该 prefix；越界返回 `undefined`，旧 reader 看不到未来 append。
+- observation 从上一 accepted `select`/`wait` 完成后的 post-state 开始，到下一实际 custom callback 前关闭，
+  包含期间 admitted/settled effects 和 occupancy interval；不声明 action 因果、critical path 或 CPU 归因。
+- interval 为 closed timing union：合法零区间仍 available；timing 不可用时只给 reason，不伪造成全零。
 
-用它在**在线选择**时比较当前累计事实；不要把它当作完整逐 Task 历史或终态报告。需要 Run 结束后的完整 graph、settled tasks 与 raw measurement，改用下面的 `scheduler.terminalEffects`；prepared strategy 的 `terminalEffect` 同样只在 sealed terminal context 存在时运行，不要求请求 raw measurement。
+已启用 timing 组共享唯一 collector 的 clock、采样边界和 first-fault validity；clock throw/non-finite/backward 或
+已启用计算的 invalid interval/integral 令后续 timing view 不可用，不为关闭组额外计算以寻找故障。
+cumulative/runMeasurement 仍保留离散事实与 peaks；taskTimings 不交付伪造数值，history 保留离散 action/effects。
+每个 reader 固定自己的 availability、数值与 prefix；后续 fault 或 append 不回写旧 view。
+
+在线观察不是完整逐 Task 历史或终态报告。Run 结束后的汇总和逐 Task 表分别通过下面的 terminal effects 请求
+`runMeasurement` / `taskTimings`；交付 effect 本身不要求任一测量需求。
 
 ## 已准备的 custom strategy
 
 需要在 Scheduler 开始前异步读取调用方自己的配置，并把结果形成本 Run 专用 decision closure 时，使用 `{ kind: "prepared", prepare }`。每个 graph-ready Run 最多调用一次 `prepare`；它返回同步 `decide` 和可选的 `terminalEffect`。
 下例声明 preparation 不需字段、decision 只需候选与取消状态、terminal 只需 execution：优先选择可准入的 `second`，
-否则选择第一个可准入候选，并保存终态任务计数。未启用 diagnostics，也没有 measurement/rawMeasurement demand，
-因此不要求完整 raw collector；上面的 simple 示例保留原 function 的完整 context 用法：
+否则选择第一个可准入候选，并保存终态任务计数。未启用 diagnostics，也没有 timing 字段需求，
+因此不启动 timing collector；上面的 simple 示例同样显式声明所需字段：
 
 ```ts
 import {
   defineAdmissionPolicy,
   defineCheck,
   defineConfig,
-  defineSchedulerContextCallback,
+  defineContextCallback,
   run
 } from "@zxyycom/vibe-check";
 
@@ -215,13 +211,13 @@ const strategy = defineAdmissionPolicy({
   kind: "custom",
   strategy: {
     kind: "prepared",
-    prepare: defineSchedulerContextCallback("preparation", {
+    prepare: defineContextCallback("scheduler.prepare", {
       contextNeeds: [],
       async callback() {
         // 模拟异步读取调用方自己的配置，并将其捕获在本 Run 的 closure 中。
         const preferredTaskId = await Promise.resolve("second");
         return {
-          decide: defineSchedulerContextCallback("decision", {
+          decide: defineContextCallback("scheduler.decide", {
             contextNeeds: ["candidates", "runtime"],
             callback(context) {
               if (context.runtime.abortRequested || context.runtime.cancelled) {
@@ -235,7 +231,7 @@ const strategy = defineAdmissionPolicy({
                 : { kind: "select", taskId: next.taskId };
             }
           }),
-          terminalEffect: defineSchedulerContextCallback("terminal", {
+          terminalEffect: defineContextCallback("scheduler.terminal", {
             contextNeeds: ["execution"],
             callback(terminal) {
               settledTaskCount = terminal.execution.settledTasks.length;
@@ -267,13 +263,21 @@ if (result.kind !== "completed" || settledTaskCount !== 2) {
 
 ### 交付终态 measurement
 
-任何 scheduler policy 都可配置 `scheduler.terminalEffects`。每个 effect 在 Scheduler drain 并 seal terminal context 后收到同阶段共享的冻结对象；原 function 仍收到完整 `{ graph, execution, rawMeasurement }`，descriptor 保证自身所声明字段；它适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。若同时配置 Definition effect 与 prepared `terminalEffect`，Definition effects 先结算，随后才调用 `terminalEffect`。如果任一 effect 或 `terminalEffect` 抛错或 reject，`result.outputs.terminalEffects.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
+任何 scheduler policy 都可配置 `scheduler.terminalEffects`。每个 effect 在 Scheduler drain 并 seal 后收到只含自身声明字段的冻结视图（普通 function 为冻结空视图）；不同 effect 不保证外层 identity 相同；它适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。若同时配置 Definition effect 与 prepared `terminalEffect`，Definition effects 先结算，随后才调用 `terminalEffect`。如果任一 effect 或 `terminalEffect` 抛错或 reject，`result.outputs.terminalEffects.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
 
-终态 measurement 不同于 `decide` 所读 `context.measurement` 的在线观察前缀。需要逐项业务数据、失败原因或 Records 时，在 Check 的 `execute` 中形成事实，再从 `RunResult` 读取。
+终态测量分为两个可独立请求的类型：
+
+- `SchedulerRunMeasurement`（`runMeasurement`）：Run fingerprint、离散事实、peaks，以及 available 分支的 Run timing facts；不含逐 Task admissions。
+- `SchedulerTaskTimings`（`taskTimings`）：closed `{ timing: { availability: "available" }, admissions }` 或
+  `{ timing: { availability: "unavailable", reason } }`。可用表覆盖进入过 admission-viable pending 集合的 Tasks，
+  不只实际 admitted Tasks；按 canonical Task ID 顺序保存分类 delay、admitted/settled timestamps 等事实。
+  `execution.admittedTaskIds` 则只包含实际启动者，按首次 admission 顺序排列。
+
+它们不同于 decision 的 `cumulative` / `actionHistory`。逐项业务数据、失败原因或 Records 由 Check 的 `execute` 形成，再从 `RunResult` 读取。
 
 `prepare` 只在 graph 已有效且 Run 尚未于 pre-work / planning 取消后调用；它没有 cancellation signal、timeout 或“必有 terminalEffect”的 cleanup 保证。prepare reject 会结束为 `admission-strategy-preparation-failed`。一旦 Run 进入 Scheduler，正常结束、取消或 policy fault 的 drain 只要 seal 出 terminal context，都会在 Definition effects 后调用 `terminalEffect`；早期 setup / execution failure 没有 terminal context 时不会调用它。因此不要在 `prepare` 中取得必须依赖 `terminalEffect` 释放的资源。
 
-保存后续 Run 会使用的 caller-owned data 时，先根据自己的目标定义“可接受样本”。请求了 `rawMeasurement` 时，`rawMeasurement.timing.availability === "available"` 只证明终态 timing facts 可读，不证明 Run quality 成功；`settledTasks.kind === "completed"` 是 Scheduler settlement，不等于 Check `passed`，且 context 不提供 `RunResult.kind`。若业务只允许成功 Run，先暂存候选，在 `run(...)` 返回后同时核对 `result.kind` 与业务要求的 Check outcomes 或 aggregate，再决定是否提交。`kind: "completed"` 本身不表示质量检查全部通过。
+保存后续 Run 会使用的 caller-owned data 时，先根据自己的目标定义“可接受样本”。请求了 `runMeasurement` 或 `taskTimings` 时，对应字段的 `timing.availability === "available"` 只证明终态 timing facts 可读，不证明 Run quality 成功；`settledTasks.kind === "completed"` 是 Scheduler settlement，不等于 Check `passed`，且 context 不提供 `RunResult.kind`。若业务只允许成功 Run，先暂存候选，在 `run(...)` 返回后同时核对 `result.kind` 与业务要求的 Check outcomes 或 aggregate，再决定是否提交。`kind: "completed"` 本身不表示质量检查全部通过。
 
 ## 复用本地时长历史
 

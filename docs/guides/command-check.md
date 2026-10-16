@@ -59,6 +59,21 @@ if (outcome?.status !== "passed" || outcome.data.exitCode !== 0) {
 
 command 由 executable 和独立 arguments 表示，不是 shell string、pipeline 或 workflow。
 
+## Callback 声明与输入
+
+两个扩展点接受[共同 descriptor](../api-mechanics.md#声明式-callback-context)，普通 function、缺省/undefined needs 或 []
+均为零需求。TypeScript 需要框架字段时使用 `defineContextCallback`，其 phase 与字段如下：
+
+| helper phase | 第一业务参数 | 可声明的完整顶层字段 |
+| --- | --- | --- |
+| `command.environment` | prepared command options | `dependencies`、`project`、`signal` |
+| `command.complete` | 冻结 `{ options, command }` | `artifactDirectory`、`dependencies`、`invocationId`、`project`、`records`、`signal` |
+
+constructor 验证、复制并固定这两个下游声明；非法 descriptor 仍抛 `TypeError`，不同于执行时 resolver/completion failure。
+command 通过普通 Check 执行，合并自身启动/取消/working-directory/transcript 的执行义务与下游需求，
+向上游声明所需并集，再为两个下游各自精确投影；下游不继承其它消费者或 command 自己需要的字段。
+需求不授予 dependencies 或 artifact 权限，completion parser 继续只接收 terminal data，不增加 context。
+
 ## 环境
 
 环境是 closed policy。静态 `environment` 与 invocation-time `resolveEnvironment` 互斥；两者都省略时，child 使用 exact-empty environment。
@@ -70,17 +85,24 @@ command 由 executable 和独立 arguments 表示，不是 shell string、pipeli
 
 这张 policy 只确定 caller base environment。Product 在它之后加入固定 plain-text/no-color variables：`CARGO_TERM_COLOR=never`、`CLICOLOR=0`、`CLICOLOR_FORCE=0`、`FORCE_COLOR=0`、`NO_COLOR=1`、`PNPM_CONFIG_COLOR=false`、`PY_COLORS=0`、`TERM=dumb`、`UV_NO_COLOR=1` 与 `npm_config_color=false`。这些 keys 最后覆盖静态 policy 或 resolver 返回 policy 中的同名 value；不能通过此 API 请求 colorized child output。
 
-`resolveEnvironment(context)` 在 spawn 前接收 `project`、direct `dependencies`、prepared command `options` 和取消 `signal`，并返回（或 resolve 为）同一张 policy 表中的值。其返回值同样先作为 caller base environment，再由 Product 加入上述固定 keys。它适合把当前 project 或已声明依赖转换为本次 command 的最小环境：
+`resolveEnvironment(options, context)` 在 spawn 前接收 prepared command options 作为第一业务参数；
+第二参数只包含自己声明的 `project`、direct `dependencies` 或取消 `signal`。
+返回（或 resolve 为）同一张 policy 表中的值，仍先作为 caller base environment，再由 Product 加入上述固定 keys。
+它适合把当前 project 或已声明依赖转换为本次 command 的最小环境：
 
 ```ts
+import { commandCheck, defineContextCallback } from "@zxyycom/vibe-check";
+
 const projectCommand = commandCheck({
   checkId: "project-command",
   displayName: "Project command",
   executable: process.execPath,
   arguments: ["--eval", "process.exit(0)"],
-  resolveEnvironment: ({ project }) => ({
-    mode: "exact",
-    variables: { PROJECT_ROOT: project.root }
+  resolveEnvironment: defineContextCallback("command.environment", {
+    contextNeeds: ["project"],
+    callback(_options, { project }) {
+      return { mode: "exact", variables: { PROJECT_ROOT: project.root } };
+    }
   }),
   timeoutMs: 5_000,
   outputByteLimit: 64 * 1024
@@ -105,6 +127,8 @@ transcript 是显式 opt-in artifact capability。没有 `artifactDirectory`，�
 `afterCommand` 把完成 callback 与可选 typed-provider parser 放在同一个对象：
 
 ```ts
+import { commandCheck, defineContextCallback } from "@zxyycom/vibe-check";
+
 const reportCommand = commandCheck({
   checkId: "report-command",
   displayName: "Report command",
@@ -113,10 +137,13 @@ const reportCommand = commandCheck({
   timeoutMs: 5_000,
   outputByteLimit: 64 * 1024,
   afterCommand: {
-    execute: ({ command, records }) => {
-      records.report({ id: "report-command" }, { stdoutLength: command.stdout.length });
-      return { status: "passed", data: { report: command.stdout } };
-    },
+    execute: defineContextCallback("command.complete", {
+      contextNeeds: ["records"],
+      callback({ command }, { records }) {
+        records.report({ id: "report-command" }, { stdoutLength: command.stdout.length });
+        return { status: "passed", data: { report: command.stdout } };
+      }
+    }),
     parseData: (data) => {
       if (typeof data.report !== "string") throw new TypeError("report must be a string");
       return { report: data.report };
@@ -125,9 +152,9 @@ const reportCommand = commandCheck({
 });
 ```
 
-Product 只在 child 具有 numeric exit，且未取消、未 timeout、未达到 output limit、未被 signal 终止时调用 `afterCommand.execute`。若选择 transcript，final write 也必须先成功。callback context 是 ordinary `CheckExecutionContext` 加上 invocation-local `command: { exitCode, stdout, stderr }`；它可以返回普通 `CheckResult` 并按 ordinary Check contract 报告 Records。这个返回值取代完整命令的默认 exit-code mapping。
+Product 只在 child 具有 numeric exit，且未取消、未 timeout、未达到 output limit、未被 signal 终止时调用 `afterCommand.execute`。若选择 transcript，final write 也必须先成功。`callback(input, context)` 的第一参数是冻结 `{ options, command }`，其中 command 是完整 `{ exitCode, stdout, stderr }`；第二参数只含自己声明的 Check execution 字段；它可以返回普通 `CheckResult` 并按 ordinary Check contract 报告 Records。这个返回值取代完整命令的默认 exit-code mapping。
 
-存在 `parseData` 时，返回值是 typed provider Check，parser 负责验证 callback 返回的 data；没有 parser 时，返回值仍是 ordinary Check。`stdout`、`stderr` 仅在 callback context 中提供，不会因 callback 存在而自动发布。调用方决定是否把派生数据或 Records 放入自己的结果边界，并负责其中的敏感信息处理。
+存在 `parseData` 时，返回值是 typed provider Check，parser 负责验证 callback 返回的 data；没有 parser 时，返回值仍是 ordinary Check。`stdout`、`stderr` 仅在 callback 的业务 input 中提供，不会因 callback 存在而自动发布。调用方决定是否把派生数据或 Records 放入自己的结果边界，并负责其中的敏感信息处理。
 
 ## 默认终态与失败边界
 
@@ -152,4 +179,14 @@ Product 只在 child 具有 numeric exit，且未取消、未 timeout、未达�
 
 默认 exact-empty environment 与 discard output 避免 ambient credential 和 child material 自动进入结果或日志。选择 `inherit`、`transcript` 或在 `afterCommand` 发布派生数据时，调用方负责对应 environment、artifact 和结果边界的访问控制、保留和清理。
 
-package root 提供 `commandCheck` 及 `CommandCheckInput`、`CommandCheck`、`CommandCheckWithAfterCommand`、`TypedCommandCheck`、`CommandCheckEnvironment`、`CommandEnvironmentContext`、`CommandEnvironmentResolver`、`AfterCommand`、`AfterCommandContext`、`AfterCommandExecution`、`CompletedCommand`、`CommandCheckOutput`、`CommandCheckFinalData` 与 `CommandCheckUnavailableReasonCode`；精确签名见安装包 declarations。它不提供 shell、pipeline、workflow 或 process-exit adapter，也不保证平台解析的 command 存在。
+package root 提供 `commandCheck` 和以下类型组；精确签名见安装包 declarations：
+
+| 类型 | 用途 |
+| --- | --- |
+| `CommandCheckInput`、`CommandCheck`、`CommandCheckWithAfterCommand`、`TypedCommandCheck` | constructor 输入与普通/typed-provider 返回值。 |
+| `ResolvedCommandCheckOptions`、`CommandCheckExecution` | constructor-resolved 业务 options 与返回 Check 的具体 execution descriptor；直接调用使用 `.execute.callback(options, context)`，由调用方提供完整执行能力。 |
+| `CommandCheckEnvironment`、`CommandEnvironmentContext`、`CommandEnvironmentResolver` | environment policy、合法 context 字段与 resolver 槽位。 |
+| `AfterCommand`、`AfterCommandInput`、`AfterCommandContext`、`AfterCommandExecution`、`CompletedCommand` | completion 配置、独立业务 input、合法 context 字段与完整命令结果。 |
+| `CommandCheckOutput`、`CommandCheckFinalData`、`CommandCheckUnavailableReasonCode` | output policy、默认终态 data 与 command-owned reason code。 |
+
+command 不提供 shell、pipeline、workflow 或 process-exit adapter，也不保证平台解析的 command 存在。

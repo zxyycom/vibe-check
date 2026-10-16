@@ -1,3 +1,4 @@
+import { defineContextCallback } from "../../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -170,19 +171,35 @@ describe("immutable admission graph", () => {
     const started: string[] = [];
     const release = deferred<void>();
     let firstContextState: unknown;
-    const policy = admissionSelectionPolicyFor((context) => {
-      assert.equal(context.admissionState, context.admissionState);
-      assert.equal(Object.isFrozen(context.admissionState), true);
-      const selectable = context.admissionState.catalog.selectableTaskIds;
-      if (firstContextState === undefined) {
-        firstContextState = context.admissionState;
-        const branch = context.admissionState.select("second");
-        assert.equal(branch.accepted, true);
-        return { kind: "select", taskId: "first" };
-      }
-      const taskId = selectable[0];
-      return taskId === undefined ? { kind: "wait" } : { kind: "select", taskId };
-    });
+    const policy = admissionSelectionPolicyFor(
+      defineContextCallback("scheduler.decide", {
+        contextNeeds: [
+          "activeScopeIds",
+          "admissionState",
+          "candidates",
+          "capacity",
+          "graph",
+          "cumulative",
+          "actionHistory",
+          "runningTaskIds",
+          "runtime",
+          "settledTaskIds"
+        ],
+        callback: (context) => {
+          assert.equal(context.admissionState, context.admissionState);
+          assert.equal(Object.isFrozen(context.admissionState), true);
+          const selectable = context.admissionState.catalog.selectableTaskIds;
+          if (firstContextState === undefined) {
+            firstContextState = context.admissionState;
+            const branch = context.admissionState.select("second");
+            assert.equal(branch.accepted, true);
+            return { kind: "select", taskId: "first" };
+          }
+          const taskId = selectable[0];
+          return taskId === undefined ? { kind: "wait" } : { kind: "select", taskId };
+        }
+      })
+    );
     const running = runTaskGraph({
       admissionPolicy: policy,
       execute: async (task) => {
@@ -202,11 +219,27 @@ describe("immutable admission graph", () => {
 
     const controller = new AbortController();
     const guarded = await runTaskGraph({
-      admissionPolicy: admissionSelectionPolicyFor((context) => {
-        assert.equal(context.admissionState.validateSelection("pending").accepted, true);
-        controller.abort();
-        return { kind: "select", taskId: "pending" };
-      }),
+      admissionPolicy: admissionSelectionPolicyFor(
+        defineContextCallback("scheduler.decide", {
+          contextNeeds: [
+            "activeScopeIds",
+            "admissionState",
+            "candidates",
+            "capacity",
+            "graph",
+            "cumulative",
+            "actionHistory",
+            "runningTaskIds",
+            "runtime",
+            "settledTaskIds"
+          ],
+          callback: (context) => {
+            assert.equal(context.admissionState.validateSelection("pending").accepted, true);
+            controller.abort();
+            return { kind: "select", taskId: "pending" };
+          }
+        })
+      ),
       execute: () => assert.fail("hard revalidation must prevent execution after callback abort"),
       graph: { tasks: [{ id: "pending" }] },
       maxParallel: 1,

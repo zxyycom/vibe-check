@@ -29,6 +29,6 @@ relations: []
 - 采用: 所有固定身份的随包 Check 构造器在现有顶层输入中接收共享项目声明字段；不增加构造后 adapter、`defineCheck(base, metadata)` overload 或单个 Check 专用的 identity 参数。
 - 采用: 共享字段为 `checkId`、`displayName`、`enabledByFlags`、`checks`、`dependsOn`、`observes`、`maxParallel`、`admissionPriority`、`mutex`、`resourceClaims` 与 `omitQuietPassedRow`。构造器对 closed input 一次校验，将领域字段解析到 `options`，将这些字段投影到最终 Check；`omitQuietPassedRow: false` 解析为不声明该 raw Check field。
 - 采用: `checkId` 与 `displayName` 省略时使用现有 package defaults；default overload 返回默认 literal，custom overload 仅在 input 静态类型含必填 literal `checkId` 时传播该 literal，已宽化 options 变量返回 `string` identity。自定义 identity 不改变 display name 默认值。
-- 采用: `options`、`prepare`、`execute`、`parseData` 与 `handoff` 继续由 package 拥有，不进入构造器可覆盖集合。新增项目字段不进入 resolved options 或 execution `context.options`。
+- 采用: `options`、`prepare`、`execute`、`parseData` 与 `handoff` 继续由 package 拥有，不进入构造器可覆盖集合。新增项目字段不进入 resolved options 或 execution 的业务 `options` 参数。
 - 采用: 无参、现有领域 options、`secretDetection` 的必填 policy 与 `maintenanceReminders(entries)` 保持兼容；`maintenanceReminders` 另提供包含 `entries` 和共享字段的 object input。
 - 采用: `commandCheck` 保持现有 contract。从 package root 导出 `PackageCheckAuthoringOptions<Id>`，因为项目需要命名并复用跨构造器的 selection、relation 与 scheduling 配置片段；同时由隔离 consumer 直接 import 验收该名称。
