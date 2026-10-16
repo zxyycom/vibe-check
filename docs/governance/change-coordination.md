@@ -146,7 +146,22 @@ owner 时，实施与提交必须串行。
 [读取优化实施调查](../investigations/verify-function-metrics-admission-implementation.md)。本节不保留已完成 Change 的链接或阶段副本。
 共享 measurement、测试、Case 或包 owner 的后续变更仍串行实施和提交；来源升级、指标修复与读取策略分别验收。
 
+### 全局声明式上下文与 Scheduler 底层重构
+
+按“完整上下文交付 → 完整底层重构”串行推进；各项的实施步骤与门禁由自身 tasks 拥有。
+
+| 当前 Change | 独立交付与进入条件 |
+| --- | --- |
+| [`adopt-declarative-callback-contexts`](../../changes/adopt-declarative-callback-contexts/proposal.md) | 完成框架注入字段的通用声明 helper、固定需求、按需生产、每消费者精确视图，以及 breaking API 迁移和验收；使用现有 Scheduler 能力独立交付。 |
+| [`restructure-scheduler-incremental-state`](../../changes/restructure-scheduler-incremental-state/proposal.md) | 上下文交付并提交后，复核该基线，完成 typed 成员索引、统一变化传播、查询与等待统计的独立重构和验收。 |
+
+共享 Scheduler、Definition、Invocation、公开类型、Case 和稳定文档的写入与提交串行协调。
+上下文项承接必要的局部 producer 拆分；底层项优化已请求数据的维护和计算。若发现必须共同交付的原子改动，先重审 Change 边界。
+
 ### Scheduler 证据队列
+
+底层状态重构与以下策略证据队列分别验收；共用 Scheduler owner 的源码和 Case 写入串行，性能采样使用独占窗口。
+前者交付改变数据模型或观察输入时，策略队列继续前重新核对其输入与验收基线。
 
 Scheduler 的当前行为由 runtime、Architecture、API mechanics、
 [统一 Invocation 策略生命周期 Decision](../decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md)
