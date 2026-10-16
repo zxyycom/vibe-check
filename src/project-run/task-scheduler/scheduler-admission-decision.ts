@@ -89,7 +89,8 @@ function decideStaticAdmission(cycle: SchedulerDecisionCycle): SchedulerDecision
       projectEligibleCount
     );
   }
-  if (capturedCore.selection.runningTotal === 0) throw new AdmissionPolicyFault("undrainable-wait");
+  if (capturedCore.selection.memberships.status.running.size === 0)
+    throw new AdmissionPolicyFault("undrainable-wait");
   return freezeDecisionWithContext(
     cycle.context,
     {
@@ -139,7 +140,7 @@ function awaitDecision(
   candidates: readonly AdmissionCandidate[],
   proposal: AdmissionPolicyDecision | null = null
 ): SchedulerDecision {
-  if (cycle.admissionCore.selection.runningTotal === 0) {
+  if (cycle.admissionCore.selection.memberships.status.running.size === 0) {
     throw new AdmissionPolicyFault("undrainable-wait");
   }
   return freezeDecisionWithContext(

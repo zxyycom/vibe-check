@@ -49,6 +49,8 @@ if (!completed.accepted || !completed.state.catalog.selectableTaskIds.includes("
 ```
 
 `select` / `settle` 成功时返回新的 immutable `state`，保留原 state 即可分支；拒绝时返回 `{ accepted: false, reason }`，没有 successor。模拟不启动真实 Check、不预留真实资源，也不写回 Run。
+旧 state 及已读取的 frozen catalog/inspection 不随后继或其它分支改变；先读取、后读取或重复读取投影不改变该 state 的选择合法性。
+这同样适用于 custom policy 从真实 Run 捕获的 `admissionState`，但假设分支不包含真实执行时钟或 measurement 历史。
 
 只有 running Task 可 `settle`：`satisfied` 满足其 `dependsOn` 下游的这项前置；`unsatisfied` 使未满足前置的下游被阻止并结算，不能再选择。`observes` 只等待终态，不要求 satisfied。例如，从同一 `compile.state` 改用 `settle("compile", "unsatisfied")`，`publish` 就不会变为可选。
 

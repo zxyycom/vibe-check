@@ -1,0 +1,512 @@
+{
+  "sourceTreeDigest": "d669c9b5687febee8c1de9efc4c064be152fdfbe9f422eb36a24b2152bd3949d",
+  "note": "Short candidate experiment only, not final full after. Same frozen corpus; query64 over <=8 retained forks. Persistent source unchanged throughout. Node allocation pass separate. Eager import cold cost measured in 7 fresh processes per runtime/kind. Lazy require experimentally worked but loading-policy compatibility not yet accepted; not Product.",
+  "files": [
+    {
+      "name": "native-static-query.ts",
+      "sha256": "46332c85006f5f0d3f48c5ac8080b6086b5f8bc59259a640a91d1b93765ca618"
+    },
+    {
+      "name": "native-static-query-lazy.ts",
+      "sha256": "b61bf65375284462a764d575a19e40728076ffdf6935250d0685a478dd50f6b7"
+    },
+    {
+      "name": "query-candidate-benchmark.ts",
+      "sha256": "7b510c27215f8f97b06a79168035e73e71644397223d0f8d219ff2ac43362e7d"
+    },
+    {
+      "name": "query-candidate-benchmark-lazy.ts",
+      "sha256": "898c34a6250a843d5940311908b3f10c87004e4f880517388c3a0ec3d2a704f7"
+    },
+    {
+      "name": "query-candidate-correctness.ts",
+      "sha256": "113162c6e6d716f52f67e06eb30321bc82d2da3e525d1895ac2efc220d7091da"
+    },
+    {
+      "name": "query-import-probe.ts",
+      "sha256": "910e57c7b4925d44aff75572bc57d48d81043a2872e93d983c269984e1a274ec"
+    }
+  ],
+  "summaries": [
+    {
+      "runtime": "node",
+      "shape": "wide",
+      "size": 16,
+      "forks": 8,
+      "persistentMs": 0.17436399999999708,
+      "nativeMs": 0.24804100000000062,
+      "persistentRangeMs": [
+        0.0856290000000115,
+        0.3112480000000062
+      ],
+      "nativeRangeMs": [
+        0.08309399999998845,
+        0.3346520000000055
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "wide",
+      "size": 256,
+      "forks": 8,
+      "persistentMs": 0.3372760000000312,
+      "nativeMs": 0.33948099999997794,
+      "persistentRangeMs": [
+        0.20543100000000436,
+        0.8328579999999874
+      ],
+      "nativeRangeMs": [
+        0.2314290000000483,
+        0.45304100000004155
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "wide",
+      "size": 2048,
+      "forks": 8,
+      "persistentMs": 0.302361000000019,
+      "nativeMs": 0.2659840000000031,
+      "persistentRangeMs": [
+        0.11482300000000123,
+        0.3445600000000013
+      ],
+      "nativeRangeMs": [
+        0.1808449999999766,
+        0.3224590000000376
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "groups",
+      "size": 16,
+      "forks": 8,
+      "persistentMs": 0.3251639999999725,
+      "nativeMs": 0.28748400000006313,
+      "persistentRangeMs": [
+        0.2094080000000531,
+        0.6652729999999565
+      ],
+      "nativeRangeMs": [
+        0.20273599999995895,
+        0.6476519999999937
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "groups",
+      "size": 256,
+      "forks": 8,
+      "persistentMs": 0.4322020000000748,
+      "nativeMs": 0.3117689999999129,
+      "persistentRangeMs": [
+        0.2707629999999881,
+        0.730617000000052
+      ],
+      "nativeRangeMs": [
+        0.2097599999999602,
+        0.5158779999999297
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "groups",
+      "size": 2048,
+      "forks": 8,
+      "persistentMs": 0.3467640000000074,
+      "nativeMs": 0.18723799999997937,
+      "persistentRangeMs": [
+        0.3043150000000878,
+        0.453822999999943
+      ],
+      "nativeRangeMs": [
+        0.13722500000005766,
+        0.36649099999999635
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "heterogeneous",
+      "size": 16,
+      "forks": 8,
+      "persistentMs": 0.3712600000000066,
+      "nativeMs": 0.390664999999899,
+      "persistentRangeMs": [
+        0.2993659999999636,
+        0.4652439999999842
+      ],
+      "nativeRangeMs": [
+        0.2671060000000125,
+        0.5717010000000755
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "heterogeneous",
+      "size": 256,
+      "forks": 8,
+      "persistentMs": 0.28508899999997084,
+      "nativeMs": 0.36680100000012317,
+      "persistentRangeMs": [
+        0.1833599999999933,
+        0.5166239999999789
+      ],
+      "nativeRangeMs": [
+        0.27232599999990725,
+        0.5189940000000206
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "heterogeneous",
+      "size": 2048,
+      "forks": 8,
+      "persistentMs": 0.43895500000007814,
+      "nativeMs": 0.316379999999981,
+      "persistentRangeMs": [
+        0.374225000000024,
+        1.079059000000143
+      ],
+      "nativeRangeMs": [
+        0.24578700000006393,
+        0.4112239999999474
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "scopes",
+      "size": 16,
+      "forks": 8,
+      "persistentMs": 0.298614999999927,
+      "nativeMs": 0.21098200000005818,
+      "persistentRangeMs": [
+        0.1247920000000704,
+        0.5193249999999807
+      ],
+      "nativeRangeMs": [
+        0.11108600000011393,
+        0.32572499999992033
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "scopes",
+      "size": 256,
+      "forks": 8,
+      "persistentMs": 0.25310000000013133,
+      "nativeMs": 0.17460400000004483,
+      "persistentRangeMs": [
+        0.15364500000009684,
+        0.35892600000011043
+      ],
+      "nativeRangeMs": [
+        0.1238100000000486,
+        0.2584799999999632
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "scopes",
+      "size": 2048,
+      "forks": 8,
+      "persistentMs": 0.17558600000006663,
+      "nativeMs": 0.16228099999989354,
+      "persistentRangeMs": [
+        0.10803099999998267,
+        0.46757800000000316
+      ],
+      "nativeRangeMs": [
+        0.10371199999985947,
+        0.19532299999991665
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "blocked-prefix",
+      "size": 16,
+      "forks": 1,
+      "persistentMs": 0.3482160000000931,
+      "nativeMs": 0.43758200000002034,
+      "persistentRangeMs": [
+        0.320365000000038,
+        0.7117210000001251
+      ],
+      "nativeRangeMs": [
+        0.39611599999989267,
+        0.5842649999999594
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "blocked-prefix",
+      "size": 256,
+      "forks": 1,
+      "persistentMs": 5.918533000000025,
+      "nativeMs": 4.280668999999989,
+      "persistentRangeMs": [
+        5.712332999999944,
+        7.736977000000024
+      ],
+      "nativeRangeMs": [
+        2.7127879999998186,
+        5.13752199999999
+      ]
+    },
+    {
+      "runtime": "node",
+      "shape": "blocked-prefix",
+      "size": 2048,
+      "forks": 1,
+      "persistentMs": 71.48717799999986,
+      "nativeMs": 34.45746099999997,
+      "persistentRangeMs": [
+        65.53524700000025,
+        98.09045100000003
+      ],
+      "nativeRangeMs": [
+        30.73295599999983,
+        41.477711
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "wide",
+      "size": 16,
+      "forks": 8,
+      "persistentMs": 0.18256900000000087,
+      "nativeMs": 0.20980900000000702,
+      "persistentRangeMs": [
+        0.12570399999999893,
+        0.2825339999999983
+      ],
+      "nativeRangeMs": [
+        0.13237600000000782,
+        0.38124799999999937
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "wide",
+      "size": 256,
+      "forks": 8,
+      "persistentMs": 0.1946320000000128,
+      "nativeMs": 0.13204500000000507,
+      "persistentRangeMs": [
+        0.14684299999998984,
+        0.2301169999999786
+      ],
+      "nativeRangeMs": [
+        0.11119699999997579,
+        0.30867299999999886
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "wide",
+      "size": 2048,
+      "forks": 8,
+      "persistentMs": 0.11426199999999653,
+      "nativeMs": 0.09838300000001254,
+      "persistentRangeMs": [
+        0.1107960000000503,
+        0.18305700000001934
+      ],
+      "nativeRangeMs": [
+        0.09151900000000524,
+        0.13346799999999348
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "groups",
+      "size": 16,
+      "forks": 8,
+      "persistentMs": 0.19199700000001485,
+      "nativeMs": 0.2194880000000694,
+      "persistentRangeMs": [
+        0.16953399999999874,
+        0.2939059999999927
+      ],
+      "nativeRangeMs": [
+        0.17706900000007408,
+        0.24268100000006143
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "groups",
+      "size": 256,
+      "forks": 8,
+      "persistentMs": 0.29062899999996716,
+      "nativeMs": 0.23265200000003006,
+      "persistentRangeMs": [
+        0.20943899999997484,
+        0.34337700000003224
+      ],
+      "nativeRangeMs": [
+        0.18450299999994968,
+        0.28989799999999377
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "groups",
+      "size": 2048,
+      "forks": 8,
+      "persistentMs": 0.2580090000000155,
+      "nativeMs": 0.2996059999999261,
+      "persistentRangeMs": [
+        0.2343149999999241,
+        0.6732829999999694
+      ],
+      "nativeRangeMs": [
+        0.24519599999996444,
+        0.48057699999992565
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "heterogeneous",
+      "size": 16,
+      "forks": 8,
+      "persistentMs": 0.27458999999998923,
+      "nativeMs": 0.2514770000000226,
+      "persistentRangeMs": [
+        0.2208499999999276,
+        0.40110900000013316
+      ],
+      "nativeRangeMs": [
+        0.2022150000000238,
+        0.28589099999999235
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "heterogeneous",
+      "size": 256,
+      "forks": 8,
+      "persistentMs": 0.3274980000001051,
+      "nativeMs": 0.24480399999993097,
+      "persistentRangeMs": [
+        0.23416499999984808,
+        0.4281550000000607
+      ],
+      "nativeRangeMs": [
+        0.22237299999983406,
+        0.31251099999985854
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "heterogeneous",
+      "size": 2048,
+      "forks": 8,
+      "persistentMs": 0.2351970000001984,
+      "nativeMs": 0.244434000000183,
+      "persistentRangeMs": [
+        0.21369699999991099,
+        0.26737600000001294
+      ],
+      "nativeRangeMs": [
+        0.23312300000020514,
+        0.2752410000000509
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "scopes",
+      "size": 16,
+      "forks": 8,
+      "persistentMs": 0.20615299999985837,
+      "nativeMs": 0.19605400000000373,
+      "persistentRangeMs": [
+        0.1945109999999204,
+        0.2953789999999117
+      ],
+      "nativeRangeMs": [
+        0.18060500000001412,
+        0.26437299999997776
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "scopes",
+      "size": 256,
+      "forks": 8,
+      "persistentMs": 0.22014800000010837,
+      "nativeMs": 0.2899090000000797,
+      "persistentRangeMs": [
+        0.20737499999995634,
+        0.34777600000006714
+      ],
+      "nativeRangeMs": [
+        0.21060099999999693,
+        0.38200899999992544
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "scopes",
+      "size": 2048,
+      "forks": 8,
+      "persistentMs": 0.2502839999999651,
+      "nativeMs": 0.34379899999999,
+      "persistentRangeMs": [
+        0.23577799999998206,
+        0.35290600000007544
+      ],
+      "nativeRangeMs": [
+        0.2440240000000813,
+        0.4075869999999213
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "blocked-prefix",
+      "size": 16,
+      "forks": 1,
+      "persistentMs": 0.6084200000000237,
+      "nativeMs": 0.4709549999997762,
+      "persistentRangeMs": [
+        0.4108729999998104,
+        1.1413100000004306
+      ],
+      "nativeRangeMs": [
+        0.4111440000001494,
+        0.7379900000000816
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "blocked-prefix",
+      "size": 256,
+      "forks": 1,
+      "persistentMs": 12.38074000000006,
+      "nativeMs": 7.112426000000141,
+      "persistentRangeMs": [
+        10.804486999999881,
+        16.941435000000183
+      ],
+      "nativeRangeMs": [
+        5.662104999999883,
+        9.91797200000019
+      ]
+    },
+    {
+      "runtime": "bun",
+      "shape": "blocked-prefix",
+      "size": 2048,
+      "forks": 1,
+      "persistentMs": 366.36775300000045,
+      "nativeMs": 140.8936109999995,
+      "persistentRangeMs": [
+        260.6715199999999,
+        624.5209260000001
+      ],
+      "nativeRangeMs": [
+        79.08761200000026,
+        235.12902500000018
+      ]
+    }
+  ]
+}

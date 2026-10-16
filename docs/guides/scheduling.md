@@ -177,6 +177,8 @@ Scheduler 启动前固定，非法结果形成 `admission-strategy-preparation-f
 已启用计算的 invalid interval/integral 令后续 timing view 不可用，不为关闭组额外计算以寻找故障。
 cumulative/runMeasurement 仍保留离散事实与 peaks；taskTimings 不交付伪造数值，history 保留离散 action/effects。
 每个 reader 固定自己的 availability、数值与 prefix；后续 fault 或 append 不回写旧 view。
+读取统计字段不会额外采样或改变 availability，字段读取顺序不影响结果。统计保留原有单位、采样边界和区间归属，
+不保证与旧版本逐位相同的浮点累加结果；消费方不要依赖最后几位或对独立舍入的分类值做严格相等判断。
 
 在线观察不是完整逐 Task 历史或终态报告。Run 结束后的汇总和逐 Task 表分别通过下面的 terminal effects 请求
 `runMeasurement` / `taskTimings`；交付 effect 本身不要求任一测量需求。
@@ -272,6 +274,10 @@ if (result.kind !== "completed" || settledTaskCount !== 2) {
   `{ timing: { availability: "unavailable", reason } }`。可用表覆盖进入过 admission-viable pending 集合的 Tasks，
   不只实际 admitted Tasks；按 canonical Task ID 顺序保存分类 delay、admitted/settled timestamps 等事实。
   `execution.admittedTaskIds` 则只包含实际启动者，按首次 admission 顺序排列。
+
+这里的 admission-viable 指 Task 仍 pending、全部 `dependsOn` 已 completed 且全部 `observes` 已 settled；
+仅仅依赖已终态但未满足，不计入等待统计。available 的时长、等待与积分在交付前已验证为有限且非负；
+无法有效表示所请求结果时返回 unavailable，既有离散事实与 peaks 仍保留。后续执行或其它推演分支不会修改已保存的视图。
 
 它们不同于 decision 的 `cumulative` / `actionHistory`。逐项业务数据、失败原因或 Records 由 Check 的 `execute` 形成，再从 `RunResult` 读取。
 

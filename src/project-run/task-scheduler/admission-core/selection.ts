@@ -1,3 +1,4 @@
+import type { AdmissionStateDelta } from "./state-delta.ts";
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
   ABSENT,
@@ -20,6 +21,7 @@ export interface AdmissionCoreState {
   readonly compiled: CompiledAdmissionGraph;
   /** Selection representation remains private to this lifecycle module family. */
   readonly selection: AdmissionSelectionIndex;
+  readonly lastTransition: AdmissionStateDelta | undefined;
 }
 
 /** Starts from the canonical all-pending selection seed. */
@@ -134,15 +136,22 @@ function transitionState(
   state: AdmissionCoreState,
   transition: IndexedSelectionTransition
 ): AdmissionCoreState {
-  return freezeCoreState(
-    state.compiled,
-    transitionIndexedSelection(state.compiled, state.selection, transition)
-  );
+  const next = transitionIndexedSelection(state.compiled, state.selection, transition);
+  return freezeCoreState(state.compiled, next.selection, next.delta);
 }
 
 function freezeCoreState(
   compiled: CompiledAdmissionGraph,
-  selection: AdmissionSelectionIndex
+  selection: AdmissionSelectionIndex,
+  lastTransition?: AdmissionStateDelta
 ): AdmissionCoreState {
-  return Object.freeze({ compiled, selection });
+  return Object.freeze({ compiled, selection, lastTransition });
+}
+
+/** Replaces only the current transaction for one observation of a batched cancellation. */
+export function withCoreStateDelta(
+  state: AdmissionCoreState,
+  delta: AdmissionStateDelta
+): AdmissionCoreState {
+  return freezeCoreState(state.compiled, state.selection, delta);
 }

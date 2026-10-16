@@ -28,6 +28,15 @@ TS/JS、TSX/JSX 与 Vue 的真实 `??` 按单 token、每项 CCN +1 和完整贡
 
 项目文件选择统一为纯磁盘 `{ patterns, useDefaultExcludes? }`，移除 source/include/exclude 与 ProjectFileSource。默认排除固定且默认启用，只有 false 关闭；用户列表不能绕过这层。Run change regions 改为 `{ patterns }`，不应用扫描默认排除。被 Git 忽略的普通文件和子仓库目录可能进入范围，链接不入选；请复核候选、后缀 eligibility 与内容安全，而非机械替换来源。收集保持同步、冻结排序去重，并区分非法输入、必要 I/O 失败和合法无匹配。见[选择与收集项目文件](./guides/collecting-project-files.md)。
 
+### 调度状态与测量
+
+Scheduler 以同源增量变化维护成员、选择视图和已请求的统计；公开 context 字段、选择约束与 immutable 分支保持不变。
+积分与分类等待改用精确累计、最终一次舍入，保留采样归属和单位；最后几位可能变化，不能依赖旧逐次浮点加法结果。
+旧快照和 timing availability 不受后续执行或字段读取顺序影响。消费边界见[调度统计](./guides/scheduling.md#在线选择时读取-observation-prefix)。
+
+修正两项既有错误：pre-admission 依赖已终态但未满足的 Task 不再被错误计入 viable peaks/delay；
+取消 pending 依赖链后不再残留重复 forced settlement，已启动 work 仍按原规则 drain。无需更改配置或回调声明。
+
 ### 从 0.0.2 升级
 
 按项目实际使用的能力完成以下调整，再运行项目类型检查与代表性 Run，复核有效选择、单项终态、

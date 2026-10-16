@@ -1,3 +1,8 @@
+import {
+  exactAdmissionMeasurements,
+  roundedAdmissionMeasurements,
+  type AdmissionChronology
+} from "./admission-timing.ts";
 import type {
   SchedulerActionHistory,
   SchedulerDecisionMeasurementCumulative,
@@ -9,7 +14,8 @@ import type {
   SchedulerTaskTimings
 } from "../../../project-definition/project-definition.ts";
 import { diagnosticTags, type DiagnosticLogger } from "../../diagnostic-logging/logger.ts";
-import type { AdmissionDelayBreakdown } from "./integrals.ts";
+import type { AdmissionCoreState } from "../admission-core/selection.ts";
+import { summaryTimingFor, type SchedulerSummaryTiming } from "./summary-timing.ts";
 import { summaryFromSchedulerMeasurement } from "./summary.ts";
 import { SchedulerPerformanceTiming } from "./timing.ts";
 import { SchedulerPolicyMeasurement } from "./policy.ts";
@@ -29,19 +35,8 @@ export interface SchedulerMeasurementGroups {
   readonly taskTimings: boolean;
 }
 
-type AdmissionChronology = {
-  readonly admissionDelay: AdmissionDelayBreakdown;
-  readonly admittedAt: number;
-  settledAt: number | undefined;
-};
-
-export type AdmissionViablePendingTask = Readonly<{
-  readonly kind: "admissible-pending" | "capacity-blocked" | "mutex-blocked";
-  readonly taskId: string;
-}>;
-
 export type SchedulerPerformanceState = Readonly<{
-  readonly admissionViablePendingTasks: readonly AdmissionViablePendingTask[];
+  readonly core: AdmissionCoreState;
   readonly effectiveMaxParallel: number;
   readonly rootMaxParallel: number;
   readonly running: number;
@@ -63,6 +58,8 @@ export class SchedulerPerformanceDiagnostics {
   #admittedCount = 0;
   #sealedAt: number | undefined;
   #sealed = false;
+  #sealedAdmissions: readonly SchedulerMeasurementAdmission[] | undefined;
+  #summaryTiming: SchedulerSummaryTiming | undefined;
 
   public constructor(
     input: SchedulerPerformanceDiagnosticsInput &
@@ -73,10 +70,10 @@ export class SchedulerPerformanceDiagnostics {
     this.#logger = input.logger;
     this.#groups = input.groups;
     this.#chronologyByTaskId = this.#groups.taskTimings ? new Map() : undefined;
-    this.#policyMeasurement = this.#groups.actionHistory
-      ? new SchedulerPolicyMeasurement()
-      : undefined;
     this.#timing = new SchedulerPerformanceTiming(input.clock, initial, this.#groups);
+    this.#policyMeasurement = this.#groups.actionHistory
+      ? new SchedulerPolicyMeasurement(this.#timing.timeQuantumExponent)
+      : undefined;
   }
 
   public measureControlPath<T>(operation: () => T): T {
@@ -141,6 +138,7 @@ export class SchedulerPerformanceDiagnostics {
     if (this.#sealed) return;
     this.#sealedAt = this.#timing.boundary();
     if (this.#sealedAt !== undefined) this.#timing.closeAcceptedWait(this.#sealedAt);
+    this.#sealTaskMeasurements();
     this.#completePolicyAction();
     this.#sealed = true;
   }
@@ -156,15 +154,17 @@ export class SchedulerPerformanceDiagnostics {
     this.seal();
     const timing = this.#timing.availability;
     if (timing.availability === "unavailable") return Object.freeze({ timing });
-    return Object.freeze({ timing, admissions: Object.freeze(this.#admissionMeasurements()) });
+    if (this.#sealedAdmissions === undefined)
+      throw new Error("available task timing was not sealed");
+    return Object.freeze({ timing, admissions: this.#sealedAdmissions });
   }
 
   public beginSelectedPolicyAction(taskId: string): void {
-    this.#policyMeasurement?.beginSelected(taskId, this.#timing.snapshot().totals);
+    this.#policyMeasurement?.beginSelected(taskId, this.#timing.exactCheckpoint());
   }
 
   public beginWaitPolicyAction(): void {
-    this.#policyMeasurement?.beginWait(this.#timing.snapshot().totals);
+    this.#policyMeasurement?.beginWait(this.#timing.exactCheckpoint());
   }
 
   public recordEffect(effect: SchedulerMeasurementEffect): void {
@@ -201,7 +201,11 @@ export class SchedulerPerformanceDiagnostics {
           logger.observe({
             event: "scheduler.summary",
             tags: diagnosticTags("SUMMARY"),
-            details: summaryFromSchedulerMeasurement(context.runMeasurement, context.taskTimings)
+            details: summaryFromSchedulerMeasurement(
+              context.runMeasurement,
+              context.taskTimings,
+              this.#summaryTiming
+            )
           });
         } catch {
           // Summary writer failure is contained by this hook, not the shared runner.
@@ -212,8 +216,11 @@ export class SchedulerPerformanceDiagnostics {
 
   #completePolicyAction(): void {
     if (this.#policyMeasurement === undefined) return;
-    const timing = this.#timing.snapshot();
-    this.#policyMeasurement.complete(timing.totals, timing.timing);
+    const valid = this.#policyMeasurement.complete(
+      this.#timing.exactCheckpoint(),
+      this.#timing.availability
+    );
+    if (!valid) this.#timing.invalidate("integral-invalid");
   }
 
   #cumulativeMeasurement(): SchedulerDecisionMeasurementCumulative {
@@ -277,40 +284,35 @@ export class SchedulerPerformanceDiagnostics {
     });
   }
 
-  #admissionMeasurements(): SchedulerMeasurementAdmission[] {
-    const pendingByTaskId = new Map(
-      this.#timing
-        .pendingAdmissionDelays()
-        .map(({ admissionDelay, taskId }) => [taskId, admissionDelay])
+  #sealTaskMeasurements(): void {
+    if (!this.#groups.taskTimings || this.#timing.availability.availability === "unavailable")
+      return;
+    const exactAdmissions = exactAdmissionMeasurements(
+      this.#chronologyByTaskId,
+      this.#timing.pendingAdmissionDelays()
     );
-    const taskIds = new Set([
-      ...pendingByTaskId.keys(),
-      ...(this.#chronologyByTaskId?.keys() ?? [])
-    ]);
-    return [...taskIds]
-      .map((taskId) => this.#admissionMeasurement(taskId, pendingByTaskId))
-      .sort((left, right) => compareText(left.taskId, right.taskId));
-  }
-
-  #admissionMeasurement(
-    taskId: string,
-    pendingByTaskId: ReadonlyMap<string, AdmissionDelayBreakdown>
-  ): SchedulerMeasurementAdmission {
-    const chronology = this.#chronologyByTaskId?.get(taskId);
-    const admissionDelay = chronology?.admissionDelay ?? pendingByTaskId.get(taskId);
-    if (admissionDelay === undefined)
-      throw new Error(`missing admission measurement for ${taskId}`);
-    return Object.freeze({
-      admissionDelay,
-      admittedAtMonotonicMs: chronology?.admittedAt ?? null,
-      settledAtMonotonicMs: chronology?.settledAt ?? null,
-      taskId
+    const admissions = roundedAdmissionMeasurements(
+      exactAdmissions,
+      this.#timing.timeQuantumExponent
+    );
+    if (admissions === undefined) {
+      this.#timing.invalidate("integral-invalid");
+      return;
+    }
+    this.#sealedAdmissions = Object.freeze(admissions);
+    if (this.#logger === undefined) return;
+    const startedAt = this.#timing.snapshot().startedAtMonotonicMs;
+    const endedAt = this.#sealedAt;
+    if (startedAt === undefined || endedAt === undefined)
+      throw new Error("available summary timing has no boundaries");
+    this.#summaryTiming = summaryTimingFor({
+      admissions: exactAdmissions,
+      totals: this.#timing.exactCheckpoint(),
+      startedAt,
+      endedAt,
+      tailActiveIds: this.#completionTailActiveTaskIds,
+      quantumExponent: this.#timing.timeQuantumExponent
     });
+    if (this.#summaryTiming === undefined) this.#timing.invalidate("integral-invalid");
   }
-}
-
-function compareText(left: string, right: string): number {
-  if (left < right) return -1;
-  if (left > right) return 1;
-  return 0;
 }

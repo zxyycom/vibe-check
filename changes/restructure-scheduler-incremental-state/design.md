@@ -75,6 +75,12 @@ mutex/resource 变化由受影响约束或组定位，global capacity 由共享 
 排序采用保序索引、snapshot-local memo 或边缘排序中成本最小且隔离成立的方案。冷 seed、完整 public 输出、
 terminal per-Task 输出保留必要全量工作；实际查询、排序、维护和保留分支分别计量。
 
+当前候选采用 persistent source backing、按实际读取建立的 snapshot-local 有序成员 memo，以及只读查询的
+Mnemonist query-local best-first Heap；后者不改持久 frontier 或 legality。局部实验已验证长 blocked prefix 的
+查询与分配收益，同时接受 typed delta 的部分 transition 常数代价、已读取 fork 的 memo 保留成本，以及合法 root ESM
+导入的冷加载成本。Heap import probe 不等于完整 Product startup；最终各规模公开 Run 对照仍按下节独立完成。
+不采用违反模块加载规则的 lazy `require`，不新增加载豁免；实际 runtime import 必须进入正式发布依赖清单。
+
 ### Resulting Impacts
 
 #### 保持与允许变化
@@ -89,6 +95,16 @@ terminal per-Task 输出保留必要全量工作；实际查询、排序、维�
 
 统计含义完整定义仍由 Scheduler 与 Human output owner 承接。不同真实 Run 的时间本来不同；固定 trace 的计算正确性
 和机器负载下的性能测量分开验证。上下文默认字段、精确视图与跨 callback identity 采用前项交付结果，不在本项重开。
+
+基线最窄复现已确认两项既有错误，不能作为“保持旧结果”的验收期望：
+
+- dependency 已 settled 但未 completed 的 Task 在 pre-admission seed 中被计入 viable/admissible peak，并累计等待；
+  collector 应遵循现行 admission-viable 定义，不改变 Core 的合法性或 forced effect 顺序。
+- 取消 pending 依赖链后残留 forced candidate，running drain 再次结算已取消 Task，真实 shell 报错；
+  修复应保证取消后的单次结算与 drain，不新增取消语义。
+
+两项分别通过固定输入反例、独立 oracle 与最窄回归证明；按项目复杂/严重 Bug 规则沉淀独立调查，
+不把修复前后的定义纠正计作数值容差或性能收益。
 
 #### 数值与 availability 验收
 
@@ -121,12 +137,14 @@ terminal per-Task 输出保留必要全量工作；实际查询、排序、维�
 - 增量化可能把读成本移到写入，尤其是共享 constraint cohort、global cap 与复杂交集；采用时报告总成本和实际 fanout。
 - 多份 persistent backing、typed key 和 retained branches 会增加内存；dense/bitset 也可能不利于稀疏枚举，实验只替换有证据的部位。
 - 惰性等待引入消减误差和延后检查风险；数值证明、检查点确定性与旧快照稳定是采用门禁。
-- 小输入可付出可解释的常数开销换取规模收益；当前没有候选计时或内存结论，预算不由计划凭空设定。
+- 小输入可付出可解释的常数开销换取规模收益；实际收益、Core 回退、retained memory 与 eager import 代价见
+  [采用证据](evidence/adoption-evidence.md)，不据此声称所有场景更快，也不新增预算。
 
 ## Open Questions
 
-无待用户裁决的设计问题。物理 backing、聚合分组和数值表示由任务 1.2 的有界实验选定，输入、判据与失败出口见下节。
-若所有候选均无法在已确认语义内兑现 Outcome，停止替换并报告具体反例，重新审查范围；不通过默默放宽语义完成任务。
+无待用户裁决的设计问题。任务 1.2 已采用 persistent typed backing、按同源约束分组的 collector、
+精确整数贡献与 Run-local quantum，以及 query-local native Heap；未采用通用 tag 框架或 lazy loader 旁路。
+采用依据、原始矩阵和数值证明由[证据导航](evidence/README.md)定位；下节保留本轮实际采用的实验判据。
 
 ## Validation Strategy
 

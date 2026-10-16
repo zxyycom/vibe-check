@@ -1,0 +1,50 @@
+{
+  "sourceRevision": "d4dc896c01a373cf9c3e9709d744a86202373f18",
+  "sourceTree": "8ead838fcef4f16d759af533ec9937eec0b9403f",
+  "files": [
+    {
+      "name": "corpus.ts",
+      "sha256": "82bd2a0f30ffc6f42a4ea10d4f7ce2b8c999901f695f753117be94c65d9a03ad"
+    },
+    {
+      "name": "benchmark.ts",
+      "sha256": "1714704d2b7bfa1fc328109765feff7cc08daa82aa94396f90b8d486ed5d5f47"
+    },
+    {
+      "name": "run-benchmark.ts",
+      "sha256": "9a860ad19b85acdea24e72706f37255d862a4d0b5c8d3f5e237c621a191cd90c"
+    },
+    {
+      "name": "scopes-benchmark.ts",
+      "sha256": "f62dc85a9c4eed2eef4a2f51f5185f921ae430acd99f0004bbaa0d6f8b0bf89a"
+    },
+    {
+      "name": "fork-query-benchmark.ts",
+      "sha256": "3fb502332163c37f530258aedfe5ad735ce5529f35d025d2dd0b422a900aa30a"
+    },
+    {
+      "name": "operations.ts",
+      "sha256": "5f78f06608263d5a022f91532ae01abd01f2f00555369237ef90950c704f1617"
+    },
+    {
+      "name": "build-a-overlay.ts",
+      "sha256": "e3393bb69845850af6f004c63fddb07ee7e13173caca78a56082cdb602926391"
+    },
+    {
+      "name": "cleanup-diagnostics.mjs",
+      "sha256": "65f00db92c0444ba1856c740b17345813e31370cbc5dee3983e7db4070cd2fef"
+    },
+    {
+      "name": "source-identity.mjs",
+      "sha256": "c5f2eef1c0b18f3881263abdb88f1c41a27eccc734145eb31d11c436433f3408"
+    },
+    {
+      "name": "trace-baseline.ts",
+      "sha256": "05098a6e04d406291593b2a520d08f6c76fe623b71d0a4a65f5b471639d3c4bf"
+    },
+    {
+      "name": "trace-corpus.ts",
+      "sha256": "d91be9b041bfe110908f729e4aae6b301e0cb44849a656c402260dc374a37413"
+    }
+  ]
+}

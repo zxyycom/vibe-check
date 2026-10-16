@@ -4,10 +4,7 @@ import { diagnosticTags, type DiagnosticObservation } from "../diagnostic-loggin
 import type { SchedulerDecision } from "./scheduler-decision.ts";
 import type { SchedulerState } from "./execution-state.ts";
 import { capacityForCore } from "./admission-core/scheduler-queries.ts";
-import { admissionQueueKindForCore } from "./admission-core/selection-query.ts";
-import { requiredTaskForCore, taskSlotsForCore } from "./admission-core/state-query.ts";
 import type {
-  AdmissionViablePendingTask,
   SchedulerPerformanceDiagnostics,
   SchedulerPerformanceState
 } from "./measurement/diagnostics.ts";
@@ -91,16 +88,8 @@ export function performanceState<TResult>(
 ): SchedulerPerformanceState {
   const core = state.admissionCore;
   const capacity = capacityForCore(core);
-  const admissionViablePendingTasks: AdmissionViablePendingTask[] = [];
-  for (const slot of taskSlotsForCore(core, "pending")) {
-    const kind = admissionQueueKindForCore(core, slot);
-    if (kind !== undefined)
-      admissionViablePendingTasks.push(
-        Object.freeze({ kind, taskId: requiredTaskForCore(core, slot).id })
-      );
-  }
   return Object.freeze({
-    admissionViablePendingTasks: Object.freeze(admissionViablePendingTasks),
+    core,
     effectiveMaxParallel: capacity.effectiveMaxParallel,
     rootMaxParallel: capacity.maxParallel,
     running: capacity.running

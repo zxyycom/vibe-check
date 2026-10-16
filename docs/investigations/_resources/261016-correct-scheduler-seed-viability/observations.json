@@ -1,0 +1,165 @@
+{
+  "baselineRevision": "d4dc896c01a373cf9c3e9709d744a86202373f18",
+  "baselineSourceTreeDigest": "7aaca1df0426a2a6aafc1493c62f7e7affaaf6c0a7d67884067502b4c4cc8663",
+  "correctedSourceTreeDigest": "d669c9b5687febee8c1de9efc4c064be152fdfbe9f422eb36a24b2152bd3949d",
+  "environment": {
+    "bun": "1.3.14",
+    "runtime": "mise exec -- bun"
+  },
+  "command": "mise exec -- bun tmp/restructure-scheduler-incremental-state/viability-reproducer.ts",
+  "before": {
+    "settlements": [
+      {
+        "taskId": "source",
+        "kind": "prerequisite-unsatisfied"
+      },
+      {
+        "taskId": "doomed",
+        "kind": "blocked"
+      }
+    ],
+    "effects": [
+      {
+        "dependencyIds": [
+          "source"
+        ],
+        "kind": "settled",
+        "settlementKind": "blocked",
+        "taskId": "doomed"
+      }
+    ],
+    "terminal": {
+      "execution": {
+        "admittedTaskIds": [],
+        "settledTasks": [
+          {
+            "kind": "prerequisite-unsatisfied",
+            "taskId": "source"
+          },
+          {
+            "kind": "blocked",
+            "taskId": "doomed"
+          }
+        ]
+      },
+      "runMeasurement": {
+        "declarativeFingerprint": "fixed-viability-reproducer",
+        "discrete": {
+          "acceptedWaitCount": 0,
+          "admittedCount": 0,
+          "completionTailActiveTaskIds": [],
+          "lastSettledTaskId": "doomed",
+          "maxRunning": 0
+        },
+        "peaks": {
+          "admissionViablePendingTaskCount": 1,
+          "admissiblePendingTaskCount": 1,
+          "capacityBlockedTaskCount": 0,
+          "mutexBlockedTaskCount": 0
+        },
+        "timing": {
+          "availability": "available"
+        },
+        "timingFacts": {
+          "acceptedWaitMs": 0,
+          "effectiveCapacitySlotMs": 7,
+          "endedAtMonotonicMs": 107,
+          "rootCapacitySlotMs": 7,
+          "schedulerControlPathMs": 2,
+          "schedulerDecisionObservationMs": 0,
+          "startedAtMonotonicMs": 100,
+          "taskSlotMs": 0
+        }
+      },
+      "taskTimings": {
+        "timing": {
+          "availability": "available"
+        },
+        "admissions": [
+          {
+            "admissionDelay": {
+              "admissiblePendingMs": 1,
+              "capacityBlockedMs": 0,
+              "mutexBlockedMs": 0
+            },
+            "admittedAtMonotonicMs": null,
+            "settledAtMonotonicMs": null,
+            "taskId": "doomed"
+          }
+        ]
+      }
+    }
+  },
+  "after": {
+    "settlements": [
+      {
+        "taskId": "source",
+        "kind": "prerequisite-unsatisfied"
+      },
+      {
+        "taskId": "doomed",
+        "kind": "blocked"
+      }
+    ],
+    "effects": [
+      {
+        "dependencyIds": [
+          "source"
+        ],
+        "kind": "settled",
+        "settlementKind": "blocked",
+        "taskId": "doomed"
+      }
+    ],
+    "terminal": {
+      "execution": {
+        "admittedTaskIds": [],
+        "settledTasks": [
+          {
+            "kind": "prerequisite-unsatisfied",
+            "taskId": "source"
+          },
+          {
+            "kind": "blocked",
+            "taskId": "doomed"
+          }
+        ]
+      },
+      "runMeasurement": {
+        "declarativeFingerprint": "fixed-viability-reproducer",
+        "discrete": {
+          "acceptedWaitCount": 0,
+          "admittedCount": 0,
+          "completionTailActiveTaskIds": [],
+          "lastSettledTaskId": "doomed",
+          "maxRunning": 0
+        },
+        "peaks": {
+          "admissionViablePendingTaskCount": 0,
+          "mutexBlockedTaskCount": 0,
+          "capacityBlockedTaskCount": 0,
+          "admissiblePendingTaskCount": 0
+        },
+        "timing": {
+          "availability": "available"
+        },
+        "timingFacts": {
+          "acceptedWaitMs": 0,
+          "effectiveCapacitySlotMs": 7,
+          "endedAtMonotonicMs": 107,
+          "rootCapacitySlotMs": 7,
+          "schedulerControlPathMs": 2,
+          "schedulerDecisionObservationMs": 0,
+          "startedAtMonotonicMs": 100,
+          "taskSlotMs": 0
+        }
+      },
+      "taskTimings": {
+        "timing": {
+          "availability": "available"
+        },
+        "admissions": []
+      }
+    }
+  }
+}

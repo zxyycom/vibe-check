@@ -19,7 +19,7 @@ export type AdmissionTraceAction =
   | Readonly<{ readonly kind: "select"; readonly taskId: string }>
   | Readonly<{
       readonly kind: "settle";
-      readonly outcome: "satisfied" | "unsatisfied";
+      readonly outcome: unknown;
       readonly taskId: string;
     }>
   | Readonly<{
@@ -62,7 +62,7 @@ type AdmissionCoreActionResult =
   | Readonly<{ readonly accepted: false; readonly reason: Readonly<{ readonly kind: string }> }>;
 
 /**
- * Private deterministic oracle: it invokes the shared reducer and only normalizes
+ * Private deterministic recorder: it invokes the shared reducer and only normalizes
  * its public projection. It never recreates legality or exposes the effect stream.
  */
 export function traceAdmissionCore(
@@ -70,7 +70,7 @@ export function traceAdmissionCore(
   actions: readonly AdmissionTraceAction[]
 ): readonly AdmissionCoreTraceStep[] {
   let state = seed;
-  const taskIds = state.compiled.taskIdsInPublicOrder;
+  const taskIds = state.compiled.graph.tasks.map((task) => task.id).sort();
   const steps: AdmissionCoreTraceStep[] = [];
   for (const action of actions) {
     const pre = projectionFor(state, taskIds);
@@ -157,7 +157,7 @@ function traceCoreActionResult(
 export function admissionCoreTraceProjectionFor(
   state: AdmissionCoreState
 ): AdmissionCoreTraceProjection {
-  return projectionFor(state, state.compiled.taskIdsInPublicOrder);
+  return projectionFor(state, state.compiled.graph.tasks.map((task) => task.id).sort());
 }
 
 function projectionFor(

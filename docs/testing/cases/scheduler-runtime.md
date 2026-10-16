@@ -78,12 +78,16 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler terminal effect output > marks all successfully settled configured Hooks as succeeded`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler terminal effect output > preserves execution cancellation when a terminal effect fails after drain`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler terminal effect output > preserves an admission-policy failure when a terminal effect fails after drain`
+- `bun|src/project-run/task-scheduler/measurement/queue.test.ts|Scheduler incremental queue measurements > matches independent per-Task classification through resources, mutex sources, scopes and cancellation`
+- `bun|src/project-run/task-scheduler/measurement/queue.test.ts|Scheduler incremental queue measurements > excludes unsatisfied prerequisites from seed peaks and preserves tiny late waits after huge category prefixes`
   Proves:
 - An explicitly enabled Scheduler-only diagnostic handoff emits one bounded human summary after terminal drain. It separates shell control work from decision observation, integrates Scheduler slot/capacity state without claiming wall/CPU utilization, and records accepted policy waits rather than passive drains.
-- 依赖与观察均已终结的 pending Tasks，在每个 interval 互斥归类为 mutex-blocked、capacity-blocked 或 admissible；root/scoped/named-resource 不足共用 capacity 类。peak/interval 各以单次遍历完成三类计数，保留小数 task·ms、peaks、完整三分量 admission delay 及每 Task 的累加顺序；这些事实只描述队列压力，不推断 policy 原因。
+- 依赖均 completed 且观察均已终结的 pending Tasks，在每个 interval 互斥归类为 mutex-blocked、capacity-blocked 或 admissible；root/scoped/named-resource 不足共用 capacity 类。peak/interval 共读增量组分类，global gate 不逐 pending retag；精确非负累计在输出时一次舍入，保留小数 task·ms、peaks 与完整三分量 admission delay；这些事实只描述队列压力，不推断 policy 原因。
 - The last admission boundary's logical post-state active snapshot retains its complete discrete count and at most three settlement-delta contributors, including the newly admitted Task. These contributors explain the observed completion tail but do not claim dependency critical-path ownership. The invocation-owned declarative fingerprint remains only a declarative-configuration matching signal and does not identify RunControls, code/candidate/tool/runtime/host, terminal outcomes, or a custom callback.
 - Named scripted clock phases distinguish valid zero spans from invalid clock samples; timing failure retains the fingerprint, admitted and accepted-wait counts, max-running, last-settled Task ID, queue peaks, and tail active count without fabricating time. With a static policy, disabled diagnostics and no terminal consumers, Scheduler adds no measurement collector or clock reads; custom callbacks enable only the declared cumulative or action-history group, independently of terminal consumers. Summary writer failures cannot revise the settled Scheduler result.
 - Internal default summary Hook and each caller terminal effect share one ordered terminal runner; the default wrapper contains writer failure before caller failure/output policy applies. Each caller terminal effect receives its exact recursively frozen terminal view after admission stops and started work drains. Declared fields expose canonical graph, admitted/settled kind-only observations, Run measurement and/or separate Task timings without Task values/errors/callbacks, summary top-N projections, mutable internals, or an interval event log. Sync/async generic terminal effects run in configuration order and all settle. When they are the only output participants, their all-successful sequence marks `terminalEffects` succeeded; a generic throw/rejection still gives later generic terminal effects their chance and marks the aggregate failed. A normal completed Run with that failure becomes the facts-preserving `scheduler-terminal-effects-failed` output result; cancellation and admission-policy failure retain their primary result/diagnostic with the Hook status still visible.
+
+- 增量分类以 raw graph 逐 Task oracle 独立核对 counts、peaks 与三类 delay；异量 resource claim、多 mutex 来源、共享 root/active-scope gate、inactive activation cap 与取消净 delta 保持分类一致。非 completed prerequisite 的 pending Task 从 seed 起不计 admission-viable；巨大 prefix 后的微小本地 delay 仍保留。
 
 ## Case WB-RUNTIME-SCHEDULER-HISTORY-001: Local Scheduler history remains bounded and failure-contained
 
@@ -202,12 +206,16 @@ Entities:
 - `bun|src/project-run/task-scheduler/admission-core/static-selection-query.test.ts|static admission group frontier > consumes wide equivalent heads without materializing candidates and prunes arbitrary selections in transitions`
 - `bun|src/project-run/task-scheduler/admission-core/static-selection-query.test.ts|static admission group frontier > switches scope ties without backfilling blocked constrained work or mutating captured forks`
 - `bun|src/project-run/task-scheduler/scheduler-blocker-summary.test.ts|Scheduler blocker summary > aggregates independent Core blockers even when primary scope or root capacity hides resources`
+- `bun|src/project-run/task-scheduler/admission-core/incremental-trace.test.ts|incremental admission state > matches an independent full-scan oracle for every action, rejection, effect, static tie and retained fork`
+- `bun|src/project-run/task-scheduler/admission-core/incremental-trace.test.ts|incremental admission state > publishes actual counter thresholds, membership changes and net cancellation without rediscovery`
   Proves:
 - 声明顺序的 pending/running/settled 与 lexical catalog/inspection 共读 immutable memberships；重复关系更新 readiness，mutex occurrence 动态读取同源 occupancy，resource 不足仍保留 candidate。ordinary transition 和 inactive terminal closure 复用未变 active-root 数组且不搜索其成员，真实 activation/active closure 仍更新完整 roots；前序状态、独立 fork 与取消 successor 互不影响。
 - indexed consumer reads 用 whole-graph traversal guard 证明不重扫全图构造 memberships；query、public projection、transition 与 cancellation 仍返回完整有序事实。此结构证据不宣称 wall-clock 收益。
 - static head 消费保留两类规模证据：宽等价组读取不枚举 relation-ready members，异构组按有序前缀跳过 ordinary 资源阻塞而不枚举全部 groups。非 head selection 与取消在 transition 闭合 live heads；release 恢复优先 head，旧 fork 保持。
 - 延迟读取的完整 candidates/eligibleCount 仍冻结于原 captured Core，其它 fork 的推进不改变已捕获事实。
 - summary 的 dependency → mutex → resource priority 直接聚合 Core facts，即使 primary root/scoped rejection 遮住 resource reason 仍计入 shortage；measurement 使用同源 capacity classification。
+
+- 低优化 raw-graph oracle 不导入被测 reducer/index，逐 action 比较 rejection、effect 顺序和各 effect 的完整投影；scope/resource/mutex/重复关系、两类同 priority tie、三层选择、非 head 移除及保留 forks 均保持语义。counter 2→1 不改变 readiness/frontier identity，后续1→0 的真实 membership delta 直接推进 head；取消批事务只发布净 membership，已取消依赖不再 forced 二次结算，真实双 running abort 后正常 drain。
 
 ## Case WB-RUNTIME-PREADMISSION-SEED-001: Pre-admission 初始化保持回调与错误顺序
 
@@ -226,7 +234,15 @@ Entities:
 - `bun|src/project-run/task-scheduler/measurement/demand.test.ts|Scheduler grouped measurement production > starts only declared producers and never materializes aggregate views for task-only consumers`
 - `bun|src/project-run/task-scheduler/measurement/demand.test.ts|Scheduler grouped measurement production > keeps per-task delay maintenance independent of aggregate and action interval integrals`
 - `bun|src/project-run/task-scheduler/measurement/demand.test.ts|Scheduler grouped measurement validity > shares one first fault across enabled groups without revising older decision snapshots`
+- `bun|src/project-run/task-scheduler/measurement/exact-time.test.ts|Scheduler exact timing arithmetic > rounds exact interval sums and local differences at binary64 boundaries`
+- `bun|src/project-run/task-scheduler/measurement/exact-time.test.ts|Scheduler exact timing arithmetic > preserves exact sampled values under an invocation-local quantum`
+- `bun|src/project-run/task-scheduler/measurement/exact-time.test.ts|Scheduler exact timing arithmetic > rounds exact utilization quotients through halfway, underflow and unit boundaries`
+- `bun|src/project-run/task-scheduler/measurement/numerical-checkpoints.test.ts|Scheduler numerical checkpoints > keeps action-only local intervals accurate when unrelated private prefixes are huge or overflow`
+- `bun|src/project-run/task-scheduler/measurement/numerical-checkpoints.test.ts|Scheduler numerical checkpoints > seals derived summary faults before terminal getters regardless of field read order`
+- `bun|src/project-run/task-scheduler/measurement/numerical-checkpoints.test.ts|Scheduler numerical checkpoints > keeps an invocation-local exact quantum through binade crossings and clock faults`
   Proves:
 
 - 四组需求在首个采样前独立固定；none/execution-only 不采 measurement clock 或读取 graph DTO，只有 execution 需求记录 admission-order ledger。cumulative 不维护 action history 或逐 Task delay；task-only 不物化 aggregate snapshot，逐 Task delay 表只在 taskTimings 组维护，Run aggregate 与 history interval 不隐式维护它。
 - 已启用的 timing 组共用 first-fault validity；非有限 clock 使 Run 与 Task terminal timing 同时不可用而保留 Run 离散计数，不伪造 timingFacts/admissions。先前取得的 cumulative availability 和 history prefix 不被后来故障或追加修改。
+
+- 独立 binary64 exact oracle 覆盖 interval 正确舍入、local prefix 差、halfway/underflow ratio 与 invocation-local quantum；action-only 私有无关 prefix 超限不误损可用字段，实际请求的 terminal 派生故障在 seal 前按固定检查顺序发布 first fault，不受 getter 读取顺序影响，旧 cumulative/history prefix 不被回写。

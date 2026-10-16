@@ -14,11 +14,8 @@ export interface CompiledAdmissionGraph {
   readonly maxParallel: number;
   readonly mutexSlotById: ReadonlyMap<string, number>;
   readonly resourceCapacityBySlot: readonly number[];
-  readonly resourceSlotById: ReadonlyMap<string, number>;
-  readonly scopesById: ReadonlyMap<string, PlannedTaskGraph["scopes"][number]>;
   readonly scopeSlotById: ReadonlyMap<string, number>;
   readonly scopeSlotsByTerminalTaskSlot: readonly (readonly number[])[];
-  readonly taskById: ReadonlyMap<string, PlannedTask>;
   readonly taskMutexSlots: readonly (readonly number[])[];
   readonly taskResourceClaims: readonly (readonly Readonly<{
     readonly resourceSlot: number;
@@ -27,16 +24,13 @@ export interface CompiledAdmissionGraph {
   readonly taskActivatesScope: readonly boolean[];
   readonly taskScopeSlots: readonly (number | undefined)[];
   readonly taskSlotsById: ReadonlyMap<string, number>;
-  readonly taskIdsInPublicOrder: readonly string[];
   readonly taskPublicRanksBySlot: readonly number[];
   readonly relationIndexes: ReverseRelationIndexes;
   readonly constraintGroups: AdmissionConstraintGroups;
 }
 
 interface GraphSlotCatalog {
-  readonly scopesById: ReadonlyMap<string, PlannedTaskGraph["scopes"][number]>;
   readonly scopeSlotById: ReadonlyMap<string, number>;
-  readonly taskById: ReadonlyMap<string, PlannedTask>;
   readonly taskSlotsById: ReadonlyMap<string, number>;
 }
 
@@ -47,7 +41,6 @@ interface MutexStaticIndexes {
 
 interface ResourceStaticIndexes {
   readonly resourceCapacityBySlot: readonly number[];
-  readonly resourceSlotById: ReadonlyMap<string, number>;
   readonly taskResourceClaims: CompiledAdmissionGraph["taskResourceClaims"];
 }
 
@@ -58,7 +51,6 @@ interface ScopeStaticIndexes {
 }
 
 interface PublicTaskOrder {
-  readonly taskIdsInPublicOrder: readonly string[];
   readonly taskPublicRanksBySlot: readonly number[];
 }
 
@@ -124,7 +116,7 @@ function compileResourceStaticIndexes(graph: PlannedTaskGraph): ResourceStaticIn
       )
     )
   );
-  return { resourceCapacityBySlot, resourceSlotById, taskResourceClaims };
+  return { resourceCapacityBySlot, taskResourceClaims };
 }
 
 function assertMaxParallel(maxParallel: number): void {
@@ -137,9 +129,7 @@ function assertMaxParallel(maxParallel: number): void {
 function compileGraphSlotCatalog(graph: PlannedTaskGraph): GraphSlotCatalog {
   return {
     taskSlotsById: new Map(graph.tasks.map((task, slot) => [task.id, slot] as const)),
-    taskById: new Map(graph.tasks.map((task) => [task.id, task] as const)),
-    scopeSlotById: new Map(graph.scopes.map((scope, slot) => [scope.id, slot] as const)),
-    scopesById: new Map(graph.scopes.map((scope) => [scope.id, scope] as const))
+    scopeSlotById: new Map(graph.scopes.map((scope, slot) => [scope.id, slot] as const))
   };
 }
 
@@ -258,7 +248,7 @@ function compilePublicTaskOrder(
       throw new Error(`admission core task is missing from public order: ${taskId}`);
     taskPublicRanksBySlot[slot] = rank;
   }
-  return { taskIdsInPublicOrder, taskPublicRanksBySlot: Object.freeze(taskPublicRanksBySlot) };
+  return { taskPublicRanksBySlot: Object.freeze(taskPublicRanksBySlot) };
 }
 
 /** Freezes the one compiled graph object after every static compiler stage has completed. */
@@ -281,16 +271,12 @@ function assembleCompiledAdmissionGraph(
     constraintGroups: parts.constraintGroups,
     mutexSlotById: mutexIndexes.mutexSlotById,
     resourceCapacityBySlot: resourceIndexes.resourceCapacityBySlot,
-    resourceSlotById: resourceIndexes.resourceSlotById,
     relationIndexes: Object.freeze({
       reverseDependencies: relationIndexes.reverseDependencies,
       reverseObservations: relationIndexes.reverseObservations
     }),
-    scopesById: catalog.scopesById,
     scopeSlotById: catalog.scopeSlotById,
     scopeSlotsByTerminalTaskSlot: scopeIndexes.scopeSlotsByTerminalTaskSlot,
-    taskById: catalog.taskById,
-    taskIdsInPublicOrder: publicTaskOrder.taskIdsInPublicOrder,
     taskMutexSlots: mutexIndexes.taskMutexSlots,
     taskResourceClaims: resourceIndexes.taskResourceClaims,
     taskActivatesScope: scopeIndexes.taskActivatesScope,

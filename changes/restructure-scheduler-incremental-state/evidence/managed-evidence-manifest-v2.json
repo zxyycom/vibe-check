@@ -1,0 +1,689 @@
+{
+  "version": 2,
+  "scope": "source-level Change evidence; copy manifest plus every entry preserving relative path; completed final after",
+  "restoreRoot": "tmp/restructure-scheduler-incremental-state/",
+  "baselineRevision": "d4dc896c01a373cf9c3e9709d744a86202373f18",
+  "entries": [
+    {
+      "name": "A-operations.json",
+      "status": "available",
+      "bytes": 18584,
+      "sha256": "edfac6bfe3e1524c485f14ffd3cb4d78026f0d85b7c080e1a23ff703a56b8ea3"
+    },
+    {
+      "name": "A-test-renames.json",
+      "status": "available",
+      "bytes": 54963,
+      "sha256": "5087a5e5bec958045cbe06ba5cb55e2fd65d07a2e38e951ce3992ca13eb24a27"
+    },
+    {
+      "name": "README.artifact-note.md",
+      "status": "available",
+      "bytes": 3159,
+      "sha256": "0d85ef3cb9be1f04f120b22a7ec9680fa3393a847c6e7f928919d6c786893aca"
+    },
+    {
+      "name": "adoption-evidence.md",
+      "status": "available",
+      "bytes": 8777,
+      "sha256": "9492c1d8061e9c34a5f951c930eadf7efcfab5dbdbc5e74a7da9be0b77b4424d"
+    },
+    {
+      "name": "after-bun-diagnostic-manifest.json",
+      "status": "available",
+      "bytes": 13945,
+      "sha256": "a99bd64e0690f2022f3563e54c17fda4ef4f7050e23776ebbafc05988a7bd7cf"
+    },
+    {
+      "name": "after-bun.json",
+      "status": "available",
+      "bytes": 114029,
+      "sha256": "16a183a2461964710810f39bbed74dc0727d9741c693531f84195d53e8ad5178"
+    },
+    {
+      "name": "after-completion-check.json",
+      "status": "available",
+      "bytes": 1194,
+      "sha256": "e26e7aa9c01cefb71a1194a590bea1a1a1507758fbc6bd9067131645762ab889"
+    },
+    {
+      "name": "after-fork-query-bun.json",
+      "status": "available",
+      "bytes": 11715,
+      "sha256": "3276dd12381d68a4c1b09615605e4548fdd17658f67c5f5f65b7216fb9b1e618"
+    },
+    {
+      "name": "after-fork-query-node.json",
+      "status": "available",
+      "bytes": 11902,
+      "sha256": "23c13e030fc4a02a1d17acb7b0ac623645101ae372b2db89fd52328b7d20765b"
+    },
+    {
+      "name": "after-node-allocations.json",
+      "status": "available",
+      "bytes": 24915,
+      "sha256": "5ce40b7959108bfc1284fba2b1417127f56b7fd493d12a7940f8f669a07c2aa1"
+    },
+    {
+      "name": "after-node-diagnostic-manifest.json",
+      "status": "available",
+      "bytes": 13950,
+      "sha256": "909ee6a03c820b7698d016edf21e5888a48609154fb0e4b789d2889072c5ef0d"
+    },
+    {
+      "name": "after-node.json",
+      "status": "available",
+      "bytes": 119360,
+      "sha256": "4da2a092f8f7200c87b73e9f82a485bed0d49ad5a5742bac103abc9c3234bbbd"
+    },
+    {
+      "name": "after-operations.json",
+      "status": "available",
+      "bytes": 17323,
+      "sha256": "ffc56e0b312e7378a1f865aee44a430cf83043761423b6b1b77097e35f4ae0ea"
+    },
+    {
+      "name": "after-run-bun.json",
+      "status": "available",
+      "bytes": 41745,
+      "sha256": "522f4f43aa3effb5108ddca4c8224ec98dc1a44672d483a711eafc586ff77890"
+    },
+    {
+      "name": "after-run-node.json",
+      "status": "available",
+      "bytes": 42502,
+      "sha256": "92aca7038b133bbcd6683a016d1291ae9695a22be6f87512fa83ce3ef120234c"
+    },
+    {
+      "name": "after-scopes-bun.json",
+      "status": "available",
+      "bytes": 5545,
+      "sha256": "95fd1b2327090ece2ca7569274c47a17e248f0ddbcd23be273f3a315867ecfb9"
+    },
+    {
+      "name": "after-scopes-node.json",
+      "status": "available",
+      "bytes": 5380,
+      "sha256": "a0f425ce6efe6d774d706d153b0639fd97df214dd4166d0f63b8660374e071be"
+    },
+    {
+      "name": "after-source-identity-end.json",
+      "status": "available",
+      "bytes": 127234,
+      "sha256": "a04c59d6c6b218f71cd7b7aa951f40633083f04694ba9a17a21ed9a50bb4563e"
+    },
+    {
+      "name": "after-source-identity.json",
+      "status": "available",
+      "bytes": 127234,
+      "sha256": "a04c59d6c6b218f71cd7b7aa951f40633083f04694ba9a17a21ed9a50bb4563e"
+    },
+    {
+      "name": "before-bun-diagnostic-manifest.json",
+      "status": "available",
+      "bytes": 13928,
+      "sha256": "eab7a212b7d0164ba0a5796948664d299c034dcc9ee61134af7a48e75cba77bb"
+    },
+    {
+      "name": "before-bun.json",
+      "status": "available",
+      "bytes": 114281,
+      "sha256": "c9f1087706f56c315741d1614dfe13ab15f6b90b81a6eabe30d2766a9718a9f7"
+    },
+    {
+      "name": "before-fork-query-bun.json",
+      "status": "available",
+      "bytes": 11724,
+      "sha256": "2b18a674044a5106a4fb9844d42bacf25426c15573d66cdfe4597fb0d5f947bc"
+    },
+    {
+      "name": "before-fork-query-node.json",
+      "status": "available",
+      "bytes": 11886,
+      "sha256": "2dd3f64386a85fbc958f78d1bb89f064f852afd87411c3c4f92b3630ef50e5d1"
+    },
+    {
+      "name": "before-node-allocations.json",
+      "status": "available",
+      "bytes": 24912,
+      "sha256": "f078dbcafc73cae008c1924a5faf729283b943909add35d6d450220184a2fd9f"
+    },
+    {
+      "name": "before-node-diagnostic-manifest.json",
+      "status": "available",
+      "bytes": 13941,
+      "sha256": "f869dc364d26e591bf38850ca31c15b3647b4704d7d27eb4726f580701dbf77d"
+    },
+    {
+      "name": "before-node.json",
+      "status": "available",
+      "bytes": 119707,
+      "sha256": "8c2c0ac75895612ab7a497440a9c911ceeb471a8738bfc024a81fa3257f56adb"
+    },
+    {
+      "name": "before-operations.json",
+      "status": "available",
+      "bytes": 18594,
+      "sha256": "1e43a0006eec7b4db8f209aee8df0c83288fc50ee65a9b127b050d1f51bdf54d"
+    },
+    {
+      "name": "before-run-bun.json",
+      "status": "available",
+      "bytes": 41744,
+      "sha256": "63d9aabdc6a520964e9df7c0522d66893e7efafa1f12658b8d1e7efeaf3785b8"
+    },
+    {
+      "name": "before-run-node.json",
+      "status": "available",
+      "bytes": 42521,
+      "sha256": "946a55e494bfa339ab7b710f8bd1bb414763ae7f5cd857e2525e3bddcf610487"
+    },
+    {
+      "name": "before-scopes-bun.json",
+      "status": "available",
+      "bytes": 5537,
+      "sha256": "722204a8de719e8482ac847ee4411fb949758ea41073b6e58bf913fd368ab062"
+    },
+    {
+      "name": "before-scopes-node.json",
+      "status": "available",
+      "bytes": 5366,
+      "sha256": "89f9adc890ef387a64cba34582ea26e434925e12d10d4cc4c29123324d8cf0d7"
+    },
+    {
+      "name": "before-source-identity.json",
+      "status": "available",
+      "bytes": 124375,
+      "sha256": "4d1946d277b1f8d89fdc998750398a1a43b3d39b3fba2b578141c638bd009394"
+    },
+    {
+      "name": "before-trace.json",
+      "status": "available",
+      "bytes": 139622,
+      "sha256": "50ab88b8b6fedb3071367c18e981bf4963c9288d7de97c7eb46059e13ed724d7"
+    },
+    {
+      "name": "benchmark.ts",
+      "status": "available",
+      "bytes": 4580,
+      "sha256": "1714704d2b7bfa1fc328109765feff7cc08daa82aa94396f90b8d486ed5d5f47"
+    },
+    {
+      "name": "build-a-overlay.ts",
+      "status": "available",
+      "bytes": 3360,
+      "sha256": "e3393bb69845850af6f004c63fddb07ee7e13173caca78a56082cdb602926391"
+    },
+    {
+      "name": "build-managed-manifest-v2.mjs",
+      "status": "available",
+      "bytes": 5841,
+      "sha256": "ea0afb749e532088cbf063890997ec797c61c6dedcad7d2e008ca24692b51879"
+    },
+    {
+      "name": "build-operations-b.mjs",
+      "status": "available",
+      "bytes": 1453,
+      "sha256": "f520b22ad31209ea361f8556755e1567a87571c4db32774c85e0dd7ec96fba2f"
+    },
+    {
+      "name": "candidate-B-bun.json",
+      "status": "available",
+      "bytes": 114152,
+      "sha256": "c3389092c67eca88a955c5e01ff7f20b7963dd062f71f8be8370afb79fec1915"
+    },
+    {
+      "name": "candidate-B-fork-query-bun.json",
+      "status": "available",
+      "bytes": 11731,
+      "sha256": "aec183ff98fcf4ec83aa10131a7c5131b26d47fa6ca7a54be7489e54b6730295"
+    },
+    {
+      "name": "candidate-B-fork-query-node.json",
+      "status": "available",
+      "bytes": 11897,
+      "sha256": "66e384e45abfba15335faa6506cfb2d5cd1421e5554073cd63705f99db86b81a"
+    },
+    {
+      "name": "candidate-B-node.json",
+      "status": "available",
+      "bytes": 119349,
+      "sha256": "977bde810cd9910876f43f59f24d24f808141204f248404ca852ea6c2be3763c"
+    },
+    {
+      "name": "candidate-B-scopes-bun.json",
+      "status": "available",
+      "bytes": 5513,
+      "sha256": "468063384b29ccb3a9f3ce36338580cd6c312c8389e1170ec00a38a829683ba2"
+    },
+    {
+      "name": "candidate-B-scopes-node.json",
+      "status": "available",
+      "bytes": 5376,
+      "sha256": "59583528efd8e4d7a3834ccf393ba088638c96711b86f7ec94c6c37955fd48ce"
+    },
+    {
+      "name": "candidate-B-source-identity.json",
+      "status": "available",
+      "bytes": 126553,
+      "sha256": "404b0c8d302e4869db24efd5b67ae26edbbc03360d72c6aed630cbcefd505741"
+    },
+    {
+      "name": "cleanup-diagnostics.mjs",
+      "status": "available",
+      "bytes": 1332,
+      "sha256": "65f00db92c0444ba1856c740b17345813e31370cbc5dee3983e7db4070cd2fef"
+    },
+    {
+      "name": "compare-results-v1.mjs",
+      "status": "available",
+      "bytes": 3637,
+      "sha256": "9611c4fe6b8333fbd7fb37b348f85ba72bbc9649e636930c8312ab15b050ecb2"
+    },
+    {
+      "name": "comparison-all-cohorts-v1.json",
+      "status": "available",
+      "bytes": 1239038,
+      "sha256": "bbb8485d5323b6089b343f38f0a6e28a6271eeb1fceeee5bf8744b8c82863928"
+    },
+    {
+      "name": "corpus.ts",
+      "status": "available",
+      "bytes": 1876,
+      "sha256": "82bd2a0f30ffc6f42a4ea10d4f7ce2b8c999901f695f753117be94c65d9a03ad"
+    },
+    {
+      "name": "environment-observed.txt",
+      "status": "available",
+      "bytes": 869,
+      "sha256": "4a17918405a3b49a779fa9f6502cd3681dc00b0d9e63a23335717d482290b328"
+    },
+    {
+      "name": "evidence-reproduction-v2.md",
+      "status": "available",
+      "bytes": 9736,
+      "sha256": "7f6a7a99e661799fd3c2c867dc26ef2baeb81bb551fc6f3be15d8b3c7c8aa5ce"
+    },
+    {
+      "name": "fork-query-benchmark.ts",
+      "status": "available",
+      "bytes": 2512,
+      "sha256": "3fb502332163c37f530258aedfe5ad735ce5529f35d025d2dd0b422a900aa30a"
+    },
+    {
+      "name": "frozen-before-resources.json",
+      "status": "available",
+      "bytes": 1581,
+      "sha256": "f4631f2d40a3b1f14e5772338697b2eb0394b2011497cd538cf6412f395576b6"
+    },
+    {
+      "name": "implementation-handoff.md",
+      "status": "available",
+      "bytes": 12330,
+      "sha256": "ee000ba5ce01ad4bb81b5da259166ae6270d87068f188b85eb451cecb1d856ae"
+    },
+    {
+      "name": "native-static-query-eager-replay-v2.ts",
+      "status": "available",
+      "bytes": 2496,
+      "sha256": "105922a5f0c32efeeb35e78591714e5b1dd02b07a84a0d9e068eb7dd4dc34f7d"
+    },
+    {
+      "name": "native-static-query-eager.ts",
+      "status": "available",
+      "bytes": 2408,
+      "sha256": "46332c85006f5f0d3f48c5ac8080b6086b5f8bc59259a640a91d1b93765ca618"
+    },
+    {
+      "name": "native-static-query.ts",
+      "status": "available",
+      "bytes": 2408,
+      "sha256": "46332c85006f5f0d3f48c5ac8080b6086b5f8bc59259a640a91d1b93765ca618"
+    },
+    {
+      "name": "numeric/accuracy-proof.md",
+      "status": "available",
+      "bytes": 13999,
+      "sha256": "1c8fcaaa0792767ba2a31f8a1bd6ee1bb963afde0577519c37a0e170abfb3880"
+    },
+    {
+      "name": "operations.ts",
+      "status": "available",
+      "bytes": 4659,
+      "sha256": "5f78f06608263d5a022f91532ae01abd01f2f00555369237ef90950c704f1617"
+    },
+    {
+      "name": "persistent-liveness-pre-adoption-v1.txt",
+      "status": "available",
+      "bytes": 899,
+      "sha256": "a9fdeb2b8cbc335662705ba8b5916154b3848cc7a2c266e1b680f9ea957f5770"
+    },
+    {
+      "name": "persistent-liveness-provenance-v1.json",
+      "status": "available",
+      "bytes": 921,
+      "sha256": "21fd4a0d0f19430355b80caef52605d8725557fa311db8269083abfa6f0da172"
+    },
+    {
+      "name": "persistent-query-pre-adoption-source-v1.txt",
+      "status": "available",
+      "bytes": 1932,
+      "sha256": "c3c6ad3b648f8383c34a0672b1c9cd2610440a731ae786d7ba8e3b4ee8c8df85"
+    },
+    {
+      "name": "persistent-static-query-control-v2.ts",
+      "status": "available",
+      "bytes": 3316,
+      "sha256": "1a46f0955278034a7d0cdb16267982ed2a141bb0730ccba924e130ba68eecf54"
+    },
+    {
+      "name": "query-candidate-allocations.json",
+      "status": "available",
+      "bytes": 7193,
+      "sha256": "77c947d440e32c3d9e0e82fa84aaef422f518eb424760a5be9aeedb8066a797d"
+    },
+    {
+      "name": "query-candidate-benchmark-replay-v2.ts",
+      "status": "available",
+      "bytes": 3214,
+      "sha256": "10e91da98a2ac40ce7ca98fefb872bb1eba50a2d430785eef3553937ae3914df"
+    },
+    {
+      "name": "query-candidate-benchmark.ts",
+      "status": "available",
+      "bytes": 3132,
+      "sha256": "7b510c27215f8f97b06a79168035e73e71644397223d0f8d219ff2ac43362e7d"
+    },
+    {
+      "name": "query-candidate-bun.json",
+      "status": "available",
+      "bytes": 29753,
+      "sha256": "33a74e5c24a8bd911d64a525cbad98cf8e673802f7ed26fd9b7e79eaa0d94fdc"
+    },
+    {
+      "name": "query-candidate-correctness-replay-v2.json",
+      "status": "available",
+      "bytes": 153,
+      "sha256": "feeb74f4fdf835f817c34345a54a1e2f6847cf1000abab753f42a17146ce4122"
+    },
+    {
+      "name": "query-candidate-correctness-replay-v2.ts",
+      "status": "available",
+      "bytes": 2373,
+      "sha256": "eb3385ab35f92aedaabf8c8552c9edac334a20adb4cf458dd655b20ded16a3ac"
+    },
+    {
+      "name": "query-candidate-correctness.json",
+      "status": "available",
+      "bytes": 153,
+      "sha256": "feeb74f4fdf835f817c34345a54a1e2f6847cf1000abab753f42a17146ce4122"
+    },
+    {
+      "name": "query-candidate-correctness.ts",
+      "status": "available",
+      "bytes": 2350,
+      "sha256": "113162c6e6d716f52f67e06eb30321bc82d2da3e525d1895ac2efc220d7091da"
+    },
+    {
+      "name": "query-candidate-node.json",
+      "status": "available",
+      "bytes": 30822,
+      "sha256": "be5ff99513732c112fd15859512c7438ec0138d36c67f3c0923b760f97c5e4da"
+    },
+    {
+      "name": "query-candidate-summary.json",
+      "status": "available",
+      "bytes": 12268,
+      "sha256": "e986df2ef4e5a6422a536d4d40d42f1c6115b2bb6f0eb4b32651a77260874246"
+    },
+    {
+      "name": "query-control-reconstruction-v1.json",
+      "status": "available",
+      "bytes": 626,
+      "sha256": "263059d2be3725bfd13ae12562a7682a3edcf8bd3537208960a49db79c6fe496"
+    },
+    {
+      "name": "query-import-probe-replay-v2.ts",
+      "status": "available",
+      "bytes": 384,
+      "sha256": "aa0abc5c4d7c4de063441bf8223636ce7425593b60831ea545431b15bb74a56a"
+    },
+    {
+      "name": "query-import-probe.jsonl",
+      "status": "available",
+      "bytes": 24503,
+      "sha256": "c1858ca7f0189f34cfc958d96ba32ca110053093470ea7b5f10f72c3e4b6481c"
+    },
+    {
+      "name": "query-import-probe.ts",
+      "status": "available",
+      "bytes": 406,
+      "sha256": "910e57c7b4925d44aff75572bc57d48d81043a2872e93d983c269984e1a274ec"
+    },
+    {
+      "name": "replay-v2-final-helper-adaptation.txt",
+      "status": "available",
+      "bytes": 469,
+      "sha256": "740706e7207dae9ca326da3b46d7c34a9d34b39bb6bb346fea97b9c64eb372c7"
+    },
+    {
+      "name": "run-benchmark.ts",
+      "status": "available",
+      "bytes": 4948,
+      "sha256": "9a860ad19b85acdea24e72706f37255d862a4d0b5c8d3f5e237c621a191cd90c"
+    },
+    {
+      "name": "scopes-benchmark.ts",
+      "status": "available",
+      "bytes": 2340,
+      "sha256": "f62dc85a9c4eed2eef4a2f51f5185f921ae430acd99f0004bbaa0d6f8b0bf89a"
+    },
+    {
+      "name": "source-identity.mjs",
+      "status": "available",
+      "bytes": 930,
+      "sha256": "c5f2eef1c0b18f3881263abdb88f1c41a27eccc734145eb31d11c436433f3408"
+    },
+    {
+      "name": "summarize-results.mjs",
+      "status": "available",
+      "bytes": 1545,
+      "sha256": "c450287b90528a438dc4b09be6427722e74733e821a07cf22c6ceaed146f933a"
+    },
+    {
+      "name": "trace-baseline-A.ts",
+      "status": "available",
+      "bytes": 787,
+      "sha256": "6e1bac1981683c7a18333b98931504197fdca587a6e9b0b3e056e1287fe561ac"
+    },
+    {
+      "name": "trace-baseline.ts",
+      "status": "available",
+      "bytes": 772,
+      "sha256": "05098a6e04d406291593b2a520d08f6c76fe623b71d0a4a65f5b471639d3c4bf"
+    },
+    {
+      "name": "trace-corpus.ts",
+      "status": "available",
+      "bytes": 3764,
+      "sha256": "d91be9b041bfe110908f729e4aae6b301e0cb44849a656c402260dc374a37413"
+    },
+    {
+      "name": "verification-binding.json",
+      "status": "available",
+      "bytes": 1345,
+      "sha256": "2b540a2ff2f9567ae3fc5bdee285feaed7f700394ff2b7d22ded502ecf2750f5"
+    }
+  ],
+  "localDependencies": [
+    {
+      "entry": "benchmark.ts",
+      "specifier": "./corpus.ts",
+      "kind": "managed",
+      "name": "corpus.ts"
+    },
+    {
+      "entry": "fork-query-benchmark.ts",
+      "specifier": "./corpus.ts",
+      "kind": "managed",
+      "name": "corpus.ts"
+    },
+    {
+      "entry": "operations.ts",
+      "specifier": "./corpus.ts",
+      "kind": "managed",
+      "name": "corpus.ts"
+    },
+    {
+      "entry": "query-candidate-benchmark-replay-v2.ts",
+      "specifier": "./persistent-static-query-control-v2.ts",
+      "kind": "managed",
+      "name": "persistent-static-query-control-v2.ts"
+    },
+    {
+      "entry": "query-candidate-benchmark-replay-v2.ts",
+      "specifier": "./native-static-query-eager-replay-v2.ts",
+      "kind": "managed",
+      "name": "native-static-query-eager-replay-v2.ts"
+    },
+    {
+      "entry": "query-candidate-benchmark-replay-v2.ts",
+      "specifier": "./corpus.ts",
+      "kind": "managed",
+      "name": "corpus.ts"
+    },
+    {
+      "entry": "query-candidate-benchmark.ts",
+      "specifier": "./native-static-query.ts",
+      "kind": "managed",
+      "name": "native-static-query.ts"
+    },
+    {
+      "entry": "query-candidate-benchmark.ts",
+      "specifier": "./corpus.ts",
+      "kind": "managed",
+      "name": "corpus.ts"
+    },
+    {
+      "entry": "query-candidate-correctness-replay-v2.ts",
+      "specifier": "./persistent-static-query-control-v2.ts",
+      "kind": "managed",
+      "name": "persistent-static-query-control-v2.ts"
+    },
+    {
+      "entry": "query-candidate-correctness-replay-v2.ts",
+      "specifier": "./native-static-query-eager-replay-v2.ts",
+      "kind": "managed",
+      "name": "native-static-query-eager-replay-v2.ts"
+    },
+    {
+      "entry": "query-candidate-correctness.ts",
+      "specifier": "./native-static-query.ts",
+      "kind": "managed",
+      "name": "native-static-query.ts"
+    },
+    {
+      "entry": "query-import-probe-replay-v2.ts",
+      "specifier": "./native-static-query-eager-replay-v2.ts",
+      "kind": "managed",
+      "name": "native-static-query-eager-replay-v2.ts"
+    },
+    {
+      "entry": "query-import-probe-replay-v2.ts",
+      "specifier": "./persistent-static-query-control-v2.ts",
+      "kind": "managed",
+      "name": "persistent-static-query-control-v2.ts"
+    },
+    {
+      "entry": "query-import-probe.ts",
+      "specifier": "./native-static-query.ts",
+      "kind": "managed",
+      "name": "native-static-query.ts"
+    },
+    {
+      "entry": "run-benchmark.ts",
+      "specifier": "./corpus.ts",
+      "kind": "managed",
+      "name": "corpus.ts"
+    },
+    {
+      "entry": "scopes-benchmark.ts",
+      "specifier": "./corpus.ts",
+      "kind": "managed",
+      "name": "corpus.ts"
+    },
+    {
+      "entry": "trace-baseline-A.ts",
+      "specifier": "./source-A/src/project-run/task-scheduler/graph.ts",
+      "kind": "generated-baseline-archive",
+      "recipe": "evidence-reproduction-v2.md A control"
+    },
+    {
+      "entry": "trace-baseline-A.ts",
+      "specifier": "./source-A/src/project-run/task-scheduler/admission-core/core.ts",
+      "kind": "generated-baseline-archive",
+      "recipe": "evidence-reproduction-v2.md A control"
+    },
+    {
+      "entry": "trace-baseline-A.ts",
+      "specifier": "./source-A/src/project-run/task-scheduler/admission-core/trace.ts",
+      "kind": "generated-baseline-archive",
+      "recipe": "evidence-reproduction-v2.md A control"
+    },
+    {
+      "entry": "trace-baseline-A.ts",
+      "specifier": "./trace-corpus.ts",
+      "kind": "managed",
+      "name": "trace-corpus.ts"
+    },
+    {
+      "entry": "trace-baseline.ts",
+      "specifier": "./trace-corpus.ts",
+      "kind": "managed",
+      "name": "trace-corpus.ts"
+    }
+  ],
+  "externalDependencies": [
+    {
+      "root": "src/**",
+      "binding": "before-source-identity.json / baseline Git revision for before and A; after-source-identity.json for final/replay",
+      "note": "Includes final adjacent oracle/fixtures for replay correctness; no full archived source copy is managed"
+    },
+    {
+      "packages": [
+        "immutable",
+        "mnemonist"
+      ],
+      "binding": "repository pinned install and recorded runtime versions"
+    }
+  ],
+  "historicalQuery": {
+    "originalEntriesReadOnlyOnFinalProduct": true,
+    "replayEntriesSuffix": "-replay-v2.ts",
+    "originalAliasIsEager": true,
+    "sourceControlReconstruction": {
+      "sourceTreeDigest": "d669c9b5687febee8c1de9efc4c064be152fdfbe9f422eb36a24b2152bd3949d",
+      "originalSourcePath": "src/project-run/task-scheduler/admission-core/static-selection-query.ts",
+      "expectedSourceSha256": "c3c6ad3b648f8383c34a0672b1c9cd2610440a731ae786d7ba8e3b4ee8c8df85",
+      "reconstructedSourceSha256": "c3c6ad3b648f8383c34a0672b1c9cd2610440a731ae786d7ba8e3b4ee8c8df85",
+      "exactMatch": true,
+      "note": "Reconstructed pre-adoption query owner bytes; replay control remaps only imports and export name. Its helper dependencies in replay come from final B, not a recovered original full intermediate source tree."
+    },
+    "rejectedLazyImplementation": "intentionally omitted; metadata hashes in old summary do not create runtime dependencies"
+  },
+  "aTraceEquality": {
+    "equal": true,
+    "beforeSha256": "50ab88b8b6fedb3071367c18e981bf4963c9288d7de97c7eb46059e13ed724d7",
+    "aSha256": "50ab88b8b6fedb3071367c18e981bf4963c9288d7de97c7eb46059e13ed724d7"
+  },
+  "excluded": [
+    "source-A/**",
+    "numeric/*candidate*",
+    "*.draft.ts",
+    "derived before-summary.json / after-summary.json",
+    "raw diagnostic logs",
+    "rejected lazy runtime implementation and its runners"
+  ],
+  "copyPolicy": "Preserve each entry.name relative to restoreRoot, including numeric/accuracy-proof.md; also copy managed-evidence-manifest-v2.json itself.",
+  "selfHash": "This manifest has no recursive self hash; the generator is included and hashed."
+}

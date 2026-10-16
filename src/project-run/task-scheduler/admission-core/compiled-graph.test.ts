@@ -58,8 +58,6 @@ describe("prepared admission graph compiler", () => {
 
     assert.equal(compiled.graph, graph);
     assert.equal(compiled.graph.schedulerGraphSnapshot, graph.schedulerGraphSnapshot);
-    assert.equal(compiled.taskById.get("a-dependent"), graph.tasks[1]);
-    assert.equal(compiled.scopesById.get("first-scope"), graph.scopes[1]);
     assert.deepEqual(
       [...compiled.taskSlotsById],
       [
@@ -86,13 +84,6 @@ describe("prepared admission graph compiler", () => {
       ]
     );
     assert.deepEqual(compiled.taskMutexSlots, [[0, 1, 0], [1], [2], [], []]);
-    assert.deepEqual(
-      [...compiled.resourceSlotById],
-      [
-        ["browser", 0],
-        ["memory", 1]
-      ]
-    );
     assert.deepEqual(compiled.resourceCapacityBySlot, [2, 4]);
     assert.deepEqual(compiled.taskResourceClaims, [
       [
@@ -109,13 +100,6 @@ describe("prepared admission graph compiler", () => {
     assert.deepEqual(compiled.scopeSlotsByTerminalTaskSlot, [[], [], [], [1], [0]]);
     assert.deepEqual(compiled.taskScopeSlots, [undefined, 0, 1, 1, 0]);
     assert.deepEqual(compiled.taskActivatesScope, [false, true, true, false, false]);
-    assert.deepEqual(compiled.taskIdsInPublicOrder, [
-      "a-dependent",
-      "m-observer",
-      "terminal-first",
-      "terminal-later",
-      "z-source"
-    ]);
     assert.deepEqual(compiled.taskPublicRanksBySlot, [4, 0, 1, 2, 3]);
     assert.equal(Object.isFrozen(compiled), true);
     assert.equal(Object.isFrozen(compiled.relationIndexes), true);

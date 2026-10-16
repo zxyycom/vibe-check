@@ -1,0 +1,61 @@
+{
+  "sourceTreeDigest": "c15611bd51afcdb393155c6a25ecc9d56f2c132d1766322494e9a61d74919629",
+  "endSourceTreeDigest": "c15611bd51afcdb393155c6a25ecc9d56f2c132d1766322494e9a61d74919629",
+  "frozenRunnersUnchanged": true,
+  "rows": [
+    {
+      "name": "node",
+      "rows": 120,
+      "samples": 840,
+      "peakRssKiB": 260032
+    },
+    {
+      "name": "bun",
+      "rows": 120,
+      "samples": 840,
+      "peakRssKiB": 143016
+    },
+    {
+      "name": "node-allocations",
+      "rows": 120,
+      "samples": 120,
+      "peakRssKiB": 238964
+    },
+    {
+      "name": "run-node",
+      "rows": 54,
+      "samples": 378,
+      "peakRssKiB": 438028
+    },
+    {
+      "name": "run-bun",
+      "rows": 54,
+      "samples": 378,
+      "peakRssKiB": 286816
+    },
+    {
+      "name": "scopes-node",
+      "rows": 6,
+      "samples": 42,
+      "peakRssKiB": null
+    },
+    {
+      "name": "scopes-bun",
+      "rows": 6,
+      "samples": 42,
+      "peakRssKiB": null
+    },
+    {
+      "name": "fork-query-node",
+      "rows": 12,
+      "samples": 84,
+      "peakRssKiB": null
+    },
+    {
+      "name": "fork-query-bun",
+      "rows": 12,
+      "samples": 84,
+      "peakRssKiB": null
+    }
+  ]
+}

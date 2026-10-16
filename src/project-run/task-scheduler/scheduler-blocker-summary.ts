@@ -1,8 +1,6 @@
+import { globalCapacityBlockerFactsForCore } from "./admission-core/capacity-query.ts";
 import type { AdmissionCoreState } from "./admission-core/core.ts";
-import {
-  globalCapacityBlockerFactsForCore,
-  pendingBlockerFactsForCore
-} from "./admission-core/selection-query.ts";
+import { pendingBlockerFactsForCore } from "./admission-core/selection-query.ts";
 import { taskSlotsForCore } from "./admission-core/state-query.ts";
 import type { SchedulerBlockerSummary } from "./scheduler-decision-model.ts";
 

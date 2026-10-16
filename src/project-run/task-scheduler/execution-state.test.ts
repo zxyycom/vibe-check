@@ -63,8 +63,12 @@ describe("Scheduler pre-admission initialization", () => {
         ["first", { kind: "completed", value: 1 }]
       ]
     );
-    assert.equal(state.admissionCore.selection.runningTotal, 0);
-    assert.equal(state.admissionCore.selection.remainingTaskCount, 0);
+    assert.equal(state.admissionCore.selection.memberships.status.running.size, 0);
+    assert.equal(
+      state.admissionCore.selection.memberships.status.pending.size +
+        state.admissionCore.selection.memberships.status.running.size,
+      0
+    );
     const partial = create([{ taskId: "second", value: 1 }]);
     assert.deepEqual([...partial.pending.keys()], ["first"]);
     cancelPendingTasks(partial);

@@ -13,13 +13,21 @@ import { ShellAdmissionFacts } from "../shell-admission-facts.ts";
 import { SchedulerPerformanceIntegrals } from "./integrals.ts";
 import { SchedulerPolicyMeasurement } from "./policy.ts";
 import { SchedulerPerformanceTiming } from "./timing.ts";
+import { SchedulerQueueMeasurements } from "./queue.ts";
+import { binaryTimeUnits } from "./exact-time.ts";
+import { roundDelay } from "./exact-contributions.ts";
+import {
+  compilePreparedAdmissionGraph,
+  createInitialAdmissionCoreState,
+  selectAdmissionCore
+} from "../admission-core/core.ts";
 
 describe("Scheduler grouped measurement production", () => {
   it("starts only declared producers and never materializes aggregate views for task-only consumers", async () => {
     // Capture methods only for receiver-preserving call(this) and restoration below.
     /* oxlint-disable typescript/unbound-method */
     const originalSnapshot = SchedulerPerformanceTiming.prototype.snapshot;
-    const originalDelay = SchedulerPerformanceIntegrals.prototype.takeAdmissionDelay;
+    const originalDelay = SchedulerQueueMeasurements.prototype.takeAdmissionDelay;
     const originalHistory = SchedulerPolicyMeasurement.prototype.beginSelected;
     const originalAdmission = ShellAdmissionFacts.prototype.recordAdmission;
     /* oxlint-enable typescript/unbound-method */
@@ -31,7 +39,7 @@ describe("Scheduler grouped measurement production", () => {
       snapshots++;
       return originalSnapshot.call(this);
     };
-    SchedulerPerformanceIntegrals.prototype.takeAdmissionDelay = function (taskId) {
+    SchedulerQueueMeasurements.prototype.takeAdmissionDelay = function (taskId) {
       delays++;
       return originalDelay.call(this, taskId);
     };
@@ -114,15 +122,11 @@ describe("Scheduler grouped measurement production", () => {
         assert.equal(delays, group === "taskTimings" ? 2 : 0, group);
         assert.equal(history, group === "actionHistory" ? 2 : 0, group);
         assert.equal(admissionOrder, group === "execution" ? 2 : 0, group);
-        assert.equal(
-          snapshots > 0,
-          ["cumulative", "actionHistory", "runMeasurement"].includes(group),
-          group
-        );
+        assert.equal(snapshots > 0, ["cumulative", "runMeasurement"].includes(group), group);
       }
     } finally {
       SchedulerPerformanceTiming.prototype.snapshot = originalSnapshot;
-      SchedulerPerformanceIntegrals.prototype.takeAdmissionDelay = originalDelay;
+      SchedulerQueueMeasurements.prototype.takeAdmissionDelay = originalDelay;
       SchedulerPolicyMeasurement.prototype.beginSelected = originalHistory;
       ShellAdmissionFacts.prototype.recordAdmission = originalAdmission;
     }
@@ -130,26 +134,33 @@ describe("Scheduler grouped measurement production", () => {
 
   it("keeps per-task delay maintenance independent of aggregate and action interval integrals", () => {
     for (const group of ["cumulative", "actionHistory", "runMeasurement", "taskTimings"] as const) {
-      let taskIdReads = 0,
-        aggregateReads = 0;
-      const pending = [
-        {
-          kind: "capacity-blocked" as const,
-          get taskId() {
-            taskIdReads++;
-            return "pending";
-          }
-        }
-      ];
-      const integrals = new SchedulerPerformanceIntegrals({
-        cumulative: group === "cumulative",
-        actionHistory: group === "actionHistory",
-        runMeasurement: group === "runMeasurement",
-        taskTimings: group === "taskTimings"
+      let aggregateReads = 0;
+      const prepared = prepareExecutableTaskGraph(
+        { tasks: [{ id: "holder" }, { id: "pending" }] },
+        1
+      );
+      const selection = selectAdmissionCore(
+        createInitialAdmissionCoreState(compilePreparedAdmissionGraph(prepared.graph, 1)),
+        "holder"
+      );
+      assert.equal(selection.accepted, true);
+      if (!selection.accepted) throw new Error("holder selection was rejected");
+      const core = selection.transition.state;
+      const queue = new SchedulerQueueMeasurements(core, {
+        delays: group === "taskTimings",
+        peaks: group === "cumulative" || group === "runMeasurement"
       });
-      integrals.installPendingProjection(pending, true);
+      const integrals = new SchedulerPerformanceIntegrals(
+        {
+          cumulative: group === "cumulative",
+          actionHistory: group === "actionHistory",
+          runMeasurement: group === "runMeasurement",
+          taskTimings: group === "taskTimings"
+        },
+        queue
+      );
       const state = {
-        admissionViablePendingTasks: pending,
+        core,
         get effectiveMaxParallel() {
           aggregateReads++;
           return 2;
@@ -163,11 +174,13 @@ describe("Scheduler grouped measurement production", () => {
           return 1;
         }
       };
-      assert.equal(integrals.addInterval(3, state), true);
-      assert.equal(taskIdReads > 0, group === "taskTimings", group);
+      assert.equal(integrals.addInterval(binaryTimeUnits(3), state), true);
+      queue.addInterval(binaryTimeUnits(3));
+      assert.equal(queue.pendingAdmissionDelays().length, group === "taskTimings" ? 1 : 0, group);
       assert.equal(aggregateReads > 0, group !== "taskTimings", group);
+      const delay = queue.takeAdmissionDelay("pending");
       assert.deepEqual(
-        integrals.takeAdmissionDelay("pending"),
+        delay === undefined ? undefined : roundDelay(delay),
         group === "taskTimings"
           ? { admissiblePendingMs: 0, capacityBlockedMs: 3, mutexBlockedMs: 0 }
           : undefined

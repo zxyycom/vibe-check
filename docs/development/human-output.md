@@ -114,7 +114,8 @@ diagnostic-enabled Scheduler shell 在 normal、cancelled 或 policy-fault drain
 和 caller terminal effects 交给同一 ordered runner。wrapper 包含 projection/writer failure；pre-work/planning failure 没有这次
 summary。summary 的 runMeasurement/taskTimings 等实际依赖在启动前加入固定生产配置，独立于 caller 字段需求；
 不因诊断无条件启用无人使用的 action history。各 participant 读取同一 seal 边界的事实，不保证精确外层 identity 相同。
-collector 的采样边界与 terminal handoff 由[Scheduler measurement collector](scheduler.md#measurement-collector-与-immutable-context)定义。
+collector 的采样边界与 terminal handoff 由[Scheduler measurement collector](scheduler.md#measurement-collector-与-immutable-context)定义；
+精确计算、舍入与 availability 检查点由[数值 owner](scheduler.md#精确计算精度与-availability)定义。
 
 summary 分开投影 control path、decision observations、slot·ms/capacity ratio、accepted wait、queue pressure、admission
 delay 与 tail；这些投影可重叠，不应相加为 wall time 或 OS utilization。`proposal: null` 的被动 drain 不计 accepted wait。
@@ -124,9 +125,15 @@ Queue pressure 使用 admission-viable pending 集合：`dependsOn` 全部 compl
 pending；即将 settle-blocked 的 graph-ready Task 不属于该集合。每个 sampled interval 按 mutex conflict → canonical
 `canAdmit` false → canonical `canAdmit` true 互斥分为 mutex-blocked、capacity-blocked、admissible-pending；root、scope
 与 named-resource shortage 共用 capacity 分类。因此 `mutexBlockedTaskMs + capacityBlockedTaskMs + admissiblePendingTaskMs`
-等于 `admissionViablePendingTaskMs`。四类 peak 可来自不同 boundary，不能相加为同一时刻 total 或 decision count。
+在舍入前等于 `admissionViablePendingTaskMs`。四类 peak 可来自不同 boundary，不能相加为同一时刻 total 或 decision count。
 top-three `topAdmissionDelays` 的各项满足 `mutexBlockedMs + capacityBlockedMs + admissiblePendingMs = admissionDelayMs`；
-分类说明等待状态，不推断 policy 选择理由。
+上述 delay 等式同样指精确分类合计；各公开 Number 独立舍入后可能有最后几位差异。分类说明等待状态，不推断 policy 选择理由。
+
+summary 从 seal 前保留的精确贡献计算 queue 分类合计、viable total、逐 Task delay total、时间跨度及 utilization，
+各结果最后一次舍入；不通过相加已舍入的逐 Task DTO 或相除已舍入的 integrals 推导。
+utilization 的零分母或数学比值超出 `[0,1]` 时为 null，其余按精确商舍入。
+全部所需 summary timing 在 terminal delivery 前统一验证；不能表示有效结果时使用 collector 的共享 unavailable，
+writer、getter 或字段读取顺序不会改变它。top-N 比较最终交付的舍入值，沿用 Task ID lexical tie break。
 
 Tail active set 是最后一次 admission 的逻辑 post-state，含此前 running Tasks 和新 admitted Task。
 `discrete.completionTailActiveTaskCount` 保留全部数量；`topCompletionTailContributors` 取 settlement delta 最大的三个

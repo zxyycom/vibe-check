@@ -4,54 +4,53 @@ import type {
   SchedulerRunMeasurement,
   SchedulerTaskTimings
 } from "../../../project-definition/project-definition.ts";
-
+import type { SchedulerSummaryTiming } from "./summary-timing.ts";
 const TOP_TASK_LIMIT = 3;
-
 type AdmissionDelaySummary = Readonly<{
-  readonly admissiblePendingMs: number;
-  readonly admissionDelayMs: number;
-  readonly capacityBlockedMs: number;
-  readonly mutexBlockedMs: number;
-  readonly taskActiveMs: number;
-  readonly taskId: string;
+  admissiblePendingMs: number;
+  admissionDelayMs: number;
+  capacityBlockedMs: number;
+  mutexBlockedMs: number;
+  taskActiveMs: number;
+  taskId: string;
 }>;
 
-/** Projects raw Scheduler measurement into the bounded diagnostic summary. */
+/** Projects the sealed exact-derived numeric facts; never re-sums rounded public DTOs. */
 export function summaryFromSchedulerMeasurement(
   raw: SchedulerRunMeasurement,
-  tasks: SchedulerTaskTimings
+  tasks: SchedulerTaskTimings,
+  numeric: SchedulerSummaryTiming | undefined
 ): Readonly<Record<string, unknown>> {
   const alwaysAvailable = alwaysAvailableSummary(raw);
   if (!hasTimingFacts(raw) || !("admissions" in tasks))
     return Object.freeze({ ...alwaysAvailable, timing: raw.timing });
-
+  if (numeric === undefined)
+    throw new Error("available Scheduler summary has no sealed numeric projection");
   const timingFacts = raw.timingFacts;
-  const delayTotals = admissionDelayTotals(tasks.admissions);
-  const lastAdmissionAt = latestAdmissionAt(tasks.admissions);
   return Object.freeze({
     ...alwaysAvailable,
     timing: raw.timing,
     schedulerControlPathMs: timingFacts.schedulerControlPathMs,
     schedulerDecisionObservationMs: timingFacts.schedulerDecisionObservationMs,
-    schedulerSpanMs: timingFacts.endedAtMonotonicMs - timingFacts.startedAtMonotonicMs,
+    schedulerSpanMs: numeric.schedulerSpanMs,
     taskSlotMs: timingFacts.taskSlotMs,
     rootCapacitySlotMs: timingFacts.rootCapacitySlotMs,
     effectiveCapacitySlotMs: timingFacts.effectiveCapacitySlotMs,
-    rootSlotUtilization: ratio(timingFacts.taskSlotMs, timingFacts.rootCapacitySlotMs),
-    effectiveSlotUtilization: ratio(timingFacts.taskSlotMs, timingFacts.effectiveCapacitySlotMs),
+    rootSlotUtilization: numeric.rootSlotUtilization,
+    effectiveSlotUtilization: numeric.effectiveSlotUtilization,
     acceptedWaitMs: timingFacts.acceptedWaitMs,
-    ...delayTotals,
-    topAdmissionDelays: topAdmissionDelays(tasks.admissions),
-    completionTailMs:
-      lastAdmissionAt === null ? null : timingFacts.endedAtMonotonicMs - lastAdmissionAt,
+    admissiblePendingTaskMs: numeric.admissiblePendingTaskMs,
+    capacityBlockedTaskMs: numeric.capacityBlockedTaskMs,
+    mutexBlockedTaskMs: numeric.mutexBlockedTaskMs,
+    admissionViablePendingTaskMs: numeric.admissionViablePendingTaskMs,
+    topAdmissionDelays: topAdmissionDelays(tasks.admissions, numeric),
+    completionTailMs: numeric.completionTailMs,
     topCompletionTailContributors: topCompletionTailContributors(
       raw.discrete.completionTailActiveTaskIds,
-      tasks.admissions,
-      lastAdmissionAt
+      numeric
     )
   });
 }
-
 function alwaysAvailableSummary(raw: SchedulerRunMeasurement): Readonly<Record<string, unknown>> {
   return Object.freeze({
     declarativeFingerprint: raw.declarativeFingerprint,
@@ -68,46 +67,26 @@ function alwaysAvailableSummary(raw: SchedulerRunMeasurement): Readonly<Record<s
     peakAdmissiblePendingTaskCount: raw.peaks.admissiblePendingTaskCount
   });
 }
-
-function admissionDelayTotals(admissions: readonly SchedulerMeasurementAdmission[]): Readonly<{
-  readonly admissiblePendingTaskMs: number;
-  readonly admissionViablePendingTaskMs: number;
-  readonly capacityBlockedTaskMs: number;
-  readonly mutexBlockedTaskMs: number;
-}> {
-  let admissiblePendingTaskMs = 0;
-  let capacityBlockedTaskMs = 0;
-  let mutexBlockedTaskMs = 0;
-  for (const admission of admissions) {
-    admissiblePendingTaskMs += admission.admissionDelay.admissiblePendingMs;
-    capacityBlockedTaskMs += admission.admissionDelay.capacityBlockedMs;
-    mutexBlockedTaskMs += admission.admissionDelay.mutexBlockedMs;
-  }
-  return Object.freeze({
-    admissiblePendingTaskMs,
-    admissionViablePendingTaskMs:
-      admissiblePendingTaskMs + capacityBlockedTaskMs + mutexBlockedTaskMs,
-    capacityBlockedTaskMs,
-    mutexBlockedTaskMs
-  });
-}
-
 function topAdmissionDelays(
-  admissions: readonly SchedulerMeasurementAdmission[]
+  admissions: readonly SchedulerMeasurementAdmission[],
+  numeric: SchedulerSummaryTiming
 ): readonly AdmissionDelaySummary[] {
   return Object.freeze(
     admissions
       .flatMap((admission) => {
-        if (admission.admittedAtMonotonicMs === null || admission.settledAtMonotonicMs === null) {
+        if (admission.admittedAtMonotonicMs === null || admission.settledAtMonotonicMs === null)
           return [];
-        }
+        const admissionDelayMs = numeric.admissionDelayMsByTaskId.get(admission.taskId);
+        const taskActiveMs = numeric.taskActiveMsByTaskId.get(admission.taskId);
+        if (admissionDelayMs === undefined || taskActiveMs === undefined)
+          throw new Error("sealed summary Task projection is missing");
         return [
           Object.freeze({
             admissiblePendingMs: admission.admissionDelay.admissiblePendingMs,
-            admissionDelayMs: admissionDelayMsFor(admission.admissionDelay),
+            admissionDelayMs,
             capacityBlockedMs: admission.admissionDelay.capacityBlockedMs,
             mutexBlockedMs: admission.admissionDelay.mutexBlockedMs,
-            taskActiveMs: admission.settledAtMonotonicMs - admission.admittedAtMonotonicMs,
+            taskActiveMs,
             taskId: admission.taskId
           })
         ];
@@ -119,30 +98,17 @@ function topAdmissionDelays(
       .slice(0, TOP_TASK_LIMIT)
   );
 }
-
-function latestAdmissionAt(admissions: readonly SchedulerMeasurementAdmission[]): number | null {
-  let latest: number | null = null;
-  for (const admission of admissions) {
-    if (admission.admittedAtMonotonicMs === null) continue;
-    latest = Math.max(latest ?? admission.admittedAtMonotonicMs, admission.admittedAtMonotonicMs);
-  }
-  return latest;
-}
-
 function topCompletionTailContributors(
   activeTaskIds: readonly string[],
-  admissions: readonly SchedulerMeasurementAdmission[],
-  lastAdmissionAt: number | null
-): readonly Readonly<{ readonly settledAfterLastAdmissionMs: number; readonly taskId: string }>[] {
-  if (lastAdmissionAt === null) return Object.freeze([]);
-  const admittedByTaskId = new Map(admissions.map((admission) => [admission.taskId, admission]));
+  numeric: SchedulerSummaryTiming
+): readonly Readonly<{ settledAfterLastAdmissionMs: number; taskId: string }>[] {
   return Object.freeze(
     activeTaskIds
       .flatMap((taskId) => {
-        const settledAt = admittedByTaskId.get(taskId)?.settledAtMonotonicMs;
-        return settledAt === undefined || settledAt === null
+        const elapsed = numeric.settledAfterLastAdmissionMsByTaskId.get(taskId);
+        return elapsed === undefined
           ? []
-          : [Object.freeze({ settledAfterLastAdmissionMs: settledAt - lastAdmissionAt, taskId })];
+          : [Object.freeze({ settledAfterLastAdmissionMs: elapsed, taskId })];
       })
       .sort(
         (left, right) =>
@@ -152,25 +118,13 @@ function topCompletionTailContributors(
       .slice(0, TOP_TASK_LIMIT)
   );
 }
-
 function hasTimingFacts(raw: SchedulerRunMeasurement): raw is SchedulerRunMeasurement &
   Readonly<{
-    readonly timing: Readonly<{ readonly availability: "available" }>;
-    readonly timingFacts: SchedulerRunMeasurementTimingFacts;
+    timing: Readonly<{ availability: "available" }>;
+    timingFacts: SchedulerRunMeasurementTimingFacts;
   }> {
   return raw.timing.availability === "available";
 }
-
-function ratio(numerator: number, denominator: number): number | null {
-  if (denominator === 0) return null;
-  const value = numerator / denominator;
-  return Number.isFinite(value) && value >= 0 && value <= 1 ? value : null;
-}
-
-function admissionDelayMsFor(breakdown: SchedulerMeasurementAdmission["admissionDelay"]): number {
-  return breakdown.mutexBlockedMs + breakdown.capacityBlockedMs + breakdown.admissiblePendingMs;
-}
-
 function compareText(left: string, right: string): number {
   if (left < right) return -1;
   if (left > right) return 1;

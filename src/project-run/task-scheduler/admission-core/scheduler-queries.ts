@@ -12,7 +12,7 @@ export function capacityForCore(core: AdmissionCoreState): AdmissionPolicyContex
   return Object.freeze({
     effectiveMaxParallel: effectiveMaxParallelForCore(core),
     maxParallel: core.compiled.maxParallel,
-    running: core.selection.runningTotal
+    running: core.selection.memberships.status.running.size
   });
 }
 

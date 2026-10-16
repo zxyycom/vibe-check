@@ -1,3 +1,4 @@
+import { composeAdmissionStateDeltas } from "./state-delta.ts";
 import type {
   AdmissionGraph,
   AdmissionGraphInput,
@@ -11,6 +12,7 @@ import type {
 import { compileAdmissionGraphInput } from "./input.ts";
 import { catalogForCore, inspectionForCore, schedulerInspectionForCore } from "./projection.ts";
 import {
+  withCoreStateDelta,
   admitTaskForCore,
   createAdmissionCoreFromSchedulerSnapshot,
   createAdmissionCoreFromSettlements,
@@ -167,7 +169,16 @@ export function cancelPendingAdmissionCore(state: AdmissionCoreState): Admission
     );
     effectStates.push(next);
   }
-  return freezeTransition(next, effects, effectStates);
+  const delta = composeAdmissionStateDeltas(
+    effectStates.flatMap((effectState) =>
+      effectState.lastTransition === undefined ? [] : [effectState.lastTransition]
+    )
+  );
+  return freezeTransition(
+    delta === undefined ? next : withCoreStateDelta(next, delta),
+    effects,
+    effectStates
+  );
 }
 
 /** Reconciles forced dependency blocks before the real shell publishes its next decision boundary. */

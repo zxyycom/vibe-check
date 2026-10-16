@@ -1,0 +1,176 @@
+{
+  "baselineRevision": "d4dc896c01a373cf9c3e9709d744a86202373f18",
+  "baselineSourceTreeDigest": "7aaca1df0426a2a6aafc1493c62f7e7affaaf6c0a7d67884067502b4c4cc8663",
+  "correctedSourceTreeDigest": "d669c9b5687febee8c1de9efc4c064be152fdfbe9f422eb36a24b2152bd3949d",
+  "environment": {
+    "bun": "1.3.14",
+    "runtime": "mise exec -- bun"
+  },
+  "command": "mise exec -- bun tmp/restructure-scheduler-incremental-state/cancellation-reproducer.ts",
+  "before": {
+    "coreEffects": [
+      [
+        {
+          "kind": "admitted",
+          "taskId": "running"
+        }
+      ],
+      [
+        {
+          "kind": "settled",
+          "settlementKind": "cancelled-before-start",
+          "taskId": "first"
+        },
+        {
+          "kind": "settled",
+          "settlementKind": "cancelled-before-start",
+          "taskId": "second"
+        }
+      ],
+      [
+        {
+          "kind": "settled",
+          "settlementKind": "completed",
+          "taskId": "running"
+        },
+        {
+          "dependencyIds": [
+            "first"
+          ],
+          "kind": "settled",
+          "settlementKind": "blocked",
+          "taskId": "second"
+        }
+      ]
+    ],
+    "finalInspection": {
+      "capacity": {
+        "effectiveMaxParallel": 1,
+        "maxParallel": 1,
+        "running": 0
+      },
+      "nextBoundary": "complete",
+      "resources": [],
+      "runningTaskIds": [],
+      "scopes": [],
+      "settledTasks": [
+        {
+          "outcome": "satisfied",
+          "taskId": "running"
+        }
+      ]
+    },
+    "shell": {
+      "kind": "threw",
+      "error": "task second is not pending for blocked settlement"
+    },
+    "shellEffects": [
+      {
+        "kind": "admitted",
+        "taskId": "fast"
+      },
+      {
+        "kind": "admitted",
+        "taskId": "running"
+      },
+      {
+        "kind": "settled",
+        "settlementKind": "completed",
+        "taskId": "fast"
+      },
+      {
+        "kind": "settled",
+        "settlementKind": "completed",
+        "taskId": "running"
+      }
+    ]
+  },
+  "after": {
+    "coreEffects": [
+      [
+        {
+          "kind": "admitted",
+          "taskId": "running"
+        }
+      ],
+      [
+        {
+          "kind": "settled",
+          "settlementKind": "cancelled-before-start",
+          "taskId": "first"
+        },
+        {
+          "kind": "settled",
+          "settlementKind": "cancelled-before-start",
+          "taskId": "second"
+        }
+      ],
+      [
+        {
+          "kind": "settled",
+          "settlementKind": "completed",
+          "taskId": "running"
+        }
+      ]
+    ],
+    "finalInspection": {
+      "capacity": {
+        "effectiveMaxParallel": 1,
+        "maxParallel": 1,
+        "running": 0
+      },
+      "nextBoundary": "complete",
+      "resources": [],
+      "runningTaskIds": [],
+      "scopes": [],
+      "settledTasks": [
+        {
+          "outcome": "satisfied",
+          "taskId": "running"
+        }
+      ]
+    },
+    "shell": {
+      "kind": "returned",
+      "cancelled": true,
+      "settlements": [
+        {
+          "taskId": "fast",
+          "kind": "completed"
+        },
+        {
+          "taskId": "running",
+          "kind": "completed"
+        },
+        {
+          "taskId": "first",
+          "kind": "cancelled-before-start"
+        },
+        {
+          "taskId": "second",
+          "kind": "cancelled-before-start"
+        }
+      ]
+    },
+    "shellEffects": [
+      {
+        "kind": "admitted",
+        "taskId": "fast"
+      },
+      {
+        "kind": "admitted",
+        "taskId": "running"
+      },
+      {
+        "kind": "settled",
+        "settlementKind": "completed",
+        "taskId": "fast"
+      },
+      {
+        "kind": "settled",
+        "settlementKind": "completed",
+        "taskId": "running"
+      }
+    ]
+  }
+}

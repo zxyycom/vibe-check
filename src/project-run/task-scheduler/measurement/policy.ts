@@ -2,31 +2,40 @@ import type {
   SchedulerActionHistory,
   SchedulerMeasurementActionObservation,
   SchedulerMeasurementEffect,
-  SchedulerMeasurementIntervalContribution,
   SchedulerMeasurementTiming
 } from "../../../project-definition/project-definition.ts";
+import { finiteNonnegative } from "./exact-time.ts";
+import {
+  roundedContribution,
+  subtractContribution,
+  type ExactIntervalContribution
+} from "./exact-contributions.ts";
 
 type AcceptedPolicyAction =
   | Readonly<{ readonly kind: "select"; readonly taskId: string }>
   | Readonly<{ readonly kind: "wait"; readonly taskId: null }>;
 
 type PendingPolicyAction = AcceptedPolicyAction & {
-  readonly baseline: SchedulerMeasurementIntervalContribution;
+  readonly baseline: ExactIntervalContribution;
   readonly effects: SchedulerMeasurementEffect[];
   readonly sequence: number;
 };
 
 /** Owns the immutable prefix of observations formed after accepted custom-policy actions. */
 export class SchedulerPolicyMeasurement {
+  readonly #quantumExponent: number;
   #pendingAction: PendingPolicyAction | undefined;
   #actionSequence = 0;
   readonly #actionObservations: SchedulerMeasurementActionObservation[] = [];
+  public constructor(quantumExponent = -1074) {
+    this.#quantumExponent = quantumExponent;
+  }
 
-  public beginSelected(taskId: string, baseline: SchedulerMeasurementIntervalContribution): void {
+  public beginSelected(taskId: string, baseline: ExactIntervalContribution): void {
     this.#begin(Object.freeze({ kind: "select", taskId }), baseline);
   }
 
-  public beginWait(baseline: SchedulerMeasurementIntervalContribution): void {
+  public beginWait(baseline: ExactIntervalContribution): void {
     this.#begin(Object.freeze({ kind: "wait", taskId: null }), baseline);
   }
 
@@ -34,21 +43,29 @@ export class SchedulerPolicyMeasurement {
     this.#pendingAction?.effects.push(Object.freeze({ ...effect }));
   }
 
-  public complete(
-    totals: SchedulerMeasurementIntervalContribution,
-    timing: SchedulerMeasurementTiming
-  ): void {
+  public complete(totals: ExactIntervalContribution, timing: SchedulerMeasurementTiming): boolean {
     const action = this.#pendingAction;
-    if (action === undefined) return;
+    if (action === undefined) return true;
     this.#pendingAction = undefined;
-    const interval =
+    const contribution =
       timing.availability === "available"
+        ? roundedContribution(subtractContribution(totals, action.baseline), this.#quantumExponent)
+        : undefined;
+    const valid =
+      contribution === undefined || Object.values(contribution).every(finiteNonnegative);
+    const interval =
+      timing.availability === "available" && contribution !== undefined && valid
         ? Object.freeze({
             availability: "available" as const,
-            contribution: subtractIntervalContribution(totals, action.baseline)
+            contribution
           })
-        : Object.freeze({ availability: "unavailable" as const, reason: timing.reason });
+        : Object.freeze({
+            availability: "unavailable" as const,
+            reason:
+              timing.availability === "unavailable" ? timing.reason : ("integral-invalid" as const)
+          });
     this.#actionObservations.push(completedObservation(action, interval));
+    return valid;
   }
 
   public snapshot(): SchedulerActionHistory {
@@ -57,7 +74,7 @@ export class SchedulerPolicyMeasurement {
     return Object.freeze({ measurementAt, measurementCount: endCount });
   }
 
-  #begin(action: AcceptedPolicyAction, baseline: SchedulerMeasurementIntervalContribution): void {
+  #begin(action: AcceptedPolicyAction, baseline: ExactIntervalContribution): void {
     if (this.#pendingAction !== undefined) {
       throw new Error("previous policy action was not observed before the next action");
     }
@@ -86,19 +103,4 @@ function completedObservation(
   return action.kind === "select"
     ? Object.freeze({ ...facts, kind: "select", taskId: action.taskId })
     : Object.freeze({ ...facts, kind: "wait", taskId: null });
-}
-
-function subtractIntervalContribution(
-  current: SchedulerMeasurementIntervalContribution,
-  prior: SchedulerMeasurementIntervalContribution
-): SchedulerMeasurementIntervalContribution {
-  return Object.freeze({
-    admissiblePendingTaskMs: current.admissiblePendingTaskMs - prior.admissiblePendingTaskMs,
-    acceptedWaitMs: current.acceptedWaitMs - prior.acceptedWaitMs,
-    capacityBlockedTaskMs: current.capacityBlockedTaskMs - prior.capacityBlockedTaskMs,
-    effectiveCapacitySlotMs: current.effectiveCapacitySlotMs - prior.effectiveCapacitySlotMs,
-    mutexBlockedTaskMs: current.mutexBlockedTaskMs - prior.mutexBlockedTaskMs,
-    rootCapacitySlotMs: current.rootCapacitySlotMs - prior.rootCapacitySlotMs,
-    taskSlotMs: current.taskSlotMs - prior.taskSlotMs
-  });
 }

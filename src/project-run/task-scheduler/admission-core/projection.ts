@@ -10,6 +10,7 @@ import {
   selectionRejectionForPendingTask
 } from "./selection-query.ts";
 import {
+  publicTaskSlotsForCore,
   activeScopesForCore,
   effectiveMaxParallelForCore,
   requiredScopeSlotForCore,
@@ -53,16 +54,19 @@ export function inspectionForCore(state: AdmissionCoreState): AdmissionInspectio
         Object.freeze({ outcome, taskId: requiredTaskForCore(state, taskSlot).id })
       );
   }
-  const hasSelectablePending = state.selection.relationReadyTaskSlots.some((slot) =>
+  const hasSelectablePending = state.selection.memberships.relationReady.some((slot) =>
     isAdmissionEligibleForPendingTask(state, slot)
   );
   return Object.freeze({
     capacity: Object.freeze({
       effectiveMaxParallel: effectiveMaxParallelForCore(state),
       maxParallel: state.compiled.maxParallel,
-      running: state.selection.runningTotal
+      running: state.selection.memberships.status.running.size
     }),
-    nextBoundary: nextBoundaryFor(hasSelectablePending, state.selection.runningTotal),
+    nextBoundary: nextBoundaryFor(
+      hasSelectablePending,
+      state.selection.memberships.status.running.size
+    ),
     resources: resourceOccupancyForCore(state),
     runningTaskIds: Object.freeze(runningTaskIds),
     scopes: Object.freeze(
@@ -124,26 +128,10 @@ export function schedulerInspectionForCore(state: AdmissionCoreState): Readonly<
   });
 }
 
-/** Public lexical order is a projection, distinct from real Scheduler declaration order. */
-function publicTaskSlotsForCore(
-  state: AdmissionCoreState,
-  kind: "pending" | "running" | "settled"
-): readonly number[] {
-  return state.selection.taskSlotsByStatus[kind]
-    .toArray()
-    .sort((left, right) => publicRankForCore(state, left) - publicRankForCore(state, right));
-}
-
-function publicRankForCore(state: AdmissionCoreState, slot: number): number {
-  const rank = state.compiled.taskPublicRanksBySlot[slot];
-  if (rank === undefined) throw new Error(`admission core public rank is unknown: ${slot}`);
-  return rank;
-}
-
 function resourceOccupancyForCore(state: AdmissionCoreState): AdmissionInspection["resources"] {
   return Object.freeze(
     state.compiled.graph.resourceCapacities.map(({ resourceId, units }, resourceSlot) => {
-      const inUse = numberFor(state.selection.resourceInUse, resourceSlot);
+      const inUse = numberFor(state.selection.facts.occupancy.resourceInUse, resourceSlot);
       return Object.freeze({
         available: units - inUse,
         capacity: units,

@@ -1,61 +1,60 @@
-import { Map as PersistentMap, type Set as PersistentSet } from "immutable";
-
+import { Map as PersistentMap } from "immutable";
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
+import type { ScopeStore } from "./selection-index.ts";
+import { scopeForStore } from "./selection-index.ts";
+import type { ReadyGroupFrontier, ReadyGroupHeadChange } from "./ready-frontier.ts";
 import {
   mergeTaskQueues,
   queueWithTask,
   type PersistentTaskQueue
 } from "./persistent-task-queue.ts";
-import type { ReadyGroupFrontier } from "./ready-frontier.ts";
 
 export type StaticSelectionLayer = "tightening" | "continuation" | "ordinary";
 export interface StaticGroupFrontier {
   readonly queues: Readonly<Record<StaticSelectionLayer, PersistentTaskQueue | undefined>>;
   readonly revisions: PersistentMap<number, number>;
 }
-
 interface StaticFrontierContext {
   readonly compiled: CompiledAdmissionGraph;
   readonly readyGroupFrontier: ReadyGroupFrontier;
-  readonly activeScopeSlots: PersistentSet<number>;
+  readonly scopes: ScopeStore;
 }
 
-/** A persistent, globally ranked queue of group heads for each static selection layer. */
 export function staticFrontierForSeed(context: StaticFrontierContext): StaticGroupFrontier {
   let frontier = emptyStaticFrontier();
-  for (const groupSlot of context.readyGroupFrontier.keys())
-    frontier = frontierWithGroup(context, frontier, groupSlot);
+  for (const groupSlot of context.readyGroupFrontier.keys()) {
+    const layer = staticLayerForGroup(context, groupSlot);
+    frontier = frontierWithHead({
+      compiled: context.compiled,
+      frontier,
+      groupSlot,
+      layer,
+      taskSlot: headTaskSlot(context, groupSlot, layer)
+    });
+  }
   return frontier;
 }
 
-/** Relation changes update only their groups; actual scope lifecycle changes reclassify its groups. */
+/** Heads arrive from ready, layers from source lifecycle. Neither membership diff is rediscovered. */
 export function transitionStaticFrontier(
   input: Readonly<{
     previous: StaticFrontierContext;
     next: StaticFrontierContext;
     frontier: StaticGroupFrontier;
-    affectedTaskSlots: ReadonlySet<number>;
-    changedScopeSlots: ReadonlySet<number>;
+    heads: readonly ReadyGroupHeadChange[];
+    changedScopeSlots: readonly number[];
   }>
 ): StaticGroupFrontier {
-  const { previous, next, affectedTaskSlots, changedScopeSlots } = input;
-  const affectedGroups = new Set<number>();
-  for (const taskSlot of affectedTaskSlots)
-    affectedGroups.add(requiredGroupSlot(next.compiled, taskSlot));
-  for (const scopeSlot of changedScopeSlots) {
+  const { previous, next, heads, changedScopeSlots } = input;
+  if (heads.length === 0 && changedScopeSlots.length === 0) return input.frontier;
+  const headChanges = new Map(heads.map((change) => [change.groupSlot, change]));
+  const affectedGroups = new Set(headChanges.keys());
+  for (const scopeSlot of changedScopeSlots)
     for (const groupSlot of next.compiled.constraintGroups.scopeGroupSlots[scopeSlot] ?? [])
       affectedGroups.add(groupSlot);
-  }
   let frontier = input.frontier;
   for (const groupSlot of affectedGroups) {
-    const layer = staticLayerForGroup(next, groupSlot);
-    const previousLayer = staticLayerForGroup(previous, groupSlot);
-    if (
-      layer === previousLayer &&
-      headTaskSlot(next, groupSlot, layer) === headTaskSlot(previous, groupSlot, layer)
-    )
-      continue;
-    frontier = frontierWithGroup(next, frontier, groupSlot);
+    frontier = transitionGroupHead(previous, next, frontier, groupSlot, headChanges.get(groupSlot));
   }
   return Object.freeze({
     revisions: frontier.revisions,
@@ -67,40 +66,38 @@ export function transitionStaticFrontier(
   });
 }
 
-/** Query-local traversal may skip blocked heads, but never mutates a captured state or fork. */
-export function liveStaticQueue(
+/** A revision identifies the unique current head/layer entry; old branches keep their own map. */
+function liveStaticQueue(
   input: Readonly<{
-    context: StaticFrontierContext;
+    context: Pick<StaticFrontierContext, "compiled">;
     frontier: StaticGroupFrontier;
     layer: StaticSelectionLayer;
-    queue?: PersistentTaskQueue;
   }>
 ): PersistentTaskQueue | undefined {
   const { context, frontier, layer } = input;
-  let next = input.queue ?? frontier.queues[layer];
+  let next = frontier.queues[layer];
   while (next !== undefined) {
     const groupSlot = requiredGroupSlot(context.compiled, next.taskSlot);
-    const isCurrentHead =
-      next.revision === frontier.revisions.get(groupSlot) &&
-      staticLayerForGroup(context, groupSlot) === layer &&
-      headTaskSlot(context, groupSlot, layer) === next.taskSlot;
-    if (isCurrentHead) return next;
+    if (next.revision === frontier.revisions.get(groupSlot)) return next;
     next = mergeTaskQueues(next.left, next.right);
   }
   return undefined;
 }
 
-function frontierWithGroup(
-  context: StaticFrontierContext,
-  frontier: StaticGroupFrontier,
-  groupSlot: number
+function frontierWithHead(
+  input: Readonly<{
+    compiled: CompiledAdmissionGraph;
+    frontier: StaticGroupFrontier;
+    groupSlot: number;
+    layer: StaticSelectionLayer;
+    taskSlot: number | undefined;
+  }>
 ): StaticGroupFrontier {
-  const layer = staticLayerForGroup(context, groupSlot);
-  const taskSlot = headTaskSlot(context, groupSlot, layer);
+  const { compiled, frontier, groupSlot, layer, taskSlot } = input;
   const revision = (frontier.revisions.get(groupSlot) ?? 0) + 1;
   const revisions = frontier.revisions.set(groupSlot, revision);
   if (taskSlot === undefined) return Object.freeze({ queues: frontier.queues, revisions });
-  const groups = context.compiled.constraintGroups;
+  const groups = compiled.constraintGroups;
   const rank = (
     layer === "ordinary" ? groups.ordinaryPreferenceRanks : groups.constrainedPreferenceRanks
   )[taskSlot];
@@ -113,7 +110,6 @@ function frontierWithGroup(
     })
   });
 }
-
 function staticLayerForGroup(
   context: StaticFrontierContext,
   groupSlot: number
@@ -121,10 +117,9 @@ function staticLayerForGroup(
   const groups = context.compiled.constraintGroups;
   const scopeSlot = groups.groupScopeSlots[groupSlot];
   if (scopeSlot === undefined) return "ordinary";
-  if (context.activeScopeSlots.has(scopeSlot)) return "continuation";
+  if (scopeForStore(context.scopes, scopeSlot) === "active") return "continuation";
   return groups.groupActivatesScope[groupSlot] === true ? "tightening" : "ordinary";
 }
-
 function headTaskSlot(
   context: StaticFrontierContext,
   groupSlot: number,
@@ -133,17 +128,42 @@ function headTaskSlot(
   const group = context.readyGroupFrontier.get(groupSlot);
   return (layer === "ordinary" ? group?.ordinary : group?.constrained)?.taskSlot;
 }
-
 function requiredGroupSlot(compiled: CompiledAdmissionGraph, taskSlot: number): number {
   const groupSlot = compiled.constraintGroups.taskGroupSlots[taskSlot];
   if (groupSlot === undefined)
     throw new Error(`admission core constraint group is unknown: ${taskSlot}`);
   return groupSlot;
 }
-
 function emptyStaticFrontier(): StaticGroupFrontier {
   return Object.freeze({
     revisions: PersistentMap<number, number>(),
     queues: Object.freeze({ tightening: undefined, continuation: undefined, ordinary: undefined })
   });
+}
+
+function headForLayer(
+  heads: ReadyGroupHeadChange["before"],
+  layer: StaticSelectionLayer
+): number | undefined {
+  return layer === "ordinary" ? heads.ordinary : heads.constrained;
+}
+
+/** Revisions advance only when this group's selected head or static layer changes. */
+function transitionGroupHead(
+  previous: StaticFrontierContext,
+  next: StaticFrontierContext,
+  frontier: StaticGroupFrontier,
+  groupSlot: number,
+  change: ReadyGroupHeadChange | undefined
+): StaticGroupFrontier {
+  const layer = staticLayerForGroup(next, groupSlot);
+  const previousLayer = staticLayerForGroup(previous, groupSlot);
+  const previousHead =
+    change === undefined
+      ? headTaskSlot(previous, groupSlot, previousLayer)
+      : headForLayer(change.before, previousLayer);
+  const taskSlot =
+    change === undefined ? headTaskSlot(next, groupSlot, layer) : headForLayer(change.after, layer);
+  if (layer === previousLayer && taskSlot === previousHead) return frontier;
+  return frontierWithHead({ compiled: next.compiled, frontier, groupSlot, layer, taskSlot });
 }

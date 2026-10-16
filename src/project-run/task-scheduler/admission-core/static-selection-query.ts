@@ -1,54 +1,68 @@
-import { mergeTaskQueues } from "./persistent-task-queue.ts";
-import { liveStaticQueue, type StaticSelectionLayer } from "./static-frontier.ts";
-import {
-  hasCapacityForPendingTask,
-  isMutexBlockedForPendingTask,
-  type AdmissionCoreSelection
-} from "./selection-query.ts";
-import { requiredTaskForCore } from "./state-query.ts";
+import { hasCapacityForPendingTask } from "./capacity-query.ts";
+import { Heap } from "mnemonist";
 import type { AdmissionCoreState } from "./selection.ts";
+import type { PersistentTaskQueue } from "./persistent-task-queue.ts";
+import type { StaticSelectionLayer } from "./static-frontier.ts";
+import { isMutexBlockedForPendingTask, type AdmissionCoreSelection } from "./selection-query.ts";
+import { requiredTaskForCore } from "./state-query.ts";
 
-/** Consume ranked group heads, retaining constrained waits and ordinary admissible-first ordering. */
+/** Ranked prefix traversal uses a query-local reference heap, never persistent successor copies. */
 export function staticAdmissionCandidateForCore(
   state: AdmissionCoreState
 ): AdmissionCoreSelection | undefined {
   for (const layer of ["tightening", "continuation", "ordinary"] as const) {
-    const choice = candidateForLayer(state, layer);
-    if (choice !== undefined) return choice;
+    const selected = candidateForLayer(state, layer);
+    if (selected !== undefined) return selected;
   }
   return undefined;
 }
-
 function candidateForLayer(
   state: AdmissionCoreState,
   layer: StaticSelectionLayer
 ): AdmissionCoreSelection | undefined {
-  const frontierContext = {
-    compiled: state.compiled,
-    readyGroupFrontier: state.selection.readyGroupFrontier,
-    activeScopeSlots: state.selection.activeScopeSlotSet
-  };
-  const rootHasCapacity = state.selection.runningTotal < state.compiled.maxParallel;
-  let queue = state.selection.staticGroupFrontier.queues[layer];
+  const rootHasCapacity =
+    state.selection.memberships.status.running.size < state.compiled.maxParallel;
+  const frontier = state.selection.frontiers.static;
+  let node = frontier.queues[layer];
+  let pending: Heap<PersistentTaskQueue> | undefined;
   let firstBlocked: AdmissionCoreSelection | undefined;
-  while (queue !== undefined) {
-    queue = liveStaticQueue({
-      context: frontierContext,
-      frontier: state.selection.staticGroupFrontier,
-      queue,
-      layer
-    });
-    if (queue === undefined) break;
-    const taskSlot = queue.taskSlot;
-    if (!isMutexBlockedForPendingTask(state, taskSlot)) {
+  while (node !== undefined) {
+    const groupSlot = state.compiled.constraintGroups.taskGroupSlots[node.taskSlot];
+    if (groupSlot === undefined)
+      throw new Error(`admission core constraint group is unknown: ${node.taskSlot}`);
+    if (
+      node.revision === frontier.revisions.get(groupSlot) &&
+      !isMutexBlockedForPendingTask(state, node.taskSlot)
+    ) {
       const candidate = Object.freeze({
-        task: requiredTaskForCore(state, taskSlot),
-        canAdmit: rootHasCapacity && hasCapacityForPendingTask(state, taskSlot)
+        task: requiredTaskForCore(state, node.taskSlot),
+        canAdmit: rootHasCapacity && hasCapacityForPendingTask(state, node.taskSlot)
       });
-      if (layer !== "ordinary" || candidate.canAdmit || !rootHasCapacity) return candidate;
+      if (mustUseFirstCandidate(layer, rootHasCapacity, candidate.canAdmit)) return candidate;
       firstBlocked ??= candidate;
     }
-    queue = mergeTaskQueues(queue.left, queue.right);
+    pending ??= new Heap<PersistentTaskQueue>(comparePreferenceRank);
+    enqueueChildren(pending, node);
+    node = pending.pop();
   }
   return firstBlocked;
+}
+
+/** Constrained layers never backfill; a full root budget also preserves the first candidate. */
+function mustUseFirstCandidate(
+  layer: StaticSelectionLayer,
+  rootHasCapacity: boolean,
+  canAdmit: boolean
+): boolean {
+  return layer !== "ordinary" || canAdmit || !rootHasCapacity;
+}
+
+function comparePreferenceRank(left: PersistentTaskQueue, right: PersistentTaskQueue): number {
+  return left.preferenceRank - right.preferenceRank;
+}
+
+/** Best-first traversal retains only immutable node references, not successor queue copies. */
+function enqueueChildren(pending: Heap<PersistentTaskQueue>, node: PersistentTaskQueue): void {
+  if (node.left !== undefined) pending.push(node.left);
+  if (node.right !== undefined) pending.push(node.right);
 }

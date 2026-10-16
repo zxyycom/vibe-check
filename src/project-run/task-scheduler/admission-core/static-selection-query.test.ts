@@ -120,9 +120,9 @@ describe("static admission group frontier", () => {
       );
       const compiled = compilePreparedAdmissionGraph(graph, 4);
       const plainInitial = createInitialAdmissionCoreState(compiled);
-      assert.equal(plainInitial.selection.readyGroupFrontier.size, 1);
+      assert.equal(plainInitial.selection.frontiers.ready.size, 1);
       let canEnumerateReadyMembers = false;
-      const readySlots = new Proxy(plainInitial.selection.relationReadyTaskSlots, {
+      const readySlots = new Proxy(plainInitial.selection.memberships.relationReady, {
         get(target, key, receiver): unknown {
           if (
             !canEnumerateReadyMembers &&
@@ -135,7 +135,13 @@ describe("static admission group frontier", () => {
       });
       const initial: AdmissionCoreState = Object.freeze({
         ...plainInitial,
-        selection: Object.freeze({ ...plainInitial.selection, relationReadyTaskSlots: readySlots })
+        selection: Object.freeze({
+          ...plainInitial.selection,
+          memberships: Object.freeze({
+            ...plainInitial.selection.memberships,
+            relationReady: readySlots
+          })
+        })
       });
       const first = decision(initial);
       assert.equal(first.kind, "admit");
@@ -150,7 +156,7 @@ describe("static admission group frontier", () => {
       const afterFirst = settledCore(selectedCore(released, "t-0"), "t-0");
       assert.equal(staticAdmissionCandidateForCore(afterFirst)?.task.id, "t-1");
       const cancelled = cancelPendingAdmissionCore(afterFirst).state;
-      assert.equal(cancelled.selection.readyGroupFrontier.size, 0);
+      assert.equal(cancelled.selection.frontiers.ready.size, 0);
       assert.equal(staticAdmissionCandidateForCore(cancelled), undefined);
       canEnumerateReadyMembers = true;
       assert.equal(first.eligibleCount, width);
@@ -179,8 +185,8 @@ function assertHeterogeneousHeads(width: number): void {
     4
   );
   const initial = createInitialAdmissionCoreState(compilePreparedAdmissionGraph(graph, 4));
-  assert.equal(initial.selection.readyGroupFrontier.size, width);
-  const frontier = new Proxy(initial.selection.readyGroupFrontier, {
+  assert.equal(initial.selection.frontiers.ready.size, width);
+  const frontier = new Proxy(initial.selection.frontiers.ready, {
     get(target, key, receiver): unknown {
       if (key === Symbol.iterator || ["values", "keys", "entries", "forEach"].includes(String(key)))
         assert.fail(`static query enumerated all groups: ${String(key)}`);
@@ -189,7 +195,10 @@ function assertHeterogeneousHeads(width: number): void {
   });
   const captured: AdmissionCoreState = Object.freeze({
     ...initial,
-    selection: Object.freeze({ ...initial.selection, readyGroupFrontier: frontier })
+    selection: Object.freeze({
+      ...initial.selection,
+      frontiers: Object.freeze({ ...initial.selection.frontiers, ready: frontier })
+    })
   });
   assert.equal(staticAdmissionCandidateForCore(captured)?.task.id, "unique-0");
   const held = selectedCore(captured, `unique-${width - 1}`);
@@ -214,17 +223,17 @@ function assertReplacedHeadRevision(): void {
     4
   );
   const initial = createInitialAdmissionCoreState(compilePreparedAdmissionGraph(graph, 4));
-  const oldEntry = initial.selection.staticGroupFrontier.queues.ordinary;
+  const oldEntry = initial.selection.frontiers.static.queues.ordinary;
   assert.equal(oldEntry?.taskSlot, 2);
   const beforeHigh = settledCore(selectedCore(initial, "gate"), "gate");
   assert.equal(staticAdmissionCandidateForCore(beforeHigh)?.task.id, "high");
   const afterHigh = settledCore(selectedCore(beforeHigh, "high"), "high");
-  const returnedEntry = afterHigh.selection.staticGroupFrontier.queues.ordinary;
+  const returnedEntry = afterHigh.selection.frontiers.static.queues.ordinary;
   assert.equal(returnedEntry?.taskSlot, 0);
   const groupSlot = initial.compiled.constraintGroups.taskGroupSlots[0];
   assert.ok(groupSlot !== undefined);
-  assert.equal(initial.selection.staticGroupFrontier.revisions.get(groupSlot), 1);
-  assert.equal(afterHigh.selection.staticGroupFrontier.revisions.get(groupSlot), 3);
+  assert.equal(initial.selection.frontiers.static.revisions.get(groupSlot), 1);
+  assert.equal(afterHigh.selection.frontiers.static.revisions.get(groupSlot), 3);
   assert.equal(returnedEntry?.revision, 3);
   assert.equal(staticAdmissionCandidateForCore(initial)?.task.id, "gate");
   assert.equal(oldEntry?.revision, 1);
@@ -249,7 +258,7 @@ function assertUnchangedActiveRoots(): void {
   );
   const initial = createInitialAdmissionCoreState(compilePreparedAdmissionGraph(graph, 4));
   const active = selectedCore(initial, "open");
-  const roots = active.selection.activeScopeSlots;
+  const roots = active.selection.frontiers.activeScopeOrder;
   const guardedRoots = new Proxy(roots, {
     get(target, key, receiver): unknown {
       if (key === "includes") assert.fail("unchanged active roots were searched");
@@ -258,16 +267,19 @@ function assertUnchangedActiveRoots(): void {
   });
   const guarded: AdmissionCoreState = Object.freeze({
     ...active,
-    selection: Object.freeze({ ...active.selection, activeScopeSlots: guardedRoots })
+    selection: Object.freeze({
+      ...active.selection,
+      frontiers: Object.freeze({ ...active.selection.frontiers, activeScopeOrder: guardedRoots })
+    })
   });
   const ordinary = settledCore(selectedCore(guarded, "ordinary"), "ordinary");
-  assert.equal(ordinary.selection.activeScopeSlots, guardedRoots);
+  assert.equal(ordinary.selection.frontiers.activeScopeOrder, guardedRoots);
   const closedInactive = settledCore(selectedCore(ordinary, "inactive"), "inactive");
-  assert.equal(closedInactive.selection.activeScopeSlots, guardedRoots);
-  assert.deepEqual(
-    [...active.selection.activeScopeSlotSet],
-    [...closedInactive.selection.activeScopeSlotSet]
-  );
+  assert.equal(closedInactive.selection.frontiers.activeScopeOrder, guardedRoots);
+  assert.deepEqual(admissionStateForCore(closedInactive).inspection.scopes, [
+    { scopeId: "active", lifecycle: "active" },
+    { scopeId: "inactive", lifecycle: "closed" }
+  ]);
   assert.deepEqual(roots, [0]);
-  assert.deepEqual(initial.selection.activeScopeSlots, []);
+  assert.deepEqual(initial.selection.frontiers.activeScopeOrder, []);
 }

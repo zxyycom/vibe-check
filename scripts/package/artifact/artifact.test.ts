@@ -181,6 +181,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       "micromark-extension-frontmatter": "2.0.0",
       "micromark-extension-gfm": "3.0.0",
       micromatch: "4.0.8",
+      mnemonist: "0.40.4",
       neverthrow: "8.2.0",
       typebox: "1.3.9"
     });

@@ -1,23 +1,22 @@
 import { Set as PersistentSet } from "immutable";
-
-import { readyFrontierForSeed } from "./ready-frontier.ts";
-import { staticFrontierForSeed } from "./static-frontier.ts";
-
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
   requiredTaskMutexSlotsForCompiled,
   requiredTaskResourceClaimsForCompiled
 } from "./compiled-graph-lookup.ts";
+import { readyFrontierForSeed } from "./ready-frontier.ts";
+import { staticFrontierForSeed } from "./static-frontier.ts";
 import {
   forcedQueueFromTaskSlots,
-  freezeSelectionIndex,
   persistentNumbersFor,
   persistentStatuses,
+  persistentScopesFor,
   pendingRelationBlockerStageForSelection,
   statusForStore,
   type AdmissionSelectionIndex,
+  type AdmissionRelationFacts,
   type CoreTaskStatus,
-  type ForcedTaskQueue,
+  type ScopeLifecycle,
   type StatusStore
 } from "./selection-index.ts";
 
@@ -26,12 +25,10 @@ interface SeedTaskCounters {
   readonly nonCompletedDependencies: number[];
   readonly pendingDependencies: number[];
   readonly pendingObservations: number[];
-  readonly remainingTaskCount: number;
   readonly resourceInUse: number[];
-  readonly runningTotal: number;
 }
 
-/** Builds every immutable selection index from one static graph and one exact status seed. */
+/** Cold seed builds source facts once, then their typed membership and ordered views. */
 export function selectionIndexForSeed(
   compiled: CompiledAdmissionGraph,
   seed: Readonly<{
@@ -40,136 +37,84 @@ export function selectionIndexForSeed(
     legacyRunningMutexes?: readonly string[];
   }>
 ): AdmissionSelectionIndex {
-  const { statuses, activeScopeIds, legacyRunningMutexes } = seed;
-  const persistentStatus = persistentStatuses(statuses);
-  const counters = seedTaskCounters(compiled, persistentStatus);
-  const activeScopes = seedActiveScopes(compiled, activeScopeIds);
-  const readiness = {
+  const statuses = persistentStatuses(seed.statuses);
+  const counters = seedTaskCounters(compiled, statuses);
+  const relations = Object.freeze({
     pendingDependencies: persistentNumbersFor(counters.pendingDependencies),
-    pendingObservations: persistentNumbersFor(counters.pendingObservations)
-  };
-  const taskSlotsByStatus = {
-    pending: PersistentSet<number>(),
-    running: PersistentSet<number>(),
-    settled: PersistentSet<number>()
-  };
-  for (const [slot, status] of statuses.entries()) {
-    if (status.kind !== "absent")
-      taskSlotsByStatus[status.kind] = taskSlotsByStatus[status.kind].add(slot);
-  }
-  const relationReadyTaskSlots = taskSlotsByStatus.pending.filter(
-    (slot) => pendingRelationBlockerStageForSelection(readiness, slot) === undefined
+    pendingObservations: persistentNumbersFor(counters.pendingObservations),
+    nonCompletedDependencies: persistentNumbersFor(counters.nonCompletedDependencies)
+  });
+  const memberships = seedTaskMemberships(seed.statuses, relations);
+  const lifecycle = seedScopeLifecycle(compiled, statuses, seed.activeScopeIds);
+  const scopes = persistentScopesFor(lifecycle);
+  const activeScopeOrder = sortedActiveScopeSlots(
+    compiled,
+    lifecycle.flatMap((kind, scopeSlot) => (kind === "active" ? [scopeSlot] : []))
   );
-  const activeScopeSlots = activeScopeSlotsForSeed(compiled, persistentStatus, activeScopes);
-  const activeScopeSlotSet = PersistentSet(activeScopeSlots);
-  const readyGroupFrontier = readyFrontierForSeed(compiled, relationReadyTaskSlots);
-  return freezeSelectionIndex({
-    ...readiness,
-    taskSlotsByStatus: Object.freeze(taskSlotsByStatus),
-    relationReadyTaskSlots,
-    readyGroupFrontier,
-    staticGroupFrontier: staticFrontierForSeed({
-      compiled,
-      readyGroupFrontier,
-      activeScopeSlots: activeScopeSlotSet
+  const ready = readyFrontierForSeed(compiled, memberships.relationReady);
+  return Object.freeze({
+    facts: Object.freeze({
+      statuses,
+      relations,
+      occupancy: Object.freeze({
+        mutexHolders: persistentNumbersFor(counters.mutexHolders),
+        resourceInUse: persistentNumbersFor(counters.resourceInUse)
+      }),
+      scopes,
+      legacyRunningMutexes:
+        seed.legacyRunningMutexes === undefined
+          ? undefined
+          : Object.freeze([...seed.legacyRunningMutexes])
     }),
-    activeScopeSlots,
-    activeScopeSlotSet,
-    activeScopes: persistentNumbersFor(activeScopes),
-    forcedQueue: forcedQueueForSeed(compiled, persistentStatus, counters),
-    legacyRunningMutexes:
-      legacyRunningMutexes === undefined ? undefined : Object.freeze([...legacyRunningMutexes]),
-    mutexHolders: persistentNumbersFor(counters.mutexHolders),
-    nonCompletedDependencies: persistentNumbersFor(counters.nonCompletedDependencies),
-    remainingTaskCount: counters.remainingTaskCount,
-    resourceInUse: persistentNumbersFor(counters.resourceInUse),
-    runningTotal: counters.runningTotal,
-    statuses: persistentStatus
+    memberships,
+    frontiers: Object.freeze({
+      ready,
+      static: staticFrontierForSeed({ compiled, readyGroupFrontier: ready, scopes }),
+      activeScopeOrder,
+      forced: forcedQueueFromTaskSlots(seedForcedTaskSlots(compiled, statuses, counters))
+    })
   });
 }
 
-/** Status/running/mutex and relation-counter seed stage. */
 function seedTaskCounters(
   compiled: CompiledAdmissionGraph,
   statuses: StatusStore
 ): SeedTaskCounters {
   const mutexHolders = Array.from({ length: compiled.mutexSlotById.size }, () => 0);
+  const resourceInUse = compiled.resourceCapacityBySlot.map(() => 0);
   const pendingDependencies: number[] = [];
   const nonCompletedDependencies: number[] = [];
   const pendingObservations: number[] = [];
-  let remainingTaskCount = 0;
-  let runningTotal = 0;
-  const resourceInUse = compiled.resourceCapacityBySlot.map(() => 0);
   for (const [taskSlot, task] of compiled.graph.tasks.entries()) {
-    const status = statusForStore(statuses, taskSlot);
-    if (status.kind === "pending" || status.kind === "running") remainingTaskCount += 1;
-    if (status.kind === "running") {
-      runningTotal += 1;
-      for (const mutexSlot of requiredTaskMutexSlotsForCompiled(compiled, taskSlot)) {
+    if (statusForStore(statuses, taskSlot).kind === "running") {
+      for (const mutexSlot of requiredTaskMutexSlotsForCompiled(compiled, taskSlot))
         incrementCounter(mutexHolders, mutexSlot, 1, "mutex holder");
-      }
-      for (const claim of requiredTaskResourceClaimsForCompiled(compiled, taskSlot)) {
+      for (const claim of requiredTaskResourceClaimsForCompiled(compiled, taskSlot))
         incrementCounter(resourceInUse, claim.resourceSlot, claim.units, "resource usage");
-      }
     }
-    appendDependencyCountsForSeed(
-      compiled,
-      statuses,
-      task.dependsOn,
-      pendingDependencies,
-      nonCompletedDependencies
-    );
-    pendingObservations.push(observationCountForSeed(compiled, statuses, task.observes));
+    let pending = 0;
+    let nonCompleted = 0;
+    for (const id of task.dependsOn) {
+      const dependency = statusForStore(statuses, requiredTaskSlotForCompiled(compiled, id));
+      if (dependency.kind !== "settled") pending++;
+      else if (dependency.settlementKind !== "completed") nonCompleted++;
+    }
+    pendingDependencies.push(pending);
+    nonCompletedDependencies.push(nonCompleted);
+    let observations = 0;
+    for (const id of task.observes)
+      if (statusForStore(statuses, requiredTaskSlotForCompiled(compiled, id)).kind !== "settled")
+        observations++;
+    pendingObservations.push(observations);
   }
   return {
     mutexHolders,
-    nonCompletedDependencies,
-    pendingDependencies,
-    pendingObservations,
-    remainingTaskCount,
     resourceInUse,
-    runningTotal
+    pendingDependencies,
+    nonCompletedDependencies,
+    pendingObservations
   };
 }
-
-function appendDependencyCountsForSeed(
-  compiled: CompiledAdmissionGraph,
-  statuses: StatusStore,
-  dependencyIds: readonly string[],
-  pendingDependencies: number[],
-  nonCompletedDependencies: number[]
-): void {
-  let pending = 0;
-  let nonCompleted = 0;
-  for (const dependencyId of dependencyIds) {
-    const dependency = statusForStore(
-      statuses,
-      requiredTaskSlotForCompiled(compiled, dependencyId)
-    );
-    if (dependency.kind !== "settled") pending += 1;
-    else if (dependency.settlementKind !== "completed") nonCompleted += 1;
-  }
-  pendingDependencies.push(pending);
-  nonCompletedDependencies.push(nonCompleted);
-}
-
-function observationCountForSeed(
-  compiled: CompiledAdmissionGraph,
-  statuses: StatusStore,
-  observationIds: readonly string[]
-): number {
-  let pending = 0;
-  for (const observationId of observationIds) {
-    if (
-      statusForStore(statuses, requiredTaskSlotForCompiled(compiled, observationId)).kind !==
-      "settled"
-    ) {
-      pending += 1;
-    }
-  }
-  return pending;
-}
-
 function incrementCounter(
   values: number[],
   slot: number,
@@ -177,61 +122,9 @@ function incrementCounter(
   counterName: string
 ): void {
   const current = values[slot];
-  if (current === undefined) {
+  if (current === undefined)
     throw new Error(`admission core ${counterName} slot is unknown: ${slot}`);
-  }
   values[slot] = current + amount;
-}
-
-function seedActiveScopes(
-  compiled: CompiledAdmissionGraph,
-  activeScopeIds: readonly string[] | undefined
-): number[] {
-  const activeScopes = Array.from({ length: compiled.graph.scopes.length }, () => 0);
-  for (const scopeId of activeScopeIds ?? []) {
-    const scopeSlot = compiled.scopeSlotById.get(scopeId);
-    if (scopeSlot !== undefined) activeScopes[scopeSlot] = 1;
-  }
-  return activeScopes;
-}
-
-/** Active root seed stage excludes scopes whose terminal is already settled. */
-function activeScopeSlotsForSeed(
-  compiled: CompiledAdmissionGraph,
-  statuses: StatusStore,
-  activeScopes: readonly number[]
-): readonly number[] {
-  const slots = activeScopes
-    .map((active, scopeSlot) => (active > 0 ? scopeSlot : undefined))
-    .filter((scopeSlot): scopeSlot is number => scopeSlot !== undefined)
-    .filter(
-      (scopeSlot) =>
-        statusForStore(
-          statuses,
-          requiredTaskSlotForCompiled(
-            compiled,
-            requiredScopeForCompiled(compiled, scopeSlot).terminalTaskId
-          )
-        ).kind !== "settled"
-    );
-  return sortedActiveScopeSlots(compiled, slots);
-}
-
-/** Forced-frontier seed stage retains only eligible pending dependents. */
-function forcedQueueForSeed(
-  compiled: CompiledAdmissionGraph,
-  statuses: StatusStore,
-  counters: SeedTaskCounters
-): ForcedTaskQueue {
-  const forced = compiled.graph.tasks
-    .map((_, taskSlot) => taskSlot)
-    .filter(
-      (taskSlot) =>
-        statusForStore(statuses, taskSlot).kind === "pending" &&
-        counters.pendingDependencies[taskSlot] === 0 &&
-        (counters.nonCompletedDependencies[taskSlot] ?? 0) > 0
-    );
-  return forcedQueueFromTaskSlots(forced);
 }
 
 export function insertActiveScopeSlot(
@@ -239,10 +132,36 @@ export function insertActiveScopeSlot(
   slots: readonly number[],
   next: number
 ): readonly number[] {
-  if (slots.includes(next)) return slots;
-  return Object.freeze(sortedActiveScopeSlots(compiled, [...slots, next]));
+  const position = activeScopePosition(compiled, slots, next);
+  if (slots[position] === next) return slots;
+  return Object.freeze([...slots.slice(0, position), next, ...slots.slice(position)]);
 }
-
+export function removeActiveScopeSlot(
+  compiled: CompiledAdmissionGraph,
+  slots: readonly number[],
+  removed: number
+): readonly number[] {
+  const position = activeScopePosition(compiled, slots, removed);
+  if (slots[position] !== removed) return slots;
+  return Object.freeze([...slots.slice(0, position), ...slots.slice(position + 1)]);
+}
+function activeScopePosition(
+  compiled: CompiledAdmissionGraph,
+  slots: readonly number[],
+  scopeSlot: number
+): number {
+  let lower = 0;
+  let upper = slots.length;
+  while (lower < upper) {
+    const middle = lower + Math.floor((upper - lower) / 2);
+    const current = slots[middle];
+    if (current === undefined)
+      throw new Error("admission core active scope order has a missing slot");
+    if (compareScopeCapacityForCompiled(compiled, current, scopeSlot) < 0) lower = middle + 1;
+    else upper = middle;
+  }
+  return lower;
+}
 export function sortedActiveScopeSlots(
   compiled: CompiledAdmissionGraph,
   slots: readonly number[]
@@ -251,7 +170,6 @@ export function sortedActiveScopeSlots(
     [...slots].sort((left, right) => compareScopeCapacityForCompiled(compiled, left, right))
   );
 }
-
 export function compareScopeCapacityForCompiled(
   compiled: CompiledAdmissionGraph,
   left: number,
@@ -261,16 +179,14 @@ export function compareScopeCapacityForCompiled(
   const rightScope = requiredScopeForCompiled(compiled, right);
   return leftScope.maxParallel - rightScope.maxParallel || compareText(leftScope.id, rightScope.id);
 }
-
 export function requiredTaskSlotForCompiled(
   compiled: CompiledAdmissionGraph,
   taskId: string
 ): number {
-  const taskSlot = compiled.taskSlotsById.get(taskId);
-  if (taskSlot === undefined) throw new Error(`admission core task is unknown: ${taskId}`);
-  return taskSlot;
+  const slot = compiled.taskSlotsById.get(taskId);
+  if (slot === undefined) throw new Error(`admission core task is unknown: ${taskId}`);
+  return slot;
 }
-
 export function requiredScopeForCompiled(
   compiled: CompiledAdmissionGraph,
   scopeSlot: number
@@ -279,9 +195,56 @@ export function requiredScopeForCompiled(
   if (scope === undefined) throw new Error(`admission core scope slot is unknown: ${scopeSlot}`);
   return scope;
 }
-
 function compareText(left: string, right: string): number {
   if (left < right) return -1;
   if (left > right) return 1;
   return 0;
+}
+
+/** Status and relation-ready membership share the seed relation predicate. */
+function seedTaskMemberships(
+  statuses: readonly CoreTaskStatus[],
+  relations: AdmissionRelationFacts
+) {
+  const status = {
+    pending: PersistentSet<number>(),
+    running: PersistentSet<number>(),
+    settled: PersistentSet<number>()
+  };
+  for (const [slot, taskStatus] of statuses.entries())
+    if (taskStatus.kind !== "absent") status[taskStatus.kind] = status[taskStatus.kind].add(slot);
+  const relationReady = status.pending.filter(
+    (slot) => pendingRelationBlockerStageForSelection(relations, slot) === undefined
+  );
+  return Object.freeze({ status: Object.freeze(status), relationReady });
+}
+
+function seedScopeLifecycle(
+  compiled: CompiledAdmissionGraph,
+  statuses: StatusStore,
+  activeScopeIds: readonly string[] | undefined
+): ScopeLifecycle[] {
+  const activeIds = new Set(activeScopeIds ?? []);
+  return compiled.graph.scopes.map((scope) => {
+    if (
+      statusForStore(statuses, requiredTaskSlotForCompiled(compiled, scope.terminalTaskId)).kind ===
+      "settled"
+    )
+      return "closed";
+    return activeIds.has(scope.id) ? "active" : "inactive";
+  });
+}
+
+function seedForcedTaskSlots(
+  compiled: CompiledAdmissionGraph,
+  statuses: StatusStore,
+  counters: SeedTaskCounters
+): number[] {
+  return compiled.graph.tasks.flatMap((_, taskSlot) =>
+    statusForStore(statuses, taskSlot).kind === "pending" &&
+    counters.pendingDependencies[taskSlot] === 0 &&
+    (counters.nonCompletedDependencies[taskSlot] ?? 0) > 0
+      ? [taskSlot]
+      : []
+  );
 }

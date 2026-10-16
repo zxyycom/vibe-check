@@ -125,8 +125,11 @@ function decideTerminalSchedulerAction(
       trigger: Object.freeze({ kind: "cancellation-observed" })
     });
   }
-  const runningTaskCount = cycle.admissionCore.selection.runningTotal;
-  const pendingTaskCount = cycle.admissionCore.selection.remainingTaskCount - runningTaskCount;
+  const runningTaskCount = cycle.admissionCore.selection.memberships.status.running.size;
+  const pendingTaskCount =
+    cycle.admissionCore.selection.memberships.status.pending.size +
+    cycle.admissionCore.selection.memberships.status.running.size -
+    runningTaskCount;
   if (pendingTaskCount === 0 && runningTaskCount === 0) {
     return freezeDecisionWithContext(cycle.context, {
       cancelled: runtime.isCancelled,

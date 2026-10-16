@@ -51,6 +51,9 @@ factory 的 prepare/decide/terminal callbacks 使用具体 descriptor：prepare 
 activeScopeIds/candidates/capacity，recording 请求 execution/taskTimings；identityForTask/observe 保持直接业务输入。
 工具经普通公开 lifecycle 接线，不启用无消费者的 cumulative/actionHistory；
 history retention、样本、各层 comparator 与 observer 继续由上述 owner 维护。
+recording 使用已 admission 且已 settlement 的 timestamp 差值，按 helper 自身的有效样本与 settlement 规则筛选；
+不把 admission-delay 分类或 queue pressure 当作执行时长。collector 的增量分类、精确累计与 availability 由
+[Scheduler](scheduler.md#measurement-collector-与-immutable-context)拥有，helper 不读取私有 delta 或绕过公开 terminal context。
 
 ## Caller-keyed cache boundary
 

@@ -41,7 +41,7 @@ Core 共 27 个 `.ts` 文件，排除 7 个 `.test.ts` 和 1 个 `.test-support.
 
 - graph/validation：[`graph.ts`](../../../../src/project-run/task-scheduler/graph.ts)、[`graph-validation.ts`](../../../../src/project-run/task-scheduler/graph-validation.ts)。
 - shell/lifecycle：[`execution-state.ts`](../../../../src/project-run/task-scheduler/execution-state.ts)、[`scheduler.ts`](../../../../src/project-run/task-scheduler/scheduler.ts)、[`scheduler-task-lifecycle.ts`](../../../../src/project-run/task-scheduler/scheduler-task-lifecycle.ts)、[`forced-block-effect-replay.ts`](../../../../src/project-run/task-scheduler/forced-block-effect-replay.ts)。
-- decision/policy：[`scheduler-decision.ts`](../../../../src/project-run/task-scheduler/scheduler-decision.ts)、[`scheduler-admission-decision.ts`](../../../../src/project-run/task-scheduler/scheduler-admission-decision.ts)、[`admission-selection-policy.ts`](../../../../src/project-run/task-scheduler/admission-selection-policy.ts)、[`admission-scope-layers.ts`](../../../../src/project-run/task-scheduler/admission-scope-layers.ts)。
+- decision/policy：[`scheduler-decision.ts`](../../../../src/project-run/task-scheduler/scheduler-decision.ts)、[`scheduler-admission-decision.ts`](../../../../src/project-run/task-scheduler/scheduler-admission-decision.ts)、[`admission-selection-policy.ts`](../../../../src/project-run/task-scheduler/admission-selection-policy.ts)、`src/project-run/task-scheduler/admission-scope-layers.ts`（形成时文件，后续删除，见报告形成时源码版本）。
 
 ## 身份、生命周期和成本记法
 

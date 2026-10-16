@@ -81,5 +81,6 @@ Promise 会被忽略，返回的 Promise 不会被 await，因此 callback 可�
 这些 helper 状态独立于 Product 的 diagnostic channels、output statuses、Check facts、machine output 和 `RunResult`。
 
 策略在 prepare 时显式请求 graph，decision 请求 activeScopeIds/candidates/capacity，样本记录请求 execution/taskTimings；不启用无消费者的累计或 action history。
+history 样本使用实际 admission 到 settlement 的有效时长；等待 admission 的 delay 不计入执行时长，timing unavailable 时不录入新样本。
 具体返回的 callbacks 是 descriptor，直接调用使用 `.callback` 并自行提供所需 context；identityForTask/observe 保持原业务签名。
 策略只在既有 selection layer 比较 score；Scheduler 仍重检[准入约束](scheduling.md)。实际运行成本取决于 graph、history 和 observer，应在目标 workload 上测量；history 优化不代表 [Run 或 Check 质量通过](../api-mechanics.md#runresult-分支)。

@@ -1,0 +1,35 @@
+{
+  "sourceLevelMeasuredTreeDigest": "c15611bd51afcdb393155c6a25ecc9d56f2c132d1766322494e9a61d74919629",
+  "schedulerDigestReportedByRoot": "dbd429adf76f6f99c887ccc2b633a89f201a6fb66aa884fd2325e888b7e760fc",
+  "preTimingGate": {
+    "executedBy": "root",
+    "command": "mise exec -- bun run check -- --all",
+    "passed": 43,
+    "total": 43,
+    "candidate": "0.0.0-local.45845dd3dad8",
+    "receipt": ".log/project-gate/2026-10-16T10-28-55.082Z-3817148-a5564807-a5ae-4b27-b3d8-821d95657d43",
+    "boundary": "Includes fresh isolated manifest mnemonist runtime/docs/types; separate artifact evidence, not this source performance runner"
+  },
+  "postOptimizationReview": {
+    "executedBy": "independent reviewer",
+    "passedTests": 16,
+    "files": 7,
+    "extraOracle": {
+      "graphs": 200,
+      "transitions": 4583,
+      "ratios": 5000,
+      "scaledRoundingChecks": 9992
+    }
+  },
+  "finalReplay": {
+    "result": "query-candidate-correctness-replay-v2.json",
+    "comparedBoundaries": 37,
+    "passed": true,
+    "adaptation": "Local original liveness helper and final capacity owner, not a complete recovered intermediate tree"
+  },
+  "candidateProof": {
+    "path": "numeric/accuracy-proof.md",
+    "role": "Historical independently frozen candidate proof bytes; stable invariants remain Scheduler owner",
+    "edited": false
+  }
+}

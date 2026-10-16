@@ -1,0 +1,8 @@
+{
+  "sourceTreeDigest": "d669c9b5687febee8c1de9efc4c064be152fdfbe9f422eb36a24b2152bd3949d",
+  "originalSourcePath": "src/project-run/task-scheduler/admission-core/static-selection-query.ts",
+  "expectedSourceSha256": "c3c6ad3b648f8383c34a0672b1c9cd2610440a731ae786d7ba8e3b4ee8c8df85",
+  "reconstructedSourceSha256": "c3c6ad3b648f8383c34a0672b1c9cd2610440a731ae786d7ba8e3b4ee8c8df85",
+  "exactMatch": true,
+  "note": "Reconstructed pre-adoption query owner bytes; replay control remaps only imports and export name. Its helper dependencies in replay come from final B, not a recovered original full intermediate source tree."
+}

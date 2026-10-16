@@ -35,6 +35,8 @@ Core transition 统一维护源事实并传播 typed delta；成员查询、有�
 - 更换统计算法允许舍入结果不同，须保持分类、单位、采样归属和确定的 availability；公开快照不受读取顺序影响。
 - 更新 Scheduler 内部说明、受影响的调度/推演指南、统计投影说明和测试证据；learned 消费者与终态交付做回归验收。
 - 与其它 Scheduler 工作串行修改共享源码、Case 和稳定文档；采用开始时的稳定提交建立性能 baseline。
+- 修复本轮 trace 验收已确认的初始 viability 统计错误与取消后重复 forced settlement；按现行 owner 定义验证，并分别保留回归与调查证据。
+- 查询使用现有 Mnemonist Heap 后，同步正式发布 manifest 的直接运行时依赖，并以隔离消费者验证实际安装。
 
 ## Success Criteria
 

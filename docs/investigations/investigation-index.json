@@ -2310,6 +2310,40 @@
         "project-definition"
       ],
       "title": "无效 Check 声明提前拒绝与兼容性验证"
+    },
+    "261016-correct-scheduler-cancel-forced-settlement": {
+      "formedAt": "2026-10-16T09:57:59Z",
+      "name": "correct-scheduler-cancel-forced-settlement",
+      "question": "为何取消 pending 依赖链后 drain running Task 会再次 blocked 已取消 Task 并抛错？",
+      "relations": [],
+      "resourceIds": [
+        "261016-correct-scheduler-cancel-forced-settlement/observations.json",
+        "261016-correct-scheduler-cancel-forced-settlement/reproducer.ts"
+      ],
+      "sourcePath": "correct-scheduler-cancel-forced-settlement.md",
+      "tags": [
+        "cancellation",
+        "correctness",
+        "scheduler"
+      ],
+      "title": "修正取消链 stale forced entry 的重复结算"
+    },
+    "261016-correct-scheduler-seed-viability": {
+      "formedAt": "2026-10-16T09:57:53Z",
+      "name": "correct-scheduler-seed-viability",
+      "question": "为何从未 admission-viable 的 pending Task 会抬高 seed peak 并累计 admissible delay？",
+      "relations": [],
+      "resourceIds": [
+        "261016-correct-scheduler-seed-viability/observations.json",
+        "261016-correct-scheduler-seed-viability/reproducer.ts"
+      ],
+      "sourcePath": "correct-scheduler-seed-viability.md",
+      "tags": [
+        "correctness",
+        "measurement",
+        "scheduler"
+      ],
+      "title": "修正预准入未满足依赖的队列统计"
     }
   },
   "metadata": {},
@@ -2397,7 +2431,9 @@
       "261013-evaluate-markdown-path-cursor": "sha256:d358687b9c5034d36ea805648003e01ef33a33bbcc129de084e5dd0fac99cc12",
       "261015-audit-scheduler-incremental-state-model": "sha256:e84b7a052bf19355d6f0bcd874d2aae9f267533a9d25c19d9997857ba1f04094",
       "261015-evaluate-strict-json-parser-replacement": "sha256:c4d1a4cc8a281d7d42bcc6fe423f4c04007f10f624db70a3ff108c88ccdf9a65",
-      "261015-verify-invalid-check-tree-early-rejection": "sha256:367a0c9d9afbde6b6e3c9f2a18fb4d89e694346eb41dfb9687f282962b569fe9"
+      "261015-verify-invalid-check-tree-early-rejection": "sha256:367a0c9d9afbde6b6e3c9f2a18fb4d89e694346eb41dfb9687f282962b569fe9",
+      "261016-correct-scheduler-cancel-forced-settlement": "sha256:dfd2cd084f1f5a85445aafd0004a36f4cc1b30b2b3866e34c057eb36a72c9bb8",
+      "261016-correct-scheduler-seed-viability": "sha256:2d4b68e214c11e7ca7dcfafe338ed1c0a227c6ed8812076a8bc373af4f5dcd54"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

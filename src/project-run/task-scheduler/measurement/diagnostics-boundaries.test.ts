@@ -5,12 +5,20 @@ import type { DiagnosticObservation } from "../../diagnostic-logging/logger.ts";
 import { runTaskGraph } from "../scheduler.ts";
 import { recordingLogger, schedulerSummary, scriptedClock } from "../task-engine.test-support.ts";
 import { SchedulerPerformanceIntegrals } from "./integrals.ts";
-import type { AdmissionViablePendingTask } from "./diagnostics.ts";
+import { SchedulerQueueMeasurements } from "./queue.ts";
+import { binaryTimeUnits } from "./exact-time.ts";
+import { roundDelay } from "./exact-contributions.ts";
+import { prepareExecutableTaskGraph } from "../graph.ts";
+import {
+  compilePreparedAdmissionGraph,
+  createInitialAdmissionCoreState,
+  selectAdmissionCore
+} from "../admission-core/core.ts";
 import { DECLARATIVE_FINGERPRINT, enabledDiagnostics } from "./diagnostics.test-support.ts";
 
 describe("Scheduler performance diagnostics", () => {
   it("distinguishes a valid zero-span summary from unavailable timing and retains discrete facts", async () => {
-    assertSinglePassCategoryCounts();
+    assertQueueCategoryContributions();
     const emptyClock = scriptedClock();
     const emptyObservations: DiagnosticObservation[] = [];
     await runTaskGraph({
@@ -105,46 +113,53 @@ describe("Scheduler performance diagnostics", () => {
   });
 });
 
-/** Counting categories is one pass; exact per-Task interval accumulation stays unchanged. */
-function assertSinglePassCategoryCounts(): void {
-  let kindReads = 0;
-  const kinds: readonly AdmissionViablePendingTask["kind"][] = [
-    "mutex-blocked",
-    "capacity-blocked",
-    "admissible-pending"
-  ];
-  const pendingTasks: AdmissionViablePendingTask[] = kinds.map((kind, slot) => ({
-    taskId: `pending-${slot}`,
-    get kind() {
-      kindReads += 1;
-      return kind;
-    }
-  }));
-  const integrals = new SchedulerPerformanceIntegrals({
-    cumulative: true,
-    actionHistory: true,
-    runMeasurement: true,
-    taskTimings: true
-  });
-  integrals.installPendingProjection(pendingTasks, true);
-  assert.equal(kindReads, pendingTasks.length);
-  assert.deepEqual(integrals.peaks(), {
+/** Independent mutex/resource constraints produce three mutually exclusive quarter-ms contributions. */
+function assertQueueCategoryContributions(): void {
+  const prepared = prepareExecutableTaskGraph(
+    {
+      resourceCapacities: { r: 1 },
+      tasks: [
+        { id: "holder", mutex: ["m"], resourceClaims: { r: 1 } },
+        { id: "mutex", mutex: ["m"] },
+        { id: "capacity", resourceClaims: { r: 1 } },
+        { id: "admissible" }
+      ]
+    },
+    2
+  );
+  const selection = selectAdmissionCore(
+    createInitialAdmissionCoreState(compilePreparedAdmissionGraph(prepared.graph, 2)),
+    "holder"
+  );
+  assert.equal(selection.accepted, true);
+  if (!selection.accepted) throw new Error("holder selection was rejected");
+  const core = selection.transition.state;
+  const queue = new SchedulerQueueMeasurements(core, { delays: true, peaks: true });
+  const integrals = new SchedulerPerformanceIntegrals(
+    {
+      cumulative: true,
+      actionHistory: true,
+      runMeasurement: true,
+      taskTimings: true
+    },
+    queue
+  );
+  assert.deepEqual(queue.peaks(), {
     admissionViablePendingTaskCount: 3,
     admissiblePendingTaskCount: 1,
     capacityBlockedTaskCount: 1,
     mutexBlockedTaskCount: 1
   });
-  kindReads = 0;
   assert.equal(
-    integrals.addInterval(0.25, {
-      admissionViablePendingTasks: pendingTasks,
+    integrals.addInterval(binaryTimeUnits(0.25), {
+      core,
       effectiveMaxParallel: 2,
       rootMaxParallel: 4,
       running: 1
     }),
     true
   );
-  assert.equal(kindReads, pendingTasks.length * 2);
+  queue.addInterval(binaryTimeUnits(0.25));
   assert.deepEqual(integrals.totals(), {
     acceptedWaitMs: 0,
     admissiblePendingTaskMs: 0.25,
@@ -154,7 +169,9 @@ function assertSinglePassCategoryCounts(): void {
     rootCapacitySlotMs: 1,
     taskSlotMs: 0.25
   });
-  assert.deepEqual(integrals.takeAdmissionDelay("pending-1"), {
+  const delay = queue.takeAdmissionDelay("capacity");
+  assert.ok(delay);
+  assert.deepEqual(roundDelay(delay), {
     admissiblePendingMs: 0,
     capacityBlockedMs: 0.25,
     mutexBlockedMs: 0
