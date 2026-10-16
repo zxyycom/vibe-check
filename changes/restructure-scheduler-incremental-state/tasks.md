@@ -7,7 +7,10 @@
 - [x] 0.1 审计目标、责任与现状：以结构普查、Scheduler/公开指南及当前 transition/frontier/integrals/timing 源码确认 B 的输入，区分重复传播、成员索引与独立有序视图。
 - [x] 0.2 收敛语义与实验边界：design 已明确保持/允许变化表、固定 trace 数值参考、确定的 availability 检查点、性能分轨和候选失败出口；内部选型不再作为用户待决问题。
 - [x] 0.3 独立审查三个 artifacts：仅凭计划可恢复 Outcome、owner、完整上下文先行顺序、第一步实施动作及验证判据；清除冲突、过程残留与无证据的完成声明。
-- [ ] 0.4 上下文 Change 已完整实现、迁移、验收并进入当前 `main` 稳定提交；核对实际字段、固定需求时点、按需生产开关与本 Plan 距离，再记录本项源码 baseline。
+- [x] 0.4 上下文 Change 已完整实现、迁移、验收并进入当前 `main` 稳定提交；核对实际字段、固定需求时点、按需生产开关与本 Plan 距离，再记录本项源码 baseline。
+
+前置源码交付为 `de9cf844534b1b799b9c7e0dd75f7ff0dfba7c14`，完整 Gate 43/43 通过；四组生产边界与精确视图已独立复核。
+本 Plan 已按该交付复核；任务 1.1 另冻结结项清理后的实际测量 revision、workload 与命令。
 
 ## Implementation
 

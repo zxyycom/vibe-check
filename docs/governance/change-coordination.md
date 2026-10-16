@@ -148,15 +148,15 @@ owner 时，实施与提交必须串行。
 
 ### 全局声明式上下文与 Scheduler 底层重构
 
-按“完整上下文交付 → 完整底层重构”串行推进；各项的实施步骤与门禁由自身 tasks 拥有。
+声明式上下文已交付，当前契约由 [API 机制](../api-mechanics.md#声明式-callback-context)与
+[调度指南](../guides/scheduling.md)拥有。底层重构从该稳定交付建立基线，实施步骤与门禁由自身 tasks 拥有。
 
 | 当前 Change | 独立交付与进入条件 |
 | --- | --- |
-| [`adopt-declarative-callback-contexts`](../../changes/adopt-declarative-callback-contexts/proposal.md) | 完成框架注入字段的通用声明 helper、固定需求、按需生产、每消费者精确视图，以及 breaking API 迁移和验收；使用现有 Scheduler 能力独立交付。 |
 | [`restructure-scheduler-incremental-state`](../../changes/restructure-scheduler-incremental-state/proposal.md) | 上下文交付并提交后，复核该基线，完成 typed 成员索引、统一变化传播、查询与等待统计的独立重构和验收。 |
 
 共享 Scheduler、Definition、Invocation、公开类型、Case 和稳定文档的写入与提交串行协调。
-上下文项承接必要的局部 producer 拆分；底层项优化已请求数据的维护和计算。若发现必须共同交付的原子改动，先重审 Change 边界。
+底层项优化已请求数据的维护和计算，不重新打开已交付上下文 API 或把需求开关迁移混入性能结论。
 
 ### Scheduler 证据队列
 

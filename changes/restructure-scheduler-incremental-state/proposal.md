@@ -25,9 +25,9 @@ Core transition 统一维护源事实并传播 typed delta；成员查询、有�
 - 让 shell、query/projection 和 measurement 消费同源变化，明确完整输出与动态 gate 的必要读取成本。
 - 优化已开启统计的分类、积分、逐 Task 等待和快照读取；以固定 trace 验证计算，以真实重复运行评价性能。
 
-执行顺序是完整交付[声明式上下文 Change](../adopt-declarative-callback-contexts/proposal.md)，
-再复核本项基线、实施与验收。前项拥有全部上下文 API、需求开关和消费者迁移；本项使用交付后的固定需求，
-优化被请求数据的维护方式。两项各自有完整完成出口。
+本项以上下文 API、需求开关和消费者迁移已完成为前置条件，使用
+[声明式 callback context](../../docs/api-mechanics.md#声明式-callback-context)的固定需求，
+优化被请求数据的维护方式。实施前复核稳定源码基线，独立完成本项验收。
 
 ### Resulting Impacts
 
