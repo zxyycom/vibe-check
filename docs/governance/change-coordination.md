@@ -35,68 +35,7 @@ artifacts 决定。
 | --- | --- | --- |
 | P1 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
 
-Waiver 可省略实现由[公开指南](../guides/finding-waivers.md#输入与默认值)承接；
-[`audit-public-authoring-optional-fields`](../../changes/audit-public-authoring-optional-fields/proposal.md)保留其独立验收与结项入口。
-
-### 有界性能优化交接
-
-以下三个切面分别保留实施计划与独立调查证据。当前工作按各自 Plan 交接、验收和提交；
-共享 Gate 配置、知识索引与本页串行维护，其它性能候选仍按各自进入条件处理。
-
-| 当前 Change | 写入与验收边界 |
-| --- | --- |
-| [`optimize-project-file-selection-cost`](../../changes/optimize-project-file-selection-cost/proposal.md) | 共同文件收集的 operation-local membership；保留原生列表语义、默认排除、路径身份与访问失败边界。 |
-| [`optimize-run-projection-cost`](../../changes/optimize-run-projection-cost/proposal.md) | 共同 Run 的重复投影；保留 immutable context、声明顺序、measurement、取消与 drain，不改变策略。 |
-| [`bound-function-metrics-tokenization-cost`](../../changes/bound-function-metrics-tokenization-cost/proposal.md) | private Lizard port 的有界尾部防护；独立 Decision、来源偏差与完整 tokenizer/lifecycle 证据共同约束采用，维持现有 Worker 取消协议。 |
-
-三个源码 owner 不重叠，可在隔离写入范围内实施；性能计时串行独占，不与行为测试、profile、构建或 Gate 混跑。
-Case 账本、来源映射、知识索引与本协调页由主线程串行协调；package candidate 准备、required 与 complete Gate 统一在源码稳定后执行。
-每项收益与语义分别验收，共同 Gate 只证明组合验收。提交与 Change 结项删除分别按当前任务授权执行。
-
-### 按需上下文与准备事实优化
-
-本轮三个 Change 各自拥有独立 Outcome；局部 exact-key membership 与 Markdown component cursor 改动
-按各自源码 owner 直接验收，不扩张旧性能 Plan。Git 提交与 Change 结项删除分别由当前任务明确授权；
-已启用 hook 的受限自动推送遵循[工作区提交规则](../tooling/workspace.md#local-post-commit-auto-push)。
-
-| 当前 Change | 写入与验收边界 |
-| --- | --- |
-| [`declare-scheduler-context-needs`](../../changes/declare-scheduler-context-needs/proposal.md) | Scheduler 消费者可选需求声明、阶段内 union 与按需投影；旧回调保留 full context，terminal delivery 与 measurement demand 分离。 |
-| [`reuse-invocation-prepared-facts`](../../changes/reuse-invocation-prepared-facts/proposal.md) | 单次 Run 已验证 Definition 与 prepared graph 的私有交接；不跨 Run 缓存，不改变取消、Git、prepare 或 flag-control 顺序。 |
-| [`isolate-duplicate-scan-cache-identity`](../../changes/isolate-duplicate-scan-cache-identity/proposal.md) | Duplicate 扫描输入与 cache-only identity 分离；cache-off/no-work 不取得无消费者的身份，保留 scanner 与缓存验收。 |
-
-三者不存在互相交付后才能成立的硬前置。需求声明与准备事实复用触及 Definition、Invocation 和 Scheduler
-相同文件，先审阅 handoff 接口，再由准备事实切面完成共享入口写入、冻结局部 diff 后交给需求声明切面；
-这是共享 owner 的串行写入约束，不以未提交改动解除硬前置。各自设计与不重叠的局部实现可以并行。
-Duplicate 的实现范围独立，但共享 Case、知识索引、稳定文档和本页由主线程安排唯一写入者。
-正式计时继续独占串行；公共 API、package material 和完整 Gate 在全部输入稳定后统一验收。
-
-### Scheduler Core 补完与 Markdown 缓存提醒
-
-以下两项 Change 各自验收独立 Outcome，没有互相交付才能成立的硬前置；它们不扩张旧性能 Plan。
-
-| 当前 Change | 写入与验收边界 |
-| --- | --- |
-| [`warn-markdown-link-cache-capacity`](../../changes/warn-markdown-link-cache-capacity/proposal.md) | Markdown 专属可配置容量提醒，只消费首次 restore 已读 bytes；保留显式 cache、退化、Findings、Records 与 settlement。 |
-| [`unify-scheduler-core-state-queries`](../../changes/unify-scheduler-core-state-queries/proposal.md) | 真实执行与推演共用 Core 状态、判断和查询，移除 Shell 镜像与重复 seed；保留合法投影差异、hard guards、forced effects 与按需 instrumentation。 |
-
-源码 owner 相互独立；Case 账本、派生知识索引和本页共享，分别安排唯一写入者。文档与代码审查按文件范围隔离；
-独立反查仍须以实际实现 diff 核对公开和内部 owner。历史报告仅修正 Decision 移位后的链接，保留形成时结论。
-公共材料及完整 Gate 在全部输入稳定后统一验收，Git 提交与 Change 结项删除分别依当前任务授权执行。
-Scheduler 补完落实现有 immutable state 与需求声明方向，不启动旧
-[`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)，也不改变默认策略。
-
-### Scheduler frontier 与 Gate 测试成本
-
-以下两项在当前 `main` 基线独立实施，分别验收 Core 消费成本和测试成本；它们不改变策略或公共契约。
-
-| 当前 Change | 写入与验收边界 |
-| --- | --- |
-| [`optimize-scheduler-frontier-consumption`](../../changes/optimize-scheduler-frontier-consumption/proposal.md) | Core 约束分组、静态 frontier 消费与动态 mutex facts；保留策略层级、公开完整投影和不可变分支。 |
-| [`reduce-gate-test-fixture-and-probe-cost`](../../changes/reduce-gate-test-fixture-and-probe-cost/proposal.md) | 隔离 probe sequence 与 workspace adapter 路由证据；保留真实 CLI/validator 证明、Check 粒度和工程门槛。 |
-
-两个源码 owner 可并行；Case 账本和本页串行维护，性能采样独占且不与测试、profile 或 Gate 混跑。
-全部输入稳定后统一 candidate-backed 验收；提交与 Change 结项删除分别按当前任务授权执行。
+Waiver 可省略实现由[公开指南](../guides/finding-waivers.md#输入与默认值)承接。
 
 ### 并行与提交边界
 
@@ -105,7 +44,6 @@ owner 时，实施与提交必须串行。
 
 | 轨道 | 可并行工作 | 实施前置与共享边界 |
 | --- | --- | --- |
-| Public authoring optional fields | config package 设计讨论、scheduler 证据 | 实现已由当前基线继承；独立结项与其它字段不自动进入发布，后续改动按公共声明、工具 owner、Case 与 package material 的实际重叠串行。 |
 | Config packages | scheduler 证据、公开 API 使用调查 | 需要真实组合成本证据，且会改变 package authoring/Definition owner。 |
 | Scheduler evidence queue | 文档和独立 corpus 调查 | 若改 scheduler/runtime，按以下证据队列内部顺序串行。 |
 
@@ -187,24 +125,6 @@ pending outcome、observer 与 drain 语义后才能激活。若它先激活，�
 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 命名 consumer、安全 input acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据齐备；恢复时重新形成 Plan。 |
 | [`decide-file-metrics-public-scc-expansion`](../../changes/decide-file-metrics-public-scc-expansion/proposal.md) | 出现当前 executable-only contract 无法满足的具体 consumer outcome，再评审独立 public contract。 |
 | [`refine-agent-document-routing`](../../changes/refine-agent-document-routing/proposal.md) | 用户明确恢复后，以代表性任务重新评估 AGENTS、导航和领域 owner 的路由边界。 |
-
-### 普查后的语义保持成本优化
-
-下列 Change 分别验收声明处理、文件匹配、调度、learned helper 与工具链的重复成本。
-无效声明的提前配置失败由独立 Decision 约束；其余切面保持既有行为，旧 learned backfill 实验仍按前述证据队列进入条件处理：
-
-| 当前 Change | 写入与验收边界 |
-| --- | --- |
-| [`bound-check-tree-processing-cost`](../../changes/bound-check-tree-processing-cost/proposal.md) | 声明解析与继承集合；重复 executable ID 提前配置失败由[独立决策](../decisions/reject-duplicate-executable-checks-before-expansion.md)约束，合法树行为不变。 |
-| [`reduce-project-file-matching-work`](../../changes/reduce-project-file-matching-work/proposal.md) | 深路径前缀与窄 literal selection；原生 pattern fallback、默认排除、文件身份与授权保持。 |
-| [`reduce-scheduler-repeated-work`](../../changes/reduce-scheduler-repeated-work/proposal.md) | 图验证、Shell membership 与精确 measurement 的局部重复工作；不改变结算顺序、浮点累加顺序和 immutable 分支。 |
-| [`reduce-learned-strategy-computation`](../../changes/reduce-learned-strategy-computation/proposal.md) | 私有候选计算与 fallback 索引；保留层序、comparator、first-only wait 和公开 callable 回调保证。 |
-| [`reduce-tooling-repeated-work`](../../changes/reduce-tooling-repeated-work/proposal.md) | 文档、package、Gate、workbench 和验证工具的局部索引与一次拼接；不跳过完整性或安全验收。 |
-
-源码写入按 owner 互斥；共享 Case Topic、知识索引与本页安排唯一写入者。性能计时独占，
-与测试、计数、构建和 Gate 分开；输入稳定后统一运行 candidate-backed required 与 complete Gate，并由非实施代理
-按实际 diff 反查行为和文档。Analyzer、缓存容量管理、schema 跨 binding 快照、默认 timeout 与安全探测在这些 Change 范围之外。
-提交与结项分别遵循下文[Worktree 与合入规则](#worktree-与合入规则)和当前任务授权。
 
 ## Worktree 与合入规则
 
