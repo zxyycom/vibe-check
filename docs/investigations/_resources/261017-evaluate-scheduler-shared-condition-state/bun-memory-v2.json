@@ -1,0 +1,564 @@
+{
+  "metadata": {
+    "runtime": "Bun 1.3.14",
+    "date": "2026-10-17T02:43:42.689Z",
+    "mode": "memory-fresh-process-v2",
+    "samplesPerRow": 1,
+    "gcPasses": 3,
+    "retained": "input + compiled graph + final + initial and source-settlement prefix"
+  },
+  "rows": [
+    {
+      "shape": "cohort",
+      "n": 256,
+      "mode": "eager",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 256,
+      "before": {
+        "rss": 42979328,
+        "heapTotal": 1438720,
+        "heapUsed": 489985,
+        "external": 231676,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 51761152,
+        "heapTotal": 2160640,
+        "heapUsed": 489985,
+        "external": 528738,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "cohort",
+      "n": 256,
+      "mode": "shared",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 256,
+      "before": {
+        "rss": 42876928,
+        "heapTotal": 1437696,
+        "heapUsed": 488747,
+        "external": 233475,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 48775168,
+        "heapTotal": 1865728,
+        "heapUsed": 488747,
+        "external": 468507,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "multi",
+      "n": 256,
+      "mode": "eager",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 256,
+      "before": {
+        "rss": 42942464,
+        "heapTotal": 1438720,
+        "heapUsed": 487963,
+        "external": 231680,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 56311808,
+        "heapTotal": 2340864,
+        "heapUsed": 487963,
+        "external": 536158,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "multi",
+      "n": 256,
+      "mode": "shared",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 256,
+      "before": {
+        "rss": 42999808,
+        "heapTotal": 1437696,
+        "heapUsed": 488747,
+        "external": 231682,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 49164288,
+        "heapTotal": 1849344,
+        "heapUsed": 488747,
+        "external": 471170,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "unique",
+      "n": 256,
+      "mode": "eager",
+      "sources": 256,
+      "retainedStates": 257,
+      "checksum": 256,
+      "before": {
+        "rss": 45563904,
+        "heapTotal": 1520640,
+        "heapUsed": 488747,
+        "external": 235158,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 60375040,
+        "heapTotal": 4126720,
+        "heapUsed": 488747,
+        "external": 651356,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "unique",
+      "n": 256,
+      "mode": "shared",
+      "sources": 256,
+      "retainedStates": 257,
+      "checksum": 256,
+      "before": {
+        "rss": 43327488,
+        "heapTotal": 1520640,
+        "heapUsed": 488747,
+        "external": 233475,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 59842560,
+        "heapTotal": 4126720,
+        "heapUsed": 488747,
+        "external": 628428,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "overlap",
+      "n": 256,
+      "mode": "eager",
+      "sources": 256,
+      "retainedStates": 257,
+      "checksum": 256,
+      "before": {
+        "rss": 42921984,
+        "heapTotal": 1520640,
+        "heapUsed": 487179,
+        "external": 235005,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 60092416,
+        "heapTotal": 4175872,
+        "heapUsed": 487179,
+        "external": 620023,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "overlap",
+      "n": 256,
+      "mode": "shared",
+      "sources": 256,
+      "retainedStates": 257,
+      "checksum": 256,
+      "before": {
+        "rss": 42737664,
+        "heapTotal": 1519616,
+        "heapUsed": 488811,
+        "external": 233479,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 59777024,
+        "heapTotal": 4192256,
+        "heapUsed": 488811,
+        "external": 596012,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "cross",
+      "n": 256,
+      "mode": "eager",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 256,
+      "before": {
+        "rss": 42999808,
+        "heapTotal": 1437696,
+        "heapUsed": 487963,
+        "external": 233473,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 55320576,
+        "heapTotal": 2570240,
+        "heapUsed": 487963,
+        "external": 544688,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "cross",
+      "n": 256,
+      "mode": "shared",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 256,
+      "before": {
+        "rss": 42672128,
+        "heapTotal": 1438720,
+        "heapUsed": 488027,
+        "external": 231676,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 51716096,
+        "heapTotal": 2275328,
+        "heapUsed": 488027,
+        "external": 481324,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "split",
+      "n": 256,
+      "mode": "eager",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 256,
+      "before": {
+        "rss": 43130880,
+        "heapTotal": 1438720,
+        "heapUsed": 487963,
+        "external": 231681,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 54665216,
+        "heapTotal": 2177024,
+        "heapUsed": 487963,
+        "external": 538315,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "split",
+      "n": 256,
+      "mode": "shared",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 256,
+      "before": {
+        "rss": 43110400,
+        "heapTotal": 1438720,
+        "heapUsed": 488747,
+        "external": 231688,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 49467392,
+        "heapTotal": 1800192,
+        "heapUsed": 488747,
+        "external": 478320,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "cohort",
+      "n": 1024,
+      "mode": "eager",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 1024,
+      "before": {
+        "rss": 43458560,
+        "heapTotal": 1553408,
+        "heapUsed": 488747,
+        "external": 239875,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 61546496,
+        "heapTotal": 3880960,
+        "heapUsed": 488747,
+        "external": 576053,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "cohort",
+      "n": 1024,
+      "mode": "shared",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 1024,
+      "before": {
+        "rss": 43261952,
+        "heapTotal": 1553408,
+        "heapUsed": 488747,
+        "external": 233470,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 52043776,
+        "heapTotal": 2734080,
+        "heapUsed": 488747,
+        "external": 488310,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "multi",
+      "n": 1024,
+      "mode": "eager",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 1024,
+      "before": {
+        "rss": 43458560,
+        "heapTotal": 1520640,
+        "heapUsed": 488747,
+        "external": 239874,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 65871872,
+        "heapTotal": 4290560,
+        "heapUsed": 488747,
+        "external": 581620,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "multi",
+      "n": 1024,
+      "mode": "shared",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 1024,
+      "before": {
+        "rss": 43122688,
+        "heapTotal": 1520640,
+        "heapUsed": 488747,
+        "external": 239875,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 52297728,
+        "heapTotal": 2701312,
+        "heapUsed": 488747,
+        "external": 482171,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "unique",
+      "n": 1024,
+      "mode": "eager",
+      "sources": 1024,
+      "retainedStates": 1025,
+      "checksum": 1024,
+      "before": {
+        "rss": 46329856,
+        "heapTotal": 1766400,
+        "heapUsed": 487963,
+        "external": 249859,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 86175744,
+        "heapTotal": 12498944,
+        "heapUsed": 487963,
+        "external": 677333,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "unique",
+      "n": 1024,
+      "mode": "shared",
+      "sources": 1024,
+      "retainedStates": 1025,
+      "checksum": 1024,
+      "before": {
+        "rss": 46342144,
+        "heapTotal": 1766400,
+        "heapUsed": 489985,
+        "external": 249860,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 81862656,
+        "heapTotal": 12679168,
+        "heapUsed": 489985,
+        "external": 679865,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "overlap",
+      "n": 1024,
+      "mode": "eager",
+      "sources": 1024,
+      "retainedStates": 1025,
+      "checksum": 1024,
+      "before": {
+        "rss": 46481408,
+        "heapTotal": 1766400,
+        "heapUsed": 488747,
+        "external": 250116,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 88686592,
+        "heapTotal": 12711936,
+        "heapUsed": 488747,
+        "external": 679398,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "overlap",
+      "n": 1024,
+      "mode": "shared",
+      "sources": 1024,
+      "retainedStates": 1025,
+      "checksum": 1024,
+      "before": {
+        "rss": 46194688,
+        "heapTotal": 1766400,
+        "heapUsed": 488747,
+        "external": 250117,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 84729856,
+        "heapTotal": 12924928,
+        "heapUsed": 488747,
+        "external": 680634,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "cross",
+      "n": 1024,
+      "mode": "eager",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 1024,
+      "before": {
+        "rss": 43196416,
+        "heapTotal": 1520640,
+        "heapUsed": 488747,
+        "external": 239874,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 66265088,
+        "heapTotal": 5404672,
+        "heapUsed": 488747,
+        "external": 592369,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "cross",
+      "n": 1024,
+      "mode": "shared",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 1024,
+      "before": {
+        "rss": 43188224,
+        "heapTotal": 1520640,
+        "heapUsed": 490203,
+        "external": 239874,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 59375616,
+        "heapTotal": 4519936,
+        "heapUsed": 490203,
+        "external": 551366,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "split",
+      "n": 1024,
+      "mode": "eager",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 1024,
+      "before": {
+        "rss": 43458560,
+        "heapTotal": 1520640,
+        "heapUsed": 488777,
+        "external": 239874,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 62988288,
+        "heapTotal": 3848192,
+        "heapUsed": 488777,
+        "external": 581072,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    },
+    {
+      "shape": "split",
+      "n": 1024,
+      "mode": "shared",
+      "sources": 8,
+      "retainedStates": 9,
+      "checksum": 1024,
+      "before": {
+        "rss": 43335680,
+        "heapTotal": 1520640,
+        "heapUsed": 488747,
+        "external": 239875,
+        "arrayBuffers": 0
+      },
+      "after": {
+        "rss": 51986432,
+        "heapTotal": 2504704,
+        "heapUsed": 488747,
+        "external": 483051,
+        "arrayBuffers": 0
+      },
+      "heapDeltaBytes": 0
+    }
+  ]
+}

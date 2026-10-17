@@ -1,0 +1,261 @@
+{
+  "mode": "correctness-and-operation-counts",
+  "traces": 39,
+  "boundaries": 1324,
+  "retainedSnapshotChecks": 47878,
+  "seed": 261017,
+  "realCounts": [
+    {
+      "shape": "cohort",
+      "n": 1024,
+      "sources": 8,
+      "product": {
+        "counterWrites": 1024,
+        "relationReadyAdds": 1024,
+        "effects": 8
+      },
+      "models": {
+        "eager": {
+          "groups": 1032,
+          "cells": 4,
+          "counterWrites": 1024,
+          "counterEvents": 1024,
+          "gateOpens": 1024,
+          "cellWakeups": 4,
+          "membersReadyInserts": 1024,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        },
+        "shared": {
+          "groups": 2,
+          "cells": 5,
+          "counterWrites": 1,
+          "counterEvents": 1,
+          "gateOpens": 1,
+          "cellWakeups": 4,
+          "membersReadyInserts": 0,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        }
+      }
+    },
+    {
+      "shape": "multi",
+      "n": 1024,
+      "sources": 8,
+      "product": {
+        "counterWrites": 6144,
+        "relationReadyAdds": 1024,
+        "effects": 8
+      },
+      "models": {
+        "eager": {
+          "groups": 1032,
+          "cells": 4,
+          "counterWrites": 6144,
+          "counterEvents": 6144,
+          "gateOpens": 1024,
+          "cellWakeups": 4,
+          "membersReadyInserts": 1024,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        },
+        "shared": {
+          "groups": 2,
+          "cells": 5,
+          "counterWrites": 6,
+          "counterEvents": 6,
+          "gateOpens": 1,
+          "cellWakeups": 4,
+          "membersReadyInserts": 0,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        }
+      }
+    },
+    {
+      "shape": "partition",
+      "n": 1024,
+      "sources": 8,
+      "product": {
+        "counterWrites": 1024,
+        "relationReadyAdds": 1024,
+        "effects": 8
+      },
+      "models": {
+        "eager": {
+          "groups": 1032,
+          "cells": 4,
+          "counterWrites": 1024,
+          "counterEvents": 1024,
+          "gateOpens": 1024,
+          "cellWakeups": 8,
+          "membersReadyInserts": 1024,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        },
+        "shared": {
+          "groups": 9,
+          "cells": 9,
+          "counterWrites": 8,
+          "counterEvents": 8,
+          "gateOpens": 8,
+          "cellWakeups": 8,
+          "membersReadyInserts": 0,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        }
+      }
+    },
+    {
+      "shape": "unique",
+      "n": 1024,
+      "sources": 1024,
+      "product": {
+        "counterWrites": 1024,
+        "relationReadyAdds": 1024,
+        "effects": 1024
+      },
+      "models": {
+        "eager": {
+          "groups": 2048,
+          "cells": 4,
+          "counterWrites": 1024,
+          "counterEvents": 1024,
+          "gateOpens": 1024,
+          "cellWakeups": 1024,
+          "membersReadyInserts": 1024,
+          "forcedEntries": 0,
+          "effects": 1024,
+          "selected": 2048
+        },
+        "shared": {
+          "groups": 1025,
+          "cells": 1025,
+          "counterWrites": 1024,
+          "counterEvents": 1024,
+          "gateOpens": 1024,
+          "cellWakeups": 1024,
+          "membersReadyInserts": 0,
+          "forcedEntries": 0,
+          "effects": 1024,
+          "selected": 2048
+        }
+      }
+    },
+    {
+      "shape": "overlap",
+      "n": 1024,
+      "sources": 1024,
+      "product": {
+        "counterWrites": 3072,
+        "relationReadyAdds": 1024,
+        "effects": 1024
+      },
+      "models": {
+        "eager": {
+          "groups": 2048,
+          "cells": 4,
+          "counterWrites": 3072,
+          "counterEvents": 3072,
+          "gateOpens": 1024,
+          "cellWakeups": 1024,
+          "membersReadyInserts": 1024,
+          "forcedEntries": 0,
+          "effects": 1024,
+          "selected": 2048
+        },
+        "shared": {
+          "groups": 1025,
+          "cells": 1025,
+          "counterWrites": 3072,
+          "counterEvents": 3072,
+          "gateOpens": 1024,
+          "cellWakeups": 1024,
+          "membersReadyInserts": 0,
+          "forcedEntries": 0,
+          "effects": 1024,
+          "selected": 2048
+        }
+      }
+    },
+    {
+      "shape": "cross",
+      "n": 1024,
+      "sources": 8,
+      "product": {
+        "counterWrites": 3072,
+        "relationReadyAdds": 1024,
+        "effects": 8
+      },
+      "models": {
+        "eager": {
+          "groups": 1032,
+          "cells": 1024,
+          "counterWrites": 3072,
+          "counterEvents": 3072,
+          "gateOpens": 1024,
+          "cellWakeups": 1024,
+          "membersReadyInserts": 1024,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        },
+        "shared": {
+          "groups": 2,
+          "cells": 1025,
+          "counterWrites": 3,
+          "counterEvents": 3,
+          "gateOpens": 1,
+          "cellWakeups": 1024,
+          "membersReadyInserts": 0,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        }
+      }
+    },
+    {
+      "shape": "split",
+      "n": 1024,
+      "sources": 8,
+      "product": {
+        "counterWrites": 3072,
+        "relationReadyAdds": 1024,
+        "effects": 8
+      },
+      "models": {
+        "eager": {
+          "groups": 1032,
+          "cells": 16,
+          "counterWrites": 3072,
+          "counterEvents": 3072,
+          "gateOpens": 1024,
+          "cellWakeups": 16,
+          "membersReadyInserts": 1024,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        },
+        "shared": {
+          "groups": 2,
+          "cells": 17,
+          "counterWrites": 3,
+          "counterEvents": 3,
+          "gateOpens": 1,
+          "cellWakeups": 16,
+          "membersReadyInserts": 0,
+          "forcedEntries": 0,
+          "effects": 8,
+          "selected": 1032
+        }
+      }
+    }
+  ]
+}

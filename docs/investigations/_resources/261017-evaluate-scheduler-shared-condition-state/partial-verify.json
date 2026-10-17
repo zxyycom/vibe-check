@@ -1,0 +1,163 @@
+{
+  "traces": 16,
+  "boundaries": 3563,
+  "retainedChecks": 20548,
+  "operations": [
+    {
+      "label": "operations-a-first-false",
+      "n": 256,
+      "cross": false,
+      "productCounterWrites": 256,
+      "eagerCounterWrites": 256,
+      "factoredSharedWrites": 1,
+      "factoredResidualWrites": 0,
+      "factoredReadyInserts": 0,
+      "stats": {
+        "sharedWrites": 1,
+        "residualWrites": 256,
+        "readyInserts": 256,
+        "forcedEntries": 0
+      },
+      "eager": {
+        "counterWrites": 512,
+        "counterEvents": 512,
+        "gateOpens": 256,
+        "cellWakeups": 256,
+        "membersReadyInserts": 256,
+        "forcedEntries": 0,
+        "effects": 257,
+        "selected": 257
+      }
+    },
+    {
+      "label": "operations-a-first-true",
+      "n": 256,
+      "cross": true,
+      "productCounterWrites": 256,
+      "eagerCounterWrites": 256,
+      "factoredSharedWrites": 1,
+      "factoredResidualWrites": 0,
+      "factoredReadyInserts": 0,
+      "stats": {
+        "sharedWrites": 1,
+        "residualWrites": 256,
+        "readyInserts": 256,
+        "forcedEntries": 0
+      },
+      "eager": {
+        "counterWrites": 512,
+        "counterEvents": 512,
+        "gateOpens": 256,
+        "cellWakeups": 256,
+        "membersReadyInserts": 256,
+        "forcedEntries": 0,
+        "effects": 257,
+        "selected": 257
+      }
+    },
+    {
+      "label": "operations-a-last-false",
+      "n": 256,
+      "cross": false,
+      "productCounterWrites": 256,
+      "eagerCounterWrites": 256,
+      "factoredSharedWrites": 1,
+      "factoredResidualWrites": 0,
+      "factoredReadyInserts": 0,
+      "stats": {
+        "sharedWrites": 1,
+        "residualWrites": 256,
+        "readyInserts": 256,
+        "forcedEntries": 0
+      },
+      "eager": {
+        "counterWrites": 512,
+        "counterEvents": 512,
+        "gateOpens": 256,
+        "cellWakeups": 4,
+        "membersReadyInserts": 256,
+        "forcedEntries": 0,
+        "effects": 257,
+        "selected": 257
+      }
+    },
+    {
+      "label": "operations-a-last-true",
+      "n": 256,
+      "cross": true,
+      "productCounterWrites": 256,
+      "eagerCounterWrites": 256,
+      "factoredSharedWrites": 1,
+      "factoredResidualWrites": 0,
+      "factoredReadyInserts": 0,
+      "stats": {
+        "sharedWrites": 1,
+        "residualWrites": 256,
+        "readyInserts": 256,
+        "forcedEntries": 0
+      },
+      "eager": {
+        "counterWrites": 512,
+        "counterEvents": 512,
+        "gateOpens": 256,
+        "cellWakeups": 256,
+        "membersReadyInserts": 256,
+        "forcedEntries": 0,
+        "effects": 257,
+        "selected": 257
+      }
+    },
+    {
+      "label": "operations-interleaved-false",
+      "n": 256,
+      "cross": false,
+      "productCounterWrites": 256,
+      "eagerCounterWrites": 256,
+      "factoredSharedWrites": 1,
+      "factoredResidualWrites": 0,
+      "factoredReadyInserts": 0,
+      "stats": {
+        "sharedWrites": 1,
+        "residualWrites": 256,
+        "readyInserts": 256,
+        "forcedEntries": 0
+      },
+      "eager": {
+        "counterWrites": 512,
+        "counterEvents": 512,
+        "gateOpens": 256,
+        "cellWakeups": 132,
+        "membersReadyInserts": 256,
+        "forcedEntries": 0,
+        "effects": 257,
+        "selected": 257
+      }
+    },
+    {
+      "label": "operations-interleaved-true",
+      "n": 256,
+      "cross": true,
+      "productCounterWrites": 256,
+      "eagerCounterWrites": 256,
+      "factoredSharedWrites": 1,
+      "factoredResidualWrites": 0,
+      "factoredReadyInserts": 0,
+      "stats": {
+        "sharedWrites": 1,
+        "residualWrites": 256,
+        "readyInserts": 256,
+        "forcedEntries": 0
+      },
+      "eager": {
+        "counterWrites": 512,
+        "counterEvents": 512,
+        "gateOpens": 256,
+        "cellWakeups": 256,
+        "membersReadyInserts": 256,
+        "forcedEntries": 0,
+        "effects": 257,
+        "selected": 257
+      }
+    }
+  ]
+}
