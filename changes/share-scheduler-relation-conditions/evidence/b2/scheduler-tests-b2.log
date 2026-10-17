@@ -1,0 +1,141 @@
+bun test v1.3.14 (0d9b296a)
+
+src/project-run/task-scheduler/task-engine.graph-observation.test.ts:
+(pass) static task engine > records one graph and references its fingerprint from every scheduler decision [11.56ms]
+(pass) static task engine > distinguishes full graph identities with identical Task IDs but different scheduler semantics [2.32ms]
+
+src/project-run/task-scheduler/task-engine.scope-capacity.test.ts:
+(pass) static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation [8.39ms]
+(pass) static task engine > recomputes tighter-scope selection after capacity becomes available [16.50ms]
+(pass) static task engine > orders constrained selectors by cap then priority without Scheduler policy state [2.76ms]
+(pass) static task engine > does not activate a cap for a scope with no activation task [2.67ms]
+
+src/project-run/task-scheduler/task-engine.admission.test.ts:
+(pass) static task engine > respects one root budget for dependency order and named mutex execution [16.73ms]
+(pass) static task engine > uses priority only among dependency and mutex eligible ordinary ready tasks [1.87ms]
+(pass) static task engine > limits named resource concurrency without withholding unrelated root slots [8.21ms]
+
+src/project-run/task-scheduler/task-engine.admission-policy.test.ts:
+(pass) task engine admission policy > recomputes static select or wait from each frozen scheduler snapshot without reservation state [1.26ms]
+(pass) task engine admission policy > adapts custom select from a detached frozen full-graph context [6.30ms]
+
+src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts:
+(pass) task engine admission policy > shares one frozen graph while exposing only decision-boundary measurement scalars [29.93ms]
+(pass) task engine admission policy > commits a settled running-cohort interval before the next custom policy callback [3.04ms]
+(pass) task engine admission policy > retains custom action effects while unavailable clocks omit interval contributions [4.20ms]
+
+src/project-run/task-scheduler/task-engine.static-validation.test.ts:
+(pass) static task engine > validates static task identity dependency and scope structure before execution [169.12ms]
+
+src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts:
+(pass) task engine admission policy > preserves the caller closure across overlapping custom Runs without a Scheduler callback lock [1.95ms]
+(pass) task engine admission policy > fails custom policy faults without fallback, cancels pending work, and drains admitted work [6.21ms]
+(pass) task engine admission policy > classifies every bounded custom fault without exposing callback values [3.49ms]
+(pass) task engine admission policy > drains an admitted public Check before returning an admission policy fault [10.06ms]
+(pass) task engine admission policy > returns the dedicated execution result for a custom callback failure [1.59ms]
+
+src/project-run/task-scheduler/admission-core.scheduler-integration.test.ts:
+(pass) Scheduler admission core integration > replays canonical failed and forced effects through shell diagnostics and measurement [6.61ms]
+
+src/project-run/task-scheduler/task-engine.settlement.test.ts:
+(pass) static task engine > settles executor failures and blocks only their dependent tasks [2.14ms]
+(pass) static task engine > blocks unmet prerequisites while admitting terminal observers [0.82ms]
+(pass) static task engine > accepts Product-owned pre-admission results without admitting those Tasks [0.83ms]
+(pass) static task engine > stops new admission after abort while admitted work receives the same signal and drains [5.91ms]
+
+src/project-run/task-scheduler/task-engine.admission-observation.test.ts:
+(pass) static task engine > emits immutable root admission and mutex decisions [1.63ms]
+(pass) static task engine > emits root capacity and running-drain decisions [1.61ms]
+
+src/project-run/task-scheduler/scheduler-blocker-summary.test.ts:
+(pass) Scheduler blocker summary > aggregates independent Core blockers even when primary scope or root capacity hides resources [3.24ms]
+
+src/project-run/task-scheduler/scheduler-context-needs.test.ts:
+(pass) Scheduler context demand > provides detached candidates/runtime without implicit historical or measurement fields [1.27ms]
+(pass) Scheduler context demand > projects exact graph/execution/none terminal views from one sealed boundary [1.03ms]
+(pass) Scheduler context demand > retains none terminal delivery after cancellation or policy fault drains admitted work [1.17ms]
+
+src/project-run/task-scheduler/execution-state.test.ts:
+(pass) Scheduler pre-admission initialization > initializes terminal facts while preserving input validation and satisfaction callback order [2.79ms]
+
+src/project-run/task-scheduler/admission-core/compiled-graph.test.ts:
+(pass) prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it [2.52ms]
+
+src/project-run/task-scheduler/admission-core/shared-relation-conditions.test.ts:
+(pass) shared admission relation conditions > preserves typed occurrences, every effect post-state and independent forks for exact and factored gates [275.06ms]
+(pass) shared admission relation conditions > publishes shared roots and viable mass without per-Task expansion, including A plus individual residuals [8.79ms]
+
+src/project-run/task-scheduler/admission-core/incremental-trace.test.ts:
+(pass) incremental admission state > matches an independent full-scan oracle for every action, rejection, effect, static tie and retained fork [66.52ms]
+(pass) incremental admission state > publishes actual counter thresholds, membership changes and net cancellation without rediscovery [1.74ms]
+
+src/project-run/task-scheduler/admission-core/trace.test.ts:
+(pass) admission core trace > traces public and private binary/failed/cancellation transitions through one reducer [2.61ms]
+
+src/project-run/task-scheduler/admission-core/transitions.test.ts:
+(pass) admission core transitions > admission core settles in the selected implementation [2.65ms]
+(pass) admission core transitions > keeps persistent forced-frontier priority and closed scope roots across a 80-by-80 cascade [8.95ms]
+
+src/project-run/task-scheduler/admission-core/static-selection-query.test.ts:
+(pass) static admission group frontier > switches scope ties without backfilling blocked constrained work or mutating captured forks [1.90ms]
+(pass) static admission group frontier > consumes wide equivalent heads without materializing candidates and prunes arbitrary selections in transitions [48.31ms]
+
+src/project-run/task-scheduler/admission-core/scheduler-queries.test.ts:
+(pass) shared admission Core queries > shares ordered memberships and readiness across transitions without scanning the whole graph [1.64ms]
+
+src/project-run/task-scheduler/admission-core/graph.capacity.test.ts:
+(pass) immutable admission graph capacity > keeps duplicate blocker payloads and global active-scope capacity for every candidate [2.22ms]
+(pass) immutable admission graph capacity > atomically holds and releases weighted claims across named resources [1.17ms]
+
+src/project-run/task-scheduler/admission-core/graph.test.ts:
+(pass) immutable admission graph > validates exact input and returns frozen opaque branching successors [1.31ms]
+(pass) immutable admission graph > uses canonical catalog order, dedicated validation reasons, binary settlements, and scope lifecycle [6.17ms]
+(pass) immutable admission graph > supplies callback lookahead without reserving or starting a real Task [4.90ms]
+
+src/project-run/task-scheduler/measurement/queue.test.ts:
+(pass) Scheduler incremental queue measurements > matches independent per-Task classification through resources, mutex sources, scopes and cancellation [9.73ms]
+(pass) Scheduler incremental queue measurements > excludes unsatisfied prerequisites from seed peaks and preserves tiny late waits after huge category prefixes [1.30ms]
+(pass) Scheduler incremental queue measurements > keeps exact shared-gate entry times through individual residuals, category changes and cancellation [23.10ms]
+
+src/project-run/task-scheduler/measurement/diagnostics-boundaries.test.ts:
+(pass) Scheduler performance diagnostics > distinguishes a valid zero-span summary from unavailable timing and retains discrete facts [4.43ms]
+(pass) Scheduler performance diagnostics > contains terminal writer failures [1.16ms]
+
+src/project-run/task-scheduler/measurement/diagnostics-terminal.test.ts:
+(pass) Scheduler performance diagnostics terminal drains > contains a policy diagnostic writer failure while draining admitted work [4.13ms]
+(pass) Scheduler performance diagnostics terminal drains > emits exactly one summary after caller cancellation drains admitted work [1.33ms]
+
+src/project-run/task-scheduler/measurement/numerical-checkpoints.test.ts:
+(pass) Scheduler numerical checkpoints > keeps action-only local intervals accurate when unrelated private prefixes are huge or overflow [1.19ms]
+(pass) Scheduler numerical checkpoints > seals derived summary faults before terminal getters regardless of field read order [0.89ms]
+(pass) Scheduler numerical checkpoints > keeps an invocation-local exact quantum through binade crossings and clock faults [1.84ms]
+
+src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts:
+(pass) Scheduler terminal effects > awaits ordered hooks over exact immutable terminal views without exposing Task values [1.09ms]
+(pass) Scheduler terminal effects > delivers the internal summary Hook before caller terminal effects through one runner [0.87ms]
+(pass) Scheduler terminal effects > contains summary writer failure while preserving caller terminal effect failure delivery [0.61ms]
+(pass) Scheduler terminal effects > continues after synchronous and asynchronous hook failures [0.69ms]
+
+src/project-run/task-scheduler/measurement/diagnostics.test.ts:
+(pass) Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots [2.81ms]
+(pass) Scheduler performance diagnostics > bounds top admission delays and breaks equal delays by Task ID [16.14ms]
+(pass) Scheduler performance diagnostics > classifies a named resource wait as capacity blocked [1.66ms]
+
+src/project-run/task-scheduler/measurement/exact-time.test.ts:
+(pass) Scheduler exact timing arithmetic > rounds exact interval sums and local differences at binary64 boundaries [21.27ms]
+(pass) Scheduler exact timing arithmetic > preserves exact sampled values under an invocation-local quantum [2.15ms]
+(pass) Scheduler exact timing arithmetic > rounds exact utilization quotients through halfway, underflow and unit boundaries [0.20ms]
+
+src/project-run/task-scheduler/measurement/demand.test.ts:
+(pass) Scheduler grouped measurement production > starts only declared producers and never materializes aggregate views for task-only consumers [3.73ms]
+(pass) Scheduler grouped measurement production > keeps per-task delay maintenance independent of aggregate and action interval integrals [0.53ms]
+(pass) Scheduler grouped measurement validity > shares one first fault across enabled groups without revising older decision snapshots [2.79ms]
+
+src/project-run/task-scheduler/measurement/diagnostics-waits.test.ts:
+(pass) Scheduler performance diagnostics > records an accepted explicit policy wait [4.24ms]
+(pass) Scheduler performance diagnostics > excludes a passive running drain with a null proposal [1.06ms]
+(pass) Scheduler performance diagnostics > retains an accepted wait count when timing becomes unavailable [1.30ms]
+
+ 74 pass
+ 0 fail
+Ran 74 tests across 31 files. [1306.00ms]

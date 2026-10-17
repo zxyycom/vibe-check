@@ -1,0 +1,13 @@
+{
+  "formedAt": "2026-10-17T04:14:23.381118+00:00",
+  "baseCommit": "3ad12ca311fbfe3486693ca77779f6f1fc3b9905",
+  "baselineCommit": "c45e549971813d7a01a89c89e75975b0530f1eb4",
+  "candidatePatchSha256": "fa749f94ab1277dd2290031dbcb9ce33fa1bda7a25531c57060e6264b3021617",
+  "newFiles": [
+    "src/project-run/task-scheduler/admission-core/relation-conditions.ts",
+    "src/project-run/task-scheduler/admission-core/relation-ready.ts",
+    "src/project-run/task-scheduler/admission-core/relation-state.ts",
+    "src/project-run/task-scheduler/admission-core/shared-relation-conditions.test.ts"
+  ],
+  "status": "B1 not adopted; source/identity frozen before authorized bounded B2"
+}

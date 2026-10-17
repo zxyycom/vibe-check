@@ -1,0 +1,29 @@
+{
+  "tracked": [
+    "docs/development/scheduler.md",
+    "docs/testing/cases/scheduler-runtime.md",
+    "src/project-run/task-scheduler/admission-core/compiled-graph-lookup.ts",
+    "src/project-run/task-scheduler/admission-core/compiled-graph.test.ts",
+    "src/project-run/task-scheduler/admission-core/compiled-graph.ts",
+    "src/project-run/task-scheduler/admission-core/incremental-trace.test.ts",
+    "src/project-run/task-scheduler/admission-core/membership-index.ts",
+    "src/project-run/task-scheduler/admission-core/ready-frontier.ts",
+    "src/project-run/task-scheduler/admission-core/selection-frontiers.ts",
+    "src/project-run/task-scheduler/admission-core/selection-index.ts",
+    "src/project-run/task-scheduler/admission-core/selection-query.ts",
+    "src/project-run/task-scheduler/admission-core/selection-seed.ts",
+    "src/project-run/task-scheduler/admission-core/selection-transition.ts",
+    "src/project-run/task-scheduler/admission-core/state-delta.ts",
+    "src/project-run/task-scheduler/admission-core/state-query.ts",
+    "src/project-run/task-scheduler/measurement/demand.test.ts",
+    "src/project-run/task-scheduler/measurement/queue.test.ts",
+    "src/project-run/task-scheduler/measurement/queue.ts"
+  ],
+  "untrackedCreatedByThisTask": [
+    "src/project-run/task-scheduler/admission-core/relation-conditions.ts",
+    "src/project-run/task-scheduler/admission-core/relation-ready.ts",
+    "src/project-run/task-scheduler/admission-core/relation-state.ts",
+    "src/project-run/task-scheduler/admission-core/shared-relation-conditions.test.ts"
+  ],
+  "excluded": "Change/evidence and unrelated workspace files; root alone restores/removes targets"
+}

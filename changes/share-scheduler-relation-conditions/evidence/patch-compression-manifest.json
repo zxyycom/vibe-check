@@ -1,0 +1,25 @@
+{
+  "status": "verified-lossless-original-copies-removed",
+  "verifiedAt": "2026-10-17T04:36:26.133236+00:00",
+  "encoding": "gzip level9 mtime0",
+  "python": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]",
+  "identityScope": "identity.json and restoration-verification.json retain SHA of the decompressed candidate.patch bytes; no patch content changed",
+  "files": [
+    {
+      "source": "b1/candidate.patch",
+      "bytes": 127001,
+      "sha256": "fa749f94ab1277dd2290031dbcb9ce33fa1bda7a25531c57060e6264b3021617",
+      "gzip": "b1/candidate.patch.gz",
+      "gzipBytes": 30188,
+      "gzipSha256": "4897a252ea1c47f4c2d97ccf059bda76cef56e299d5c55942fbdc3f0cc159d00"
+    },
+    {
+      "source": "b2/candidate.patch",
+      "bytes": 144257,
+      "sha256": "bb23baf7e397f51935bb265aa815b20ff505d4b965a1494f622f96f2020ba9c9",
+      "gzip": "b2/candidate.patch.gz",
+      "gzipBytes": 33818,
+      "gzipSha256": "f9af92111e41a93a2555c1c827c4f1ede8af2417544531d3fa266410712720f2"
+    }
+  ]
+}

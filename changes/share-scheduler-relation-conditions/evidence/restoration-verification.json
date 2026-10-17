@@ -1,0 +1,106 @@
+{
+  "verifiedAt": "2026-10-17T04:26:10.660424+00:00",
+  "method": "Fresh non-Git scratch tree from Git c45 src excluding test modules; fill only patch-needed base files; dry-run then full patch -p1; compare complete same-scope per-file runtime inventory; apply all four new files; remove only generated test copies after hashing",
+  "rows": [
+    {
+      "variant": "b1",
+      "sourceCommit": "c45e549971813d7a01a89c89e75975b0530f1eb4",
+      "patchSha256": "fa749f94ab1277dd2290031dbcb9ce33fa1bda7a25531c57060e6264b3021617",
+      "runtimeTreeDigest": "bbff944d5c01751f146ce59e2172ed2a0293ef83e0af4e03a00368991cfbd124",
+      "runtimeFiles": 569,
+      "newFilesApplied": [
+        {
+          "path": "src/project-run/task-scheduler/admission-core/relation-conditions.ts",
+          "bytes": 7986,
+          "sha256": "73669298515f0a12e8afb91d00b913ef67961ff2c04b4610a61bd1b0b7dc2b31"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/relation-ready.ts",
+          "bytes": 10366,
+          "sha256": "0cb750341f0ce53eabcbef1808ecae65cf4d079ad4a90be8348ec6a27ac19974"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/relation-state.ts",
+          "bytes": 5371,
+          "sha256": "452b967f6bc1d1b1ab4fcfc826c197625d3d23f8feec614fc8b42686b3852992"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/shared-relation-conditions.test.ts",
+          "bytes": 10200,
+          "sha256": "89d985e7697afb7cc60fb1d8565971f9249e57a45863ff28087ecf3201dd6c9e"
+        }
+      ],
+      "generatedTestCopiesRemoved": [
+        {
+          "path": "src/project-run/task-scheduler/admission-core/compiled-graph.test.ts",
+          "sha256": "b331576002a00f47e23915f4d86d80897c8cff830971e9433cf16dbd11ac6b43"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/incremental-trace.test.ts",
+          "sha256": "6c02fb4474526e253f4ffe778413e5793d61b3617cefa5cca7557a3519debc0d"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/shared-relation-conditions.test.ts",
+          "sha256": "89d985e7697afb7cc60fb1d8565971f9249e57a45863ff28087ecf3201dd6c9e"
+        },
+        {
+          "path": "src/project-run/task-scheduler/measurement/queue.test.ts",
+          "sha256": "0bf971a61d9e77781cc63b1224afec3e43ade225f2d3d58ce4a069ffc0f61b02"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "variant": "b2",
+      "sourceCommit": "c45e549971813d7a01a89c89e75975b0530f1eb4",
+      "patchSha256": "bb23baf7e397f51935bb265aa815b20ff505d4b965a1494f622f96f2020ba9c9",
+      "runtimeTreeDigest": "feaf521d34bc2a76c4e9cc615c8463e8c49bd8d574eed808bc2df85d46397e48",
+      "runtimeFiles": 569,
+      "newFilesApplied": [
+        {
+          "path": "src/project-run/task-scheduler/admission-core/relation-conditions.ts",
+          "bytes": 9163,
+          "sha256": "47e3d34f696f647fbce9439d61160a35bd8ed6647d41934e8f21fae15611f83a"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/relation-ready.ts",
+          "bytes": 13173,
+          "sha256": "620fbd5aad1270d4c4bd2191adf6645a194bd1dd917cfca75e053f4cd51c2e7e"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/relation-state.ts",
+          "bytes": 5371,
+          "sha256": "452b967f6bc1d1b1ab4fcfc826c197625d3d23f8feec614fc8b42686b3852992"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/shared-relation-conditions.test.ts",
+          "bytes": 11799,
+          "sha256": "c29834d5144125b52dd46711859ff354dcb1226f237dae85e339573796b40999"
+        }
+      ],
+      "generatedTestCopiesRemoved": [
+        {
+          "path": "src/project-run/task-scheduler/admission-core/compiled-graph.test.ts",
+          "sha256": "b331576002a00f47e23915f4d86d80897c8cff830971e9433cf16dbd11ac6b43"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/incremental-trace.test.ts",
+          "sha256": "6c02fb4474526e253f4ffe778413e5793d61b3617cefa5cca7557a3519debc0d"
+        },
+        {
+          "path": "src/project-run/task-scheduler/admission-core/shared-relation-conditions.test.ts",
+          "sha256": "c29834d5144125b52dd46711859ff354dcb1226f237dae85e339573796b40999"
+        },
+        {
+          "path": "src/project-run/task-scheduler/measurement/demand.test.ts",
+          "sha256": "962eac8a9429886dd341d012b05129d596d612a1ad1f4012b6ac3880f09f1e65"
+        },
+        {
+          "path": "src/project-run/task-scheduler/measurement/queue.test.ts",
+          "sha256": "74b57857fa22559153f9b3cbe67ecd5bb9f1bc0fa38b12b6060d551f83db5506"
+        }
+      ],
+      "passed": true
+    }
+  ]
+}

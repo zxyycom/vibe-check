@@ -1,0 +1,20 @@
+{
+  "inventoryScope": "all src files except *.test.ts, same scope for both variants",
+  "baselineExcludes": "Generated *.test.ts only; runtime source bytes and test-support unchanged; prevents Bun substring discovery collisions",
+  "baselineCommit": "c45e549971813d7a01a89c89e75975b0530f1eb4",
+  "bun": "1.3.14",
+  "variants": {
+    "A": {
+      "bundle": "/workspace/vibe-check/tmp/scheduler-shared-condition-implementation/A.mjs",
+      "bytes": 2264856,
+      "sha256": "c98540f21285d68744821169dbd1469174e97e2a12085024d7c8ffa288af6948",
+      "runtimeTreeDigest": "c2d722f70336c618049cb05e70c42d63daa5e05a6983756dfec45ced40d25728"
+    },
+    "B": {
+      "bundle": "/workspace/vibe-check/tmp/scheduler-shared-condition-implementation/B.mjs",
+      "bytes": 2272944,
+      "sha256": "a5cb9f0c84611ce26b9a97555e0a223db9c613e42bfb821e1cf2d0e40e60f9ac",
+      "runtimeTreeDigest": "feaf521d34bc2a76c4e9cc615c8463e8c49bd8d574eed808bc2df85d46397e48"
+    }
+  }
+}

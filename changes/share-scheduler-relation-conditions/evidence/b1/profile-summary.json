@@ -1,0 +1,1212 @@
+{
+  "method": "Node Inspector: 4 unprofiled warmups; CPU 12 trajectories 500us samples; allocation 6 trajectories 4096B samples incl collected objects; separate processes, not timing evidence",
+  "rows": [
+    {
+      "variant": "A",
+      "shape": "multi",
+      "samples": 429,
+      "durationMs": 279.814,
+      "cpuTop": [
+        [
+          "(garbage collector)",
+          34
+        ],
+        [
+          "",
+          21
+        ],
+        [
+          "transitionIndexedSelection",
+          19
+        ],
+        [
+          "update2",
+          18
+        ],
+        [
+          "get2",
+          17
+        ],
+        [
+          "transitionTaskMemberships",
+          15
+        ],
+        [
+          "mergeTaskQueues",
+          15
+        ],
+        [
+          "transitionStaticFrontier",
+          14
+        ],
+        [
+          "normalizeTasks",
+          13
+        ],
+        [
+          "compileAdmissionConstraintGroups",
+          12
+        ],
+        [
+          "takeAdmissionDelay",
+          10
+        ],
+        [
+          "applyCounterDeltas",
+          9
+        ],
+        [
+          "ownDataShape",
+          8
+        ],
+        [
+          "visit",
+          7
+        ],
+        [
+          "updateVNode",
+          7
+        ],
+        [
+          "seedTaskCounters",
+          6
+        ],
+        [
+          "transitionDelta",
+          6
+        ],
+        [
+          "relationThresholdEffects",
+          6
+        ]
+      ],
+      "allocationBytes": 228360200,
+      "allocationTop": [
+        [
+          "next",
+          32924280
+        ],
+        [
+          "update2",
+          19513960
+        ],
+        [
+          "",
+          17233008
+        ],
+        [
+          "Set",
+          11400752
+        ],
+        [
+          "transitionIndexedSelection",
+          11156992
+        ],
+        [
+          "updateMap",
+          8190736
+        ],
+        [
+          "ownDataShape",
+          7851264
+        ],
+        [
+          "transitionTaskMemberships",
+          6951520
+        ],
+        [
+          "mergeTaskQueues",
+          6640432
+        ],
+        [
+          "updateVNode",
+          5182464
+        ],
+        [
+          "editableVNode",
+          4968536
+        ],
+        [
+          "map",
+          4749936
+        ],
+        [
+          "normalizeTasks",
+          4525296
+        ],
+        [
+          "transitionReadyFrontier",
+          4343776
+        ],
+        [
+          "values",
+          4317000
+        ]
+      ],
+      "owners": {
+        "other": 195342784,
+        "collector-capture": 13425096,
+        "frontier-other": 15012568,
+        "frontier-prune": 3108600,
+        "collector-seed": 1471152
+      },
+      "largestTraces": [
+        {
+          "bytes": 7842840,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks > resourceMapping > snapshotClosedRecord > ownDataShape"
+        },
+        {
+          "bytes": 5939152,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 5217840,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 4525296,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks"
+        },
+        {
+          "bytes": 3547880,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > transitionTaskMemberships"
+        },
+        {
+          "bytes": 3403640,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > transitionTaskMemberships"
+        },
+        {
+          "bytes": 2942944,
+          "path": "(root) >  >  > coreWorkload > createAdmissionCoreFromSettlements > selectionIndexForSeed > seedTaskCounters > next"
+        },
+        {
+          "bytes": 2818592,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > applyCounterDeltas > withMutations > "
+        },
+        {
+          "bytes": 2558808,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > applySettlementRelationDelta > applyCounterDeltas > withMutations >  > next"
+        },
+        {
+          "bytes": 2419968,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > applySettlementRelationDelta > applyCounterDeltas > withMutations > "
+        },
+        {
+          "bytes": 2405976,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > relationThresholdEffects > Set"
+        },
+        {
+          "bytes": 2284896,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > relationThresholdEffects > Set"
+        }
+      ]
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "samples": 445,
+      "durationMs": 287.892,
+      "cpuTop": [
+        [
+          "",
+          45
+        ],
+        [
+          "(garbage collector)",
+          38
+        ],
+        [
+          "transitionIndexedSelection",
+          28
+        ],
+        [
+          "mergeTaskQueues",
+          19
+        ],
+        [
+          "signatureKey",
+          18
+        ],
+        [
+          "relationCountFor",
+          15
+        ],
+        [
+          "compileRelationConditions",
+          14
+        ],
+        [
+          "transitionRelationReady",
+          13
+        ],
+        [
+          "compileAdmissionConstraintGroups",
+          11
+        ],
+        [
+          "update2",
+          11
+        ],
+        [
+          "(program)",
+          11
+        ],
+        [
+          "applyRunningOccupancyDelta",
+          10
+        ],
+        [
+          "ownDataShape",
+          8
+        ],
+        [
+          "atomKey",
+          8
+        ],
+        [
+          "transitionStaticFrontier",
+          7
+        ],
+        [
+          "snapshotClosedRecord",
+          6
+        ],
+        [
+          "visit",
+          6
+        ],
+        [
+          "selectAdmissionCore",
+          6
+        ]
+      ],
+      "allocationBytes": 277760848,
+      "allocationTop": [
+        [
+          "next",
+          38287888
+        ],
+        [
+          "",
+          21343936
+        ],
+        [
+          "atomKey",
+          19088000
+        ],
+        [
+          "transitionIndexedSelection",
+          12370992
+        ],
+        [
+          "update2",
+          12337968
+        ],
+        [
+          "sort",
+          10671176
+        ],
+        [
+          "mergeTaskQueues",
+          9538936
+        ],
+        [
+          "transitionRelationReady",
+          8570016
+        ],
+        [
+          "Set",
+          8393592
+        ],
+        [
+          "ownDataShape",
+          7797704
+        ],
+        [
+          "updateList",
+          7013648
+        ],
+        [
+          "push",
+          6335232
+        ],
+        [
+          "Map",
+          6024224
+        ],
+        [
+          "values",
+          6019128
+        ],
+        [
+          "map",
+          5844200
+        ]
+      ],
+      "owners": {
+        "other": 157321752,
+        "collector-capture": 11834976,
+        "discovery-other": 18422504,
+        "discovery-prune": 3008856,
+        "frontier-other": 10834592,
+        "frontier-prune": 3226464,
+        "relation-compile": 71633168,
+        "collector-seed": 1478536
+      },
+      "largestTraces": [
+        {
+          "bytes": 12061576,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map > "
+        },
+        {
+          "bytes": 10444512,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map >  > sort"
+        },
+        {
+          "bytes": 9090208,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map >  > next"
+        },
+        {
+          "bytes": 7789472,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks > resourceMapping > snapshotClosedRecord > ownDataShape"
+        },
+        {
+          "bytes": 6431200,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > signatureKey > map > atomKey"
+        },
+        {
+          "bytes": 6228072,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 6142920,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 4933136,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > transitionRelationReady"
+        },
+        {
+          "bytes": 4718616,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks"
+        },
+        {
+          "bytes": 3636880,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > transitionRelationReady"
+        },
+        {
+          "bytes": 3236160,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map >  > signatureKey > map > atomKey"
+        },
+        {
+          "bytes": 3104576,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > signatureKey > atomKey"
+        }
+      ]
+    },
+    {
+      "variant": "A",
+      "shape": "factored",
+      "samples": 656,
+      "durationMs": 410.755,
+      "cpuTop": [
+        [
+          "(garbage collector)",
+          50
+        ],
+        [
+          "update2",
+          43
+        ],
+        [
+          "transitionTaskMemberships",
+          32
+        ],
+        [
+          "transitionIndexedSelection",
+          30
+        ],
+        [
+          "",
+          27
+        ],
+        [
+          "mergeTaskQueues",
+          22
+        ],
+        [
+          "editableVNode",
+          20
+        ],
+        [
+          "takeAdmissionDelay",
+          18
+        ],
+        [
+          "get2",
+          15
+        ],
+        [
+          "transitionDelta",
+          14
+        ],
+        [
+          "transitionStaticFrontier",
+          12
+        ],
+        [
+          "transitionReadyFrontier",
+          12
+        ],
+        [
+          "ownDataShape",
+          11
+        ],
+        [
+          "compileAdmissionConstraintGroups",
+          11
+        ],
+        [
+          "normalizeTasks",
+          10
+        ],
+        [
+          "transitionSelectionFrontiers",
+          10
+        ],
+        [
+          "relationThresholdEffects",
+          10
+        ],
+        [
+          "applyCounterDeltas",
+          10
+        ]
+      ],
+      "allocationBytes": 377239744,
+      "allocationTop": [
+        [
+          "update2",
+          36039920
+        ],
+        [
+          "next",
+          35945112
+        ],
+        [
+          "Set",
+          21123992
+        ],
+        [
+          "transitionIndexedSelection",
+          19628368
+        ],
+        [
+          "applyCounterDeltas",
+          17389040
+        ],
+        [
+          "transitionTaskMemberships",
+          16153272
+        ],
+        [
+          "mergeTaskQueues",
+          14354272
+        ],
+        [
+          "editableVNode",
+          12051976
+        ],
+        [
+          "updateVNode",
+          11077208
+        ],
+        [
+          "",
+          11057584
+        ],
+        [
+          "normalizeTasks",
+          8920992
+        ],
+        [
+          "ownDataShape",
+          7909472
+        ],
+        [
+          "values",
+          7327992
+        ],
+        [
+          "#clocksFor",
+          6982304
+        ],
+        [
+          "map",
+          6656432
+        ]
+      ],
+      "owners": {
+        "other": 319327000,
+        "collector-capture": 19158720,
+        "frontier-other": 27914792,
+        "frontier-prune": 5554840,
+        "collector-seed": 5284392
+      },
+      "largestTraces": [
+        {
+          "bytes": 8920992,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks"
+        },
+        {
+          "bytes": 7967496,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 7905328,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks > resourceMapping > snapshotClosedRecord > ownDataShape"
+        },
+        {
+          "bytes": 6919288,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > transitionIndexedSelection > transitionTaskMemberships"
+        },
+        {
+          "bytes": 6835744,
+          "path": "(root) >  >  > coreWorkload > settle > settleRunningAdmissionCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 5659976,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore"
+        },
+        {
+          "bytes": 5500544,
+          "path": "(root) >  >  > coreWorkload > settle > settleRunningAdmissionCore > transitionIndexedSelection > transitionTaskMemberships"
+        },
+        {
+          "bytes": 4900456,
+          "path": "(root) >  >  > coreWorkload > settle > settleRunningAdmissionCore"
+        },
+        {
+          "bytes": 4454512,
+          "path": "(root) >  >  > coreWorkload > settle > settleRunningAdmissionCore > transitionIndexedSelection > applySettlementRelationDelta > applyCounterDeltas"
+        },
+        {
+          "bytes": 4281896,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > transitionIndexedSelection > applyRunningOccupancyDelta > applyCounterDeltas"
+        },
+        {
+          "bytes": 4044576,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > transitionIndexedSelection > transitionTaskMemberships > remove2 > update2"
+        },
+        {
+          "bytes": 3847352,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileAdmissionConstraintGroups"
+        }
+      ]
+    },
+    {
+      "variant": "B",
+      "shape": "factored",
+      "samples": 781,
+      "durationMs": 486.056,
+      "cpuTop": [
+        [
+          "",
+          77
+        ],
+        [
+          "transitionIndexedSelection",
+          60
+        ],
+        [
+          "(garbage collector)",
+          54
+        ],
+        [
+          "mergeTaskQueues",
+          46
+        ],
+        [
+          "update2",
+          42
+        ],
+        [
+          "transitionRelationReady",
+          35
+        ],
+        [
+          "compileRelationConditions",
+          30
+        ],
+        [
+          "editableVNode",
+          18
+        ],
+        [
+          "normalizeTasks",
+          16
+        ],
+        [
+          "takeAdmissionDelay",
+          16
+        ],
+        [
+          "relationCountFor",
+          15
+        ],
+        [
+          "transitionStaticFrontier",
+          13
+        ],
+        [
+          "transitionDelta",
+          13
+        ],
+        [
+          "compileAdmissionConstraintGroups",
+          12
+        ],
+        [
+          "set2",
+          12
+        ],
+        [
+          "capture",
+          12
+        ],
+        [
+          "ownDataShape",
+          10
+        ],
+        [
+          "transitionSelectionFrontiers",
+          10
+        ]
+      ],
+      "allocationBytes": 476151160,
+      "allocationTop": [
+        [
+          "next",
+          54535336
+        ],
+        [
+          "",
+          32746800
+        ],
+        [
+          "transitionIndexedSelection",
+          27606488
+        ],
+        [
+          "update2",
+          26001064
+        ],
+        [
+          "transitionRelationReady",
+          23166912
+        ],
+        [
+          "updateVNode",
+          21183832
+        ],
+        [
+          "mergeTaskQueues",
+          20502944
+        ],
+        [
+          "editableVNode",
+          19093368
+        ],
+        [
+          "Set",
+          14700392
+        ],
+        [
+          "set2",
+          12289384
+        ],
+        [
+          "Map",
+          10844640
+        ],
+        [
+          "push",
+          8568656
+        ],
+        [
+          "map",
+          8378432
+        ],
+        [
+          "normalizeTasks",
+          8349232
+        ],
+        [
+          "atomKey",
+          8203552
+        ]
+      ],
+      "owners": {
+        "other": 280093984,
+        "collector-capture": 24460136,
+        "frontier-other": 22186128,
+        "frontier-prune": 7212992,
+        "discovery-other": 54292424,
+        "discovery-prune": 7647256,
+        "relation-compile": 75927800,
+        "collector-seed": 4330440
+      },
+      "largestTraces": [
+        {
+          "bytes": 12663160,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map > "
+        },
+        {
+          "bytes": 11450552,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 10720096,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > transitionIndexedSelection > transitionRelationReady"
+        },
+        {
+          "bytes": 9673016,
+          "path": "(root) >  >  > coreWorkload > settle > settleRunningAdmissionCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 8349232,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks"
+        },
+        {
+          "bytes": 6577112,
+          "path": "(root) >  >  > coreWorkload > settle > settleRunningAdmissionCore > transitionIndexedSelection > transitionRelationReady"
+        },
+        {
+          "bytes": 6337264,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map > "
+        },
+        {
+          "bytes": 5718464,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map >  > next"
+        },
+        {
+          "bytes": 5628152,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore"
+        },
+        {
+          "bytes": 5627776,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > transitionIndexedSelection > transitionRelationReady > set2"
+        },
+        {
+          "bytes": 5173696,
+          "path": "(root) >  >  > coreWorkload > settle > settleRunningAdmissionCore > transitionIndexedSelection > applySettlementRelationDelta"
+        },
+        {
+          "bytes": 5082816,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map >  > sort"
+        }
+      ]
+    },
+    {
+      "variant": "A",
+      "shape": "deep",
+      "samples": 288,
+      "durationMs": 192.758,
+      "cpuTop": [
+        [
+          "(garbage collector)",
+          29
+        ],
+        [
+          "transitionIndexedSelection",
+          23
+        ],
+        [
+          "transitionTaskMemberships",
+          16
+        ],
+        [
+          "",
+          14
+        ],
+        [
+          "transitionReadyFrontier",
+          13
+        ],
+        [
+          "transitionStaticFrontier",
+          13
+        ],
+        [
+          "update2",
+          12
+        ],
+        [
+          "transitionDelta",
+          9
+        ],
+        [
+          "normalizeTasks",
+          8
+        ],
+        [
+          "settleRunningAdmissionCore",
+          7
+        ],
+        [
+          "transitionSelectionFrontiers",
+          7
+        ],
+        [
+          "capture",
+          6
+        ],
+        [
+          "candidateForLayer",
+          5
+        ],
+        [
+          "prepareTaskGraph",
+          4
+        ],
+        [
+          "appendReverseRelationOccurrences",
+          4
+        ],
+        [
+          "compileAdmissionConstraintGroups",
+          4
+        ],
+        [
+          "editableVNode",
+          4
+        ],
+        [
+          "relationThresholdEffects",
+          4
+        ]
+      ],
+      "allocationBytes": 175404976,
+      "allocationTop": [
+        [
+          "next",
+          20205072
+        ],
+        [
+          "Set",
+          11178856
+        ],
+        [
+          "transitionIndexedSelection",
+          10969224
+        ],
+        [
+          "transitionTaskMemberships",
+          9064872
+        ],
+        [
+          "update2",
+          8906680
+        ],
+        [
+          "updateVNode",
+          6951528
+        ],
+        [
+          "",
+          6583648
+        ],
+        [
+          "editableVNode",
+          6073680
+        ],
+        [
+          "transitionReadyFrontier",
+          5542560
+        ],
+        [
+          "updateMap",
+          4203528
+        ],
+        [
+          "normalizeTasks",
+          3895016
+        ],
+        [
+          "Map",
+          3718440
+        ],
+        [
+          "map",
+          3431456
+        ],
+        [
+          "setAt",
+          3296120
+        ],
+        [
+          "updateList",
+          3172808
+        ]
+      ],
+      "owners": {
+        "other": 149948440,
+        "collector-capture": 12153296,
+        "frontier-other": 11878608,
+        "collector-seed": 1424632
+      },
+      "largestTraces": [
+        {
+          "bytes": 5734520,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 5226448,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 4833104,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > transitionTaskMemberships"
+        },
+        {
+          "bytes": 4227640,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > transitionTaskMemberships"
+        },
+        {
+          "bytes": 3895016,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks"
+        },
+        {
+          "bytes": 2456784,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > relationThresholdEffects > Set"
+        },
+        {
+          "bytes": 2290840,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore"
+        },
+        {
+          "bytes": 2247720,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > relationThresholdEffects > Set"
+        },
+        {
+          "bytes": 2234520,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > updateList > updateVNode"
+        },
+        {
+          "bytes": 2153592,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > updateList > updateVNode"
+        },
+        {
+          "bytes": 1992744,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > updateList > editableVNode"
+        },
+        {
+          "bytes": 1943208,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > updateList > editableVNode"
+        }
+      ]
+    },
+    {
+      "variant": "B",
+      "shape": "deep",
+      "samples": 445,
+      "durationMs": 285.851,
+      "cpuTop": [
+        [
+          "",
+          49
+        ],
+        [
+          "transitionIndexedSelection",
+          39
+        ],
+        [
+          "(garbage collector)",
+          33
+        ],
+        [
+          "transitionRelationReady",
+          21
+        ],
+        [
+          "compileRelationConditions",
+          20
+        ],
+        [
+          "update2",
+          17
+        ],
+        [
+          "transitionReadyFrontier",
+          12
+        ],
+        [
+          "updateList",
+          9
+        ],
+        [
+          "transitionStaticFrontier",
+          8
+        ],
+        [
+          "capture",
+          8
+        ],
+        [
+          "conditionFor",
+          7
+        ],
+        [
+          "updateMap",
+          7
+        ],
+        [
+          "editableVNode",
+          7
+        ],
+        [
+          "transitionDelta",
+          7
+        ],
+        [
+          "updateVNode",
+          6
+        ],
+        [
+          "updateNode",
+          6
+        ],
+        [
+          "applyRunningOccupancyDelta",
+          6
+        ],
+        [
+          "relationCountFor",
+          6
+        ]
+      ],
+      "allocationBytes": 255427720,
+      "allocationTop": [
+        [
+          "next",
+          34957984
+        ],
+        [
+          "",
+          14992608
+        ],
+        [
+          "transitionRelationReady",
+          13368656
+        ],
+        [
+          "transitionIndexedSelection",
+          12356256
+        ],
+        [
+          "update2",
+          11937264
+        ],
+        [
+          "updateVNode",
+          11213200
+        ],
+        [
+          "editableVNode",
+          10524560
+        ],
+        [
+          "push",
+          8740400
+        ],
+        [
+          "Set",
+          8669680
+        ],
+        [
+          "transitionReadyFrontier",
+          6860472
+        ],
+        [
+          "updateMap",
+          6413952
+        ],
+        [
+          "Map",
+          5951176
+        ],
+        [
+          "settleRelationSource",
+          5608976
+        ],
+        [
+          "values",
+          5322856
+        ],
+        [
+          "map",
+          5053608
+        ]
+      ],
+      "owners": {
+        "other": 145961864,
+        "collector-capture": 14577440,
+        "discovery-other": 34849688,
+        "discovery-prune": 4368,
+        "frontier-other": 12157072,
+        "relation-compile": 43465936,
+        "collector-seed": 4411352
+      },
+      "largestTraces": [
+        {
+          "bytes": 7296232,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > transitionRelationReady"
+        },
+        {
+          "bytes": 6245920,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 6110336,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection"
+        },
+        {
+          "bytes": 6072424,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > transitionRelationReady"
+        },
+        {
+          "bytes": 5972816,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map > "
+        },
+        {
+          "bytes": 5608976,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > applySettlementRelationDelta > settleRelationSource"
+        },
+        {
+          "bytes": 5121632,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > transitionRelationReady > set2 > updateVNode"
+        },
+        {
+          "bytes": 4630040,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > transitionRelationReady > set2 > editableVNode"
+        },
+        {
+          "bytes": 4537144,
+          "path": "(root) >  >  > coreWorkload > prepareTaskGraph > normalizeTasks"
+        },
+        {
+          "bytes": 4166232,
+          "path": "(root) >  >  > coreWorkload > compilePreparedAdmissionGraph > compileRelationConditions > map >  > next"
+        },
+        {
+          "bytes": 3440992,
+          "path": "(root) >  >  > coreWorkload > settle > settleAdmissionCore > settleRunningAdmissionCore > transitionIndexedSelection > transitionSelectionFrontiers > transitionReadyFrontier"
+        },
+        {
+          "bytes": 3419480,
+          "path": "(root) >  >  > coreWorkload > select > selectAdmissionCore > admitTaskForCore > transitionIndexedSelection > transitionSelectionFrontiers > transitionReadyFrontier"
+        }
+      ]
+    }
+  ]
+}

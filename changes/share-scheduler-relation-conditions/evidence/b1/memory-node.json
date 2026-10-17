@@ -1,0 +1,1797 @@
+{
+  "method": "fresh process per row; raw fixture and bundle loaded before baseline; retained Product compile/seed/current or source snapshots and forks; 3 GC with event-loop turns before and after; signed metrics preserved",
+  "rows": [
+    {
+      "variant": "A",
+      "shape": "multi",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82214912,
+        "heapTotal": 17940480,
+        "heapUsed": 8727984,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80288,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83132416,
+        "heapTotal": 18989056,
+        "heapUsed": 9397512,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81184,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82333696,
+        "heapTotal": 18202624,
+        "heapUsed": 8733072,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80404,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83251200,
+        "heapTotal": 18989056,
+        "heapUsed": 9504528,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81300,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "multi",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82362368,
+        "heapTotal": 18202624,
+        "heapUsed": 8728064,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80432,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83279872,
+        "heapTotal": 18989056,
+        "heapUsed": 9465032,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81328,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82079744,
+        "heapTotal": 18202624,
+        "heapUsed": 8733080,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80156,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 82997248,
+        "heapTotal": 18989056,
+        "heapUsed": 9561344,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81052,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "factored",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82309120,
+        "heapTotal": 18202624,
+        "heapUsed": 8730288,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80380,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83226624,
+        "heapTotal": 19251200,
+        "heapUsed": 9445240,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81276,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "factored",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82292736,
+        "heapTotal": 18202624,
+        "heapUsed": 8735136,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80364,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83734528,
+        "heapTotal": 18989056,
+        "heapUsed": 9607808,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81772,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "factored",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82227200,
+        "heapTotal": 18202624,
+        "heapUsed": 8730056,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80300,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83931136,
+        "heapTotal": 18989056,
+        "heapUsed": 9642408,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81964,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 34,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "factored",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82235392,
+        "heapTotal": 18202624,
+        "heapUsed": 8735144,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80308,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 84201472,
+        "heapTotal": 19251200,
+        "heapUsed": 9840448,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 82228,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 34,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "unique",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 81952768,
+        "heapTotal": 18464768,
+        "heapUsed": 8729872,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80032,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83525632,
+        "heapTotal": 18726912,
+        "heapUsed": 9451144,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81568,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "unique",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82153472,
+        "heapTotal": 18202624,
+        "heapUsed": 8734960,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80228,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 84381696,
+        "heapTotal": 19251200,
+        "heapUsed": 9619904,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 82404,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "unique",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 81842176,
+        "heapTotal": 18202624,
+        "heapUsed": 8729880,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 79924,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83152896,
+        "heapTotal": 18989056,
+        "heapUsed": 9640984,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81204,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 33,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "unique",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 81858560,
+        "heapTotal": 18464768,
+        "heapUsed": 8734968,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80092,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 84480000,
+        "heapTotal": 19251200,
+        "heapUsed": 9888824,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 82500,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 33,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "overlap",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82116608,
+        "heapTotal": 18464768,
+        "heapUsed": 8731936,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80320,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83558400,
+        "heapTotal": 19251200,
+        "heapUsed": 9453968,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81600,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "overlap",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82329600,
+        "heapTotal": 18202624,
+        "heapUsed": 8737024,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80400,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 84951040,
+        "heapTotal": 19513344,
+        "heapUsed": 9656216,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 82960,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "overlap",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82321408,
+        "heapTotal": 18202624,
+        "heapUsed": 8732112,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80528,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83369984,
+        "heapTotal": 18989056,
+        "heapUsed": 9651888,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81416,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 33,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "overlap",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82026496,
+        "heapTotal": 18202624,
+        "heapUsed": 8737032,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80104,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 84254720,
+        "heapTotal": 19251200,
+        "heapUsed": 9921840,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 82280,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 33,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "cross",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82063360,
+        "heapTotal": 18464768,
+        "heapUsed": 8728056,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80140,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 83177472,
+        "heapTotal": 18989056,
+        "heapUsed": 9462872,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81420,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "cross",
+      "n": 32,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82137088,
+        "heapTotal": 18202624,
+        "heapUsed": 8733288,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80212,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 84496384,
+        "heapTotal": 19513344,
+        "heapUsed": 9609080,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 82516,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "cross",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 81989632,
+        "heapTotal": 18202624,
+        "heapUsed": 8727992,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80068,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 84606976,
+        "heapTotal": 19251200,
+        "heapUsed": 9545880,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 82628,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "cross",
+      "n": 32,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82341888,
+        "heapTotal": 18202624,
+        "heapUsed": 8733152,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80412,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 84701184,
+        "heapTotal": 19513344,
+        "heapUsed": 9693280,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 82716,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "multi",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82411520,
+        "heapTotal": 18202624,
+        "heapUsed": 8782976,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80480,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 98402304,
+        "heapTotal": 19775488,
+        "heapUsed": 10153704,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 96096,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82415616,
+        "heapTotal": 18202624,
+        "heapUsed": 8788064,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80484,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 97976320,
+        "heapTotal": 19513344,
+        "heapUsed": 10613696,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 95680,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "multi",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82116608,
+        "heapTotal": 18202624,
+        "heapUsed": 8782912,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80332,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 98091008,
+        "heapTotal": 20037632,
+        "heapUsed": 11048776,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 95792,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82341888,
+        "heapTotal": 18202624,
+        "heapUsed": 8788000,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80552,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 96104448,
+        "heapTotal": 20037632,
+        "heapUsed": 10561520,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 93852,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "factored",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82657280,
+        "heapTotal": 18202624,
+        "heapUsed": 8808552,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80720,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 102658048,
+        "heapTotal": 20037632,
+        "heapUsed": 10326840,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 100432,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "factored",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82001920,
+        "heapTotal": 18202624,
+        "heapUsed": 8814928,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80080,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 107159552,
+        "heapTotal": 20561920,
+        "heapUsed": 11453304,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 104648,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "factored",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82206720,
+        "heapTotal": 17940480,
+        "heapUsed": 8808704,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80280,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 105013248,
+        "heapTotal": 29999104,
+        "heapUsed": 12014296,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 102552,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 258,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "factored",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82419712,
+        "heapTotal": 18464768,
+        "heapUsed": 8813648,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80488,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 108208128,
+        "heapTotal": 30785536,
+        "heapUsed": 12772384,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 105832,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 258,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "unique",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82358272,
+        "heapTotal": 17940480,
+        "heapUsed": 8807800,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80564,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 100732928,
+        "heapTotal": 20037632,
+        "heapUsed": 10311208,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 98604,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "unique",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 81989632,
+        "heapTotal": 18202624,
+        "heapUsed": 8812744,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80068,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 108990464,
+        "heapTotal": 21086208,
+        "heapUsed": 11441272,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 106436,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "unique",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82391040,
+        "heapTotal": 18202624,
+        "heapUsed": 8807664,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80460,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 100610048,
+        "heapTotal": 30261248,
+        "heapUsed": 12589608,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 98252,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 257,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "unique",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82444288,
+        "heapTotal": 18464768,
+        "heapUsed": 8812752,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80512,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 112406528,
+        "heapTotal": 31047680,
+        "heapUsed": 13263520,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 109952,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 257,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "overlap",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82415616,
+        "heapTotal": 18464768,
+        "heapUsed": 8824056,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80484,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 106201088,
+        "heapTotal": 20299776,
+        "heapUsed": 10358688,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 103712,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "overlap",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 81981440,
+        "heapTotal": 17940480,
+        "heapUsed": 8829144,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80216,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 105689088,
+        "heapTotal": 21086208,
+        "heapUsed": 11049888,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 103484,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "overlap",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82149376,
+        "heapTotal": 18202624,
+        "heapUsed": 8824208,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80224,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 107900928,
+        "heapTotal": 30523392,
+        "heapUsed": 13077072,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 105372,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 257,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "overlap",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82001920,
+        "heapTotal": 18464768,
+        "heapUsed": 8829224,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80080,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 111902720,
+        "heapTotal": 31571968,
+        "heapUsed": 13778064,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 109776,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 257,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "cross",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82280448,
+        "heapTotal": 18202624,
+        "heapUsed": 8782976,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80352,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 101531648,
+        "heapTotal": 19513344,
+        "heapUsed": 10166448,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 99296,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "cross",
+      "n": 256,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82161664,
+        "heapTotal": 18202624,
+        "heapUsed": 8787992,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80236,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 100511744,
+        "heapTotal": 20299776,
+        "heapUsed": 10505584,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 98156,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "cross",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82194432,
+        "heapTotal": 18202624,
+        "heapUsed": 8783056,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80268,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 101650432,
+        "heapTotal": 19775488,
+        "heapUsed": 10538816,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 99344,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "cross",
+      "n": 256,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 81985536,
+        "heapTotal": 17940480,
+        "heapUsed": 8788000,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80064,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 100466688,
+        "heapTotal": 20561920,
+        "heapUsed": 10740776,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 98112,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "multi",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83013632,
+        "heapTotal": 18464768,
+        "heapUsed": 8943736,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81212,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 111570944,
+        "heapTotal": 28950528,
+        "heapUsed": 11308520,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 109228,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83038208,
+        "heapTotal": 18989056,
+        "heapUsed": 8948440,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81092,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 112128000,
+        "heapTotal": 29736960,
+        "heapUsed": 11408656,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 109636,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "multi",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82804736,
+        "heapTotal": 18202624,
+        "heapUsed": 8943384,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80864,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 118026240,
+        "heapTotal": 31047680,
+        "heapUsed": 12177792,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 115424,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82857984,
+        "heapTotal": 18464768,
+        "heapUsed": 8948544,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81052,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 122503168,
+        "heapTotal": 30261248,
+        "heapUsed": 11681752,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 119632,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "factored",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83308544,
+        "heapTotal": 18726912,
+        "heapUsed": 9050352,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81356,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 120868864,
+        "heapTotal": 30523392,
+        "heapUsed": 12423240,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 118348,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "factored",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83308544,
+        "heapTotal": 18989056,
+        "heapUsed": 9055544,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81356,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 114106368,
+        "heapTotal": 32096256,
+        "heapUsed": 13833816,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 111820,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "factored",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83312640,
+        "heapTotal": 18464768,
+        "heapUsed": 9050504,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81360,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 135995392,
+        "heapTotal": 55689216,
+        "heapUsed": 20398328,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 132944,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 1026,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "factored",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83476480,
+        "heapTotal": 18464768,
+        "heapUsed": 9055744,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81520,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 142065664,
+        "heapTotal": 93437952,
+        "heapUsed": 23563688,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 138736,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 1026,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "unique",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83111936,
+        "heapTotal": 18726912,
+        "heapUsed": 9043488,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81164,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 111652864,
+        "heapTotal": 30523392,
+        "heapUsed": 12296632,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 109324,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "unique",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83222528,
+        "heapTotal": 18726912,
+        "heapUsed": 9048264,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81272,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 117616640,
+        "heapTotal": 33144832,
+        "heapUsed": 13925960,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 115064,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "unique",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83365888,
+        "heapTotal": 18202624,
+        "heapUsed": 9043280,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81412,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 136904704,
+        "heapTotal": 56213504,
+        "heapUsed": 21001776,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 133892,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 1025,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "unique",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83296256,
+        "heapTotal": 18464768,
+        "heapUsed": 9048312,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81344,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 148516864,
+        "heapTotal": 95010816,
+        "heapUsed": 26243792,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 145216,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 1025,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "overlap",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83226624,
+        "heapTotal": 18202624,
+        "heapUsed": 9108824,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81276,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 111636480,
+        "heapTotal": 30261248,
+        "heapUsed": 12380696,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 109364,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "overlap",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83324928,
+        "heapTotal": 18464768,
+        "heapUsed": 9113888,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81372,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 136015872,
+        "heapTotal": 49922048,
+        "heapUsed": 14826872,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 132828,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "overlap",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83615744,
+        "heapTotal": 18726912,
+        "heapUsed": 9108904,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81804,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 137879552,
+        "heapTotal": 57262080,
+        "heapUsed": 21635680,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 134648,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 1025,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "overlap",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83279872,
+        "heapTotal": 18202624,
+        "heapUsed": 9113936,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81512,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 167489536,
+        "heapTotal": 96059392,
+        "heapUsed": 27979008,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 164656,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 1025,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "cross",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82767872,
+        "heapTotal": 18726912,
+        "heapUsed": 8943352,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80964,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 114556928,
+        "heapTotal": 29736960,
+        "heapUsed": 11672696,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 112060,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "cross",
+      "n": 1024,
+      "mode": "current",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83152896,
+        "heapTotal": 18726912,
+        "heapUsed": 8948584,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81204,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 132435968,
+        "heapTotal": 48349184,
+        "heapUsed": 12539352,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 129332,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 0,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "cross",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 82780160,
+        "heapTotal": 18726912,
+        "heapUsed": 8943432,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 80840,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 113577984,
+        "heapTotal": 31309824,
+        "heapUsed": 12961976,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 111048,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "cross",
+      "n": 1024,
+      "mode": "snapshots",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83230720,
+        "heapTotal": 18464768,
+        "heapUsed": 8948448,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81280,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 132382720,
+        "heapTotal": 49922048,
+        "heapUsed": 13366656,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 129280,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "A",
+      "shape": "multi",
+      "n": 1024,
+      "mode": "forks",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 81637376,
+        "heapTotal": 18202624,
+        "heapUsed": 8943448,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 79888,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 133079040,
+        "heapTotal": 47300608,
+        "heapUsed": 12609648,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 130340,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 8
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "n": 1024,
+      "mode": "forks",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83251200,
+        "heapTotal": 18464768,
+        "heapUsed": 8948464,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81300,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 133931008,
+        "heapTotal": 46252032,
+        "heapUsed": 11933528,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 131092,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 8
+    },
+    {
+      "variant": "A",
+      "shape": "multi",
+      "n": 1024,
+      "mode": "full",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83001344,
+        "heapTotal": 18726912,
+        "heapUsed": 8943376,
+        "external": 7131911,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81056,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 175964160,
+        "heapTotal": 81117184,
+        "heapUsed": 12447856,
+        "external": 7131951,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 172124,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    },
+    {
+      "variant": "B",
+      "shape": "multi",
+      "n": 1024,
+      "mode": "full",
+      "node": "v24.18.0",
+      "bun": null,
+      "before": {
+        "rss": 83394560,
+        "heapTotal": 18989056,
+        "heapUsed": 8948440,
+        "external": 7137671,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 81440,
+        "jscHeapSize": null
+      },
+      "after": {
+        "rss": 171511808,
+        "heapTotal": 80592896,
+        "heapUsed": 11880616,
+        "external": 7137711,
+        "arrayBuffers": 143799,
+        "maxRSSKiB": 167840,
+        "jscHeapSize": null
+      },
+      "retainedSourceStates": 9,
+      "retainedForks": 0
+    }
+  ]
+}
