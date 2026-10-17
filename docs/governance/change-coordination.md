@@ -63,10 +63,10 @@ owner 时，实施与提交必须串行。
 后续触及共同 matcher、Run 接线、包材料、Case 或文档 owner 时，仍按实际重叠串行实施与提交。
 函数指标的来源、计量和读取边界各由对应 owner 拥有；后续是否复用关系索引按具体结果与责任判断，不由本轨道交付自动触发。
 
-### Markdown Link 文档规模与目标工作
+### Markdown Link 图式验证重构
 
-[`scale-markdown-link-validation`](../../changes/scale-markdown-link-validation/proposal.md) 优先交付可关闭的总量预算，
-独立评估目标事实复用。进入 Plan 前收敛预算语法、观察语义与性能采用门槛；设计范围由该 Change 拥有。
+[`scale-markdown-link-validation`](../../changes/scale-markdown-link-validation/proposal.md) 负责节点事实与引用边分离、
+需求驱动的目标工作及配套预算调整。进入 Plan 前收敛节点身份、观察语义、执行时序与验收门槛；设计范围由该 Change 拥有。
 共享 Markdown Link、Gate、Case 与稳定文档 owner 的实施和提交串行，性能采样使用协调窗口。
 
 ### Lizard 升级与 TypeScript 修复
