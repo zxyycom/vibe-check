@@ -155,6 +155,18 @@ owner 时，实施与提交必须串行。
 共享 Scheduler、Definition、Invocation、公开类型、Case 和稳定文档的写入与提交串行协调。
 底层项优化已请求数据的维护和计算，不重新打开已交付上下文 API 或把需求开关迁移混入性能结论。
 
+### Scheduler 共享关系条件
+
+[`share-scheduler-relation-conditions`](../../changes/share-scheduler-relation-conditions/proposal.md)
+在已交付的不可变状态上贯通关系条件、ready discovery 与 measurement；不改变公开 API、策略、
+逐 effect post-state 或 snapshot/fork 语义，也不重新引入 overlay。
+
+Scheduler 源码、直接测试、Case 与稳定 owner 由同一实施者串行维护；本页与 Git 由主线程独占。
+完整切片与局部测试稳定后进行独立正确性审查，最终文档/代码优化后冻结比较输入。
+正式计时独占且与测试、计数、内存采样、profile 和 Gate 分离；采用判断包含编译、真实 Core/collector/Run、
+低复用和完整读取成本，最终运行完整 Gate。策略证据队列不因本项实施自动激活。
+提交依当前授权执行；Change 结项删除仍须单独授权。
+
 ### Scheduler 证据队列
 
 以下策略证据队列与已交付的底层状态重构独立验收；共用 Scheduler owner 的源码和 Case 写入串行，性能采样使用独占窗口。
