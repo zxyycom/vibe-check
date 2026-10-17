@@ -1,0 +1,137 @@
+# Product 算法复杂度普查（2026-10-15）
+
+## 结论与范围
+
+这是**普查，不是改进优先级，也不是实施结果**。以当次工作区 HEAD `b2926b14880da7546f39aba7c0e07424f65f3977` 为基线，覆盖 `src/**` 的 **365 个生产 TypeScript 模块**。原 39 组线索全部保留身份并给出当前状态；不是 39 个 Bug，也不把线索数当作剩余问题总数。
+
+- 原根因消除 **18** 组。
+- 部分消除/限定子例已防护 **4** 组：R04、R05、T02、U-A01。
+- 当前仍有条件可达的增长/健壮性机制 **9** 组：C04、C06、R06、R09、K02、A01–A04。
+- 重复、容量、默认形状限制或有界额外成本 **5** 组：R10、K08、K09、K11、K13。
+- 仍未证实 **3** 组：K12、U-A02、U-A03。
+
+这些分类针对**原根因和分支**，不是宣称整个模块复杂度被消除。新增/拆出的当前成本也在下文按域列明，不把所有成本强行塞成新的 Bug 编号。未修改 Product、测试、Case、docs、Change 或共享索引；只写入本目录的隔离调查辅助物。没有安装、联网、切分支、stage/commit、运行 Gate、setup 或 finalize。
+
+## 可复核索引与证据口径
+
+- [当前全源清单与388项排除名单](/workspace/vibe-check/tmp/complexity-investigation-20261015/current-source-inventory.json)：`allSourceFiles=753`，`currentProductionMembers=365`。其中 `entries` 是旧 **347** 成员的身份对照，必须与 `added` **18** 项合并；不能把 `entries.length` 误称当前生产数。
+- [完整365行覆盖表 JSON](/workspace/vibe-check/tmp/complexity-investigation-20261015/coverage.json)；[可读覆盖矩阵](/workspace/vibe-check/tmp/complexity-investigation-20261015/coverage.md)。每项有绝对路径、owner、SHA、身份、读取方式、当前机制/边界及旧局部分析来源。
+- [原39组当前完整状态 JSON](/workspace/vibe-check/tmp/complexity-investigation-20261015/current-candidate-status.json)；[逐项可读说明](/workspace/vibe-check/tmp/complexity-investigation-20261015/current-candidate-status.md)。每项有当前绝对文件+行/锚点、时间/空间变量、可达条件、限制与既有 Plan 边界，不按优先级排列。
+- [Core/公开入口计数](/workspace/vibe-check/tmp/complexity-investigation-20261015/operation-counts.json)、[Analyzer计数](/workspace/vibe-check/tmp/complexity-investigation-20261015/analyzer-operation-counts.json)、[继承/等待计数](/workspace/vibe-check/tmp/complexity-investigation-20261015/secondary-operation-counts.json)。脚本同名 `.ts`，命令见下文。
+
+生产口径：递归列出所有 `src` 文件；排除任何 `/fixtures/` 子树、`src/bun-test.d.ts`、名称含 `.test.`/`.test-support.`/`.type-test.`/`.fixture.` 的文件。剩余文件当前全部是 `.ts`；没有 fixture 之外的 `.mjs/.js/.cjs` 运行模块漏项。Worker 源为 `src/package-checks/function-metrics/analyzer-worker.ts`，发布 `.mjs` 是构建产物，不是另一个源成员。排除名单逐项记录原因。
+
+读取方式明确分开：
+
+| 当前证据方式 | 文件数 | 能证明什么/不能证明什么 |
+|---|---:|---|
+| 与261012（5cb448）报告同SHA，复用该报告当时局部或增量审读，并重核当前owner调用边界 | 284 | 证明局部源码身份相同；**不是284次新的逐行审读**。其中16文件在上次报告相对更早21777已变化，因此必须采用上次完整entry的delta/currentReviewNote，而不能套用更早historicalCoverage。调用次数/输入形状/生命周期由本轮changed调用方审读另行判断。 |
+| 当前runtime body或目标算法及接线审读 | 73 | 阅读当前实际路径、循环/集合、需求、缓存与失败分支；既有大文件按目标方法和接线分段，不声称整文件每行都有全新形式化证明。 |
+| 当前符号结构/契约审读，无独立runtime集合算法 | 8 | 类型/重导出或纯类型载体；不用TypeScript编译器复杂度冒充Product运行时成本。 |
+
+覆盖JSON保留`previousReportEvidence`上次完整entry，并将更早`earlierHistoricalClue`明确标为历史线索、不作当前算法依据；当前`currentReview`及39状态表优先。
+
+本轮对全部63变化+18新增分别采用后两种方式；没有仅凭SHA就判定调用链风险状态不变。CodeGraph `node`、`callers`、`callees` 可用；其 `explore` 未提供。源码读取优先该工具，缺少/不完整结果再按路径读取；对于通用符号名的过宽caller候选，以实际import与当前owner接线收窄。
+
+## 按域普查
+
+### Core与公开入口（146模块）
+
+| 域/模块数 | 当前算法结论 |
+|---|---|
+| Check 9 | descriptor/options/provider/flags authoring沿输入与输出结构处理。固定schema字段数不是动态数组上界；flag AST接受深度/节点限制仍不能把拒绝前浅数组snapshot视为恒定成本。未发现本轮新增独立增长根因。 |
+| Project Definition 18 | C01去重、C05 exact-key二次已消除。一次Run保留parsed/resolved事实，不再回到原始grammar重走。C04共享executable DAG仍在graph重复ID拒绝前展开；C06深层inherit仍反复物化增长前缀。standalone validator/normalizer仍关闭原始输入；callback需求tokens宇宙固定<=9，去重includes不随N扩张。 |
+| Run 93 | compiled graph、单次prepared handoff、persistent状态与三层group-head queues已替代旧默认每boundary全态扫描/广播。R04多task scope reachability、R06重复race、R09需求启用积分仍在；custom/diagnostic完整投影与静态动态blocked前缀、active-scope数组和Shell pending成本须分别计量，见下节。 |
+| Check settlement 6 | C02 session Map/Set、C03 blocker duplicate Set仍有效；Record写入按结构pair索引。完整冻结/排序、重复readback、canonical payload与reason输出按真实规模，不是零成本。 |
+| Data boundary 7 | exact-key现为prefix+Set，动态K不再Θ(K²)。canonical JSON按出现次数处理DAG，输出树本身可能指数；`canonicalJsonText`的完整字节是必要成本，未证明引擎rope复制上界。file-region完整关系E可达F×R；appendSources按公开契约全量重建，连续微量追加累计Σbuild成本，不误报成隐藏增量API缺陷。 |
+| Machine output 12 | 完整事实投影、排序、fingerprint、serialize、候选验证、再解析与发布具有完整输入/输出义务。多遍与并存副本可增加常数/峰值；没有证据支持直接删除安全验证。artifact目录条目数是独立I/O轴；two-file publication与handled-failure cleanup语义不能因优化省略。 |
+| package root 1 | `src/index.ts`仅重导出，无独立运行时遍历算法。 |
+
+### 当前调度/投影的具体边界
+
+1. **旧三次项不再适用于默认static/no-observer。** `/workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts:35–38,61–101`直接消费static group head；完整candidate facts/eligibleCount延迟读取。`/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts:228–253`按当前最紧scope root及candidate自己的activation scope判断容量；不再每candidate扫描全部scope membership。mutex occupancy只更新变更Task声明occurrences，旧R07 cohort广播不存在。graph fingerprint只在invocation首次需求时计算。
+2. **完整custom/observer投影仍按boundary规模增长。** canonical candidates在custom seam前完整物化，即使callback声明不读candidates，private hard guard仍消费它；`selection-query.ts:256–267`从relation-ready Set提取并排序。public function callback兼容full需求会读取active/running/settled IDs与measurement；learned目前返回的就是function。全量pending/settled DTO累计Ω(N²)常与必须交付的输出量一致，但重复排序/索引构建是另一个可评估问题。不能把learned端到端时长只归因于它自己的sort。
+3. **静态frontier有摊还改善，也有条件性重复前缀。** `/workspace/vibe-check/src/project-run/task-scheduler/admission-core/ready-frontier.ts:25–59`仅relation变化入队，同一单调分支每个ready节点至多进/出一次。leftist merge复制右spine，通常O(log Q)；旧state/fork保留共享子树。`static-selection-query.ts:34–51`仍在查询中跳过动态mutex/resource-blocked的活head：若许多不同constraint groups的阻塞head长时间排在可运行head前，多轮可重复付此前缀；组数G而非Task数N是直接轴，不能把同组宽任务当G=N。没有当前该退化族计数，不称实测热点。
+4. **active scopes是另一个增长轴。** `/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-seed.ts:237–252`插入仍includes+复制+sort；`selection-transition.ts:243–245`terminal close filter全active数组；`selection-frontiers.ts:58–64`候选membership也线扫active数组。累计取决A_i；P默认4限制正常real Run同时active scopes，但高parallelism或独立模拟可放大。不是旧capacity三次项。
+5. **Shell与Core责任分离仍留下列表工作。** `/workspace/vibe-check/src/project-run/task-scheduler/scheduler-task-lifecycle.ts:105–114`以pending.findIndex/splice取实际Task。反序选择可达到N(N+1)/2次明确predicate比较；`execution-state.ts:156–177`私有pre-admission列表也有find/splice。普通declaration-order选择可能每次find只比较1项，不能混淆；splice/shift实际元素移动依赖宿主，不以抽象数组复制直接声称测得CPU二次。pending有序取消、unknown/duplicate拒绝、callbackthrow优先级均须保持。
+6. **重复completion race R06**：`scheduler-task-lifecycle.ts:72–79`每wait复制/订阅所有running completions，总输入ΣR_j<=NP；N同时running再逐一drain可二次。当前数组O(P)，累积分配/订阅量与retained heap不同；未测reaction存留。取消仍drain started work。
+7. **R04多task scope与direct overlap**：`graph-validation.ts:185–215`每个nonterminal从terminal重新DFS，稀疏链也Θ(V²)；合法`createAdmissionGraph`可达，但ordinary Run每Check一个singleton scope使该子项为零。`:61–63`对每个dependsOn调用observes.includes，两个大而不相交direct列表可有d×o比较，这不是密图输出下界；global cycle DFS本身memo visited为O(V+E)。一次prepared graph handoff消除了旧四次准备常数，不消除以上根因。
+8. **R09 measurement只在实际demand启用。** `scheduler-observation.ts:89–107`按pending membership排序/分类，`measurement/integrals.ts:121–130`每interval累计各pendingTask delay，serial独立Task可累计Θ(N²)访问。在线snapshot目前仅标量/捕获prefix，不再复制全部历史。clock不合法会令timing unavailable，不改变admission。优化若延迟各kind积分须证明每Task breakdown、peaks、boundary顺序及不可用语义，不可绕过同源legality。
+
+### 九项Check、command与共享能力（203模块）
+
+| 模块数 | 当前结论/限制 |
+|---|---|
+| duplicateDetection 25 | K04 area intersection已索引；K10 cache-off身份专属内容读取/Git已消除。cache-on完整fingerprint是必要identity工作；scanner byte读取不因关闭cache消失。K11 generalized L-location去重可二次，默认jscpd固定2 locations限制该轴；完整fragment/area输出与waiver各自按义务。 |
+| fileMetrics 15 | K07 rolling SCC argument预算已消除旧batch前缀重复计量。exact union/region membership、完整CSV、排序与外部SCC计算分别计量；固定batch预算限制单批并非限制总文件数。 |
+| functionMetrics 63 | 46 analyzer模块的旧局部分析按身份复用，其中3变化tokenizer/state模块重新读当前关键方法/状态接线。A01–A04当前有界计数均仍成立；两类U-A01尾部已加入保守防护，不能宣称任意malformed线性。U-A02真实字符串复制、U-A03合法深f-string族仍未证实。parent bounded读取、真实Worker与取消terminate仍为外部限制，不是算法阶的替代证明。 |
+| jsonValidation 6 | nativeJSON grammar解析后，decoded-key cursor/每object Set查重与iterative private freeze承担不同义务；不是嵌套AST反复遍历。document之间setImmediate让步；单个syncparse不可抢占。文件读取按实际stat size而非最大cap分配。 |
+| jsonSchemaValidation 12 | K08同instance多binding重读/parse仍存在；独立schema验证、refs、完整error计数各有工作义务。共享native strict reader改善常数，未自动确立跨binding快照语义。第三方AJV/remote schema内部成本不在此源码普查的完整证明范围。 |
+| maintenanceReminders 6 | K06成功history/base/changed-line prefix复用仍在；只缓存完整成功prefix，失败/overflow故意保持可重试。外部Git与numstat实际字节不是已消除成本。 |
+| markdownLinkValidation 20 | K05 heading Set仍在。K03普通路径suffix数组复制已由cursor消除；symlink分支重建受40hops限制，growing path.join字符工作与必须lstat仍在。K09完整cache restore仍在；16MiB默认warning是提醒不是读取cap/compaction。source/occurrence/target上限和live authorization保留。 |
+| markdownLint 12 | K14 comparator不再分配rangeDTO；排序仍必要。共享Markdown安全读取K13仍按byte cap分配；K12front-matter regex未获得当前引擎复杂度证据。完整findings/Records与被显示的预览数不同。 |
+| secretDetection 11 | exact selected-file覆盖、gap facts、fixed Secretlint rules/scanner调用沿输入/输出工作；本轮未识别自身独立增长根因。不能据未变wrapper断言第三方scanner线性或安全预算已证明。 |
+| commandCheck 5 | argv/env/outputpolicy和transcript/result转换沿实际输入/输出；外部命令、回调成本由消费者拥有，输出cap与processfailure/cancellation边界仍需保留。 |
+| shared 28 | K01name索引与窄ASCII literal谓词已改善operation-local获取；最终批次仍完整native micromatch list，不承诺等价的glob/literal表示有相同成本。K02prefix slice/join仍在；strict JSON新增decoded-key模块、host CSV/process、eligibility、exact-input acceptance/fingerprint均按自身输入/输出，不把固定schema小includes算成动态K问题。 |
+
+Analyzer当前可复核根因：
+
+- **A01** `/workspace/vibe-check/src/package-checks/function-metrics/analyzer/analysis-model.ts:290–296`每次`Array.from(this.longName).at(-1)`重扫整个已有signature；时间Θ(ΣL_j)、单次临时数组O(L_max)。本轮增加一个合法的**单参数、默认表达式由固定短token组成**Python族，n项`1+...+1`的source字节O(n)，避免unique参数名长度随n增长模糊严格二次推导；只输出1函数/1参数，但累计signature字符1191/4423/17031/66823。
+- **A02** `.../analyzer/shared/code-reader.ts:233–236`每token逐级调用子state；Go深D块+深处D语句，消费派发Θ(Σdepth)=Θ(D²)，state/递归栈O(D)。本轮只测Go，不推广成每种reader都同阶。
+- **A03** `.../analyzer/analysis-context.ts:77–78`每candidate重建namespace stack；D层namespace×K个extern候选可O(DK)，输出函数0的样本说明不是全部必要qualified-name输出。
+- **A04** `.../analyzer/readers/ruby.ts:46–86`closed flat interpolation重启余下quoted suffix，每次成功regex匹配全余串；累计matched字符2I²+4I，输出tokens4I+5。成功匹配重复宽度证明扫描工作，不证明宿主substring复制或精确walltime。
+
+这些translated analyzer候选的最小计算方向分别是Unicode tail读取、叶state派发、可回滚qualification前缀、单游标literal/interpolation；它们**不是本轮采用决定**，且不得以降低复杂度为由擅自越过source-alignment、token/metric/EOF/replay/parity owner。已实施tokenizer-tail Plan只覆盖其特定已证分支。
+
+### 可选随包工具（16模块）
+
+- learned：T01正常prediction/score/history/recording Map已存在，private线性helper当前无production caller；memoized score DFS通常O(N+E)，递归深链可能触发contained setup fallback，不是指数DFS。accepted history有H<=4096/W<=32窗口，但**无效磁盘文件的读取字节**不因accepted shape限制而自动有界；state directory是caller-owned disposable localstate。
+- T02：normalprepared复用graph索引；staticfallback每boundary重新建graph maps，layer两次filter+activation.includes和全sort取首仍在。ordinary公开Run每Task singleton scope使activation列表轴为1；大型multi-task scope子项需另行区分。按原comparator fold可减少纯计算候选，但必须保持tightening/continuation/ordinary层、score/priority/IDtie、canAdmit与wait；不能混入same-layer backfill。
+- `changes/optimize-learned-admission-strategy`当前暂停的0/21语义实验与本轮计算普查不同；coordination要求参考证据→effective-opportunity分层→重写/拆分/not-adopt，draft也不是本轮授权。
+- cacheJsonByKey：按完整key/payload读/parse/canonical/原子写，hit不是零工作；并发miss重复compute符合公开不提供single-flight的边界。用户parser/compute为可信callback，无法从wrapper给统一复杂度。
+- finding-waivers：canonicalidentity→Map对账，不是F×Wpairscan；身份文本/输出audit成本仍在。finding-presentation limit后仍传完整omittedtail是公开callback义务，不能把O(F)尾部副本直接删掉；当前Check只做常数次messageappend，caller反复append的累计成本另计。
+- debugChangeFlags：一次batchcollection+Core关系索引，动态region exactkey不再触发旧C05；完整files/regions/formatter按真实输出量。admission-policy/scheduler-context authoringhelper运行时原样返回，复杂类型推导不计runtime算法。
+
+## 本轮有界操作量实验（不是timing benchmark）
+
+全部使用本机已安装 **Node24.18.0**，不是PATH默认Node26，也不是Bun的Nodecompatibility字段。没有大CPU/大内存样本；运行中局部prototype wrapper均在finally恢复，只作用于隔离进程。输入/脚本/断言可从同名脚本直接恢复；每次失败边界明确，不以成功exit替代结果断言。
+
+| 机制/真实当前路径 | 规模 | 当前计数 | 可证结论 |
+|---|---|---|---|
+| R04 actualvalidatePreparedTaskGraph +publiccreateAdmissionGraph成功 | N16/32/64/128，一scope稀疏chain | Map.get137/529/2081/8257 =N(N+1)/2+1 | 当前helper重复reachability二次；构造合法publicinput，不是理论无效图。 |
+| C04 publicdefineConfig/run | d3/5/7/9，仅d+1个不同Checkobjects | ownKeys15/63/255/1023=2^(d+1)-1；均planning，executecalls0 | 拒绝前确实按共享occurrences指数展开；不称container-onlywarnings同样多余。 |
+| Shellpending actualapplyAdmission，另publicreverse策略成功 | N16/32/64/128 | findIndexpredicate136/528/2080/8256=N(N+1)/2；publicN16/32完整逆序completed | helper计数与公开可达性分别证明，**不是整个publicRun同一个计数hook**；不量splice实际元素移动。 |
+| C06 actualresolveCheckTree，单leaf | n16/32/64/128 | inheritedfilter访问120/496/2016/8128=n(n-1)/2；finalmutexcount=n | 仅O(n)最终collection仍有明确二次前缀重复工作；sort额外成本未计。 |
+| R06 actualnextRunningSettlement | N16/32/64/128，全部resolvedrunningcompletion | raceinputs136/528/2080/8256=N(N+1)/2 | 证明重复raceinput数，不证明unresolvedreactionretention或端到端占比。 |
+| A01 fixed-tokenPythondefault | n16/32/64/128；bytes48/80/144/272 | append前累计longNamechars1191/4423/17031/66823；function/parameter均1 | 当前Array.from必完整枚举这些ASCIIchars；明确Θ(n²)短token族。 |
+| A02 Go合法nestedblocks | n16/32/64/128 | consume1483/5515/21259/83467；1函数 | currentbase派发工作近四倍增长，body/输出均线性。 |
+| A03 C++namespace/extern | n16/32/64/128 | namespaceslots1008/4064/16320/65408；0函数 | 当前完整candidatequalification重复stack工作。 |
+| A04 Rubyclosedflatinterpolation | I16/32/64/128 | matchedchars576/2176/8448/33280；tokens69/133/261/517 | 累计成功匹配宽度符合2I²+4I，输出tokens线性。 |
+
+复现命令（直接运行隔离调查脚本，不是项目script入口）：
+
+```sh
+/home/dev/.local/share/mise/installs/node/24.18.0/bin/node /workspace/vibe-check/tmp/complexity-investigation-20261015/operation-counts.ts
+/home/dev/.local/share/mise/installs/node/24.18.0/bin/node /workspace/vibe-check/tmp/complexity-investigation-20261015/analyzer-operation-counts.ts > /workspace/vibe-check/tmp/complexity-investigation-20261015/analyzer-operation-counts.json
+/home/dev/.local/share/mise/installs/node/24.18.0/bin/node /workspace/vibe-check/tmp/complexity-investigation-20261015/secondary-operation-counts.ts
+```
+
+第一次Coreharness误用了不存在的`inspection.pendingTasks`，在第一个合法构造后失败，没有生成最终JSON；已改断言公开`inspection.nextBoundary==='select'`后全脚本exit0。这是辅助harness失误，不是Product失败。Analyzer脚本由261012已校正合法样本的旧计数harness拷贝并改import路径，本轮另加fixed-tokenPythondefault；旧四组当前重跑与旧观察相同，不把旧耗时当本轮数据。
+
+主线程另在 `/workspace/vibe-check/tmp/census-audit-20261015-ZuADKP/` 复制并以Node24.18.0、45s外部timeout复跑Core与Analyzer脚本，报告四组Core及25条Analyzerobservations与本JSON逐项相同。这是**同harness复现**，不是独立算法证明；secondaryprobe尚未得到该复跑确认。
+
+早期小计数时间戳与性能代理Node末组测量存在约1秒潜在重叠，因此**不能称整个早期性能计时窗严格隔离**；本报告只使用操作量，不使用这些probe的walltime。主线程已安排性能代理在最终独占窗口复测，性能报告以其最终协议为准。
+
+## 可消除重复工作、必要输出与未验证边界
+
+- 明确可避免重复机制：共享无效DAG拒绝前展开、深inherit前缀、multi-task-scope重复DFS、direct overlap列表交叉includes、reverseShellpendingfind、runningrace重复订阅、measurement每interval逐pending积分、learned/fallback的重复排序/建表、A01–A04。这里只列机制，不排序、不宣称每项都值得实施，也不把低阶候选的小输入常数开销当自动否决条件。
+- 必要/契约成本：完整Record/reason/waiver/omittedtail、完整machinecandidate安全验证、canonical文本完整字节、F×R关系边、显式appendSources全量重建、distinctschema校验、exactfilescanner与externaloutput。重复pass可能有降低常数的空间，但不能以“输出只显示少量”为由删掉事实或信任边界。
+- **未覆盖/不外推**：本轮不是365文件新的逐行形式化审计；284模块复用旧局部审读。第三方AJV/Secretlint/SCC/jscpd/micromatch/Markdownparser内部一般最坏复杂度、任意用户callback、宿主regex步骤/rope/GC与峰值RSS、真实消费者规模/预算分布、任意malformed成本与物理Workerexit仍未知。K12/U-A02/U-A03保留uncertain，未将“看起来像嵌套循环”当确认Bug。
+- 错误/安全/取消不可旁路：descriptor-safe closeddata、filesystemliveauthorization/no-follow/byteidentity、schema安全引用、失败重试、完整ID/ordering、frozenoldstate/forks、hardguards、first-error/callback顺序、startedworkdrain与measurementunavailable都由当前owner保持。同步parse/normalization/restore本身不是可抢占任务。
+- 本轮新增认识主要是**当前消除状态更新**、Shell反序helper/public可达性拆分证据、fixed-tokenPython单参数族和当前计数复现；不把已有报告的C04/A01–A04风险重报为新发现严重Bug。未新确认需要另建正式Investigation的复杂/严重Bug；若后续据未知项确认跨owner故障或新兼容取舍，按治理自动沉淀。
+
+## 验证与辅助物归宿
+
+已运行：三个有界计数脚本（Node24.18.0）及其中结果/操作数断言；sourceinventory身份/排除清点；构建365行矩阵及39ID唯一闭合的辅助脚本。主线程Core/Analyzer同harness复现另列。没有运行Producttests/typecheck/lint/fullGate，因为Product/测试/owner未修改，本轮不能以这些工程验证冒充复杂度/性能收益。辅助脚本未注册为测试/Case/benchmarkgate，未作工程lint/typecheck声明。
+
+本目录所有文件是本轮短期审计材料，不是长期知识库或已发布artifact；[artifact-note](/workspace/vibe-check/tmp/complexity-investigation-20261015/artifact-note.md)列出来源、用途、状态与归宿。保留给主线程独立审计/用户读取，直到该任务交接完成后由主线程按精确目标决定保留或清理；本代理不擅自删除、finalize或迁移为正式报告。现阶段无需用户决定实施哪个优化才能完成此普查。

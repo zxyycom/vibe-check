@@ -74,3 +74,10 @@ Case 闭合保持 715 entities / 178 Cases / 15 topics；文档投影、材料�
 - 跨平台、真实 I/O/深依赖/资源竞争 workload、heap/GC 与独立 cold candidate lifecycle integration 未运行；
   本次没有修改 candidate lifecycle。临时 source 镜像、harness、raw 与复核材料留在本轮 tmp 目录供审计，
   不进入 Product；保留原因与后续清理边界见各目录 artifact-note。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

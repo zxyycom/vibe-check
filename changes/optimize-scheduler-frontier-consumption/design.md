@@ -109,3 +109,12 @@ Case 文档 501 code lines 超过原 500 限额。收敛 compiler Case 中的架
 最终日志为 `.log/project-gate/2026-10-14T04-10-07.237Z-2743795-8b6bbf2a-3fbd-47ef-be4b-82ab2a21b754/`。
 公共材料、722 entities / 181 Cases / 15 topics 与 24 份 Change 检查通过，task 2.6 闭合。
 Check mean/p95 warning 仍存在；单次 Gate elapsed 不是新的配对性能证据。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。
+独立 review、风格整理和旧成本调查的临时脚本/日志不另归档；本页已保存实际验证数与语义边界，
+补存的多规模/多形状样本保留 chain 及小输入的非收益，不把后续等价整理冒充已重测。

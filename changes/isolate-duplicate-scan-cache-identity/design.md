@@ -69,3 +69,10 @@ cache-off/hit/miss/no-eligible/unavailable；custom synthetic scanner 真实读�
 正式采样于 2026-10-13 04:53:47–04:55:13 UTC 独占完成，每 cell/variant 1 warmup + 10 正式样本、逐 replicate 交替版本顺序；仅计 public Run，排除 import 与 hit seed。root 与非实施代理各自复算 220 条 raw 的状态/reason/零 Records 和 summary，root 另验 source/harness/protocol hashes 全部未变。small cache-off median 90.13→84.19 ms，large 156.63→104.01 ms；no-eligible 两规模约 27.57/29.03→21.40/22.38 ms；unavailable small 28.50→21.91 ms、large 80.66→25.41 ms。large cache-off 及两规模 no-eligible/unavailable 的 10 对均 candidate 更快。
 
 cache-on 操作量未减少，不把计时浮动作为采用理由：small hit/miss 配对 median 分别 +0.43%/+0.99%，large -6.05%/-5.88%；raw 保留全部样本，不用总体平均掩盖分支。采用依据是三条非消费路径消除完整输入读/hash与 Git 工作、保持最小 cache owner 分离；不是默认开启缓存的调用普遍加速。p95 在每 cell 10 样本下等于最大值，maxRSS 包含完整子进程/import/hit seed，不能冒充 timed-only 内存改进。独立 reviewer 复跑 Duplicate 18/18 通过且无实质阻断；最终组合 Gate 43/43 通过，含实际安装包验收，完整日志与告警边界见 [任务交付证据](tasks.md#delivery-evidence)。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

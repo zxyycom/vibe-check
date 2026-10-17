@@ -52,3 +52,10 @@ renderer 继续拥有解析、诊断和 replacement/fallback。旧位置没有�
 阈值、waiver、Analyzer、算法和输出契约保持；单次 SCC 结果仅作为 evidence 中的形成时验证记录。
 局部差分、反射顺序和既有组合验收的精确边界统一保存在 [evidence.md](evidence.md#verification-and-handoff)，
 本页不重复逐轮运行日志。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

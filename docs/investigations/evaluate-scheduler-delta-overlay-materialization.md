@@ -70,6 +70,9 @@ Core oracle 比较 effects、effectStates、delta、catalog、inspection 和 sta
 
 计时的 full/readheavy 分别只推进 min(N,128)/min(N,256)，8fork 为各 min(N,128) 步并保留快照；计时尾部只枚举各分支最终 settled members。逐快照反向完整查询属于正确性 oracle。全部 timing cohort 的结果 digest 一致。
 
+**2026-10-17 现场生命周期补记（非新增观测）：**随附资源继续保存完整 timing、memory、操作量和 profile.head 树/原raw身份；原完整 allocation samples 数组、bundle/entry 与工作旁注作为可删除现场退场，不影响本文已声明的采样估计及未归因边界。
+原资源中的路径继续作为形成时来源坐标；复测需要新授权及独占工作区，不保证旧临时命令在当前版本可执行。
+
 ## 调查结果与边界
 
 ### 核心判断

@@ -90,3 +90,10 @@ CPU 中位数各组下降；RSS 表示整个 worker 的进程高水位。结论�
 
 工程 lint/typecheck/format、依赖边界、公开材料、文档链接、Case、Decision、Change 和 Investigation 检查通过。
 采用决定在完整验收后标记 aligned；Change 保留待单独结项，复审进度见 [tasks](tasks.md)。
+
+
+## Historical evidence handoff
+
+2026-10-17 生命周期核对：本页已独立保存该轮输入条件、关键计数/样本、混合方向与未验证边界；
+所述 `tmp/` 或旧 `.log/` 路径只保留历史来源意义，不是当前运行依赖、永久保留义务或仍可执行的复核入口。
+一次性源码镜像、profile、草稿与工程日志不继续保存；本次未新增采样或产品验收。

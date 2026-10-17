@@ -1,0 +1,3277 @@
+{
+  "purpose": "完整未profile三样本before/after及分阶段归因，保留function/types无收益与RSS代价；不保存约209MiB compiler trace和原始CPU profiles。",
+  "observedOn": "2026-10-15",
+  "supplementedAt": "2026-10-17T06:07:59+00:00",
+  "scope": "形成时验收记录，非当前验证、长期benchmark或可重跑SDK。historicalPath仅标注已退出的现场来源；未保存完整源码镜像、fixture、cache、原始profile。JSON/JSONL按值转存，文本原样保留；sourceSHA256识别补存时读取的原字节，不要求原路径仍存在。",
+  "materials": [
+    {
+      "historicalPath": "tmp/gate-heavy-check-cost-20261015/comparison-summary.json",
+      "sourceBytes": 794,
+      "sourceSHA256": "b60ba53e44100c86f08b63d975808bed70f10cf8cbed84e8933b961aaf2fd042",
+      "representation": "parsed-json",
+      "data": {
+        "before": {
+          "types": {
+            "wallMs": 3557.292956043966,
+            "cpuMs": 4840.078,
+            "maxProcessRssKiB": 799548
+          },
+          "artifact": {
+            "wallMs": 4007.2906690184027,
+            "cpuMs": 5587.9130000000005,
+            "maxProcessRssKiB": 278152
+          },
+          "function": {
+            "wallMs": 3728.7731260294095,
+            "cpuMs": 4751.341,
+            "maxProcessRssKiB": 253748
+          }
+        },
+        "after": {
+          "types": {
+            "wallMs": 3449.674333038274,
+            "cpuMs": 4748.429,
+            "maxProcessRssKiB": 803988
+          },
+          "artifact": {
+            "wallMs": 900.2609910094179,
+            "cpuMs": 1534.5780000000002,
+            "maxProcessRssKiB": 244996
+          },
+          "function": {
+            "wallMs": 3735.5324119562283,
+            "cpuMs": 4779.919,
+            "maxProcessRssKiB": 258488
+          }
+        },
+        "functionFactsParity": true
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-check-cost-20261015/before/samples.jsonl",
+      "sourceBytes": 2947,
+      "sourceSHA256": "40e0a28561ad17d8d32e3a7e940005a343d95d94d79505dcdf222526c9a6e0ee",
+      "representation": "parsed-json-lines",
+      "data": [
+        {
+          "phase": "before",
+          "job": "types",
+          "sample": 0,
+          "profiled": false,
+          "wallMs": 4085.7013069908135,
+          "cpuMs": 5494.078,
+          "maxProcessRssKiB": 802532,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts"
+          ]
+        },
+        {
+          "phase": "before",
+          "job": "types",
+          "sample": 1,
+          "profiled": false,
+          "wallMs": 3428.661860001739,
+          "cpuMs": 4822.532000000001,
+          "maxProcessRssKiB": 781016,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts"
+          ]
+        },
+        {
+          "phase": "before",
+          "job": "types",
+          "sample": 2,
+          "profiled": false,
+          "wallMs": 3557.292956043966,
+          "cpuMs": 4840.078,
+          "maxProcessRssKiB": 799548,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts"
+          ]
+        },
+        {
+          "phase": "before",
+          "job": "artifact",
+          "sample": 0,
+          "profiled": false,
+          "wallMs": 4007.2906690184027,
+          "cpuMs": 5587.9130000000005,
+          "maxProcessRssKiB": 278152,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/artifact/artifact.test.ts"
+          ]
+        },
+        {
+          "phase": "before",
+          "job": "artifact",
+          "sample": 1,
+          "profiled": false,
+          "wallMs": 4189.922984980512,
+          "cpuMs": 5796.338000000001,
+          "maxProcessRssKiB": 273364,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/artifact/artifact.test.ts"
+          ]
+        },
+        {
+          "phase": "before",
+          "job": "artifact",
+          "sample": 2,
+          "profiled": false,
+          "wallMs": 3948.96389398491,
+          "cpuMs": 5558.585000000001,
+          "maxProcessRssKiB": 283120,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/artifact/artifact.test.ts"
+          ]
+        },
+        {
+          "phase": "before",
+          "job": "function",
+          "sample": 0,
+          "profiled": false,
+          "wallMs": 3728.7731260294095,
+          "cpuMs": 4814.112,
+          "maxProcessRssKiB": 253748,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "run",
+            "/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/function-check.ts"
+          ]
+        },
+        {
+          "phase": "before",
+          "job": "function",
+          "sample": 1,
+          "profiled": false,
+          "wallMs": 3740.70257198764,
+          "cpuMs": 4751.341,
+          "maxProcessRssKiB": 254852,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "run",
+            "/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/function-check.ts"
+          ]
+        },
+        {
+          "phase": "before",
+          "job": "function",
+          "sample": 2,
+          "profiled": false,
+          "wallMs": 3703.61046603648,
+          "cpuMs": 4730.603,
+          "maxProcessRssKiB": 250288,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "run",
+            "/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/function-check.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-check-cost-20261015/after/samples.jsonl",
+      "sourceBytes": 2932,
+      "sourceSHA256": "b34385ca1b904caa9cf7a46ce06b366e2adb505d256c3b861b4d7c5356a9da13",
+      "representation": "parsed-json-lines",
+      "data": [
+        {
+          "phase": "after",
+          "job": "types",
+          "sample": 0,
+          "profiled": false,
+          "wallMs": 3629.5918929972686,
+          "cpuMs": 4854.009999999999,
+          "maxProcessRssKiB": 804744,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts"
+          ]
+        },
+        {
+          "phase": "after",
+          "job": "types",
+          "sample": 1,
+          "profiled": false,
+          "wallMs": 3449.674333038274,
+          "cpuMs": 4748.429,
+          "maxProcessRssKiB": 803952,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts"
+          ]
+        },
+        {
+          "phase": "after",
+          "job": "types",
+          "sample": 2,
+          "profiled": false,
+          "wallMs": 3438.9599040150642,
+          "cpuMs": 4671.8,
+          "maxProcessRssKiB": 803988,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts"
+          ]
+        },
+        {
+          "phase": "after",
+          "job": "artifact",
+          "sample": 0,
+          "profiled": false,
+          "wallMs": 971.0717709967867,
+          "cpuMs": 1660.009,
+          "maxProcessRssKiB": 251096,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/artifact/artifact.test.ts"
+          ]
+        },
+        {
+          "phase": "after",
+          "job": "artifact",
+          "sample": 1,
+          "profiled": false,
+          "wallMs": 853.8943490129896,
+          "cpuMs": 1534.5780000000002,
+          "maxProcessRssKiB": 244448,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/artifact/artifact.test.ts"
+          ]
+        },
+        {
+          "phase": "after",
+          "job": "artifact",
+          "sample": 2,
+          "profiled": false,
+          "wallMs": 900.2609910094179,
+          "cpuMs": 1523.379,
+          "maxProcessRssKiB": 244996,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "test",
+            "scripts/package/artifact/artifact.test.ts"
+          ]
+        },
+        {
+          "phase": "after",
+          "job": "function",
+          "sample": 0,
+          "profiled": false,
+          "wallMs": 3832.8635320067406,
+          "cpuMs": 4805.7080000000005,
+          "maxProcessRssKiB": 250884,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "run",
+            "/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/function-check.ts"
+          ]
+        },
+        {
+          "phase": "after",
+          "job": "function",
+          "sample": 1,
+          "profiled": false,
+          "wallMs": 3735.5324119562283,
+          "cpuMs": 4779.919,
+          "maxProcessRssKiB": 263108,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "run",
+            "/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/function-check.ts"
+          ]
+        },
+        {
+          "phase": "after",
+          "job": "function",
+          "sample": 2,
+          "profiled": false,
+          "wallMs": 3734.273476002272,
+          "cpuMs": 4755.889,
+          "maxProcessRssKiB": 258488,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.1c3b95a292c6",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "run",
+            "/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/function-check.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-check-cost-20261015/before-profile/samples.jsonl",
+      "sourceBytes": 1451,
+      "sourceSHA256": "57013f2d20e1835031b93be55b10eaca8ad21397d917975357513f596471bb4a",
+      "representation": "parsed-json-lines",
+      "data": [
+        {
+          "phase": "before-profile",
+          "job": "types",
+          "sample": 0,
+          "profiled": true,
+          "wallMs": 4588.588737999089,
+          "cpuMs": 5810.938999999999,
+          "maxProcessRssKiB": 782776,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "--cpu-prof",
+            "--cpu-prof-md",
+            "--cpu-prof-dir=/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/before-profile",
+            "--cpu-prof-name=types-0",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts"
+          ]
+        },
+        {
+          "phase": "before-profile",
+          "job": "artifact",
+          "sample": 0,
+          "profiled": true,
+          "wallMs": 4339.808185002767,
+          "cpuMs": 5763.635,
+          "maxProcessRssKiB": 273360,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "--cpu-prof",
+            "--cpu-prof-md",
+            "--cpu-prof-dir=/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/before-profile",
+            "--cpu-prof-name=artifact-0",
+            "test",
+            "scripts/package/artifact/artifact.test.ts"
+          ]
+        },
+        {
+          "phase": "before-profile",
+          "job": "function",
+          "sample": 0,
+          "profiled": true,
+          "wallMs": 3779.4924339978024,
+          "cpuMs": 4842.887,
+          "maxProcessRssKiB": 263900,
+          "exitCode": 0,
+          "candidateVersion": "0.0.0-local.374b9bf8c9ce",
+          "command": [
+            "mise",
+            "exec",
+            "--",
+            "bun",
+            "--cpu-prof",
+            "--cpu-prof-md",
+            "--cpu-prof-dir=/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/before-profile",
+            "--cpu-prof-name=function-0",
+            "run",
+            "/workspace/vibe-check/tmp/gate-heavy-check-cost-20261015/function-check.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-check-cost-20261015/adapter-before-phases.json",
+      "sourceBytes": 70031,
+      "sourceSHA256": "60afa794b310cc3b88205801f20c55248adc2b590ed77ea09f90f9103299d144",
+      "representation": "parsed-json",
+      "data": [
+        {
+          "name": "scripts/canonical-json.ts",
+          "wallMs": 20.66267099999999,
+          "cpuMs": 46.761
+        },
+        {
+          "name": "scripts/decision-records/command.ts",
+          "wallMs": 19.254291999999992,
+          "cpuMs": 44.869
+        },
+        {
+          "name": "scripts/development/format-targets.ts",
+          "wallMs": 2.895030999999989,
+          "cpuMs": 4.535
+        },
+        {
+          "name": "scripts/development/format.ts",
+          "wallMs": 3.2592369999999846,
+          "cpuMs": 9.677
+        },
+        {
+          "name": "scripts/development/lint.ts",
+          "wallMs": 4.110843999999986,
+          "cpuMs": 9.664
+        },
+        {
+          "name": "scripts/development/lizard-performance/analyzer-only.ts",
+          "wallMs": 11.239702000000023,
+          "cpuMs": 18.087
+        },
+        {
+          "name": "scripts/development/lizard-performance/arguments.ts",
+          "wallMs": 48.625033,
+          "cpuMs": 62.408
+        },
+        {
+          "name": "scripts/development/lizard-performance/benchmark-context.ts",
+          "wallMs": 3.6780299999999784,
+          "cpuMs": 4.489
+        },
+        {
+          "name": "scripts/development/lizard-performance/benchmark-identity.ts",
+          "wallMs": 2.2993920000000116,
+          "cpuMs": 3.745
+        },
+        {
+          "name": "scripts/development/lizard-performance/canonical.ts",
+          "wallMs": 2.6428379999999834,
+          "cpuMs": 4.093
+        },
+        {
+          "name": "scripts/development/lizard-performance/command.ts",
+          "wallMs": 1.1188680000000204,
+          "cpuMs": 1.979
+        },
+        {
+          "name": "scripts/development/lizard-performance/comparison.ts",
+          "wallMs": 12.02748200000002,
+          "cpuMs": 14.235
+        },
+        {
+          "name": "scripts/development/lizard-performance/contract.ts",
+          "wallMs": 3.1927590000000237,
+          "cpuMs": 3.481
+        },
+        {
+          "name": "scripts/development/lizard-performance/current-decomposition.ts",
+          "wallMs": 6.902407000000039,
+          "cpuMs": 9.031
+        },
+        {
+          "name": "scripts/development/lizard-performance/evidence-shapes.ts",
+          "wallMs": 1.2320379999999886,
+          "cpuMs": 1.612
+        },
+        {
+          "name": "scripts/development/lizard-performance/fixed-lizard124.ts",
+          "wallMs": 8.05350599999997,
+          "cpuMs": 8.798
+        },
+        {
+          "name": "scripts/development/lizard-performance/historical-product.ts",
+          "wallMs": 17.872417999999982,
+          "cpuMs": 31.739
+        },
+        {
+          "name": "scripts/development/lizard-performance/public-product-driver.ts",
+          "wallMs": 4.828957000000003,
+          "cpuMs": 5.988
+        },
+        {
+          "name": "scripts/development/lizard-performance/sampling.ts",
+          "wallMs": 6.447923000000003,
+          "cpuMs": 8.604
+        },
+        {
+          "name": "scripts/development/lizard-performance/statistics.ts",
+          "wallMs": 6.897808000000055,
+          "cpuMs": 17.224
+        },
+        {
+          "name": "scripts/development/lizard-performance/target-evidence.ts",
+          "wallMs": 14.381404999999972,
+          "cpuMs": 16.302
+        },
+        {
+          "name": "scripts/development/lizard-performance/workload.ts",
+          "wallMs": 8.009101999999984,
+          "cpuMs": 9.397
+        },
+        {
+          "name": "scripts/development/test.ts",
+          "wallMs": 1.309739000000036,
+          "cpuMs": 1.802
+        },
+        {
+          "name": "scripts/development/typecheck.ts",
+          "wallMs": 2.471012999999971,
+          "cpuMs": 9.218
+        },
+        {
+          "name": "scripts/diagnostic-safety.ts",
+          "wallMs": 1.820711000000017,
+          "cpuMs": 1.857
+        },
+        {
+          "name": "scripts/docs/machine-artifacts/examples/command.ts",
+          "wallMs": 5.5272110000000225,
+          "cpuMs": 22.211
+        },
+        {
+          "name": "scripts/docs/machine-artifacts/examples/contract.ts",
+          "wallMs": 2.2225669999999695,
+          "cpuMs": 3.596
+        },
+        {
+          "name": "scripts/docs/machine-artifacts/examples/definition-execution.ts",
+          "wallMs": 12.735972000000004,
+          "cpuMs": 21.739
+        },
+        {
+          "name": "scripts/docs/machine-artifacts/examples/publication.ts",
+          "wallMs": 9.045413999999994,
+          "cpuMs": 19.406
+        },
+        {
+          "name": "scripts/docs/machine-artifacts/package-materials.ts",
+          "wallMs": 1.9291670000000067,
+          "cpuMs": 1.958
+        },
+        {
+          "name": "scripts/docs/machine-artifacts/schemas.ts",
+          "wallMs": 6.354196999999999,
+          "cpuMs": 14.908
+        },
+        {
+          "name": "scripts/docs/package-api/check-guides.ts",
+          "wallMs": 18.601312000000007,
+          "cpuMs": 30.465
+        },
+        {
+          "name": "scripts/docs/package-api/command.ts",
+          "wallMs": 4.503172000000006,
+          "cpuMs": 11.28
+        },
+        {
+          "name": "scripts/docs/package-api/example-payloads.ts",
+          "wallMs": 20.580344000000025,
+          "cpuMs": 35.115
+        },
+        {
+          "name": "scripts/docs/package-api/example-projection-validation.ts",
+          "wallMs": 5.643027999999958,
+          "cpuMs": 5.796
+        },
+        {
+          "name": "scripts/docs/package-api/example-projections.ts",
+          "wallMs": 34.83895300000006,
+          "cpuMs": 75.219
+        },
+        {
+          "name": "scripts/docs/package-api/jsdoc-render.ts",
+          "wallMs": 12.534646000000066,
+          "cpuMs": 24.734
+        },
+        {
+          "name": "scripts/docs/package-api/jsdoc-target-discovery.ts",
+          "wallMs": 6.651672000000076,
+          "cpuMs": 15.348
+        },
+        {
+          "name": "scripts/docs/package-api/markdown-example-fences.ts",
+          "wallMs": 12.625977000000034,
+          "cpuMs": 25.919
+        },
+        {
+          "name": "scripts/docs/package-api/render.ts",
+          "wallMs": 5.9552079999999705,
+          "cpuMs": 10.064
+        },
+        {
+          "name": "scripts/docs/package-api/test-support.ts",
+          "wallMs": 4.040592999999944,
+          "cpuMs": 8.565
+        },
+        {
+          "name": "scripts/docs/package-documents.ts",
+          "wallMs": 13.239545000000021,
+          "cpuMs": 39.47
+        },
+        {
+          "name": "scripts/environment/manage.ts",
+          "wallMs": 10.832404999999994,
+          "cpuMs": 19.065
+        },
+        {
+          "name": "scripts/error-message.ts",
+          "wallMs": 0.30560700000000907,
+          "cpuMs": 0.303
+        },
+        {
+          "name": "scripts/investigation-report/command.ts",
+          "wallMs": 0.9609639999999899,
+          "cpuMs": 4.674
+        },
+        {
+          "name": "scripts/maintenance/lizard-upstream-advisory.ts",
+          "wallMs": 13.350150999999983,
+          "cpuMs": 18.71
+        },
+        {
+          "name": "scripts/package/artifact/acceptance-input.ts",
+          "wallMs": 5.281227000000058,
+          "cpuMs": 6.144
+        },
+        {
+          "name": "scripts/package/artifact/build.ts",
+          "wallMs": 17.365287999999964,
+          "cpuMs": 20.022
+        },
+        {
+          "name": "scripts/package/artifact/compiler-cache.ts",
+          "wallMs": 13.969217999999955,
+          "cpuMs": 14.326
+        },
+        {
+          "name": "scripts/package/artifact/documentation-audit.ts",
+          "wallMs": 7.109981999999945,
+          "cpuMs": 8.981
+        },
+        {
+          "name": "scripts/package/artifact/esm-module-specifiers.ts",
+          "wallMs": 9.436317999999915,
+          "cpuMs": 9.747
+        },
+        {
+          "name": "scripts/package/artifact/fingerprint.test-support.ts",
+          "wallMs": 1.6655779999999822,
+          "cpuMs": 1.701
+        },
+        {
+          "name": "scripts/package/artifact/fingerprint.ts",
+          "wallMs": 11.687926000000061,
+          "cpuMs": 14.185
+        },
+        {
+          "name": "scripts/package/artifact/manifest.ts",
+          "wallMs": 12.199501999999939,
+          "cpuMs": 12.513
+        },
+        {
+          "name": "scripts/package/artifact/packed-tar-audit.ts",
+          "wallMs": 13.449817000000053,
+          "cpuMs": 14.664
+        },
+        {
+          "name": "scripts/package/artifact/runtime-source-maps.ts",
+          "wallMs": 7.32369899999992,
+          "cpuMs": 7.928
+        },
+        {
+          "name": "scripts/package/artifact/staging-audit.ts",
+          "wallMs": 12.07032700000002,
+          "cpuMs": 12.623
+        },
+        {
+          "name": "scripts/package/artifact/staging-runtime-layout.ts",
+          "wallMs": 5.533502999999996,
+          "cpuMs": 5.618
+        },
+        {
+          "name": "scripts/package/build-contract.ts",
+          "wallMs": 2.8395229999999856,
+          "cpuMs": 2.951
+        },
+        {
+          "name": "scripts/package/candidate/acceptance-input.ts",
+          "wallMs": 2.0629500000000007,
+          "cpuMs": 2.276
+        },
+        {
+          "name": "scripts/package/candidate/candidate.integration.ts",
+          "wallMs": 15.979192000000012,
+          "cpuMs": 17.534
+        },
+        {
+          "name": "scripts/package/candidate/dependency-license-audit.ts",
+          "wallMs": 14.959159,
+          "cpuMs": 15.257
+        },
+        {
+          "name": "scripts/package/candidate/dependency-probe.ts",
+          "wallMs": 8.06241,
+          "cpuMs": 8.271
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/check-options-type-acceptance.ts",
+          "wallMs": 3.1084220000000187,
+          "cpuMs": 3.186
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/command-check-type-acceptance.ts",
+          "wallMs": 6.890938000000006,
+          "cpuMs": 6.973
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/command-result.ts",
+          "wallMs": 1.0740640000000212,
+          "cpuMs": 1.121
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/custom-admission-strategy-type-acceptance.ts",
+          "wallMs": 24.646966999999904,
+          "cpuMs": 25.207
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/data-boundary-type-acceptance.ts",
+          "wallMs": 4.320472999999993,
+          "cpuMs": 4.933
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/documentation.ts",
+          "wallMs": 11.887773000000038,
+          "cpuMs": 12.724
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/finding-waiver-type-acceptance.ts",
+          "wallMs": 2.8715419999999767,
+          "cpuMs": 2.915
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/handoff-type-acceptance.ts",
+          "wallMs": 2.2669890000000805,
+          "cpuMs": 2.302
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/input.ts",
+          "wallMs": 6.25769200000002,
+          "cpuMs": 6.328
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/markdown-lint-type-acceptance.ts",
+          "wallMs": 3.3315559999999778,
+          "cpuMs": 3.406
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/material.ts",
+          "wallMs": 6.186769000000027,
+          "cpuMs": 7.515
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/node-command.ts",
+          "wallMs": 0.7232629999999745,
+          "cpuMs": 0.721
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/package-check-constructor-options-type-acceptance.ts",
+          "wallMs": 3.6059459999999035,
+          "cpuMs": 3.696
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/project-changes-type-acceptance.ts",
+          "wallMs": 3.771692999999914,
+          "cpuMs": 3.712
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/provider.ts",
+          "wallMs": 1.457636999999977,
+          "cpuMs": 1.477
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/assertions.ts",
+          "wallMs": 12.446421999999984,
+          "cpuMs": 12.651
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/command-check.ts",
+          "wallMs": 3.0817329999999856,
+          "cpuMs": 3.143
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/durations.ts",
+          "wallMs": 1.9395820000000867,
+          "cpuMs": 1.994
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/function-metrics.ts",
+          "wallMs": 2.719439999999963,
+          "cpuMs": 3.416
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/learned-scheduling.ts",
+          "wallMs": 3.0625569999999698,
+          "cpuMs": 3.157
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/messages.ts",
+          "wallMs": 5.325607000000105,
+          "cpuMs": 5.605
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/run.ts",
+          "wallMs": 15.460439999999949,
+          "cpuMs": 15.793
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/runtime-host.ts",
+          "wallMs": 1.366677999999979,
+          "cpuMs": 1.39
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime-evidence/values.ts",
+          "wallMs": 2.403703999999948,
+          "cpuMs": 2.52
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/runtime.ts",
+          "wallMs": 8.505424000000062,
+          "cpuMs": 10.603
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/type-acceptance.ts",
+          "wallMs": 7.612566000000015,
+          "cpuMs": 9.026
+        },
+        {
+          "name": "scripts/package/candidate/external-consumer/typecheck-fixture.ts",
+          "wallMs": 31.413722000000007,
+          "cpuMs": 37.997
+        },
+        {
+          "name": "scripts/package/candidate/install.ts",
+          "wallMs": 15.77986199999998,
+          "cpuMs": 16.082
+        },
+        {
+          "name": "scripts/package/candidate/installed-materials.ts",
+          "wallMs": 6.378533999999945,
+          "cpuMs": 6.621
+        },
+        {
+          "name": "scripts/package/candidate/integration-command.ts",
+          "wallMs": 1.4685650000000123,
+          "cpuMs": 1.49
+        },
+        {
+          "name": "scripts/package/candidate/preparation-decision.ts",
+          "wallMs": 3.4870950000000676,
+          "cpuMs": 3.904
+        },
+        {
+          "name": "scripts/package/candidate/prepare.ts",
+          "wallMs": 11.394392000000039,
+          "cpuMs": 11.764
+        },
+        {
+          "name": "scripts/package/candidate/receipt.ts",
+          "wallMs": 11.230555000000095,
+          "cpuMs": 11.491
+        },
+        {
+          "name": "scripts/package/command.ts",
+          "wallMs": 6.575788999999986,
+          "cpuMs": 6.768
+        },
+        {
+          "name": "scripts/package/dependency-version.ts",
+          "wallMs": 1.1495170000000599,
+          "cpuMs": 1.196
+        },
+        {
+          "name": "scripts/package/file-inventory.ts",
+          "wallMs": 2.0857129999999415,
+          "cpuMs": 2.278
+        },
+        {
+          "name": "scripts/package/legal-materials.ts",
+          "wallMs": 6.112169999999992,
+          "cpuMs": 6.413
+        },
+        {
+          "name": "scripts/package/legal-materials/packaged-audit.ts",
+          "wallMs": 11.557420999999977,
+          "cpuMs": 16.466
+        },
+        {
+          "name": "scripts/package/legal-materials/provenance-inventory.ts",
+          "wallMs": 15.830606000000103,
+          "cpuMs": 16.363
+        },
+        {
+          "name": "scripts/package/legal-materials/source-mapping.ts",
+          "wallMs": 12.016973000000007,
+          "cpuMs": 12.242
+        },
+        {
+          "name": "scripts/package/pack.ts",
+          "wallMs": 3.769360000000006,
+          "cpuMs": 3.812
+        },
+        {
+          "name": "scripts/package/package-contract.ts",
+          "wallMs": 4.713723000000073,
+          "cpuMs": 4.784
+        },
+        {
+          "name": "scripts/package/package-material-audit.ts",
+          "wallMs": 2.0499560000000656,
+          "cpuMs": 2.087
+        },
+        {
+          "name": "scripts/package/public-api-inventory.ts",
+          "wallMs": 20.406727000000046,
+          "cpuMs": 20.738
+        },
+        {
+          "name": "scripts/package/release/command.ts",
+          "wallMs": 8.052613000000065,
+          "cpuMs": 8.773
+        },
+        {
+          "name": "scripts/package/release/identity.ts",
+          "wallMs": 2.003680999999915,
+          "cpuMs": 2.926
+        },
+        {
+          "name": "scripts/package/release/paths.ts",
+          "wallMs": 1.7405620000001818,
+          "cpuMs": 1.776
+        },
+        {
+          "name": "scripts/package/release/prepare.ts",
+          "wallMs": 4.817645999999968,
+          "cpuMs": 4.907
+        },
+        {
+          "name": "scripts/package/release/receipt-contract.ts",
+          "wallMs": 12.311096000000134,
+          "cpuMs": 12.568
+        },
+        {
+          "name": "scripts/package/release/receipt.ts",
+          "wallMs": 15.548878000000059,
+          "cpuMs": 18.685
+        },
+        {
+          "name": "scripts/package/release/source.ts",
+          "wallMs": 2.7827780000000075,
+          "cpuMs": 2.824
+        },
+        {
+          "name": "scripts/process-execution/command.ts",
+          "wallMs": 2.8072219999999106,
+          "cpuMs": 2.841
+        },
+        {
+          "name": "scripts/process-execution/contract.ts",
+          "wallMs": 2.4842129999999543,
+          "cpuMs": 2.945
+        },
+        {
+          "name": "scripts/process-execution/execution.ts",
+          "wallMs": 1.141610000000128,
+          "cpuMs": 3.492
+        },
+        {
+          "name": "scripts/process-execution/failure.ts",
+          "wallMs": 1.861165999999912,
+          "cpuMs": 1.91
+        },
+        {
+          "name": "scripts/process-execution/plain-text-environment.ts",
+          "wallMs": 0.8298710000001392,
+          "cpuMs": 0.849
+        },
+        {
+          "name": "scripts/process-execution/result.ts",
+          "wallMs": 2.2314540000002125,
+          "cpuMs": 2.269
+        },
+        {
+          "name": "scripts/process-execution/runner.ts",
+          "wallMs": 2.4643439999999828,
+          "cpuMs": 2.523
+        },
+        {
+          "name": "scripts/project/admission-workbench/command-execution.ts",
+          "wallMs": 5.0668889999999465,
+          "cpuMs": 5.143
+        },
+        {
+          "name": "scripts/project/admission-workbench/command-output.ts",
+          "wallMs": 2.277548999999908,
+          "cpuMs": 2.324
+        },
+        {
+          "name": "scripts/project/admission-workbench/command.ts",
+          "wallMs": 11.255362000000105,
+          "cpuMs": 11.967
+        },
+        {
+          "name": "scripts/project/admission-workbench/evidence.ts",
+          "wallMs": 6.319013999999925,
+          "cpuMs": 10.269
+        },
+        {
+          "name": "scripts/project/admission-workbench/fixture-model.ts",
+          "wallMs": 1.9718020000000251,
+          "cpuMs": 6.556
+        },
+        {
+          "name": "scripts/project/admission-workbench/fixture-registry.ts",
+          "wallMs": 0.948891999999887,
+          "cpuMs": 0.965
+        },
+        {
+          "name": "scripts/project/admission-workbench/gate-shape-fixture.ts",
+          "wallMs": 5.344244000000117,
+          "cpuMs": 5.472
+        },
+        {
+          "name": "scripts/project/admission-workbench/learned-heuristic-comparison.ts",
+          "wallMs": 6.88208799999984,
+          "cpuMs": 7.104
+        },
+        {
+          "name": "scripts/project/admission-workbench/learned-heuristic-cost.ts",
+          "wallMs": 11.462158000000045,
+          "cpuMs": 11.725
+        },
+        {
+          "name": "scripts/project/admission-workbench/learned-heuristic-evaluation-input.ts",
+          "wallMs": 12.513354000000163,
+          "cpuMs": 12.801
+        },
+        {
+          "name": "scripts/project/admission-workbench/learned-heuristic-evaluation-types.ts",
+          "wallMs": 5.128884000000198,
+          "cpuMs": 5.209
+        },
+        {
+          "name": "scripts/project/admission-workbench/learned-heuristic-evaluation.ts",
+          "wallMs": 6.32788000000005,
+          "cpuMs": 6.425
+        },
+        {
+          "name": "scripts/project/admission-workbench/learned-heuristic-policy-state.ts",
+          "wallMs": 3.3491590000000997,
+          "cpuMs": 4.334
+        },
+        {
+          "name": "scripts/project/admission-workbench/policy.ts",
+          "wallMs": 12.850613000000067,
+          "cpuMs": 13.231
+        },
+        {
+          "name": "scripts/project/admission-workbench/scenario-fixtures.ts",
+          "wallMs": 17.787251999999853,
+          "cpuMs": 18.898
+        },
+        {
+          "name": "scripts/project/admission-workbench/scenario.ts",
+          "wallMs": 19.528180999999904,
+          "cpuMs": 19.984
+        },
+        {
+          "name": "scripts/project/admission-workbench/simulate.ts",
+          "wallMs": 8.129226000000017,
+          "cpuMs": 8.86
+        },
+        {
+          "name": "scripts/project/admission-workbench/simulation-clock.ts",
+          "wallMs": 15.137643000000025,
+          "cpuMs": 17.302
+        },
+        {
+          "name": "scripts/project/admission-workbench/simulation-control.ts",
+          "wallMs": 7.35062999999991,
+          "cpuMs": 7.495
+        },
+        {
+          "name": "scripts/project/admission-workbench/simulation-evidence.ts",
+          "wallMs": 6.359459000000015,
+          "cpuMs": 6.394
+        },
+        {
+          "name": "scripts/project/admission-workbench/simulation-observations.ts",
+          "wallMs": 7.422082000000046,
+          "cpuMs": 7.572
+        },
+        {
+          "name": "scripts/project/admission-workbench/simulation-types.ts",
+          "wallMs": 9.471937000000025,
+          "cpuMs": 10.322
+        },
+        {
+          "name": "scripts/project/gate/checks/check-execution.test-support.ts",
+          "wallMs": 6.13370000000009,
+          "cpuMs": 6.311
+        },
+        {
+          "name": "scripts/project/gate/checks/command-result.ts",
+          "wallMs": 1.9019020000000637,
+          "cpuMs": 1.919
+        },
+        {
+          "name": "scripts/project/gate/checks/decision-records.ts",
+          "wallMs": 2.249796999999944,
+          "cpuMs": 2.287
+        },
+        {
+          "name": "scripts/project/gate/checks/entry-factories.ts",
+          "wallMs": 7.611914999999954,
+          "cpuMs": 8.876
+        },
+        {
+          "name": "scripts/project/gate/checks/external-consumer-material.ts",
+          "wallMs": 9.004331000000093,
+          "cpuMs": 9.172
+        },
+        {
+          "name": "scripts/project/gate/checks/materials-validation.ts",
+          "wallMs": 1.7152459999999792,
+          "cpuMs": 1.748
+        },
+        {
+          "name": "scripts/project/gate/checks/oxfmt-failure-records.ts",
+          "wallMs": 3.776785000000018,
+          "cpuMs": 3.918
+        },
+        {
+          "name": "scripts/project/gate/checks/oxlint-failure-records.ts",
+          "wallMs": 10.093273000000181,
+          "cpuMs": 10.421
+        },
+        {
+          "name": "scripts/project/gate/checks/prepared-candidate-fact.ts",
+          "wallMs": 4.248258000000078,
+          "cpuMs": 4.984
+        },
+        {
+          "name": "scripts/project/gate/checks/prepared-candidate.ts",
+          "wallMs": 9.36933799999997,
+          "cpuMs": 9.61
+        },
+        {
+          "name": "scripts/project/gate/checks/process/failure-projection.ts",
+          "wallMs": 2.317011999999977,
+          "cpuMs": 3.158
+        },
+        {
+          "name": "scripts/project/gate/checks/process/native-operation-protocol.ts",
+          "wallMs": 8.83842299999992,
+          "cpuMs": 9.116
+        },
+        {
+          "name": "scripts/project/gate/checks/process/native-operation.ts",
+          "wallMs": 5.09065099999998,
+          "cpuMs": 6.456
+        },
+        {
+          "name": "scripts/project/gate/checks/process/safe-workspace-path.ts",
+          "wallMs": 1.3324250000000575,
+          "cpuMs": 1.347
+        },
+        {
+          "name": "scripts/project/gate/checks/process/transcript.ts",
+          "wallMs": 5.37166400000001,
+          "cpuMs": 6.027
+        },
+        {
+          "name": "scripts/project/gate/checks/repository-quality.ts",
+          "wallMs": 14.18765499999995,
+          "cpuMs": 14.408
+        },
+        {
+          "name": "scripts/project/gate/checks/test-evidence/ast-grep-rule-tests-check.ts",
+          "wallMs": 10.272196000000122,
+          "cpuMs": 11.506
+        },
+        {
+          "name": "scripts/project/gate/checks/test-evidence/semantic-case-check.ts",
+          "wallMs": 2.8156189999999697,
+          "cpuMs": 2.809
+        },
+        {
+          "name": "scripts/project/gate/checks/test-evidence/semantic-case-diagnostic-policy.ts",
+          "wallMs": 5.894933999999921,
+          "cpuMs": 6.007
+        },
+        {
+          "name": "scripts/project/gate/checks/test-evidence/semantic-case-projection.ts",
+          "wallMs": 10.48359900000014,
+          "cpuMs": 10.669
+        },
+        {
+          "name": "scripts/project/gate/checks/test-execution/checks.ts",
+          "wallMs": 11.885659000000032,
+          "cpuMs": 12.105
+        },
+        {
+          "name": "scripts/project/gate/checks/test-execution/entries.ts",
+          "wallMs": 9.307906000000003,
+          "cpuMs": 11.541
+        },
+        {
+          "name": "scripts/project/gate/checks/test-execution/lanes.ts",
+          "wallMs": 13.661327999999912,
+          "cpuMs": 13.958
+        },
+        {
+          "name": "scripts/project/gate/definition.ts",
+          "wallMs": 21.711875999999847,
+          "cpuMs": 22.132
+        },
+        {
+          "name": "scripts/project/gate/run.ts",
+          "wallMs": 13.695300999999972,
+          "cpuMs": 13.956
+        },
+        {
+          "name": "scripts/project/gate/runtime/bound-run.ts",
+          "wallMs": 2.4137419999999565,
+          "cpuMs": 2.482
+        },
+        {
+          "name": "scripts/project/gate/runtime/catalog.ts",
+          "wallMs": 0.6283160000000407,
+          "cpuMs": 0.641
+        },
+        {
+          "name": "scripts/project/gate/runtime/controls.ts",
+          "wallMs": 11.03723500000001,
+          "cpuMs": 11.959
+        },
+        {
+          "name": "scripts/project/gate/runtime/eligibility.ts",
+          "wallMs": 34.237088000000085,
+          "cpuMs": 39.236
+        },
+        {
+          "name": "scripts/project/gate/runtime/entries.ts",
+          "wallMs": 7.047907000000123,
+          "cpuMs": 7.167
+        },
+        {
+          "name": "scripts/project/gate/runtime/invocation.ts",
+          "wallMs": 5.479454999999916,
+          "cpuMs": 5.562
+        },
+        {
+          "name": "scripts/project/gate/runtime/performance-baseline.ts",
+          "wallMs": 11.098498000000063,
+          "cpuMs": 11.334
+        },
+        {
+          "name": "scripts/project/gate/runtime/performance-observation.ts",
+          "wallMs": 14.228401000000076,
+          "cpuMs": 14.524
+        },
+        {
+          "name": "scripts/project/gate/runtime/product-test-regions.ts",
+          "wallMs": 5.089382999999998,
+          "cpuMs": 5.235
+        },
+        {
+          "name": "scripts/project/gate/runtime/reporting.ts",
+          "wallMs": 3.7815100000000257,
+          "cpuMs": 3.875
+        },
+        {
+          "name": "scripts/project/gate/runtime/result-contributor.ts",
+          "wallMs": 1.5580629999999474,
+          "cpuMs": 1.968
+        },
+        {
+          "name": "scripts/project/gate/runtime/result.ts",
+          "wallMs": 6.487807999999859,
+          "cpuMs": 6.646
+        },
+        {
+          "name": "scripts/project/gate/runtime/root-import-boundary.test-support.ts",
+          "wallMs": 5.0804440000001705,
+          "cpuMs": 5.611
+        },
+        {
+          "name": "scripts/project/gate/runtime/transcript.ts",
+          "wallMs": 5.107979999999998,
+          "cpuMs": 5.215
+        },
+        {
+          "name": "scripts/repository-files/files.ts",
+          "wallMs": 2.968497999999954,
+          "cpuMs": 3.126
+        },
+        {
+          "name": "scripts/repository-files/paths.ts",
+          "wallMs": 1.0369060000000445,
+          "cpuMs": 1.055
+        },
+        {
+          "name": "scripts/test-evidence/ast-grep/command.ts",
+          "wallMs": 2.7775769999998374,
+          "cpuMs": 2.813
+        },
+        {
+          "name": "scripts/test-evidence/ast-grep/rule-tests.ts",
+          "wallMs": 4.723821999999927,
+          "cpuMs": 4.799
+        },
+        {
+          "name": "scripts/test-evidence/ast-grep/scan.ts",
+          "wallMs": 8.453800000000001,
+          "cpuMs": 8.728
+        },
+        {
+          "name": "scripts/test-evidence/cases.ts",
+          "wallMs": 11.863169000000198,
+          "cpuMs": 12.432
+        },
+        {
+          "name": "scripts/test-evidence/catalog/catalog-types.ts",
+          "wallMs": 0.8209939999999278,
+          "cpuMs": 0.847
+        },
+        {
+          "name": "scripts/test-evidence/catalog/load.ts",
+          "wallMs": 5.3217429999999695,
+          "cpuMs": 5.408
+        },
+        {
+          "name": "scripts/test-evidence/catalog/markdown.ts",
+          "wallMs": 17.99842200000012,
+          "cpuMs": 20.46
+        },
+        {
+          "name": "scripts/test-evidence/catalog/owner-ref.ts",
+          "wallMs": 10.516796999999997,
+          "cpuMs": 10.607
+        },
+        {
+          "name": "scripts/test-evidence/catalog/source.ts",
+          "wallMs": 12.876702999999907,
+          "cpuMs": 13.271
+        },
+        {
+          "name": "scripts/test-evidence/catalog/test-support.ts",
+          "wallMs": 8.7380169999999,
+          "cpuMs": 9.048
+        },
+        {
+          "name": "scripts/test-evidence/closure.ts",
+          "wallMs": 6.512079999999969,
+          "cpuMs": 7.445
+        },
+        {
+          "name": "scripts/test-evidence/command.ts",
+          "wallMs": 15.464177999999947,
+          "cpuMs": 20.031
+        },
+        {
+          "name": "scripts/test-evidence/discover.ts",
+          "wallMs": 6.508174999999937,
+          "cpuMs": 10.42
+        },
+        {
+          "name": "scripts/test-evidence/discovery/bun-files.ts",
+          "wallMs": 7.914174000000003,
+          "cpuMs": 8.053
+        },
+        {
+          "name": "scripts/test-evidence/discovery/bun-junit.ts",
+          "wallMs": 6.254323000000113,
+          "cpuMs": 6.343
+        },
+        {
+          "name": "scripts/test-evidence/discovery/bun.ts",
+          "wallMs": 10.509736999999859,
+          "cpuMs": 10.826
+        },
+        {
+          "name": "scripts/test-evidence/discovery/runner-process.ts",
+          "wallMs": 1.1822250000000167,
+          "cpuMs": 2.036
+        },
+        {
+          "name": "scripts/test-evidence/entities.ts",
+          "wallMs": 2.8634870000000774,
+          "cpuMs": 2.93
+        },
+        {
+          "name": "scripts/test-evidence/profile.ts",
+          "wallMs": 7.602836000000025,
+          "cpuMs": 7.729
+        },
+        {
+          "name": "scripts/test-evidence/relative-path.ts",
+          "wallMs": 3.7851590000000215,
+          "cpuMs": 3.861
+        },
+        {
+          "name": "scripts/validation/function-metrics-analyzer-boundary.ts",
+          "wallMs": 11.357751999999891,
+          "cpuMs": 11.682
+        },
+        {
+          "name": "scripts/validation/import-boundaries.ts",
+          "wallMs": 5.9322960000001785,
+          "cpuMs": 6.038
+        },
+        {
+          "name": "scripts/validation/layout-characterization.test-support.ts",
+          "wallMs": 13.816994999999906,
+          "cpuMs": 14.224
+        },
+        {
+          "name": "scripts/validation/layout-characterization.ts",
+          "wallMs": 9.586353000000145,
+          "cpuMs": 10.331
+        },
+        {
+          "name": "scripts/validation/module-specifier-analysis.ts",
+          "wallMs": 7.183367999999973,
+          "cpuMs": 7.298
+        },
+        {
+          "name": "scripts/validation/package-tools-boundary.ts",
+          "wallMs": 13.934574999999995,
+          "cpuMs": 14.371
+        },
+        {
+          "name": "scripts/validation/package-tools-core-closure.ts",
+          "wallMs": 7.7838950000000295,
+          "cpuMs": 10.651
+        },
+        {
+          "name": "scripts/validation/package-tools-module-graph.ts",
+          "wallMs": 10.926975000000084,
+          "cpuMs": 11.073
+        },
+        {
+          "name": "scripts/validation/project-gate-layout.ts",
+          "wallMs": 3.0174429999999575,
+          "cpuMs": 3.083
+        },
+        {
+          "name": "scripts/validation/repository-material/assertions.ts",
+          "wallMs": 0.734613999999965,
+          "cpuMs": 0.733
+        },
+        {
+          "name": "scripts/validation/repository-material/diagnostics.ts",
+          "wallMs": 3.8358129999999164,
+          "cpuMs": 3.925
+        },
+        {
+          "name": "scripts/validation/repository-material/json/files.ts",
+          "wallMs": 1.769997000000103,
+          "cpuMs": 2.186
+        },
+        {
+          "name": "scripts/validation/repository-material/json/value.ts",
+          "wallMs": 2.2390589999999975,
+          "cpuMs": 2.352
+        },
+        {
+          "name": "scripts/validation/repository-material/links.ts",
+          "wallMs": 10.774636999999984,
+          "cpuMs": 10.994
+        },
+        {
+          "name": "scripts/validation/repository-material/machine-artifacts/artifact-shapes.ts",
+          "wallMs": 3.9963310000000547,
+          "cpuMs": 4.065
+        },
+        {
+          "name": "scripts/validation/repository-material/machine-artifacts/canonical.ts",
+          "wallMs": 5.432107000000087,
+          "cpuMs": 5.622
+        },
+        {
+          "name": "scripts/validation/repository-material/machine-artifacts/diagnostics.ts",
+          "wallMs": 2.626888000000008,
+          "cpuMs": 2.686
+        },
+        {
+          "name": "scripts/validation/repository-material/machine-artifacts/invariants.ts",
+          "wallMs": 6.717864999999847,
+          "cpuMs": 6.942
+        },
+        {
+          "name": "scripts/validation/repository-material/machine-artifacts/parsing.ts",
+          "wallMs": 8.007429999999886,
+          "cpuMs": 8.782
+        },
+        {
+          "name": "scripts/validation/repository-material/machine-artifacts/validation.ts",
+          "wallMs": 9.195866000000024,
+          "cpuMs": 10.738
+        },
+        {
+          "name": "scripts/validation/repository-material/repository-files.ts",
+          "wallMs": 0.8756260000000111,
+          "cpuMs": 0.89
+        },
+        {
+          "name": "scripts/validation/repository-material/repository-paths.ts",
+          "wallMs": 0.6106339999998909,
+          "cpuMs": 0.609
+        },
+        {
+          "name": "scripts/validation/repository-material/schema/registry.ts",
+          "wallMs": 4.467555999999831,
+          "cpuMs": 5.186
+        },
+        {
+          "name": "scripts/validation/repository-material/schema/validation.ts",
+          "wallMs": 10.231779999999844,
+          "cpuMs": 13.054
+        },
+        {
+          "name": "scripts/validation/repository-material/task-contract.ts",
+          "wallMs": 3.0360880000000634,
+          "cpuMs": 3.094
+        },
+        {
+          "name": "scripts/validation/repository-material/workflow.ts",
+          "wallMs": 10.316045999999915,
+          "cpuMs": 10.544
+        },
+        {
+          "name": "scripts/validation/workspace.ts",
+          "wallMs": 2.6879710000000614,
+          "cpuMs": 2.738
+        },
+        {
+          "name": "scripts/value-guards.ts",
+          "wallMs": 0.8601579999999558,
+          "cpuMs": 0.882
+        },
+        {
+          "name": "src/bun-test.d.ts",
+          "wallMs": 0.6762559999999667,
+          "cpuMs": 0.674
+        },
+        {
+          "name": "src/check-settlement/fact-validation.ts",
+          "wallMs": 17.10243800000012,
+          "cpuMs": 17.549
+        },
+        {
+          "name": "src/check-settlement/facts.ts",
+          "wallMs": 1.297900000000027,
+          "cpuMs": 1.325
+        },
+        {
+          "name": "src/check-settlement/outcome-normalization.ts",
+          "wallMs": 5.63695800000005,
+          "cpuMs": 7.532
+        },
+        {
+          "name": "src/check-settlement/reason-shape.ts",
+          "wallMs": 0.8803649999999834,
+          "cpuMs": 0.879
+        },
+        {
+          "name": "src/check-settlement/record-store.ts",
+          "wallMs": 3.8991450000000896,
+          "cpuMs": 4.005
+        },
+        {
+          "name": "src/check-settlement/session.ts",
+          "wallMs": 13.881130999999868,
+          "cpuMs": 14.1
+        },
+        {
+          "name": "src/check/check.ts",
+          "wallMs": 27.861227999999983,
+          "cpuMs": 43.324
+        },
+        {
+          "name": "src/check/descriptor-validation.ts",
+          "wallMs": 3.4850770000000466,
+          "cpuMs": 3.547
+        },
+        {
+          "name": "src/check/descriptor.ts",
+          "wallMs": 0.42679199999997763,
+          "cpuMs": 0.47
+        },
+        {
+          "name": "src/check/flag-enablement.ts",
+          "wallMs": 4.4160689999998795,
+          "cpuMs": 4.531
+        },
+        {
+          "name": "src/check/handoff-provider-identity.ts",
+          "wallMs": 1.1074160000000575,
+          "cpuMs": 1.127
+        },
+        {
+          "name": "src/check/inherited-collection.ts",
+          "wallMs": 4.0829519999999775,
+          "cpuMs": 4.142
+        },
+        {
+          "name": "src/check/options-snapshot.ts",
+          "wallMs": 5.698476999999912,
+          "cpuMs": 5.909
+        },
+        {
+          "name": "src/check/project-changes.ts",
+          "wallMs": 0.699769999999944,
+          "cpuMs": 0.73
+        },
+        {
+          "name": "src/check/project-context.ts",
+          "wallMs": 0.3880500000000211,
+          "cpuMs": 0.386
+        },
+        {
+          "name": "src/data-boundary/canonical-data.ts",
+          "wallMs": 9.205645000000004,
+          "cpuMs": 10.859
+        },
+        {
+          "name": "src/data-boundary/canonical-json.ts",
+          "wallMs": 0.545423000000028,
+          "cpuMs": 0.562
+        },
+        {
+          "name": "src/data-boundary/closed-values.ts",
+          "wallMs": 9.287766999999803,
+          "cpuMs": 9.439
+        },
+        {
+          "name": "src/data-boundary/config-glob.ts",
+          "wallMs": 0.9724260000002687,
+          "cpuMs": 0.999
+        },
+        {
+          "name": "src/data-boundary/project-file-region-index.ts",
+          "wallMs": 10.844086999999945,
+          "cpuMs": 11.11
+        },
+        {
+          "name": "src/data-boundary/project-path.ts",
+          "wallMs": 1.0163280000001578,
+          "cpuMs": 1.034
+        },
+        {
+          "name": "src/data-boundary/value-shapes.ts",
+          "wallMs": 1.5654570000001513,
+          "cpuMs": 1.6
+        },
+        {
+          "name": "src/index.ts",
+          "wallMs": 18.523637000000235,
+          "cpuMs": 19.025
+        },
+        {
+          "name": "src/machine-output/v4/atomic-publication.ts",
+          "wallMs": 5.649662000000262,
+          "cpuMs": 5.769
+        },
+        {
+          "name": "src/machine-output/v4/freeze-publication-value.ts",
+          "wallMs": 0.44386400000030335,
+          "cpuMs": 0.443
+        },
+        {
+          "name": "src/machine-output/v4/projection.ts",
+          "wallMs": 1.778291999999965,
+          "cpuMs": 1.817
+        },
+        {
+          "name": "src/machine-output/v4/publication-invariants.ts",
+          "wallMs": 5.215224000000035,
+          "cpuMs": 5.315
+        },
+        {
+          "name": "src/machine-output/v4/publication-model.ts",
+          "wallMs": 1.5934390000002168,
+          "cpuMs": 1.63
+        },
+        {
+          "name": "src/machine-output/v4/publish.ts",
+          "wallMs": 1.3899710000000596,
+          "cpuMs": 1.409
+        },
+        {
+          "name": "src/machine-output/v4/records-fingerprint.ts",
+          "wallMs": 0.8894820000000436,
+          "cpuMs": 0.907
+        },
+        {
+          "name": "src/machine-output/v4/schema-identities.ts",
+          "wallMs": 0.8695240000001832,
+          "cpuMs": 0.868
+        },
+        {
+          "name": "src/machine-output/v4/schema.ts",
+          "wallMs": 4.110030000000279,
+          "cpuMs": 4.17
+        },
+        {
+          "name": "src/machine-output/v4/serializers.ts",
+          "wallMs": 1.0011609999996836,
+          "cpuMs": 1.218
+        },
+        {
+          "name": "src/machine-output/v4/validation-result.ts",
+          "wallMs": 2.3401050000002215,
+          "cpuMs": 2.395
+        },
+        {
+          "name": "src/machine-output/v4/validation.ts",
+          "wallMs": 8.806252000000313,
+          "cpuMs": 9.879
+        },
+        {
+          "name": "src/package-checks/check-authoring.ts",
+          "wallMs": 8.158550000000105,
+          "cpuMs": 14.724
+        },
+        {
+          "name": "src/package-checks/code-quality-findings/finding-waiver-authoring.ts",
+          "wallMs": 2.5343259999999646,
+          "cpuMs": 2.578
+        },
+        {
+          "name": "src/package-checks/code-quality-findings/finding-waiver-evidence.ts",
+          "wallMs": 4.2425089999997,
+          "cpuMs": 4.337
+        },
+        {
+          "name": "src/package-checks/code-quality-findings/policy.ts",
+          "wallMs": 5.681269000000157,
+          "cpuMs": 5.826
+        },
+        {
+          "name": "src/package-checks/command-check/command-check.ts",
+          "wallMs": 6.860970000000179,
+          "cpuMs": 6.999
+        },
+        {
+          "name": "src/package-checks/command-check/contract.ts",
+          "wallMs": 6.33607499999971,
+          "cpuMs": 8.113
+        },
+        {
+          "name": "src/package-checks/command-check/execution.ts",
+          "wallMs": 11.459156999999777,
+          "cpuMs": 11.587
+        },
+        {
+          "name": "src/package-checks/command-check/options.ts",
+          "wallMs": 17.565608999999768,
+          "cpuMs": 19.757
+        },
+        {
+          "name": "src/package-checks/command-check/transcript.ts",
+          "wallMs": 2.1314980000001924,
+          "cpuMs": 2.165
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/area-policy.ts",
+          "wallMs": 5.727164999999786,
+          "cpuMs": 6.227
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/default-check.ts",
+          "wallMs": 4.509082999999919,
+          "cpuMs": 4.587
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/execution.ts",
+          "wallMs": 12.317361999999775,
+          "cpuMs": 12.548
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/final-data.ts",
+          "wallMs": 0.708114999999907,
+          "cpuMs": 0.725
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/finding-messages.ts",
+          "wallMs": 5.544686000000183,
+          "cpuMs": 6.042
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/finding-waiver-identity.ts",
+          "wallMs": 3.309556000000157,
+          "cpuMs": 3.386
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/jscpd/availability.ts",
+          "wallMs": 6.544902999999977,
+          "cpuMs": 6.677
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/jscpd/command-path.ts",
+          "wallMs": 0.5452930000001288,
+          "cpuMs": 0.543
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/jscpd/command-resolution.ts",
+          "wallMs": 5.000956999999744,
+          "cpuMs": 5.083
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/jscpd/json-report.ts",
+          "wallMs": 8.024390999999923,
+          "cpuMs": 8.224
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/jscpd/scanner-contract.ts",
+          "wallMs": 0.8778000000002066,
+          "cpuMs": 0.876
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/jscpd/scanner.ts",
+          "wallMs": 10.240394999999808,
+          "cpuMs": 10.469
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/jscpd/scoped-fragments.ts",
+          "wallMs": 0.7875830000002679,
+          "cpuMs": 0.81
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/measurement-model.ts",
+          "wallMs": 1.1538730000002033,
+          "cpuMs": 1.19
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/measurement.ts",
+          "wallMs": 10.471022999999605,
+          "cpuMs": 10.706
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/options-resolution.ts",
+          "wallMs": 7.243312999999944,
+          "cpuMs": 7.355
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/options-validation.ts",
+          "wallMs": 3.340559999999641,
+          "cpuMs": 3.388
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/options.ts",
+          "wallMs": 2.882622999999967,
+          "cpuMs": 2.942
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/project-revision.ts",
+          "wallMs": 0.2970420000001468,
+          "cpuMs": 0.296
+        },
+        {
+          "name": "src/package-checks/duplicate-detection/records.ts",
+          "wallMs": 9.454447000000073,
+          "cpuMs": 9.669
+        },
+        {
+          "name": "src/package-checks/file-metrics/constructor.ts",
+          "wallMs": 4.296167999999852,
+          "cpuMs": 4.354
+        },
+        {
+          "name": "src/package-checks/file-metrics/execution.ts",
+          "wallMs": 13.694339000000127,
+          "cpuMs": 14.949
+        },
+        {
+          "name": "src/package-checks/file-metrics/final-data.ts",
+          "wallMs": 0.699800000000323,
+          "cpuMs": 0.63
+        },
+        {
+          "name": "src/package-checks/file-metrics/finding-messages.ts",
+          "wallMs": 2.6337410000001,
+          "cpuMs": 6.72
+        },
+        {
+          "name": "src/package-checks/file-metrics/measurement-model.ts",
+          "wallMs": 0.4469400000002679,
+          "cpuMs": 0.445
+        },
+        {
+          "name": "src/package-checks/file-metrics/measurement.ts",
+          "wallMs": 3.471516000000065,
+          "cpuMs": 8.426
+        },
+        {
+          "name": "src/package-checks/file-metrics/options-resolution.ts",
+          "wallMs": 10.053969999999936,
+          "cpuMs": 17.911
+        },
+        {
+          "name": "src/package-checks/file-metrics/options-validation.ts",
+          "wallMs": 4.786677999999938,
+          "cpuMs": 4.876
+        },
+        {
+          "name": "src/package-checks/file-metrics/options.ts",
+          "wallMs": 2.398533999999927,
+          "cpuMs": 2.433
+        },
+        {
+          "name": "src/package-checks/file-metrics/records.ts",
+          "wallMs": 8.047383000000082,
+          "cpuMs": 8.207
+        },
+        {
+          "name": "src/package-checks/file-metrics/scc/availability.ts",
+          "wallMs": 5.417519999999968,
+          "cpuMs": 5.516
+        },
+        {
+          "name": "src/package-checks/file-metrics/scc/batch-planner.ts",
+          "wallMs": 2.6873900000000503,
+          "cpuMs": 2.715
+        },
+        {
+          "name": "src/package-checks/file-metrics/scc/logical-scan-resources.ts",
+          "wallMs": 4.794783999999709,
+          "cpuMs": 6.82
+        },
+        {
+          "name": "src/package-checks/file-metrics/scc/parser.ts",
+          "wallMs": 11.282762000000275,
+          "cpuMs": 11.527
+        },
+        {
+          "name": "src/package-checks/file-metrics/scc/scanner.ts",
+          "wallMs": 8.76335199999994,
+          "cpuMs": 9.135
+        },
+        {
+          "name": "src/package-checks/final-data-parsing.ts",
+          "wallMs": 2.328252999999677,
+          "cpuMs": 2.383
+        },
+        {
+          "name": "src/package-checks/function-metrics/analysis.ts",
+          "wallMs": 8.878888000000188,
+          "cpuMs": 9.069
+        },
+        {
+          "name": "src/package-checks/function-metrics/analyzer-adapter.ts",
+          "wallMs": 3.051556999999775,
+          "cpuMs": 3.096
+        },
+        {
+          "name": "src/package-checks/function-metrics/analyzer-worker-contract.ts",
+          "wallMs": 0.4744510000000446,
+          "cpuMs": 0.493
+        },
+        {
+          "name": "src/package-checks/function-metrics/analyzer-worker-port.ts",
+          "wallMs": 8.90221100000008,
+          "cpuMs": 9.1
+        },
+        {
+          "name": "src/package-checks/function-metrics/analyzer-worker.ts",
+          "wallMs": 1.6621470000000045,
+          "cpuMs": 1.685
+        },
+        {
+          "name": "src/package-checks/function-metrics/constructor.ts",
+          "wallMs": 4.870382999999947,
+          "cpuMs": 5.061
+        },
+        {
+          "name": "src/package-checks/function-metrics/execution.ts",
+          "wallMs": 15.78882799999974,
+          "cpuMs": 16.418
+        },
+        {
+          "name": "src/package-checks/function-metrics/final-data.ts",
+          "wallMs": 0.6344179999996413,
+          "cpuMs": 0.677
+        },
+        {
+          "name": "src/package-checks/function-metrics/finding-messages.ts",
+          "wallMs": 7.3810560000001715,
+          "cpuMs": 7.58
+        },
+        {
+          "name": "src/package-checks/function-metrics/finding-waiver-identity.ts",
+          "wallMs": 2.0711459999997714,
+          "cpuMs": 2.172
+        },
+        {
+          "name": "src/package-checks/function-metrics/measurement-model.ts",
+          "wallMs": 1.5279069999996864,
+          "cpuMs": 1.558
+        },
+        {
+          "name": "src/package-checks/function-metrics/measurement.ts",
+          "wallMs": 12.320600000000013,
+          "cpuMs": 12.566
+        },
+        {
+          "name": "src/package-checks/function-metrics/options-resolution.ts",
+          "wallMs": 8.310111000000234,
+          "cpuMs": 8.513
+        },
+        {
+          "name": "src/package-checks/function-metrics/options-validation.ts",
+          "wallMs": 4.189989999999852,
+          "cpuMs": 4.251
+        },
+        {
+          "name": "src/package-checks/function-metrics/options.ts",
+          "wallMs": 3.512886999999864,
+          "cpuMs": 3.695
+        },
+        {
+          "name": "src/package-checks/function-metrics/records.ts",
+          "wallMs": 12.401524999999765,
+          "cpuMs": 12.659
+        },
+        {
+          "name": "src/package-checks/function-metrics/target-files.ts",
+          "wallMs": 0.933994999999868,
+          "cpuMs": 0.953
+        },
+        {
+          "name": "src/package-checks/host-environment/csv.ts",
+          "wallMs": 1.0786020000000462,
+          "cpuMs": 1.164
+        },
+        {
+          "name": "src/package-checks/host-environment/error-message.ts",
+          "wallMs": 0.24476499999991574,
+          "cpuMs": 0.243
+        },
+        {
+          "name": "src/package-checks/host-environment/filesystem.ts",
+          "wallMs": 2.963202999999794,
+          "cpuMs": 3.014
+        },
+        {
+          "name": "src/package-checks/host-environment/git.ts",
+          "wallMs": 3.538050000000112,
+          "cpuMs": 3.599
+        },
+        {
+          "name": "src/package-checks/host-environment/path.ts",
+          "wallMs": 0.28173300000025847,
+          "cpuMs": 0.291
+        },
+        {
+          "name": "src/package-checks/host-environment/process.ts",
+          "wallMs": 0.6161749999996573,
+          "cpuMs": 0.624
+        },
+        {
+          "name": "src/package-checks/host-environment/process/contract.ts",
+          "wallMs": 3.320104999999785,
+          "cpuMs": 3.37
+        },
+        {
+          "name": "src/package-checks/host-environment/process/env.ts",
+          "wallMs": 0.9396950000000288,
+          "cpuMs": 0.949
+        },
+        {
+          "name": "src/package-checks/host-environment/process/failure.ts",
+          "wallMs": 1.6928330000000642,
+          "cpuMs": 1.713
+        },
+        {
+          "name": "src/package-checks/host-environment/process/result.ts",
+          "wallMs": 4.853305999999975,
+          "cpuMs": 4.982
+        },
+        {
+          "name": "src/package-checks/host-environment/process/runner.ts",
+          "wallMs": 2.638586000000032,
+          "cpuMs": 2.74
+        },
+        {
+          "name": "src/package-checks/json-document/decoded-duplicate-keys.ts",
+          "wallMs": 4.302498999999898,
+          "cpuMs": 4.382
+        },
+        {
+          "name": "src/package-checks/json-document/strict-document.ts",
+          "wallMs": 7.11980100000028,
+          "cpuMs": 7.318
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/default-check.ts",
+          "wallMs": 4.6093690000002425,
+          "cpuMs": 4.732
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/execution-stages.ts",
+          "wallMs": 15.21382100000028,
+          "cpuMs": 26.616
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/final-data.ts",
+          "wallMs": 4.647870000000239,
+          "cpuMs": 4.732
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/issue-collector.ts",
+          "wallMs": 2.2205129999997553,
+          "cpuMs": 2.261
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/json-schema-validation.ts",
+          "wallMs": 12.064021999999568,
+          "cpuMs": 12.336
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/options-resolution.ts",
+          "wallMs": 3.120654999999715,
+          "cpuMs": 3.261
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/options-validation.ts",
+          "wallMs": 13.132405999999719,
+          "cpuMs": 13.651
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/options.ts",
+          "wallMs": 2.9214249999999993,
+          "cpuMs": 2.988
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/reference-resolver.ts",
+          "wallMs": 8.169880999999805,
+          "cpuMs": 8.383
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/remote-response.ts",
+          "wallMs": 3.783445000000029,
+          "cpuMs": 3.871
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/schema-engine.ts",
+          "wallMs": 12.694844000000103,
+          "cpuMs": 13.009
+        },
+        {
+          "name": "src/package-checks/json-schema-validation/schema-policy.ts",
+          "wallMs": 12.475476000000072,
+          "cpuMs": 12.815
+        },
+        {
+          "name": "src/package-checks/json-validation/default-check.ts",
+          "wallMs": 4.8614480000001095,
+          "cpuMs": 4.944
+        },
+        {
+          "name": "src/package-checks/json-validation/final-data.ts",
+          "wallMs": 1.992659999999887,
+          "cpuMs": 2.009
+        },
+        {
+          "name": "src/package-checks/json-validation/json-validation.ts",
+          "wallMs": 13.662149000000227,
+          "cpuMs": 15.176
+        },
+        {
+          "name": "src/package-checks/json-validation/options-resolution.ts",
+          "wallMs": 2.3166519999999764,
+          "cpuMs": 2.357
+        },
+        {
+          "name": "src/package-checks/json-validation/options-validation.ts",
+          "wallMs": 1.2178020000001197,
+          "cpuMs": 1.234
+        },
+        {
+          "name": "src/package-checks/json-validation/options.ts",
+          "wallMs": 0.8444980000003852,
+          "cpuMs": 0.862
+        },
+        {
+          "name": "src/package-checks/local-cache-options.ts",
+          "wallMs": 2.398714999999811,
+          "cpuMs": 2.437
+        },
+        {
+          "name": "src/package-checks/maintenance-reminders/assessment-results.ts",
+          "wallMs": 6.861546000000089,
+          "cpuMs": 7.002
+        },
+        {
+          "name": "src/package-checks/maintenance-reminders/final-data.ts",
+          "wallMs": 11.46437799999967,
+          "cpuMs": 11.76
+        },
+        {
+          "name": "src/package-checks/maintenance-reminders/maintenance-reminders.ts",
+          "wallMs": 14.627422000000024,
+          "cpuMs": 15.04
+        },
+        {
+          "name": "src/package-checks/maintenance-reminders/maintenance-support.ts",
+          "wallMs": 4.04567599999973,
+          "cpuMs": 4.165
+        },
+        {
+          "name": "src/package-checks/maintenance-reminders/measurement.ts",
+          "wallMs": 12.813529000000017,
+          "cpuMs": 13.164
+        },
+        {
+          "name": "src/package-checks/maintenance-reminders/options-validation.ts",
+          "wallMs": 4.301086999999825,
+          "cpuMs": 4.374
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/cache-options.ts",
+          "wallMs": 2.4473250000000917,
+          "cpuMs": 2.48
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/default-check.ts",
+          "wallMs": 4.917531000000054,
+          "cpuMs": 5.964
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/execution.ts",
+          "wallMs": 18.644882000000052,
+          "cpuMs": 21.745
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+          "wallMs": 9.95793300000014,
+          "cpuMs": 10.683
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/final-data.ts",
+          "wallMs": 1.9473860000002787,
+          "cpuMs": 1.962
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/finding-messages.ts",
+          "wallMs": 3.7296140000003106,
+          "cpuMs": 3.811
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/local-resolution.ts",
+          "wallMs": 13.82751700000017,
+          "cpuMs": 14.083
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/local-resolver.ts",
+          "wallMs": 1.9589049999999588,
+          "cpuMs": 2.018
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/markdown-parser.ts",
+          "wallMs": 11.543681000000106,
+          "cpuMs": 11.738
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/options-resolution.ts",
+          "wallMs": 6.011261999999988,
+          "cpuMs": 6.134
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/options-validation.ts",
+          "wallMs": 3.4308509999996204,
+          "cpuMs": 3.551
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/options.ts",
+          "wallMs": 2.154671000000235,
+          "cpuMs": 2.168
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/parse-facts-cache-payload.ts",
+          "wallMs": 11.19086100000004,
+          "cpuMs": 11.519
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+          "wallMs": 10.096248000000287,
+          "cpuMs": 12.387
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/records.ts",
+          "wallMs": 3.2249759999999696,
+          "cpuMs": 7.599
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/resolver-engine.ts",
+          "wallMs": 13.944442999999865,
+          "cpuMs": 14.238
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/source-reader.ts",
+          "wallMs": 3.912815000000137,
+          "cpuMs": 3.995
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/target-descriptor.ts",
+          "wallMs": 1.7539269999997487,
+          "cpuMs": 1.789
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/traversal-result.ts",
+          "wallMs": 4.792591999999786,
+          "cpuMs": 4.892
+        },
+        {
+          "name": "src/package-checks/markdown-link-validation/unavailable-reasons.ts",
+          "wallMs": 4.550589999999829,
+          "cpuMs": 4.631
+        },
+        {
+          "name": "src/package-checks/markdown-lint/adapter.ts",
+          "wallMs": 8.369091000000026,
+          "cpuMs": 9.368
+        },
+        {
+          "name": "src/package-checks/markdown-lint/default-check.ts",
+          "wallMs": 4.2403440000002774,
+          "cpuMs": 4.36
+        },
+        {
+          "name": "src/package-checks/markdown-lint/execution.ts",
+          "wallMs": 14.463698000000022,
+          "cpuMs": 14.657
+        },
+        {
+          "name": "src/package-checks/markdown-lint/final-data.ts",
+          "wallMs": 1.3684109999999237,
+          "cpuMs": 1.408
+        },
+        {
+          "name": "src/package-checks/markdown-lint/finding-messages.ts",
+          "wallMs": 7.34203400000024,
+          "cpuMs": 7.49
+        },
+        {
+          "name": "src/package-checks/markdown-lint/finding-waiver-identity.ts",
+          "wallMs": 2.528925999999956,
+          "cpuMs": 2.566
+        },
+        {
+          "name": "src/package-checks/markdown-lint/findings-cache.ts",
+          "wallMs": 8.190368999999919,
+          "cpuMs": 8.321
+        },
+        {
+          "name": "src/package-checks/markdown-lint/options-resolution.ts",
+          "wallMs": 4.7635049999998955,
+          "cpuMs": 4.907
+        },
+        {
+          "name": "src/package-checks/markdown-lint/options-validation.ts",
+          "wallMs": 3.1549889999996594,
+          "cpuMs": 5.641
+        },
+        {
+          "name": "src/package-checks/markdown-lint/options.ts",
+          "wallMs": 3.0682480000000396,
+          "cpuMs": 3.182
+        },
+        {
+          "name": "src/package-checks/markdown-lint/records.ts",
+          "wallMs": 6.922913999999764,
+          "cpuMs": 7.112
+        },
+        {
+          "name": "src/package-checks/markdown-lint/unavailable-reasons.ts",
+          "wallMs": 3.6185989999999038,
+          "cpuMs": 3.686
+        },
+        {
+          "name": "src/package-checks/project-files/collection.ts",
+          "wallMs": 7.5788330000000315,
+          "cpuMs": 9.995
+        },
+        {
+          "name": "src/package-checks/project-files/config-glob.ts",
+          "wallMs": 0.21705299999985073,
+          "cpuMs": 0.215
+        },
+        {
+          "name": "src/package-checks/project-files/configuration.ts",
+          "wallMs": 5.013981999999942,
+          "cpuMs": 5.173
+        },
+        {
+          "name": "src/package-checks/project-files/exact-input-measurement.ts",
+          "wallMs": 1.738908999999694,
+          "cpuMs": 1.763
+        },
+        {
+          "name": "src/package-checks/project-files/file-fingerprint.ts",
+          "wallMs": 2.8546040000001085,
+          "cpuMs": 2.918
+        },
+        {
+          "name": "src/package-checks/project-files/filesystem-collection.ts",
+          "wallMs": 21.942943999999898,
+          "cpuMs": 23.063
+        },
+        {
+          "name": "src/package-checks/project-files/input-eligibility.ts",
+          "wallMs": 0.9856700000000274,
+          "cpuMs": 1.002
+        },
+        {
+          "name": "src/package-checks/project-files/public-collection.ts",
+          "wallMs": 3.101998000000094,
+          "cpuMs": 3.24
+        },
+        {
+          "name": "src/package-checks/project-files/reported-path.ts",
+          "wallMs": 1.4985029999998005,
+          "cpuMs": 1.519
+        },
+        {
+          "name": "src/package-checks/secret-detection/classification.ts",
+          "wallMs": 1.6618459999999686,
+          "cpuMs": 1.706
+        },
+        {
+          "name": "src/package-checks/secret-detection/default-check.ts",
+          "wallMs": 4.198699000000033,
+          "cpuMs": 4.303
+        },
+        {
+          "name": "src/package-checks/secret-detection/execution.ts",
+          "wallMs": 15.852985999999873,
+          "cpuMs": 16.392
+        },
+        {
+          "name": "src/package-checks/secret-detection/final-data.ts",
+          "wallMs": 2.0769359999999324,
+          "cpuMs": 2.127
+        },
+        {
+          "name": "src/package-checks/secret-detection/finding-waiver-identity.ts",
+          "wallMs": 1.8035689999996976,
+          "cpuMs": 1.836
+        },
+        {
+          "name": "src/package-checks/secret-detection/input-preparation.ts",
+          "wallMs": 13.145402000000104,
+          "cpuMs": 13.627
+        },
+        {
+          "name": "src/package-checks/secret-detection/options-resolution.ts",
+          "wallMs": 3.3984909999999218,
+          "cpuMs": 4.145
+        },
+        {
+          "name": "src/package-checks/secret-detection/options-validation.ts",
+          "wallMs": 1.6703019999999924,
+          "cpuMs": 1.691
+        },
+        {
+          "name": "src/package-checks/secret-detection/options.ts",
+          "wallMs": 1.509523000000172,
+          "cpuMs": 1.591
+        },
+        {
+          "name": "src/package-checks/secret-detection/records.ts",
+          "wallMs": 3.4174960000000283,
+          "cpuMs": 3.456
+        },
+        {
+          "name": "src/package-checks/secret-detection/secretlint/adapter.ts",
+          "wallMs": 5.587294999999813,
+          "cpuMs": 5.693
+        },
+        {
+          "name": "src/package-tools/admission-policy/define-admission-policy.ts",
+          "wallMs": 3.813922999999704,
+          "cpuMs": 3.948
+        },
+        {
+          "name": "src/package-tools/change-flag-debugging/change-flag-debugging.ts",
+          "wallMs": 13.250802999999905,
+          "cpuMs": 13.546
+        },
+        {
+          "name": "src/package-tools/finding-presentation/finding-presentation.ts",
+          "wallMs": 2.7294379999998455,
+          "cpuMs": 2.776
+        },
+        {
+          "name": "src/package-tools/finding-waivers/reconciliation.ts",
+          "wallMs": 8.000586999999996,
+          "cpuMs": 8.238
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/critical-path-ranking.ts",
+          "wallMs": 3.8674909999999727,
+          "cpuMs": 7.451
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/duration-model/bounded-history.ts",
+          "wallMs": 4.86559699999998,
+          "cpuMs": 5.262
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/duration-model/prediction.ts",
+          "wallMs": 7.430297999999766,
+          "cpuMs": 7.581
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/duration-model/preparation.ts",
+          "wallMs": 4.242607999999564,
+          "cpuMs": 4.338
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/duration-model/recording.ts",
+          "wallMs": 8.361265000000003,
+          "cpuMs": 8.528
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/duration-model/storage.ts",
+          "wallMs": 10.460837000000083,
+          "cpuMs": 10.836
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/selection-layers.ts",
+          "wallMs": 3.556174000000283,
+          "cpuMs": 3.684
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/static-decision.ts",
+          "wallMs": 7.409086000000116,
+          "cpuMs": 11.656
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/strategy-contract.ts",
+          "wallMs": 2.149702000000161,
+          "cpuMs": 2.187
+        },
+        {
+          "name": "src/package-tools/learned-critical-path/strategy.ts",
+          "wallMs": 14.74791499999992,
+          "cpuMs": 15.086
+        },
+        {
+          "name": "src/package-tools/scheduler-context/define-scheduler-context-callback.ts",
+          "wallMs": 1.7906670000002123,
+          "cpuMs": 2.272
+        },
+        {
+          "name": "src/project-definition/check-tree/authoring.ts",
+          "wallMs": 6.233324999999695,
+          "cpuMs": 6.71
+        },
+        {
+          "name": "src/project-definition/check-tree/check-fields-authoring.ts",
+          "wallMs": 12.014500000000226,
+          "cpuMs": 12.245
+        },
+        {
+          "name": "src/project-definition/check-tree/collection-authoring.ts",
+          "wallMs": 0.9807810000002064,
+          "cpuMs": 1.006
+        },
+        {
+          "name": "src/project-definition/check-tree/flag-conditions.ts",
+          "wallMs": 5.011997000000065,
+          "cpuMs": 5.084
+        },
+        {
+          "name": "src/project-definition/check-tree/materialization.ts",
+          "wallMs": 3.9202589999999873,
+          "cpuMs": 3.996
+        },
+        {
+          "name": "src/project-definition/check-tree/resolution.ts",
+          "wallMs": 6.539332999999715,
+          "cpuMs": 6.637
+        },
+        {
+          "name": "src/project-definition/check-tree/scheduling-authoring.ts",
+          "wallMs": 6.358918000000358,
+          "cpuMs": 10.718
+        },
+        {
+          "name": "src/project-definition/declarative-snapshot.ts",
+          "wallMs": 4.228020999999899,
+          "cpuMs": 6.109
+        },
+        {
+          "name": "src/project-definition/output-defaults.ts",
+          "wallMs": 1.4667130000002544,
+          "cpuMs": 1.485
+        },
+        {
+          "name": "src/project-definition/output-validation.ts",
+          "wallMs": 3.083944999999858,
+          "cpuMs": 3.159
+        },
+        {
+          "name": "src/project-definition/progress-rendering-output.ts",
+          "wallMs": 5.687953999999991,
+          "cpuMs": 5.809
+        },
+        {
+          "name": "src/project-definition/project-changes.ts",
+          "wallMs": 3.7887759999998707,
+          "cpuMs": 3.841
+        },
+        {
+          "name": "src/project-definition/project-definition-validation.ts",
+          "wallMs": 15.205124000000069,
+          "cpuMs": 19.97
+        },
+        {
+          "name": "src/project-definition/project-definition.ts",
+          "wallMs": 14.435182999999597,
+          "cpuMs": 27.757
+        },
+        {
+          "name": "src/project-definition/resource-unit-mapping.ts",
+          "wallMs": 1.3078279999999722,
+          "cpuMs": 1.326
+        },
+        {
+          "name": "src/project-definition/scheduler-context-callback.ts",
+          "wallMs": 3.1972470000000612,
+          "cpuMs": 7.338
+        },
+        {
+          "name": "src/project-definition/scheduler-context-validation.ts",
+          "wallMs": 6.355162000000291,
+          "cpuMs": 14.366
+        },
+        {
+          "name": "src/project-definition/scheduler-policy.ts",
+          "wallMs": 19.151233000000047,
+          "cpuMs": 35.653
+        },
+        {
+          "name": "src/project-run/admission-strategy-provider/custom-strategy-preparation.ts",
+          "wallMs": 5.34413399999994,
+          "cpuMs": 13.523
+        },
+        {
+          "name": "src/project-run/admission-strategy-provider/prepared-admission-strategy.ts",
+          "wallMs": 1.9187130000000252,
+          "cpuMs": 1.958
+        },
+        {
+          "name": "src/project-run/admission-strategy-provider/provider.ts",
+          "wallMs": 2.0610169999999925,
+          "cpuMs": 6.071
+        },
+        {
+          "name": "src/project-run/aggregation.ts",
+          "wallMs": 3.566512999999759,
+          "cpuMs": 7.677
+        },
+        {
+          "name": "src/project-run/changes/git.ts",
+          "wallMs": 15.456891999999698,
+          "cpuMs": 34.286
+        },
+        {
+          "name": "src/project-run/check-execution/admitted-check-execution.ts",
+          "wallMs": 3.523504999999659,
+          "cpuMs": 3.654
+        },
+        {
+          "name": "src/project-run/check-execution/callback.ts",
+          "wallMs": 8.365163000000393,
+          "cpuMs": 16.581
+        },
+        {
+          "name": "src/project-run/check-execution/console-capture.ts",
+          "wallMs": 14.292270000000372,
+          "cpuMs": 24.846
+        },
+        {
+          "name": "src/project-run/check-execution/dependencies.ts",
+          "wallMs": 9.578505999999834,
+          "cpuMs": 9.862
+        },
+        {
+          "name": "src/project-run/check-execution/execution-finalization.ts",
+          "wallMs": 11.056340999999975,
+          "cpuMs": 11.291
+        },
+        {
+          "name": "src/project-run/check-execution/execution-settlement.ts",
+          "wallMs": 9.291514000000006,
+          "cpuMs": 9.511
+        },
+        {
+          "name": "src/project-run/check-execution/flag-controls.ts",
+          "wallMs": 6.06802800000014,
+          "cpuMs": 6.186
+        },
+        {
+          "name": "src/project-run/check-execution/lifecycle.ts",
+          "wallMs": 1.070607999999993,
+          "cpuMs": 1.086
+        },
+        {
+          "name": "src/project-run/check-execution/messages.ts",
+          "wallMs": 3.1514319999996587,
+          "cpuMs": 3.209
+        },
+        {
+          "name": "src/project-run/check-execution/plan.ts",
+          "wallMs": 2.041310000000067,
+          "cpuMs": 2.08
+        },
+        {
+          "name": "src/project-run/check-execution/preparation-result.ts",
+          "wallMs": 5.630786000000171,
+          "cpuMs": 6.189
+        },
+        {
+          "name": "src/project-run/check-execution/preparation.ts",
+          "wallMs": 14.009966000000077,
+          "cpuMs": 14.425
+        },
+        {
+          "name": "src/project-run/check-execution/prepared-check-execution.ts",
+          "wallMs": 1.5980479999998352,
+          "cpuMs": 1.647
+        },
+        {
+          "name": "src/project-run/check-execution/ready-check-execution.ts",
+          "wallMs": 4.585385000000315,
+          "cpuMs": 5.29
+        },
+        {
+          "name": "src/project-run/check-execution/resolved-checks.ts",
+          "wallMs": 7.62132100000008,
+          "cpuMs": 7.829
+        },
+        {
+          "name": "src/project-run/check-execution/resolved-execution-result.ts",
+          "wallMs": 1.442120000000159,
+          "cpuMs": 1.482
+        },
+        {
+          "name": "src/project-run/check-execution/scheduled-check-run.ts",
+          "wallMs": 6.700753000000077,
+          "cpuMs": 6.766
+        },
+        {
+          "name": "src/project-run/check-execution/terminal-result.ts",
+          "wallMs": 6.531904999999824,
+          "cpuMs": 6.621
+        },
+        {
+          "name": "src/project-run/completion/completion.ts",
+          "wallMs": 10.6136919999999,
+          "cpuMs": 10.824
+        },
+        {
+          "name": "src/project-run/completion/machine-publication.ts",
+          "wallMs": 1.481441000000359,
+          "cpuMs": 1.495
+        },
+        {
+          "name": "src/project-run/completion/result-resolver.ts",
+          "wallMs": 2.1600730000000112,
+          "cpuMs": 2.199
+        },
+        {
+          "name": "src/project-run/controls/contract.ts",
+          "wallMs": 1.8186550000000352,
+          "cpuMs": 1.886
+        },
+        {
+          "name": "src/project-run/controls/outputs-override-validation.ts",
+          "wallMs": 6.922084000000268,
+          "cpuMs": 7.075
+        },
+        {
+          "name": "src/project-run/controls/validation-result.ts",
+          "wallMs": 1.36151800000016,
+          "cpuMs": 1.398
+        },
+        {
+          "name": "src/project-run/controls/validation.ts",
+          "wallMs": 10.816515000000436,
+          "cpuMs": 15.578
+        },
+        {
+          "name": "src/project-run/diagnostic-logging/diagnostic-detail-rendering.ts",
+          "wallMs": 14.74953800000003,
+          "cpuMs": 19.157
+        },
+        {
+          "name": "src/project-run/diagnostic-logging/logger.ts",
+          "wallMs": 11.102305999999771,
+          "cpuMs": 11.28
+        },
+        {
+          "name": "src/project-run/diagnostic-logging/observation-rendering.ts",
+          "wallMs": 10.842303999999785,
+          "cpuMs": 11.006
+        },
+        {
+          "name": "src/project-run/invocation/candidate.ts",
+          "wallMs": 4.736063999999715,
+          "cpuMs": 4.794
+        },
+        {
+          "name": "src/project-run/invocation/candidates.ts",
+          "wallMs": 2.1787960000001476,
+          "cpuMs": 2.912
+        },
+        {
+          "name": "src/project-run/invocation/creation.ts",
+          "wallMs": 5.60138199999983,
+          "cpuMs": 5.698
+        },
+        {
+          "name": "src/project-run/invocation/execution.ts",
+          "wallMs": 8.458196000000044,
+          "cpuMs": 8.628
+        },
+        {
+          "name": "src/project-run/invocation/paths.ts",
+          "wallMs": 7.221670000000358,
+          "cpuMs": 7.349
+        },
+        {
+          "name": "src/project-run/invocation/progress.ts",
+          "wallMs": 2.1791769999999815,
+          "cpuMs": 3.278
+        },
+        {
+          "name": "src/project-run/invocation/run.ts",
+          "wallMs": 8.098449000000073,
+          "cpuMs": 8.358
+        },
+        {
+          "name": "src/project-run/invocation/scheduler.ts",
+          "wallMs": 5.2330369999999675,
+          "cpuMs": 5.31
+        },
+        {
+          "name": "src/project-run/outputs/configuration.ts",
+          "wallMs": 1.650354000000334,
+          "cpuMs": 1.841
+        },
+        {
+          "name": "src/project-run/outputs/status.ts",
+          "wallMs": 8.57834899999989,
+          "cpuMs": 8.726
+        },
+        {
+          "name": "src/project-run/progress-rendering/presentation.ts",
+          "wallMs": 14.27544399999988,
+          "cpuMs": 14.589
+        },
+        {
+          "name": "src/project-run/progress-rendering/renderer-formatting.ts",
+          "wallMs": 15.522360999999819,
+          "cpuMs": 15.778
+        },
+        {
+          "name": "src/project-run/progress-rendering/renderer-lifecycle.ts",
+          "wallMs": 9.478751000000102,
+          "cpuMs": 9.635
+        },
+        {
+          "name": "src/project-run/progress-rendering/renderer.ts",
+          "wallMs": 3.751506000000063,
+          "cpuMs": 3.846
+        },
+        {
+          "name": "src/project-run/project-context.ts",
+          "wallMs": 0.8398899999997411,
+          "cpuMs": 0.886
+        },
+        {
+          "name": "src/project-run/result.ts",
+          "wallMs": 10.640477999999803,
+          "cpuMs": 13.41
+        },
+        {
+          "name": "src/project-run/run.ts",
+          "wallMs": 2.456883000000289,
+          "cpuMs": 5.609
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/compiled-graph-lookup.ts",
+          "wallMs": 2.9388349999999264,
+          "cpuMs": 2.971
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/compiled-graph.ts",
+          "wallMs": 12.10492000000022,
+          "cpuMs": 12.343
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/constraint-groups.ts",
+          "wallMs": 6.433285999999953,
+          "cpuMs": 6.473
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/core.ts",
+          "wallMs": 14.289792999999918,
+          "cpuMs": 14.567
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/input.ts",
+          "wallMs": 11.099210000000312,
+          "cpuMs": 13.211
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/persistent-task-queue.ts",
+          "wallMs": 2.2426650000002155,
+          "cpuMs": 2.281
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/projection.ts",
+          "wallMs": 8.891321999999946,
+          "cpuMs": 9.063
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/ready-frontier.ts",
+          "wallMs": 5.399535999999898,
+          "cpuMs": 5.536
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/scheduler-queries.ts",
+          "wallMs": 1.2713709999998173,
+          "cpuMs": 1.358
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/selection-frontiers.ts",
+          "wallMs": 3.9995059999996556,
+          "cpuMs": 4.843
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/selection-index.ts",
+          "wallMs": 7.889754000000266,
+          "cpuMs": 8.227
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/selection-query.ts",
+          "wallMs": 13.540337999999792,
+          "cpuMs": 13.874
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/selection-seed.ts",
+          "wallMs": 13.192661000000044,
+          "cpuMs": 17.648
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/selection-transition.ts",
+          "wallMs": 10.218041999999969,
+          "cpuMs": 10.61
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/selection.ts",
+          "wallMs": 5.54597799999965,
+          "cpuMs": 5.623
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/state-query.ts",
+          "wallMs": 4.26709400000027,
+          "cpuMs": 4.336
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/static-frontier.ts",
+          "wallMs": 7.656187000000045,
+          "cpuMs": 7.823
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/static-selection-query.ts",
+          "wallMs": 2.805789999999888,
+          "cpuMs": 2.841
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-core/trace.ts",
+          "wallMs": 7.369026000000304,
+          "cpuMs": 7.53
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-scope-layers.ts",
+          "wallMs": 1.7599079999999958,
+          "cpuMs": 1.795
+        },
+        {
+          "name": "src/project-run/task-scheduler/admission-selection-policy.ts",
+          "wallMs": 3.5130609999996523,
+          "cpuMs": 3.624
+        },
+        {
+          "name": "src/project-run/task-scheduler/custom-admission-policy.ts",
+          "wallMs": 7.825593000000026,
+          "cpuMs": 8.041
+        },
+        {
+          "name": "src/project-run/task-scheduler/execution-state.ts",
+          "wallMs": 9.338330999999926,
+          "cpuMs": 10.528
+        },
+        {
+          "name": "src/project-run/task-scheduler/forced-block-effect-replay.ts",
+          "wallMs": 3.8811970000001565,
+          "cpuMs": 8.088
+        },
+        {
+          "name": "src/project-run/task-scheduler/graph-validation.ts",
+          "wallMs": 10.610873999999967,
+          "cpuMs": 14.312
+        },
+        {
+          "name": "src/project-run/task-scheduler/graph.ts",
+          "wallMs": 14.918059999999969,
+          "cpuMs": 23.181
+        },
+        {
+          "name": "src/project-run/task-scheduler/measurement/diagnostics.ts",
+          "wallMs": 15.140582999999879,
+          "cpuMs": 19.069
+        },
+        {
+          "name": "src/project-run/task-scheduler/measurement/integrals.ts",
+          "wallMs": 7.124488999999812,
+          "cpuMs": 7.239
+        },
+        {
+          "name": "src/project-run/task-scheduler/measurement/policy.ts",
+          "wallMs": 4.913554000000204,
+          "cpuMs": 5.016
+        },
+        {
+          "name": "src/project-run/task-scheduler/measurement/summary.ts",
+          "wallMs": 7.789364000000205,
+          "cpuMs": 8.011
+        },
+        {
+          "name": "src/project-run/task-scheduler/measurement/timing.ts",
+          "wallMs": 9.518505000000005,
+          "cpuMs": 9.668
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-admission-decision.ts",
+          "wallMs": 11.140498000000207,
+          "cpuMs": 11.352
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+          "wallMs": 1.3466300000000047,
+          "cpuMs": 1.362
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+          "wallMs": 2.050217999999859,
+          "cpuMs": 2.088
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-decision-model.ts",
+          "wallMs": 9.751928000000134,
+          "cpuMs": 9.951
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-decision.ts",
+          "wallMs": 7.2454539999998815,
+          "cpuMs": 7.368
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-observation-setup.ts",
+          "wallMs": 3.700108999999884,
+          "cpuMs": 3.785
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-observation.ts",
+          "wallMs": 5.3848009999996975,
+          "cpuMs": 5.489
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-task-lifecycle.ts",
+          "wallMs": 6.627246000000014,
+          "cpuMs": 6.715
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-terminal-context.ts",
+          "wallMs": 0.7092469999997775,
+          "cpuMs": 0.726
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler-terminal-measurement.ts",
+          "wallMs": 7.945474000000104,
+          "cpuMs": 8.08
+        },
+        {
+          "name": "src/project-run/task-scheduler/scheduler.ts",
+          "wallMs": 15.985463999999865,
+          "cpuMs": 16.854
+        },
+        {
+          "name": "src/project-run/task-scheduler/shell-admission-facts.ts",
+          "wallMs": 0.6144209999997656,
+          "cpuMs": 0.629
+        }
+      ]
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-check-cost-20261015/esm-comparison.json",
+      "sourceBytes": 1216,
+      "sourceSHA256": "d4c09039d3fa8f8d02c1720daab2e46afae5b34df55496f91de00c4937edb8c6",
+      "representation": "parsed-json",
+      "data": {
+        "runtime": {
+          "node": "24.3.0",
+          "bun": "1.3.14",
+          "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+          "openssl": "1.1.0",
+          "llhttp": "9.3.0",
+          "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+          "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+          "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+          "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+          "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+          "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+          "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+          "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+          "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+          "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+          "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+          "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+          "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+          "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+          "v8": "13.6.233.10-node.18",
+          "uv": "1.48.0",
+          "napi": "10",
+          "icu": "75.1",
+          "unicode": "15.1",
+          "modules": "137"
+        },
+        "emittedFiles": 360,
+        "inputs": 486,
+        "calls": 1458,
+        "differences": []
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-check-cost-20261015/measure.py",
+      "sourceBytes": 3206,
+      "sourceSHA256": "a91c065222135fa8c8d15f0a68810c83998138ad4264ca8d736ff8d405e44e27",
+      "representation": "verbatim-text",
+      "text": "import argparse\nimport json\nimport os\nimport pathlib\nimport re\nimport subprocess\nimport time\n\nparser = argparse.ArgumentParser()\nparser.add_argument(\"phase\")\nparser.add_argument(\"--profile\", action=\"store_true\")\narguments = parser.parse_args()\nif re.fullmatch(r\"[a-z][a-z0-9-]*\", arguments.phase) is None:\n    parser.error(\"phase must be a lowercase name\")\nowner = pathlib.Path(__file__).resolve().parent\nrepository_root = owner.parent.parent\nphase_directory = owner / arguments.phase\nsetup_command = [\"mise\", \"exec\", \"--\", \"bun\", \"run\", str(owner / \"setup.ts\")]\nsubprocess.run(setup_command + [\"setup\", arguments.phase], cwd=repository_root, check=True)\ntry:\n    material = json.loads((phase_directory / \"material.json\").read_text())\n    environment = os.environ | material[\"environment\"]\n    jobs = {\n        \"types\": [\"test\", \"scripts/package/candidate/external-consumer/type-acceptance.test.ts\"],\n        \"artifact\": [\"test\", \"scripts/package/artifact/artifact.test.ts\"],\n        \"function\": [\"run\", str(owner / \"function-check.ts\")],\n    }\n    with (phase_directory / \"samples.jsonl\").open(\"x\") as evidence:\n        for job, command in jobs.items():\n            for sample in range(1 if arguments.profile else 3):\n                executable = [\"mise\", \"exec\", \"--\", \"bun\"]\n                if arguments.profile:\n                    executable.extend([\n                        \"--cpu-prof\", \"--cpu-prof-md\",\n                        f\"--cpu-prof-dir={phase_directory}\",\n                        f\"--cpu-prof-name={job}-{sample}\",\n                    ])\n                with (phase_directory / f\"{job}-{sample}.stdout.log\").open(\"w\") as stdout:\n                    with (phase_directory / f\"{job}-{sample}.stderr.log\").open(\"w\") as stderr:\n                        started_at = time.perf_counter()\n                        process = subprocess.Popen(\n                            executable + command, cwd=repository_root,\n                            env=environment, stdout=stdout, stderr=stderr,\n                        )\n                        _, status, usage = os.wait4(process.pid, 0)\n                        process.returncode = os.waitstatus_to_exitcode(status)\n                        row = {\n                            \"phase\": arguments.phase, \"job\": job, \"sample\": sample,\n                            \"profiled\": arguments.profile,\n                            \"wallMs\": (time.perf_counter() - started_at) * 1000,\n                            \"cpuMs\": (usage.ru_utime + usage.ru_stime) * 1000,\n                            \"maxProcessRssKiB\": usage.ru_maxrss,\n                            \"exitCode\": process.returncode,\n                            \"candidateVersion\": material[\"candidateVersion\"],\n                            \"command\": executable + command,\n                        }\n                        evidence.write(json.dumps(row) + \"\\n\")\n                        evidence.flush()\n                        print(json.dumps(row), flush=True)\n                        if process.returncode != 0:\n                            raise RuntimeError(f\"{job} failed; inspect {phase_directory}\")\nfinally:\n    subprocess.run(setup_command + [\"cleanup\", arguments.phase], cwd=repository_root, check=True)\n"
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-check-cost-20261015/README.md",
+      "sourceBytes": 745,
+      "sourceSHA256": "d4da1aba5128f25d5440bf2e741a36e155927f895529ea79f56dc33620635a7e",
+      "representation": "verbatim-text",
+      "text": "# Gate heavy-check cost evidence\n\nThis ignored local directory owns serial timing/profile drivers, raw logs and input identities for the expanded performance task.\nBaseline HEAD is 8c39f309; the staged native JSON adoption is preserved, and candidate 0.0.0-local.374b9bf8c9ce is the initial package input.\nFull Gate baseline logs are the 03:42:21 and 03:43:44 runs recorded in the native JSON Change.\nProfiles diagnose costs; unprofiled same-workload samples determine timing claims. No concurrency, resource, budget, timeout or acceptance reduction is permitted.\nTemporary external consumer fixtures use their existing owner cleanup; source snapshots and raw profiles remain here for task-local audit and can be deleted after evidence handoff.\n"
+    }
+  ]
+}

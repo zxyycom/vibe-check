@@ -68,3 +68,12 @@ test names 和 Case 映射。两目标文件 13/13 tests、局部 lint/format �
 37 passed / 6 not-applicable，complete Gate 为 43/43 passed，包含包产物与外部 consumer 验收。
 原始日志与集成边界见 `tmp/optimization-implementation-20261015/integration.md`；这些结果只证明当时输入，
 后续改动须重新选择相应验证。本 Plan 保留，提交、发布与结项删除分别依当前任务授权。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-operation-evidence.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。
+完整公开 API 普查、80-group同输入比较与不利样本由[独立调查报告](../../docs/investigations/survey-product-api-performance-and-tradeoffs.md)长期承接；原
+`tmp/optimization-implementation-20261015/performance/` 及其间接指向的旧 performance 目录均不再是复核前提。

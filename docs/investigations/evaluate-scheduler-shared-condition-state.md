@@ -64,6 +64,9 @@ relations: []
 - **完整模型 total**：直接测 compile＋seed＋来源 admit/settle＋选尽下游，包含预编译队列成本；另测 compile 和三个消费阶段，不相加各阶段 median。
 - **内存**：独立 pass 观察指定保留集合的 post-GC heap/RSS；没有运行 allocation sampling。逻辑 tick delay 只证明总 viable 等待模型，完整 collector 的分类、积分及 binary64 精度另有义务。
 
+**2026-10-17 现场生命周期补记（非新增观测）：**必要 runner/raw/摘要已由正式资源承接；原 tmp 的完整source inventories、草稿和outline只供当轮审计，不作为结论的持续输入。
+原资源中的路径继续作为形成时来源坐标；复测需要新授权及独占工作区，不保证旧临时命令在当前版本可执行。
+
 ## 调查结果与边界
 
 ### 核心判断

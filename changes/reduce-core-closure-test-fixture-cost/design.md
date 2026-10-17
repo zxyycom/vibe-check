@@ -75,3 +75,10 @@ scripts 类型/lint、精确两路径格式、两个目标测试 2/2、公共材
 最后 final 日志：`.log/project-gate/2026-10-14T06-26-03.165Z-2828243-2a0ee315-8107-4e42-abf9-3b365d738422/`。
 采集结束时已恢复该切面源码并核对 manifest；预算、timeout、并发、waiver、公开行为均未改变。
 该切面证据采集期间未提交、推送或删除 Change。辅助证据保留以供复核；当前计划不把它当随包或持久规范。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

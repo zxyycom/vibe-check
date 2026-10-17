@@ -1,0 +1,203 @@
+{
+  "purpose": "作者树与文件匹配两切面的历史操作计数/方法；无源码镜像重跑承诺。",
+  "observedOn": "2026-10-15",
+  "supplementedAt": "2026-10-17T06:07:59+00:00",
+  "scope": "形成时验收记录，非当前验证、长期benchmark或可重跑SDK。historicalPath仅标注已退出的现场来源；未保存完整源码镜像、fixture、cache、原始profile。JSON/JSONL按值转存，文本原样保留；sourceSHA256识别补存时读取的原字节，不要求原路径仍存在。",
+  "materials": [
+    {
+      "historicalPath": "tmp/optimization-implementation-20261015/definition/operation-counts.json",
+      "sourceBytes": 4007,
+      "sourceSHA256": "5cfcd81e7f2831d419a9639c5e27b97456d15471440b0149714ad56833caf681",
+      "representation": "parsed-json",
+      "data": {
+        "capturedAt": "2026-10-15T06:17:35.992Z",
+        "head": "b2926b14880da7546f39aba7c0e07424f65f3977",
+        "runtime": {
+          "node": "24.3.0",
+          "bun": "1.3.14",
+          "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+          "openssl": "1.1.0",
+          "llhttp": "9.3.0",
+          "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+          "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+          "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+          "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+          "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+          "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+          "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+          "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+          "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+          "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+          "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+          "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+          "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+          "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+          "v8": "13.6.233.10-node.18",
+          "uv": "1.48.0",
+          "napi": "10",
+          "icu": "75.1",
+          "unicode": "15.1",
+          "modules": "137"
+        },
+        "method": "Actual before source copied from HEAD with only import locations rewritten, compared to current implementations. Current common imported value parsers remain equivalent on these legal inheritance/filesystem fixtures. No timing or heap claims.",
+        "dag": [
+          {
+            "depth": 3,
+            "before": {
+              "visits": 15,
+              "accepted": true
+            },
+            "after": {
+              "visits": 5,
+              "accepted": false
+            }
+          },
+          {
+            "depth": 5,
+            "before": {
+              "visits": 63,
+              "accepted": true
+            },
+            "after": {
+              "visits": 7,
+              "accepted": false
+            }
+          },
+          {
+            "depth": 7,
+            "before": {
+              "visits": 255,
+              "accepted": true
+            },
+            "after": {
+              "visits": 9,
+              "accepted": false
+            }
+          },
+          {
+            "depth": 9,
+            "before": {
+              "visits": 1023,
+              "accepted": true
+            },
+            "after": {
+              "visits": 11,
+              "accepted": false
+            }
+          }
+        ],
+        "inheritance": [
+          {
+            "size": 16,
+            "before": {
+              "sortedElements": 136,
+              "filteredElements": 120
+            },
+            "after": {
+              "sortedElements": 16,
+              "filteredElements": 0
+            }
+          },
+          {
+            "size": 32,
+            "before": {
+              "sortedElements": 528,
+              "filteredElements": 496
+            },
+            "after": {
+              "sortedElements": 32,
+              "filteredElements": 0
+            }
+          },
+          {
+            "size": 64,
+            "before": {
+              "sortedElements": 2080,
+              "filteredElements": 2016
+            },
+            "after": {
+              "sortedElements": 64,
+              "filteredElements": 0
+            }
+          },
+          {
+            "size": 128,
+            "before": {
+              "sortedElements": 8256,
+              "filteredElements": 8128
+            },
+            "after": {
+              "sortedElements": 128,
+              "filteredElements": 0
+            }
+          }
+        ],
+        "literal": [
+          {
+            "size": 16,
+            "before": {
+              "nativeLiteralTests": 240
+            },
+            "after": {
+              "nativeLiteralTests": 0
+            }
+          },
+          {
+            "size": 64,
+            "before": {
+              "nativeLiteralTests": 4032
+            },
+            "after": {
+              "nativeLiteralTests": 0
+            }
+          },
+          {
+            "size": 128,
+            "before": {
+              "nativeLiteralTests": 16256
+            },
+            "after": {
+              "nativeLiteralTests": 0
+            }
+          }
+        ],
+        "prefix": [
+          {
+            "depth": 8,
+            "before": {
+              "copiedPrefixSlots": 375
+            },
+            "after": {
+              "copiedPrefixSlots": 0
+            }
+          },
+          {
+            "depth": 16,
+            "before": {
+              "copiedPrefixSlots": 2091
+            },
+            "after": {
+              "copiedPrefixSlots": 0
+            }
+          },
+          {
+            "depth": 24,
+            "before": {
+              "copiedPrefixSlots": 6175
+            },
+            "after": {
+              "copiedPrefixSlots": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "historicalPath": "tmp/optimization-implementation-20261015/definition/operation-counts.ts",
+      "sourceBytes": 5943,
+      "sourceSHA256": "20087947ba4b94dbd19d29cfb8402415a899205f79ebbe9caf8ac5cd835473bc",
+      "representation": "verbatim-text",
+      "text": "import assert from 'node:assert/strict';\nimport fs from 'node:fs';\nimport { execFileSync } from 'node:child_process';\nimport { resolve, dirname, join } from 'node:path';\nimport { pathToFileURL } from 'node:url';\nimport micromatch from 'micromatch';\nimport { inherit, type Check } from '../../../src/check/check.ts';\nimport { parseCheckTreeAuthoring } from '../../../src/project-definition/check-tree/authoring.ts';\nimport { resolveCheckTree } from '../../../src/project-definition/check-tree/resolution.ts';\nimport { createCollectionFilesystem } from '../../../src/package-checks/project-files/filesystem-collection.ts';\nimport { CONFIG_GLOB_OPTIONS, selectConfigPaths } from '../../../src/data-boundary/config-glob.ts';\nconst root=process.cwd(); const out=resolve('tmp/optimization-implementation-20261015/definition');\nfunction before(path:string,name:string) {\n  const source=execFileSync('git',['show',`HEAD:${path}`],{encoding:'utf8'});\n  const rewritten=source.replace(/(from\\s+[\"'])(\\.[^\"']+)([\"'])/gu,(_,a,s,b)=>a+pathToFileURL(resolve(dirname(resolve(path)),s)).href+b);\n  fs.writeFileSync(join(out,name),rewritten);\n  return import(pathToFileURL(join(out,name)).href);\n}\nconst oldAuthoring=await before('src/project-definition/check-tree/authoring.ts','before-authoring.ts');\nconst oldResolution=await before('src/project-definition/check-tree/resolution.ts','before-resolution.ts');\nconst oldFilesystem=await before('src/package-checks/project-files/filesystem-collection.ts','before-filesystem.ts');\nconst execute=()=>({status:'passed' as const,data:{}});\nconst dag=[];\nfor(const depth of [3,5,7,9]) {\n const measure=(parse:typeof parseCheckTreeAuthoring)=>{let visits=0;const count=(c:Check)=>new Proxy(c,{ownKeys(t){visits++;return Reflect.ownKeys(t);}});let c:Check=count({checkId:'leaf',displayName:'Leaf',execute});for(let i=0;i<depth;i++)c=count({checkId:`g${i}`,displayName:'Group',checks:[c,c]});const parsed=parse([c]);return{visits,accepted:parsed!==undefined};};\n const before=measure(oldAuthoring.parseCheckTreeAuthoring),after=measure(parseCheckTreeAuthoring);\n assert.equal(before.visits,2**(depth+1)-1);assert.equal(after.visits,depth+2);assert.equal(after.accepted,false);dag.push({depth,before,after});\n}\nconst inheritance=[];\nfor(const size of [16,32,64,128]){\n let c:Check={checkId:'leaf',displayName:'Leaf',execute};for(let i=0;i<size;i++)c={checkId:`g${i}`,displayName:'Group',mutex:inherit({add:[`cost-mutex-${i}`]}),checks:[c]};\n const measure=(resolveTree:typeof resolveCheckTree)=>{const sort=Array.prototype.sort,filter=Array.prototype.filter;let sortedElements=0,filteredElements=0;Reflect.set(Array.prototype,'sort',function(this:unknown[],compare:unknown){if(typeof this[0]==='string'&&this[0].startsWith('cost-mutex-'))sortedElements+=this.length;return Reflect.apply(sort,this,[compare]);});Reflect.set(Array.prototype,'filter',function(this:unknown[],cb:unknown,arg:unknown){if(typeof this[0]==='string'&&this[0].startsWith('cost-mutex-'))filteredElements+=this.length;return Reflect.apply(filter,this,[cb,arg]);});try{const tree=resolveTree([c],1);assert.equal(tree?.leaves[0]?.mutex.length,size);return{sortedElements,filteredElements};}finally{Reflect.set(Array.prototype,'sort',sort);Reflect.set(Array.prototype,'filter',filter);}};\n const before=measure(oldResolution.resolveCheckTree),after=measure(resolveCheckTree);assert.equal(before.filteredElements,size*(size-1)/2);assert.equal(before.sortedElements,size*(size+1)/2);assert.equal(after.filteredElements,0);assert.equal(after.sortedElements,size);inheritance.push({size,before,after});\n}\nconst literal=[];\nfor(const size of [16,64,128]){\n const paths=Array.from({length:size},(_,i)=>`cost-file-${i}.ts`),patterns=[...paths].reverse();\n const measure=(select:typeof selectConfigPaths)=>{const exec=RegExp.prototype.exec;let nativeLiteralTests=0;Reflect.set(RegExp.prototype,'exec',function(this:RegExp,input:string){if(this.source.includes('cost\\\\-file\\\\-'))nativeLiteralTests++;return Reflect.apply(exec,this,[input]);});try{assert.deepEqual(select(paths,patterns),patterns);return{nativeLiteralTests};}finally{Reflect.set(RegExp.prototype,'exec',exec);}};\n const before=measure((p,q)=>micromatch([...p],[...q],CONFIG_GLOB_OPTIONS)),after=measure(selectConfigPaths);assert.equal(before.nativeLiteralTests,size*(size-1));assert.equal(after.nativeLiteralTests,0);literal.push({size,before,after});\n}\nconst prefix=[];\nfor(const depth of [8,16,24]){\n const fixture=join(out,`prefix-fixture-${depth}`),target=join(fixture,'prefix-cost',...Array.from({length:depth},(_,i)=>`d${i}`));fs.mkdirSync(target,{recursive:true});\n const measure=(create:typeof createCollectionFilesystem)=>{const slice=Array.prototype.slice;let copiedPrefixSlots=0;Reflect.set(Array.prototype,'slice',function(this:unknown[],start:number,end:number){if(this[0]==='prefix-cost')copiedPrefixSlots+=(end??this.length)-(start??0);return Reflect.apply(slice,this,[start,end]);});try{create(fixture,[{patterns:['**/*','!**/absent/**'],useDefaultExcludes:false}]).readdirSync!(target,{withFileTypes:true});return{copiedPrefixSlots};}finally{Reflect.set(Array.prototype,'slice',slice);}};\n const before=measure(oldFilesystem.createCollectionFilesystem),after=measure(createCollectionFilesystem);assert.ok(before.copiedPrefixSlots>0);assert.equal(after.copiedPrefixSlots,0);prefix.push({depth,before,after});\n}\nconst evidence={capturedAt:new Date().toISOString(),head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),runtime:process.versions,method:'Actual before source copied from HEAD with only import locations rewritten, compared to current implementations. Current common imported value parsers remain equivalent on these legal inheritance/filesystem fixtures. No timing or heap claims.',dag,inheritance,literal,prefix};fs.writeFileSync(join(out,'operation-counts.json'),JSON.stringify(evidence,null,2)+'\\n');console.log(JSON.stringify(evidence,null,2));\n"
+    }
+  ]
+}

@@ -12,11 +12,9 @@
 本次文档与等价代码整理发生在上述测量之后；本文件数值不证明整理后源码已重新测量。后续 Gate 或 installed-package
 验收属于 correctness/delivery 证据，不构成新增性能样本。
 
-复核材料位于 `/workspace/vibe-check/tmp/optimization-wave-20261013/scheduler-needs-bench/`：
-`timing.final.ndjson`、`root-final-measurement.log`、`final-candidate-source-sha256.txt`、
-`final-frozen-owner-hashes.json`、`sample-final.sh`、`workload.ts` 与 `measure.ts`。
-`mise exec -- bun tmp/optimization-wave-20261013/scheduler-needs-bench/analyze-final.ts` 只重算
-`analysis.final.json`，不执行新采样。
+复核材料已补存至[历史验收记录](evidence/historical-acceptance.json)：两版完整 timing batches、分析结果、
+操作量、owner identity 和实际 workload/采样方法文本。`materials[].historicalPath` 标注原现场来源，
+不是当前文件定位；本页保留形成时 source manifest 的摘要，不保留整棵源码镜像或临时分析命令。
 
 | 冻结对象 | SHA-256 |
 | --- | --- |
@@ -126,3 +124,10 @@ raw demand 保留采集：738-file N128 raw adoption -3.05%（-1.494 ms），原
 证据仅覆盖两种规模、一种独立 shape、同步 Task、单一 runtime/environment、每个冻结 candidate 两轮。
 真实 I/O、深依赖/scopes、资源竞争、memory 与其它硬件未测量，不外推 fleet-wide、worst-case、渐近或普遍 latency 保证。
 上轮 Gate/installed-package 43/43 与 Decision aligned 属于独立交付证据，见[任务记录](tasks.md#delivery-evidence)。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

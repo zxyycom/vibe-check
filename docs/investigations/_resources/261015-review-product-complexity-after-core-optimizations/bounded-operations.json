@@ -1,0 +1,659 @@
+{
+  "supplementedAt": "2026-10-17T06:14:25+00:00",
+  "scope": "当时有界逻辑操作计数，非CPU、wall或heap测量；methodText仅供阅读，历史源码/临时输入不承诺可直接重跑。保留原harness误断言与同harness复现边界见正文。",
+  "materials": [
+    {
+      "historicalPath": "tmp/complexity-investigation-20261015/operation-counts.json",
+      "sourceSHA256": "e35f91707e922d26372a95e79ab24956781eb59f4f433bede3c13a84d972d5a2",
+      "sourceBytes": 4052,
+      "data": {
+        "capturedAt": "2026-10-15T05:36:23.842Z",
+        "runtime": {
+          "node": "24.18.0",
+          "acorn": "8.16.0",
+          "ada": "3.4.4",
+          "amaro": "1.1.9",
+          "ares": "1.34.6",
+          "brotli": "1.2.0",
+          "cldr": "48.0",
+          "icu": "78.3",
+          "llhttp": "9.4.2",
+          "merve": "1.2.2",
+          "modules": "137",
+          "napi": "10",
+          "nbytes": "0.1.4",
+          "ncrypto": "0.0.1",
+          "nghttp2": "1.69.0",
+          "nghttp3": "",
+          "ngtcp2": "",
+          "openssl": "3.5.7",
+          "simdjson": "4.6.4",
+          "simdutf": "6.4.0",
+          "sqlite": "3.53.1",
+          "tz": "2026b",
+          "undici": "7.28.0",
+          "unicode": "17.0",
+          "uv": "1.52.1",
+          "uvwasi": "0.0.23",
+          "v8": "13.6.233.17-node.50",
+          "zlib": "1.3.1-e00f703",
+          "zstd": "1.5.7"
+        },
+        "method": "deterministic small operation counts, not timings/heap; current source; no Product modifications",
+        "graphCounts": [
+          {
+            "size": 16,
+            "mapGetCount": 137,
+            "expected": 137,
+            "publicConstructionSucceeded": true
+          },
+          {
+            "size": 32,
+            "mapGetCount": 529,
+            "expected": 529,
+            "publicConstructionSucceeded": true
+          },
+          {
+            "size": 64,
+            "mapGetCount": 2081,
+            "expected": 2081,
+            "publicConstructionSucceeded": true
+          },
+          {
+            "size": 128,
+            "mapGetCount": 8257,
+            "expected": 8257,
+            "publicConstructionSucceeded": true
+          }
+        ],
+        "dagCounts": [
+          {
+            "depth": 3,
+            "uniqueInputCheckObjects": 4,
+            "ownKeys": 15,
+            "expected": 15,
+            "resultKind": "planning",
+            "executeCalls": 0
+          },
+          {
+            "depth": 5,
+            "uniqueInputCheckObjects": 6,
+            "ownKeys": 63,
+            "expected": 63,
+            "resultKind": "planning",
+            "executeCalls": 0
+          },
+          {
+            "depth": 7,
+            "uniqueInputCheckObjects": 8,
+            "ownKeys": 255,
+            "expected": 255,
+            "resultKind": "planning",
+            "executeCalls": 0
+          },
+          {
+            "depth": 9,
+            "uniqueInputCheckObjects": 10,
+            "ownKeys": 1023,
+            "expected": 1023,
+            "resultKind": "planning",
+            "executeCalls": 0
+          }
+        ],
+        "pendingCounts": [
+          {
+            "size": 16,
+            "findIndexPredicateCalls": 136,
+            "expected": 136,
+            "boundary": "actual applyAdmission with minimal private Shell state; public reverse-policy reachability checked separately"
+          },
+          {
+            "size": 32,
+            "findIndexPredicateCalls": 528,
+            "expected": 528,
+            "boundary": "actual applyAdmission with minimal private Shell state; public reverse-policy reachability checked separately"
+          },
+          {
+            "size": 64,
+            "findIndexPredicateCalls": 2080,
+            "expected": 2080,
+            "boundary": "actual applyAdmission with minimal private Shell state; public reverse-policy reachability checked separately"
+          },
+          {
+            "size": 128,
+            "findIndexPredicateCalls": 8256,
+            "expected": 8256,
+            "boundary": "actual applyAdmission with minimal private Shell state; public reverse-policy reachability checked separately"
+          }
+        ],
+        "publicReverse": [
+          {
+            "size": 16,
+            "resultKind": "completed",
+            "order": [
+              "task-15",
+              "task-14",
+              "task-13",
+              "task-12",
+              "task-11",
+              "task-10",
+              "task-9",
+              "task-8",
+              "task-7",
+              "task-6",
+              "task-5",
+              "task-4",
+              "task-3",
+              "task-2",
+              "task-1",
+              "task-0"
+            ]
+          },
+          {
+            "size": 32,
+            "resultKind": "completed",
+            "order": [
+              "task-31",
+              "task-30",
+              "task-29",
+              "task-28",
+              "task-27",
+              "task-26",
+              "task-25",
+              "task-24",
+              "task-23",
+              "task-22",
+              "task-21",
+              "task-20",
+              "task-19",
+              "task-18",
+              "task-17",
+              "task-16",
+              "task-15",
+              "task-14",
+              "task-13",
+              "task-12",
+              "task-11",
+              "task-10",
+              "task-9",
+              "task-8",
+              "task-7",
+              "task-6",
+              "task-5",
+              "task-4",
+              "task-3",
+              "task-2",
+              "task-1",
+              "task-0"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "historicalPath": "tmp/complexity-investigation-20261015/secondary-operation-counts.json",
+      "sourceSHA256": "530c4ea527e00b3950c6ed7fe8b33a156ea901654378142d4d480ff66f216ed9",
+      "sourceBytes": 2220,
+      "data": {
+        "capturedAt": "2026-10-15T05:39:12.720Z",
+        "runtime": {
+          "node": "24.18.0",
+          "acorn": "8.16.0",
+          "ada": "3.4.4",
+          "amaro": "1.1.9",
+          "ares": "1.34.6",
+          "brotli": "1.2.0",
+          "cldr": "48.0",
+          "icu": "78.3",
+          "llhttp": "9.4.2",
+          "merve": "1.2.2",
+          "modules": "137",
+          "napi": "10",
+          "nbytes": "0.1.4",
+          "ncrypto": "0.0.1",
+          "nghttp2": "1.69.0",
+          "nghttp3": "",
+          "ngtcp2": "",
+          "openssl": "3.5.7",
+          "simdjson": "4.6.4",
+          "simdutf": "6.4.0",
+          "sqlite": "3.53.1",
+          "tz": "2026b",
+          "undici": "7.28.0",
+          "unicode": "17.0",
+          "uv": "1.52.1",
+          "uvwasi": "0.0.23",
+          "v8": "13.6.233.17-node.50",
+          "zlib": "1.3.1-e00f703",
+          "zstd": "1.5.7"
+        },
+        "method": "small deterministic counts of actual current private helpers; no timings or heap",
+        "inheritance": [
+          {
+            "size": 16,
+            "filterVisitedSlots": 120,
+            "expected": 120,
+            "leafCount": 1,
+            "finalMutexCount": 16
+          },
+          {
+            "size": 32,
+            "filterVisitedSlots": 496,
+            "expected": 496,
+            "leafCount": 1,
+            "finalMutexCount": 32
+          },
+          {
+            "size": 64,
+            "filterVisitedSlots": 2016,
+            "expected": 2016,
+            "leafCount": 1,
+            "finalMutexCount": 64
+          },
+          {
+            "size": 128,
+            "filterVisitedSlots": 8128,
+            "expected": 8128,
+            "leafCount": 1,
+            "finalMutexCount": 128
+          }
+        ],
+        "races": [
+          {
+            "size": 16,
+            "raceInputs": 136,
+            "expected": 136,
+            "boundary": "actual private nextRunningSettlement with resolved promises; does not measure retained reactions/heap"
+          },
+          {
+            "size": 32,
+            "raceInputs": 528,
+            "expected": 528,
+            "boundary": "actual private nextRunningSettlement with resolved promises; does not measure retained reactions/heap"
+          },
+          {
+            "size": 64,
+            "raceInputs": 2080,
+            "expected": 2080,
+            "boundary": "actual private nextRunningSettlement with resolved promises; does not measure retained reactions/heap"
+          },
+          {
+            "size": 128,
+            "raceInputs": 8256,
+            "expected": 8256,
+            "boundary": "actual private nextRunningSettlement with resolved promises; does not measure retained reactions/heap"
+          }
+        ]
+      }
+    },
+    {
+      "historicalPath": "tmp/complexity-investigation-20261015/analyzer-operation-counts.json",
+      "sourceSHA256": "f1fb38d12fff56d62d6213c1b31abebe98f3d2be13e90768285474c2134481cd",
+      "sourceBytes": 7520,
+      "data": {
+        "runtime": {
+          "node": "24.18.0",
+          "acorn": "8.16.0",
+          "ada": "3.4.4",
+          "amaro": "1.1.9",
+          "ares": "1.34.6",
+          "brotli": "1.2.0",
+          "cldr": "48.0",
+          "icu": "78.3",
+          "llhttp": "9.4.2",
+          "merve": "1.2.2",
+          "modules": "137",
+          "napi": "10",
+          "nbytes": "0.1.4",
+          "ncrypto": "0.0.1",
+          "nghttp2": "1.69.0",
+          "nghttp3": "",
+          "ngtcp2": "",
+          "openssl": "3.5.7",
+          "simdjson": "4.6.4",
+          "simdutf": "6.4.0",
+          "sqlite": "3.53.1",
+          "tz": "2026b",
+          "undici": "7.28.0",
+          "unicode": "17.0",
+          "uv": "1.52.1",
+          "uvwasi": "0.0.23",
+          "v8": "13.6.233.17-node.50",
+          "zlib": "1.3.1-e00f703",
+          "zstd": "1.5.7"
+        },
+        "method": "instrumented production operations; no wall-time measurements",
+        "observations": [
+          {
+            "label": "long-python-signature",
+            "n": 16,
+            "bytes": 68,
+            "functionCount": 1,
+            "parameterCounts": [
+              16
+            ],
+            "longCalls": 33,
+            "longCharacters": 1349,
+            "consumeCalls": 37,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "python-fixed-token-default",
+            "n": 16,
+            "bytes": 48,
+            "functionCount": 1,
+            "parameterCounts": [
+              1
+            ],
+            "longCalls": 35,
+            "longCharacters": 1191,
+            "consumeCalls": 39,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-go-blocks",
+            "n": 16,
+            "bytes": 151,
+            "functionCount": 1,
+            "parameterCounts": [
+              0
+            ],
+            "longCalls": 0,
+            "longCharacters": 0,
+            "consumeCalls": 1483,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-ts-parentheses",
+            "n": 16,
+            "bytes": 44,
+            "functionCount": 0,
+            "parameterCounts": [],
+            "longCalls": 17,
+            "longCharacters": 289,
+            "consumeCalls": 40,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-cpp-no-functions",
+            "n": 16,
+            "bytes": 432,
+            "functionCount": 0,
+            "parameterCounts": [],
+            "longCalls": 0,
+            "longCharacters": 0,
+            "consumeCalls": 464,
+            "namespaceCalls": 80,
+            "namespaceSlots": 1008
+          },
+          {
+            "label": "ruby-flat-interpolations",
+            "n": 16,
+            "bytes": 70,
+            "tokens": 69,
+            "quotedMatches": 16,
+            "quotedMatchedCharacters": 576
+          },
+          {
+            "label": "long-python-signature",
+            "n": 32,
+            "bytes": 132,
+            "functionCount": 1,
+            "parameterCounts": [
+              32
+            ],
+            "longCalls": 65,
+            "longCharacters": 5669,
+            "consumeCalls": 69,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "python-fixed-token-default",
+            "n": 32,
+            "bytes": 80,
+            "functionCount": 1,
+            "parameterCounts": [
+              1
+            ],
+            "longCalls": 67,
+            "longCharacters": 4423,
+            "consumeCalls": 71,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-go-blocks",
+            "n": 32,
+            "bytes": 279,
+            "functionCount": 1,
+            "parameterCounts": [
+              0
+            ],
+            "longCalls": 0,
+            "longCharacters": 0,
+            "consumeCalls": 5515,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-ts-parentheses",
+            "n": 32,
+            "bytes": 76,
+            "functionCount": 0,
+            "parameterCounts": [],
+            "longCalls": 33,
+            "longCharacters": 1089,
+            "consumeCalls": 72,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-cpp-no-functions",
+            "n": 32,
+            "bytes": 864,
+            "functionCount": 0,
+            "parameterCounts": [],
+            "longCalls": 0,
+            "longCharacters": 0,
+            "consumeCalls": 928,
+            "namespaceCalls": 160,
+            "namespaceSlots": 4064
+          },
+          {
+            "label": "ruby-flat-interpolations",
+            "n": 32,
+            "bytes": 134,
+            "tokens": 133,
+            "quotedMatches": 32,
+            "quotedMatchedCharacters": 2176
+          },
+          {
+            "label": "long-python-signature",
+            "n": 64,
+            "bytes": 260,
+            "functionCount": 1,
+            "parameterCounts": [
+              64
+            ],
+            "longCalls": 129,
+            "longCharacters": 23525,
+            "consumeCalls": 133,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "python-fixed-token-default",
+            "n": 64,
+            "bytes": 144,
+            "functionCount": 1,
+            "parameterCounts": [
+              1
+            ],
+            "longCalls": 131,
+            "longCharacters": 17031,
+            "consumeCalls": 135,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-go-blocks",
+            "n": 64,
+            "bytes": 535,
+            "functionCount": 1,
+            "parameterCounts": [
+              0
+            ],
+            "longCalls": 0,
+            "longCharacters": 0,
+            "consumeCalls": 21259,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-ts-parentheses",
+            "n": 64,
+            "bytes": 140,
+            "functionCount": 0,
+            "parameterCounts": [],
+            "longCalls": 65,
+            "longCharacters": 4225,
+            "consumeCalls": 136,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-cpp-no-functions",
+            "n": 64,
+            "bytes": 1728,
+            "functionCount": 0,
+            "parameterCounts": [],
+            "longCalls": 0,
+            "longCharacters": 0,
+            "consumeCalls": 1856,
+            "namespaceCalls": 320,
+            "namespaceSlots": 16320
+          },
+          {
+            "label": "ruby-flat-interpolations",
+            "n": 64,
+            "bytes": 262,
+            "tokens": 261,
+            "quotedMatches": 64,
+            "quotedMatchedCharacters": 8448
+          },
+          {
+            "label": "long-python-signature",
+            "n": 128,
+            "bytes": 544,
+            "functionCount": 1,
+            "parameterCounts": [
+              128
+            ],
+            "longCalls": 257,
+            "longCharacters": 96885,
+            "consumeCalls": 261,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "python-fixed-token-default",
+            "n": 128,
+            "bytes": 272,
+            "functionCount": 1,
+            "parameterCounts": [
+              1
+            ],
+            "longCalls": 259,
+            "longCharacters": 66823,
+            "consumeCalls": 263,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-go-blocks",
+            "n": 128,
+            "bytes": 1047,
+            "functionCount": 1,
+            "parameterCounts": [
+              0
+            ],
+            "longCalls": 0,
+            "longCharacters": 0,
+            "consumeCalls": 83467,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-ts-parentheses",
+            "n": 128,
+            "bytes": 268,
+            "functionCount": 0,
+            "parameterCounts": [],
+            "longCalls": 129,
+            "longCharacters": 16641,
+            "consumeCalls": 264,
+            "namespaceCalls": 1,
+            "namespaceSlots": 0
+          },
+          {
+            "label": "nested-cpp-no-functions",
+            "n": 128,
+            "bytes": 3456,
+            "functionCount": 0,
+            "parameterCounts": [],
+            "longCalls": 0,
+            "longCharacters": 0,
+            "consumeCalls": 3712,
+            "namespaceCalls": 640,
+            "namespaceSlots": 65408
+          },
+          {
+            "label": "ruby-flat-interpolations",
+            "n": 128,
+            "bytes": 518,
+            "tokens": 517,
+            "quotedMatches": 128,
+            "quotedMatchedCharacters": 33280
+          },
+          {
+            "label": "legal-cpp-array-parameter",
+            "n": 64,
+            "bytes": 81,
+            "functionCount": 1,
+            "parameterCounts": [
+              0
+            ],
+            "longCalls": 6,
+            "longCharacters": 228,
+            "consumeCalls": 34,
+            "namespaceCalls": 2,
+            "namespaceSlots": 0
+          }
+        ]
+      }
+    },
+    {
+      "historicalPath": "tmp/complexity-investigation-20261015/operation-counts.ts",
+      "sourceSHA256": "d9a7a3e236bd668b504362b2c771327829a906de3f45833a536397b1f717fb5a",
+      "sourceBytes": 4293,
+      "methodText": "import assert from 'node:assert/strict';\nimport { writeFileSync } from 'node:fs';\nimport { defineConfig, run, createAdmissionGraph } from '../../src/index.ts';\nimport { validatePreparedTaskGraph } from '../../src/project-run/task-scheduler/graph-validation.ts';\nimport { applyAdmission } from '../../src/project-run/task-scheduler/scheduler-task-lifecycle.ts';\nimport { parseCheckTreeAuthoring } from '../../src/project-definition/check-tree/authoring.ts';\nconst outputs={machinePublication:{enabled:false},progressRendering:{enabled:false},diagnosticLogging:{enabled:false}} as const;\nconst graphCounts=[16,32,64,128].map(size=>{\n  const tasks=Array.from({length:size},(_,i)=>({id:`task-${i}`,admissionPriority:0,dependsOn:i?[`task-${i-1}`]:[],observes:[],mutex:[],resourceClaims:[],scopeId:'scope'}));\n  let gets=0;\n  class CountingMap extends Map<string,typeof tasks[number]>{override get(key:string){gets++;return super.get(key);}}\n  const scopes=[{id:'scope',maxParallel:1,activationTaskIds:['task-0'],terminalTaskId:`task-${size-1}`}];\n  validatePreparedTaskGraph({tasks,taskById:new CountingMap(tasks.map(t=>[t.id,t])),scopes,scopeById:new Map(scopes.map(s=>[s.id,s])),resourceCapacities:[],rootMaxParallel:1});\n  assert.equal(gets,size*(size+1)/2+1);\n  const api=createAdmissionGraph({maxParallel:1,graph:{tasks:tasks.map(({id,...t})=>({...t,taskId:id})),scopes,resourceCapacities:[]}});\n  assert.equal(api.initialState().inspection.nextBoundary,\"select\");\n  return {size,mapGetCount:gets,expected:size*(size+1)/2+1,publicConstructionSucceeded:true};\n});\nconst dagCounts=[];\nfor(const depth of [3,5,7,9]){\n  let ownKeys=0,executeCalls=0;\n  const counted=<T extends object>(value:T):T=>new Proxy(value,{ownKeys(target){ownKeys++;return Reflect.ownKeys(target);}});\n  let value:any=counted({checkId:'leaf',displayName:'leaf',execute:()=>{executeCalls++;return {status:'passed',data:{}};}});\n  for(let i=0;i<depth;i++)value=counted({checkId:`level-${i}`,displayName:'container',checks:[value,value]});\n  const result=await run(defineConfig({checks:[value],scheduler:{maxParallel:1},outputs}));\n  assert.equal(ownKeys,2**(depth+1)-1);assert.equal(result.kind,'planning');assert.equal(executeCalls,0);\n  dagCounts.push({depth,uniqueInputCheckObjects:depth+1,ownKeys,expected:2**(depth+1)-1,resultKind:result.kind,executeCalls});\n}\nconst pendingCounts=[];\nfor(const size of [16,32,64,128]){\n  const pending=Array.from({length:size},(_,i)=>({id:`task-${i}`}));let comparisons=0;\n  const original=pending.findIndex;\n  pending.findIndex=function(predicate:any,thisArg?:unknown){return original.call(this,(...args:any[])=>{comparisons++;return predicate.apply(thisArg,args);});};\n  const state:any={pending,runningById:new Map(),execute:()=>true,admissionFacts:undefined};\n  for(let i=size-1;i>=0;i--)applyAdmission(state,{kind:'admit',taskId:`task-${i}`} as any);\n  await Promise.all([...state.runningById.values()].map((item:any)=>item.completion));\n  assert.equal(comparisons,size*(size+1)/2);\n  pendingCounts.push({size,findIndexPredicateCalls:comparisons,expected:size*(size+1)/2,boundary:'actual applyAdmission with minimal private Shell state; public reverse-policy reachability checked separately'});\n}\nconst publicReverse=[];\nfor(const size of [16,32]){\n const order:string[]=[];\n const result=await run(defineConfig({checks:Array.from({length:size},(_,i)=>({checkId:`task-${i}`,displayName:`task-${i}`,execute:()=>{order.push(`task-${i}`);return {status:'passed',data:{}};}})),outputs,scheduler:{maxParallel:1,admissionPolicy:{kind:'custom',strategy:{kind:'simple',decide:(context:any)=>{const last=context.candidates.at(-1);return last?.canAdmit?{kind:'select',taskId:last.taskId}:{kind:'wait'};}}}}}));\n assert.equal(result.kind,'completed');assert.deepEqual(order,Array.from({length:size},(_,i)=>`task-${size-i-1}`));publicReverse.push({size,resultKind:result.kind,order});\n}\nconst result={capturedAt:new Date().toISOString(),runtime:process.versions,method:'deterministic small operation counts, not timings/heap; current source; no Product modifications',graphCounts,dagCounts,pendingCounts,publicReverse};\nwriteFileSync('/workspace/vibe-check/tmp/complexity-investigation-20261015/operation-counts.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));\n"
+    },
+    {
+      "historicalPath": "tmp/complexity-investigation-20261015/secondary-operation-counts.ts",
+      "sourceSHA256": "72bff194501f1e7a9aee7a0b634083e3160578597371708c4d2bc76a06f3a18a",
+      "sourceBytes": 2407,
+      "methodText": "import assert from 'node:assert/strict';\nimport { writeFileSync } from 'node:fs';\nimport { inherit } from '../../src/index.ts';\nimport { resolveCheckTree } from '../../src/project-definition/check-tree/resolution.ts';\nimport { nextRunningSettlement } from '../../src/project-run/task-scheduler/scheduler-task-lifecycle.ts';\nconst inheritance=[];\nfor(const size of [16,32,64,128]){\n  let value:any={checkId:'leaf',displayName:'leaf',execute:()=>({status:'passed',data:{}})};\n  for(let i=0;i<size;i++) value={checkId:`parent-${i}`,displayName:'parent',mutex:inherit({add:[`mutex-${i}`]}),checks:[value]};\n  const original=Array.prototype.filter;let visitedSlots=0;\n  Array.prototype.filter=function(predicate:any,thisArg?:unknown){if(this.length>0&&this.every(v=>typeof v==='string'&&v.startsWith('mutex-')))visitedSlots+=this.length;return Reflect.apply(original,this,[predicate,thisArg]);};\n  let tree;\n  try {tree=resolveCheckTree([value],1);} finally {Array.prototype.filter=original;}\n  assert.equal(visitedSlots,size*(size-1)/2);assert.equal(tree?.leaves.length,1);assert.equal(tree?.leaves[0]?.mutex.length,size);\n  inheritance.push({size,filterVisitedSlots:visitedSlots,expected:size*(size-1)/2,leafCount:tree.leaves.length,finalMutexCount:tree.leaves[0].mutex.length});\n}\nconst races=[];\nfor(const size of [16,32,64,128]){\n const runningById=new Map(Array.from({length:size},(_,i)=>[`task-${i}`,{completion:Promise.resolve({taskId:`task-${i}`,settlement:{kind:'completed',value:true}})}]));\n const original=Promise.race;let raceInputs=0;\n Promise.race=function(values:any){raceInputs+=values.length;return Reflect.apply(original,this,[values]);};\n try {while(runningById.size>0){const completion=await nextRunningSettlement({runningById} as any);runningById.delete(completion.taskId);}} finally {Promise.race=original;}\n assert.equal(raceInputs,size*(size+1)/2);races.push({size,raceInputs,expected:size*(size+1)/2,boundary:'actual private nextRunningSettlement with resolved promises; does not measure retained reactions/heap'});\n}\nconst result={capturedAt:new Date().toISOString(),runtime:process.versions,method:'small deterministic counts of actual current private helpers; no timings or heap',inheritance,races};writeFileSync('/workspace/vibe-check/tmp/complexity-investigation-20261015/secondary-operation-counts.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));\n"
+    },
+    {
+      "historicalPath": "tmp/complexity-investigation-20261015/analyzer-operation-counts.ts",
+      "sourceSHA256": "8643efae2eab929f9f36b97ac385efdf6e738624b76d0276be20374e01b0e3d7",
+      "sourceBytes": 3683,
+      "methodText": "// Audit-only operation counts. Run in a disposable process under external hard timeout.\n// Patches are restored in finally; no production source, fixtures, tests or metrics policy changed.\nimport { analyzeLizardSource } from '../../src/package-checks/function-metrics/analyzer/port-facade.ts';\nimport { FunctionInfo } from '../../src/package-checks/function-metrics/analyzer/analysis-model.ts';\nimport { NestingStack } from '../../src/package-checks/function-metrics/analyzer/analysis-context.ts';\nimport { CodeStateMachine } from '../../src/package-checks/function-metrics/analyzer/shared/code-reader.ts';\nimport { RubyReader } from '../../src/package-checks/function-metrics/analyzer/readers/ruby.ts';\nconst observations: unknown[] = [];\nconst oldAdd = FunctionInfo.prototype.addToLongName;\nconst oldConsume = CodeStateMachine.prototype.consume;\nconst oldNamespace = NestingStack.prototype.withNamespace;\nconst oldExec = RegExp.prototype.exec;\nlet longCalls = 0, longCharacters = 0, consumeCalls = 0, namespaceCalls = 0, namespaceSlots = 0;\nlet quotedMatches = 0, quotedMatchedCharacters = 0;\nFunctionInfo.prototype.addToLongName = function (s: string) {\n  longCalls++; longCharacters += this.longName.length;\n  return oldAdd.call(this, s);\n};\nCodeStateMachine.prototype.consume = function (s: string) { consumeCalls++; return oldConsume.call(this, s); };\nNestingStack.prototype.withNamespace = function (s: string) {\n  namespaceCalls++; namespaceSlots += this.nesting_stack.length; return oldNamespace.call(this, s);\n};\nRegExp.prototype.exec = function (s: string) {\n  const m = oldExec.call(this, s);\n  if (this.global && this.source.includes('0x') && m?.[0].startsWith('\"') && m[0].includes('#{')) {\n    quotedMatches++; quotedMatchedCharacters += m[0].length;\n  }\n  return m;\n};\nfunction analyze(label: string, n: number, filename: string, sourceCode: string) {\n  longCalls = longCharacters = consumeCalls = namespaceCalls = namespaceSlots = 0;\n  const result = analyzeLizardSource({ filename, sourceCode });\n  observations.push({ label, n, bytes: Buffer.byteLength(sourceCode), functionCount: result?.function_list.length,\n    parameterCounts: result?.function_list.map(f=>f.parameter_count), longCalls, longCharacters, consumeCalls, namespaceCalls, namespaceSlots });\n}\ntry {\n  for (const n of [16, 32, 64, 128]) {\n    analyze('long-python-signature', n, 'audit.py', `def f(${Array.from({length:n}, (_,i)=>'a'+i).join(',')}):\\n pass\\n`);\n    analyze('python-fixed-token-default', n, 'audit.py', `def f(a=${Array(n).fill('1').join('+')}):\\n pass\\n`);\n    analyze('nested-go-blocks', n, 'audit.go', `package main\\nfunc f(){${'{'.repeat(n)}${'_ = 1;'.repeat(n)}${'}'.repeat(n)}}`);\n    analyze('nested-ts-parentheses', n, 'audit.ts', `const x = ${'('.repeat(n)}1${')'.repeat(n)};`);\n    analyze('nested-cpp-no-functions', n, 'audit.cpp', `${'namespace a {'.repeat(n)}${'extern int x;'.repeat(n)}${'}'.repeat(n)}`);\n    quotedMatches = quotedMatchedCharacters = 0;\n    const source = `x = \"${'#{1}'.repeat(n)}\"`;\n    const tokens = [...RubyReader.generateTokens(source)];\n    observations.push({label:'ruby-flat-interpolations',n,bytes:Buffer.byteLength(source),tokens:tokens.length,quotedMatches,quotedMatchedCharacters});\n  }\n  analyze('legal-cpp-array-parameter', 64, 'audit.cpp', `void f(int ${'a'.repeat(64)}[]) {}`);\n  console.log(JSON.stringify({ runtime: process.versions, method:'instrumented production operations; no wall-time measurements', observations }, null, 2));\n} finally {\n FunctionInfo.prototype.addToLongName = oldAdd; CodeStateMachine.prototype.consume = oldConsume;\n NestingStack.prototype.withNamespace = oldNamespace; RegExp.prototype.exec = oldExec;\n}\n"
+    }
+  ]
+}

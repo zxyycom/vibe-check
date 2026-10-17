@@ -1,0 +1,989 @@
+{
+  "supplementedAt": "2026-10-17T06:14:25+00:00",
+  "historicalPath": "tmp/complexity-investigation-20261015/current-candidate-status.json",
+  "sourceSHA256": "c9cbe7885b45ab92ada2d59128657443d7b725d1acd44ce31e2057cf5020587a",
+  "scope": "按JSON值原样转存39项形成时状态，非当前状态或优先级。",
+  "data": {
+    "capturedAt": "2026-10-15T05:44:19.450Z",
+    "head": "b2926b14880da7546f39aba7c0e07424f65f3977",
+    "count": 39,
+    "statusCounts": {
+      "resolved-original": 18,
+      "remaining-robustness": 1,
+      "remaining-growth": 8,
+      "partial": 3,
+      "bounded-extra": 1,
+      "remaining-repetition": 1,
+      "remaining-capacity": 1,
+      "remaining-conditional": 1,
+      "uncertain": 3,
+      "remaining-bounded-extra": 1,
+      "partial-bounded-subcases": 1
+    },
+    "method": "Current source and call boundary census; original candidate IDs preserved; no improvement priority or implementation claim.",
+    "entries": [
+      {
+        "id": "C01",
+        "status": "resolved-original",
+        "title": "Identifier deduplication",
+        "currentReason": "First-occurrence Set dedup remains; sorting in inheritance is separate C06.",
+        "timeComplexity": "Expected O(m) membership plus identifier bytes",
+        "spaceComplexity": "O(m)",
+        "triggerAndReachability": "Public relation authoring; no new caller reintroduces the growing includes.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-definition/check-tree/collection-authoring.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-definition/check-tree/collection-authoring.ts",
+            "line": 8,
+            "anchor": "seenIdentifiers",
+            "sha256": "0de884e6ac4edb88c22a2aef9f988292c73f643da31ec458cdf662126477c5a4"
+          }
+        ],
+        "existingPlanBoundary": "Existing implemented relation optimization; no pending root fix.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "C02",
+        "status": "resolved-original",
+        "title": "Settlement session indexes",
+        "currentReason": "Session slot Map and known-ID Set are constructed once. Ordered freeze/Record work remains.",
+        "timeComplexity": "O(C) construction, expected O(1) lookup",
+        "spaceComplexity": "O(C)",
+        "triggerAndReachability": "All normal/public Run opens/reads/settlements; current invocation still creates one session.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/check-settlement/session.ts",
+            "absolutePath": "/workspace/vibe-check/src/check-settlement/session.ts",
+            "line": 110,
+            "anchor": "#slotsByCheckId",
+            "sha256": "0ecd76754a1ec2fc214ec2deb9ba12669186dd7a55f148c81fe168cdf3c10d85"
+          }
+        ],
+        "existingPlanBoundary": "Existing implemented session optimization.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "C03",
+        "status": "resolved-original",
+        "title": "Blocker ID duplicate validation",
+        "currentReason": "Blocker ID duplicate rejection uses per-array Set. Dense reasons may themselves have Θ(C²) references.",
+        "timeComplexity": "O(b) expected per reason plus ID bytes",
+        "spaceComplexity": "O(b)",
+        "triggerAndReachability": "Blocked product settlement retains full direct non-passed reason list.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/check-settlement/outcome-normalization.ts",
+            "absolutePath": "/workspace/vibe-check/src/check-settlement/outcome-normalization.ts",
+            "line": 88,
+            "anchor": "new Set",
+            "sha256": "0fa3946a36e3000ebb614deb166d0c6cd0b2db0ad8895f41ef2a9121ff2e7c7c"
+          }
+        ],
+        "existingPlanBoundary": "Existing implemented blocker normalization optimization.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "C04",
+        "status": "remaining-robustness",
+        "title": "Recursive declaration aliases/cycles",
+        "currentReason": "Shared executable DAG is recursively expanded before duplicate Task ID is rejected. Cycles rely on caught stack exhaustion; container-only warnings can instead be necessary output.",
+        "timeComplexity": "Θ(2^d) visits for d+1 unique shared binary objects; ordinary tree cost by occurrences",
+        "spaceComplexity": "Θ(2^d) parsed tree; O(d) recursion plus path bytes",
+        "triggerAndReachability": "Public defineConfig/run accepts object graph input; sample returns planning/task-graph-invalid with zero execute calls. Trusted host authoring, not a network sandbox. Parsing synchronous before Controls/cancellation checks.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-definition/check-tree/authoring.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-definition/check-tree/authoring.ts",
+            "line": 112,
+            "anchor": "function parseChildren",
+            "sha256": "42536fbdb68f155a413162cec01b89dc37eb9531d48af07b6c79e9256a29c6a5"
+          },
+          {
+            "path": "src/project-run/run.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/run.ts",
+            "line": 29,
+            "anchor": "ValidatedProjectDefinition.validate",
+            "sha256": "a23d9bfc79b1a75b261f7bf3134239d80d2f531c621c2f319ce104a3bde91b94"
+          }
+        ],
+        "existingPlanBoundary": "No dedicated current repair Plan found; previous reports already describe this mechanism.",
+        "evidenceLevel": "Current static path + this-run bounded deterministic counts"
+      },
+      {
+        "id": "C05",
+        "status": "resolved-original",
+        "title": "Dynamic exact closed keys",
+        "currentReason": "Exact dynamic-key validation now uses aligned prefix scan and unmatched Set deletion. Old Θ(K²) membership gone.",
+        "timeComplexity": "Expected O(K) plus key bytes",
+        "spaceComplexity": "O(K) fallback; O(1) aligned extra",
+        "triggerAndReachability": "Public snapshotExactClosedRecord and debugChangeFlags dynamic regions remain reachable; new fixed context grammars have <=9 fields.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/data-boundary/closed-values.ts",
+            "absolutePath": "/workspace/vibe-check/src/data-boundary/closed-values.ts",
+            "line": 147,
+            "anchor": "const unmatchedKeys",
+            "sha256": "262c56c2cf62d46fd4c627a8346e1f8457667789f9021b1c25e60b8c3696f2ff"
+          }
+        ],
+        "existingPlanBoundary": "Existing exact-key adoption implemented; not the old rejected comparison alone.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "C06",
+        "status": "remaining-growth",
+        "title": "Inherited prefix edits",
+        "currentReason": "Each nested inherited edit filters/copies/deduplicates/sorts the accumulated prefix, even with one final executable leaf.",
+        "timeComplexity": "At least Θ(n²) copied/filtered elements; general upper Σ O(k_i log k_i) sorting",
+        "spaceComplexity": "Up to O(n²) retained prefix elements across recursive frames, plus paths; heap unmeasured",
+        "triggerAndReachability": "Public recursive containers can add one unique mutex each; one final leaf requires only O(n) final mutex entries. Invocation facts reuse reduces repeated passes, not depth growth.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-definition/check-tree/resolution.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-definition/check-tree/resolution.ts",
+            "line": 159,
+            "anchor": "inherited.filter",
+            "sha256": "95df77949953623e2e368c099db6592ef37a8c3ec3db8f5bd3600b00c02edaaf"
+          },
+          {
+            "path": "src/project-definition/check-tree/resolution.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-definition/check-tree/resolution.ts",
+            "line": 162,
+            "anchor": "function canonicalize",
+            "sha256": "95df77949953623e2e368c099db6592ef37a8c3ec3db8f5bd3600b00c02edaaf"
+          }
+        ],
+        "existingPlanBoundary": "reuse-invocation-prepared-facts removes duplicate passes only; no dedicated inheritance-data-structure Plan found.",
+        "evidenceLevel": "Current static path + this-run bounded deterministic counts"
+      },
+      {
+        "id": "R01",
+        "status": "resolved-original",
+        "title": "Blocker summary searches",
+        "currentReason": "Blocker counters and same-source mutex/resource lookup replace old settled-task find; full diagnostic scan is R09/R05.",
+        "timeComplexity": "Per query counters + task mutex/resource occurrences",
+        "spaceComplexity": "Compiled/status stores O(N+E+claims+mutex occurrences)",
+        "triggerAndReachability": "Public/default blockers are now lazy; diagnostic consumer still asks complete pending summary.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "line": 4,
+            "anchor": "pendingBlockerFactsForCore",
+            "sha256": "7cd5fb7cae5f7ea677990030c34c569c87dd2a773e70a5d012392f9774ce1635"
+          },
+          {
+            "path": "src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "line": 196,
+            "anchor": "dependency:",
+            "sha256": "e913d70f50c3354ee5efb224f9ac050c44414f226fd873fa6274d4c380f43c7a"
+          }
+        ],
+        "existingPlanBoundary": "unify-scheduler-core-state-queries and frontier work implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "R02",
+        "status": "resolved-original",
+        "title": "Static scope lookup and ranking",
+        "currentReason": "Static selection uses compiled group heads and scope ranks, not per-candidate full scope search.",
+        "timeComplexity": "Shape-dependent heap/prefix work, not old Θ(N³) scope finds",
+        "spaceComplexity": "Compiled scope/group/rank indexes O(N+S+G)",
+        "triggerAndReachability": "Default static real Run; public custom callback can retain separate tools cost T02.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/task-scheduler/admission-core/static-selection-query.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/static-selection-query.ts",
+            "line": 12,
+            "anchor": "staticAdmissionCandidateForCore",
+            "sha256": "fefbc12559215f4a553d348ad2cf3d295af30b4769d7f59b10bc497dd7b51c82"
+          },
+          {
+            "path": "src/project-run/task-scheduler/admission-core/compiled-graph.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/compiled-graph.ts",
+            "line": 231,
+            "anchor": "activationIdsByScope",
+            "sha256": "fbee86e65cbf7a9e537ebfdd9a0b52be69ec148ca812f37724a60c92c03c92f2"
+          }
+        ],
+        "existingPlanBoundary": "optimize-scheduler-frontier-consumption + complete-gate-and-static-frontier-cost-optimization implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "R03",
+        "status": "resolved-original",
+        "title": "Repeated graph fingerprint",
+        "currentReason": "One invocation-lazy fingerprint of immutable graph; graph snapshot also reused across preparation/decision/terminal.",
+        "timeComplexity": "O(graph JSON bytes) once when needed",
+        "spaceComplexity": "O(graph JSON bytes) transient",
+        "triggerAndReachability": "Diagnostic graph/decision refs; outputs-off does not repeatedly hash graph.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/task-scheduler/scheduler-observation.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-observation.ts",
+            "line": 62,
+            "anchor": "state.graphFingerprint ??=",
+            "sha256": "9107c8fd8f71010eb0328d77bec87c2a9bb9ce12f15297b26f391414e70574c5"
+          }
+        ],
+        "existingPlanBoundary": "Existing fingerprint and reuse-invocation-prepared-facts implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "R04",
+        "status": "partial",
+        "title": "Graph preparation/validation",
+        "currentReason": "Singleton scan and repeated public graph preparations removed; multi-task scope still restarts DFS for every nonterminal. Direct depends/observes overlap also still uses includes.",
+        "timeComplexity": "Σ_scopes Σ_q O(V_reached+E_reached), sparse one-scope chain Θ(V²); overlap Σ d_t*o_t comparisons",
+        "spaceComplexity": "O(V+E) per traversal transient; recursion O(graph depth)",
+        "triggerAndReachability": "createAdmissionGraph supports legal multi-task scopes. Normal public Run generates singleton scopes, so multi-task term zero. Public one graph prepare not four.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/task-scheduler/graph-validation.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/graph-validation.ts",
+            "line": 185,
+            "anchor": "function validateScopeTerminalReachability",
+            "sha256": "6caf1608a350741c929dde78bb6ee671cbe8be32ae337e5ea8e2720c56dacaa9"
+          },
+          {
+            "path": "src/project-run/task-scheduler/graph-validation.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/graph-validation.ts",
+            "line": 62,
+            "anchor": "task.observes.includes",
+            "sha256": "6caf1608a350741c929dde78bb6ee671cbe8be32ae337e5ea8e2720c56dacaa9"
+          },
+          {
+            "path": "src/project-run/task-scheduler/admission-core/input.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/input.ts",
+            "line": 2,
+            "anchor": "prepareTaskGraph",
+            "sha256": "3e54c8cd85a5ee63ed0e46ab4291743022a5f20efcfed4a6da634a9fc7bec7f1"
+          }
+        ],
+        "existingPlanBoundary": "reuse-invocation-prepared-facts handles repeated preparation only; no reachability/overlap optimization Plan found.",
+        "evidenceLevel": "Current static path + this-run bounded deterministic counts"
+      },
+      {
+        "id": "R05",
+        "status": "partial",
+        "title": "Whole-state decision projection",
+        "currentReason": "Default static/no-observer no longer constructs full boundary snapshot/candidates/inspection. Old capacity cubic membership removed. Conditional custom/diagnostic projection, live blocked-head prefix, active scope arrays and Shell pending remain.",
+        "timeComplexity": "Custom/observed full sets accumulate Ω(N²) output/projection; per-boundary ordered set sorting up to O(P_i log P_i); static dynamic blocked prefix repeats; active scope insert/sort/filter O(A_i log A_i) upper",
+        "spaceComplexity": "O(current projected set) transient; retained public states/forks and effectStates add persistent path allocation",
+        "triggerAndReachability": "Outputs off static simple width does not retain old cubic proof. Function custom callbacks request full by compatibility; narrow callbacks still pay private canonical candidates. P bounds concurrently active scopes in ordinary real Run.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/task-scheduler/scheduler-admission-decision.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+            "line": 36,
+            "anchor": "if (cycle.policy === staticAdmissionSelectionPolicy)",
+            "sha256": "4f53694cfebcf0eac8ec8a21b9422f6024a1a1391ccff61c282a9a5a8fbec83c"
+          },
+          {
+            "path": "src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "line": 260,
+            "anchor": "state.selection.relationReadyTaskSlots",
+            "sha256": "e913d70f50c3354ee5efb224f9ac050c44414f226fd873fa6274d4c380f43c7a"
+          },
+          {
+            "path": "src/project-run/task-scheduler/admission-core/static-selection-query.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/static-selection-query.ts",
+            "line": 34,
+            "anchor": "while (queue !== undefined)",
+            "sha256": "fefbc12559215f4a553d348ad2cf3d295af30b4769d7f59b10bc497dd7b51c82"
+          },
+          {
+            "path": "src/project-run/task-scheduler/admission-core/selection-seed.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-seed.ts",
+            "line": 237,
+            "anchor": "export function insertActiveScopeSlot",
+            "sha256": "871d7544db8ae861944e15db57aa85199103d35272f095b161e4173c3b273b1f"
+          }
+        ],
+        "existingPlanBoundary": "optimize-run-projection-cost, context-needs, frontier Plans implemented; adapt-admission-optimization-to-effective-opportunity is draft, not authorization.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "R06",
+        "status": "remaining-growth",
+        "title": "Drain Promise.race subscriptions",
+        "currentReason": "Every drain wait re-races every currently running completion; does not subscribe once globally.",
+        "timeComplexity": "Θ(Σ_j R_j) <=O(NP); N running resolved completions give N(N+1)/2 race inputs",
+        "spaceComplexity": "O(P) current race array; cumulative reaction allocations O(ΣR_j), retained heap not measured",
+        "triggerAndReachability": "Public maxParallel=P; P default4 bounds to O(N) in N for this subterm; P=N reaches quadratic. Abort drains started work, no forced task cancellation.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/task-scheduler/scheduler-task-lifecycle.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-task-lifecycle.ts",
+            "line": 78,
+            "anchor": "Promise.race",
+            "sha256": "deccdf0195a0e4f49cc0a4941339dbcdb38ebaf451eb3ed9c0c503f857b84491"
+          },
+          {
+            "path": "src/project-run/task-scheduler/scheduler.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+            "line": 206,
+            "anchor": "await nextRunningSettlement",
+            "sha256": "9b0e337ec8e036bd6d8ea5fb11d31f38b70627ea5970c24c140cf880a4027666"
+          }
+        ],
+        "existingPlanBoundary": "No dedicated running completion queue Plan found.",
+        "evidenceLevel": "Current static path + this-run bounded deterministic counts"
+      },
+      {
+        "id": "R07",
+        "status": "resolved-original",
+        "title": "Mutex reverse fanout",
+        "currentReason": "Mutex holder occurrence counts update only changed task; no acquire/release broadcast to whole mutex cohort. Dynamic blocked head checks remain separate R05.",
+        "timeComplexity": "Σ owned occurrences updates plus persistent index cost, not Σ fanout² broadcasts",
+        "spaceComplexity": "O(mutex slots + declared occurrences)",
+        "triggerAndReachability": "Public shared mutex normal and forced/cancellation transitions.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/task-scheduler/admission-core/selection-transition.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-transition.ts",
+            "line": 166,
+            "anchor": "function withMutexHolderDelta",
+            "sha256": "bab3b28a5f2c6dd9b1812c96ccfd8930779d61b95468a10782c04c43b6db9c80"
+          },
+          {
+            "path": "src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "line": 279,
+            "anchor": "never broadcasts",
+            "sha256": "e913d70f50c3354ee5efb224f9ac050c44414f226fd873fa6274d4c380f43c7a"
+          }
+        ],
+        "existingPlanBoundary": "optimize-scheduler-frontier-consumption implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "R08",
+        "status": "resolved-original",
+        "title": "Callback/local invocation lookups",
+        "currentReason": "Flags, direct relation authorization and per-invocation artifact directories retain local Set/Map indexes.",
+        "timeComplexity": "Expected O(1) membership/lookup plus requested output/AST work",
+        "spaceComplexity": "O(flags+direct relations+checks)",
+        "triggerAndReachability": "Current one prepared invocation still creates indexes at intended Run/callback lifetime, not per dependency read.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/check-execution/dependencies.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/check-execution/dependencies.ts",
+            "line": 30,
+            "anchor": "new Set",
+            "sha256": "c9648d502e0b33e8714c6ce784b00fd62aac31b435fcf5ffedb660428316210a"
+          },
+          {
+            "path": "src/project-run/check-execution/flag-controls.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/check-execution/flag-controls.ts",
+            "line": 26,
+            "anchor": "new Set",
+            "sha256": "3a941b186c6bf58f367c5f80e70d07703144e7d7566fc2522151ed15f247258b"
+          },
+          {
+            "path": "src/project-run/invocation/paths.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/invocation/paths.ts",
+            "line": 127,
+            "anchor": "new Map",
+            "sha256": "cd8091ee6132501b50846ee8c6f2ed07db6f5d7e4ed7722ca8c625e541cf901b"
+          }
+        ],
+        "existingPlanBoundary": "Existing indexes implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "R09",
+        "status": "remaining-growth",
+        "title": "Demand-enabled measurement",
+        "currentReason": "Effective-demand collector rebuilds ordered pending classification and loops it to integrate individual delay each state boundary.",
+        "timeComplexity": "Σ O(P_i log P_i + claims_i + mutex_i) classification plus Θ(Σ viable_pending_i) integration; independent serial tasks Θ(N²) element visits",
+        "spaceComplexity": "O(N) timing/chronology + O(P_i) transient; terminal output O(admissions)",
+        "triggerAndReachability": "Diagnostics or decision measurement or raw terminal demand only. Plain static/no-observer has no collector. Learned returned function callbacks request full and enable this. Timing faults suppress numeric contributions, not admission legality.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/task-scheduler/scheduler-observation.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-observation.ts",
+            "line": 95,
+            "anchor": "for (const slot of taskSlotsForCore",
+            "sha256": "9107c8fd8f71010eb0328d77bec87c2a9bb9ce12f15297b26f391414e70574c5"
+          },
+          {
+            "path": "src/project-run/task-scheduler/measurement/integrals.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/measurement/integrals.ts",
+            "line": 79,
+            "anchor": "#addAdmissionDelay",
+            "sha256": "a0ba62a69ecc1d04fbf45e93d260cbb5c86105f693299da43c22399c75ef4623"
+          },
+          {
+            "path": "src/project-run/task-scheduler/scheduler-observation-setup.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/task-scheduler/scheduler-observation-setup.ts",
+            "line": 26,
+            "anchor": "needsMeasurementCollection",
+            "sha256": "234ee0e598d55d9bee922b2ca835b4256f932e4fbb74b9ed8926ecb312366769"
+          }
+        ],
+        "existingPlanBoundary": "context-needs/unify-core reduce unwanted demand/DTO roundtrips; no per-kind lazy delay accumulator Plan found.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "R10",
+        "status": "bounded-extra",
+        "title": "Preview preprocessing",
+        "currentReason": "Some bounded previews still enumerate/serialize/escape full supplied value before truncating.",
+        "timeComplexity": "Input/payload-sized work; no confirmed superlinear engine result",
+        "spaceComplexity": "O(input rendered bytes) on full materialization paths",
+        "triggerAndReachability": "Human output enabled; arbitrary caller strings/data are not made CPU-bounded by preview limit.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/project-run/progress-rendering/renderer-formatting.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/progress-rendering/renderer-formatting.ts",
+            "line": 215,
+            "anchor": "function boundedTerminalText",
+            "sha256": "e4c0e0cf042a90fbdca536eb663ae77c59c78ea6d920d3c80451b4d17ee2b085"
+          },
+          {
+            "path": "src/project-run/diagnostic-logging/diagnostic-detail-rendering.ts",
+            "absolutePath": "/workspace/vibe-check/src/project-run/diagnostic-logging/diagnostic-detail-rendering.ts",
+            "line": 136,
+            "anchor": "Reflect.ownKeys",
+            "sha256": "114ba07601259e54fc9aac1207c6ea7a9962b4988409cc8a567854b000fea412"
+          }
+        ],
+        "existingPlanBoundary": "No current independent complexity fix; not automatically a Bug.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "T01",
+        "status": "resolved-original",
+        "title": "Learned ranking/prediction/recording indexes",
+        "currentReason": "Prediction/score/history/recording Maps retained; linear exported-private lookup helpers have no production callers (CodeGraph callers checked).",
+        "timeComplexity": "Ranking O(N+E) expected + sorting/model/history costs; O(depth) recursive score stack",
+        "spaceComplexity": "O(N+E+history); history accepted H<=4096,W<=32",
+        "triggerAndReachability": "Only optional learned strategy. Caller identity canonical data and history bytes remain genuine input work; depth may trigger contained static fallback.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-tools/learned-critical-path/critical-path-ranking.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/critical-path-ranking.ts",
+            "line": 39,
+            "anchor": "predictionByTaskId",
+            "sha256": "4b03e232815d3b798789f9f26600943bfdf3ec49837cf89dfbdbc07207abd8ae"
+          },
+          {
+            "path": "src/package-tools/learned-critical-path/strategy.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/strategy.ts",
+            "line": 99,
+            "anchor": "scoreByTaskId",
+            "sha256": "5db53dff76c85bbee06d37ff72d7992a77f70b379838925c714d714a94da51f1"
+          }
+        ],
+        "existingPlanBoundary": "Existing learned indexing implemented; behavior policy Plan is separate.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "T02",
+        "status": "partial",
+        "title": "Learned layers and static fallback",
+        "currentReason": "Prepared graph indexes reused normally; fallback staticDecision rebuilds graph maps each boundary. Candidate layer membership uses activation includes; chosen layer is fully sorted only to select first.",
+        "timeComplexity": "Normal layer O(S_active+C*a_max), sort O(C log C) upper per decision; fallback adds O(N+S). One public singleton activation each bounds a_max=1.",
+        "spaceComplexity": "O(N+S) retained indexes, O(C+S_active) temporary arrays/Set/sort backing",
+        "triggerAndReachability": "createLearnedCriticalPathStrategy returns ordinary prepared custom functions. Invalid identity/setup/ranking can reach fallback. Multi-task activation includes worst case requires standalone/supplied graph, not ordinary singleton Run. Comparators/layers/wait/canAdmit must not change in computational refactor.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-tools/learned-critical-path/selection-layers.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/selection-layers.ts",
+            "line": 60,
+            "anchor": "activationTaskIds.includes",
+            "sha256": "33520291cf2fee7b94d59b98d30a1965dede6b1d4c2998ae4c7adf207d2b5c93"
+          },
+          {
+            "path": "src/package-tools/learned-critical-path/strategy.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/strategy.ts",
+            "line": 217,
+            "anchor": "[...context.candidates].sort",
+            "sha256": "5db53dff76c85bbee06d37ff72d7992a77f70b379838925c714d714a94da51f1"
+          },
+          {
+            "path": "src/package-tools/learned-critical-path/static-decision.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-tools/learned-critical-path/static-decision.ts",
+            "line": 14,
+            "anchor": "learnedSelectionLayers(context)",
+            "sha256": "b2e4a4a9670dc3f003a9955748b7b8a6fd9f071acfaeed3e5ebb7e482fe63d31"
+          }
+        ],
+        "existingPlanBoundary": "optimize-learned-admission-strategy is paused 0/21 semantic experiment; must rebaseline/rewrite/split/not-adopt under coordination owner. Not authorization for this census.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K01",
+        "status": "resolved-original",
+        "title": "Filesystem directory name lookup",
+        "currentReason": "Operation-local name→all raw entries index replaces repeated whole directory name scans; byte collision/fidelity checks retained. Narrow ASCII literal predicates now also use Set.",
+        "timeComplexity": "Expected O(entries + path component lookups), plus filesystem/path/pattern costs",
+        "spaceComplexity": "O(retained directory entries)",
+        "triggerAndReachability": "Public collector and Check-owned batched collection; no cross-operation stale filesystem cache.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/project-files/filesystem-collection.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts",
+            "line": 124,
+            "anchor": "entriesByName.get",
+            "sha256": "7c9c9eb2399dff8e0e93c747e7e21bcafe4fffa21ef8cf218113d4477540dc74"
+          },
+          {
+            "path": "src/package-checks/project-files/filesystem-collection.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts",
+            "line": 307,
+            "anchor": "const literalPaths = new Set",
+            "sha256": "7c9c9eb2399dff8e0e93c747e7e21bcafe4fffa21ef8cf218113d4477540dc74"
+          }
+        ],
+        "existingPlanBoundary": "Directory-name and optimize-project-file-selection-cost implemented; final native batch matching remains.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K02",
+        "status": "remaining-growth",
+        "title": "Subtree exclusion prefixes",
+        "currentReason": "Subtree pruner constructs slice/join of every growing path prefix for each policy; final matcher still native full batch.",
+        "timeComplexity": "Θ(D²) copied prefix slots for no-match D-segment path; matcher/policies and path characters separate",
+        "spaceComplexity": "O(D) single prefix/parts plus current strings; cumulative quadratic allocation possible",
+        "triggerAndReachability": "collectProjectFiles and Check collection; normal host path length limits bound D, not a proof of flat-path F×P performance.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/project-files/filesystem-collection.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts",
+            "line": 243,
+            "anchor": "parts.slice(0, index + 1)",
+            "sha256": "7c9c9eb2399dff8e0e93c747e7e21bcafe4fffa21ef8cf218113d4477540dc74"
+          }
+        ],
+        "existingPlanBoundary": "optimize-project-file-selection-cost only predicates; no deep prefix pruner Plan found.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K03",
+        "status": "resolved-original",
+        "title": "Contained Markdown path suffix copying",
+        "currentReason": "Ordinary containment now keeps pathSegments + segmentIndex, sharing array; no per-component remaining-array slice/spread. Symlink branch still rebuilds suffix only, capped40 hops; path.join growing string cost remains.",
+        "timeComplexity": "O(D) segment visits and slots for ordinary path, plus Σ prefix path characters and required lstat; symlink rebuild O(40D) slots bound",
+        "spaceComplexity": "O(D+path bytes) current state; bounded symlink branch",
+        "triggerAndReachability": "Shared Markdown link/lint safe reads remain live authorization; depth and physical paths constrained by host filesystem.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/filesystem-probes.ts",
+            "line": 74,
+            "anchor": "segmentIndex: state.segmentIndex + 1",
+            "sha256": "2fc7c4af99b64c5acd073799c60048e9cc74cbe77e2f4cdb5af0bba568f0cd34"
+          },
+          {
+            "path": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/filesystem-probes.ts",
+            "line": 102,
+            "anchor": "if (symlinkHops >= 40)",
+            "sha256": "2fc7c4af99b64c5acd073799c60048e9cc74cbe77e2f4cdb5af0bba568f0cd34"
+          }
+        ],
+        "existingPlanBoundary": "Markdown cursor adopted; no remaining-array root issue. Do not claim every path-string operation linear.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K04",
+        "status": "resolved-original",
+        "title": "Duplicate area intersections",
+        "currentReason": "Area-ID Set lookup removes pairwise area overlap search; complete fragment/location/area result remains.",
+        "timeComplexity": "Expected indexed membership plus actual intersection/output/sorting",
+        "spaceComplexity": "O(path→area policy membership)",
+        "triggerAndReachability": "Duplicate Check post-scan current area policy, including cache hit reannotation.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/duplicate-detection/area-policy.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/duplicate-detection/area-policy.ts",
+            "line": 102,
+            "anchor": "codeAreaIds.has",
+            "sha256": "7f9d69aa80adf0acd48d2dfe3908a135d06676853dd16b69430cc0fe6a368ba3"
+          }
+        ],
+        "existingPlanBoundary": "Existing area intersection implementation.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K05",
+        "status": "resolved-original",
+        "title": "Markdown heading anchors",
+        "currentReason": "One slug Set per immutable facts instance; same/cross-document anchor queries use Set.has. Live target authorization precedes memoized facts.",
+        "timeComplexity": "Expected O(H+Q) slug membership plus fragment hashing",
+        "spaceComplexity": "O(H) per facts instance",
+        "triggerAndReachability": "Public Markdown link validation; duplicate heading semantics and cache session lifetime unchanged.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/markdown-link-validation/local-resolution.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/local-resolution.ts",
+            "line": 213,
+            "anchor": "headingSlugs.has",
+            "sha256": "7774b301ece480f36f42d5d73c2f30db5aca0340c7dde9e8fe3be32e1bcfd04a"
+          },
+          {
+            "path": "src/package-checks/markdown-link-validation/resolver-engine.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/resolver-engine.ts",
+            "line": 38,
+            "anchor": "#headingSlugMemo",
+            "sha256": "7a42a3627277632c6e94d19406bc693138d75ff67f0436194b3049f13ee474eb"
+          }
+        ],
+        "existingPlanBoundary": "Existing anchor indexing implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K06",
+        "status": "resolved-original",
+        "title": "Reminder overlapping Git history",
+        "currentReason": "One Check measurement session caches first history index, successful base resolutions and successful changed-line prefixes. Failed/overflow steps remain retryable.",
+        "timeComplexity": "Successful commands O(distinct bases + longest requested prefix) plus full numstat bytes; failures may retry per reminder",
+        "spaceComplexity": "O(history+prefix+resolved bases)",
+        "triggerAndReachability": "Public maintenance reminders, sequential order; cancellation checked before stages/cache hit and after result.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/maintenance-reminders/measurement.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/maintenance-reminders/measurement.ts",
+            "line": 37,
+            "anchor": "#changedLinePrefixes",
+            "sha256": "d82c127246e3e43099cec4d7fde40cde907d7800638b4f5b0401e354d164f920"
+          },
+          {
+            "path": "src/package-checks/maintenance-reminders/measurement.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/maintenance-reminders/measurement.ts",
+            "line": 36,
+            "anchor": "#resolvedBases",
+            "sha256": "d82c127246e3e43099cec4d7fde40cde907d7800638b4f5b0401e354d164f920"
+          }
+        ],
+        "existingPlanBoundary": "Existing measurement reuse implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K07",
+        "status": "resolved-original",
+        "title": "SCC rolling argv budget",
+        "currentReason": "Rolling argument code-unit budget replaces repeated growing batch-prefix reconstruction.",
+        "timeComplexity": "O(total path/argument units) packing plus unavoidable external SCC/CSV work",
+        "spaceComplexity": "O(current batch)",
+        "triggerAndReachability": "FileMetrics SCC exact ordered batches, existing fixed batch budget.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/file-metrics/scc/batch-planner.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/file-metrics/scc/batch-planner.ts",
+            "line": 16,
+            "anchor": "CodeUnits",
+            "sha256": "8286ff4dbff0a76db2b90e165e503c723a6c60b44e86303cded9c816ac149e81"
+          }
+        ],
+        "existingPlanBoundary": "Existing SCC batch accounting implementation.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K08",
+        "status": "remaining-repetition",
+        "title": "Same JSON instance multiple schema bindings",
+        "currentReason": "Same instance can be read/strictly parsed once per schema binding; each distinct schema validation is separate necessary obligation. Native strict reader improves constants, not cross-binding duplication.",
+        "timeComplexity": "O(B*instance bytes) repeated acquisition/parse plus Σ schema validation; linear in explicit binding count",
+        "spaceComplexity": "Per-binding source/value + compiled schema/cache, peak depends schema engine",
+        "triggerAndReachability": "Public jsonSchemaValidation multiple bindings same instance; changing reuse needs explicit snapshot/freshness/error semantics.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/json-schema-validation/execution-stages.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/json-schema-validation/execution-stages.ts",
+            "line": 4,
+            "anchor": "readStrictJsonDocument",
+            "sha256": "904916de2e553f43513d1a52e86941a643b1de68855849966f24debf9f2983a0"
+          }
+        ],
+        "existingPlanBoundary": "Native strict JSON/projection Plans implemented but not this cross-binding snapshot decision.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K09",
+        "status": "remaining-capacity",
+        "title": "Optional Markdown parse cache history restore",
+        "currentReason": "First actual parse restores whole append-only JSONL history. warnAboveBytes produces one warning, does not cap bytes/work. Frozen warm corpus does not append forever.",
+        "timeComplexity": "O(history bytes) each invocation; linearly growing distinct digest history across M Runs gives cumulative Θ(M²) restore bytes",
+        "spaceComplexity": "O(file bytes+decoded text+restored facts); no accepted byte cap",
+        "triggerAndReachability": "Optional Markdown cache only, caller-owned disposable state; signal checked around read/parse but synchronous restore loop not preemptible.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+            "line": 100,
+            "anchor": "return await readFile",
+            "sha256": "9d93ebd58e65aa684364ad38fc1ca0b947adc726925bc43bb36045a9547f9655"
+          },
+          {
+            "path": "src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+            "line": 136,
+            "anchor": "for (const line of text.slice",
+            "sha256": "9d93ebd58e65aa684364ad38fc1ca0b947adc726925bc43bb36045a9547f9655"
+          }
+        ],
+        "existingPlanBoundary": "warn-markdown-link-cache-capacity implemented warning only; retention/compaction not authorized.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K10",
+        "status": "resolved-original",
+        "title": "Duplicate fingerprint even cache off",
+        "currentReason": "Content fingerprint/Git/cache-root preparation now only in cache-enabled available scan branch; cache-off no identity-only full-byte pass.",
+        "timeComplexity": "Cache on O(selected content bytes+paths); off avoids this extra",
+        "spaceComplexity": "Cache identity list/content buffers when enabled",
+        "triggerAndReachability": "Duplicate Check fewer than2 inputs exits; availability checked before cache identity; scanner itself still reads bytes.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/duplicate-detection/measurement.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/duplicate-detection/measurement.ts",
+            "line": 118,
+            "anchor": "if (input.cache.enabled)",
+            "sha256": "925784d7c8e698c0d9124f58f1a611b1b8f0a78f98d708eabcc240b906d08a5b"
+          },
+          {
+            "path": "src/package-checks/duplicate-detection/cache/identity.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/duplicate-detection/cache/identity.ts",
+            "line": 4,
+            "anchor": "fingerprintProjectFiles",
+            "sha256": "a40ea4049380e8b3351d43985d0f183df097850405f500eaf8f523ae8760b6f9"
+          }
+        ],
+        "existingPlanBoundary": "isolate-duplicate-scan-cache-identity implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K11",
+        "status": "remaining-conditional",
+        "title": "Duplicate distinct location validation",
+        "currentReason": "General location normalization still compares each location against prefix; default jscpd report emits exactly two locations.",
+        "timeComplexity": "Θ(L²) comparison potential per generalized fragment; default L=2 bounds dimension",
+        "spaceComplexity": "O(L) normalized locations",
+        "triggerAndReachability": "Public default scanner fixed pair; larger L is private/custom report generalization, not every consumer workload.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/duplicate-detection/records.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/duplicate-detection/records.ts",
+            "line": 150,
+            "anchor": "slice",
+            "sha256": "9ae4ba3de637693fbb86fd753f44dbb49695ff3a08d5418ad28b6fdfb20078eb"
+          }
+        ],
+        "existingPlanBoundary": "No independent Plan; default bound retained.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K12",
+        "status": "uncertain",
+        "title": "Markdownlint malformed front matter",
+        "currentReason": "Front-matter regex source shape alone is not engine-step/latency evidence. No current ReDoS claim.",
+        "timeComplexity": "Unknown worst-case engine behavior; ordinary source bytes bounded by configured cap",
+        "spaceComplexity": "Parser/result bytes; engine stack/heap unmeasured",
+        "triggerAndReachability": "MarkdownLint adapter strip-front-matter; current source unchanged, no new engine probe.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/markdown-lint/adapter.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-lint/adapter.ts",
+            "line": 37,
+            "anchor": "frontMatter",
+            "sha256": "1ba82ca838841115d650a6501700605eaa44a4b0867e5f522fb023f3bb19c755"
+          }
+        ],
+        "existingPlanBoundary": "No current engine-specific probe Plan found.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K13",
+        "status": "remaining-bounded-extra",
+        "title": "Markdown read preallocation",
+        "currentReason": "Safe Markdown read allocates maxBytes+1 then slices actual data; maxMarkdownBytes capped16MiB, caller can set lower. Concurrent Checks multiply memory.",
+        "timeComplexity": "O(configured cap) allocation/zeroing + actual read bytes",
+        "spaceComplexity": "O(cap+actual bytes) buffer/slice before parser, per concurrent read",
+        "triggerAndReachability": "Shared link/lint safe read; no-follow and file-kind checks retained; not an unbounded-per-file allocation.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/markdown-link-validation/filesystem-probes.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-link-validation/filesystem-probes.ts",
+            "line": 167,
+            "anchor": "new Uint8Array(maxBytes + 1)",
+            "sha256": "2fc7c4af99b64c5acd073799c60048e9cc74cbe77e2f4cdb5af0bba568f0cd34"
+          }
+        ],
+        "existingPlanBoundary": "No independent buffer redesign Plan found; memory peak unmeasured.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "K14",
+        "status": "resolved-original",
+        "title": "MarkdownLint comparator DTO allocation",
+        "currentReason": "Sort compares raw range fields; public frozen range DTO allocated only for emitted record.",
+        "timeComplexity": "O(F log F) comparison sort upper plus output DTOs",
+        "spaceComplexity": "O(F) records/sort backing",
+        "triggerAndReachability": "MarkdownLint findings; required deterministic order remains.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/markdown-lint/records.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/markdown-lint/records.ts",
+            "line": 118,
+            "anchor": "left.finding.range?.[0]",
+            "sha256": "f2384873d23fbb83859e8f1142cd6c5579e492fa6d335f351c780dbf79adbf8d"
+          }
+        ],
+        "existingPlanBoundary": "Existing comparator allocation fix implemented.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "A01",
+        "status": "remaining-growth",
+        "title": "Function signature last code point",
+        "currentReason": "Every signature append uses Array.from(existing longName) only to get last Unicode code point. Repeated full signature enumeration is avoidable; no rope-copy hypothesis needed.",
+        "timeComplexity": "Θ(Σ_j L_j) code points; fixed short token Python default expression gives Θ(n²), final signature O(n)",
+        "spaceComplexity": "O(L_max) transient array, Θ(ΣL_j) cumulative temp slots",
+        "triggerAndReachability": "FunctionMetrics fixed readers/façade in Worker; source byte caps8MiB/file64MiB total do not bound signature depth/count to cheap work. One legal single-param function count remains1.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/function-metrics/analyzer/analysis-model.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/analysis-model.ts",
+            "line": 291,
+            "anchor": "Array.from(this.longName)",
+            "sha256": "cbd6d9d8bba3163b5c3a54e32d64d949190844544c527ad1da8b6e8fdcd47193"
+          }
+        ],
+        "existingPlanBoundary": "No dedicated current signature Plan; source-aligned deviation requires separate approval/parity evidence.",
+        "evidenceLevel": "Current static path + this-run bounded deterministic counts"
+      },
+      {
+        "id": "A02",
+        "status": "remaining-growth",
+        "title": "Reader depth token dispatch",
+        "currentReason": "Linked child states dispatch each token from ancestors to leaf; current callback reentry fix does not flatten this chain.",
+        "timeComplexity": "Θ(Σ token depth) up to O(TD); valid Go nested blocks+deep statements Θ(n²)",
+        "spaceComplexity": "O(D) state/recursive call stack, output separate",
+        "triggerAndReachability": "Go/shared GoLike and several state-machine readers; measured Go only, other readers static reachability not generalized measurement. Worker termination isolates cooperative cancellation, no CPU budget.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+            "line": 235,
+            "anchor": "this.state.consume(token)",
+            "sha256": "54c48e108b26a66bfe9a2af7ecf16be1e6247ef05f58553858455970413b3e05"
+          }
+        ],
+        "existingPlanBoundary": "Tokenizer-tail Plan does not flatten state dispatch; source-aligned change requires approval.",
+        "evidenceLevel": "Current static path + this-run bounded deterministic counts"
+      },
+      {
+        "id": "A03",
+        "status": "remaining-growth",
+        "title": "Full namespace qualification",
+        "currentReason": "Each candidate function qualification maps/joins entire nesting namespace stack, including empty-name levels. Many candidates never emit functions.",
+        "timeComplexity": "O(Σ candidate depth + produced candidate name bytes); D namespaces ×K extern declarations O(DK)",
+        "spaceComplexity": "O(D+candidate qualified-name bytes) transient",
+        "triggerAndReachability": "C-like full façade; legal nested namespace/extern sample emits zero functions, so work not explained by final function output.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/function-metrics/analyzer/analysis-context.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/analysis-context.ts",
+            "line": 77,
+            "anchor": "public withNamespace(name: string): string {",
+            "sha256": "6ae2295e511a4da9c6b5dd3a280bdc16d5cbbfdd822d71823a4314834fe70ea4"
+          }
+        ],
+        "existingPlanBoundary": "No dedicated current namespace-prefix Plan; source fidelity constraints remain.",
+        "evidenceLevel": "Current static path + this-run bounded deterministic counts"
+      },
+      {
+        "id": "A04",
+        "status": "remaining-growth",
+        "title": "Ruby interpolation restarts",
+        "currentReason": "Ruby interpolation restart successfully matches whole remaining quoted suffix then splits first interpolation; repeated matched text remains after shared tail guard.",
+        "timeComplexity": "Θ(I²) successfully matched characters for fixed-width flat interpolation; output tokens O(I)",
+        "spaceComplexity": "Current suffix/token strings O(N); actual copy/rope retained heap unknown",
+        "triggerAndReachability": "Ruby fixed reader through full analyzer; valid x=\"#{1}...\". C-comment/TS tail guard not this ordinary closed string path.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/function-metrics/analyzer/readers/ruby.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/readers/ruby.ts",
+            "line": 46,
+            "anchor": "function* rubyTokens",
+            "sha256": "4dce947f31231c2bded9fe7758f806260e01b0864821843ef6bb3a2da2469f27"
+          }
+        ],
+        "existingPlanBoundary": "No dedicated Ruby lexer Plan; source-aligned restart semantics require approval to change.",
+        "evidenceLevel": "Current static path + this-run bounded deterministic counts"
+      },
+      {
+        "id": "U-A01",
+        "status": "partial-bounded-subcases",
+        "title": "Tokenizer regular-expression failures",
+        "currentReason": "Conservative full-source guard now disables known-unclosable C comment/TS template alternatives after proven tail boundary. Other regex branches/reader-specific malformed inputs not proven globally linear.",
+        "timeComplexity": "Previously confirmed two tail subfamilies bounded by guards; other engine branches unknown",
+        "spaceComplexity": "Source/token stream/state + Worker transport; physical exit unmeasured",
+        "triggerAndReachability": "FunctionMetrics actual Worker cancellation remains; tail guard eligible only empty or leading | addition. No public arbitrary plugin regex.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+            "line": 575,
+            "anchor": "const commentTailRisk",
+            "sha256": "54c48e108b26a66bfe9a2af7ecf16be1e6247ef05f58553858455970413b3e05"
+          },
+          {
+            "path": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+            "line": 620,
+            "anchor": "const tailGuardEligible",
+            "sha256": "54c48e108b26a66bfe9a2af7ecf16be1e6247ef05f58553858455970413b3e05"
+          }
+        ],
+        "existingPlanBoundary": "bound-function-metrics-tokenization-cost implemented exact two-tail mechanism; no universal malformed-cost guarantee.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "U-A02",
+        "status": "uncertain",
+        "title": "TypeScript suffix slices",
+        "currentReason": "TypeScript template splitter still slices remaining content; disjoint indexOf/brace work is forward, actual string copy/flatten depends engine. Do not label Θ(N²) CPU solely from suffix widths.",
+        "timeComplexity": "Conditional repeated suffix width Θ(NI); actual copy cost unproven",
+        "spaceComplexity": "Substring/rope retention unknown",
+        "triggerAndReachability": "TS/JS/Vue inherited splitter, not independent TSX tokenizer; current new tail guard does not remove closed-template slices.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+            "line": 78,
+            "anchor": "content = content.slice(index)",
+            "sha256": "baad26adfc2fe597ffd0c3af85b791f345f03de99e5ad02c9ee705d273fe4022"
+          }
+        ],
+        "existingPlanBoundary": "No accepted cursor implementation for this TS splitter found; Markdown path cursor is unrelated.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      },
+      {
+        "id": "U-A03",
+        "status": "uncertain",
+        "title": "Nested Python f-string rescanning",
+        "currentReason": "Deep Python f-string relexing is conditional on legal growing nested family and current tokenizer preserving nesting; not established here.",
+        "timeComplexity": "Conditional O(ND), no proven attainable growing family",
+        "spaceComplexity": "Conditional O(D) recursion plus tokens/source",
+        "triggerAndReachability": "Python/GDScript source restrictions differ; no new runtime grammar probe.",
+        "currentSourceEvidence": [
+          {
+            "path": "src/package-checks/function-metrics/analyzer/readers/python.ts",
+            "absolutePath": "/workspace/vibe-check/src/package-checks/function-metrics/analyzer/readers/python.ts",
+            "line": 120,
+            "anchor": "generateTokens",
+            "sha256": "1950cbb29afe84b64bfae6884d5a78dd19a509c1b457eede9b95886f337729d2"
+          }
+        ],
+        "existingPlanBoundary": "No current legal-family evidence Plan found.",
+        "evidenceLevel": "Current source/owner boundary review; unchanged local analysis reused where identified, not a new timing/heap measurement"
+      }
+    ]
+  }
+}

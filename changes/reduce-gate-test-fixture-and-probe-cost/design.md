@@ -96,3 +96,11 @@ AI-ready 审查分别呈现 focused dispatch、真实 CLI 与材料内容验收�
 `.log/project-gate/2026-10-14T04-10-07.237Z-2743795-8b6bbf2a-3fbd-47ef-be4b-82ab2a21b754/`。
 公共材料、722 entities / 181 Cases / 15 topics 与 24 份 Change 检查通过，task 2.6 闭合。
 Check mean/p95 warning 与先前 deadline 风险保留；没有为通过验收改变 timeout 或质量门槛。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。
+早期成本 inventory 只作为起点背景，不另保存完整 profiler；采样控制不一致、deadline失败和最终验证仍按本页分别解释。

@@ -50,3 +50,10 @@ types/lint/import boundary、Case 及真实安装包的 artifact/types/documenta
 未修改预算。受控 scanner 计时不外推为真实 jscpd 或 Gate 的性能收益；跨平台和独立 cold candidate
 lifecycle integration 未运行。原始数据、source 镜像与辅助缓存继续留在本轮 tmp 目录供审计，不进入 Product。
 Plan 保留，未暂存、提交、远端写入或结项删除。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

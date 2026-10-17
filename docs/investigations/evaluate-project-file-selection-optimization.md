@@ -36,6 +36,9 @@ relations:
 
 [方法记录](./_resources/261012-evaluate-project-file-selection-optimization/METHODS.md)保留各阶段命令、输入和纠错。首次与无效 instrumentation 重叠的 baseline 已排除并重新采集。未测 cold start、CPU/RSS/GC、p95、Windows 或真实消费者端到端负载。
 
+**2026-10-17 现场生命周期补记（非新增观测）：**原资源 METHODS 中关于短期工作物仍留在 tmp 的说明记录形成时状态；正式资源已承接必要计数、样本、方法和身份，完整冻结 fixture/源码副本不再是结论复核前提。
+原资源中的路径继续作为形成时来源坐标；复测需要新授权及独占工作区，不保证旧临时命令在当前版本可执行。
+
 ## 调查结果与边界
 
 ### 根因与已采用机制

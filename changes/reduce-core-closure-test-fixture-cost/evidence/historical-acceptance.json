@@ -1,0 +1,1652 @@
+{
+  "purpose": "Core fixture成本与完整Gate的原始resource样本和交错对照；包括非交错Gate变慢与42/43格式失败，不以窄改善替代端到端。",
+  "observedOn": "2026-10-14",
+  "supplementedAt": "2026-10-17T06:07:59+00:00",
+  "scope": "形成时验收记录，非当前验证、长期benchmark或可重跑SDK。historicalPath仅标注已退出的现场来源；未保存完整源码镜像、fixture、cache、原始profile。JSON/JSONL按值转存，文本原样保留；sourceSHA256识别补存时读取的原字节，不要求原路径仍存在。",
+  "materials": [
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/measurement-summary.json",
+      "sourceBytes": 27240,
+      "sourceSHA256": "d9458fffdeb3290736d357ef5af11c003354943f7b699c3087a845206759e569",
+      "representation": "parsed-json",
+      "data": {
+        "before-core": {
+          "wallMedianMs": 5043.495716992766,
+          "childCpuMedianMs": 10157.57,
+          "samples": [
+            {
+              "label": "before-core-1",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "scripts/validation/package-tools-core-closure.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 5043.495716992766,
+              "childUserCpuMs": 8500.318,
+              "childSystemCpuMs": 1657.252,
+              "maxSingleChildRssKiB": 448532,
+              "childCpuMs": 10157.57
+            },
+            {
+              "label": "before-core-2",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "scripts/validation/package-tools-core-closure.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 5277.872592036147,
+              "childUserCpuMs": 9649.344,
+              "childSystemCpuMs": 1286.298,
+              "maxSingleChildRssKiB": 384812,
+              "childCpuMs": 10935.642
+            },
+            {
+              "label": "before-core-3",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "scripts/validation/package-tools-core-closure.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 4645.715776016004,
+              "childUserCpuMs": 7966.629,
+              "childSystemCpuMs": 1299.184,
+              "maxSingleChildRssKiB": 506552,
+              "childCpuMs": 9265.813
+            }
+          ]
+        },
+        "final-core": {
+          "wallMedianMs": 1324.828876007814,
+          "childCpuMedianMs": 2002.2579999999998,
+          "samples": [
+            {
+              "label": "final-core-1",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "scripts/validation/package-tools-core-closure.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 1336.2994359922595,
+              "childUserCpuMs": 1386.128,
+              "childSystemCpuMs": 616.13,
+              "maxSingleChildRssKiB": 226684,
+              "childCpuMs": 2002.2579999999998
+            },
+            {
+              "label": "final-core-2",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "scripts/validation/package-tools-core-closure.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 1324.828876007814,
+              "childUserCpuMs": 1281.3410000000001,
+              "childSystemCpuMs": 642.5949999999999,
+              "maxSingleChildRssKiB": 224940,
+              "childCpuMs": 1923.9360000000001
+            },
+            {
+              "label": "final-core-3",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "scripts/validation/package-tools-core-closure.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 1310.54989999393,
+              "childUserCpuMs": 1448.911,
+              "childSystemCpuMs": 634.53,
+              "maxSingleChildRssKiB": 234580,
+              "childCpuMs": 2083.441
+            }
+          ]
+        },
+        "before-supporting": {
+          "wallMedianMs": 5312.078511051368,
+          "childCpuMedianMs": 5591.813,
+          "samples": [
+            {
+              "label": "before-supporting-1",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "src/package-checks/command-check/command-check.environment.test.ts",
+                "src/package-checks/command-check/command-check.terminal.test.ts",
+                "src/package-checks/command-check/command-check.test.ts",
+                "src/package-checks/command-check/command-check.transcript.test.ts",
+                "src/package-checks/host-environment/process/result.test.ts",
+                "src/package-checks/host-environment/process/runner.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+                "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+                "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+                "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+                "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+                "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+                "src/package-checks/project-files/collection-path-identity.test.ts",
+                "src/package-checks/project-files/collection.test.ts",
+                "src/package-checks/project-files/exact-input-measurement.test.ts",
+                "src/package-checks/project-files/file-fingerprint.test.ts",
+                "src/package-checks/project-files/input-eligibility.test.ts",
+                "src/package-checks/project-files/public-collection.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 5090.751813026145,
+              "childUserCpuMs": 2466.12,
+              "childSystemCpuMs": 2930.422,
+              "maxSingleChildRssKiB": 139100,
+              "childCpuMs": 5396.5419999999995
+            },
+            {
+              "label": "before-supporting-2",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "src/package-checks/command-check/command-check.environment.test.ts",
+                "src/package-checks/command-check/command-check.terminal.test.ts",
+                "src/package-checks/command-check/command-check.test.ts",
+                "src/package-checks/command-check/command-check.transcript.test.ts",
+                "src/package-checks/host-environment/process/result.test.ts",
+                "src/package-checks/host-environment/process/runner.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+                "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+                "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+                "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+                "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+                "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+                "src/package-checks/project-files/collection-path-identity.test.ts",
+                "src/package-checks/project-files/collection.test.ts",
+                "src/package-checks/project-files/exact-input-measurement.test.ts",
+                "src/package-checks/project-files/file-fingerprint.test.ts",
+                "src/package-checks/project-files/input-eligibility.test.ts",
+                "src/package-checks/project-files/public-collection.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 5312.078511051368,
+              "childUserCpuMs": 2548.841,
+              "childSystemCpuMs": 3042.9719999999998,
+              "maxSingleChildRssKiB": 140288,
+              "childCpuMs": 5591.813
+            },
+            {
+              "label": "before-supporting-3",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "src/package-checks/command-check/command-check.environment.test.ts",
+                "src/package-checks/command-check/command-check.terminal.test.ts",
+                "src/package-checks/command-check/command-check.test.ts",
+                "src/package-checks/command-check/command-check.transcript.test.ts",
+                "src/package-checks/host-environment/process/result.test.ts",
+                "src/package-checks/host-environment/process/runner.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+                "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+                "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+                "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+                "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+                "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+                "src/package-checks/project-files/collection-path-identity.test.ts",
+                "src/package-checks/project-files/collection.test.ts",
+                "src/package-checks/project-files/exact-input-measurement.test.ts",
+                "src/package-checks/project-files/file-fingerprint.test.ts",
+                "src/package-checks/project-files/input-eligibility.test.ts",
+                "src/package-checks/project-files/public-collection.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 5633.263433002867,
+              "childUserCpuMs": 2690.508,
+              "childSystemCpuMs": 3272.779,
+              "maxSingleChildRssKiB": 138236,
+              "childCpuMs": 5963.287
+            }
+          ]
+        },
+        "after-supporting": {
+          "wallMedianMs": 5110.880831023678,
+          "childCpuMedianMs": 5347.248,
+          "samples": [
+            {
+              "label": "after-supporting-1",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "src/package-checks/command-check/command-check.environment.test.ts",
+                "src/package-checks/command-check/command-check.terminal.test.ts",
+                "src/package-checks/command-check/command-check.test.ts",
+                "src/package-checks/command-check/command-check.transcript.test.ts",
+                "src/package-checks/host-environment/process/result.test.ts",
+                "src/package-checks/host-environment/process/runner.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+                "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+                "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+                "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+                "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+                "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+                "src/package-checks/project-files/collection-path-identity.test.ts",
+                "src/package-checks/project-files/collection.test.ts",
+                "src/package-checks/project-files/exact-input-measurement.test.ts",
+                "src/package-checks/project-files/file-fingerprint.test.ts",
+                "src/package-checks/project-files/input-eligibility.test.ts",
+                "src/package-checks/project-files/public-collection.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 5078.214566980023,
+              "childUserCpuMs": 2308.68,
+              "childSystemCpuMs": 2998.4159999999997,
+              "maxSingleChildRssKiB": 141056,
+              "childCpuMs": 5307.096
+            },
+            {
+              "label": "after-supporting-2",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "src/package-checks/command-check/command-check.environment.test.ts",
+                "src/package-checks/command-check/command-check.terminal.test.ts",
+                "src/package-checks/command-check/command-check.test.ts",
+                "src/package-checks/command-check/command-check.transcript.test.ts",
+                "src/package-checks/host-environment/process/result.test.ts",
+                "src/package-checks/host-environment/process/runner.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+                "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+                "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+                "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+                "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+                "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+                "src/package-checks/project-files/collection-path-identity.test.ts",
+                "src/package-checks/project-files/collection.test.ts",
+                "src/package-checks/project-files/exact-input-measurement.test.ts",
+                "src/package-checks/project-files/file-fingerprint.test.ts",
+                "src/package-checks/project-files/input-eligibility.test.ts",
+                "src/package-checks/project-files/public-collection.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 5110.880831023678,
+              "childUserCpuMs": 2401.0600000000004,
+              "childSystemCpuMs": 2946.1879999999996,
+              "maxSingleChildRssKiB": 138208,
+              "childCpuMs": 5347.248
+            },
+            {
+              "label": "after-supporting-3",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "test",
+                "src/package-checks/command-check/command-check.environment.test.ts",
+                "src/package-checks/command-check/command-check.terminal.test.ts",
+                "src/package-checks/command-check/command-check.test.ts",
+                "src/package-checks/command-check/command-check.transcript.test.ts",
+                "src/package-checks/host-environment/process/result.test.ts",
+                "src/package-checks/host-environment/process/runner.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+                "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+                "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+                "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+                "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+                "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+                "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+                "src/package-checks/project-files/collection-path-identity.test.ts",
+                "src/package-checks/project-files/collection.test.ts",
+                "src/package-checks/project-files/exact-input-measurement.test.ts",
+                "src/package-checks/project-files/file-fingerprint.test.ts",
+                "src/package-checks/project-files/input-eligibility.test.ts",
+                "src/package-checks/project-files/public-collection.test.ts"
+              ],
+              "exitCode": 0,
+              "wallMs": 5385.077313985676,
+              "childUserCpuMs": 2703.8669999999997,
+              "childSystemCpuMs": 2990.864,
+              "maxSingleChildRssKiB": 138804,
+              "childCpuMs": 5694.731
+            }
+          ]
+        },
+        "before-gate-all": {
+          "wallMedianMs": 41667.05229296349,
+          "childCpuMedianMs": 129730.45599999999,
+          "samples": [
+            {
+              "label": "before-gate-all-1",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "run",
+                "check",
+                "--",
+                "--all"
+              ],
+              "exitCode": 0,
+              "wallMs": 43753.36330203572,
+              "childUserCpuMs": 91489.559,
+              "childSystemCpuMs": 38240.897,
+              "maxSingleChildRssKiB": 783656,
+              "childCpuMs": 129730.45599999999,
+              "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-07-27.916Z-2773525-19a7831b-9919-4668-961d-0ced7e005e5f",
+              "gateWarnings": [
+                "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 109256.5ms (not wall time); mean 2540.8ms (budget 2000.0ms); p95 6506.1ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: prepared-external-package-consumer=8197.1ms, tests-product-supporting-checks=6776.2ms, tests-package-consumer-types=6506.1ms"
+              ]
+            },
+            {
+              "label": "before-gate-all-2",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "run",
+                "check",
+                "--",
+                "--all"
+              ],
+              "exitCode": 0,
+              "wallMs": 38564.75825596135,
+              "childUserCpuMs": 85170.09199999999,
+              "childSystemCpuMs": 33862.57,
+              "maxSingleChildRssKiB": 804624,
+              "childCpuMs": 119032.66199999998,
+              "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-08-11.175Z-2779997-dde1031f-b2ce-4b22-b399-e8de6f9f53bc",
+              "gateWarnings": [
+                "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 91302.9ms (not wall time); mean 2123.3ms (budget 2000.0ms); p95 5726.9ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-product-supporting-checks=6521.6ms, tests-scripts-package-tools-boundary=5755.0ms, tests-package-consumer-types=5726.9ms"
+              ]
+            },
+            {
+              "label": "before-gate-all-3",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "run",
+                "check",
+                "--",
+                "--all"
+              ],
+              "exitCode": 0,
+              "wallMs": 41667.05229296349,
+              "childUserCpuMs": 95482.162,
+              "childSystemCpuMs": 36111.387,
+              "maxSingleChildRssKiB": 808064,
+              "childCpuMs": 131593.549,
+              "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-08-49.793Z-2782939-ea4a4e7a-aaf5-439d-90f1-1a72a73c0c15",
+              "gateWarnings": [
+                "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 100367.5ms (not wall time); mean 2334.1ms (budget 2000.0ms); p95 5506.3ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-product-supporting-checks=5961.6ms, tests-package-artifact=5692.4ms, tests-package-consumer-types=5506.3ms"
+              ]
+            }
+          ]
+        },
+        "final-gate-all": {
+          "wallMedianMs": 49895.815772993956,
+          "childCpuMedianMs": 158944.624,
+          "samples": [
+            {
+              "label": "final-gate-all-1",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "run",
+                "check",
+                "--",
+                "--all"
+              ],
+              "exitCode": 0,
+              "wallMs": 54782.27891703136,
+              "childUserCpuMs": 123928.575,
+              "childSystemCpuMs": 48754.653,
+              "maxSingleChildRssKiB": 804720,
+              "childCpuMs": 172683.228,
+              "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-17-44.667Z-2797035-18608063-84f9-4094-9ee1-bb577b29b471",
+              "gateWarnings": [
+                "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 140064.1ms (not wall time); mean 3257.3ms (budget 2000.0ms); p95 7100.7ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-package-consumer-types=8616.8ms, markdown-link-validation=7996.4ms, tests-scripts-admission-workbench=7100.7ms"
+              ]
+            },
+            {
+              "label": "final-gate-all-2",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "run",
+                "check",
+                "--",
+                "--all"
+              ],
+              "exitCode": 0,
+              "wallMs": 49895.815772993956,
+              "childUserCpuMs": 115413.377,
+              "childSystemCpuMs": 43531.247,
+              "maxSingleChildRssKiB": 809400,
+              "childCpuMs": 158944.624,
+              "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-18-39.864Z-2803563-f470d883-8b77-4252-9f3b-fb4bffaf7699",
+              "gateWarnings": [
+                "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 123579.7ms (not wall time); mean 2873.9ms (budget 2000.0ms); p95 8438.3ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-package-consumer-types=11289.4ms, tests-product-supporting-checks=9021.8ms, tests-package-artifact=8438.3ms"
+              ]
+            },
+            {
+              "label": "final-gate-all-3",
+              "command": [
+                "mise",
+                "exec",
+                "--",
+                "bun",
+                "run",
+                "check",
+                "--",
+                "--all"
+              ],
+              "exitCode": 0,
+              "wallMs": 35791.87143401941,
+              "childUserCpuMs": 77025.13,
+              "childSystemCpuMs": 32719.764,
+              "maxSingleChildRssKiB": 809188,
+              "childCpuMs": 109744.894,
+              "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-19-29.508Z-2806519-4a54de6d-ebe5-4438-a619-646ef604fa5f",
+              "gateWarnings": [
+                "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 87393.7ms (not wall time); mean 2032.4ms (budget 2000.0ms); p95 5153.9ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-product-supporting-checks=6023.8ms, tests-package-consumer-types=5218.9ms, tests-package-artifact=5153.9ms"
+              ]
+            }
+          ]
+        },
+        "pairedGate": {
+          "baselineWallMedianMs": 39088.590863975696,
+          "finalWallMedianMs": 34615.01516198041,
+          "wallChangePercentMedian": -15.47841269608876,
+          "pairs": [
+            {
+              "pair": 1,
+              "order": [
+                "baseline",
+                "final"
+              ],
+              "wallChangePercent": -19.718101130979747,
+              "baseline": {
+                "label": "paired-1-baseline",
+                "command": [
+                  "mise",
+                  "exec",
+                  "--",
+                  "bun",
+                  "run",
+                  "check",
+                  "--",
+                  "--all"
+                ],
+                "exitCode": 0,
+                "wallMs": 43116.836609027814,
+                "childUserCpuMs": 93328.259,
+                "childSystemCpuMs": 38524.966,
+                "maxSingleChildRssKiB": 797748,
+                "childCpuMs": 131853.225,
+                "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-22-56.051Z-2810028-240fd442-75fb-42fd-a39b-e91af6df3c07",
+                "gateWarnings": [
+                  "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 103014.7ms (not wall time); mean 2395.7ms (budget 2000.0ms); p95 7652.8ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-package-consumer-types=8389.6ms, tests-scripts-package-tools-boundary=7951.1ms, tests-product-supporting-checks=7652.8ms"
+                ]
+              },
+              "final": {
+                "label": "paired-1-final",
+                "command": [
+                  "mise",
+                  "exec",
+                  "--",
+                  "bun",
+                  "run",
+                  "check",
+                  "--",
+                  "--all"
+                ],
+                "exitCode": 0,
+                "wallMs": 34615.01516198041,
+                "childUserCpuMs": 73453.568,
+                "childSystemCpuMs": 31687.311999999998,
+                "maxSingleChildRssKiB": 800184,
+                "childCpuMs": 105140.88,
+                "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-23-38.829Z-2816505-22582b47-dfae-4455-8809-c6b8be9ad3f4",
+                "gateWarnings": []
+              }
+            },
+            {
+              "pair": 2,
+              "order": [
+                "final",
+                "baseline"
+              ],
+              "wallChangePercent": -15.47841269608876,
+              "baseline": {
+                "label": "paired-2-baseline",
+                "command": [
+                  "mise",
+                  "exec",
+                  "--",
+                  "bun",
+                  "run",
+                  "check",
+                  "--",
+                  "--all"
+                ],
+                "exitCode": 0,
+                "wallMs": 39088.590863975696,
+                "childUserCpuMs": 84703.13500000001,
+                "childSystemCpuMs": 34721.234000000004,
+                "maxSingleChildRssKiB": 794576,
+                "childCpuMs": 119424.369,
+                "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-24-46.502Z-2822332-0e20c426-c5dc-4d0c-b9c0-151a630fa826",
+                "gateWarnings": [
+                  "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 92140.1ms (not wall time); mean 2142.8ms (budget 2000.0ms); p95 5337.7ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-scripts-package-tools-boundary=6090.6ms, tests-product-supporting-checks=5359.7ms, tests-package-artifact=5337.7ms"
+                ]
+              },
+              "final": {
+                "label": "paired-2-final",
+                "command": [
+                  "mise",
+                  "exec",
+                  "--",
+                  "bun",
+                  "run",
+                  "check",
+                  "--",
+                  "--all"
+                ],
+                "exitCode": 0,
+                "wallMs": 33038.29745296389,
+                "childUserCpuMs": 69953.19499999999,
+                "childSystemCpuMs": 30605.009,
+                "maxSingleChildRssKiB": 778036,
+                "childCpuMs": 100558.204,
+                "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-24-13.431Z-2819418-412f3af3-5081-4056-90fb-532a7ade19ad",
+                "gateWarnings": []
+              }
+            },
+            {
+              "pair": 3,
+              "order": [
+                "baseline",
+                "final"
+              ],
+              "wallChangePercent": 0.21575671576865574,
+              "baseline": {
+                "label": "paired-3-baseline",
+                "command": [
+                  "mise",
+                  "exec",
+                  "--",
+                  "bun",
+                  "run",
+                  "check",
+                  "--",
+                  "--all"
+                ],
+                "exitCode": 0,
+                "wallMs": 37318.249256990384,
+                "childUserCpuMs": 83259.46500000001,
+                "childSystemCpuMs": 31805.622,
+                "maxSingleChildRssKiB": 778720,
+                "childCpuMs": 115065.08700000001,
+                "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-25-25.658Z-2825328-733410f0-e7a3-4541-ab61-d78f703d6342",
+                "gateWarnings": [
+                  "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 89657.1ms (not wall time); mean 2085.0ms (budget 2000.0ms); p95 4913.9ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean; slowest Checks: tests-scripts-package-tools-boundary=5980.9ms, tests-product-supporting-checks=5673.5ms, function-metrics=4913.9ms"
+                ]
+              },
+              "final": {
+                "label": "paired-3-final",
+                "command": [
+                  "mise",
+                  "exec",
+                  "--",
+                  "bun",
+                  "run",
+                  "check",
+                  "--",
+                  "--all"
+                ],
+                "exitCode": 0,
+                "wallMs": 37398.765885969624,
+                "childUserCpuMs": 80972.724,
+                "childSystemCpuMs": 32524.946,
+                "maxSingleChildRssKiB": 799600,
+                "childCpuMs": 113497.67,
+                "gateEvidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-14T06-26-03.165Z-2828243-2a0ee315-8107-4e42-abf9-3b365d738422",
+                "gateWarnings": [
+                  "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 88557.2ms (not wall time); mean 2059.5ms (budget 2000.0ms); p95 5175.8ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-product-supporting-checks=5994.6ms, markdown-link-validation=5335.1ms, tests-package-artifact=5175.8ms"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-source-identity.json",
+      "sourceBytes": 443,
+      "sourceSHA256": "5882847e9ce6f87d66f98d4eccd20cbbfe565ac0884ec64b67ec262c10bb7efa",
+      "representation": "parsed-json",
+      "data": {
+        "finalFixtureSha256": "214e833a21bc20a1c694ba5a967f837e53b65b5d12f0086c5f395404a9a39e26",
+        "baselineFixtureSha256": "924a140db3474674585a175a21b92ba21db2d9324f9393086c739359f32ee4b8",
+        "unchangedCoreTestSha256": "b3fed2757d0adb10a19614e0537db6dd8964ffb8d58571f13621e53d69f33ba0",
+        "scope": "old fixture compiler environment vs explicit minimal environment; identical final assertions, docs, Product, validator and Gate configuration"
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-baseline-fixture.source.txt",
+      "sourceBytes": 5013,
+      "sourceSHA256": "924a140db3474674585a175a21b92ba21db2d9324f9393086c739359f32ee4b8",
+      "representation": "verbatim-text",
+      "text": "import { mkdirSync, mkdtempSync, writeFileSync } from \"node:fs\";\nimport { tmpdir } from \"node:os\";\nimport { join } from \"node:path\";\n\nexport const PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS = {} as const;\n\nconst PRODUCT_OWNERS = [\n  \"check\",\n  \"check-settlement\",\n  \"data-boundary\",\n  \"machine-output\",\n  \"package-checks\",\n  \"package-tools\",\n  \"project-definition\",\n  \"project-run\"\n];\n\nexport function createTargetLayout(): string {\n  const root = mkdtempSync(join(tmpdir(), \"vibe-check-layout-characterization-\"));\n  writeFileSync(join(root, \"package.json\"), '{\"type\":\"module\"}\\n', \"utf8\");\n  writeSource(root, \"src/index.ts\", \"export {};\\n\");\n  for (const owner of PRODUCT_OWNERS) {\n    if (owner === \"package-tools\") {\n      // The owner exists even when its optional production surface is empty.\n      mkdirSync(join(root, \"src\", owner), { recursive: true });\n    } else {\n      writeSource(root, `src/${owner}/${owner}.ts`, \"export {};\\n\");\n    }\n  }\n  writeSource(root, \"src/package-checks/function-metrics/analyzer/pipeline.ts\", \"export {};\\n\");\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer/port-facade.ts\",\n    'import \"./pipeline.ts\";\\nexport {};\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer/port-facade.test.ts\",\n    'import \"./pipeline.ts\";\\nimport \"./port-facade.ts\";\\nexport {};\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer-adapter.ts\",\n    'import \"./analyzer/port-facade.ts\";\\nexport {};\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer-adapter.test.ts\",\n    'import \"./analyzer-adapter.ts\";\\nexport {};\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer-worker.ts\",\n    'import { analyzeFunctionMetricsSources } from \"./analyzer-adapter.ts\";\\nvoid analyzeFunctionMetricsSources;\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/target-files.ts\",\n    [\n      'import { analyzeFunctionMetricsSources } from \"./analyzer-adapter.ts\";',\n      '// import { analyzeSourceCode } from \"./analyzer/pipeline.ts\";',\n      \"void analyzeFunctionMetricsSources;\"\n    ].join(\"\\n\")\n  );\n  writeSource(\n    root,\n    \"scripts/package/artifact/build.ts\",\n    [\n      \"const entries = PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS.map((sourcePath) =>\",\n      \"  join(repositoryRoot, sourcePath)\",\n      \");\",\n      \"void entries;\"\n    ].join(\"\\n\")\n  );\n  writeSource(\n    root,\n    \"scripts/package/package-contract.ts\",\n    [\n      'export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH = \"src/package-checks/function-metrics/analyzer-worker.ts\";',\n      \"export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([\",\n      '  \"src/index.ts\",',\n      \"  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH\",\n      \"]);\"\n    ].join(\"\\n\")\n  );\n  for (const path of [\n    \"scripts/project/gate/definition.test.ts\",\n    \"scripts/project/gate/definition.ts\",\n    \"scripts/project/gate/run.test.ts\",\n    \"scripts/project/gate/run.ts\",\n    \"scripts/project/gate/checks/process/process.ts\",\n    \"scripts/project/gate/runtime/bound-run.ts\"\n  ]) {\n    writeSource(root, path, \"export {};\\n\");\n  }\n  writeSource(root, \"scripts/package/candidate/prepare.ts\", \"export {};\\n\");\n  return root;\n}\n\nexport function writePackageToolContract(root: string): void {\n  writeSource(\n    root,\n    \"src/check/public-contract.ts\",\n    [\n      \"export interface PublicContract {\",\n      \"  readonly value: string;\",\n      \"}\",\n      \"export interface PrivateContract {\",\n      \"  readonly privateValue: string;\",\n      \"}\",\n      'export const publicValue = \"public\";',\n      \"export const publicCallback = (value: string): string => value;\"\n    ].join(\"\\n\")\n  );\n  writeSource(\n    root,\n    \"src/index.ts\",\n    [\n      'export { publicCallback, publicValue } from \"./check/public-contract.ts\";',\n      'export type { PublicContract as ConsumerContract } from \"./check/public-contract.ts\";'\n    ].join(\"\\n\")\n  );\n  writeSource(\n    root,\n    \"src/package-tools/consumer/tool.ts\",\n    [\n      'import { createHash } from \"node:crypto\";',\n      'import { promises as fs } from \"node:fs\";',\n      'import { join } from \"node:path\";',\n      'import { publicCallback, publicValue } from \"../../check/public-contract.ts\";',\n      'import type { PublicContract } from \"../../check/public-contract.ts\";',\n      \"\",\n      \"void createHash;\",\n      \"void fs;\",\n      \"void join;\",\n      \"export const packageTool = publicCallback(publicValue);\",\n      \"export type ConsumerContract = PublicContract;\",\n      'export type { PublicContract as PackageToolContract } from \"../../check/public-contract.ts\";'\n    ].join(\"\\n\")\n  );\n}\n\nexport function writeSource(root: string, relativePath: string, source: string): void {\n  const path = join(root, relativePath);\n  mkdirSync(join(path, \"..\"), { recursive: true });\n  writeFileSync(path, source, \"utf8\");\n}\n\nexport function escapeRegExp(value: string): string {\n  return value.replace(/[.*+?^${}()|[\\]\\\\]/gu, \"\\\\$&\");\n}\n"
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-final-fixture.source.txt",
+      "sourceBytes": 5274,
+      "sourceSHA256": "214e833a21bc20a1c694ba5a967f837e53b65b5d12f0086c5f395404a9a39e26",
+      "representation": "verbatim-text",
+      "text": "import { mkdirSync, mkdtempSync, writeFileSync } from \"node:fs\";\nimport { tmpdir } from \"node:os\";\nimport { join } from \"node:path\";\n\nexport const PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS = {\n  lib: [\"esnext\"],\n  types: []\n} as const;\n\nconst PRODUCT_OWNERS = [\n  \"check\",\n  \"check-settlement\",\n  \"data-boundary\",\n  \"machine-output\",\n  \"package-checks\",\n  \"package-tools\",\n  \"project-definition\",\n  \"project-run\"\n];\n\nexport function createTargetLayout(): string {\n  const root = mkdtempSync(join(tmpdir(), \"vibe-check-layout-characterization-\"));\n  writeFileSync(join(root, \"package.json\"), '{\"type\":\"module\"}\\n', \"utf8\");\n  writeSource(root, \"src/index.ts\", \"export {};\\n\");\n  for (const owner of PRODUCT_OWNERS) {\n    if (owner === \"package-tools\") {\n      // The owner exists even when its optional production surface is empty.\n      mkdirSync(join(root, \"src\", owner), { recursive: true });\n    } else {\n      writeSource(root, `src/${owner}/${owner}.ts`, \"export {};\\n\");\n    }\n  }\n  writeSource(root, \"src/package-checks/function-metrics/analyzer/pipeline.ts\", \"export {};\\n\");\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer/port-facade.ts\",\n    'import \"./pipeline.ts\";\\nexport {};\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer/port-facade.test.ts\",\n    'import \"./pipeline.ts\";\\nimport \"./port-facade.ts\";\\nexport {};\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer-adapter.ts\",\n    'import \"./analyzer/port-facade.ts\";\\nexport {};\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer-adapter.test.ts\",\n    'import \"./analyzer-adapter.ts\";\\nexport {};\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/analyzer-worker.ts\",\n    'import { analyzeFunctionMetricsSources } from \"./analyzer-adapter.ts\";\\nvoid analyzeFunctionMetricsSources;\\n'\n  );\n  writeSource(\n    root,\n    \"src/package-checks/function-metrics/target-files.ts\",\n    [\n      'import { analyzeFunctionMetricsSources } from \"./analyzer-adapter.ts\";',\n      '// import { analyzeSourceCode } from \"./analyzer/pipeline.ts\";',\n      \"void analyzeFunctionMetricsSources;\"\n    ].join(\"\\n\")\n  );\n  writeSource(\n    root,\n    \"scripts/package/artifact/build.ts\",\n    [\n      \"const entries = PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS.map((sourcePath) =>\",\n      \"  join(repositoryRoot, sourcePath)\",\n      \");\",\n      \"void entries;\"\n    ].join(\"\\n\")\n  );\n  writeSource(\n    root,\n    \"scripts/package/package-contract.ts\",\n    [\n      'export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH = \"src/package-checks/function-metrics/analyzer-worker.ts\";',\n      \"export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([\",\n      '  \"src/index.ts\",',\n      \"  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH\",\n      \"]);\"\n    ].join(\"\\n\")\n  );\n  for (const path of [\n    \"scripts/project/gate/definition.test.ts\",\n    \"scripts/project/gate/definition.ts\",\n    \"scripts/project/gate/run.test.ts\",\n    \"scripts/project/gate/run.ts\",\n    \"scripts/project/gate/checks/process/process.ts\",\n    \"scripts/project/gate/runtime/bound-run.ts\"\n  ]) {\n    writeSource(root, path, \"export {};\\n\");\n  }\n  writeSource(root, \"scripts/package/candidate/prepare.ts\", \"export {};\\n\");\n  return root;\n}\n\nexport function writePackageToolContract(root: string): void {\n  // This fixture's Core uses no host globals; the real repository keeps its own compiler profile.\n  writeSource(\n    root,\n    \"tsconfig.json\",\n    JSON.stringify({ compilerOptions: PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS })\n  );\n  writeSource(\n    root,\n    \"src/check/public-contract.ts\",\n    [\n      \"export interface PublicContract {\",\n      \"  readonly value: string;\",\n      \"}\",\n      \"export interface PrivateContract {\",\n      \"  readonly privateValue: string;\",\n      \"}\",\n      'export const publicValue = \"public\";',\n      \"export const publicCallback = (value: string): string => value;\"\n    ].join(\"\\n\")\n  );\n  writeSource(\n    root,\n    \"src/index.ts\",\n    [\n      'export { publicCallback, publicValue } from \"./check/public-contract.ts\";',\n      'export type { PublicContract as ConsumerContract } from \"./check/public-contract.ts\";'\n    ].join(\"\\n\")\n  );\n  writeSource(\n    root,\n    \"src/package-tools/consumer/tool.ts\",\n    [\n      'import { createHash } from \"node:crypto\";',\n      'import { promises as fs } from \"node:fs\";',\n      'import { join } from \"node:path\";',\n      'import { publicCallback, publicValue } from \"../../check/public-contract.ts\";',\n      'import type { PublicContract } from \"../../check/public-contract.ts\";',\n      \"\",\n      \"void createHash;\",\n      \"void fs;\",\n      \"void join;\",\n      \"export const packageTool = publicCallback(publicValue);\",\n      \"export type ConsumerContract = PublicContract;\",\n      'export type { PublicContract as PackageToolContract } from \"../../check/public-contract.ts\";'\n    ].join(\"\\n\")\n  );\n}\n\nexport function writeSource(root: string, relativePath: string, source: string): void {\n  const path = join(root, relativePath);\n  mkdirSync(join(path, \"..\"), { recursive: true });\n  writeFileSync(path, source, \"utf8\");\n}\n\nexport function escapeRegExp(value: string): string {\n  return value.replace(/[.*+?^${}()|[\\]\\\\]/gu, \"\\\\$&\");\n}\n"
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/core-attribution-before.jsonl",
+      "sourceBytes": 484,
+      "sourceSHA256": "5c929f348f29cd3ccb5a50818151536de6a1e510984c3abada8bff6ce66a15a3",
+      "representation": "parsed-json-lines",
+      "data": [
+        {
+          "label": "baseline-boundary",
+          "elapsedMs": 374.773367,
+          "compilerFilesRead": 129,
+          "nodeTypes": 68,
+          "standardLibraries": 0
+        },
+        {
+          "label": "baseline-no-emit",
+          "elapsedMs": 395.29366600000003,
+          "compilerFilesRead": 215,
+          "nodeTypes": 68,
+          "standardLibraries": 93
+        },
+        {
+          "label": "fixture-owned-boundary",
+          "elapsedMs": 18.66476899999998,
+          "compilerFilesRead": 18,
+          "nodeTypes": 0,
+          "standardLibraries": 0
+        },
+        {
+          "label": "fixture-owned-no-emit",
+          "elapsedMs": 68.11889200000007,
+          "compilerFilesRead": 98,
+          "nodeTypes": 0,
+          "standardLibraries": 87
+        }
+      ]
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/core-attribution-final.jsonl",
+      "sourceBytes": 484,
+      "sourceSHA256": "d8a605ddab09b345445a29cd159de7047888bcccdbcea47277ca2033a4465fdd",
+      "representation": "parsed-json-lines",
+      "data": [
+        {
+          "label": "baseline-boundary",
+          "elapsedMs": 387.511257,
+          "compilerFilesRead": 129,
+          "nodeTypes": 68,
+          "standardLibraries": 0
+        },
+        {
+          "label": "baseline-no-emit",
+          "elapsedMs": 457.5906279999999,
+          "compilerFilesRead": 215,
+          "nodeTypes": 68,
+          "standardLibraries": 93
+        },
+        {
+          "label": "fixture-owned-boundary",
+          "elapsedMs": 22.037774000000013,
+          "compilerFilesRead": 18,
+          "nodeTypes": 0,
+          "standardLibraries": 0
+        },
+        {
+          "label": "fixture-owned-no-emit",
+          "elapsedMs": 74.50569299999984,
+          "compilerFilesRead": 98,
+          "nodeTypes": 0,
+          "standardLibraries": 87
+        }
+      ]
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/README.md",
+      "sourceBytes": 6101,
+      "sourceSHA256": "85ef3fbffc2546b062ce4b76d2a5df613eb5209deff0f807bb59ab59218b0dba",
+      "representation": "verbatim-text",
+      "text": "# file-lifecycle-hygiene：Gate heavy-test cost evidence\n\nCreated 2026-10-14 (Asia/Shanghai); baseline HEAD `0fe55d31ecb11eadf4999b534a0767d08d68bd90`.\nPurpose: current-version baseline, isolated attribution and same-workload remeasurement for package-tools/Core closure and Product supporting Check tests.\nStatus: task-owned ignored auxiliary evidence. Keep raw before/after logs, source manifests and measurement scripts until this optimization is audited; no automatic deletion or commit.\nMeasurements are sequential, Bun 1.3.14 through mise, existing caches retained, unchanged timeout/concurrency/quality limits. Child CPU is waited descendant accounting; RSS is the maximum single-child high-water mark, not total process-tree memory. Profiles are separate from timing samples.\n\n## Workloads and source identity\n\n`supporting-lane-files.txt` is the exact 19-file set returned by the current public Gate lane resolver. Original source-only baseline and final manifests cover tracked src/scripts plus package/toolchain root inputs; their digests are respectively `baaba93b27a3ee9c23064b1c9a5502abb0273d3805005bd19f8fab2736dec0e7` and `c1a296e367ef9ff71739a21090e4e2f1698a5fc6156c36c8c14dceee5c71ec69`. Only the two owned scripts/validation TS files differ; Product and validator implementations are unchanged.\n\n`measure-command.py` captures stdout/stderr and child resources in exclusive new labels. Core and supporting lanes each have a warmup and three baseline observations. Final formatted Core has a separate warmup and three final observations. Supporting sources are unchanged, so its after observations are controls, not an optimization result. No reliable p95 is inferred from three samples.\n\n| Workload | Before median | Final/control median | Boundary |\n| --- | ---: | ---: | --- |\n| Core test process wall | 5043.50 ms | 1324.83 ms | Final formatted source; original 19-row matrix retained, additional actual no-emit type-error assertion. |\n| Core child-tree CPU | 10157.57 ms | 2002.26 ms | Waited descendant accounting, not Gate CPU or aggregate memory. |\n| Supporting lane wall | 5312.08 ms | 5110.88 ms | No source change; difference is not attributed to this patch. |\n| Non-interleaved complete Gate wall | 41667.05 ms | 49895.82 ms | All 6 invocations 43/43; large variation, docs/Case changed, not an isolated or positive Gate speedup result. |\n\n`core-attribution-before.jsonl` records delegated TypeScript sys.readFile observation on valid fixtures: boundary reads 129 files, including 68 Node type files, versus 18 / 0 with explicit minimal environment. Single boundary/no-emit timings were 374.77/395.29 ms versus 18.66/68.12 ms; these are attribution observations, not repeated timing medians or CPU profiles.\n\n## Interleaved complete Gate control\n\n`paired-gate.py` alternated old fixture compiler environment and final explicit environment in A/B, B/A, A/B order. It kept the final test assertions (including TS2345 rejection), current docs/Case, Product, validator, candidate and Gate configuration fixed. The only temporary variant was the owned test-support file; exact source snapshots/hash are in `paired-*-fixture.source.txt` and `paired-source-identity.json`. Final source was restored and verified by the script's finally guard.\n\nThe old-environment variant is a control with final assertions, not an exact replay of initial HEAD. Each pair's wall change was -19.72%, -15.48%, +0.22%; two of three improved. Baseline/final group medians were 39088.59/34615.02 ms (an observed 11.44% median reduction). All six invocations passed 43/43 and used `0.0.0-local.dfb5e87283d2`. Existing caches and learned scheduling history were retained and used/updated normally, not frozen; these three pairs do not establish a causal or universal Gate speedup. No threshold, timeout, waiver, priority or concurrency change was used.\n\nThe primary adoption evidence is the bounded fixture's consistent local wall/CPU reduction, removal of irrelevant ambient declaration reads, and preserved/improved proof signal. Check mean/p95 warnings remain in complete Gate observations. Last paired final invocation: `/workspace/vibe-check/.log/project-gate/2026-10-14T06-26-03.165Z-2828243-2a0ee315-8107-4e42-abf9-3b365d738422/`.\n\n## Validation and unsuccessful attempts\n\n- scripts typecheck/lint, exact two-file Oxfmt, both target tests (2/2), public validate, full 722 entities / 181 Cases / 15 topics closure passed on final code. Independent non-implementation review found no blocking proof/style/docs issue.\n- First pre-format after Gate was 42/43: only Source format failed. Oxfmt changed the assert.throws layout; final source received fresh Core and complete Gate samples, all passed. Failed log retained: `/workspace/vibe-check/.log/project-gate/2026-10-14T06-14-58.544Z-2789543-dcf4d521-7788-4686-a282-388cd35c9f51/`.\n- Initial supporting warmup used unsupported `dev:test`; it exited before tests and is excluded. The replacement used actual files from the lane resolver.\n- Bun test accepted the CPU profiling flags but emitted no profile file; `profile-core.*.log` is only another passing test observation, not CPU profile evidence.\n\n## Reproduction and lifecycle\n\nFrom the repository root, use `uv run --no-project python tmp/gate-heavy-tests-20261014/measure-command.py <unused-label> mise exec -- bun test scripts/validation/package-tools-core-closure.test.ts`, or the same wrapper with `bun run check -- --all`. Supporting uses the saved exact lane paths. `summarize-measurements.py` produces `measurement-summary.json`. Attribution uses `mise exec -- bun run tmp/gate-heavy-tests-20261014/core-attribution.ts` and is separate from timing.\n\nThe paired script uses exclusive labels and exact final source guards; its already populated destinations are not a retry target. Copy/adapt to a new task-owned evidence directory if repetition is needed. Keep original logs/manifests and both controlled source snapshots until review no longer needs replay; do not add them to current test discovery or treat them as stable rules. No Git add/commit/push or Change deletion was performed.\n"
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/after-core-1.resource.json",
+      "sourceBytes": 311,
+      "sourceSHA256": "b902d4fceadb00c615af8f79da93b2dd735b36cee33e5f994845bd4df0bdd711",
+      "representation": "parsed-json",
+      "data": {
+        "label": "after-core-1",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 1168.5525460052304,
+        "childUserCpuMs": 1161.292,
+        "childSystemCpuMs": 587.249,
+        "maxSingleChildRssKiB": 228460
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/after-core-2.resource.json",
+      "sourceBytes": 320,
+      "sourceSHA256": "6cea225ab9d1977913f0364cc89cae4f2bf7b7f48ea12d47ead161957bdb793b",
+      "representation": "parsed-json",
+      "data": {
+        "label": "after-core-2",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 1261.637926043477,
+        "childUserCpuMs": 1441.2910000000002,
+        "childSystemCpuMs": 615.555,
+        "maxSingleChildRssKiB": 239884
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/after-core-3.resource.json",
+      "sourceBytes": 307,
+      "sourceSHA256": "0aff248285d09bb1e451002b64713bc06b5c063a72d453c844a4410d5334707c",
+      "representation": "parsed-json",
+      "data": {
+        "label": "after-core-3",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 1227.54440800054,
+        "childUserCpuMs": 1226.169,
+        "childSystemCpuMs": 607.1,
+        "maxSingleChildRssKiB": 234740
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/after-core-warmup.resource.json",
+      "sourceBytes": 316,
+      "sourceSHA256": "9d3be4e4c7e77f96ca67f6ab4ac3e0c0994e778a1f8321348d6661239fe8cc36",
+      "representation": "parsed-json",
+      "data": {
+        "label": "after-core-warmup",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 1295.0969350058585,
+        "childUserCpuMs": 1291.487,
+        "childSystemCpuMs": 692.382,
+        "maxSingleChildRssKiB": 237076
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/after-gate-all-1.resource.json",
+      "sourceBytes": 298,
+      "sourceSHA256": "26f71e88e0a8a5d6cdfa9a27279b4de95844f770abacae592693f83a842fc43c",
+      "representation": "parsed-json",
+      "data": {
+        "label": "after-gate-all-1",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 1,
+        "wallMs": 38843.4299689834,
+        "childUserCpuMs": 83759.72899999999,
+        "childSystemCpuMs": 35559.677,
+        "maxSingleChildRssKiB": 809768
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/after-supporting-1.resource.json",
+      "sourceBytes": 1635,
+      "sourceSHA256": "3044990538e35ccae254ff1b0a4a7f94a7bf5fe173503e6a547d9797d048cb80",
+      "representation": "parsed-json",
+      "data": {
+        "label": "after-supporting-1",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "src/package-checks/command-check/command-check.environment.test.ts",
+          "src/package-checks/command-check/command-check.terminal.test.ts",
+          "src/package-checks/command-check/command-check.test.ts",
+          "src/package-checks/command-check/command-check.transcript.test.ts",
+          "src/package-checks/host-environment/process/result.test.ts",
+          "src/package-checks/host-environment/process/runner.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+          "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+          "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+          "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+          "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+          "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+          "src/package-checks/project-files/collection-path-identity.test.ts",
+          "src/package-checks/project-files/collection.test.ts",
+          "src/package-checks/project-files/exact-input-measurement.test.ts",
+          "src/package-checks/project-files/file-fingerprint.test.ts",
+          "src/package-checks/project-files/input-eligibility.test.ts",
+          "src/package-checks/project-files/public-collection.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5078.214566980023,
+        "childUserCpuMs": 2308.68,
+        "childSystemCpuMs": 2998.4159999999997,
+        "maxSingleChildRssKiB": 141056
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/after-supporting-2.resource.json",
+      "sourceBytes": 1646,
+      "sourceSHA256": "d383dc47e25295d7bf608eb362257401894193c4f9b5a669f69927b4ed466118",
+      "representation": "parsed-json",
+      "data": {
+        "label": "after-supporting-2",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "src/package-checks/command-check/command-check.environment.test.ts",
+          "src/package-checks/command-check/command-check.terminal.test.ts",
+          "src/package-checks/command-check/command-check.test.ts",
+          "src/package-checks/command-check/command-check.transcript.test.ts",
+          "src/package-checks/host-environment/process/result.test.ts",
+          "src/package-checks/host-environment/process/runner.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+          "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+          "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+          "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+          "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+          "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+          "src/package-checks/project-files/collection-path-identity.test.ts",
+          "src/package-checks/project-files/collection.test.ts",
+          "src/package-checks/project-files/exact-input-measurement.test.ts",
+          "src/package-checks/project-files/file-fingerprint.test.ts",
+          "src/package-checks/project-files/input-eligibility.test.ts",
+          "src/package-checks/project-files/public-collection.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5110.880831023678,
+        "childUserCpuMs": 2401.0600000000004,
+        "childSystemCpuMs": 2946.1879999999996,
+        "maxSingleChildRssKiB": 138208
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/after-supporting-3.resource.json",
+      "sourceBytes": 1636,
+      "sourceSHA256": "24a6565a481ad22e3b19ee6a5264aed65a3401a9b5625f8cca8f9ecc7bfea7ea",
+      "representation": "parsed-json",
+      "data": {
+        "label": "after-supporting-3",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "src/package-checks/command-check/command-check.environment.test.ts",
+          "src/package-checks/command-check/command-check.terminal.test.ts",
+          "src/package-checks/command-check/command-check.test.ts",
+          "src/package-checks/command-check/command-check.transcript.test.ts",
+          "src/package-checks/host-environment/process/result.test.ts",
+          "src/package-checks/host-environment/process/runner.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+          "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+          "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+          "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+          "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+          "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+          "src/package-checks/project-files/collection-path-identity.test.ts",
+          "src/package-checks/project-files/collection.test.ts",
+          "src/package-checks/project-files/exact-input-measurement.test.ts",
+          "src/package-checks/project-files/file-fingerprint.test.ts",
+          "src/package-checks/project-files/input-eligibility.test.ts",
+          "src/package-checks/project-files/public-collection.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5385.077313985676,
+        "childUserCpuMs": 2703.8669999999997,
+        "childSystemCpuMs": 2990.864,
+        "maxSingleChildRssKiB": 138804
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-core-1.resource.json",
+      "sourceBytes": 312,
+      "sourceSHA256": "05d9acbfe13afba295db0587dbe77e7d4618f971d91f41304bad1395276c6b2a",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-core-1",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5043.495716992766,
+        "childUserCpuMs": 8500.318,
+        "childSystemCpuMs": 1657.252,
+        "maxSingleChildRssKiB": 448532
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-core-2.resource.json",
+      "sourceBytes": 312,
+      "sourceSHA256": "abb5e17e28be1e3b77ec4f49605b0538f17d983d42431a61ff7d755fc984c8c7",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-core-2",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5277.872592036147,
+        "childUserCpuMs": 9649.344,
+        "childSystemCpuMs": 1286.298,
+        "maxSingleChildRssKiB": 384812
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-core-3.resource.json",
+      "sourceBytes": 312,
+      "sourceSHA256": "efe5ff19137a58236e4bd42f09356f61403fe58c6b309e7eaad1f22e88d72fb9",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-core-3",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 4645.715776016004,
+        "childUserCpuMs": 7966.629,
+        "childSystemCpuMs": 1299.184,
+        "maxSingleChildRssKiB": 506552
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-core-warmup.resource.json",
+      "sourceBytes": 317,
+      "sourceSHA256": "4466dfb5eeece3701a2605e16e4bef59313597d2cb24d30f5d50468aebc7b15b",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-core-warmup",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 6383.968285983428,
+        "childUserCpuMs": 9677.063,
+        "childSystemCpuMs": 1887.016,
+        "maxSingleChildRssKiB": 435416
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-gate-all-1.resource.json",
+      "sourceBytes": 292,
+      "sourceSHA256": "5cf76153762f5c72664464800c658ea7eb6fc1799e761db770a09198c0b084a3",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-gate-all-1",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 43753.36330203572,
+        "childUserCpuMs": 91489.559,
+        "childSystemCpuMs": 38240.897,
+        "maxSingleChildRssKiB": 783656
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-gate-all-2.resource.json",
+      "sourceBytes": 299,
+      "sourceSHA256": "ea5d12eb6d47ebbb50c71911a998e9b749a5eee32d3a3ec8cfc95a6863ab8587",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-gate-all-2",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 38564.75825596135,
+        "childUserCpuMs": 85170.09199999999,
+        "childSystemCpuMs": 33862.57,
+        "maxSingleChildRssKiB": 804624
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-gate-all-3.resource.json",
+      "sourceBytes": 292,
+      "sourceSHA256": "fd3d15fd920791862f29c73286df80ab72d8aa4e34c4c958bee978a2d56cd277",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-gate-all-3",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 41667.05229296349,
+        "childUserCpuMs": 95482.162,
+        "childSystemCpuMs": 36111.387,
+        "maxSingleChildRssKiB": 808064
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-supporting-1.resource.json",
+      "sourceBytes": 1626,
+      "sourceSHA256": "23312073f64d8827e94b329a7504f1ab290233578bb7b4db16879e8795ab4c2f",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-supporting-1",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "src/package-checks/command-check/command-check.environment.test.ts",
+          "src/package-checks/command-check/command-check.terminal.test.ts",
+          "src/package-checks/command-check/command-check.test.ts",
+          "src/package-checks/command-check/command-check.transcript.test.ts",
+          "src/package-checks/host-environment/process/result.test.ts",
+          "src/package-checks/host-environment/process/runner.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+          "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+          "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+          "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+          "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+          "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+          "src/package-checks/project-files/collection-path-identity.test.ts",
+          "src/package-checks/project-files/collection.test.ts",
+          "src/package-checks/project-files/exact-input-measurement.test.ts",
+          "src/package-checks/project-files/file-fingerprint.test.ts",
+          "src/package-checks/project-files/input-eligibility.test.ts",
+          "src/package-checks/project-files/public-collection.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5090.751813026145,
+        "childUserCpuMs": 2466.12,
+        "childSystemCpuMs": 2930.422,
+        "maxSingleChildRssKiB": 139100
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-supporting-2.resource.json",
+      "sourceBytes": 1637,
+      "sourceSHA256": "089c4c8139ab27a68b63d45167dd48cf3430d357bbdb5f5b7d84195ee849d530",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-supporting-2",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "src/package-checks/command-check/command-check.environment.test.ts",
+          "src/package-checks/command-check/command-check.terminal.test.ts",
+          "src/package-checks/command-check/command-check.test.ts",
+          "src/package-checks/command-check/command-check.transcript.test.ts",
+          "src/package-checks/host-environment/process/result.test.ts",
+          "src/package-checks/host-environment/process/runner.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+          "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+          "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+          "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+          "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+          "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+          "src/package-checks/project-files/collection-path-identity.test.ts",
+          "src/package-checks/project-files/collection.test.ts",
+          "src/package-checks/project-files/exact-input-measurement.test.ts",
+          "src/package-checks/project-files/file-fingerprint.test.ts",
+          "src/package-checks/project-files/input-eligibility.test.ts",
+          "src/package-checks/project-files/public-collection.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5312.078511051368,
+        "childUserCpuMs": 2548.841,
+        "childSystemCpuMs": 3042.9719999999998,
+        "maxSingleChildRssKiB": 140288
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-supporting-3.resource.json",
+      "sourceBytes": 1627,
+      "sourceSHA256": "9734ee14df07d57532c74a672766ca5b36bd77250db1c6e8b44829dd6e3427ae",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-supporting-3",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "src/package-checks/command-check/command-check.environment.test.ts",
+          "src/package-checks/command-check/command-check.terminal.test.ts",
+          "src/package-checks/command-check/command-check.test.ts",
+          "src/package-checks/command-check/command-check.transcript.test.ts",
+          "src/package-checks/host-environment/process/result.test.ts",
+          "src/package-checks/host-environment/process/runner.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+          "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+          "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+          "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+          "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+          "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+          "src/package-checks/project-files/collection-path-identity.test.ts",
+          "src/package-checks/project-files/collection.test.ts",
+          "src/package-checks/project-files/exact-input-measurement.test.ts",
+          "src/package-checks/project-files/file-fingerprint.test.ts",
+          "src/package-checks/project-files/input-eligibility.test.ts",
+          "src/package-checks/project-files/public-collection.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5633.263433002867,
+        "childUserCpuMs": 2690.508,
+        "childSystemCpuMs": 3272.779,
+        "maxSingleChildRssKiB": 138236
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-supporting-valid-warmup.resource.json",
+      "sourceBytes": 1638,
+      "sourceSHA256": "1285191a9e1cf4d756d2f1f5da873592bcb5cd8ac1acac1c197a3eef5d3f3223",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-supporting-valid-warmup",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "src/package-checks/command-check/command-check.environment.test.ts",
+          "src/package-checks/command-check/command-check.terminal.test.ts",
+          "src/package-checks/command-check/command-check.test.ts",
+          "src/package-checks/command-check/command-check.transcript.test.ts",
+          "src/package-checks/host-environment/process/result.test.ts",
+          "src/package-checks/host-environment/process/runner.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-activity.test.ts",
+          "src/package-checks/maintenance-reminders/first-parent-special-history.test.ts",
+          "src/package-checks/maintenance-reminders/history-failure-assessments.test.ts",
+          "src/package-checks/maintenance-reminders/machine-publication.test.ts",
+          "src/package-checks/maintenance-reminders/maintenance-reminders.test.ts",
+          "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+          "src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts",
+          "src/package-checks/project-files/collection-path-identity.test.ts",
+          "src/package-checks/project-files/collection.test.ts",
+          "src/package-checks/project-files/exact-input-measurement.test.ts",
+          "src/package-checks/project-files/file-fingerprint.test.ts",
+          "src/package-checks/project-files/input-eligibility.test.ts",
+          "src/package-checks/project-files/public-collection.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 5452.686385018751,
+        "childUserCpuMs": 2640.161,
+        "childSystemCpuMs": 2922.535,
+        "maxSingleChildRssKiB": 140820
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/before-supporting-warmup.resource.json",
+      "sourceBytes": 315,
+      "sourceSHA256": "178a06ff30c3326dbed881601170a2828edd979b2062719cab3395194f2602d2",
+      "representation": "parsed-json",
+      "data": {
+        "label": "before-supporting-warmup",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "dev:test",
+          "--",
+          "--scope=checks-supporting"
+        ],
+        "exitCode": 1,
+        "wallMs": 82.09358196472749,
+        "childUserCpuMs": 32.423,
+        "childSystemCpuMs": 39.553,
+        "maxSingleChildRssKiB": 44088
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/final-core-1.resource.json",
+      "sourceBytes": 310,
+      "sourceSHA256": "60c0ee10216ab49f22f3ae50cdb226f2f02a5bccd172f998415897bd69eb69c3",
+      "representation": "parsed-json",
+      "data": {
+        "label": "final-core-1",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 1336.2994359922595,
+        "childUserCpuMs": 1386.128,
+        "childSystemCpuMs": 616.13,
+        "maxSingleChildRssKiB": 226684
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/final-core-2.resource.json",
+      "sourceBytes": 330,
+      "sourceSHA256": "22496f601a1504d9469e825a2ab89276474eba6360baf42eef801fd8641aadee",
+      "representation": "parsed-json",
+      "data": {
+        "label": "final-core-2",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 1324.828876007814,
+        "childUserCpuMs": 1281.3410000000001,
+        "childSystemCpuMs": 642.5949999999999,
+        "maxSingleChildRssKiB": 224940
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/final-core-3.resource.json",
+      "sourceBytes": 308,
+      "sourceSHA256": "0833315fbc673cb7362676925cc9db6e25d15bb66176efc91d738785d3dc41e9",
+      "representation": "parsed-json",
+      "data": {
+        "label": "final-core-3",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 1310.54989999393,
+        "childUserCpuMs": 1448.911,
+        "childSystemCpuMs": 634.53,
+        "maxSingleChildRssKiB": 234580
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/final-core-warmup.resource.json",
+      "sourceBytes": 336,
+      "sourceSHA256": "305e0bd2e8886f544ad9b731b94eca0a50fe47df071d50ce2ee2d2a638c7f59e",
+      "representation": "parsed-json",
+      "data": {
+        "label": "final-core-warmup",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "test",
+          "scripts/validation/package-tools-core-closure.test.ts"
+        ],
+        "exitCode": 0,
+        "wallMs": 1253.5499869845808,
+        "childUserCpuMs": 1387.3439999999998,
+        "childSystemCpuMs": 610.1569999999999,
+        "maxSingleChildRssKiB": 243416
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/final-gate-all-1.resource.json",
+      "sourceBytes": 292,
+      "sourceSHA256": "bde202a4435c343f7ac32bb3debe57bb09cca710b3d9bae411b41bf5473abc6c",
+      "representation": "parsed-json",
+      "data": {
+        "label": "final-gate-all-1",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 54782.27891703136,
+        "childUserCpuMs": 123928.575,
+        "childSystemCpuMs": 48754.653,
+        "maxSingleChildRssKiB": 804720
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/final-gate-all-2.resource.json",
+      "sourceBytes": 293,
+      "sourceSHA256": "dd3cac8834fe187e02334eff1bceb7fe852f0ae6a58c97f348f4839b783eed32",
+      "representation": "parsed-json",
+      "data": {
+        "label": "final-gate-all-2",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 49895.815772993956,
+        "childUserCpuMs": 115413.377,
+        "childSystemCpuMs": 43531.247,
+        "maxSingleChildRssKiB": 809400
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/final-gate-all-3.resource.json",
+      "sourceBytes": 290,
+      "sourceSHA256": "3fcefd9adda4b0ccdbccce600ba65a5d4bfbbbfcb47fafc2a2553dda63977587",
+      "representation": "parsed-json",
+      "data": {
+        "label": "final-gate-all-3",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 35791.87143401941,
+        "childUserCpuMs": 77025.13,
+        "childSystemCpuMs": 32719.764,
+        "maxSingleChildRssKiB": 809188
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-1-baseline.resource.json",
+      "sourceBytes": 293,
+      "sourceSHA256": "be2bf86b37c1dd0d032688922c7419e3852e94614f96c15824a4a50648768112",
+      "representation": "parsed-json",
+      "data": {
+        "label": "paired-1-baseline",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 43116.836609027814,
+        "childUserCpuMs": 93328.259,
+        "childSystemCpuMs": 38524.966,
+        "maxSingleChildRssKiB": 797748
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-1-final.resource.json",
+      "sourceBytes": 298,
+      "sourceSHA256": "5a7154bff9aae80a07f8472a66de1c982d43126da47b43404b1dea451cba9aaf",
+      "representation": "parsed-json",
+      "data": {
+        "label": "paired-1-final",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 34615.01516198041,
+        "childUserCpuMs": 73453.568,
+        "childSystemCpuMs": 31687.311999999998,
+        "maxSingleChildRssKiB": 800184
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-2-baseline.resource.json",
+      "sourceBytes": 310,
+      "sourceSHA256": "d6afd0cf016bb090e1874fe0e12e6771fe02c26c17dda7835fd4af27fb351784",
+      "representation": "parsed-json",
+      "data": {
+        "label": "paired-2-baseline",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 39088.590863975696,
+        "childUserCpuMs": 84703.13500000001,
+        "childSystemCpuMs": 34721.234000000004,
+        "maxSingleChildRssKiB": 794576
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-2-final.resource.json",
+      "sourceBytes": 297,
+      "sourceSHA256": "0305ff19da9e573f812d52ee56626afd939530a637d2732bac1853fb41aee3bc",
+      "representation": "parsed-json",
+      "data": {
+        "label": "paired-2-final",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 33038.29745296389,
+        "childUserCpuMs": 69953.19499999999,
+        "childSystemCpuMs": 30605.009,
+        "maxSingleChildRssKiB": 778036
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-3-baseline.resource.json",
+      "sourceBytes": 301,
+      "sourceSHA256": "39e36af785221228fe9ac6f405a2c5abb307f11f22e288a0fbd1ff9942810cd2",
+      "representation": "parsed-json",
+      "data": {
+        "label": "paired-3-baseline",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 37318.249256990384,
+        "childUserCpuMs": 83259.46500000001,
+        "childSystemCpuMs": 31805.622,
+        "maxSingleChildRssKiB": 778720
+      }
+    },
+    {
+      "historicalPath": "tmp/gate-heavy-tests-20261014/paired-3-final.resource.json",
+      "sourceBytes": 290,
+      "sourceSHA256": "9278fc4ef5b89509cafa6c4a8de5ad42f601731a2f10c2bba3a539beefcfb3e3",
+      "representation": "parsed-json",
+      "data": {
+        "label": "paired-3-final",
+        "command": [
+          "mise",
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "check",
+          "--",
+          "--all"
+        ],
+        "exitCode": 0,
+        "wallMs": 37398.765885969624,
+        "childUserCpuMs": 80972.724,
+        "childSystemCpuMs": 32524.946,
+        "maxSingleChildRssKiB": 799600
+      }
+    }
+  ]
+}

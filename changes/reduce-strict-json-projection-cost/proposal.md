@@ -38,3 +38,10 @@ JSON Check 每个文档前 await `node:timers/promises` 的 `setImmediate`，保
 - `docs/checks/json-validation.md#工作原理`：同步协作让步说明；JSON/schema consumers 的结果与安全契约保持。
 - `docs/testing/cases/warning-generation.md`、测试策略与 Case 维护：原证明目的。
 - 编码规范、性能优化规则与整轮 Gate owner：质量和共同验收。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](../complete-gate-and-static-frontier-cost-optimization/evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

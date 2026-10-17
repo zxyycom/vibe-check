@@ -1,0 +1,201 @@
+{
+  "purpose": "原721组差分和Proxy访问顺序、逻辑操作量及方法；baseline/临时副本退场，不提供长期执行器。",
+  "observedOn": "2026-10-15",
+  "supplementedAt": "2026-10-17T06:07:59+00:00",
+  "scope": "形成时验收记录，非当前验证、长期benchmark或可重跑SDK。historicalPath仅标注已退出的现场来源；未保存完整源码镜像、fixture、cache、原始profile。JSON/JSONL按值转存，文本原样保留；sourceSHA256识别补存时读取的原字节，不要求原路径仍存在。",
+  "materials": [
+    {
+      "historicalPath": "tmp/optimization-implementation-20261015/tooling/equivalence-results.json",
+      "sourceBytes": 2926,
+      "sourceSHA256": "6a839c2b619c4f3280f5eb606e2611ddb17f7481a024ddb1d590a7c8ea85944d",
+      "representation": "parsed-json",
+      "data": {
+        "revision": "b2926b14880da7546f39aba7c0e07424f65f3977",
+        "runtime": "1.3.14",
+        "timing": "not measured; operation counts and exact output comparisons only",
+        "comparisons": {
+          "markdown": 392,
+          "jsdoc": 17,
+          "registry": 6,
+          "canonical": 256,
+          "canonicalAccessOrder": 5,
+          "esm": 5,
+          "links": 3,
+          "tarMaterialRejectionPrecedence": 6,
+          "simulation": 36
+        },
+        "operations": {
+          "registryFixedDepth": {
+            "targets": 4096,
+            "beforePathComparisons": 8386560,
+            "afterSetMembershipUpperBound": 20480,
+            "note": "fixed docs/group/file depth; string hashing/prefix bytes remain"
+          },
+          "lanes": {
+            "files": 4096,
+            "beforeEqualityChecks": 16781312,
+            "afterSetMembershipChecks": 8192,
+            "note": "two successful includes scans versus two has scans; set construction separate"
+          },
+          "observationHistory": {
+            "actions": 4096,
+            "beforeCopiedReferences": 8386560,
+            "beforeWaitContributionsReduced": 8386560,
+            "afterHistoryCopies": 0,
+            "afterContributionAdds": 4096,
+            "note": "full final evidence and per-action context/state remain"
+          },
+          "missingLinkLocation": {
+            "links": 2048,
+            "sourceUtf16Units": 126974,
+            "beforePrefixUnits": 130035028,
+            "afterVisitedUtf16UpperBound": 126950,
+            "note": "only missing locations incur scanning; code-point cursor advances once in matchAll order"
+          },
+          "canonicalDeepSingleton": {
+            "depth": 256,
+            "serializedBytes": 513,
+            "beforeSubtreeTextUnits": 66049,
+            "afterFinalTextUnits": 513,
+            "note": "nested arrays around 0, chunks join once; recursive stack/key checks remain"
+          },
+          "tarMaterialLookup": {
+            "entries": 4096,
+            "materials": 512,
+            "beforePathComparisonsWorstCase": 2097152,
+            "afterIndexVisits": 4096,
+            "afterLookups": 512,
+            "note": "complete decompression/digest/inventory/legal audit unchanged"
+          },
+          "topicCounts": {
+            "topics": 15,
+            "cases": 181,
+            "beforeTopicComparisons": 2715,
+            "afterCountUpdates": 181,
+            "afterLookups": 15,
+            "note": "catalog parsing, validation and full-tree closure unchanged"
+          },
+          "esmTextConstruction": {
+            "imports": 512,
+            "sourceUnits": 24398,
+            "beforeIntermediateTextUnits": 12623104,
+            "afterFinalTextUnits": 24910,
+            "note": "logical strings, not actual rope allocations; quoted token replacement grows by one unit"
+          },
+          "jsdocSingleSource": {
+            "targets": 128,
+            "beforeSourceReads": 130,
+            "afterSourceReads": 1,
+            "note": "discovery + per-target reads + final reconstruction read; per-target regex search remains"
+          },
+          "backtickDelimiter": {
+            "longestRun": 128,
+            "beforeIncludesInvocations": 127,
+            "afterMatchAllInvocations": 1,
+            "note": "delimiter lengths 3 through 129; this counts searches, not engine-internal character comparisons"
+          }
+        }
+      }
+    },
+    {
+      "historicalPath": "tmp/optimization-implementation-20261015/tooling/equivalence.mjs",
+      "sourceBytes": 17067,
+      "sourceSHA256": "1d5d4fbdac1d4f2d84a284599b4fdc3b4f4c4238bb3588b94610e7b63743b95b",
+      "representation": "verbatim-text",
+      "text": "import assert from \"node:assert/strict\";\nimport { mkdirSync, readFileSync, writeFileSync } from \"node:fs\";\nimport { dirname, join, resolve } from \"node:path\";\nimport { pathToFileURL } from \"node:url\";\nimport * as ts from \"typescript\";\nimport { createHash } from \"node:crypto\";\nimport { gzipSync } from \"node:zlib\";\n\nconst root = process.cwd();\nconst out = join(root, \"tmp/optimization-implementation-20261015/tooling\");\nconst revision = \"b2926b14880da7546f39aba7c0e07424f65f3977\";\nconst baselinePaths = [\n  \"scripts/docs/package-documents.ts\",\n  \"scripts/docs/package-api/jsdoc-render.ts\",\n  \"scripts/docs/package-api/jsdoc-target-discovery.ts\",\n  \"scripts/docs/package-api/markdown-example-fences.ts\",\n  \"scripts/package/artifact/esm-module-specifiers.ts\",\n  \"scripts/package/artifact/packed-tar-audit.ts\",\n  \"scripts/validation/repository-material/links.ts\",\n  \"scripts/validation/repository-material/machine-artifacts/canonical.ts\",\n  ...[\"simulate\", \"simulation-clock\", \"simulation-control\", \"simulation-evidence\", \"simulation-observations\", \"simulation-types\"].map(name => `scripts/project/admission-workbench/${name}.ts`)\n];\nconst baselineFiles = new Map(baselinePaths.map(path => [resolve(root, path), join(out, \"baseline\", path)]));\n// Snapshots are read from the frozen initial HEAD, never from another agent's working tree.\n// Rewrite only real import/export module literals and literal import.meta.resolve calls.\nfor (const path of baselinePaths) {\n  const response = Bun.spawnSync([\"git\", \"show\", `${revision}:${path}`], { cwd: root });\n  assert.equal(response.exitCode, 0);\n  let source = response.stdout.toString();\n  const sourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);\n  const replacements = [];\n  const visit = node => {\n    if (ts.isStringLiteral(node)) {\n      const parent = node.parent;\n      const isModule = ((ts.isImportDeclaration(parent) || ts.isExportDeclaration(parent)) && parent.moduleSpecifier === node)\n        || (ts.isCallExpression(parent) && parent.arguments[0] === node && parent.expression.getText(sourceFile) === \"import.meta.resolve\");\n      if (isModule && (node.text.startsWith(\".\") || node.text === \"@zxyycom/vibe-check\")) {\n        const target = node.text === \"@zxyycom/vibe-check\" ? join(root, \"scripts/project/node_modules/@zxyycom/vibe-check/index.mjs\") : resolve(dirname(join(root, path)), node.text);\n        replacements.push({ start: node.getStart(sourceFile), end: node.end, text: JSON.stringify(baselineFiles.get(target) ?? target) });\n      }\n    }\n    ts.forEachChild(node, visit);\n  };\n  visit(sourceFile);\n  for (const replacement of replacements.sort((a, b) => b.start - a.start)) source = source.slice(0, replacement.start) + replacement.text + source.slice(replacement.end);\n  const destination = baselineFiles.get(join(root, path));\n  mkdirSync(dirname(destination), { recursive: true });\n  writeFileSync(destination, source);\n}\n\nconst loadPair = async path => [await import(pathToFileURL(baselineFiles.get(join(root, path))).href), await import(pathToFileURL(join(root, path)).href)];\nconst outcome = callback => { try { return { value: callback() }; } catch (error) { return { error: error.message }; } };\nconst summary = { revision, runtime: Bun.version, timing: \"not measured; operation counts and exact output comparisons only\", comparisons: {}, operations: {} };\n\nconst [markdownBefore, markdownAfter] = await loadPair(\"scripts/docs/package-api/markdown-example-fences.ts\");\nlet markdownComparisons = 0;\nconst compareMarkdown = input => {\n  assert.deepEqual(outcome(() => markdownAfter.renderMarkdownExampleFences(input)), outcome(() => markdownBefore.renderMarkdownExampleFences(input)));\n  markdownComparisons += 1;\n};\nfor (let count = 1; count <= 64; count += 1) {\n  const sections = Array.from({ length: count }, (_, i) => `## S${i}\\n\\n保留😀 ${i}\\n\\n~~~ts\\nstale ${i}\\n~~~`);\n  const sourceMarkdown = `# Fixture\\n\\n${sections.join(\"\\n\\n\")}\\n`;\n  const replacements = sections.map((_, i) => ({ headingPath: [`S${i}`], replacementLines: [\"```ts\", `next ${i}`, \"```\", ...(i % 3 === 0 ? [\"tail\"] : [])] }));\n  for (const selected of [replacements, replacements.toReversed(), replacements.filter((_, i) => i % 2), [], [...replacements, replacements[0]], [{ headingPath: [\"missing\"], replacementLines: [\"x\"] }]]) {\n    compareMarkdown({ documentPackagePath: \"docs/fixture.md\", sourceMarkdown, replacements: selected });\n  }\n}\nfor (const level of [2, 3, 4, 6]) {\n  const sourceMarkdown = `# Fixture\\n\\n## Parent\\n\\n${\"#\".repeat(level)} Child\\n\\n\\`\\`\\`ts\\nold\\n\\`\\`\\`\\n\\n## Following\\nprose\\n`;\n  for (const replacements of [\n    [{ headingPath: [\"Parent\"], replacementLines: [\"```ts\", \"parent\", \"extra\", \"```\"] }, { headingPath: level === 2 ? [\"Child\"] : [\"Parent\", \"Child\"], replacementLines: [\"```ts\", \"child\", \"```\"] }],\n    [{ headingPath: [\"Parent\"], replacementLines: [] }]\n  ]) compareMarkdown({ documentPackagePath: \"docs/fixture.md\", sourceMarkdown, replacements });\n}\nsummary.comparisons.markdown = markdownComparisons;\n\nconst [jsdocBefore, jsdocAfter] = await loadPair(\"scripts/docs/package-api/jsdoc-render.ts\");\nconst jsdocRoot = join(out, \"workloads/jsdoc\");\nmkdirSync(join(jsdocRoot, \"src\"), { recursive: true });\nlet jsdocComparisons = 0;\nfor (const count of [1, 2, 8, 64]) {\n  const declarations = Array.from({ length: count }, (_, i) => `/**\\n * Prose ${i} 😀.\\n */\\nexport function Target${i}() { return ${i}; }\\n`);\n  const projections = declarations.map((_, i) => ({ id: `example-${i}`, title: `Example ${i}`, targets: [{ kind: \"jsdoc\", sourcePath: \"src/targets.ts\", declarationName: `Target${i}` }] }));\n  const payloads = new Map(projections.map((p, i) => [p.id, { content: `const value = ${i};\\n`, sourcePath: `example-${i}.ts` }]));\n  for (const suffix of [\"\", declarations[0], \"\\n/** Detached */\\nconst irrelevant = 1;\\nexport function Missing() {}\\n\"]) {\n    writeFileSync(join(jsdocRoot, \"src/targets.ts\"), `// preamble\\n${declarations.join(\"\\n\")}${suffix}// suffix\\n`);\n    assert.deepEqual(outcome(() => jsdocAfter.renderJSDocSources(jsdocRoot, projections, payloads)), outcome(() => jsdocBefore.renderJSDocSources(jsdocRoot, projections, payloads)));\n    jsdocComparisons += 1;\n  }\n}\nfor (const names of [[\"A\", \"A$\"], [\"A$\", \"A$x\"], [\"A\", \"A$x\"], [\"$\", \"_\"], [\"A\", \"AB\"]]) {\n  const projections = names.map((declarationName, i) => ({ id: `example-${i}`, title: `Example ${i}`, targets: [{ kind: \"jsdoc\", sourcePath: \"src/targets.ts\", declarationName }] }));\n  const payloads = new Map(projections.map(p => [p.id, { content: \"void 0;\\n\", sourcePath: \"example.ts\" }]));\n  writeFileSync(join(jsdocRoot, \"src/targets.ts\"), \"/**\\n * Prose.\\n */\\nexport function A$x() {}\\n/**\\n * Other prose.\\n */\\nexport function AB() {}\\n\");\n  assert.deepEqual(outcome(() => jsdocAfter.renderJSDocSources(jsdocRoot, projections, payloads)), outcome(() => jsdocBefore.renderJSDocSources(jsdocRoot, projections, payloads)));\n  jsdocComparisons += 1;\n}\nsummary.comparisons.jsdoc = jsdocComparisons;\n\nconst [registryBefore, registryAfter] = await loadPair(\"scripts/docs/package-documents.ts\");\nconst registryRoot = join(out, \"workloads/registry\");\nmkdirSync(join(registryRoot, \"docs\"), { recursive: true });\nconst registry = { markdownDocuments: [{ id: \"readme\", sourcePath: \"README.md\", packagePath: \"README.md\" }], checkGuides: [{ checkId: \"fixture\", exportName: \"fixture\", sourcePath: \"docs/check.md\", packagePath: \"docs/check.md\" }], machineMaterials: Array.from({ length: 512 }, (_, i) => ({ sourcePath: \"docs/input.json\", packagePath: `docs/group-${i}/item.json` })) };\nlet registryComparisons = 0;\nfor (const tail of [[], [{ packagePath: \"docs/group-0\" }], [{ packagePath: \"docs/group-511/item.json/child\" }], [{ packagePath: \"docs/group-512\" }, { packagePath: \"docs/group-512/child\" }], [{ packagePath: \"docs/group-512/child\" }, { packagePath: \"docs/group-512\" }], [{ packagePath: \"docs/group-0-prefix/sibling\" }]]) {\n  writeFileSync(join(registryRoot, \"docs/package-documents.json\"), JSON.stringify({ ...registry, machineMaterials: [...registry.machineMaterials, ...tail.map(x => ({ sourcePath: \"docs/input.json\", ...x }))] }));\n  assert.deepEqual(outcome(() => registryAfter.loadPackageDocuments(registryRoot)), outcome(() => registryBefore.loadPackageDocuments(registryRoot)));\n  registryComparisons += 1;\n}\nsummary.comparisons.registry = registryComparisons;\n\nconst [canonicalBefore, canonicalAfter] = await loadPair(\"scripts/validation/repository-material/machine-artifacts/canonical.ts\");\nlet canonicalComparisons = 0;\nfor (let depth = 0; depth < 256; depth += 1) {\n  let value = { z: -0, a: [\"😀\", true, null, \"quote\\\"\\\\\\n\"] };\n  for (let level = 0; level < depth; level += 1) value = { z: [level], a: value };\n  assert.equal(canonicalAfter.canonicalJsonText(value), canonicalBefore.canonicalJsonText(value));\n  canonicalComparisons += 1;\n}\nsummary.comparisons.canonical = canonicalComparisons;\nconst observedCanonicalObject = mode => {\n  const trace = [];\n  const observe = (target, label) => new Proxy(target, {\n    getPrototypeOf(object) { trace.push(`${label}:prototype`); return Reflect.getPrototypeOf(object); },\n    ownKeys(object) { trace.push(`${label}:keys`); return Reflect.ownKeys(object); },\n    getOwnPropertyDescriptor(object, key) { trace.push(`${label}:descriptor:${String(key)}`); return Reflect.getOwnPropertyDescriptor(object, key); }\n  });\n  const target = { b: 2, a: observe({ z: 1, a: -0 }, \"child\") };\n  if (mode === \"accessor\") Object.defineProperty(target, \"b\", { enumerable: true, get() { trace.push(\"getter-called\"); return 2; } });\n  if (mode === \"hidden\") Object.defineProperty(target, \"hidden\", { value: 1 });\n  if (mode === \"symbol\") target[Symbol(\"hidden\")] = 1;\n  if (mode === \"prototype\") Object.setPrototypeOf(target, { custom: true });\n  return { value: observe(target, \"root\"), trace };\n};\nfor (const mode of [\"valid\", \"accessor\", \"hidden\", \"symbol\", \"prototype\"]) {\n  const before = observedCanonicalObject(mode);\n  const after = observedCanonicalObject(mode);\n  assert.equal(canonicalAfter.canonicalJsonText(after.value), canonicalBefore.canonicalJsonText(before.value));\n  assert.deepEqual(after.trace, before.trace);\n}\nsummary.comparisons.canonicalAccessOrder = 5;\n\nconst [esmBefore, esmAfter] = await loadPair(\"scripts/package/artifact/esm-module-specifiers.ts\");\nfor (const count of [0, 1, 2, 64, 512]) {\n  const source = [\"// preamble\", ...Array.from({ length: count }, (_, i) => `import { value as local${i} } from './m-${i}.js';`), \"const ordinary = './path.js';\", \"\"].join(\"\\n\");\n  assert.equal(esmAfter.rewriteRelativeEsmModuleExtensions({ fileName: \"fixture.mjs\", source }), esmBefore.rewriteRelativeEsmModuleExtensions({ fileName: \"fixture.mjs\", source }));\n}\nsummary.comparisons.esm = 5;\n\nconst [linksBefore, linksAfter] = await loadPair(\"scripts/validation/repository-material/links.ts\");\nconst linksRoot = join(out, \"workloads/links\");\nmkdirSync(join(linksRoot, \"docs\"), { recursive: true });\nfor (const count of [1, 64, 2048]) {\n  const source = Array.from({ length: count }, (_, i) => `${\"😀\".repeat(i % 3)}[external](https://example.invalid) [missing](missing-${i % 5}.md)`).join(\"\\n\");\n  writeFileSync(join(linksRoot, \"docs/source.md\"), `${source}\\n`);\n  const options = { repositoryRoot: linksRoot, markdownLinkRoots: [\"docs/source.md\"] };\n  assert.deepEqual(linksAfter.collectMarkdownLinkDiagnostics(options), linksBefore.collectMarkdownLinkDiagnostics(options));\n}\nsummary.comparisons.links = 3;\n\nconst [tarBefore, tarAfter] = await loadPair(\"scripts/package/artifact/packed-tar-audit.ts\");\nconst tarPath = join(out, \"workloads/materials.tar.gz\");\nconst packEntries = entries => {\n  const chunks = [];\n  for (const entry of entries) {\n    const content = Buffer.from(entry.content);\n    const header = Buffer.alloc(512);\n    header.write(entry.path);\n    header.write(content.length.toString(8).padStart(11, \"0\"), 124);\n    header[156] = entry.type ?? 48;\n    chunks.push(header, content, Buffer.alloc((512 - content.length % 512) % 512));\n  }\n  return gzipSync(Buffer.concat([...chunks, Buffer.alloc(1024)]));\n};\nconst document = { path: \"package/docs/document.md\", content: \"# Exact\\n\" };\nconst machine = { path: \"package/docs/data.json\", content: \"{}\\n\" };\nlet tarComparisons = 0;\nfor (const entries of [[document, machine], [machine], [document], [{ ...document, content: \"changed\" }, machine], [document, { ...document, content: \"duplicate\" }, machine], [document, machine, { path: \"package/unsupported\", content: \"\", type: 50 }]]) {\n  const archive = packEntries(entries);\n  writeFileSync(tarPath, archive);\n  const input = { artifactPath: tarPath, candidateVersion: \"0.0.0-candidate\", repositoryRoot: root, expectedFiles: [], expectedDocuments: [{ packagePath: \"docs/document.md\", content: document.content }], expectedMachineMaterials: [{ packagePath: \"docs/data.json\", content: Buffer.from(machine.content) }], expectedJSDocExamplePayloads: [], expectedReadme: \"\", expectedAttributionNotice: Buffer.alloc(0), expectedSha256: createHash(\"sha256\").update(archive).digest(\"hex\") };\n  assert.deepEqual(outcome(() => tarAfter.auditCandidateArtifact(input)), outcome(() => tarBefore.auditCandidateArtifact(input)));\n  tarComparisons += 1;\n}\nsummary.comparisons.tarMaterialRejectionPrecedence = tarComparisons;\n\nconst [simulationBefore, simulationAfter] = await loadPair(\"scripts/project/admission-workbench/simulate.ts\");\nconst { FIXTURES } = await import(pathToFileURL(join(root, \"scripts/project/admission-workbench/fixture-registry.ts\")).href);\nlet simulations = 0;\nfor (const fixture of Object.values(FIXTURES)) {\n  for (const seed of [0, 7, 19]) {\n    assert.deepEqual(simulationAfter.simulate(fixture, undefined, seed), simulationBefore.simulate(fixture, undefined, seed));\n    simulations += 1;\n  }\n}\nsummary.comparisons.simulation = simulations;\n\n// Explicit operation models, not runtime/GC/allocation or end-to-end timing claims.\nconst n = 4096;\nsummary.operations.registryFixedDepth = { targets: n, beforePathComparisons: n * (n - 1) / 2, afterSetMembershipUpperBound: 5 * n, note: \"fixed docs/group/file depth; string hashing/prefix bytes remain\" };\nsummary.operations.lanes = { files: n, beforeEqualityChecks: n * (n + 1), afterSetMembershipChecks: 2 * n, note: \"two successful includes scans versus two has scans; set construction separate\" };\nsummary.operations.observationHistory = { actions: n, beforeCopiedReferences: n * (n - 1) / 2, beforeWaitContributionsReduced: n * (n - 1) / 2, afterHistoryCopies: 0, afterContributionAdds: n, note: \"full final evidence and per-action context/state remain\" };\nconst source = Array.from({ length: 2048 }, (_, i) => `${\"😀\".repeat(i % 3)}[external](https://example.invalid) [missing](missing-${i % 5}.md)`).join(\"\\n\") + \"\\n\";\nconst offsets = [...source.matchAll(/\\[[^\\]]+\\]\\(([^)]+)\\)/g)].filter(match => !match[1].startsWith(\"http\")).map(match => match.index);\nsummary.operations.missingLinkLocation = { links: offsets.length, sourceUtf16Units: source.length, beforePrefixUnits: offsets.reduce((a, b) => a + b, 0), afterVisitedUtf16UpperBound: offsets.at(-1), note: \"only missing locations incur scanning; code-point cursor advances once in matchAll order\" };\nconst depth = 256;\nsummary.operations.canonicalDeepSingleton = { depth, serializedBytes: 2 * depth + 1, beforeSubtreeTextUnits: (depth + 1) ** 2, afterFinalTextUnits: 2 * depth + 1, note: \"nested arrays around 0, chunks join once; recursive stack/key checks remain\" };\nsummary.operations.tarMaterialLookup = { entries: 4096, materials: 512, beforePathComparisonsWorstCase: 4096 * 512, afterIndexVisits: 4096, afterLookups: 512, note: \"complete decompression/digest/inventory/legal audit unchanged\" };\nsummary.operations.topicCounts = { topics: 15, cases: 181, beforeTopicComparisons: 15 * 181, afterCountUpdates: 181, afterLookups: 15, note: \"catalog parsing, validation and full-tree closure unchanged\" };\nconst importCount = 512;\nconst esmSource = [\"// preamble\", ...Array.from({ length: importCount }, (_, i) => `import { value as local${i} } from './m-${i}.js';`), \"const ordinary = './path.js';\", \"\"].join(\"\\n\");\nsummary.operations.esmTextConstruction = { imports: importCount, sourceUnits: esmSource.length, beforeIntermediateTextUnits: importCount * esmSource.length + importCount * (importCount + 1) / 2, afterFinalTextUnits: esmSource.length + importCount, note: \"logical strings, not actual rope allocations; quoted token replacement grows by one unit\" };\nsummary.operations.jsdocSingleSource = { targets: 128, beforeSourceReads: 130, afterSourceReads: 1, note: \"discovery + per-target reads + final reconstruction read; per-target regex search remains\" };\nsummary.operations.backtickDelimiter = { longestRun: 128, beforeIncludesInvocations: 127, afterMatchAllInvocations: 1, note: \"delimiter lengths 3 through 129; this counts searches, not engine-internal character comparisons\" };\nwriteFileSync(join(out, \"equivalence-results.json\"), `${JSON.stringify(summary, null, 2)}\\n`);\nconsole.log(JSON.stringify(summary, null, 2));\n"
+    },
+    {
+      "historicalPath": "tmp/optimization-implementation-20261015/tooling/metric-repair-2-access-order.log",
+      "sourceBytes": 2926,
+      "sourceSHA256": "6a839c2b619c4f3280f5eb606e2611ddb17f7481a024ddb1d590a7c8ea85944d",
+      "representation": "parsed-json",
+      "data": {
+        "revision": "b2926b14880da7546f39aba7c0e07424f65f3977",
+        "runtime": "1.3.14",
+        "timing": "not measured; operation counts and exact output comparisons only",
+        "comparisons": {
+          "markdown": 392,
+          "jsdoc": 17,
+          "registry": 6,
+          "canonical": 256,
+          "canonicalAccessOrder": 5,
+          "esm": 5,
+          "links": 3,
+          "tarMaterialRejectionPrecedence": 6,
+          "simulation": 36
+        },
+        "operations": {
+          "registryFixedDepth": {
+            "targets": 4096,
+            "beforePathComparisons": 8386560,
+            "afterSetMembershipUpperBound": 20480,
+            "note": "fixed docs/group/file depth; string hashing/prefix bytes remain"
+          },
+          "lanes": {
+            "files": 4096,
+            "beforeEqualityChecks": 16781312,
+            "afterSetMembershipChecks": 8192,
+            "note": "two successful includes scans versus two has scans; set construction separate"
+          },
+          "observationHistory": {
+            "actions": 4096,
+            "beforeCopiedReferences": 8386560,
+            "beforeWaitContributionsReduced": 8386560,
+            "afterHistoryCopies": 0,
+            "afterContributionAdds": 4096,
+            "note": "full final evidence and per-action context/state remain"
+          },
+          "missingLinkLocation": {
+            "links": 2048,
+            "sourceUtf16Units": 126974,
+            "beforePrefixUnits": 130035028,
+            "afterVisitedUtf16UpperBound": 126950,
+            "note": "only missing locations incur scanning; code-point cursor advances once in matchAll order"
+          },
+          "canonicalDeepSingleton": {
+            "depth": 256,
+            "serializedBytes": 513,
+            "beforeSubtreeTextUnits": 66049,
+            "afterFinalTextUnits": 513,
+            "note": "nested arrays around 0, chunks join once; recursive stack/key checks remain"
+          },
+          "tarMaterialLookup": {
+            "entries": 4096,
+            "materials": 512,
+            "beforePathComparisonsWorstCase": 2097152,
+            "afterIndexVisits": 4096,
+            "afterLookups": 512,
+            "note": "complete decompression/digest/inventory/legal audit unchanged"
+          },
+          "topicCounts": {
+            "topics": 15,
+            "cases": 181,
+            "beforeTopicComparisons": 2715,
+            "afterCountUpdates": 181,
+            "afterLookups": 15,
+            "note": "catalog parsing, validation and full-tree closure unchanged"
+          },
+          "esmTextConstruction": {
+            "imports": 512,
+            "sourceUnits": 24398,
+            "beforeIntermediateTextUnits": 12623104,
+            "afterFinalTextUnits": 24910,
+            "note": "logical strings, not actual rope allocations; quoted token replacement grows by one unit"
+          },
+          "jsdocSingleSource": {
+            "targets": 128,
+            "beforeSourceReads": 130,
+            "afterSourceReads": 1,
+            "note": "discovery + per-target reads + final reconstruction read; per-target regex search remains"
+          },
+          "backtickDelimiter": {
+            "longestRun": 128,
+            "beforeIncludesInvocations": 127,
+            "afterMatchAllInvocations": 1,
+            "note": "delimiter lengths 3 through 129; this counts searches, not engine-internal character comparisons"
+          }
+        }
+      }
+    }
+  ]
+}

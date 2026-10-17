@@ -26,13 +26,11 @@
 | R16 | 部分实施：同 layout invocation 的 import/analyzer validators 共享只读 module-analysis facts；各 package-tools/Core closure invocation 使用 TypeScript resolution cache；public symbol identity 以 first-symbol Map 查找，保留 type/value 资格与旧 first-alias 行为。Core traversal AST 与独立 no-emit 仍分别执行；错误路径 syntax-diagnostic includes 未改，无实测收益证据支持额外 plumbing。 |
 | R17 | 已实施：独立 canonical validator 将 token chunks 最后 join 一次，不再逐父级物化 subtree text；prototype、own descriptor、symbol、sparse-array、cycle、finite-number、negative-zero、lexical key 和完整 fingerprint 语义保留。递归调用深度、排序和完整输出成本仍存在，不新增预算。 |
 
-## Reproducible operation evidence
+## Historical operation evidence
 
-临时证据唯一目录为 `tmp/optimization-implementation-20261015/tooling/`。运行：
+形成时临时证据目录为 `tmp/optimization-implementation-20261015/tooling/`；当时方法及结果已按下方交接位置保存：
 
-```sh
-mise exec -- bun run tmp/optimization-implementation-20261015/tooling/equivalence.mjs
-```
+当时执行的是专属临时 helper；现仅保留其方法与结果，不提供原目录上的重跑命令。
 
 helper 从冻结 HEAD 只读提取 baseline modules，并只重写真实 import/export specifier 到精确 baseline/现有依赖；不构建、不安装、不联网。它执行 392 Markdown、17 JSDoc、6 registry、256 canonical 深度、5 ESM、3 links、6 tar material 拒绝优先及 36 simulation fixture×seed 的完整值/错误消息 before/after 比较，全部相等。tar 差分只证明材料比对及原拒绝优先，不冒充完整成功产物审计。
 
@@ -73,13 +71,20 @@ helper 从冻结 HEAD 只读提取 baseline modules，并只重写真实 import/
 diff check 与完整 Test Evidence（732 entities / 181 Cases / 15 topics）通过。
 
 初始完整 Test Evidence 为 726 entities / 181 Cases / 15 topics；本 Change 未新增实体，组合后的增加来自其它切面。
-前两轮真实质量失败日志仍保留，最终新增 Finding 均消除。组合日志位于
+前两轮真实质量失败不计作通过，最终新增 Finding 均消除。形成时组合日志位于
 `tmp/optimization-implementation-20261015/{gate-quality-final.log,gate-required-verified.log,gate-all.log}`，
 同目录 `integration.md` 路由完整验收及计时边界。以上只证明当时输入，后续改动须重新选择相应验证；
 Product API 计时不证明工具链或 Gate 耗时改善。
 
 ### 辅助材料与后续使用
 
-`tmp/optimization-implementation-20261015/tooling/` 保留 baseline snapshots、workloads、helper、JSON 和命令日志，
-供当前审计使用；它不是正式 Investigation、长期性能 baseline 或新 Gate。本 Change 保持 Plan，
+原 `tmp/optimization-implementation-20261015/tooling/` 曾保留 baseline snapshots、workloads、helper、JSON 和命令日志；
+现由上述正式验收材料承接方法与关键结果，不再依赖该目录；它不是正式 Investigation、长期性能 baseline 或新 Gate。本 Change 保持 Plan，
 提交、发布和 finalize/delete 分别依当前任务授权，临时材料清理另按精确范围授权处理。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

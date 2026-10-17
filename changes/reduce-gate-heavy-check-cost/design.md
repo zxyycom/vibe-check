@@ -92,3 +92,10 @@ baseline 与 after 分阶段顺序执行，使用同一 Product 源码与冻结�
 
 lint/typecheck/format、完整文档与材料验证、726 entities / 181 Cases / 15 topics 闭合、Decision、Investigation 及两个 Change 检查均通过。
 两个 Plan 保留已完成任务和本轮证据，尚未执行需要单独删除授权的 finalize。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

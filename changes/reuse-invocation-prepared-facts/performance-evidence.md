@@ -8,7 +8,7 @@
 ## Frozen comparison
 
 - 环境：项目 pinned Node 24.18.0 / Bun 1.3.14，Linux x64。运行命令经 `mise exec -- bun`。
-- 同份当前完整 `src` 构造 candidate/baseline；baseline 仅恢复本切面 15 个修改文件并去除两个新增文件，其它改动（包括同期 exact-key、Markdown、Duplicate）一致。源清单和差分保留在 workspace `tmp/optimization-wave-20261013/prepared-facts/`。
+- 同份当时完整 `src` 构造 candidate/baseline；baseline 仅恢复本切面 15 个修改文件并去除两个新增文件，其它改动（包括同期 exact-key、Markdown、Duplicate）一致。源清单和差分当时位于 workspace `tmp/optimization-wave-20261013/prepared-facts/`；现有证据入口见本页末尾的历史交接。
 - Baseline source manifest SHA-256：`b040a9527e2cdb64bf74774a5f1b4580cb9e3784d3ca03c4153e6f6dd4df424b`；candidate：`bc999eb08dd3a9bfb237f03ed64ba61057c7faf378616b4741870a4960662708`。
 - 差分 manifest：`5d48d00322781e7a6ca1bfd7c6f2e40f0c13a45c5159578aa618059382ff15dc`；本切面工作区 owner freeze：`31697195a483948a09f235649316d39fceee7a0bd0a02232e773c3b42a18c9c3`。
 - 这些是本切面冻结时的实现，不把之后串行集成的 Scheduler 需求声明当作本轮性能来源。
@@ -29,11 +29,7 @@ static 与 public custom/prepared（选择首个可准入 candidate）分别测�
 root 独占正式采样窗口：2026-10-13 05:02:17–05:09:03 UTC，记录窗口 406 秒（6 分 46 秒），exit=0；仅执行一轮，raw 以 noclobber 创建。
 前后全部冻结 source hash 与六项 harness hash 完全一致。root 独立重新核对 batch/sample 数量、版本、hash 和 paired statistics。
 
-复现（先选择新的明确 raw 目标，现有 raw 不覆盖）：
-
-```bash
-bash tmp/optimization-wave-20261013/prepared-facts/sample.sh
-```
+当时执行的是专属临时 helper，以 noclobber 保护已有 raw；现仅保留其方法与结果，不提供原目录上的重跑命令。
 
 ## Direct operation and semantic evidence
 
@@ -91,3 +87,10 @@ p95 为每侧 20 样本 nearest-rank observation，不是预算、置信区间�
 - `operation-counts.ndjson`：`a1a89da25d3597394598b439796fe6f0da408d4ed515d44588ef7e8e2455b09b`；`identity-probe.ndjson`：`cdfc0d5b11f33c9cfad13362a64b1372b541faa9b314d12f36a660a58c8fdeda`。
 - 切面冻结时 pinned Definition+Run：197 pass；product/scripts typecheck、product lint、局部 diff check 通过。独立 reviewer 29 frozen tests pass、无阻断；当时 Case check 706/176/15 通过，并更新三个内部 owner。
 - 上轮串行集成后的组合 Gate、dependency 和安装包验收已通过；完整记录见[任务交付证据](tasks.md#delivery-evidence)。本次文档与等价代码整理后的验证由主线程另行记录；上述切面计时不证明整理后源码重新测量。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

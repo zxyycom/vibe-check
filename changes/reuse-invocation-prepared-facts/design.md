@@ -54,3 +54,10 @@ pre-Git planning、strategy prepare、resolved execution 与 Scheduler 分别准
 - Manual CR: source 镜像的五个 private 函数入口计数（不新增 Product test seam）对 N=8/128/512、static/custom 证明 parse/resolve/materialize/plan/prepare 从 2/2/1/4/4 降为 1/1/0/1/1。独立完整 Run identity probe 从三个 false 变为三个 true。
 - 正式测量在 root 独占窗口 05:02:17–05:09:03 UTC（406秒）成功执行唯一一轮：96 batches、480 timed/288 warmups，hash前后匹配。root独立复核通过；paired收益分cell，128custom-disabled与512custom-diagnostics只有两胜两负/噪声，不证明显著加速，部分p95更差保留。完整协议、raw/hash、取舍与边界见 [本轮性能证据](performance-evidence.md)。
 - 共享接线已冻结交给 Scheduler 需求 Change 串行集成；本切面计时使用冻结镜像排除后续变化。组合 Gate 43/43 通过，含实际安装包验收；各次日志、告警与未覆盖边界见 [任务交付证据](tasks.md#delivery-evidence)。Plan 保留，Change 结项另行授权；提交状态以实际 Git 结果为准。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

@@ -15,7 +15,9 @@ Change-local acceptance evidence, not a permanent benchmark API or an Investigat
 - Every Run checks completed kind, execution count and terminal callback count; execution/raw callbacks check requested admitted facts. Analysis also validates recorded terminal/diagnostic statuses, sample counts, N/P and ordering. All checks passed. Source types/unit tests separately prove readonly/subset/runtime contracts; timing does not replace those tests.
 - Root checked before/candidate full-source manifests and owner/harness identities before/after sampling; candidate full-source manifest covers 736 files. A public type-only reviewer correction preceded the final freeze, and its previous manifest is retained. Instrumented source copies are not timing candidates.
 
-Hashes and scripts are retained in `/workspace/vibe-check/tmp/optimization-wave-20261013/scheduler-needs-bench/`: raw `timing.ndjson`, `root-measurement.log`, `candidate-source-sha256.txt`, `frozen-owner-hashes.json`, `sample.sh`, `workload.ts`, `measure.ts`; replay analysis uses `mise exec -- bun tmp/optimization-wave-20261013/scheduler-needs-bench/analyze.ts` and writes `analysis.json`. This replay performs no new sampling.
+The complete original timing batches, recorded analyses, owner identities and protocol text are now in
+[historical acceptance evidence](evidence/historical-acceptance.json), alongside the separate final freeze.
+Paths below identify the former workspace only. No temporary directory or replay command remains an execution prerequisite.
 
 Raw SHA256: `3b5610f41f87f7ed9f9933b2c3d4195420f7cb514914c1f0f9f81c5c6892d04c`; candidate full manifest: `501c174c45912e1f2a7c7ad638bd8158032b8b2132ce37c9042c687e5f351f5b`; owner manifest: `5ec5c3f9d55acb3c9bbdedecdf2186b187ddb99a3cad7ab5fa3aef4d7306cfd8`; protocol: `bc55e4915d4f16e17f15ed3cf3b05773a14d06cf42a6410ae631af74024237f4`. Before full manifest `/workspace/vibe-check/tmp/optimization-wave-20261013/scheduler-needs-before/source-sha256.txt`: `0706198bd6aed744b8055870c4bd76a6cbb8c4b6fa5252bc59fd6183727dba1d`. Host inspected immediately after timing: Linux 6.18.33.2-microsoft-standard-WSL2, AMD Ryzen AI 7 H 450; no memory/power/host-load profile was captured.
 
@@ -69,3 +71,10 @@ This compares changing callback demand, not a semantics-identical implementation
 The observed N128 static and legacy non-diagnostic improvements support the thin-query/lazy-observation slice. The larger same-candidate gains for declared candidates/runtime and none/execution support real work avoidance rather than merely hiding fields. Raw terminal cannot omit raw collection and shows **+2.44%, +1.118 ms**, with mixed paired direction; no raw-adoption speedup is claimed. N8 legacy terminal none shows **+3.98%, +0.101 ms**, and small cells are noisy. Diagnostics N128 is effectively unchanged within observed dispersion (+0.23%, +0.298 ms); no diagnostics speedup is claimed.
 
 Adoption is justified by the bounded small-input cost and demonstrated scale/work savings, while preserving legacy/full and complete diagnostics costs. It does not require every case to improve and adds no empirical size-routing threshold. Remaining uncertainty: only two sizes, one independent shape, synchronous tasks, one runtime/environment and two cycles; realistic I/O, deep dependencies/scopes, resource contention, memory and other hardware were not measured. No fleet-wide, worst-case, asymptotic or universal latency claim follows. Gate/installed-package acceptance and Decision alignment remain separate root-owned validation boundaries.
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。

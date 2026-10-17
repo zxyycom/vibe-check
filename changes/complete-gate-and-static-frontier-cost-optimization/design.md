@@ -52,3 +52,10 @@ group revision 标识 head/layer 的当前 entry，防止被更高优先级暂�
 最新实现完整 Gate 为 43/43，artifact 与 external consumer 绑定同一候选包，2504 项源清单前后匹配。
 原始记录在 `.log/project-gate/2026-10-14T09-53-08.975Z-2918519-e1ac405d-d2d3-47a3-a592-22485eb6667f/`；
 该次 wall 35.88 秒只是观察值，mean 2194.9 ms / P95 4781.0 ms 按原预算记录，不作为整体因果加速结论。
+
+## Historical evidence handoff
+
+2026-10-17 补存：[本切面历史验收材料](evidence/historical-acceptance.json)承接仍需复核的样本、方法、身份与边界。
+本页其余 `tmp/`、旧 `.log/` 路径仅标注形成时现场，不再承诺保留、读取或执行；历史 source digest 不等于
+可重建当时全部未提交源码。源码镜像、fixture、生成 IO、完整 profile 与一次性工具退出，未重新采样或运行 Gate。
+这些材料只解释本 Change 的形成时验收，不是永久 benchmark 或可重跑 SDK。
