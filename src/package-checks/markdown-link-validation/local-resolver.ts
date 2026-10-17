@@ -7,7 +7,7 @@ import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 /** Link-private, per-invocation state for source reads and direct local targets. */
 export async function createMarkdownLocalResolver(
   projectRoot: string,
-  maxTargetReads: number,
+  maxTargetReads: number | false,
   cache: ResolvedMarkdownLinkValidationOptions["cache"],
   signal: AbortSignal
 ): Promise<MarkdownLocalResolverCreation> {

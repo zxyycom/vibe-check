@@ -294,7 +294,8 @@ const definition: ProjectDefinition = defineConfig({
     isolatedSecondaryFileMetrics,
     isolatedFunctionMetrics,
     markdownLinkValidation({
-      cache: { enabled: true, directory: "/tmp/isolated-markdown-link-parse-cache" }
+      cache: { enabled: true, directory: "/tmp/isolated-markdown-link-parse-cache" },
+      limits: { maxOccurrences: false, maxTargetReads: false }
     }),
     secretCheck,
     directCheck,

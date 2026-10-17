@@ -469,3 +469,16 @@ Entities:
 
 - None, individual and combined declarations receive only their frozen own data fields; unrequested project/dependency/artifact producers and Record reporter wrappers are not created. Empty execution remains subject to cancellation settlement.
 - Preparation and execution receive their own selected fields while sharing the same Run cancellation signal and lazy frozen project projection.
+
+## Case AUX-MARKDOWN-GRAPH-EXECUTION-001: 图式执行保留预算与协作取消的完整发布
+
+Owner: `docs/checks/markdown-link-validation.md#工作原理`
+Entities:
+
+- `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > prechecks the entire logical-node batch before extra target reads and honors staged failure order`
+- `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > completes more than the old target maximum with disabled or explicit larger totals`
+- `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > yields edge batches to timer and I/O cancellation without publishing normal Records`
+  Proves:
+- 全部源错误先于目标内容错误；节点全部逻辑边的预算超限先于额外内容读取和解码，不能先读首条边再逐边耗尽。不可用不发布部分普通 Records。
+- 10,001 条计费引用在 false 和显式更大正整数预算下完整成功，计数不因节点命中缩小；显式有限 10,000 预算仍阻断。
+- 边批次向真实事件循环让步，可观察 timer 与 I/O 触发的取消；取消结算无普通 Records 或 final data，不解释为 clean validation。

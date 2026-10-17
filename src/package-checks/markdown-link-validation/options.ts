@@ -20,8 +20,10 @@ type MarkdownLinkValidationCacheOptions =
 /** 可省略的 Markdown validation work limits。 */
 export interface MarkdownLinkValidationLimitOptions {
   readonly maxMarkdownBytes?: number;
-  readonly maxOccurrences?: number;
-  readonly maxTargetReads?: number;
+  /** 全部引用数预算；false 关闭，省略为 10,000，数字须为正安全整数。 */
+  readonly maxOccurrences?: number | false;
+  /** 逻辑目标引用预算（含节点复用）；false 关闭，省略为 1,000。 */
+  readonly maxTargetReads?: number | false;
 }
 
 /** `markdownLinkValidation(options?)` 接受的可省略 authoring policy。 */
@@ -64,7 +66,7 @@ export interface ResolvedMarkdownLinkValidationOptions {
   readonly cache: MarkdownLinkValidationCacheOptions;
   readonly limits: Readonly<{
     readonly maxMarkdownBytes: number;
-    readonly maxOccurrences: number;
-    readonly maxTargetReads: number;
+    readonly maxOccurrences: number | false;
+    readonly maxTargetReads: number | false;
   }>;
 }

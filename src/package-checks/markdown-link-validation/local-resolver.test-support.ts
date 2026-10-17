@@ -8,7 +8,7 @@ import type { MarkdownLinkSource, MarkdownLocalResolutionRequest } from "./local
 
 export async function createdResolver(
   root: string,
-  maxTargetReads: number,
+  maxTargetReads: number | false,
   cache: Parameters<typeof createMarkdownLocalResolver>[2] = Object.freeze({ enabled: false }),
   signal: AbortSignal = new AbortController().signal
 ) {

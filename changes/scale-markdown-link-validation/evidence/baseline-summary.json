@@ -1,0 +1,299 @@
+[
+  {
+    "input": [
+      "hot",
+      1000,
+      3,
+      "off"
+    ],
+    "samples": 5,
+    "medianMs": 519.697634,
+    "madMs": 7.722313999999983
+  },
+  {
+    "input": [
+      "hot",
+      1000,
+      3,
+      "empty"
+    ],
+    "samples": 5,
+    "medianMs": 552.82768,
+    "madMs": 29.144773999999984
+  },
+  {
+    "input": [
+      "hot",
+      1000,
+      3,
+      "hit"
+    ],
+    "samples": 5,
+    "medianMs": 393.1287450000001,
+    "madMs": 7.0041270000000395
+  },
+  {
+    "input": [
+      "hot",
+      1000,
+      32,
+      "off"
+    ],
+    "samples": 5,
+    "medianMs": 3204.12452,
+    "madMs": 44.109803000000284
+  },
+  {
+    "input": [
+      "hot",
+      1000,
+      32,
+      "empty"
+    ],
+    "samples": 5,
+    "medianMs": 3210.595329,
+    "madMs": 86.49666200000001
+  },
+  {
+    "input": [
+      "hot",
+      1000,
+      32,
+      "hit"
+    ],
+    "samples": 5,
+    "medianMs": 2991.041133,
+    "madMs": 10.746828999999707
+  },
+  {
+    "input": [
+      "hot",
+      8000,
+      3,
+      "off"
+    ],
+    "samples": 5,
+    "medianMs": 3604.18206,
+    "madMs": 22.396110000000135
+  },
+  {
+    "input": [
+      "hot",
+      8000,
+      3,
+      "empty"
+    ],
+    "samples": 5,
+    "medianMs": 3653.726651,
+    "madMs": 18.672101999999995
+  },
+  {
+    "input": [
+      "hot",
+      8000,
+      3,
+      "hit"
+    ],
+    "samples": 5,
+    "medianMs": 2985.8215880000002,
+    "madMs": 5.577851999999439
+  },
+  {
+    "input": [
+      "hot",
+      8000,
+      32,
+      "off"
+    ],
+    "samples": 5,
+    "medianMs": 24418.002869,
+    "madMs": 79.26320200000191
+  },
+  {
+    "input": [
+      "hot",
+      8000,
+      32,
+      "empty"
+    ],
+    "samples": 3,
+    "medianMs": 25074.589949,
+    "madMs": 85.51243300000351
+  },
+  {
+    "input": [
+      "hot",
+      8000,
+      32,
+      "hit"
+    ],
+    "samples": 1,
+    "medianMs": 23864.257079000003,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      1000,
+      3,
+      "off"
+    ],
+    "samples": 1,
+    "medianMs": 1733.2523420000002,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      1000,
+      3,
+      "empty"
+    ],
+    "samples": 1,
+    "medianMs": 1143.924533,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      1000,
+      3,
+      "hit"
+    ],
+    "samples": 1,
+    "medianMs": 1027.020134,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      1000,
+      32,
+      "off"
+    ],
+    "samples": 1,
+    "medianMs": 4146.707314,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      1000,
+      32,
+      "empty"
+    ],
+    "samples": 1,
+    "medianMs": 3913.72367,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      1000,
+      32,
+      "hit"
+    ],
+    "samples": 1,
+    "medianMs": 5588.185077,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      8000,
+      3,
+      "off"
+    ],
+    "samples": 1,
+    "medianMs": 10527.963735,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      8000,
+      3,
+      "empty"
+    ],
+    "samples": 1,
+    "medianMs": 12040.830322,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      8000,
+      3,
+      "hit"
+    ],
+    "samples": 1,
+    "medianMs": 11179.847754,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      8000,
+      32,
+      "off"
+    ],
+    "samples": 1,
+    "medianMs": 33468.642955999996,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      8000,
+      32,
+      "empty"
+    ],
+    "samples": 1,
+    "medianMs": 35661.853449999995,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "unique",
+      8000,
+      32,
+      "hit"
+    ],
+    "samples": 1,
+    "medianMs": 30972.037562999998,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "real",
+      0,
+      0,
+      "off"
+    ],
+    "samples": 1,
+    "medianMs": 4320.337100000001,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "real",
+      0,
+      0,
+      "empty"
+    ],
+    "samples": 1,
+    "medianMs": 3780.10732,
+    "madMs": 0.0
+  },
+  {
+    "input": [
+      "real",
+      0,
+      0,
+      "hit"
+    ],
+    "samples": 1,
+    "medianMs": 1238.805375,
+    "madMs": 0.0
+  }
+]

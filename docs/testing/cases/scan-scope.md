@@ -210,12 +210,12 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/local-resolver.endpoints.test.ts|Markdown local resolver > resolves direct local files, directories, and same or cross-document anchors`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > gates lexical and symlink escapes before external work and accepts only strict file URIs`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > allows explicit validate mode and enforces the per-invocation direct target limit`
-- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > memoizes successful canonical Markdown targets without changing logical target limits`
-- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > does not retain an unavailable Markdown target parse for a later occurrence`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > fixes successful logical-node observations without changing target limits`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > stops target observation at the first unavailable node`
   Proves:
 - Link reads only a contained source and then evaluates its direct file, directory, and anchor endpoint without recursively discovering target links.
 - Root-external lexical paths, escaping symlinks, and accepted host-native `file:///` targets honor `ignore`, `report`, and explicit bounded `validate`; unsupported remote/path forms and malformed local components do not become external work.
-- Same-document anchor facts do not consume target work. A per-invocation memo can reuse only a successful canonical cross-document Markdown target snapshot, while every occurrence still independently consumes target work and limit exhaustion remains a controlled failure; unavailable targets are not retained.
+- Same-document anchor facts do not consume target work. A per-invocation logical-node observation retains the first successful cross-document snapshot even after replacement, while every occurrence still independently consumes target work and limit exhaustion remains a controlled failure; an unavailable node stops later target observation.
 
 ## Case ADD-SECRET-DETECTION-SCOPE-001: Secret detection retains only exact bounded text coverage
 
@@ -315,3 +315,16 @@ Entities:
   Proves:
 - 两个操作与 options/report 类型从 approved public root 发布，安装后严格类型验收验证必填 root、readonly 结果/元数据/区域和 closed region authoring。
 - 同一安装包的受管示例实际收集全域零/单/重叠、token 双向查询和 unknown path，按需返回文本，不要求 Check 或 Run；指南和 JSDoc 投影一致。
+
+## Case AUX-MARKDOWN-GRAPH-OBSERVATION-001: 引用图固定独立路径与授权域的节点观察
+
+Owner: `docs/development/markdown-link-resolution.md#单次引用图与观察`
+Entities:
+
+- `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > reuses selected source facts through cycles and keeps every duplicate finding in source order`
+- `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > fixes missing and directory observations while observing logical aliases independently`
+- `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > keeps authorization domains distinct and projects mixed symlink policies independently`
+  Proves:
+- 源互引与循环复用已加载源事实，删除源文件后不重读其目标角色；重复无效引用仍保留各自稳定 ID、范围和源顺序。
+- 本轮缺失、成功标题与目录 entry 观察固定，后续创建/替换只在新 invocation 可见；别名不按 realpath 合并。
+- root-contained 与显式 absolute validate 分域；同一 escaping symlink 的 report/ignore 不计费也不泄露目标，只有 validate 引用消费授权后的观察。

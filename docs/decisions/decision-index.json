@@ -364,15 +364,17 @@
       "261011-align-nullish-coalescing-with-short-circuit-function-metrics": "sha256:cf106af43518a331361eda94c81f038d4e85e910c4443c8973a3d863ee2ec5a7",
       "261012-bound-unclosable-tokenizer-tail-cost": "sha256:7c0d37be8708827791a0b3728bcd290dd8236d3a79102e94391f64ace81f2da6",
       "261013-declare-scheduler-context-demand": "sha256:07da48d56d2909ead77c9d6d96ec7db15139061de11d34f26763fce248a12e5d",
-      "261013-warn-on-explicit-markdown-parse-cache-capacity": "sha256:303c4f09a20e15afc78151fcd2ec13c3e78cab9b885919f9e88e4bd8834dca8c",
+      "261013-warn-on-explicit-markdown-parse-cache-capacity": "sha256:c1b22580768d79ba53de98fb05beb0435b8df041189ae7591f9b7272cc0e647c",
       "261013-weigh-performance-costs-against-scaling-benefits": "sha256:f683acd59be9bff15ce789368bcf39f642945069f7d29267ce03ef5ba612dfbb",
-      "261014-enable-gate-markdown-parse-cache": "sha256:1f0c17ff2154da5835fe0354a47afbc4255d41f3081f211e60313b89f39b4da9",
+      "261014-enable-gate-markdown-parse-cache": "sha256:6e52602a17fee79fa6e43d383a2dc0cca33a01a9db3f57659e15cbe10e418aa2",
       "261015-reject-duplicate-executable-checks-before-expansion": "sha256:e6807bcb9bb4844d40cefa144b182ddd61944c2454cc8866c4b4419649995916",
       "261015-use-native-json-with-private-duplicate-scan": "sha256:fa125c180ddb9105e5f9c5bfeb38bf7100fd26e0a2c814afb92ea69a71ea8f8e",
       "261016-declare-exact-callback-contexts": "sha256:9c6f9de9c155a49cc92813791e2b9663a52672c8d53d9c98f96c207edf91b990",
       "261016-deliver-summary-through-exact-terminal-views": "sha256:e8622178a792f8ecc17b9b03a207efe9dc26a5d691a1241e3428525f4b475434",
       "261016-preserve-terminal-effects-with-grouped-measurements": "sha256:10a981906c448061f2eff146c4d77ba192ffb737d35ec59bfe5304b9ca17dc1f",
-      "261016-separate-post-action-observation-demands": "sha256:fca9f294283ee764e3e81973ca443516a2db4badc6570754236988dc0abb7498"
+      "261016-separate-post-action-observation-demands": "sha256:fca9f294283ee764e3e81973ca443516a2db4badc6570754236988dc0abb7498",
+      "261017-observe-markdown-reference-graph": "sha256:9b36861435c3b4d7093f084afcd9329a576e11a590db6af0cf065724975d3854",
+      "261017-validate-complete-gate-markdown-graph": "sha256:6e052716c66ef6375f850f6b1af78e786d599eeaf9c8d400e62631b77e604262"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7544,9 +7546,9 @@
     },
     "261013-warn-on-explicit-markdown-parse-cache-capacity": {
       "name": "warn-on-explicit-markdown-parse-cache-capacity",
-      "sourcePath": "warn-on-explicit-markdown-parse-cache-capacity.md",
+      "sourcePath": "archive/warn-on-explicit-markdown-parse-cache-capacity.md",
       "title": "为显式 Markdown parse cache 增加非阻断容量提醒",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-13T09:02:06Z",
       "purpose": "让调用方发现过大的 Markdown parse cache 并自行清理，保留显式性能状态边界。",
@@ -7583,9 +7585,9 @@
     },
     "261014-enable-gate-markdown-parse-cache": {
       "name": "enable-gate-markdown-parse-cache",
-      "sourcePath": "enable-gate-markdown-parse-cache.md",
+      "sourcePath": "archive/enable-gate-markdown-parse-cache.md",
       "title": "为 Project Gate 启用本地 Markdown 解析缓存",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-14T08:24:24Z",
       "purpose": "减少完整文档验收的重复解析，同时保留当前输入与目标验证。",
@@ -7724,6 +7726,49 @@
           "type": "修订",
           "target": "260902-observe-post-action-policy-measurement",
           "summary": "拆分公共观察字段，保留后状态区间与固定前缀"
+        }
+      ]
+    },
+    "261017-observe-markdown-reference-graph": {
+      "name": "observe-markdown-reference-graph",
+      "sourcePath": "observe-markdown-reference-graph.md",
+      "title": "按引用图观察 Markdown 节点并保留显式解析缓存",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-17T09:42:24Z",
+      "purpose": "降低重复引用的节点工作量，保持独立链接判断与缓存安全边界。",
+      "background": "逐引用授权和目标探测放大热点路径成本，成功标题 memo 无法复用缺失及源节点事实。",
+      "decision": "采用单次私有引用图与固定节点观察，保留 exact-bytes 显式缓存和容量提醒。",
+      "tags": [
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261013-warn-on-explicit-markdown-parse-cache-capacity"
+        }
+      ]
+    },
+    "261017-validate-complete-gate-markdown-graph": {
+      "name": "validate-complete-gate-markdown-graph",
+      "sourcePath": "validate-complete-gate-markdown-graph.md",
+      "title": "以完整引用图验收 Gate 文档并关闭总量预算",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-17T09:42:28Z",
+      "purpose": "让仓库完整文档验收随引用增长继续执行而不缩小范围。",
+      "background": "固定目标总量预算已成为完整文档增长的限制，图式复用降低重复引用成本。",
+      "decision": "Gate 保留显式解析缓存、完整范围与阻断策略，关闭两项总量预算。",
+      "tags": [
+        "configuration",
+        "performance",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261014-enable-gate-markdown-parse-cache"
         }
       ]
     }

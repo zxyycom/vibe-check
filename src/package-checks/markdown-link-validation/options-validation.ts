@@ -59,7 +59,7 @@ function validMarkdownLinkLimits(value: unknown): boolean {
   return (
     limits !== undefined &&
     boundedPositiveSafeInteger(limits.maxMarkdownBytes, 16_777_216) &&
-    boundedPositiveSafeInteger(limits.maxOccurrences, 100_000) &&
-    boundedPositiveSafeInteger(limits.maxTargetReads, 10_000)
+    (limits.maxOccurrences === false || isPositiveSafeInteger(limits.maxOccurrences)) &&
+    (limits.maxTargetReads === false || isPositiveSafeInteger(limits.maxTargetReads))
   );
 }

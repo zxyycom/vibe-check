@@ -8,9 +8,11 @@
   [内部 owner](../../docs/development/markdown-link-resolution.md)实现逐引用授权、探测及成功标题事实复用。
 - `options-resolution.ts` 的默认值为单文件 `1_048_576` bytes、`10_000` occurrences、`1_000` target reads。
   `final-data.ts` 已按安全整数及计数关系校验，没有固定的万级结果上限。
-- [缓存 Decision](../../docs/decisions/warn-on-explicit-markdown-parse-cache-capacity.md)和
-  [Gate cache Decision](../../docs/decisions/enable-gate-markdown-parse-cache.md)仍是当前有效判断；
-  它们仍约束当前实现。任务 1.2 在修改产品前演进逐引用探测、canonical target memo 与预算方向，
+- [缓存 Decision](../../docs/decisions/archive/warn-on-explicit-markdown-parse-cache-capacity.md)和
+  [Gate cache Decision](../../docs/decisions/archive/enable-gate-markdown-parse-cache.md)是修改前的已采用判断；
+  任务 1.2 已通过 CLI 将两者修订为 active/unaligned 后继
+  [图观察与缓存](../../docs/decisions/observe-markdown-reference-graph.md)及
+  [完整 Gate](../../docs/decisions/validate-complete-gate-markdown-graph.md)，在修改产品前演进逐引用探测、canonical target memo 与预算方向，
   保留显式 parse-facts cache 的配置、内容身份、容量提醒与 best-effort publication 承诺。
 
 ## Goals / Non-Goals
@@ -121,3 +123,15 @@ occurrence 预算在登记边时检查；target 预算仍按逻辑 occurrence �
 ## Open Questions
 
 无。公共契约与执行选择已固定；模块命名、私有 helper 拆分和测量器实现由实施任务在这些约束内完成。
+
+## Implementation Observations
+
+- 1.1 的冻结前置采样使用每组 warmup + 至少一条独立 Node before 样本；早期已完成组保留额外样本。
+  这组只证明改动前可运行输入与基线，不用于加速结论。1.7 仍按上述完整协议交替执行 5 对 before/after。
+- 真实 fixture 由 Product-owned helper 冻结 Gate 的完整正/负选择及 direct targets；不复制整个工作树或 Git metadata，
+  不递归解析目标链接。先前范围过宽的探索系列单列 superseded，排除于正式对照。
+
+- 最终配对开始后，先串行完整 Gate preflight 排除未被 type/lint 覆盖的验收边界；实际 41/43 passed，
+  新图的集中 source traversal / target resolution 触发既有 blocking function/file metrics。原不完整 after 系列
+  单列排除；按 source traversal、reference graph 与 target observation 的领域职责拆分后重新冻结与完整配对，
+  不压缩范围、语法或文档，不改变任何已有质量/性能阈值。

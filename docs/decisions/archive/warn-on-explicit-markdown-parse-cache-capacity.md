@@ -1,7 +1,7 @@
 ---
 title: 为显式 Markdown parse cache 增加非阻断容量提醒
 id: 261013-warn-on-explicit-markdown-parse-cache-capacity
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-13T09:02:06Z
 purpose: 让调用方发现过大的 Markdown parse cache 并自行清理，保留显式性能状态边界。
@@ -26,7 +26,7 @@ relations:
 - 前序采用封闭配置 `{ enabled: true, directory }`，并把目录容量与删除交给调用方。增加 `warnAboveBytes` 和容量 message 是对该采用边界的真实修订。
 - 持久材料是单一 append-only `markdown-link-parse-facts-v1.jsonl`，增长对象是文件 bytes。首次需要 parse facts 时已有整文件读取，利用已读 bytes 可以提供默认、可配置的提醒，无需新增 I/O 或容量管理机制。
 - 默认 16 MiB 是保守维护提醒，不是测得的性能安全线、配额或输入上限。提醒用于帮助调用方自行决定清理时点，不承担自动清理或存储重构。
-- persistent + memo 的采用依据来自可复现的 synthetic corpus；用户报告的上千文件私有 workload 不能复现。历史组合实现含现已移除的 8 路 source read-ahead，严格串行实现的临时复测未通过原 cold `<=5%` gate。因此二者均不能证明本次提醒或当前 runtime 通过性能验收；原始样本、环境和门槛见[历史性能调查](../investigations/measure-markdown-link-serial-cache-overhead.md)。
+- persistent + memo 的采用依据来自可复现的 synthetic corpus；用户报告的上千文件私有 workload 不能复现。历史组合实现含现已移除的 8 路 source read-ahead，严格串行实现的临时复测未通过原 cold `<=5%` gate。因此二者均不能证明本次提醒或当前 runtime 通过性能验收；原始样本、环境和门槛见[历史性能调查](../../investigations/measure-markdown-link-serial-cache-overhead.md)。
 - Markdown resolver 每次重新完成 local destination、containment、endpoint 与 anchor semantics；公开 `targetReadCount` 统计 logical endpoint occurrence，而非 physical read。source-derived raw destination、heading slug 和 ranges 可能落盘；cache 只提供性能复用，不提供机密性或防篡改保护。
 
 ## 决策

@@ -1,6 +1,6 @@
 # Markdown Link 解析与目标授权
 
-本文拥有 `src/package-checks/markdown-link-validation/**` 中 source parse facts、direct-target 授权与 parse-facts cache 的内部不变量。修改 resolver、parser adapter 或 storage lifecycle 时使用；公开配置、occurrence 和安全承诺由[Markdown Link Check 指南](../checks/markdown-link-validation.md)定义。共享 source 收集和 exact membership 见[Project files](project-files.md)。
+本文拥有 `src/package-checks/markdown-link-validation/**` 中引用图、source parse facts、direct-target 授权与 parse-facts cache 的内部不变量。修改执行阶段、resolver、parser adapter 或 storage lifecycle 时使用；公开配置、occurrence 和安全承诺由[Markdown Link Check 指南](../checks/markdown-link-validation.md)定义。共享 source 收集和 exact membership 见[Project files](project-files.md)。
 
 ## Markdown Link source occurrences
 
@@ -22,6 +22,27 @@ Set 直接索引 parser 已生成的 slug，保留 GitHub slugger 的重复 head
 这些 immutable facts 可由本 Check 的[parse-facts cache](#markdown-link-parse-facts-cache)复用；
 cache 的恢复、当前 bytes 校验与 terminal publication 仍由同一 Link-private owner 承接。
 
+## 单次引用图与观察
+
+`resolver-engine.ts` 拥有一次 invocation 的图会话、逻辑计费与观察调度；`reference-graph.ts` 承接节点身份、目的地分类和逐边判断，
+`target-observation.ts` 承接授权与按需 I/O。这个私有有向多重图不进入 Core、公共模型或持久图。
+节点身份绑定 canonical root 基准的归一化逻辑绝对路径与 contained / explicit-external 授权域；
+不以 realpath、存在性或 inode 合并别名。节点可同时拥有 source facts 和 target observation，重复边与循环保留。
+
+`source-traversal.ts` 先串行读取全部 sources 并登记 occurrence 与位置；正文与 AST 随解析释放，不全量保留。
+resolver 再独立分类每条目的地，聚合节点存在性、类型、标题及目录单 entry 需求；远程及 external ignore/report
+不创建目标 I/O。目标按首次引用顺序观察，最后按原 source / occurrence 顺序结算每条边。
+`execution.ts` 在完整结算后发布普通 Records。
+同域已加载源 facts 直接提供文件/标题观察，不重读也不重复 containment；target-only facts 不扩展 source 集合。
+
+完整成功或缺失的首次观察固定；后续创建、替换及目录变化留待下次 invocation。不同逻辑别名和授权域仍独立观察。
+失败立即 unavailable，不发布部分普通 Records 或 final data。每边独立 Finding / 位置和 logical targetReadCount 不因复用改变；
+必要授权分类后、额外正文/目录 I/O 前，节点全部计费边整批预检预算，source facts 命中也计费。
+两项总量预算 `number | false` 及阶段化首错的完整用户契约见[公开指南](../checks/markdown-link-validation.md#工作原理)。
+
+阶段边界、每 source / target 节点及每 256 边由私有 `setImmediate` Promise 交还真实事件循环，前后检查取消；
+不能以 `Promise.resolve` 代替。节点 I/O 串行，单次同步 parse 不可抢占，正常 Records 完整发布区间不让步。
+
 ## Markdown Link direct targets
 
 Markdown Link Check 只能对 source occurrence 的 direct local target 做 bounded work。lexically 位于 project root 内的
@@ -37,7 +58,7 @@ lexically root-in candidate 只能使用 component containment probe。若某个
 
 component probe 以 segment cursor 消费当前路径；普通目录推进复用同一 segments 数组，symlink hop 则将
 link destination 与尚未消费的后缀重组，并从 root 重置 cursor。每个 component 的状态检查、symlink hop 上限
-与越界判定仍逐次在授权边界执行；数组复用不缓存 filesystem 状态或减少安全探测。
+与越界判定仍逐次在授权边界执行；数组复用不跨不同逻辑节点缓存 filesystem 状态；同节点固定观察由上文图 owner 承接。
 
 containment guarantee 依据操作期间观察到的 host filesystem state 判断。Node path/filesystem API 不提供 portable dirfd/openat
 traversal，因此 component probe 成功后的 hostile concurrent replacement 不在本 Check 的 authorization proof 范围内。
@@ -70,7 +91,7 @@ session 只保存 message，由 resolver 交给 execution，再通过 `appendChe
 
 每次 lookup 前仍按当前授权读取 source/target exact bytes 并验证 UTF-8。identity 绑定 source bytes 的 SHA-256，
 payload 验证绑定 parser contract 与版本；命中只复用 Link-private occurrences、headings 和 decoded ranges。
-input discovery、target authorization/probe、Finding/Record 与 settlement 每次重新执行。
+input discovery、图节点授权/观察、Finding/Record 与 settlement 每次 invocation 重新执行；同 invocation 的源事实和节点观察按上文复用。
 
 fresh parse 成功后将 facts 放入 dirty Map；terminal boundary 调用幂等 `finalize`，至多一次 awaited append 发布
 完整 dirty block。开始 publication 前和 mkdir 后都检查 cancellation；append 一旦开始就等待完成，不启动后台写入。

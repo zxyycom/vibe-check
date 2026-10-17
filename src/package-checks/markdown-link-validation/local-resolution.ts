@@ -34,6 +34,11 @@ interface MarkdownLinkSource {
 interface MarkdownLocalResolver {
   readSource(rootRelativePath: string, maxMarkdownBytes: number): Promise<MarkdownSourceReadResult>;
   resolve(request: MarkdownLocalResolutionRequest): Promise<MarkdownLocalResolution>;
+  resolveAll(
+    requests: readonly MarkdownLocalResolutionRequest[]
+  ): Promise<
+    readonly MarkdownLocalResolution[] | Extract<MarkdownLocalResolution, { kind: "unavailable" }>
+  >;
   finalize(): Promise<void>;
   readonly targetReadCount: number;
   readonly cacheMessages: readonly CheckMessage[];
@@ -293,7 +298,9 @@ export function finding(
   return Object.freeze({ kind: "finding" as const, reason, target });
 }
 
-export function unavailable(reason: MarkdownLocalResolutionReason): MarkdownLocalResolution {
+export function unavailable(
+  reason: MarkdownLocalResolutionReason
+): Extract<MarkdownLocalResolution, { kind: "unavailable" }> {
   return Object.freeze({ kind: "unavailable" as const, reason });
 }
 

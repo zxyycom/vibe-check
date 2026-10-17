@@ -1,7 +1,7 @@
 ---
 title: 为 Project Gate 启用本地 Markdown 解析缓存
 id: 261014-enable-gate-markdown-parse-cache
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-14T08:24:24Z
 purpose: 减少完整文档验收的重复解析，同时保留当前输入与目标验证。

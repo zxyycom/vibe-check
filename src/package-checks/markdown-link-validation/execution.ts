@@ -9,17 +9,19 @@ import { appendCheckMessages } from "../../package-tools/finding-presentation/fi
 import { createMarkdownLocalResolver, type MarkdownLocalResolver } from "./local-resolver.ts";
 import type { MarkdownLinkValidationFinalData } from "./final-data.ts";
 import { markdownFindingMessages } from "./finding-messages.ts";
-import {
-  buildMarkdownInputRejectedRecord,
-  buildMarkdownLinkRecordCandidate,
-  type MarkdownLinkRecordCandidate
-} from "./records.ts";
+import { buildMarkdownInputRejectedRecord } from "./records.ts";
 import { settledMarkdownTraversalResult } from "./traversal-result.ts";
 import {
   markdownLinkUnavailableMessage,
   type MarkdownLinkValidationUnavailableReason
 } from "./unavailable-reasons.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
+
+import {
+  traverseMarkdownSources,
+  type MarkdownLinkTraversal,
+  type MarkdownLinkValidationUnavailable
+} from "./source-traversal.ts";
 
 export type { MarkdownLinkValidationUnavailableReason } from "./unavailable-reasons.ts";
 
@@ -28,40 +30,12 @@ export const MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION = {
   displayName: "Markdown link validation"
 } as const;
 
-interface MarkdownLinkValidationRun {
-  readonly options: ResolvedMarkdownLinkValidationOptions;
-  readonly resolver: MarkdownLocalResolver;
-  readonly signal: AbortSignal;
-}
-
-type MarkdownLinkValidationUnavailable = Readonly<{
-  readonly kind: "unavailable";
-  readonly reason: MarkdownLinkValidationUnavailableReason;
-}>;
-
 type MarkdownSourceDiscovery =
   | Readonly<{
       readonly kind: "complete";
       readonly rejectedPaths: readonly string[];
       readonly selectedPathCount: number;
       readonly sourcePaths: readonly string[];
-    }>
-  | MarkdownLinkValidationUnavailable;
-
-type MarkdownSourceValidation =
-  | Readonly<{
-      readonly kind: "complete";
-      readonly candidates: readonly MarkdownLinkRecordCandidate[];
-      readonly occurrenceCount: number;
-    }>
-  | MarkdownLinkValidationUnavailable;
-
-type MarkdownLinkTraversal =
-  | Readonly<{
-      readonly kind: "complete";
-      readonly candidates: readonly MarkdownLinkRecordCandidate[];
-      readonly occurrenceCount: number;
-      readonly sourceFileCount: number;
     }>
   | MarkdownLinkValidationUnavailable;
 
@@ -232,79 +206,6 @@ function unavailableValidation(
   reason: MarkdownLinkValidationUnavailableReason
 ): MarkdownLinkValidationUnavailable {
   return Object.freeze({ kind: "unavailable", reason });
-}
-
-async function traverseMarkdownSources(
-  sourcePaths: readonly string[],
-  run: MarkdownLinkValidationRun
-): Promise<MarkdownLinkTraversal> {
-  const candidates: MarkdownLinkRecordCandidate[] = [];
-  let occurrenceCount = 0;
-  let sourceFileCount = 0;
-
-  // The Run's shared Scheduler owns cross-Check concurrency; this Check processes sources strictly in order.
-  for (const sourcePath of sourcePaths) {
-    const sourceValidation = await validateMarkdownSource(sourcePath, occurrenceCount, run);
-    if (sourceValidation.kind === "unavailable") return sourceValidation;
-
-    candidates.push(...sourceValidation.candidates);
-    occurrenceCount = sourceValidation.occurrenceCount;
-    sourceFileCount += 1;
-  }
-
-  return Object.freeze({
-    kind: "complete" as const,
-    candidates: Object.freeze(candidates),
-    occurrenceCount,
-    sourceFileCount
-  });
-}
-
-async function validateMarkdownSource(
-  sourcePath: string,
-  occurrenceCountBeforeSource: number,
-  run: MarkdownLinkValidationRun
-): Promise<MarkdownSourceValidation> {
-  if (run.signal.aborted) return unavailableValidation("cancelled");
-  const sourceRead = await run.resolver.readSource(sourcePath, run.options.limits.maxMarkdownBytes);
-  if (run.signal.aborted) return unavailableValidation("cancelled");
-  if (!sourceRead.ok) return unavailableValidation(sourceRead.reason);
-
-  const candidates: MarkdownLinkRecordCandidate[] = [];
-  let occurrenceCount = occurrenceCountBeforeSource;
-  for (const [occurrenceIndex, occurrence] of sourceRead.source.facts.occurrences.entries()) {
-    if (run.signal.aborted) return unavailableValidation("cancelled");
-    occurrenceCount += 1;
-    if (occurrenceCount > run.options.limits.maxOccurrences) {
-      return unavailableValidation("occurrence-limit-exceeded");
-    }
-
-    const resolution = await run.resolver.resolve({
-      source: sourceRead.source,
-      rawDestination: occurrence.rawDestination,
-      rootExternalTargetMode: run.options.rootExternalTargetMode,
-      requireExistingTargets: run.options.requireExistingTargets,
-      requireNonEmptyDirectories: run.options.requireNonEmptyDirectories,
-      validateSameDocumentAnchors: run.options.validateSameDocumentAnchors,
-      validateCrossDocumentAnchors: run.options.validateCrossDocumentAnchors,
-      maxMarkdownBytes: run.options.limits.maxMarkdownBytes
-    });
-    if (run.signal.aborted) return unavailableValidation("cancelled");
-    if (resolution.kind === "unavailable") return unavailableValidation(resolution.reason);
-    const candidate = buildMarkdownLinkRecordCandidate(
-      sourceRead.source.path,
-      occurrenceIndex,
-      occurrence,
-      resolution
-    );
-    if (candidate !== undefined) candidates.push(candidate);
-  }
-
-  return Object.freeze({
-    kind: "complete" as const,
-    candidates: Object.freeze(candidates),
-    occurrenceCount
-  });
 }
 
 function isMarkdownSourcePath(filePath: string): boolean {

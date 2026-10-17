@@ -171,7 +171,7 @@ describe("Markdown local resolver", () => {
     });
   });
 
-  it("memoizes successful canonical Markdown targets without changing logical target limits", async () => {
+  it("fixes successful logical-node observations without changing target limits", async () => {
     await withFixture(async ({ root, outside }) => {
       await writeFixtureFile(root, "docs/source.md", "# Source\n");
       await writeFixtureFile(root, "docs/target.md", "# One\n# Two\n");
@@ -204,32 +204,43 @@ describe("Markdown local resolver", () => {
       await writeFixtureFile(outside, "outside.md", "# Two\n");
       await rm(path.join(root, "docs/target.md"));
       await symlink(path.join(outside, "outside.md"), path.join(root, "docs/target.md"));
-      assert.deepEqual(await nextResolver.resolve(requestFor(nextSource, "target.md#one")), {
+      assert.deepEqual(
+        await nextResolver.resolve(requestFor(nextSource, "target.md#one")),
+        validTarget("project-file", "docs/target.md", "one")
+      );
+      assert.equal(nextResolver.targetReadCount, 2);
+      const replaced = await createdResolver(root, 1);
+      const replacedSource = await readSource(replaced, "docs/source.md");
+      assert.deepEqual(await replaced.resolve(requestFor(replacedSource, "target.md#one")), {
         kind: "finding",
         reason: "target-outside-project-root",
         target: { kind: "outside-project-root" }
       });
-      assert.equal(nextResolver.targetReadCount, 1);
     });
   });
 
-  it("does not retain an unavailable Markdown target parse for a later occurrence", async () => {
+  it("stops target observation at the first unavailable node", async () => {
     await withFixture(async ({ root }) => {
       await writeFixtureFile(root, "docs/source.md", "# Source\n");
       await writeFixtureFile(root, "docs/target.md", "# This heading is too large\n");
+      await writeFixtureFile(root, "docs/later.md", "# Later\n");
       const resolver = await createdResolver(root, 2);
       const source = await readSource(resolver, "docs/source.md");
-
       assert.deepEqual(
-        await resolver.resolve(requestFor(source, "target.md#found", { maxMarkdownBytes: 10 })),
+        await resolver.resolveAll([
+          requestFor(source, "target.md#found", { maxMarkdownBytes: 10 }),
+          requestFor(source, "later.md#later", { maxMarkdownBytes: 10 })
+        ]),
         { kind: "unavailable", reason: "target-unavailable" }
       );
+      assert.equal(resolver.targetReadCount, 1);
       await writeFixtureFile(root, "docs/target.md", "# Found\n");
+      const next = await createdResolver(root, 2);
+      const nextSource = await readSource(next, "docs/source.md");
       assert.deepEqual(
-        await resolver.resolve(requestFor(source, "target.md#found", { maxMarkdownBytes: 10 })),
+        await next.resolve(requestFor(nextSource, "target.md#found", { maxMarkdownBytes: 10 })),
         validTarget("project-file", "docs/target.md", "found")
       );
-      assert.equal(resolver.targetReadCount, 2);
     });
   });
 });

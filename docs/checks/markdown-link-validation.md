@@ -89,8 +89,9 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 - `cache` 默认 `{ enabled: false }`，不访问 cache filesystem，且不能带 `directory` 或 `warnAboveBytes`。启用 branch 为
   `{ enabled: true, directory, warnAboveBytes? }`；配置、容量提醒与安全边界见 [Parse-facts cache](#parse-facts-cache)。
 - `limits` 限制单文档 bytes、全部 semantic occurrences 与 direct target reads；constructor 会补齐该 branch 中省略的
-  fields。`maxMarkdownBytes` 不得超过 `16_777_216`，`maxOccurrences` 不得超过 `100_000`，
-  `maxTargetReads` 不得超过 `10_000`。
+  fields。`maxMarkdownBytes` 保持正整数且不得超过 `16_777_216`。`maxOccurrences`、`maxTargetReads` 接受正安全整数或
+  `false`，没有固定配置最大值；`false` 关闭对应总量预算，省略仍使用上述默认值。`true`、`null`、零、负数、
+  非整数、非有限数和不安全整数均非法。关闭总量预算意味着调用方承担更大的总体资源消耗，不是进程资源隔离。
 
 ### 定制 authoring options
 
@@ -107,6 +108,17 @@ const documentationLinks = markdownLinkValidation({
   rootExternalTargetMode: "ignore"
 });
 ```
+
+若要完整检查持续增长的文档，可显式关闭两项总量预算，保留默认单文件字节边界与其它配置：
+
+```ts
+const completeDocumentationLinks = markdownLinkValidation({
+  findingPolicy: "blocking",
+  limits: { maxOccurrences: false, maxTargetReads: false }
+});
+```
+
+只关闭其中一项时，另一项仍使用其默认预算；`false` 与省略字段的含义不同。
 
 ### Parse-facts cache
 
@@ -145,10 +157,39 @@ publication 开始前取消不会启动写入；append 开始后会等待完成�
 Check 先验证 options，按本页 suffix 规则完整分类 selected paths，为 rejected paths 发布 Records，再解析 accepted sources。
 对 file、directory 与 GitHub-priority heading anchor 按 policy 做 bounded validation；每个普通链接 Finding 另发 Record。
 
-一次 invocation 内，同一 canonical Markdown target 的成功 parsed headings 可以被多个 cross-document anchor occurrence
-复用。它只复用首次成功 snapshot：target 随后变化时，本次 invocation 继续使用该 snapshot；target failure 不被 memoize。每个
-occurrence 仍独立完成 destination classification、containment 与 endpoint probe，并且在 memo lookup 前消耗一个
-`maxTargetReads` 额度。因此 `targetReadCount` 和 limit 仍是 logical occurrence 计数，不是 physical file-read 计数。
+### 执行阶段与节点观察
+
+一次 invocation 建立私有引用图，依次完成：
+
+1. 完整读取全部所选 Markdown，解析并累计 occurrences。
+2. 独立分类每条目的地，建立引用边并聚合目标需求。
+3. 按首次引用顺序取得各目标节点所需事实。
+4. 按 source / occurrence 顺序逐边判断，完成末次取消检查后发布普通链接 Records 与 final data。
+
+源与目标角色可重叠，同一授权域内已加载的源事实无需再次作为目标读取；纯目标的链接不扩展 source selection。
+节点身份由归一化逻辑路径和授权域组成，不同逻辑别名各自观察；显式 absolute / root-external validate 与 root-contained 分域。
+
+同一节点首次取得的事实固定，包括缺失和目录单 entry 结果；本次后续替换或创建不会重查，下次 invocation 才观察新状态。
+这不是全文件系统原子快照。每条引用仍保留独立位置、Finding 和计数，不因共享节点而合并错误。
+
+### 预算计费与失败顺序
+
+`targetReadCount` 与 `maxTargetReads` 仍按进入 direct endpoint validation 的 logical occurrence 计费，包含节点事实复用，
+不等于 physical read 或 syscall 数量；同文档、远程、外部 ignore/report 不计 target work。
+必要授权分类/containment probe 后、读取额外正文或目录 entry 前，节点全部计费边整批预检；超限不读取该节点额外内容，
+也不继续后续节点。occurrence 预算在源阶段登记引用时检查。
+
+多故障首错顺序固定为 options / root / 输入分类 → 全部源读取及 occurrence 预算 → 目的地分类与建图 →
+按首次引用顺序的目标观察及节点批次预算 → 逐边结算。取消在每个检查点优先；因此较晚源错误可能先于较早引用的目标错误，
+节点批次预算也可能先于该节点的内容错误。授权、读取、解码或解析失败立即 unavailable，不形成部分正常结果。
+
+### 协作取消与完整发布
+
+阶段边界、每个源/目标节点完成后、每 256 条边处理后，以真实事件循环让步检查 timer / I/O 触发的协作取消。
+节点 I/O 串行；同步单文档解析仍受单文件 bytes 边界保护，不提供抢占式实时取消保证。
+普通链接 Records 的完整发布区间不插入让步；最后取消检查完成前，不发布部分普通链接 Records 或 final data。
+
+### 识别的引用
 
 受支持 occurrence 包含 inline link/image、已定义的 full/collapsed/shortcut reference、explicit autolink 和选定的 GFM
 autolink literal。YAML front matter、code/fenced code、HTML attribute、普通 prose URL 与 undefined reference 不进入本
@@ -171,7 +212,7 @@ Check 的 occurrence 集合。HTTP(S)、`mailto:` 与其它非本地 target 只�
 ```
 
 `occurrenceCount` 包含所有 parser-semantic occurrences，包括没有进入 local target validation 的项；
-`targetReadCount` 统计进入 direct endpoint validation 的 logical occurrence（包括 target-memo hit）；`findingCount -
+`targetReadCount` 统计进入 direct endpoint validation 的 logical occurrence（包括节点事实复用）；`findingCount -
 rejectedInputCount` 是 normal link finding 数量并且不超过 `occurrenceCount`。每个 normal link finding 恰好形成一条 Record，data
 恰为：
 

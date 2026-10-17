@@ -101,6 +101,44 @@ describe("default Check direct callbacks", () => {
       () => Reflect.apply(markdownLinkValidation, undefined, [{ unknown: true }]),
       /documented closed policy/
     );
+    for (const field of ["maxOccurrences", "maxTargetReads"] as const) {
+      for (const value of [false, 100_001, Number.MAX_SAFE_INTEGER]) {
+        const configured = markdownLinkValidation({ limits: { [field]: value } });
+        assert.equal(configured.options.limits[field], value);
+        assert.equal(Object.isFrozen(configured.options.limits), true);
+      }
+      for (const value of [
+        true,
+        null,
+        0,
+        -1,
+        1.5,
+        NaN,
+        Infinity,
+        Number.MAX_SAFE_INTEGER + 1,
+        "false",
+        {},
+        []
+      ]) {
+        assert.throws(
+          () => Reflect.apply(markdownLinkValidation, undefined, [{ limits: { [field]: value } }]),
+          /documented closed policy/
+        );
+        assert.equal(
+          (
+            await prepareCheckOptions(
+              defaultCheck.prepare!,
+              {
+                ...MARKDOWN_LINK_OPTIONS,
+                limits: { ...MARKDOWN_LINK_OPTIONS.limits, [field]: value }
+              },
+              new AbortController().signal
+            )
+          ).status,
+          "failure"
+        );
+      }
+    }
     assert.equal(defaultCheck.parseData, parseMarkdownLinkValidationData);
     assert.deepEqual(
       defaultCheck.parseData({
@@ -143,7 +181,7 @@ describe("default Check direct callbacks", () => {
       { ...MARKDOWN_LINK_OPTIONS, limits: { maxMarkdownBytes: 1_048_576, maxOccurrences: 10_000 } },
       {
         ...MARKDOWN_LINK_OPTIONS,
-        limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxTargetReads: 10_001 }
+        limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxTargetReads: true }
       },
       {
         ...MARKDOWN_LINK_OPTIONS,

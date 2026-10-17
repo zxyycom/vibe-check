@@ -1,0 +1,180 @@
+{
+  "command": "mise exec -- bun run check -- --all",
+  "logDirectory": "/workspace/vibe-check/.log/project-gate/2026-10-17T09-58-19.907Z-136455-432c462b-0dd3-4ff7-847a-8e5d8e559304",
+  "runSha256": "6c6e341bcc5883098961fc8f26c5b546a82ca1d4106bc2e312429ee2812d9e57",
+  "recordsSha256": "2d5c9a8fa8cbe65158d53028483c8c21087f7ac22c0004d5421af04b1d1021f3",
+  "checks": [
+    {
+      "checkId": "decision-records",
+      "status": "passed"
+    },
+    {
+      "checkId": "duplicate-detection",
+      "status": "passed"
+    },
+    {
+      "checkId": "file-metrics",
+      "status": "passed"
+    },
+    {
+      "checkId": "format-check",
+      "status": "passed"
+    },
+    {
+      "checkId": "function-metrics",
+      "status": "passed"
+    },
+    {
+      "checkId": "git-diff-whitespace",
+      "status": "passed"
+    },
+    {
+      "checkId": "lint-product",
+      "status": "passed"
+    },
+    {
+      "checkId": "lint-scripts",
+      "status": "passed"
+    },
+    {
+      "checkId": "markdown-link-validation",
+      "status": "passed"
+    },
+    {
+      "checkId": "markdown-lint",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-examples-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-json-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-links-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-schema-publication-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-schema-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "prepared-external-package-consumer",
+      "status": "passed"
+    },
+    {
+      "checkId": "prepared-package-candidate",
+      "status": "passed"
+    },
+    {
+      "checkId": "test-evidence",
+      "status": "passed"
+    },
+    {
+      "checkId": "test-evidence-rule-tests",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-artifact",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-consumer-docs",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-consumer-runtime",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-consumer-types",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-supporting",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-duplicate-detection",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-file-metrics",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-function-metrics",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-json",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-markdown-links",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-runtime",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-secret-detection",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-supporting-checks",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-admission-workbench",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-layout",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-machine-artifacts",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-package-tools-boundary",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-project",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-project-selection",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-test-evidence",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-tooling",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-validation",
+      "status": "passed"
+    },
+    {
+      "checkId": "typecheck-product",
+      "status": "passed"
+    },
+    {
+      "checkId": "typecheck-scripts",
+      "status": "passed"
+    }
+  ]
+}
