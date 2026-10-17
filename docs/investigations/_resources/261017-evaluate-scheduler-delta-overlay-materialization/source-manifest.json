@@ -1,0 +1,261 @@
+{
+  "formedAt": "2026-10-17T02:31:12.990Z",
+  "replacements": [
+    "selection-index.ts",
+    "selection-seed.ts",
+    "ready-frontier.ts",
+    "static-frontier.ts"
+  ],
+  "transformation": "Only runtime immutable imports in listed four files rebound to overlay.ts; all other source bytes unchanged. Type-only uses erased by same bundler.",
+  "inputs": [
+    [
+      "src/data-boundary/closed-values.ts",
+      "262c56c2cf62d46fd4c627a8346e1f8457667789f9021b1c25e60b8c3696f2ff"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/capacity-query.ts",
+      "b22d8d28977c89b677eb8973d72cb4d610a27d9a442e870fce44736e77023891"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/compiled-graph-lookup.ts",
+      "bfa987a2c6f636c3fb00dbe77b7d061301da19b2df1268ee3e988ca3a0fd984f"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/compiled-graph.ts",
+      "271d979155945c3d62f471c64400226d904537498f0b0c903b89e8b0efe7bd40"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/constraint-groups.ts",
+      "467e01d920c8f88d8195861551eddf29a4b268f6c6ee75ca7233ed1f84611022"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/core.ts",
+      "2b9c6a385a07864e046e9bc06944dd395c9f2181607f94e3c08e14bbf2272391"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/input.ts",
+      "3e54c8cd85a5ee63ed0e46ab4291743022a5f20efcfed4a6da634a9fc7bec7f1"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/membership-index.ts",
+      "e7136cc680840df36f8cafa2a7d9d7d0678adccfd03d8bac477a1c46c5092fde"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/persistent-task-queue.ts",
+      "a781937eb3d704c5fb3b4947b4e81b27cb1b78ecd5b1e1115b261a0965d3db06"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/projection.ts",
+      "401808af8dc80ab2c37c64e9868bdfa5a363a8616d25c7957be21ae278e25de3"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/ready-frontier.ts",
+      "628b9878d36a4d689dfe856a306162420bfd5b5b7889fdf313ea152b53144821"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/selection-frontiers.ts",
+      "9a2fd7fd6b2c03a9ae9d0dbe1c0b50dcf7359ac42e25873207dfc3ad126e218f"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/selection-index.ts",
+      "3ec2337e87c3ec935a17e229afb978744f17ddc4dc622ed4544337ca98aa4c60"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/selection-query.ts",
+      "310a0a956b10dd5c26445fe6baac21b3d56116391ccae9920a2de44f72063c39"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/selection-seed.ts",
+      "a06486eda55b056f5f589e670da2c69158888ce7aacc676bbc66348689e4297b"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/selection-transition.ts",
+      "4f8c6ef89e22b7278c0207d6a7f424bad98a744e83560fbc136829512453adb4"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/selection.ts",
+      "7d20783198a10b4be401e16a7aee6a3cefd90165a1201e3db16bedfbdbc03090"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/state-delta.ts",
+      "916ae3633aa0fe3194a94aeee44271ea6ddf90a373787199a025cdbd8ecc816f"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/state-query.ts",
+      "1fcb2a27ae2c94a538e76d523bcc7ae9d52b745a444b44dbccf8f82127673124"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/static-frontier.ts",
+      "f46ac8c60bbedb5eb0aad26821654bf3b86c8d6989144679cdcfa63d108cac10"
+    ],
+    [
+      "src/project-run/task-scheduler/admission-core/static-selection-query.ts",
+      "4945605b56690190f1b5b55505aa3a542ab343322e1ae96cf60ebb484da7ea19"
+    ],
+    [
+      "src/project-run/task-scheduler/graph-validation.ts",
+      "84eacd8c62274bb696c648d853c3b5e6858465ca92e885198080e2b94381064f"
+    ],
+    [
+      "src/project-run/task-scheduler/graph.ts",
+      "11aee67d5271437bf5db3a93f9837ca893b2062a14f51596a3815d7a3fef1cef"
+    ]
+  ],
+  "sourceRevision": "313c3830aa3af33c76131614776134f6a9dc60a9",
+  "sourceTreeDigest": "c15611bd51afcdb393155c6a25ecc9d56f2c132d1766322494e9a61d74919629",
+  "sourceTreeFileCount": 780,
+  "sourceTreeAlgorithm": "git show 14a64e5e:changes/restructure-scheduler-incremental-state/evidence/source-identity.mjs; all src files, sorted directory recursion, SHA256(path + NUL + sha256(bytes) + LF)",
+  "runtime": {
+    "node": "24.18.0",
+    "bun": "1.3.14"
+  },
+  "host": "Linux WSL2 6.18.33.2 x86_64; AMD Ryzen AI 7 H 450 w/ Radeon 860M; 6 logical vCPUs",
+  "bundles": [
+    {
+      "path": "baseline.mjs",
+      "sha256": "957033448b6bf018e272d50bfcd943a3b1efb49ef58d1eb0bf05079c02a2e960"
+    },
+    {
+      "path": "overlay.mjs",
+      "sha256": "7edd85cc2c7db5af325f6ab272d1e138ae68dc9e7e11e89f091c70b22c3ed311"
+    }
+  ],
+  "workloadHelperSha256": "c5849a30bde883ccfb3d6a4155aa6b34687372d83160978e9fe79d5ece92159a",
+  "bundling": "no mutable source copy; no src symlink; bundles exclude test/test-support; packages external immutable and mnemonist from same installed node_modules",
+  "sourceTreeDigestAfter": "c15611bd51afcdb393155c6a25ecc9d56f2c132d1766322494e9a61d74919629",
+  "identityCheckedAt": "2026-10-17T02:42:05+00:00",
+  "dependencies": {
+    "immutable": {
+      "version": "5.1.9",
+      "packageJsonSha256": "662ad133db0b86e4a4f780f01dcd04d850e6ca54780f96b37b518316fc682abf"
+    },
+    "mnemonist": {
+      "version": "0.40.4",
+      "packageJsonSha256": "abd58afefa689157babbdf6fb5cdcbede196230d5515caaf3adbe56e15196559"
+    }
+  },
+  "artifacts": [
+    {
+      "path": "README.md",
+      "bytes": 12579,
+      "sha256": "fa67bb56a340951fd664c082d19e9135e0aa1d65c8f196737928f5bda89c58c0"
+    },
+    {
+      "path": "adapter-oracle.ts",
+      "bytes": 1424,
+      "sha256": "875284e5837031d5cd14c0bffd90b827617aa1b247adda7a9dd8191128e75c80"
+    },
+    {
+      "path": "allocation-node-trees.json",
+      "bytes": 564257,
+      "sha256": "90b4079ad00259cc86c335948cae1a1571f77e4b49626932f587c136b9a1cd1a"
+    },
+    {
+      "path": "build.ts",
+      "bytes": 1737,
+      "sha256": "9967eb170d85abc8a4cf549f77569b072e992ab5c6db7595e81877d1ee9c7e06"
+    },
+    {
+      "path": "concurrent-oracle.mjs",
+      "bytes": 4082,
+      "sha256": "bb93b454221972693b8744372a76337cfb7365e941d2893ad703b171460de292"
+    },
+    {
+      "path": "driver.mjs",
+      "bytes": 7815,
+      "sha256": "e8754991d4a6db1a5a140fd51d17cc4a91d0f1bfed453ef56dde185568f14388"
+    },
+    {
+      "path": "memory-bun.json",
+      "bytes": 5544,
+      "sha256": "e527f63e60488ea167b243f15b16638fd797a5d525cacef9f5c5774bc70a28a0"
+    },
+    {
+      "path": "memory-driver.mjs",
+      "bytes": 3297,
+      "sha256": "c1be7ec42921c00e17ad88af576693cb57466f8c3be5345a8ff292c0189972fe"
+    },
+    {
+      "path": "memory-isolated-bun.json",
+      "bytes": 400529,
+      "sha256": "ef0b542aabeb5947f2293b8337b604798f3b2a276b7687f56240391bc4023f10"
+    },
+    {
+      "path": "memory-isolated-node.json",
+      "bytes": 5546,
+      "sha256": "f92c6f5bc233e3f336a3dc3474931fd2b5bac56fc1d6afcda8487af13ec36d42"
+    },
+    {
+      "path": "memory-isolated-worker.mjs",
+      "bytes": 3409,
+      "sha256": "5d397e62657f5a5e0d2b2f7ce9d272a6b54bbced4ab020d1123f9acb46617bd0"
+    },
+    {
+      "path": "memory-isolated.mjs",
+      "bytes": 974,
+      "sha256": "1c1e25ffc6c5775debf8cc9f102f6a63396b4bd19265d55edfe4c6308925e7ae"
+    },
+    {
+      "path": "memory-node.json",
+      "bytes": 5215,
+      "sha256": "30ebb2ad7442047e0541afe94c136ac6fd0911ebc6c1b56e8a402664359aa575"
+    },
+    {
+      "path": "metrics-node.json",
+      "bytes": 61451,
+      "sha256": "8d5386396e23c388c09c96216740ff1ea442e46c8aa370949ace6392970ee6cf"
+    },
+    {
+      "path": "oracle-results.txt",
+      "bytes": 1186,
+      "sha256": "213444f0d3f5b8255195a2d497563d1c7f0440eee9873ffbe7a378ec98c5165d"
+    },
+    {
+      "path": "overlay.ts",
+      "bytes": 3328,
+      "sha256": "3f0a94299827b34a42a5e640f833a32175a9bf7fe420b8535f6fa824dda9e3f6"
+    },
+    {
+      "path": "timing-bun.json",
+      "bytes": 41299,
+      "sha256": "32f2559a72760b124775f1b9a69bef4e2cde906bb13d65601d7d0436be23fac0"
+    },
+    {
+      "path": "timing-node.json",
+      "bytes": 41832,
+      "sha256": "f6a1fc4430028d1353431fac63df0bd16b1b48249e48b0a2485ff8779ff74785"
+    },
+    {
+      "path": "timing-v2-bun.json",
+      "bytes": 17254,
+      "sha256": "fd3c576ff6268fbe5f1cad23ce3c50c60b0f80f27bb575e6267f385b18759f8d"
+    },
+    {
+      "path": "timing-v2-node.json",
+      "bytes": 16778,
+      "sha256": "c352fc4d4501ece01b472051a47cca7ee31fa01ddc1b5da9b46a6010648e1f6a"
+    },
+    {
+      "path": "timing-v2.mjs",
+      "bytes": 4820,
+      "sha256": "151ed6ca7933749208bcafc4da9997d3a9b1ff32a0a01ca25fc6236f0171af1c"
+    }
+  ],
+  "timingV1DriverSha256": "e8754991d4a6db1a5a140fd51d17cc4a91d0f1bfed453ef56dde185568f14388",
+  "timingV2GcDifference": "v2 Bun.gc(true) explicit; v1 global.gc?.() only; do not merge sample populations",
+  "measurements": "separate serialized exclusive windows: correctness/build; fixed-order v1 timing; concurrent+adapter correctness then balanced v2 timing; metrics; unprofiled memory; allocation profile; fresh-process memory correction",
+  "temporaryArtifacts": "tmp/scheduler-delta-overlay-investigation holds regenerable bundles/entry/raw initial build manifest. No Product modification, symlink or source copy. No background process remains.",
+  "resourceReduction": {
+    "sourceFile": "tmp/scheduler-delta-overlay-investigation/allocation-node.json",
+    "sourceBytes": 4748942,
+    "sourceSha256": "04e81760712c0b6b00dd704301bb60de9a5877d5b325fb8f403f6712c2f3cf08",
+    "method": "Remove only profile.samples arrays; retain complete profile.head call trees, spec/variant/memory/versions and per-row original sample count+size sum."
+  },
+  "resourceFormatting": [
+    {
+      "path": "oracle-results.txt",
+      "sourceSha256": "e11f7d6552e424c5a77b8a4cb3727d960524de0ac9153927548ab755f9e5fb4b",
+      "method": "Normalize trailing blank lines to one LF; all result lines unchanged; original bytes retained in tmp/scheduler-delta-overlay-investigation/oracle-results.txt."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+## oracle-node.txt
+{"status":"PASS","boundaries":5352,"retainedSnapshotsQueried":2508,"thresholds":[1,8,32],"shapes":["wide","groups","deep","fanout","occupied","scopes"],"forks":8,"depth":48}
+
+## oracle-bun.txt
+{"status":"PASS","boundaries":5352,"retainedSnapshotsQueried":2508,"thresholds":[1,8,32],"shapes":["wide","groups","deep","fanout","occupied","scopes"],"forks":8,"depth":48}
+
+## concurrent-node.txt
+{"status":"PASS","checks":456,"retained":69,"thresholds":[1,8,32],"covered":["multi-running","duplicate mutex occurrences","root/resource/scope saturated rejection","unknown/nonpending/notrunning/invalidoutcome","64 pending cancellation effectStates","preseed forced block","reverse snapshots"]}
+
+## concurrent-bun.txt
+{"status":"PASS","checks":456,"retained":69,"thresholds":[1,8,32],"covered":["multi-running","duplicate mutex occurrences","root/resource/scope saturated rejection","unknown/nonpending/notrunning/invalidoutcome","64 pending cancellation effectStates","preseed forced block","reverse snapshots"]}
+
+## adapter-bun.txt
+{"status":"PASS","checks":768,"thresholds":[1,8,32],"reference":"native Array/Set/Map, updates+deletion+large batch+reverse snapshot reads"}
