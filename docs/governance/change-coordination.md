@@ -63,13 +63,6 @@ owner 时，实施与提交必须串行。
 后续触及共同 matcher、Run 接线、包材料、Case 或文档 owner 时，仍按实际重叠串行实施与提交。
 函数指标的来源、计量和读取边界各由对应 owner 拥有；后续是否复用关系索引按具体结果与责任判断，不由本轨道交付自动触发。
 
-### Markdown Link 图式验证重构
-
-[`scale-markdown-link-validation`](../../changes/scale-markdown-link-validation/proposal.md) 负责节点事实与引用边分离、
-需求驱动的目标工作及配套预算调整。按已确认的分阶段执行、节点观察复用与协作式让步推进设计；
-先完成基线冻结与决策演进，再修改产品；具体顺序、契约与验收由该 Change 的 Plan 拥有。
-共享 Markdown Link、Gate、Case 与稳定文档 owner 的实施和提交串行，性能采样使用协调窗口。
-
 ### Lizard 升级与 TypeScript 修复
 
 固定 `1.24.1` 来源、Rust 真实 match-arm 贡献和 Kotlin 正文位置由
