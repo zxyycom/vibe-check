@@ -32,9 +32,15 @@ export type {
 type CommandCheckImplementationInput = CommandCheckInput<string, AfterCommand | undefined>;
 
 /**
- * 构造一个单一 no-shell executable 的 ordinary Check。
+ * 构造直接执行单个可执行文件的 Check，不经 shell。
  *
- * @remarks constructor 会闭合并冻结 command-owned options；ordinary selection、relation 与 scheduling fields 仍按普通 Check lifecycle 传递。默认 exact-empty environment 与 discard output 不会把 ambient variables、child stdout/stderr 或 native error text 发布到 Check facts。`output: { mode: "transcript" }` 仅在 invocation 授予此 Check artifact directory 时，将 raw stdout/stderr 写入固定 `process.log`。
+ * 构造时校验并冻结命令配置；选择、关系与调度字段按普通 Check lifecycle 处理。
+ * 默认不继承 ambient environment，也不持久化子进程输出；Product 不会自动将环境变量、
+ * 子进程 stdout/stderr 或原生错误文本发布到 Check facts。
+ * `output: { mode: "transcript" }` 在 invocation 授予此 Check artifact directory 时，
+ * 将原始 stdout/stderr 写入固定 `process.log`。
+ *
+ * @see [执行外部命令的 Check](../../../docs/guides/command-check.md#执行外部命令的-check)
  * @example 以 process.execPath 构造无 shell command Check
  * ```ts
  * import { commandCheck, defineConfig, run } from "@zxyycom/vibe-check";

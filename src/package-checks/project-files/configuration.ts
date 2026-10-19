@@ -6,6 +6,11 @@ import {
 
 /** Check authoring 的文件范围；显式 patterns 完整替换 owning Check 默认。 */
 export interface ProjectFileSelectionOptions {
+  /**
+   * 相对 project root、使用 `/` 的完整有序 micromatch 正/负 glob 列表；显式数组替换 Check 默认。
+   * `!` 排除，后续正规则可重新包含；纯负列表选择补集，空数组不选择路径。
+   * @see [共享的 files 选择语义](../../../docs/guides/collecting-project-files.md#共享的-files-选择语义)
+   */
   readonly patterns?: readonly string[];
   /** 省略或 true 启用固定默认排除，只有 false 关闭。 */
   readonly useDefaultExcludes?: boolean;
@@ -13,6 +18,11 @@ export interface ProjectFileSelectionOptions {
 
 /** 同步文件收集的完整选择；patterns 必填，默认防呆不属于用户规则。 */
 export interface ProjectFileSelection {
+  /**
+   * 相对 project root、使用 `/` 的完整有序 micromatch 正/负 glob 列表。
+   * `!` 排除，后续正规则可重新包含；纯负列表选择补集，空数组不选择路径。
+   * @see [共享的 files 选择语义](../../../docs/guides/collecting-project-files.md#共享的-files-选择语义)
+   */
   readonly patterns: readonly string[];
   readonly useDefaultExcludes?: boolean;
 }

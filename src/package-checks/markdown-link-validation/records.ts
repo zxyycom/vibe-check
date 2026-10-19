@@ -8,6 +8,10 @@ import type { MarkdownLinkOccurrence, MarkdownSourceRange } from "./markdown-par
 /** 一条本地 Markdown link finding supplemental Record 的 data。 */
 export type MarkdownLinkFindingRecordData = Readonly<{
   readonly occurrenceKind: "link" | "image";
+  /**
+   * 解码后文本的一基 line/column，end 为不包含的结束位置；column 按 UTF-16 code unit 计数。
+   * @see [Markdown link 效果与结果](../../../docs/checks/markdown-link-validation.md#效果与结果)
+   */
   readonly range: Readonly<{
     readonly end: Readonly<{ readonly column: number; readonly line: number }>;
     readonly start: Readonly<{ readonly column: number; readonly line: number }>;

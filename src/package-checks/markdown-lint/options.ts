@@ -60,7 +60,10 @@ export interface MarkdownLintOptions<
   readonly findingPolicy?: FindingPolicy;
   /** 闭合的精确 Finding 豁免；保留原始证据，不改变输入、limits 或缓存 facts。 */
   readonly findingWaivers?: readonly MarkdownLintFindingWaiver[];
-  /** 非空数组完整替换 recommended rule set。 */
+  /**
+   * 省略时采用 catalog 中除 `link-fragments` 外的八项规则；非空数组完整替换默认集合。
+   * @see [Markdown lint 规则 catalog](../../../docs/checks/markdown-lint.md#规则-catalog)
+   */
   readonly rules?: readonly MarkdownLintRuleName[];
   /** 每次 execution 的 Markdown 内容与 finding work 上限。 */
   readonly limits?: MarkdownLintLimitOptions;

@@ -14,7 +14,10 @@ export interface RunControls {
   readonly progressLogFile?: string;
   /** caller 选择的 Check-owned invocation artifact base；省略时不授予 artifact capability。 */
   readonly checkArtifactBaseDirectory?: string;
-  /** 为本次 Run 解释有效 Check facts；省略时使用严格的 all-passed 默认折叠。 */
+  /**
+   * 为本次 Run 解释有效 Check facts；默认仅在列表非空且全部 passed 时通过，其余为 failed。
+   * 自定义函数的异常或非法返回使 `run` 的 Promise 拒绝，详见 {@link CheckAggregation}。
+   */
   readonly checkAggregation?: CheckAggregation;
   /** 仅为本次调用覆盖 Run-owned outputs。 */
   readonly outputs?: Partial<{
@@ -22,7 +25,11 @@ export interface RunControls {
     progressRendering: Partial<ProjectOutputs["progressRendering"]>;
     diagnosticLogging: Partial<ProjectOutputs["diagnosticLogging"]>;
   }>;
-  /** 本次 Run 的 flag tokens；Product 去重排序后用于 Check selection 与 callback project context。 */
+  /**
+   * 本次 Run 的非空普通 caller tokens；Product 去重排序后用于 selection 与 callback project context。
+   * 禁止传入保留的 `vibe-check:change:` 前缀；change flags 由 Product 根据 Git evidence 派生。
+   * @see [按文件变化选择 Check](../../../docs/api-mechanics.md#按文件变化选择-check)
+   */
   readonly flags?: readonly string[];
   /** 项目相对输入与 output target 的解析根；省略时使用调用进程的当前工作目录。 */
   readonly projectRoot?: string;
@@ -33,5 +40,9 @@ export interface RunControls {
 export type DiagnosticLogFileNaming = "unique" | "channel";
 /** `CheckAggregation` 计算出的 invocation 级结果。 */
 export type CheckAggregate = "passed" | "failed" | "not-applicable" | "unavailable";
-/** 同步解释本次有效 Check facts 的 caller-local aggregation。 */
+/**
+ * 在完整结算后，同步解释本次有效 Check 列表；返回值为 invocation 级结果。
+ * 抛错、返回 Promise/thenable 或非法四态值会使 `run` 的 Promise 直接拒绝，而非返回 `RunResult` 分支。
+ * @see [RunControls 与 Check aggregation](../../../docs/api-mechanics.md#runcontrols-与-check-aggregation)
+ */
 export type CheckAggregation = (checks: readonly CoreCheck[]) => CheckAggregate;

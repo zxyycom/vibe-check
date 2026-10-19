@@ -40,8 +40,12 @@ export type {
 } from "./strategy-contract.ts";
 
 /**
- * 构造普通公开 prepared strategy。调用方拥有 history location 与 identity projection；
- * Product 只按同一 custom strategy lifecycle 调用它，不为该 helper 增加特权。
+ * 基于本地时长历史构造 critical-path prepared strategy。
+ * 调用方提供 history 目录与任务 identity；返回值遵循公开的 custom strategy lifecycle。
+ * `stateDirectory` 非绝对路径或 model 数值配置非法时，factory 直接抛出 `TypeError`，不属于 Run 内的 history 退化。
+ *
+ * @see [配置 history 与任务 identity](../../../docs/guides/learned-scheduling.md#配置-history-与任务-identity)
+ * @see [退化与观察](../../../docs/guides/learned-scheduling.md#退化与观察)
  */
 export function createLearnedCriticalPathStrategy(
   options: LearnedCriticalPathStrategyOptions

@@ -67,9 +67,13 @@ export type { CheckExecutionContext, CheckPreparationContext } from "./context-c
 /**
  * Check callback 的 terminal result。
  *
+ * data 须满足 `canonicalizeJsonObject` 的接受条件，顶层为非数组对象；校验不调用 `toJSON`。
+ * 不满足条件的结果使 Check 结算为 `unavailable`。
+ *
  * @typeParam FinalData - `passed` 或 `failed` 时保留为 canonical final data 的业务对象。
- * @remarks `not-applicable` 与 `unavailable` 不携带 final data；普通 callback、Record 或取消失败由
- * Product 转换为 `unavailable`，而不是抛出为 Run 的成功结果。
+ * @remarks `not-applicable` 与 `unavailable` 不携带 final data；callback 失败、Record 拒绝或取消
+ * 由 Product 结算为 `unavailable`。
+ * @see [Canonical JSON 接受规则](../../docs/guides/data-boundaries.md#canonical-json)
  */
 export type CheckResult<
   FinalData extends object = object,
@@ -627,7 +631,8 @@ export type TypedHandoffCheckWithoutOptions<
 /**
  * 定义一个 Check，同时保留 literal `checkId`、options 与 typed-provider parser 的 inference。
  *
- * @remarks 此函数负责 authoring inference；{@link run} 负责 Project Definition validation。
+ * @remarks 此函数负责 authoring inference；`run` 负责 Project Definition validation。
+ * @see [一次 Run 的生命周期](../../docs/api-mechanics.md#一次-run-的生命周期)
  * @example 定义带 options、Records 与 messages 的自定义 Check
  * ```ts
  * import { defineContextCallback } from "@zxyycom/vibe-check";

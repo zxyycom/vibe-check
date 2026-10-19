@@ -16,13 +16,20 @@ export interface FindingOverflowContext<Finding> {
 /**
  * 将调用方已经稳定排序的 Finding 投影为有界 Check messages。
  *
- * `limit`、安全字段和超限后的深入查看说明都由 producing Check 决定。Product 不读取 Finding
- * shape，也不猜测完整明细位于 Records、artifact、transcript 或其它位置。
+ * 调用方设置 `limit`，通过两个回调决定公开字段、消息等级及完整明细位置；helper 只负责有界投影。
+ * `limit` 只限制明细数，省略汇总额外占一条；非空输入且 `limit: 0` 时仍返回一条汇总。
+ * 空 Finding 集合不调用任一回调；非法 `limit` 在回调执行前抛出 `TypeError`。
+ *
+ * @see [输入与投影](../../../docs/guides/presenting-findings.md#输入与投影)
  */
 export function presentCheckFindings<Finding>(input: {
+  /** 调用方已稳定排序的 Finding 集合。 */
   readonly findings: readonly Finding[];
+  /** 明细 message 上限；须为非负 safe integer，不含额外的省略汇总。 */
   readonly limit: number;
+  /** 为前 `limit` 项各生成一条明细；index 是该 Finding 在输入中的零基索引。 */
   readonly message: (finding: Finding, index: number) => CheckMessage;
+  /** 仅有省略项时调用一次，生成汇总；可按原省略项引用与计数决定等级及完整明细位置。 */
   readonly omittedMessage: (context: FindingOverflowContext<Finding>) => CheckMessage;
 }): readonly CheckMessage[] {
   assertFindingLimit(input.limit);

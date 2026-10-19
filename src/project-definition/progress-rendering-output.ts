@@ -1,18 +1,24 @@
 import { snapshotClosedRecord } from "../data-boundary/closed-values.ts";
 
-/** Progress formatter 只接收当前 selected preview 的默认正文，不接收 Check 或事实对象。 */
+/**
+ * 同步改写数量限制内所选 preview 的完整默认正文；返回文本再由 Product 转义并按 Unicode code points 限长。
+ * 抛错或返回非字符串使 progress output failed，不回退默认文本，也不改变 Check/Record/message facts。
+ * @see [配置 preview 文本](../../docs/guides/run-outputs.md#配置-preview-文本)
+ */
 export type ProgressPreviewFormatter = (
   this: void,
   context: Readonly<{
     readonly kind: "record" | "message";
+    /** 尚未转义或截断的默认正文；Record 为 local ID 加 canonical JSON，message 为正文。 */
     readonly text: string;
+    /** 转义后 preview 正文的 Unicode code-point 预算，包含截断 marker，不含 label、缩进和换行。 */
     readonly maxCodePoints: number;
   }>
 ) => string;
 
 /** 人读 progress rendering 的作者配置；省略 preview 字段时使用 Product 默认值。 */
 export interface ProgressRenderingOutput {
-  /** `false` 时不构造或写入 progress writer。 */
+  /** 默认 `true`；`false` 时不构造或写入 progress writer。 */
   readonly enabled: boolean;
   /** 每个 settled block 预览的 Record 数量；非负 safe integer，默认 `5`，`0` 只隐藏 detail。 */
   readonly recordPreviewLimit?: number;

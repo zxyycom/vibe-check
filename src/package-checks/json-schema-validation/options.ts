@@ -26,7 +26,11 @@ export type JsonSchemaReferenceSource =
   | Readonly<{
       /** 只允许本 source 明确限定的 HTTPS reference scope。 */
       readonly kind: "https";
-      /** 调用方为本 source 选择的安全稳定 identity，不是请求 URL。 */
+      /**
+       * 调用方为本 source 选择的 identity，不是请求 URL；须为 1–256 字符、已规范化的绝对
+       * `https:` / `urn:`，无 credentials、query 或 fragment。
+       * @see [JSON Schema 参数与安全 identity](../../../docs/checks/json-schema-validation.md#参数与默认配置)
+       */
       readonly id: string;
       /** 精确 HTTPS origin；不含 path、credentials、query 或 fragment。 */
       readonly origin: string;
@@ -47,7 +51,11 @@ export type JsonSchemaReferenceResolution =
 
 /** 调用方注册的一份 local schema resource；注册表不自动发现 schema。 */
 export interface RegisteredJsonSchema {
-  /** binding 与公开 facts 使用的安全 schema identity。 */
+  /**
+   * binding 与公开 facts 使用的 identity；须为 1–256 字符、已规范化的绝对
+   * `https:` / `urn:`，无 credentials、query 或 fragment。
+   * @see [JSON Schema 参数与安全 identity](../../../docs/checks/json-schema-validation.md#参数与默认配置)
+   */
   readonly id: string;
   /** 已由 `files` selection 批准的 normalized project-relative `.json` path。 */
   readonly path: string;
@@ -71,7 +79,10 @@ export interface JsonSchemaValidationOptions<
   readonly files?: ProjectFileSelectionOptions;
   /** 每个 local schema/instance document 允许的最大 raw byte 数；省略时为 1 MiB。 */
   readonly maximumBytes?: number;
-  /** 整个 Check 共用的 schema root identity 规则；不得按 schema 混用。 */
+  /**
+   * 整个 Check 共用的 schema root identity 规则；省略时为 `{ mode: "require-match" }`，不得按 schema 混用。
+   * @see [schemaIdentity 根身份规则](../../../docs/checks/json-schema-validation.md#schemaidentity-根身份规则)
+   */
   readonly schemaIdentity?: JsonSchemaIdentity;
   /** 默认离线；额外 schema source 必须显式 allowlist。 */
   readonly referenceResolution?: JsonSchemaReferenceResolution;

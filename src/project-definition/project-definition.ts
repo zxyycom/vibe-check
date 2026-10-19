@@ -30,13 +30,16 @@ import {
 } from "./project-changes.ts";
 export { createDeclarativeFingerprint } from "./declarative-snapshot.ts";
 
-/** 一次 Project Run 的明确输出配置。 */
+/**
+ * 一次 Project Run 的输出配置；`defineConfig` 默认开启 machine/progress、关闭 diagnostic。
+ * @see [默认输出与本次覆盖](../../docs/guides/run-outputs.md#默认输出与本次覆盖)
+ */
 export interface ProjectOutputs {
-  /** `run.json` 与 `records.ndjson` publication。 */
+  /** 启用时写入 `run.json` 与 `records.ndjson`，成功发布会替换目标目录中的同名文件。 */
   readonly machinePublication: Readonly<{
     /** 相对目录从 project root 解析；绝对目录直接作为 target，默认 `artifacts/vibe-check`。 */
     readonly directory: string;
-    /** `false` 时本次 Run 不发布 machine output。 */
+    /** 默认 `true`；`false` 时本次 Run 不发布 machine output。 */
     readonly enabled: boolean;
   }>;
   /** 人读 progress lifecycle 与 preview 配置。 */
@@ -45,7 +48,7 @@ export interface ProjectOutputs {
   readonly diagnosticLogging: Readonly<{
     /** 相对目录从 project root 解析；绝对目录直接作为 target，默认 `.log/vibe-check`。 */
     readonly directory: string;
-    /** `false` 时不创建 diagnostic writer 或 file。 */
+    /** 默认 `false`，不创建 diagnostic writer 或 file；`true` 才开启。 */
     readonly enabled: boolean;
   }>;
 }
@@ -192,7 +195,12 @@ export interface NormalizedProjectDefinition {
 const STATIC_ADMISSION_POLICY: AdmissionPolicy = Object.freeze({
   kind: "static"
 });
-/** 使用 Product 默认输出创建普通 Project Definition。 */
+/**
+ * 创建可重复运行的 Project Definition，并补齐省略的配置。
+ * 默认开启 machine publication 与 progress、关闭 diagnostic；随后 `run` 会向默认
+ * `artifacts/vibe-check` 发布机器文件并显示进度。只取内存结果时，将对应 outputs.enabled 设为 `false`。
+ * @see [默认输出与本次覆盖](../../docs/guides/run-outputs.md#默认输出与本次覆盖)
+ */
 export function defineConfig<const T extends ProjectDefinitionInput>(
   value: T & Record<Exclude<keyof T, keyof ProjectDefinitionInput>, never>
 ): ProjectDefinition {

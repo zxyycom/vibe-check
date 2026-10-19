@@ -14,9 +14,10 @@ import { validMarkdownLintOptions } from "./options-validation.ts";
  * 构造使用稳定闭合规则与受限输入的 Markdown 结构检查。
  * 精确 findingWaivers 只在完整 traversal 后应用；原 Finding、计数与缓存 facts 保留。
  *
- * @param options - 省略时采用八项 recommended 规则；非空 rules 数组完整替换该集合。
+ * @param options - 省略时采用 catalog 中除 `link-fragments` 外的八项规则；非空 rules 数组完整替换该集合。
  * @returns 使用默认或指定 checkId 的 typed Check，携带完整冻结 options、parser 与执行逻辑。
  * @throws {TypeError} options 含未知字段、未知/重复规则、非法 limits 或 findingWaivers 时抛出。
+ * @see [Markdown lint 规则 catalog](../../../docs/checks/markdown-lint.md#规则-catalog)
  * @example 最小用法
  * ```ts
  * import { defineConfig, markdownLint, run } from "@zxyycom/vibe-check";

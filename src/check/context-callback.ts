@@ -7,13 +7,18 @@ import {
 
 /** callback 写入 supplemental Record 时的 Check-local identity。 */
 interface RecordIdentityInput {
-  /** 在当前 Check 内唯一的 Record ID。 */
+  /** 非空且在当前 Check 内唯一的 Record ID。 */
   readonly id: string;
 }
 
 /** callback 写入 supplemental Records 的 Product-owned reporter。 */
 interface CheckRecordReporter {
-  /** 记录一个补充事实；它不决定 Check 的 terminal status。 */
+  /**
+   * 追加 canonical JSON object 补充事实；合法 Record 的存在或数量不决定 Check status。
+   * data 须满足 `canonicalizeJsonObject` 的接受条件；无效数据、空 ID 或重复 ID 使 owning Check
+   * 结算为 unavailable，此前已接受的 Records 仍保留。结算后 reporter 关闭，继续写入会抛错。
+   * @see [terminal result、Records 与 messages](../../docs/api-mechanics.md#terminal-resultrecords-与-messages)
+   */
   report(identity: RecordIdentityInput, data: object): void;
 }
 

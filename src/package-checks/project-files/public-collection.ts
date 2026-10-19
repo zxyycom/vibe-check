@@ -23,8 +23,10 @@ type ResolvedCollectProjectFilesOptions = Readonly<{
 /**
  * 按一份完整的显式 selection 同步收集 project-root-relative slash paths。
  *
+ * 候选来自磁盘普通文件，不使用 Git/ignore 策略，不跟随文件或目录 symlink；root symlink 视为不可用。
  * 成功结果是冻结的稳定去重排序快照，空数组表示没有匹配路径。非法参数同步抛出
  * `TypeError`；必要 filesystem 读取失败抛出带路径上下文的普通 `Error`。
+ * @see [选择与收集项目文件：磁盘来源与访问范围](../../../docs/guides/collecting-project-files.md#磁盘来源与访问范围)
  */
 export function collectProjectFiles(
   authoredOptions: CollectProjectFilesOptions

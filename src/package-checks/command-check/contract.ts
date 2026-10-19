@@ -22,6 +22,7 @@ export type CommandCheckEnvironment =
     }>
   | Readonly<{
       readonly mode: "inherit";
+      /** string 覆盖继承变量，`null` 删除该变量。 */
       readonly overrides?: Readonly<Record<string, string | null>>;
     }>;
 
@@ -64,7 +65,12 @@ export type AfterCommandExecution<FinalData extends object = object> = ContextCa
   CheckResult<FinalData> | Promise<CheckResult<FinalData>>
 >;
 
-/** command 完成后的可选 caller-owned settlement 与 typed-provider parser。 */
+/**
+ * 完整 numeric exit（含非零）后的可选 caller-owned settlement 与 typed-provider parser。
+ * `execute` 返回值替代默认 exit-code mapping；取消、timeout、output limit 或 signal 终止不进入此阶段。
+ * 使用 transcript 时，final write 也须先成功。
+ * @see [command Check 调用方完成阶段](../../../docs/guides/command-check.md#调用方完成阶段)
+ */
 export type AfterCommand<FinalData extends object = object> = Readonly<{
   readonly execute: AfterCommandExecution<FinalData>;
   readonly parseData?: CheckDataParser | undefined;
@@ -93,8 +99,10 @@ interface CommandCheckBaseInput<Id extends string> {
   readonly displayName: string;
   readonly executable: string;
   readonly arguments?: readonly string[];
+  /** 省略时使用 project root；相对路径从 project root 解析，绝对路径保持原目标。 */
   readonly workingDirectory?: string;
   readonly timeoutMs: number;
+  /** stdout 和 stderr 各自的 byte 上限，不是两者合计；须为正安全整数。 */
   readonly outputByteLimit: number;
   readonly output?: CommandCheckOutput;
   readonly enabledByFlags?: CheckFlagEnablement;
@@ -138,9 +146,10 @@ export interface ResolvedCommandCheckOptions {
       }>;
   readonly executable: string;
   readonly output: Readonly<{ readonly mode: "discard" | "transcript" }>;
+  /** stdout 和 stderr 各自的 byte 上限，不是两者合计。 */
   readonly outputByteLimit: number;
   readonly timeoutMs: number;
-  /** `null` 表示 execution 时使用 invocation project root。 */
+  /** `null` 使用 invocation project root；相对路径从该 root 解析，绝对路径保持原目标。 */
   readonly workingDirectory: string | null;
 }
 

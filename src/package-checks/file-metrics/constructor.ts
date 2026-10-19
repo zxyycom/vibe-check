@@ -13,7 +13,7 @@ import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 /**
  * 使用可省略的区域、代码行与 scanner policy 构造一个完整 file-metrics Check。
  *
- * @param options - 省略字段由 package 补齐；显式 files 数组作为对应字段的完整替换值。
+ * @param options - 省略字段由 package 补齐；显式 `files.patterns` 数组作为对应字段的完整替换值。
  * @returns 使用默认 `file-metrics` 或显式 `checkId` 的 Check，携带完整冻结 options、preparation 与 execution。
  * @throws {TypeError} input 含未知字段、空 area、非法代码行 policy、非法 waiver 或空 executable 时抛出。
  */

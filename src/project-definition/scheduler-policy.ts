@@ -1,6 +1,12 @@
 import type { SchedulerContextCallbackInput } from "./scheduler-context-callback.ts";
 
-/** 自定义准入 policy 对当前 Task 的唯一提议。 */
+/**
+ * 自定义准入 policy 对当前 Task 的唯一提议。
+ * `select` 必须选择当前合法可准入的 Task；`wait` 仅在已有 running Task 可 drain 时合法，不能等待外部事件。
+ * 非法提议导致 `admission-policy-failed`：停止新准入、取消 pending work 并 drain 已启动 work，不退回 static policy。
+ *
+ * @see [自定义准入 policy](../../docs/guides/scheduling.md#自定义准入-policy)
+ */
 export type AdmissionProposal =
   | Readonly<{ readonly kind: "select"; readonly taskId: string }>
   | Readonly<{ readonly kind: "wait" }>;
@@ -205,7 +211,12 @@ export interface CustomAdmissionPreparationContext {
 export interface PreparedCustomAdmissionStrategy {
   /** Scheduler 每轮同步调用；不得返回 Promise 或 thenable。 */
   readonly decide: SchedulerContextCallbackInput<AdmissionPolicyContext, AdmissionProposal>;
-  /** Scheduler 的 generic terminal effects 完成后，才以 sealed terminal context 调用一次。 */
+  /**
+   * 仅在可取得 sealed terminal context 时，在 Definition terminal effects 结算后至多调用一次。
+   * `prepare` 中取得且必须释放的资源须有独立清理路径；此回调不提供 finally/cleanup 保证。
+   *
+   * @see [交付终态 measurement](../../docs/guides/scheduling.md#交付终态-measurement)
+   */
   readonly terminalEffect?: SchedulerContextCallbackInput<
     SchedulerMeasurementContext,
     void | Promise<void>
@@ -234,7 +245,7 @@ export type AdmissionPolicy =
       readonly strategy: CustomAdmissionStrategy;
     }>;
 
-/** 定义级的 Check 调度预算与 admission policy。 */
+/** Scheduler timing facts 不可用的原因。 */
 export type SchedulerMeasurementTimingUnavailableReason =
   | "clock-threw"
   | "clock-non-finite"

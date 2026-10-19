@@ -11,14 +11,16 @@ export type { RunDiagnostic, RunResult } from "./result.ts";
 /**
  * 在调用方的 Node runtime 中执行一个由项目拥有的 Project Definition。
  *
- * @param definition - Project Definition input；{@link defineConfig} 补齐 defaults，run 在 invocation 前验证。
+ * @param definition - Project Definition input；`defineConfig` 补齐 defaults，run 在 invocation 前验证。
  * @param controls - 本次 invocation context 与 outputs 使用的闭合控制值。
  * @returns ordinary configuration、planning、execution、cancellation 与 output failures 通过 `RunResult`
  * 返回；调用方先按 `kind` narrow。
- * @remarks Definition validation 关闭 authoring grammar；可选 Check preparation 在其 Task 通过直接 relation
- * readiness 后被 Scheduler admission 时运行，并先于该 Check 自己的 execution callback。它受该 Task 的
- * mutex、capacity、priority 与 cancellation 约束，而不是 invocation-wide barrier。`output` branch 同时提供
- * 完整 final snapshot 与 output failure diagnostic。
+ * @throws 调用方的 `checkAggregation` 抛错或返回非法值时，Promise 直接拒绝；调用方须另行处理此错误边界。
+ * @remarks 启动前执行 Definition validation。每个 Check 的可选 preparation 在直接关系就绪且自身 Task
+ * 获 Scheduler 准入后运行，先于自己的 execution callback，并受该 Task 的 mutex、capacity、priority
+ * 与 cancellation 约束。`output` 分支同时提供完整 final snapshot 与 output failure diagnostic。
+ * @see [defineConfig 默认输出与本次覆盖](../../docs/guides/run-outputs.md#默认输出与本次覆盖)
+ * @see [RunControls 与 Check aggregation](../../docs/api-mechanics.md#runcontrols-与-check-aggregation)
  */
 export async function run(
   definition: ProjectDefinition,
