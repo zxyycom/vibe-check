@@ -218,14 +218,14 @@ Entities:
 Owner: `docs/tooling/repository-material-validation.md#material-task`
 Entities:
 
-- `bun|scripts/validation/workspace.test.ts|root validate CLI runs every material task by default`
-- `bun|scripts/validation/workspace.test.ts|root validate CLI forwards focused material selections`
-- `bun|scripts/validation/workspace.test.ts|root validate CLI rejects the retired docs entrypoint`
+- `bun|scripts/validation/workspace.test.ts|root validation adapter forwards default and focused material selections`
+- `bun|scripts/validation/repository-material/workflow.test.ts|material workflow dispatches all default tasks and awaits asynchronous validators`
+- `bun|scripts/validation/repository-material/workflow.test.ts|material workflow deduplicates focused selections without broadening them`
   Proves:
 
-- The root validation adapter runs every declared repository-material task by default and forwards an explicit focused selection without silently broadening or skipping it.
-- Default-all completion and retired-entry rejection retain real CLI process evidence.
-- Focused selection uses the same adapter called by main and observes exact argument order and repetition, unchanged nonzero exit return, and rejection before dispatch for unknown tasks. This proves adapter dispatch, not an independent focused process or material-content acceptance; the real links failure fixture separately observes ordered diagnostics, stderr-only failure and nonzero exit.
+- The adapter used by workspace main forwards an empty default selection or exact focused argument order and repetition, preserves the material return code, and rejects unknown tasks and the retired `docs` entry before dispatch.
+- The real workflow task map invokes all five default tasks, including package API check mode; independent expected leaf calls and reporter messages detect missing or miswired tasks. Focused selection keeps first-occurrence order, removes duplicates and does not add other tasks; the links repository root reaches its validator unchanged.
+- Controlled pending JSON and example-publication operations prevent later tasks and the CLI return from completing prematurely. These tests prove in-process dispatch, completion and parameter wiring, not material contents or OS exit status; process-entry glue is covered by the owner's Manual CR conditions.
 
 ## Case AUX-DOCS-VALIDATION-REPORTING-001: In-process material validation keeps output reporter-owned
 
@@ -233,13 +233,18 @@ Owner: `docs/tooling/repository-material-validation.md#material-task`
 Entities:
 
 - `bun|scripts/validation/repository-material/workflow.test.ts|material validation library reports success only through an explicit reporter`
+- `bun|scripts/validation/repository-material/workflow.test.ts|material workflow aggregates expected failures and continues selected tasks`
+- `bun|scripts/validation/repository-material/workflow.test.ts|material workflow propagates unexpected failures instead of returning success`
+- `bun|scripts/validation/workspace.test.ts|material CLI reports real link failures through stderr and a nonzero return`
 - `bun|scripts/validation/repository-material/workflow.test.ts|material validation returns typed expected failures and keeps the Gate path console-silent`
 - `bun|scripts/validation/repository-material/workflow.test.ts|material direct validation fails closed while the Gate adapter projects its safe Record subset`
 - `bun|scripts/validation/repository-material/links.test.ts|documentation link validation retains every missing local-link occurrence in stable order`
 - `bun|scripts/validation/repository-material/schema/strict-json.test.ts|workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures`
   Proves:
 
-- The repository-material workflow uses an explicit reporter only for success summaries and returns provider-approved typed expected diagnostics without recovering Gate facts from thrown text. Its direct CLI and workspace caller write each failed diagnostic presentation to stderr and exit nonzero. Without a reporter, the in-process Gate path remains console-silent.
+- The repository-material workflow only uses an explicit reporter for success summaries. Controlled leaf operations prove reporter routing and console silence without rescanning the repository; the Gate adapter projects supplied typed diagnostics into Records rather than printing them.
+- Expected JSON, schema-publication and example-publication failures aggregate in task order while later tasks continue; failed diagnostics stay out of the success reporter, while a later successful task may still report. CLI presentation writes each diagnostic to stderr and returns 1; the real broken-links fixture independently proves ordered stderr-only failure. These are return-value and callback observations, not OS exit-status evidence.
+- Unexpected synchronous or asynchronous validator errors retain their identity instead of being swallowed; package API projection failure also rejects. Provider-approved typed diagnostics are not reconstructed from thrown text.
 - Empty collections, noncanonical data, duplicate IDs and unsafe one-line presentation fail before direct CLI presentation. The Gate adapter deliberately projects only its safe `{ id, data }` subset, so a direct-CLI-only unsafe presentation cannot suppress the corresponding failed Record or focused command message.
 - JSON, schema, examples and links own their task-local ID/data/presentation. The link fixture proves every missing local-link occurrence has canonical repository-relative source/target, line, code-point column and occurrence, in deterministic source-location order, including repeated targets, skipped external occurrences and astral Unicode before multiple diagnostics.
 - Workspace JSON validation creates one independent Product Run with the public `jsonValidation` constructor; BOM, invalid UTF-8 and duplicate-key fixtures prove it does not silently fall back to `JSON.parse` semantics or invoke the Project Gate.

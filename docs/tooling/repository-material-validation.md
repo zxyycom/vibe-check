@@ -55,13 +55,22 @@ material task 的唯一名称是 `json`、`schema`、`examples`、`links` 和 `p
 repository/material walkers 共用[共享扫描政策](workspace.md#repository-validation-共享扫描政策)的忽略目录集合；
 各 task 仍拥有自己的显式输入。
 
-workspace process entry 与 focused dispatch 测试共用内部 `runWorkspaceValidation` adapter，证明责任如下：
+workspace process entry 与参数分发测试共用内部 `runWorkspaceValidation` adapter；workflow 的默认选择、
+task map、组合与错误处理使用同一执行路径，只在已有 leaf validator 调用边界替换小型受控操作，不替换 task map。
+证明责任如下：
 
 | 证据入口 | 直接证明 |
 | --- | --- |
-| 真实 CLI child | 默认全任务完成，以及退休入口拒绝。 |
-| focused adapter dispatch | 注入 material dispatch，核对参数顺序/重复、原样返回退出码与 unknown task 在 dispatch 前拒绝；不证明独立 focused process 或材料内容正确。 |
-| 真实材料与 validator 测试 | 材料集成、内容正确性和失败诊断；真实 links failure fixture 继续观察 stderr 与非零退出。 |
+| workspace adapter dispatch | 核对默认空 selection、focused 参数顺序/重复、原样返回退出码，以及 unknown task / 退休 `docs` 入口在 dispatch 前拒绝。 |
+| workflow 分发与完成 | 用独立预期调用序列核对默认五项及实际 leaf 接线（包括 package API `--check`）、focused 去重与不扩张；受控 Promise 核对异步完成后才继续并返回，预期失败累积且继续所选 task，非预期错误不吞。 |
+| workflow 呈现 | 小型操作证明显式 reporter、typed failure 与 CLI stderr/返回码；真实 links failure fixture 证明有序诊断、stderr-only 和非零返回值。 |
+| 真实材料与 validator 验收 | 材料内容和真实接线由各 validator 测试、`bun run validate`、Gate 与 package artifact documentation audit 按各自范围证明，不在分发测试中重复全库扫描。 |
+
+以上 adapter/workflow 测试不启动真实进程，不证明 OS exit status。`Manual CR:` 修改 workspace 或 workflow
+process entry 时，核对 `import.meta.main` 保护、`process.argv.slice(2)` 原样传给对应 adapter、在
+`runAsyncMain` 内等待 adapter 并将返回值赋给 `process.exitCode`，以及 stdout/stderr 回调没有互换；
+同时核对默认 leaf object 直接绑定对应真实 validator。这里的薄接线用代码审查，不为覆盖它新增测试专用 CLI/env
+或共享 process 接口；删除 `process.exitCode` 赋值不保证使上述自动化失败。
 
 schema/examples task 同时检查 current published material 的 generation drift，并用 checked-in schema 与 raw example bytes
 独立验证完整 v4 二文件集合；machine-artifact validator 不 import Product validator。历史 schema/example 材料只走显式 historical
@@ -69,9 +78,10 @@ validation path，不进入 current traversal 或 runtime input。
 
 ### 完成与失败结果
 
-仓库材料验证库函数返回 Promise，调用方必须等待完成。workspace workflow 组合全部五项 material task；Gate 不调用这个 dispatcher：`jsonValidation` 直接验证同一 `docs/**/*.json` corpus，`jsonSchemaValidation` 直接验证注册 schema 与 report-example bindings，project-native schema-publication provider 负责 schema inventory/publication drift，machine-example provider 负责 machine artifact set，links provider 负责 links。它们都区分两种失败：
+仓库材料验证库函数返回 Promise，调用方必须等待完成。workflow 按首次选择顺序去重，逐项等待；没有显式 selection 时组合全部五项 material task。
+Gate 不调用这个 dispatcher：`jsonValidation` 直接验证同一 `docs/**/*.json` corpus，`jsonSchemaValidation` 直接验证注册 schema 与 report-example bindings，project-native schema-publication provider 负责 schema inventory/publication drift，machine-example provider 负责 machine artifact set，links provider 负责 links。它们都区分两种失败：
 
-- **可预期的内容验证失败：** 返回由 task 拥有、已排序的 safe diagnostics；不从 Error text 恢复 machine 或 terminal facts。
+- **可预期的内容验证失败：** 返回由 task 拥有、已排序的 safe diagnostics；workflow 保留 task 顺序累积这些 diagnostics 并继续其它所选 task，不从 Error text 恢复 machine 或 terminal facts。
 - **非预期 I/O、编程错误或安全边界失败：** 继续 throw。
 
 每项 diagnostic 都包含稳定的 task-local ID、非数组 Record data 和单行 presentation。
@@ -99,7 +109,7 @@ file-collection/data-boundary、JSON 字节上限配置及 provider 的 reposito
 
 ### 调用方如何呈现结果
 
-- **`validateRepositoryMaterials({ report })`：** 只通过显式 reporter 发布 success；typed failed result 不调用 reporter。
+- **`validateRepositoryMaterials({ report })`：** 只通过显式 reporter 发布各 task 的 success；失败 diagnostics 不走 reporter，但同轮其它成功 task 仍可发布 success summary。
 - **workflow 的 direct CLI 与 workspace caller：** 读取 failed result 后，逐条将 safe presentation 写到 stderr，并以非零退出。
 - **Project Gate 的 project-native material Checks：** 直接调用各自窄 provider、不提供 reporter，而是把其 diagnostics 交给 native Check Record adapter，避免在 Product 拥有 TTY running region 时向 stdout 插入未登记内容。公共 JSON/Schema Checks 使用其自身的 Records 与终态，不嵌套 workflow Run。
 

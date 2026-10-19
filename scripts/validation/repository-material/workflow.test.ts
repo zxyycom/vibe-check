@@ -1,18 +1,123 @@
 import type { CheckExecutionContext } from "../../../src/index.ts";
 import assert from "node:assert/strict";
+import { setImmediate } from "node:timers/promises";
 import test from "node:test";
 
+import { MachineExamplePublicationFailure } from "../../docs/machine-artifacts/examples/publication.ts";
+import { MachineSchemaPublicationFailure } from "../../docs/machine-artifacts/schemas.ts";
 import { createMaterialValidationCheck } from "../../project/gate/checks/materials-validation.ts";
 import {
   expectedMaterialValidationFailure,
   type MaterialValidationDiagnostic
 } from "./diagnostics.ts";
-import { validateRepositoryMaterials, type MaterialValidationResult } from "./workflow.ts";
+import {
+  runMaterialValidationCli,
+  validateRepositoryMaterials,
+  type MaterialValidationResult
+} from "./workflow.ts";
 
 type DependencyNotDeclaredResult = Readonly<{
   readonly ok: false;
   readonly error: Readonly<{ readonly code: "dependency-not-declared"; readonly checkId: string }>;
 }>;
+
+test("material workflow dispatches all default tasks and awaits asynchronous validators", async () => {
+  const calls: string[] = [];
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  const jsonCompletion = Promise.withResolvers<void>();
+  const exampleCompletion = Promise.withResolvers<void>();
+  const validators = recordingValidators(calls);
+  let completed = false;
+  const pending = runMaterialValidationCli(
+    {
+      argv: [],
+      writeStdout: (message) => stdout.push(message),
+      writeStderr: (message) => stderr.push(message)
+    },
+    {
+      ...validators,
+      validateJsonSyntax: async (options) => {
+        await validators.validateJsonSyntax(options);
+        await jsonCompletion.promise;
+      },
+      checkPublishedMachineExamples: async () => {
+        await validators.checkPublishedMachineExamples();
+        await exampleCompletion.promise;
+      }
+    }
+  ).then((exitCode) => {
+    completed = true;
+    return exitCode;
+  });
+
+  try {
+    await setImmediate();
+    assert.equal(completed, false);
+    assert.deepEqual(calls, ["json"]);
+    jsonCompletion.resolve();
+    await setImmediate();
+    assert.equal(completed, false);
+    assert.deepEqual(calls, [
+      "json",
+      "schema-publication",
+      "schemas",
+      "machine-artifacts",
+      "example-publication"
+    ]);
+    assert.deepEqual(stdout, ["fixture JSON ok", "fixture schemas ok"]);
+  } finally {
+    jsonCompletion.resolve();
+    exampleCompletion.resolve();
+    await pending;
+  }
+
+  assert.equal(await pending, 0);
+  assert.deepEqual(calls, [
+    "json",
+    "schema-publication",
+    "schemas",
+    "machine-artifacts",
+    "example-publication",
+    "report-examples",
+    "links",
+    "package-api-documentation"
+  ]);
+  assert.deepEqual(stdout, [
+    "fixture JSON ok",
+    "fixture schemas ok",
+    "current machine artifact examples ok: 2 set(s)",
+    "fixture reports ok",
+    "fixture links ok"
+  ]);
+  assert.deepEqual(stderr, []);
+});
+
+test("material workflow deduplicates focused selections without broadening them", async () => {
+  const calls: string[] = [];
+  const validators = recordingValidators(calls);
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  const exitCode = await runMaterialValidationCli(
+    {
+      argv: ["links", "json", "links", "package-api-documentation", "json"],
+      linkRepositoryRoot: "/fixture/material-root",
+      writeStdout: (message) => stdout.push(message),
+      writeStderr: (message) => stderr.push(message)
+    },
+    {
+      ...validators,
+      validateMarkdownLinks: (options) => {
+        assert.equal(options?.repositoryRoot, "/fixture/material-root");
+        validators.validateMarkdownLinks(options);
+      }
+    }
+  );
+  assert.equal(exitCode, 0);
+  assert.deepEqual(calls, ["links", "json", "package-api-documentation"]);
+  assert.deepEqual(stdout, ["fixture links ok", "fixture JSON ok"]);
+  assert.deepEqual(stderr, []);
+});
 
 test("material validation library reports success only through an explicit reporter", async () => {
   const directConsoleMessages: string[] = [];
@@ -22,11 +127,14 @@ test("material validation library reports success only through an explicit repor
     directConsoleMessages.push(values.map(String).join(" "));
   };
   try {
-    const silent = await validateRepositoryMaterials({ tasks: ["examples"] });
-    const reported = await validateRepositoryMaterials({
-      tasks: ["examples"],
-      report: (message) => reportedMessages.push(message)
-    });
+    const validators = recordingValidators([]);
+    const silent = await validateRepositoryMaterials({}, validators);
+    const reported = await validateRepositoryMaterials(
+      {
+        report: (message) => reportedMessages.push(message)
+      },
+      validators
+    );
     assert.equal(silent.status, "passed");
     assert.equal(reported.status, "passed");
   } finally {
@@ -34,8 +142,133 @@ test("material validation library reports success only through an explicit repor
   }
 
   assert.deepEqual(directConsoleMessages, []);
-  assert.match(reportedMessages.join("\n"), /current machine artifact examples ok: 1 set\(s\)/);
-  assert.match(reportedMessages.join("\n"), /report examples ok:/);
+  assert.deepEqual(reportedMessages, [
+    "fixture JSON ok",
+    "fixture schemas ok",
+    "current machine artifact examples ok: 2 set(s)",
+    "fixture reports ok",
+    "fixture links ok"
+  ]);
+});
+
+test("material workflow aggregates expected failures and continues selected tasks", async () => {
+  const jsonFailure = expectedMaterialValidationFailure([
+    { data: { kind: "fixture-json" }, id: "json:fixture", presentation: "fixture JSON invalid." }
+  ]);
+  const schemaFailure = new MachineSchemaPublicationFailure(
+    "published-schema-drift",
+    "docs/schema.json"
+  );
+  const exampleFailure = new MachineExamplePublicationFailure(
+    "published-machine-example-drift",
+    "docs/example.json"
+  );
+  const calls: string[] = [];
+  const validators = {
+    ...recordingValidators(calls),
+    validateJsonSyntax: async () => {
+      calls.push("json");
+      throw jsonFailure;
+    },
+    checkPublishedMachineSchemas: () => {
+      calls.push("schema-publication");
+      throw schemaFailure;
+    },
+    checkPublishedMachineExamples: async () => {
+      calls.push("example-publication");
+      throw exampleFailure;
+    }
+  };
+  const stdout: string[] = [];
+  const result = await validateRepositoryMaterials(
+    { report: (message) => stdout.push(message) },
+    validators
+  );
+  assert.deepEqual(jsonRoundTrip(result), {
+    status: "failed",
+    diagnostics: [
+      { data: { kind: "fixture-json" }, id: "json:fixture", presentation: "fixture JSON invalid." },
+      {
+        data: { kind: "published-schema-drift", path: "docs/schema.json" },
+        id: "machine-schema:published-schema-drift:docs%2Fschema.json",
+        presentation: schemaFailure.message
+      },
+      {
+        data: { kind: "published-machine-example-drift", path: "docs/example.json" },
+        id: "machine-example:published-machine-example-drift:docs%2Fexample.json",
+        presentation: exampleFailure.message
+      }
+    ]
+  });
+  assert.deepEqual(calls, [
+    "json",
+    "schema-publication",
+    "machine-artifacts",
+    "example-publication",
+    "links",
+    "package-api-documentation"
+  ]);
+
+  const stderr: string[] = [];
+  const exitCode = await runMaterialValidationCli(
+    {
+      argv: [],
+      writeStdout: (message) => stdout.push(message),
+      writeStderr: (message) => stderr.push(message)
+    },
+    validators
+  );
+  assert.equal(exitCode, 1);
+  assert.deepEqual(stderr, [
+    "fixture JSON invalid.",
+    schemaFailure.message,
+    exampleFailure.message
+  ]);
+  assert.deepEqual(stdout, ["fixture links ok", "fixture links ok"]);
+});
+
+test("material workflow propagates unexpected failures instead of returning success", async () => {
+  const failure = new Error("fixture I/O failure");
+  const base = recordingValidators([]);
+  for (const validators of [
+    {
+      ...base,
+      validateJsonSyntax: async () => {
+        throw failure;
+      }
+    },
+    {
+      ...base,
+      checkPublishedMachineSchemas: () => {
+        throw failure;
+      }
+    },
+    {
+      ...base,
+      checkPublishedMachineExamples: async () => {
+        throw failure;
+      }
+    }
+  ]) {
+    await assert.rejects(
+      () => validateRepositoryMaterials({}, validators),
+      (error) => error === failure
+    );
+  }
+  await assert.rejects(
+    () =>
+      validateRepositoryMaterials(
+        { tasks: ["package-api-documentation"] },
+        {
+          ...base,
+          runPackageApiDocumentationCli: () => ({
+            exitCode: 1,
+            diagnostics: ["fixture projection drift"]
+          })
+        }
+      ),
+    /fixture projection drift/
+  );
 });
 
 test("material validation returns typed expected failures and keeps the Gate path console-silent", async () => {
@@ -172,6 +405,44 @@ test("material direct validation fails closed while the Gate adapter projects it
   ]);
   assert.equal(Object.getPrototypeOf(invocation.records[0]?.data), null);
 });
+
+function recordingValidators(
+  calls: string[]
+): NonNullable<Parameters<typeof validateRepositoryMaterials>[1]> {
+  return {
+    validateJsonSyntax: async (options) => {
+      calls.push("json");
+      options?.report?.("fixture JSON ok");
+    },
+    checkPublishedMachineSchemas: () => {
+      calls.push("schema-publication");
+    },
+    validateSchemas: (report) => {
+      calls.push("schemas");
+      report?.("fixture schemas ok");
+    },
+    validatePublishedMachineArtifactExamples: () => {
+      calls.push("machine-artifacts");
+      return 2;
+    },
+    checkPublishedMachineExamples: async () => {
+      calls.push("example-publication");
+    },
+    validateReportExamples: (report) => {
+      calls.push("report-examples");
+      report?.("fixture reports ok");
+    },
+    validateMarkdownLinks: (options) => {
+      calls.push("links");
+      options?.report?.("fixture links ok");
+    },
+    runPackageApiDocumentationCli: (argv) => {
+      assert.deepEqual(argv, ["--check"]);
+      calls.push("package-api-documentation");
+      return { exitCode: 0, diagnostics: [] };
+    }
+  };
+}
 
 function jsonRoundTrip(value: unknown): unknown {
   return JSON.parse(JSON.stringify(value)) as unknown;

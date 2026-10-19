@@ -46,15 +46,32 @@ export interface MaterialValidationCliOptions {
   readonly writeStdout: (message: string) => void;
 }
 
-type MaterialValidationAction = (options: MaterialValidationTaskOptions) => void | Promise<void>;
+// Keep task selection/composition here; only the leaf validators cross this dependency boundary.
+const materialValidators = Object.freeze({
+  validateJsonSyntax,
+  checkPublishedMachineSchemas,
+  validateSchemas,
+  validatePublishedMachineArtifactExamples,
+  checkPublishedMachineExamples,
+  validateReportExamples,
+  validateMarkdownLinks,
+  runPackageApiDocumentationCli
+});
+
+type MaterialValidators = typeof materialValidators;
+
+type MaterialValidationAction = (
+  options: MaterialValidationTaskOptions,
+  validators: MaterialValidators
+) => void | Promise<void>;
 
 const tasks: Readonly<Record<MaterialValidationTask, MaterialValidationAction>> = {
-  [MATERIAL_TASK_NAMES.json]: ({ report }) =>
-    validateJsonSyntax(report === undefined ? {} : { report }),
+  [MATERIAL_TASK_NAMES.json]: ({ report }, validators) =>
+    validators.validateJsonSyntax(report === undefined ? {} : { report }),
   [MATERIAL_TASK_NAMES.schema]: validatePublishedSchemas,
   [MATERIAL_TASK_NAMES.examples]: validatePublishedExamples,
-  [MATERIAL_TASK_NAMES.links]: ({ linkRepositoryRoot, report }) => {
-    validateMarkdownLinks({
+  [MATERIAL_TASK_NAMES.links]: ({ linkRepositoryRoot, report }, validators) => {
+    validators.validateMarkdownLinks({
       ...(report === undefined ? {} : { report }),
       ...(linkRepositoryRoot === undefined ? {} : { repositoryRoot: linkRepositoryRoot })
     });
@@ -87,7 +104,8 @@ export async function validateRepositoryMaterials(
     linkRepositoryRoot?: string;
     tasks?: readonly MaterialValidationTask[];
     report?: (message: string) => void;
-  }> = {}
+  }> = {},
+  validators: MaterialValidators = materialValidators
 ): Promise<MaterialValidationResult> {
   const selectedTasks =
     options.tasks === undefined ? Object.values(MATERIAL_TASK_NAMES) : [...new Set(options.tasks)];
@@ -96,7 +114,7 @@ export async function validateRepositoryMaterials(
     assert(task !== undefined, `unknown validation task: ${taskName}`);
     return task;
   });
-  return validateMaterialActions(selectedActions, options);
+  return validateMaterialActions(selectedActions, options, validators);
 }
 
 /** Direct Gate provider for the project-owned machine publication and example boundary. */
@@ -119,17 +137,21 @@ async function validateMaterialActions(
   options: Readonly<{
     linkRepositoryRoot?: string;
     report?: (message: string) => void;
-  }>
+  }>,
+  validators: MaterialValidators = materialValidators
 ): Promise<MaterialValidationResult> {
   const diagnostics: MaterialValidationDiagnostic[] = [];
   for (const task of selectedActions) {
     try {
-      await task({
-        ...(options.linkRepositoryRoot === undefined
-          ? {}
-          : { linkRepositoryRoot: options.linkRepositoryRoot }),
-        ...(options.report === undefined ? {} : { report: options.report })
-      });
+      await task(
+        {
+          ...(options.linkRepositoryRoot === undefined
+            ? {}
+            : { linkRepositoryRoot: options.linkRepositoryRoot }),
+          ...(options.report === undefined ? {} : { report: options.report })
+        },
+        validators
+      );
     } catch (error: unknown) {
       if (!(error instanceof ExpectedMaterialValidationFailure)) throw error;
       diagnostics.push(...error.diagnostics);
@@ -146,37 +168,48 @@ async function validateMaterialActions(
 
 /** Runs the repository-material workflow and owns its success/failure output channels. */
 export async function runMaterialValidationCli(
-  options: MaterialValidationCliOptions
+  options: MaterialValidationCliOptions,
+  validators: MaterialValidators = materialValidators
 ): Promise<number> {
   const requestedTasks = parseMaterialValidationTasks(options.argv);
-  const result = await validateRepositoryMaterials({
-    ...(requestedTasks.length === 0 ? {} : { tasks: requestedTasks }),
-    ...(options.linkRepositoryRoot === undefined
-      ? {}
-      : { linkRepositoryRoot: options.linkRepositoryRoot }),
-    report: options.writeStdout
-  });
+  const result = await validateRepositoryMaterials(
+    {
+      ...(requestedTasks.length === 0 ? {} : { tasks: requestedTasks }),
+      ...(options.linkRepositoryRoot === undefined
+        ? {}
+        : { linkRepositoryRoot: options.linkRepositoryRoot }),
+      report: options.writeStdout
+    },
+    validators
+  );
   if (result.status === "passed") return 0;
   for (const diagnostic of result.diagnostics) options.writeStderr(diagnostic.presentation);
   return 1;
 }
 
-function validatePackageApiDocumentation(_options: MaterialValidationTaskOptions): void {
-  const result = runPackageApiDocumentationCli(["--check"]);
+function validatePackageApiDocumentation(
+  _options: MaterialValidationTaskOptions,
+  validators: MaterialValidators
+): void {
+  const result = validators.runPackageApiDocumentationCli(["--check"]);
   if (result.exitCode !== 0) throw new Error(result.diagnostics.join("\n"));
 }
 
-async function validatePublishedExamples({ report }: MaterialValidationTaskOptions): Promise<void> {
-  await validateCurrentMachineExamples(report === undefined ? {} : { report });
-  validateReportExamples(report);
+async function validatePublishedExamples(
+  { report }: MaterialValidationTaskOptions,
+  validators: MaterialValidators
+): Promise<void> {
+  await validateCurrentMachineExamples(report === undefined ? {} : { report }, validators);
+  validators.validateReportExamples(report);
 }
 
-async function validateCurrentMachineExamples({
-  report
-}: MaterialValidationTaskOptions): Promise<void> {
-  const artifactSetCount = validatePublishedMachineArtifactExamples();
+async function validateCurrentMachineExamples(
+  { report }: MaterialValidationTaskOptions,
+  validators: MaterialValidators
+): Promise<void> {
+  const artifactSetCount = validators.validatePublishedMachineArtifactExamples();
   try {
-    await checkPublishedMachineExamples();
+    await validators.checkPublishedMachineExamples();
   } catch (error: unknown) {
     if (error instanceof MachineExamplePublicationFailure) {
       throw expectedMaterialValidationFailure([machineExampleDiagnostic(error)]);
@@ -186,16 +219,19 @@ async function validateCurrentMachineExamples({
   report?.(`current machine artifact examples ok: ${artifactSetCount} set(s)`);
 }
 
-function validatePublishedSchemas({ report }: MaterialValidationTaskOptions): void {
+function validatePublishedSchemas(
+  { report }: MaterialValidationTaskOptions,
+  validators: MaterialValidators
+): void {
   try {
-    checkPublishedMachineSchemas();
+    validators.checkPublishedMachineSchemas();
   } catch (error: unknown) {
     if (error instanceof MachineSchemaPublicationFailure) {
       throw expectedMaterialValidationFailure([machineSchemaDiagnostic(error)]);
     }
     throw error;
   }
-  validateSchemas(report);
+  validators.validateSchemas(report);
 }
 
 function machineExampleDiagnostic(
