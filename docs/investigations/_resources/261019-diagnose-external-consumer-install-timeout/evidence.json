@@ -1,0 +1,1310 @@
+{
+  "formedAt": "2026-10-19T10:03:56.280Z",
+  "scope": "Diagnostic reproduction, not a Gate invocation or a test-budget change. Only task-owned process observations retained. Raw headers, cookies, unrelated processes, environment/config, network addresses and tar file listing omitted. URLs restricted to unauthenticated public registry metadata.",
+  "runtime": {
+    "bun": "1.3.14",
+    "node": "24.18.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "clockTicksPerSecond": 100
+  },
+  "sourceHead": "b8cf54f4801397002b739c7945bf83e2ae6806ac",
+  "candidate": {
+    "version": "0.0.0-local.1cbe23f0f7d6",
+    "artifactPath": "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.1cbe23f0f7d6.tgz",
+    "sha256": "b00b89a4dbfa8c66e2c0e8ce971874f36448e9f42416479fbe692abe131f2fd2"
+  },
+  "sourceFiles": [
+    {
+      "path": "scripts/package/candidate/external-consumer/material.ts",
+      "sha256": "d01cf17d74f487b16afb293d3e4b197c4a78931659e2e8415b403065c9b94477"
+    },
+    {
+      "path": "scripts/package/candidate/external-consumer/provider.ts",
+      "sha256": "77ec24c82c8f853221d082af4860476eeb416d0b81de8303cbbb5a390db793f1"
+    },
+    {
+      "path": "scripts/project/gate/checks/external-consumer-material.ts",
+      "sha256": "8b658d7141abc7af8ede717340334734d7ff57a6043a8aa6457e6cd7d6a62a2d"
+    }
+  ],
+  "baselineProvider": {
+    "startedAt": "2026-10-19T09:54:17.390Z",
+    "mode": "provider",
+    "args": [
+      "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/package/candidate/external-consumer/provider.ts"
+    ],
+    "code": null,
+    "signal": "SIGKILL",
+    "watchdog": true,
+    "elapsedMs": 30042.323671000002,
+    "sampleCount": 59,
+    "maxConnectionCount": 64,
+    "samples": [
+      {
+        "elapsedMs": 785.635828,
+        "connectionCount": 0,
+        "processes": [
+          {
+            "pid": 822615,
+            "ppid": 822579,
+            "state": "Ssl",
+            "command": "bun",
+            "userTicks": 20,
+            "systemTicks": 12,
+            "cpuMs": 320,
+            "io": "rchar: 22123669\nwchar: 117591\nsyscr: 731\nsyscw: 261\nread_bytes: 188416\nwrite_bytes: 233472\ncancelled_write_bytes: 0",
+            "waitChannels": [
+              "do_epoll_wait",
+              "futex_do_wait"
+            ]
+          },
+          {
+            "pid": 822628,
+            "ppid": 822615,
+            "state": "Sl",
+            "command": "bun",
+            "userTicks": 1,
+            "systemTicks": 31,
+            "cpuMs": 320,
+            "io": "rchar: 1512055\nwchar: 5675662\nsyscr: 33\nsyscw: 971\nread_bytes: 237568\nwrite_bytes: 7876608\ncancelled_write_bytes: 0",
+            "waitChannels": [
+              "do_epoll_wait",
+              "futex_do_wait",
+              "0"
+            ]
+          }
+        ]
+      },
+      {
+        "elapsedMs": 29617.56792,
+        "connectionCount": 55,
+        "processes": [
+          {
+            "pid": 822615,
+            "ppid": 822579,
+            "state": "Ssl",
+            "command": "bun",
+            "userTicks": 22,
+            "systemTicks": 13,
+            "cpuMs": 350,
+            "io": "rchar: 22123669\nwchar: 117591\nsyscr: 731\nsyscw: 261\nread_bytes: 188416\nwrite_bytes: 233472\ncancelled_write_bytes: 0",
+            "waitChannels": [
+              "do_epoll_wait",
+              "futex_do_wait"
+            ]
+          },
+          {
+            "pid": 822628,
+            "ppid": 822615,
+            "state": "Sl",
+            "command": "bun",
+            "userTicks": 10,
+            "systemTicks": 55,
+            "cpuMs": 650,
+            "io": "rchar: 3186982\nwchar: 7881366\nsyscr: 316\nsyscw: 1718\nread_bytes: 5013504\nwrite_bytes: 11722752\ncancelled_write_bytes: 0",
+            "waitChannels": [
+              "do_epoll_wait",
+              "futex_do_wait"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "verboseInstall": {
+    "startedAt": "2026-10-19T09:54:44.266Z",
+    "mode": "verbose",
+    "args": [
+      "install",
+      "--no-save",
+      "--ignore-scripts",
+      "--verbose",
+      "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.1cbe23f0f7d6.tgz"
+    ],
+    "code": null,
+    "signal": "SIGKILL",
+    "watchdog": true,
+    "elapsedMs": 30015.793455,
+    "sampleCount": 59,
+    "maxConnectionCount": 47,
+    "samples": [
+      {
+        "elapsedMs": 547.587719,
+        "connectionCount": 43,
+        "processes": [
+          {
+            "pid": 822916,
+            "ppid": 822878,
+            "state": "Ssl",
+            "command": "bun",
+            "userTicks": 2,
+            "systemTicks": 42,
+            "cpuMs": 440,
+            "io": "rchar: 3170030\nwchar: 7333667\nsyscr: 299\nsyscw: 1570\nread_bytes: 24576\nwrite_bytes: 10944512\ncancelled_write_bytes: 0",
+            "waitChannels": [
+              "do_epoll_wait",
+              "futex_do_wait"
+            ]
+          }
+        ]
+      },
+      {
+        "elapsedMs": 29559.793093,
+        "connectionCount": 42,
+        "processes": [
+          {
+            "pid": 822916,
+            "ppid": 822878,
+            "state": "Ssl",
+            "command": "bun",
+            "userTicks": 6,
+            "systemTicks": 49,
+            "cpuMs": 550,
+            "io": "rchar: 3294118\nwchar: 7767899\nsyscr: 340\nsyscw: 3961\nread_bytes: 1130496\nwrite_bytes: 11419648\ncancelled_write_bytes: 16384",
+            "waitChannels": [
+              "do_epoll_wait",
+              "futex_do_wait"
+            ]
+          }
+        ]
+      }
+    ],
+    "metadataRequestLines": 56,
+    "response304Lines": 50,
+    "response200Lines": 0,
+    "events": [
+      {
+        "elapsedMs": 430.0185,
+        "line": "[/home/dev/.codex/worktrees/package-release-preparation/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.1cbe23f0f7d6.tgz] Extract .b9dff7a7ffefff7b-00000001./home/dev/.codex/worktrees/packa (decompressed 1.50 MB tgz file in 12.086ms)"
+      },
+      {
+        "elapsedMs": 430.0185,
+        "line": "[/home/dev/.codex/worktrees/package-release-preparation/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.1cbe23f0f7d6.tgz] Extracted to .b9dff7a7ffefff7b-00000001./home/dev/.codex/worktrees/packa (411.106ms)"
+      },
+      {
+        "elapsedMs": 10500.539034000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/parse-entities"
+      },
+      {
+        "elapsedMs": 10507.535546000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/boundary"
+      },
+      {
+        "elapsedMs": 10508.313741,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/path-key"
+      },
+      {
+        "elapsedMs": 10508.839428000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/mdast-util-phrasing"
+      },
+      {
+        "elapsedMs": 10514.778446,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/ccount"
+      },
+      {
+        "elapsedMs": 10517.292841,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/format"
+      },
+      {
+        "elapsedMs": 10551.362476,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/katex"
+      },
+      {
+        "elapsedMs": 10789.803886000002,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/lodash.uniq"
+      },
+      {
+        "elapsedMs": 10796.533773000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/lodash.sortby"
+      },
+      {
+        "elapsedMs": 10797.451654,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/run-parallel"
+      },
+      {
+        "elapsedMs": 10800.75595,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/strip-final-newline"
+      },
+      {
+        "elapsedMs": 10956.904546,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/mdast-util-gfm-footnote"
+      },
+      {
+        "elapsedMs": 11041.514863,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/fastq"
+      },
+      {
+        "elapsedMs": 11111.251467,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/pretty-ms"
+      },
+      {
+        "elapsedMs": 11182.616660000002,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/mdast-util-find-and-replace"
+      },
+      {
+        "elapsedMs": 11467.192843,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/shebang-command"
+      },
+      {
+        "elapsedMs": 11501.750958,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/@types%2fms"
+      },
+      {
+        "elapsedMs": 11606.258805000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/micromark-util-combine-extensions"
+      },
+      {
+        "elapsedMs": 11608.815998,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/micromark-util-decode-string"
+      },
+      {
+        "elapsedMs": 11616.599796,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/@types%2fkatex"
+      },
+      {
+        "elapsedMs": 11620.643902,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/@types%2funist"
+      },
+      {
+        "elapsedMs": 11623.061397000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/longest-streak"
+      },
+      {
+        "elapsedMs": 11628.211764000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/lodash.uniqwith"
+      },
+      {
+        "elapsedMs": 11799.860933,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/@sec-ant%2freadable-stream"
+      },
+      {
+        "elapsedMs": 11832.440549,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/which"
+      },
+      {
+        "elapsedMs": 11904.334829000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/braces"
+      },
+      {
+        "elapsedMs": 12127.798031,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/character-entities"
+      },
+      {
+        "elapsedMs": 12127.928774,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/micromark-factory-destination"
+      },
+      {
+        "elapsedMs": 13924.461631,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 13924.534557,
+        "line": "[PackageManager] waiting for 43 tasks"
+      },
+      {
+        "elapsedMs": 13924.534557,
+        "line": "    [13.48s]"
+      },
+      {
+        "elapsedMs": 13924.534557,
+        "line": "Downloaded parse-entities versions"
+      },
+      {
+        "elapsedMs": 13925.072849,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/character-entities-legacy"
+      },
+      {
+        "elapsedMs": 13935.878286000001,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 13935.944649000001,
+        "line": "[PackageManager] waiting for 47 tasks"
+      },
+      {
+        "elapsedMs": 13935.944649000001,
+        "line": "    [13.49s]"
+      },
+      {
+        "elapsedMs": 13935.944649000001,
+        "line": "Downloaded path-key versions"
+      },
+      {
+        "elapsedMs": 13940.268028,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 13940.33388,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 13940.33388,
+        "line": "[PackageManager] waiting for 46 tasks"
+      },
+      {
+        "elapsedMs": 13940.33388,
+        "line": "    [13.49s]"
+      },
+      {
+        "elapsedMs": 13940.33388,
+        "line": "Downloaded mdast-util-phrasing versions"
+      },
+      {
+        "elapsedMs": 13940.697084000001,
+        "line": "    [13.50s]"
+      },
+      {
+        "elapsedMs": 13940.697084000001,
+        "line": "Downloaded boundary versions"
+      },
+      {
+        "elapsedMs": 13941.103070000001,
+        "line": "[PackageManager] waiting for 45 tasks"
+      },
+      {
+        "elapsedMs": 13941.273495000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/unist-util-is"
+      },
+      {
+        "elapsedMs": 13949.479254,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 13949.567248000001,
+        "line": "[PackageManager] waiting for 45 tasks"
+      },
+      {
+        "elapsedMs": 13949.567248000001,
+        "line": "    [13.50s]"
+      },
+      {
+        "elapsedMs": 13949.567248000001,
+        "line": "Downloaded ccount versions"
+      },
+      {
+        "elapsedMs": 13954.746024,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 13954.809722,
+        "line": "[PackageManager] waiting for 44 tasks"
+      },
+      {
+        "elapsedMs": 13954.809722,
+        "line": "    [13.51s]"
+      },
+      {
+        "elapsedMs": 13954.809722,
+        "line": "Downloaded katex versions"
+      },
+      {
+        "elapsedMs": 13955.562068000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/commander"
+      },
+      {
+        "elapsedMs": 14173.006751,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 14173.158553000001,
+        "line": "[PackageManager] waiting for 44 tasks"
+      },
+      {
+        "elapsedMs": 14173.158553000001,
+        "line": "    [13.73s]"
+      },
+      {
+        "elapsedMs": 14173.158553000001,
+        "line": "Downloaded strip-final-newline versions"
+      },
+      {
+        "elapsedMs": 14265.185501,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 14265.260691000001,
+        "line": "[PackageManager] waiting for 43 tasks"
+      },
+      {
+        "elapsedMs": 14265.260691000001,
+        "line": "    [13.81s]"
+      },
+      {
+        "elapsedMs": 14265.260691000001,
+        "line": "Downloaded run-parallel versions"
+      },
+      {
+        "elapsedMs": 14266.004297000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/queue-microtask"
+      },
+      {
+        "elapsedMs": 14344.756759,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 14345.007567,
+        "line": "[PackageManager] waiting for 43 tasks"
+      },
+      {
+        "elapsedMs": 14345.007567,
+        "line": "    [13.90s]"
+      },
+      {
+        "elapsedMs": 14345.007567,
+        "line": "Downloaded mdast-util-gfm-footnote versions"
+      },
+      {
+        "elapsedMs": 14466.067178000001,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 14466.147316,
+        "line": "[PackageManager] waiting for 42 tasks"
+      },
+      {
+        "elapsedMs": 14466.147316,
+        "line": "    [14.02s]"
+      },
+      {
+        "elapsedMs": 14466.147316,
+        "line": "Downloaded fastq versions"
+      },
+      {
+        "elapsedMs": 14466.898489000001,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/reusify"
+      },
+      {
+        "elapsedMs": 14551.322397,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 14551.322397,
+        "line": "[PackageManager] waiting for 42 tasks"
+      },
+      {
+        "elapsedMs": 14551.322397,
+        "line": "    [14.10s]"
+      },
+      {
+        "elapsedMs": 14551.322397,
+        "line": "Downloaded pretty-ms versions"
+      },
+      {
+        "elapsedMs": 14551.322397,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/parse-ms"
+      },
+      {
+        "elapsedMs": 14634.616537,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 14634.721952,
+        "line": "[PackageManager] waiting for 42 tasks"
+      },
+      {
+        "elapsedMs": 14634.721952,
+        "line": "    [14.18s]"
+      },
+      {
+        "elapsedMs": 14634.721952,
+        "line": "Downloaded mdast-util-find-and-replace versions"
+      },
+      {
+        "elapsedMs": 14635.483129,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/unist-util-visit-parents"
+      },
+      {
+        "elapsedMs": 14935.095454,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 14935.095454,
+        "line": "[PackageManager] waiting for 42 tasks"
+      },
+      {
+        "elapsedMs": 14935.095454,
+        "line": "    [14.49s]"
+      },
+      {
+        "elapsedMs": 14935.095454,
+        "line": "Downloaded shebang-command versions"
+      },
+      {
+        "elapsedMs": 14936.08958,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/shebang-regex"
+      },
+      {
+        "elapsedMs": 14990.028397,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 14990.122301000001,
+        "line": "[PackageManager] waiting for 42 tasks"
+      },
+      {
+        "elapsedMs": 14990.122301000001,
+        "line": "    [14.54s]"
+      },
+      {
+        "elapsedMs": 14990.122301000001,
+        "line": "Downloaded @types/ms versions"
+      },
+      {
+        "elapsedMs": 15058.163775,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15058.305318,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15058.305318,
+        "line": "[PackageManager] waiting for 41 tasks"
+      },
+      {
+        "elapsedMs": 15058.305318,
+        "line": "    [14.62s]"
+      },
+      {
+        "elapsedMs": 15058.305318,
+        "line": "Downloaded micromark-util-combine-extensions versions"
+      },
+      {
+        "elapsedMs": 15058.305318,
+        "line": "[PackageManager] waiting for 40 tasks"
+      },
+      {
+        "elapsedMs": 15058.305318,
+        "line": "    [14.62s]"
+      },
+      {
+        "elapsedMs": 15058.305318,
+        "line": "Downloaded micromark-util-decode-string versions"
+      },
+      {
+        "elapsedMs": 15074.540361000001,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15074.631691,
+        "line": "[PackageManager] waiting for 39 tasks"
+      },
+      {
+        "elapsedMs": 15074.631691,
+        "line": "    [14.63s]"
+      },
+      {
+        "elapsedMs": 15074.631691,
+        "line": "Downloaded longest-streak versions"
+      },
+      {
+        "elapsedMs": 15081.424889,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15081.53849,
+        "line": "[PackageManager] waiting for 38 tasks"
+      },
+      {
+        "elapsedMs": 15081.53849,
+        "line": "    [14.64s]"
+      },
+      {
+        "elapsedMs": 15081.53849,
+        "line": "Downloaded lodash.uniqwith versions"
+      },
+      {
+        "elapsedMs": 15083.442028000001,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15083.510726,
+        "line": "[PackageManager] waiting for 37 tasks"
+      },
+      {
+        "elapsedMs": 15083.510726,
+        "line": "    [14.64s]"
+      },
+      {
+        "elapsedMs": 15083.510726,
+        "line": "Downloaded @types/katex versions"
+      },
+      {
+        "elapsedMs": 15091.857913,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15091.944604,
+        "line": "[PackageManager] waiting for 36 tasks"
+      },
+      {
+        "elapsedMs": 15091.944604,
+        "line": "    [14.65s]"
+      },
+      {
+        "elapsedMs": 15091.944604,
+        "line": "Downloaded @types/unist versions"
+      },
+      {
+        "elapsedMs": 15295.269519000001,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15295.349357000001,
+        "line": "[PackageManager] waiting for 35 tasks"
+      },
+      {
+        "elapsedMs": 15295.349357000001,
+        "line": "    [14.85s]"
+      },
+      {
+        "elapsedMs": 15295.349357000001,
+        "line": "Downloaded @sec-ant/readable-stream versions"
+      },
+      {
+        "elapsedMs": 15307.659847,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15307.730418000001,
+        "line": "[PackageManager] waiting for 34 tasks"
+      },
+      {
+        "elapsedMs": 15307.730418000001,
+        "line": "    [14.86s]"
+      },
+      {
+        "elapsedMs": 15307.730418000001,
+        "line": "Downloaded which versions"
+      },
+      {
+        "elapsedMs": 15308.822683,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/isexe"
+      },
+      {
+        "elapsedMs": 15575.419784000002,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 15575.579114,
+        "line": "[PackageManager] waiting for 34 tasks"
+      },
+      {
+        "elapsedMs": 15575.579114,
+        "line": "    [15.13s]"
+      },
+      {
+        "elapsedMs": 15575.579114,
+        "line": "Downloaded character-entities versions"
+      },
+      {
+        "elapsedMs": 16811.686887,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/@sindresorhus%2fmerge-streams"
+      },
+      {
+        "elapsedMs": 16968.745269,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/micromark-extension-gfm-autolink-literal"
+      },
+      {
+        "elapsedMs": 17143.989443,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 17144.074451,
+        "line": "[PackageManager] waiting for 33 tasks"
+      },
+      {
+        "elapsedMs": 17144.074451,
+        "line": "    [3.22s]"
+      },
+      {
+        "elapsedMs": 17144.074451,
+        "line": "Downloaded character-entities-legacy versions"
+      },
+      {
+        "elapsedMs": 17214.348059,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 17214.415053999997,
+        "line": "[PackageManager] waiting for 32 tasks"
+      },
+      {
+        "elapsedMs": 17214.415053999997,
+        "line": "    [3.26s]"
+      },
+      {
+        "elapsedMs": 17214.415053999997,
+        "line": "Downloaded commander versions"
+      },
+      {
+        "elapsedMs": 17478.546040999998,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 17478.623423999998,
+        "line": "[PackageManager] waiting for 31 tasks"
+      },
+      {
+        "elapsedMs": 17478.623423999998,
+        "line": "    [3.21s]"
+      },
+      {
+        "elapsedMs": 17478.623423999998,
+        "line": "Downloaded queue-microtask versions"
+      },
+      {
+        "elapsedMs": 17699.260494,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 17699.370568,
+        "line": "[PackageManager] waiting for 30 tasks"
+      },
+      {
+        "elapsedMs": 17699.370568,
+        "line": "    [3.16s]"
+      },
+      {
+        "elapsedMs": 17699.370568,
+        "line": "Downloaded parse-ms versions"
+      },
+      {
+        "elapsedMs": 18420.85199,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/is-glob"
+      },
+      {
+        "elapsedMs": 18424.848717999997,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/unist-util-visit"
+      },
+      {
+        "elapsedMs": 18427.071034,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/is-unicode-supported"
+      },
+      {
+        "elapsedMs": 18567.392837,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/micromark-util-html-tag-name"
+      },
+      {
+        "elapsedMs": 18572.08814,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 18572.162237999997,
+        "line": "[PackageManager] waiting for 29 tasks"
+      },
+      {
+        "elapsedMs": 18572.162237999997,
+        "line": "    [3.64s]"
+      },
+      {
+        "elapsedMs": 18572.162237999997,
+        "line": "Downloaded shebang-regex versions"
+      },
+      {
+        "elapsedMs": 18632.520184999998,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 18632.599071,
+        "line": "[PackageManager] waiting for 28 tasks"
+      },
+      {
+        "elapsedMs": 18632.599071,
+        "line": "    [3.32s]"
+      },
+      {
+        "elapsedMs": 18632.599071,
+        "line": "Downloaded isexe versions"
+      },
+      {
+        "elapsedMs": 18972.444639999998,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 18972.444639999998,
+        "line": "[PackageManager] waiting for 27 tasks"
+      },
+      {
+        "elapsedMs": 18972.521963,
+        "line": "    [4.34s]"
+      },
+      {
+        "elapsedMs": 18972.521963,
+        "line": "Downloaded unist-util-visit-parents versions"
+      },
+      {
+        "elapsedMs": 18980.734538999997,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/dequal"
+      },
+      {
+        "elapsedMs": 18983.632906,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/ms"
+      },
+      {
+        "elapsedMs": 19120.195162,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/strip-ansi"
+      },
+      {
+        "elapsedMs": 19982.24339,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 19982.24339,
+        "line": "[PackageManager] waiting for 26 tasks"
+      },
+      {
+        "elapsedMs": 19982.335592,
+        "line": "    [19.54s]"
+      },
+      {
+        "elapsedMs": 19982.335592,
+        "line": "Downloaded @sindresorhus/merge-streams versions"
+      },
+      {
+        "elapsedMs": 20136.176032,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 20136.273312999998,
+        "line": "[PackageManager] waiting for 25 tasks"
+      },
+      {
+        "elapsedMs": 20136.273312999998,
+        "line": "    [19.69s]"
+      },
+      {
+        "elapsedMs": 20136.273312999998,
+        "line": "Downloaded micromark-extension-gfm-autolink-literal versions"
+      },
+      {
+        "elapsedMs": 20218.043599,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 20218.129729,
+        "line": "[PackageManager] waiting for 24 tasks"
+      },
+      {
+        "elapsedMs": 20218.129729,
+        "line": "    [19.77s]"
+      },
+      {
+        "elapsedMs": 20218.129729,
+        "line": "Downloaded format versions"
+      },
+      {
+        "elapsedMs": 20505.76951,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 20505.861700999998,
+        "line": "[PackageManager] waiting for 23 tasks"
+      },
+      {
+        "elapsedMs": 20505.861700999998,
+        "line": "    [20.06s]"
+      },
+      {
+        "elapsedMs": 20505.861700999998,
+        "line": "Downloaded lodash.uniq versions"
+      },
+      {
+        "elapsedMs": 20764.290118999998,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 20764.290118999998,
+        "line": "[PackageManager] waiting for 22 tasks"
+      },
+      {
+        "elapsedMs": 20764.290118999998,
+        "line": "    [20.32s]"
+      },
+      {
+        "elapsedMs": 20764.290118999998,
+        "line": "Downloaded lodash.sortby versions"
+      },
+      {
+        "elapsedMs": 21793.409475,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 21793.554354,
+        "line": "[PackageManager] waiting for 21 tasks"
+      },
+      {
+        "elapsedMs": 21793.554354,
+        "line": "    [21.35s]"
+      },
+      {
+        "elapsedMs": 21793.554354,
+        "line": "Downloaded is-glob versions"
+      },
+      {
+        "elapsedMs": 21793.74105,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 21794.116987999998,
+        "line": "[PackageManager] waiting for 21 tasks"
+      },
+      {
+        "elapsedMs": 21794.116987999998,
+        "line": "    [21.35s]"
+      },
+      {
+        "elapsedMs": 21794.116987999998,
+        "line": "Downloaded is-unicode-supported versions"
+      },
+      {
+        "elapsedMs": 21794.308514,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/is-extglob"
+      },
+      {
+        "elapsedMs": 21888.647968999998,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 21888.836369,
+        "line": "[PackageManager] waiting for 20 tasks"
+      },
+      {
+        "elapsedMs": 21888.836369,
+        "line": "    [21.45s]"
+      },
+      {
+        "elapsedMs": 21888.836369,
+        "line": "Downloaded braces versions"
+      },
+      {
+        "elapsedMs": 21889.388905,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/fill-range"
+      },
+      {
+        "elapsedMs": 21992.154717999998,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 21992.259491999997,
+        "line": "[PackageManager] waiting for 20 tasks"
+      },
+      {
+        "elapsedMs": 21992.259491999997,
+        "line": "    [8.05s]"
+      },
+      {
+        "elapsedMs": 21992.259491999997,
+        "line": "Downloaded unist-util-is versions"
+      },
+      {
+        "elapsedMs": 22004.243882,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 22004.305878,
+        "line": "[PackageManager] waiting for 19 tasks"
+      },
+      {
+        "elapsedMs": 22004.305878,
+        "line": "    [21.56s]"
+      },
+      {
+        "elapsedMs": 22004.305878,
+        "line": "Downloaded micromark-factory-destination versions"
+      },
+      {
+        "elapsedMs": 22834.755357,
+        "line": "[PackageManager] waiting for 18 tasks"
+      },
+      {
+        "elapsedMs": 22834.981547,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/markdown-table"
+      },
+      {
+        "elapsedMs": 22865.820303,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 22865.91611,
+        "line": "[PackageManager] waiting for 18 tasks"
+      },
+      {
+        "elapsedMs": 22865.91611,
+        "line": "    [22.42s]"
+      },
+      {
+        "elapsedMs": 22865.91611,
+        "line": "Downloaded dequal versions"
+      },
+      {
+        "elapsedMs": 22871.684057,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 22871.746493,
+        "line": "[PackageManager] waiting for 17 tasks"
+      },
+      {
+        "elapsedMs": 22871.746493,
+        "line": "    [22.43s]"
+      },
+      {
+        "elapsedMs": 22871.746493,
+        "line": "Downloaded ms versions"
+      },
+      {
+        "elapsedMs": 23101.241877,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 23101.409168,
+        "line": "[PackageManager] waiting for 16 tasks"
+      },
+      {
+        "elapsedMs": 23101.409168,
+        "line": "    [22.65s]"
+      },
+      {
+        "elapsedMs": 23101.409168,
+        "line": "Downloaded strip-ansi versions"
+      },
+      {
+        "elapsedMs": 23102.084018999998,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/ansi-regex"
+      },
+      {
+        "elapsedMs": 23442.052085,
+        "line": "[PackageManager] waiting for 16 tasks"
+      },
+      {
+        "elapsedMs": 23442.052085,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/unist-util-visit"
+      },
+      {
+        "elapsedMs": 23443.426781,
+        "line": "[PackageManager] waiting for 16 tasks"
+      },
+      {
+        "elapsedMs": 23551.426246,
+        "line": "[PackageManager] waiting for 16 tasks"
+      },
+      {
+        "elapsedMs": 23561.906303,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/is-alphanumerical"
+      },
+      {
+        "elapsedMs": 23729.578129999998,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/is-hexadecimal"
+      },
+      {
+        "elapsedMs": 23753.943688,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/is-decimal"
+      },
+      {
+        "elapsedMs": 24087.7587,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 24087.833478999997,
+        "line": "[PackageManager] waiting for 16 tasks"
+      },
+      {
+        "elapsedMs": 24087.833478999997,
+        "line": "    [9.62s]"
+      },
+      {
+        "elapsedMs": 24087.833478999997,
+        "line": "Downloaded reusify versions"
+      },
+      {
+        "elapsedMs": 25023.860161,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 25023.959897,
+        "line": "[PackageManager] waiting for 15 tasks"
+      },
+      {
+        "elapsedMs": 25023.959897,
+        "line": "    [3.23s]"
+      },
+      {
+        "elapsedMs": 25023.959897,
+        "line": "Downloaded is-extglob versions"
+      },
+      {
+        "elapsedMs": 25724.267523,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/micromark-util-classify-character"
+      },
+      {
+        "elapsedMs": 25724.341791,
+        "line": "[PackageManager] waiting for 14 tasks"
+      },
+      {
+        "elapsedMs": 26154.583813999998,
+        "line": "> HTTP/1.1 GET https://registry.npmjs.org/get-east-asian-width"
+      },
+      {
+        "elapsedMs": 26502.046976999998,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 26502.122236,
+        "line": "[PackageManager] waiting for 14 tasks"
+      },
+      {
+        "elapsedMs": 26502.122236,
+        "line": "    [3.40s]"
+      },
+      {
+        "elapsedMs": 26502.122236,
+        "line": "Downloaded ansi-regex versions"
+      },
+      {
+        "elapsedMs": 27076.979311,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 27076.979311,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 27076.979311,
+        "line": "[PackageManager] waiting for 13 tasks"
+      },
+      {
+        "elapsedMs": 27076.979311,
+        "line": "    [13.15s]"
+      },
+      {
+        "elapsedMs": 27076.979311,
+        "line": "Downloaded is-hexadecimal versions"
+      },
+      {
+        "elapsedMs": 27077.063727999997,
+        "line": "    [13.15s]"
+      },
+      {
+        "elapsedMs": 27077.063727999997,
+        "line": "Downloaded is-alphanumerical versions"
+      },
+      {
+        "elapsedMs": 27077.509436,
+        "line": "[PackageManager] waiting for 12 tasks"
+      },
+      {
+        "elapsedMs": 28061.624116,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 28061.624116,
+        "line": "[PackageManager] waiting for 12 tasks"
+      },
+      {
+        "elapsedMs": 28061.624116,
+        "line": "    [27.60s]"
+      },
+      {
+        "elapsedMs": 28061.624116,
+        "line": "Downloaded micromark-util-html-tag-name versions"
+      },
+      {
+        "elapsedMs": 29568.78588,
+        "line": "< 304 Not Modified"
+      },
+      {
+        "elapsedMs": 29568.858725,
+        "line": "[PackageManager] waiting for 11 tasks"
+      },
+      {
+        "elapsedMs": 29568.858725,
+        "line": "    [29.12s]"
+      },
+      {
+        "elapsedMs": 29568.858725,
+        "line": "Downloaded get-east-asian-width versions"
+      }
+    ]
+  },
+  "overlap": {
+    "baselineProviderStartedAt": "2026-10-19T09:54:17.390Z",
+    "verboseStartedAt": "2026-10-19T09:54:44.266Z",
+    "overlapMs": 3166.32373046875,
+    "interpretation": "The final ~3.2 seconds of the provider probe overlap the start of verbose install. These runs establish stages/symptoms, not a controlled performance comparison."
+  },
+  "networkProbe": {
+    "purpose": "Four sequential unauthenticated conditional GETs to one public registry metadata endpoint. No proxy/TLS/config changes; no response bodies or auth environment retained.",
+    "samples": [
+      {
+        "client": "curl",
+        "startedAt": "2026-10-19T09:57:19.583Z",
+        "url": "https://registry.npmjs.org/micromark-util-html-tag-name",
+        "code": 0,
+        "signal": null,
+        "watchdog": false,
+        "wallMs": 18754.813903,
+        "stdout": "{\"httpCode\":304,\"dnsSeconds\":0.006726,\"connectSeconds\":0.008001,\"tlsSeconds\":15.200682,\"ttfbSeconds\":18.689281,\"totalSeconds\":18.689321,\"downloadBytes\":0}",
+        "stderr": ""
+      },
+      {
+        "client": "bun-fetch",
+        "startedAt": "2026-10-19T09:57:38.339Z",
+        "url": "https://registry.npmjs.org/micromark-util-html-tag-name",
+        "code": 0,
+        "signal": null,
+        "watchdog": false,
+        "wallMs": 14673.874790000002,
+        "stdout": "{\"status\":304,\"headersMs\":14654.618702000002,\"totalMs\":14654.699011,\"bytes\":0}\n",
+        "stderr": ""
+      },
+      {
+        "client": "curl",
+        "startedAt": "2026-10-19T09:57:53.013Z",
+        "url": "https://registry.npmjs.org/micromark-util-html-tag-name",
+        "code": 28,
+        "signal": null,
+        "watchdog": false,
+        "wallMs": 30013.601151000003,
+        "stdout": "{\"httpCode\":000,\"dnsSeconds\":0.005485,\"connectSeconds\":0.000000,\"tlsSeconds\":0.000000,\"ttfbSeconds\":0.000000,\"totalSeconds\":30.002287,\"downloadBytes\":0}",
+        "stderr": "curl: (28) Connection timed out after 30002 milliseconds\n"
+      },
+      {
+        "client": "bun-fetch",
+        "startedAt": "2026-10-19T09:58:23.027Z",
+        "url": "https://registry.npmjs.org/micromark-util-html-tag-name",
+        "code": 0,
+        "signal": null,
+        "watchdog": false,
+        "wallMs": 13541.587476000008,
+        "stdout": "{\"status\":304,\"headersMs\":13518.309931,\"totalMs\":13518.404457,\"bytes\":0}\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "diagnosticSourceFiles": [
+    {
+      "path": "probe.mjs",
+      "sha256": "3d8d0e7b724363bfbad2cb5383643605eb2f306c153f44abfc0c0735804ee7fe"
+    },
+    {
+      "path": "network-probe.mjs",
+      "sha256": "6bd910fd2caee90861e06bc407c260c4cacdc3ecc8d9bad41c84dddaaea78720"
+    }
+  ],
+  "rawEvidenceFiles": [
+    {
+      "path": "baseline-provider.json",
+      "sha256": "3045a71f5247b8a3d97c0ecea247610f5df9d69c78826118098239b503b44d34"
+    },
+    {
+      "path": "verbose-install.json",
+      "sha256": "c8a1e2e0681b9d775f16320553f3f56e78131304776eb96fd2264964305cc09c"
+    },
+    {
+      "path": "network-probe.json",
+      "sha256": "be938680e290f5d6633f1b2231fef4060b40c03fe5bb730e86399425bb05d97f"
+    }
+  ]
+}

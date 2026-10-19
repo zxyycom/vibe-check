@@ -1,0 +1,629 @@
+{
+  "formedAt": "2026-10-19T08:56:48.837Z",
+  "method": "Selected outcomes and console lines from both actual public Gate runs; large candidate inventory and unrelated output omitted. Diagnostic snapshots retain only the owned provider and its Bun install descendant, with no environment/configuration reads. No timeout/budget change or further retries.",
+  "command": "mise exec -- bun run check -- --all",
+  "candidate": {
+    "version": "0.0.0-local.eb98142b323f",
+    "artifact": "build/artifacts/zxyycom-vibe-check-0.0.0-local.eb98142b323f.tgz",
+    "sha256": "dd6db28571624a8b0c68a4361a299d7fdff47433669c910325ece0ceefb8acaa"
+  },
+  "runs": [
+    {
+      "source": ".log/project-gate/2026-10-19T08-50-34.665Z-793736-973de4d5-38b5-4f58-ac86-dbb4acce5d7f/machine/run.json",
+      "sha256": "b0061972fad51769119db9035a4fd79d7a6326726c8f71f3ff8fb7866d40c212",
+      "textLogSource": "tmp/validation-evidence-rewrite-20261019/full-gate.log",
+      "textLogSha256": "2b5c1479b5983e9b35bbf0812db65d0b92c13c5d4c04c9074f0fe3b67b7b2a99",
+      "counts": {
+        "passed": 39,
+        "unavailable": 4
+      },
+      "checks": [
+        {
+          "checkId": "decision-records",
+          "displayName": "Decision records",
+          "status": "passed"
+        },
+        {
+          "checkId": "duplicate-detection",
+          "displayName": "Duplicate detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "file-metrics",
+          "displayName": "File metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "format-check",
+          "displayName": "Source format",
+          "status": "passed"
+        },
+        {
+          "checkId": "function-metrics",
+          "displayName": "Function metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "displayName": "Git diff whitespace",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-product",
+          "displayName": "TypeScript product lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-scripts",
+          "displayName": "TypeScript script lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "displayName": "Markdown link validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-lint",
+          "displayName": "Markdown lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "displayName": "Repository publication and machine example material validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-json-validator",
+          "displayName": "JSON validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-links-validator",
+          "displayName": "Repository material link validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "displayName": "Repository schema publication material validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "displayName": "JSON Schema validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "displayName": "Prepared external package consumer",
+          "status": "unavailable",
+          "reason": {
+            "code": "command-timeout"
+          }
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "displayName": "Prepared package candidate",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence",
+          "displayName": "Semantic Case ledger",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "displayName": "Test evidence ast-grep rule tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "displayName": "Bun package artifact acceptance",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "displayName": "Bun external package consumer documentation acceptance",
+          "status": "unavailable",
+          "reason": {
+            "code": "dependency-not-passed",
+            "checkIds": [
+              "prepared-external-package-consumer"
+            ]
+          }
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "displayName": "Bun external package consumer runtime acceptance",
+          "status": "unavailable",
+          "reason": {
+            "code": "dependency-not-passed",
+            "checkIds": [
+              "prepared-external-package-consumer"
+            ]
+          }
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "displayName": "Bun external package consumer type acceptance",
+          "status": "unavailable",
+          "reason": {
+            "code": "dependency-not-passed",
+            "checkIds": [
+              "prepared-external-package-consumer"
+            ]
+          }
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "displayName": "Bun package calculation and material tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "displayName": "Bun Product duplicate detection tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "displayName": "Bun Product file metrics tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "displayName": "Bun Product function metrics tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-json",
+          "displayName": "Bun Product JSON tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "displayName": "Bun Product Markdown link tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "displayName": "Bun Product runtime tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "displayName": "Bun Product secret detection tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "displayName": "Bun Product supporting Check tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "displayName": "Bun admission workbench tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "displayName": "Bun repository layout tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "displayName": "Bun machine artifact validation tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "displayName": "Bun package-tools boundary tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "displayName": "Bun Project Gate tooling tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "displayName": "Bun Project Gate change selection tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "displayName": "Bun Test Evidence tooling tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "displayName": "Bun ordinary script tooling tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "displayName": "Bun repository material validation tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-product",
+          "displayName": "TypeScript product typecheck and import boundary",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "displayName": "TypeScript script typecheck",
+          "status": "passed"
+        }
+      ],
+      "selectedConsoleLines": [
+        "project gate start: candidate=0.0.0-local.eb98142b323f; source=local; selection=all; package-acceptance=selected",
+        "  [3/43] Bun repository material validation tests | passed | 842.8ms",
+        "  [40/43] Prepared external package consumer | unavailable | 30s | command-timeout",
+        "  [41/43] Bun external package consumer runtime acceptance | unavailable | not run | dependency-not-passed",
+        "  [42/43] Bun external package consumer documentation acceptance | unavailable | not run | dependency-not-passed",
+        "  [43/43] Bun external package consumer type acceptance | unavailable | not run | dependency-not-passed",
+        "project gate result: failed"
+      ]
+    },
+    {
+      "source": ".log/project-gate/2026-10-19T08-52-38.293Z-800046-9434ba9d-1014-4a9a-9f55-4c5dd636baa5/machine/run.json",
+      "sha256": "09e6f239a8030c91bbcea8859beab13687792c6621315e58051b29a2f1333831",
+      "textLogSource": "tmp/validation-evidence-rewrite-20261019/full-gate-diagnostic.log",
+      "textLogSha256": "ee60bf57716e42ae82eb0fcacfcbd84a8cccf83e9e150a175a9c279bc95b2332",
+      "counts": {
+        "passed": 39,
+        "unavailable": 4
+      },
+      "checks": [
+        {
+          "checkId": "decision-records",
+          "displayName": "Decision records",
+          "status": "passed"
+        },
+        {
+          "checkId": "duplicate-detection",
+          "displayName": "Duplicate detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "file-metrics",
+          "displayName": "File metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "format-check",
+          "displayName": "Source format",
+          "status": "passed"
+        },
+        {
+          "checkId": "function-metrics",
+          "displayName": "Function metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "displayName": "Git diff whitespace",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-product",
+          "displayName": "TypeScript product lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-scripts",
+          "displayName": "TypeScript script lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "displayName": "Markdown link validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-lint",
+          "displayName": "Markdown lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "displayName": "Repository publication and machine example material validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-json-validator",
+          "displayName": "JSON validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-links-validator",
+          "displayName": "Repository material link validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "displayName": "Repository schema publication material validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "displayName": "JSON Schema validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "displayName": "Prepared external package consumer",
+          "status": "unavailable",
+          "reason": {
+            "code": "command-timeout"
+          }
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "displayName": "Prepared package candidate",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence",
+          "displayName": "Semantic Case ledger",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "displayName": "Test evidence ast-grep rule tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "displayName": "Bun package artifact acceptance",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "displayName": "Bun external package consumer documentation acceptance",
+          "status": "unavailable",
+          "reason": {
+            "code": "dependency-not-passed",
+            "checkIds": [
+              "prepared-external-package-consumer"
+            ]
+          }
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "displayName": "Bun external package consumer runtime acceptance",
+          "status": "unavailable",
+          "reason": {
+            "code": "dependency-not-passed",
+            "checkIds": [
+              "prepared-external-package-consumer"
+            ]
+          }
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "displayName": "Bun external package consumer type acceptance",
+          "status": "unavailable",
+          "reason": {
+            "code": "dependency-not-passed",
+            "checkIds": [
+              "prepared-external-package-consumer"
+            ]
+          }
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "displayName": "Bun package calculation and material tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "displayName": "Bun Product duplicate detection tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "displayName": "Bun Product file metrics tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "displayName": "Bun Product function metrics tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-json",
+          "displayName": "Bun Product JSON tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "displayName": "Bun Product Markdown link tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "displayName": "Bun Product runtime tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "displayName": "Bun Product secret detection tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "displayName": "Bun Product supporting Check tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "displayName": "Bun admission workbench tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "displayName": "Bun repository layout tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "displayName": "Bun machine artifact validation tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "displayName": "Bun package-tools boundary tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "displayName": "Bun Project Gate tooling tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "displayName": "Bun Project Gate change selection tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "displayName": "Bun Test Evidence tooling tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "displayName": "Bun ordinary script tooling tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "displayName": "Bun repository material validation tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-product",
+          "displayName": "TypeScript product typecheck and import boundary",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "displayName": "TypeScript script typecheck",
+          "status": "passed"
+        }
+      ],
+      "selectedConsoleLines": [
+        "project gate start: candidate=0.0.0-local.eb98142b323f; source=local; selection=all; package-acceptance=selected",
+        "  [3/43] Bun repository material validation tests | passed | 950.3ms",
+        "  [39/43] Prepared external package consumer | unavailable | 30.2s | command-timeout",
+        "  [40/43] Bun external package consumer runtime acceptance | unavailable | not run | dependency-not-passed",
+        "  [41/43] Bun external package consumer documentation acceptance | unavailable | not run | dependency-not-passed",
+        "  [42/43] Bun external package consumer type acceptance | unavailable | not run | dependency-not-passed",
+        "project gate result: failed"
+      ]
+    }
+  ],
+  "diagnostic": {
+    "source": "tmp/validation-evidence-rewrite-20261019/gate-diagnostic.json",
+    "sha256": "8e8e7d9d93c8c913cb4d8229130bb058221de2870a26555a7d4a3b96b34b774e",
+    "formedAt": "2026-10-19T08:53:08.865Z",
+    "code": 1,
+    "signal": null,
+    "elapsedMs": 31688.040467,
+    "snapshots": [
+      {
+        "elapsedMs": 2020.8344650000001,
+        "processes": [
+          {
+            "pid": 800096,
+            "ppid": 800046,
+            "elapsedSeconds": 0,
+            "cpuPercent": 51.8,
+            "state": "Sl",
+            "command": "bun",
+            "arguments": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/package/candidate/external-consumer/provider.ts"
+          },
+          {
+            "pid": 800119,
+            "ppid": 800096,
+            "elapsedSeconds": 0,
+            "cpuPercent": 89.2,
+            "state": "Sl",
+            "command": "bun",
+            "arguments": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun install --no-save --ignore-scripts /home/dev/.codex/worktrees/package-release-preparation/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.eb98142b323f.tgz"
+          }
+        ]
+      },
+      {
+        "elapsedMs": 10016.377796,
+        "processes": [
+          {
+            "pid": 800096,
+            "ppid": 800046,
+            "elapsedSeconds": 8,
+            "cpuPercent": 3.4,
+            "state": "Sl",
+            "command": "bun",
+            "arguments": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/package/candidate/external-consumer/provider.ts"
+          },
+          {
+            "pid": 800119,
+            "ppid": 800096,
+            "elapsedSeconds": 8,
+            "cpuPercent": 4.3,
+            "state": "Sl",
+            "command": "bun",
+            "arguments": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun install --no-save --ignore-scripts /home/dev/.codex/worktrees/package-release-preparation/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.eb98142b323f.tgz"
+          }
+        ]
+      },
+      {
+        "elapsedMs": 20011.445696,
+        "processes": [
+          {
+            "pid": 800096,
+            "ppid": 800046,
+            "elapsedSeconds": 18,
+            "cpuPercent": 1.6,
+            "state": "Sl",
+            "command": "bun",
+            "arguments": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/package/candidate/external-consumer/provider.ts"
+          },
+          {
+            "pid": 800119,
+            "ppid": 800096,
+            "elapsedSeconds": 18,
+            "cpuPercent": 2.2,
+            "state": "Sl",
+            "command": "bun",
+            "arguments": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun install --no-save --ignore-scripts /home/dev/.codex/worktrees/package-release-preparation/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.eb98142b323f.tgz"
+          }
+        ]
+      },
+      {
+        "elapsedMs": 28013.641041,
+        "processes": [
+          {
+            "pid": 800096,
+            "ppid": 800046,
+            "elapsedSeconds": 26,
+            "cpuPercent": 1.1,
+            "state": "Sl",
+            "command": "bun",
+            "arguments": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/package/candidate/external-consumer/provider.ts"
+          },
+          {
+            "pid": 800119,
+            "ppid": 800096,
+            "elapsedSeconds": 26,
+            "cpuPercent": 1.7,
+            "state": "Sl",
+            "command": "bun",
+            "arguments": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun install --no-save --ignore-scripts /home/dev/.codex/worktrees/package-release-preparation/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.eb98142b323f.tgz"
+          }
+        ]
+      }
+    ]
+  },
+  "interpretation": "Both runs have 39 passed and 4 unavailable. The target material test lane passes; external consumer preparation exceeds its unchanged 30-second limit. In the diagnostic repeat, provider and Bun install remain present through the 28-second snapshot. This locates the incomplete stage but does not establish why installation was slow. No claim that retry or the test rewrite resolves external consumer reliability."
+}

@@ -1,0 +1,614 @@
+{
+  "formedAt": "2026-10-19T08:50:04.799Z",
+  "resourcePurpose": "Preserve exact counterfactual outputs and alternating two-file suite measurements. Proof sets differ; not an equivalent-work algorithm benchmark. Formal source was not mutated. Original source files and probe programs remain temporary diagnostic artifacts, not current tests.",
+  "sources": {
+    "necessity": {
+      "path": "tmp/validation-cli-necessity-20261019/results.json",
+      "sha256": "f75c44cc9fde1c090b9b8e9582633a702cc9b94d8e9dc75091bdc8d31c22747b"
+    },
+    "baseline": {
+      "path": "tmp/validation-evidence-rewrite-20261019/baseline-manifest.json",
+      "sha256": "27d2ea9f65dfdb3095345676610f9ec46687aabf56812f1e4fce30ffe50bf9b8"
+    },
+    "mutations": {
+      "path": "tmp/validation-evidence-rewrite-20261019/mutation-results.json",
+      "sha256": "8455c9403ff7f5ff175a1fbdbbf8a1c51fd6f5a3893d7f913e645d65888c8eec"
+    },
+    "comparison": {
+      "path": "tmp/validation-evidence-rewrite-20261019/comparison.json",
+      "sha256": "018803d4137e27c4fc57c8bedec3fad4660f1594cfc934d90e9f8fa23614b911"
+    }
+  },
+  "necessity": {
+    "formedAt": "2026-10-19T08:13:16.600Z",
+    "bun": "1.3.14",
+    "sourceHashes": {
+      "workspace": "a9984fb274ac213d33103c6e3ca015927abe62039786145fb1dfbdce01eec576",
+      "workflow": "d47073cd32d87bacba7b4f28f1bfbf89a5be230e173c0beb5d88135a5b7c677c",
+      "test": "a12995994fd799a4ff36a215c67dd2e926b96d52fe650a1cd28f9ea540bb2538"
+    },
+    "method": "Isolated copies; only import/cwd rebasing plus one stated mutation per variant. Existing test body/assertions unchanged; default Bun 5s test timeout unchanged; production files hash-verified unchanged.",
+    "results": [
+      {
+        "variant": "control",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-cli-necessity-20261019/control/workspace.test.ts"
+        ],
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 2309.0355329999998,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-cli-necessity-20261019/control/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1428.91ms]\n(pass) root validate CLI forwards focused material selections [5.66ms]\n(pass) root validate CLI rejects the retired docs entrypoint [380.57ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.29s]\n"
+      },
+      {
+        "variant": "omit-package-api",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-cli-necessity-20261019/omit-package-api/workspace.test.ts"
+        ],
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 2260.43157,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-cli-necessity-20261019/omit-package-api/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1413.25ms]\n(pass) root validate CLI forwards focused material selections [5.33ms]\n(pass) root validate CLI rejects the retired docs entrypoint [382.52ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.25s]\n"
+      },
+      {
+        "variant": "omit-json",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-cli-necessity-20261019/omit-json/workspace.test.ts"
+        ],
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 1669.127716,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-cli-necessity-20261019/omit-json/workspace.test.ts:\n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n20 |   assert.equal(result.stderr, \"\");\n21 |   assert.match(result.stdout, /strict JSON validation ok:/);\n              ^\nAssertionError: The input did not match the regular expression /strict JSON validation ok:/. Input:\n\n'schema strict compile ok: 5 schema file(s)\\n' +\n  'current machine artifact examples ok: 1 set(s)\\n' +\n  'schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\\n' +\n  'report examples ok: 4 file(s)\\n' +\n  'markdown links ok: 577 file(s)\\n' +\n  ''\n\n generatedMessage: true,\n     actual: \"schema strict compile ok: 5 schema file(s)\\ncurrent machine artifact examples ok: 1 set(s)\\nschema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\\nreport examples ok: 4 file(s)\\nmarkdown links ok: 577 file(s)\\n\",\n   expected: /strict JSON validation ok:/,\n   operator: \"match\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-cli-necessity-20261019/omit-json/workspace.test.ts:21:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [802.71ms]\n(pass) root validate CLI forwards focused material selections [6.92ms]\n(pass) root validate CLI rejects the retired docs entrypoint [394.95ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [1.65s]\n"
+      },
+      {
+        "variant": "drop-exit-assignment",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-cli-necessity-20261019/drop-exit-assignment/workspace.test.ts"
+        ],
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 2301.5921710000002,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-cli-necessity-20261019/drop-exit-assignment/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1421.05ms]\n(pass) root validate CLI forwards focused material selections [6.20ms]\n(pass) root validate CLI rejects the retired docs entrypoint [402.42ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.29s]\n"
+      }
+    ]
+  },
+  "baseline": {
+    "formedAt": "2026-10-19T08:30:25.075Z",
+    "source": "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-worker-20261019/baseline",
+    "target": "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline",
+    "sourceHashes": {
+      "scripts/validation/workspace.ts": "a9984fb274ac213d33103c6e3ca015927abe62039786145fb1dfbdce01eec576",
+      "scripts/validation/workspace.test.ts": "a12995994fd799a4ff36a215c67dd2e926b96d52fe650a1cd28f9ea540bb2538",
+      "scripts/validation/repository-material/workflow.ts": "d47073cd32d87bacba7b4f28f1bfbf89a5be230e173c0beb5d88135a5b7c677c",
+      "scripts/validation/repository-material/workflow.test.ts": "f407dad73da653e24825857d20646fff612014f288525b7e991d308220029c44"
+    },
+    "method": "Exact baseline copies rebased only for static import paths and workspace cwd; test bodies and assertions unchanged."
+  },
+  "mutations": {
+    "formedAt": "2026-10-19T08:45:14.097Z",
+    "bun": "1.3.14",
+    "sourceHashes": {
+      "scripts/validation/workspace.ts": "a9984fb274ac213d33103c6e3ca015927abe62039786145fb1dfbdce01eec576",
+      "scripts/validation/workspace.test.ts": "e88f6ac38e2fc1d52be7dbd96ccb39d40a7af29d3a8c7a68f6c6e2fb17daa67c",
+      "scripts/validation/repository-material/workflow.ts": "b47629b280bb09cc0ab4ac3f8df966429176f0adb7d7fcf360cb202d7e18441f",
+      "scripts/validation/repository-material/workflow.test.ts": "75aa2fdd63cb2d2784c826d5a728a9f36c649019f407547f83684f8e4068a390"
+    },
+    "method": "Exact isolated copies with static imports rebased; test bodies unchanged. Single stated mutation per variant. Bun default 5s entity timeout unchanged; outer diagnostic watchdog 20s. Formal source hashes unchanged. Process exit assignment is an intentional non-covered control: its survival documents the Manual CR boundary rather than automated coverage.",
+    "results": [
+      {
+        "variant": "control",
+        "expectedExit": 0,
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-control/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-control/workflow.test.ts"
+        ],
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 995.6005699999998,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/mutation-control/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [6.60ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [10.42ms]\n\ntmp/validation-evidence-rewrite-20261019/mutation-control/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [6.16ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.28ms]\n(pass) material validation library reports success only through an explicit reporter [0.30ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [1.38ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.64ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.35ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.59ms]\n\n 9 pass\n 0 fail\nRan 9 tests across 2 files. [973.00ms]\n"
+      },
+      {
+        "variant": "omit-package-api",
+        "expectedExit": 1,
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-omit-package-api/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-omit-package-api/workflow.test.ts"
+        ],
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 692.3483259999998,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/mutation-omit-package-api/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [4.42ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [7.00ms]\n\ntmp/validation-evidence-rewrite-20261019/mutation-omit-package-api/workflow.test.ts:\n71 |     exampleCompletion.resolve();\n72 |     await pending;\n73 |   }\n74 | \n75 |   assert.equal(await pending, 0);\n76 |   assert.deepEqual(calls, [\n              ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n... Skipped lines\n\n  [\n    'json',\n    'schema-publication',\n    'schemas',\n    'machine-artifacts',\n...\n    'links',\n-   'package-api-documentation'\n  ]\n\n generatedMessage: true,\n     actual: [ \"json\", \"schema-publication\", \"schemas\", \"machine-artifacts\", \"example-publication\",\n  \"report-examples\", \"links\"\n],\n   expected: [ \"json\", \"schema-publication\", \"schemas\", \"machine-artifacts\", \"example-publication\", \"report-examples\",\n  \"links\", \"package-api-documentation\"\n],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-omit-package-api/workflow.test.ts:76:10\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow dispatches all default tasks and awaits asynchronous validators [13.93ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.44ms]\n(pass) material validation library reports success only through an explicit reporter [0.30ms]\n198 |         id: \"machine-example:published-machine-example-drift:docs%2Fexample.json\",\n199 |         presentation: exampleFailure.message\n200 |       }\n201 |     ]\n202 |   });\n203 |   assert.deepEqual(calls, [\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'json',\n    'schema-publication',\n    'machine-artifacts',\n    'example-publication',\n    'links',\n-   'package-api-documentation'\n  ]\n\n generatedMessage: true,\n     actual: [ \"json\", \"schema-publication\", \"machine-artifacts\", \"example-publication\", \"links\" ],\n   expected: [\n  \"json\", \"schema-publication\", \"machine-artifacts\", \"example-publication\", \"links\", \"package-api-documentation\"\n],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-omit-package-api/workflow.test.ts:203:10\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow aggregates expected failures and continues selected tasks [1.10ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.48ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.59ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.59ms]\n\n 7 pass\n 2 fail\nRan 9 tests across 2 files. [671.00ms]\n"
+      },
+      {
+        "variant": "miswire-package-api",
+        "expectedExit": 1,
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workflow.test.ts"
+        ],
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 681.1417310000002,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [1.73ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [12.01ms]\n\ntmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workflow.test.ts:\n71 |     exampleCompletion.resolve();\n72 |     await pending;\n73 |   }\n74 | \n75 |   assert.equal(await pending, 0);\n76 |   assert.deepEqual(calls, [\n              ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n... Skipped lines\n\n  [\n    'json',\n    'schema-publication',\n    'schemas',\n    'machine-artifacts',\n...\n    'links',\n+   'schema-publication',\n+   'schemas'\n-   'package-api-documentation'\n  ]\n\n generatedMessage: true,\n     actual: [ \"json\", \"schema-publication\", \"schemas\", \"machine-artifacts\", \"example-publication\",\n  \"report-examples\", \"links\", \"schema-publication\", \"schemas\"\n],\n   expected: [ \"json\", \"schema-publication\", \"schemas\", \"machine-artifacts\", \"example-publication\", \"report-examples\",\n  \"links\", \"package-api-documentation\"\n],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workflow.test.ts:76:10\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow dispatches all default tasks and awaits asynchronous validators [5.98ms]\n112 |         validators.validateMarkdownLinks(options);\n113 |       }\n114 |     }\n115 |   );\n116 |   assert.equal(exitCode, 0);\n117 |   assert.deepEqual(calls, [\"links\", \"json\", \"package-api-documentation\"]);\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'links',\n    'json',\n+   'schema-publication',\n+   'schemas'\n-   'package-api-documentation'\n  ]\n\n generatedMessage: true,\n     actual: [ \"links\", \"json\", \"schema-publication\", \"schemas\" ],\n   expected: [ \"links\", \"json\", \"package-api-documentation\" ],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workflow.test.ts:117:10\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow deduplicates focused selections without broadening them [0.39ms]\n140 |   } finally {\n141 |     console.log = originalLog;\n142 |   }\n143 | \n144 |   assert.deepEqual(directConsoleMessages, []);\n145 |   assert.deepEqual(reportedMessages, [\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'fixture JSON ok',\n    'fixture schemas ok',\n    'current machine artifact examples ok: 2 set(s)',\n    'fixture reports ok',\n    'fixture links ok',\n+   'fixture schemas ok'\n  ]\n\n generatedMessage: true,\n     actual: [ \"fixture JSON ok\", \"fixture schemas ok\", \"current machine artifact examples ok: 2 set(s)\",\n  \"fixture reports ok\", \"fixture links ok\", \"fixture schemas ok\"\n],\n   expected: [ \"fixture JSON ok\", \"fixture schemas ok\", \"current machine artifact examples ok: 2 set(s)\",\n  \"fixture reports ok\", \"fixture links ok\"\n],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workflow.test.ts:145:10\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n(fail) material validation library reports success only through an explicit reporter [0.44ms]\n182 |   const stdout: string[] = [];\n183 |   const result = await validateRepositoryMaterials(\n184 |     { report: (message) => stdout.push(message) },\n185 |     validators\n186 |   );\n187 |   assert.deepEqual(jsonRoundTrip(result), {\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n... Skipped lines\n\n  {\n    diagnostics: [\n      {\n        data: {\n          kind: 'fixture-json'\n...\n      },\n+     {\n+       data: {\n+         kind: 'published-schema-drift',\n+         path: 'docs/schema.json'\n+       },\n+       id: 'machine-schema:published-schema-drift:docs%2Fschema.json',\n+       presentation: 'docs/schema.json: published schema drift; regenerate with bun scripts/docs/machine-artifacts/schemas.ts.'\n+     }\n    ],\n    status: 'failed'\n  }\n\n generatedMessage: true,\n     actual: {\n  diagnostics: [\n    [Object ...], [Object ...], [Object ...], [Object ...]\n  ],\n  status: \"failed\",\n},\n   expected: {\n  status: \"failed\",\n  diagnostics: [\n    [Object ...], [Object ...], [Object ...]\n  ],\n},\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workflow.test.ts:187:10\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow aggregates expected failures and continues selected tasks [2.58ms]\n253 |     await assert.rejects(\n254 |       () => validateRepositoryMaterials({}, validators),\n255 |       (error) => error === failure\n256 |     );\n257 |   }\n258 |   await assert.rejects(\n                     ^\nAssertionError: Missing expected rejection.\n generatedMessage: false,\n     actual: undefined,\n   expected: /fixture projection drift/,\n   operator: \"rejects\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-miswire-package-api/workflow.test.ts:258:16\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow propagates unexpected failures instead of returning success [0.58ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.43ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.38ms]\n\n 4 pass\n 5 fail\nRan 9 tests across 2 files. [661.00ms]\n"
+      },
+      {
+        "variant": "skip-dispatch-await",
+        "expectedExit": 1,
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.test.ts"
+        ],
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 672.6754719999999,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [2.44ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [10.92ms]\n\ntmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.test.ts:\n51 |     return exitCode;\n52 |   });\n53 | \n54 |   try {\n55 |     await setImmediate();\n56 |     assert.equal(completed, false);\n                ^\nAssertionError: Expected values to be strictly equal:\n\ntrue !== false\n\n generatedMessage: true,\n     actual: true,\n   expected: false,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.test.ts:56:12\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow dispatches all default tasks and awaits asynchronous validators [5.37ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.22ms]\n140 |   } finally {\n141 |     console.log = originalLog;\n142 |   }\n143 | \n144 |   assert.deepEqual(directConsoleMessages, []);\n145 |   assert.deepEqual(reportedMessages, [\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'fixture JSON ok',\n    'fixture schemas ok',\n+   'fixture links ok',\n    'current machine artifact examples ok: 2 set(s)',\n    'fixture reports ok',\n-   'fixture links ok'\n  ]\n\n generatedMessage: true,\n     actual: [ \"fixture JSON ok\", \"fixture schemas ok\", \"fixture links ok\", \"current machine artifact examples ok: 2 set(s)\",\n  \"fixture reports ok\"\n],\n   expected: [ \"fixture JSON ok\", \"fixture schemas ok\", \"current machine artifact examples ok: 2 set(s)\",\n  \"fixture reports ok\", \"fixture links ok\"\n],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.test.ts:145:10\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n(fail) material validation library reports success only through an explicit reporter [1.69ms]\n182 |   const stdout: string[] = [];\n183 |   const result = await validateRepositoryMaterials(\n184 |     { report: (message) => stdout.push(message) },\n185 |     validators\n186 |   );\n187 |   assert.deepEqual(jsonRoundTrip(result), {\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n    diagnostics: [\n      {\n        data: {\n-         kind: 'fixture-json'\n-       },\n-       id: 'json:fixture',\n-       presentation: 'fixture JSON invalid.'\n-     },\n-     {\n-       data: {\n          kind: 'published-schema-drift',\n          path: 'docs/schema.json'\n        },\n        id: 'machine-schema:published-schema-drift:docs%2Fschema.json',\n        presentation: 'docs/schema.json: published schema drift; regenerate with bun scripts/docs/machine-artifacts/schemas.ts.'\n      },\n-     {\n-       data: {\n-         kind: 'published-machine-example-drift',\n-         path: 'docs/example.json'\n-       },\n-       id: 'machine-example:published-machine-example-drift:docs%2Fexample.json',\n-       presentation: 'docs/example.json: published machine example drift; regenerate with bun scripts/docs/machine-artifacts/examples/command.ts.'\n-     }\n    ],\n    status: 'failed'\n  }\n\n generatedMessage: true,\n     actual: {\n  diagnostics: [\n    [Object ...]\n  ],\n  status: \"failed\",\n},\n   expected: {\n  status: \"failed\",\n  diagnostics: [\n    [Object ...], [Object ...], [Object ...]\n  ],\n},\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.test.ts:187:10\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n29 | }\n30 | \n31 | export function expectedMaterialValidationFailure(\n32 |   diagnostics: readonly MaterialValidationDiagnostic[]\n33 | ): ExpectedMaterialValidationFailure {\n34 |   return new ExpectedMaterialValidationFailure(diagnostics);\n              ^\nerror: fixture JSON invalid.\n diagnostics: [\n  [Object ...]\n],\n\n      at expectedMaterialValidationFailure (/home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/repository-material/diagnostics.ts:34:10)\n      at <anonymous> (/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.test.ts:155:23)\n      at fn (node:test:215:18)\n      at endTest (node:test:209:13)\n29 | }\n30 | \n31 | export function expectedMaterialValidationFailure(\n32 |   diagnostics: readonly MaterialValidationDiagnostic[]\n33 | ): ExpectedMaterialValidationFailure {\n34 |   return new ExpectedMaterialValidationFailure(diagnostics);\n              ^\nerror: docs/example.json: published machine example drift; regenerate with bun scripts/docs/machine-artifacts/examples/command.ts.\n diagnostics: [\n  [Object ...]\n],\n\n      at expectedMaterialValidationFailure (/home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/repository-material/diagnostics.ts:34:10)\n      at validateCurrentMachineExamples (/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.ts:215:13)\n      at async validatePublishedExamples (/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.ts:202:9)\n      at endTest (node:test:209:13)\n(fail) material workflow aggregates expected failures and continues selected tasks [1.73ms]\n248 |       checkPublishedMachineExamples: async () => {\n249 |         throw failure;\n250 |       }\n251 |     }\n252 |   ]) {\n253 |     await assert.rejects(\n                       ^\nAssertionError: Missing expected rejection.\n generatedMessage: false,\n     actual: undefined,\n   expected: [Function],\n   operator: \"rejects\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.test.ts:253:18\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n226 |   ]);\n227 |   assert.deepEqual(stdout, [\"fixture links ok\", \"fixture links ok\"]);\n228 | });\n229 | \n230 | test(\"material workflow propagates unexpected failures instead of returning success\", async () => {\n231 |   const failure = new Error(\"fixture I/O failure\");\n                            ^\nerror: fixture I/O failure\n      at <anonymous> (/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-skip-dispatch-await/workflow.test.ts:231:23)\n      at fn (node:test:215:18)\n      at endTest (node:test:209:13)\n(fail) material workflow propagates unexpected failures instead of returning success [0.41ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.62ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.61ms]\n\n 5 pass\n 4 fail\nRan 9 tests across 2 files. [652.00ms]\n"
+      },
+      {
+        "variant": "drop-json-reporter",
+        "expectedExit": 1,
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-drop-json-reporter/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-drop-json-reporter/workflow.test.ts"
+        ],
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 779.7645579999999,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/mutation-drop-json-reporter/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [2.09ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [10.23ms]\n\ntmp/validation-evidence-rewrite-20261019/mutation-drop-json-reporter/workflow.test.ts:\n63 |       \"schema-publication\",\n64 |       \"schemas\",\n65 |       \"machine-artifacts\",\n66 |       \"example-publication\"\n67 |     ]);\n68 |     assert.deepEqual(stdout, [\"fixture JSON ok\", \"fixture schemas ok\"]);\n                ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n-   'fixture JSON ok',\n    'fixture schemas ok'\n  ]\n\n generatedMessage: true,\n     actual: [ \"fixture schemas ok\", \"current machine artifact examples ok: 2 set(s)\", \"fixture reports ok\",\n  \"fixture links ok\"\n],\n   expected: [ \"fixture JSON ok\", \"fixture schemas ok\" ],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-drop-json-reporter/workflow.test.ts:68:12\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow dispatches all default tasks and awaits asynchronous validators [6.84ms]\n113 |       }\n114 |     }\n115 |   );\n116 |   assert.equal(exitCode, 0);\n117 |   assert.deepEqual(calls, [\"links\", \"json\", \"package-api-documentation\"]);\n118 |   assert.deepEqual(stdout, [\"fixture links ok\", \"fixture JSON ok\"]);\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'fixture links ok',\n-   'fixture JSON ok'\n  ]\n\n generatedMessage: true,\n     actual: [ \"fixture links ok\" ],\n   expected: [ \"fixture links ok\", \"fixture JSON ok\" ],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-drop-json-reporter/workflow.test.ts:118:10\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow deduplicates focused selections without broadening them [0.31ms]\n140 |   } finally {\n141 |     console.log = originalLog;\n142 |   }\n143 | \n144 |   assert.deepEqual(directConsoleMessages, []);\n145 |   assert.deepEqual(reportedMessages, [\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n-   'fixture JSON ok',\n    'fixture schemas ok',\n    'current machine artifact examples ok: 2 set(s)',\n    'fixture reports ok',\n    'fixture links ok'\n  ]\n\n generatedMessage: true,\n     actual: [ \"fixture schemas ok\", \"current machine artifact examples ok: 2 set(s)\", \"fixture reports ok\",\n  \"fixture links ok\"\n],\n   expected: [ \"fixture JSON ok\", \"fixture schemas ok\", \"current machine artifact examples ok: 2 set(s)\",\n  \"fixture reports ok\", \"fixture links ok\"\n],\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-drop-json-reporter/workflow.test.ts:145:10\n      at processTicksAndRejections (native:7:39)\n      at done (unknown:1:1)\n      at endTest (node:test:209:13)\n      at processTicksAndRejections (native:7:39)\n(fail) material validation library reports success only through an explicit reporter [0.33ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [0.77ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.45ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.24ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.49ms]\n\n 6 pass\n 3 fail\nRan 9 tests across 2 files. [758.00ms]\n"
+      },
+      {
+        "variant": "discard-expected-diagnostics",
+        "expectedExit": 1,
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-discard-expected-diagnostics/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-discard-expected-diagnostics/workflow.test.ts"
+        ],
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 708.2205209999997,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/mutation-discard-expected-diagnostics/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [2.49ms]\n55 |       argv: [\"links\"],\n56 |       linkRepositoryRoot: documentationRoot,\n57 |       writeStderr: (message) => stderr.push(message),\n58 |       writeStdout: (message) => stdout.push(message)\n59 |     });\n60 |     assert.equal(exitCode, 1);\n                ^\nAssertionError: Expected values to be strictly equal:\n\n0 !== 1\n\n generatedMessage: true,\n     actual: 0,\n   expected: 1,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-discard-expected-diagnostics/workspace.test.ts:60:12\n      at processTicksAndRejections (native:7:39)\n(fail) material CLI reports real link failures through stderr and a nonzero return [12.20ms]\n\ntmp/validation-evidence-rewrite-20261019/mutation-discard-expected-diagnostics/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [5.52ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.28ms]\n(pass) material validation library reports success only through an explicit reporter [0.32ms]\n182 |   const stdout: string[] = [];\n183 |   const result = await validateRepositoryMaterials(\n184 |     { report: (message) => stdout.push(message) },\n185 |     validators\n186 |   );\n187 |   assert.deepEqual(jsonRoundTrip(result), {\n               ^\nAssertionError: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   diagnostics: [],\n+   status: 'passed'\n-   diagnostics: [\n-     {\n-       data: {\n-         kind: 'fixture-json'\n-       },\n-       id: 'json:fixture',\n-       presentation: 'fixture JSON invalid.'\n-     },\n-     {\n-       data: {\n-         kind: 'published-schema-drift',\n-         path: 'docs/schema.json'\n-       },\n-       id: 'machine-schema:published-schema-drift:docs%2Fschema.json',\n-       presentation: 'docs/schema.json: published schema drift; regenerate with bun scripts/docs/machine-artifacts/schemas.ts.'\n-     },\n-     {\n-       data: {\n-         kind: 'published-machine-example-drift',\n-         path: 'docs/example.json'\n-       },\n-       id: 'machine-example:published-machine-example-drift:docs%2Fexample.json',\n-       presentation: 'docs/example.json: published machine example drift; regenerate with bun scripts/docs/machine-artifacts/examples/command.ts.'\n-     }\n-   ],\n-   status: 'failed'\n  }\n\n generatedMessage: true,\n     actual: {\n  diagnostics: [],\n  status: \"passed\",\n},\n   expected: {\n  status: \"failed\",\n  diagnostics: [\n    [Object ...], [Object ...], [Object ...]\n  ],\n},\n   operator: \"deepStrictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-discard-expected-diagnostics/workflow.test.ts:187:10\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow aggregates expected failures and continues selected tasks [2.62ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.62ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.54ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.69ms]\n\n 7 pass\n 2 fail\nRan 9 tests across 2 files. [688.00ms]\n"
+      },
+      {
+        "variant": "return-success-on-material-failure",
+        "expectedExit": 1,
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-return-success-on-material-failure/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-return-success-on-material-failure/workflow.test.ts"
+        ],
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 710.67166,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/mutation-return-success-on-material-failure/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [1.13ms]\n55 |       argv: [\"links\"],\n56 |       linkRepositoryRoot: documentationRoot,\n57 |       writeStderr: (message) => stderr.push(message),\n58 |       writeStdout: (message) => stdout.push(message)\n59 |     });\n60 |     assert.equal(exitCode, 1);\n                ^\nAssertionError: Expected values to be strictly equal:\n\n0 !== 1\n\n generatedMessage: true,\n     actual: 0,\n   expected: 1,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-return-success-on-material-failure/workspace.test.ts:60:12\n      at processTicksAndRejections (native:7:39)\n(fail) material CLI reports real link failures through stderr and a nonzero return [10.88ms]\n\ntmp/validation-evidence-rewrite-20261019/mutation-return-success-on-material-failure/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [4.90ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.21ms]\n(pass) material validation library reports success only through an explicit reporter [0.22ms]\n216 |       writeStdout: (message) => stdout.push(message),\n217 |       writeStderr: (message) => stderr.push(message)\n218 |     },\n219 |     validators\n220 |   );\n221 |   assert.equal(exitCode, 1);\n               ^\nAssertionError: Expected values to be strictly equal:\n\n0 !== 1\n\n generatedMessage: true,\n     actual: 0,\n   expected: 1,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-return-success-on-material-failure/workflow.test.ts:221:10\n      at processTicksAndRejections (native:7:39)\n(fail) material workflow aggregates expected failures and continues selected tasks [1.09ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.50ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.25ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.51ms]\n\n 7 pass\n 2 fail\nRan 9 tests across 2 files. [689.00ms]\n"
+      },
+      {
+        "variant": "drop-process-exit-assignment",
+        "expectedExit": 0,
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-drop-process-exit-assignment/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/mutation-drop-process-exit-assignment/workflow.test.ts"
+        ],
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "elapsedMs": 705.4412169999996,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/mutation-drop-process-exit-assignment/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [2.40ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [8.70ms]\n\ntmp/validation-evidence-rewrite-20261019/mutation-drop-process-exit-assignment/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [4.21ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.20ms]\n(pass) material validation library reports success only through an explicit reporter [0.21ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [0.77ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.47ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.27ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.58ms]\n\n 9 pass\n 0 fail\nRan 9 tests across 2 files. [685.00ms]\n"
+      }
+    ]
+  },
+  "comparison": {
+    "startedAt": "2026-10-19T08:46:21.158Z",
+    "completedAt": "2026-10-19T08:47:32.656Z",
+    "bun": "1.3.14",
+    "logicalCpus": 6,
+    "cgroupCpuMax": "400000 100000",
+    "sourceHashes": {
+      "scripts/validation/workspace.ts": "a9984fb274ac213d33103c6e3ca015927abe62039786145fb1dfbdce01eec576",
+      "scripts/validation/workspace.test.ts": "e88f6ac38e2fc1d52be7dbd96ccb39d40a7af29d3a8c7a68f6c6e2fb17daa67c",
+      "scripts/validation/repository-material/workflow.ts": "b47629b280bb09cc0ab4ac3f8df966429176f0adb7d7fcf360cb202d7e18441f",
+      "scripts/validation/repository-material/workflow.test.ts": "75aa2fdd63cb2d2784c826d5a728a9f36c649019f407547f83684f8e4068a390",
+      "src/package-checks/json-document/strict-document.ts": "36d186fa3dd68e6cf5b8b545244e8572b505dcb926ee956460f66713c127d171"
+    },
+    "jsonCorpus": {
+      "pathCount": 493,
+      "totalBytes": 35000107,
+      "sha256": "a780289b75f8c8ada55ac3ddf8c36e7e87bd3678418f4c5fee2632b5733ae232"
+    },
+    "method": "Alternating two-file evidence suites; baseline static imports/cwd rebased only. Proof sets intentionally differ. Default Bun 5s entity timeout unchanged; 30s outer process-group watchdog is diagnostic only. No mutation of project source or project caches. Two concurrent cold tsgo processes use unique previously absent build-info paths. Measurements are file-run costs, not equivalent algorithm speedups or universal reliability guarantees.",
+    "results": [
+      {
+        "name": "1-baseline-alone",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 2985.9310840000003,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1543.85ms]\n(pass) root validate CLI forwards focused material selections [7.06ms]\n(pass) root validate CLI rejects the retired docs entrypoint [387.06ms]\n\ntmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts:\n(pass) material validation library reports success only through an explicit reporter [360.11ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.39ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.62ms]\n\n 6 pass\n 0 fail\nRan 6 tests across 2 files. [2.96s]\n"
+      },
+      {
+        "name": "1-baseline-contended",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 7560.572982,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [4750.24ms]\n(pass) root validate CLI forwards focused material selections [43.54ms]\n(pass) root validate CLI rejects the retired docs entrypoint [676.65ms]\n\ntmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts:\n(pass) material validation library reports success only through an explicit reporter [428.68ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.96ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.68ms]\n\n 6 pass\n 0 fail\nRan 6 tests across 2 files. [7.45s]\n"
+      },
+      {
+        "name": "1-baseline-product-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.product.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/1-baseline-product.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 12960.432856000001,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "1-baseline-scripts-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/1-baseline-scripts.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 13070.176492,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "2-candidate-alone",
+        "args": [
+          "test",
+          "scripts/validation/workspace.test.ts",
+          "scripts/validation/repository-material/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 918.7347329999975,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [5.20ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [5.55ms]\n\nscripts/validation/repository-material/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [5.78ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.25ms]\n(pass) material validation library reports success only through an explicit reporter [0.24ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [0.99ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.47ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.49ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.99ms]\n\n 9 pass\n 0 fail\nRan 9 tests across 2 files. [884.00ms]\n"
+      },
+      {
+        "name": "2-candidate-contended",
+        "args": [
+          "test",
+          "scripts/validation/workspace.test.ts",
+          "scripts/validation/repository-material/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 2949.6438769999986,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [39.89ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [56.30ms]\n\nscripts/validation/repository-material/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [1.87ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.26ms]\n(pass) material validation library reports success only through an explicit reporter [0.32ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [11.05ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.77ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.96ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [4.98ms]\n\n 9 pass\n 0 fail\nRan 9 tests across 2 files. [2.92s]\n"
+      },
+      {
+        "name": "2-candidate-scripts-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/2-candidate-scripts.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 9451.672958000003,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "2-candidate-product-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.product.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/2-candidate-product.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 9522.817653999999,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "3-candidate-alone",
+        "args": [
+          "test",
+          "scripts/validation/workspace.test.ts",
+          "scripts/validation/repository-material/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 745.5027320000008,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [5.69ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [5.64ms]\n\nscripts/validation/repository-material/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [4.94ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.25ms]\n(pass) material validation library reports success only through an explicit reporter [0.27ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [0.84ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.44ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.36ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.60ms]\n\n 9 pass\n 0 fail\nRan 9 tests across 2 files. [720.00ms]\n"
+      },
+      {
+        "name": "3-candidate-contended",
+        "args": [
+          "test",
+          "scripts/validation/workspace.test.ts",
+          "scripts/validation/repository-material/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 2120.3345599999993,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [1.44ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [54.42ms]\n\nscripts/validation/repository-material/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [90.82ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.43ms]\n(pass) material validation library reports success only through an explicit reporter [0.61ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [23.90ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.69ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [5.73ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.75ms]\n\n 9 pass\n 0 fail\nRan 9 tests across 2 files. [2.05s]\n"
+      },
+      {
+        "name": "3-candidate-product-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.product.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/3-candidate-product.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 10723.881738,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "3-candidate-scripts-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/3-candidate-scripts.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 10725.856054999997,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "4-baseline-alone",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 3825.6253609999985,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2006.91ms]\n(pass) root validate CLI forwards focused material selections [10.60ms]\n(pass) root validate CLI rejects the retired docs entrypoint [456.89ms]\n\ntmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts:\n(pass) material validation library reports success only through an explicit reporter [527.08ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [3.70ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [1.86ms]\n\n 6 pass\n 0 fail\nRan 6 tests across 2 files. [3.77s]\n"
+      },
+      {
+        "name": "4-baseline-contended",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 6765.206649,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [4281.84ms]\n(pass) root validate CLI forwards focused material selections [11.19ms]\n(pass) root validate CLI rejects the retired docs entrypoint [487.87ms]\n\ntmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts:\n(pass) material validation library reports success only through an explicit reporter [436.30ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [7.50ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [1.01ms]\n\n 6 pass\n 0 fail\nRan 6 tests across 2 files. [6.74s]\n"
+      },
+      {
+        "name": "4-baseline-product-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.product.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/4-baseline-product.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 9232.631898,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "4-baseline-scripts-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/4-baseline-scripts.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 9961.164864999999,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "5-baseline-alone",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 2928.1396060000043,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1444.15ms]\n(pass) root validate CLI forwards focused material selections [7.99ms]\n(pass) root validate CLI rejects the retired docs entrypoint [404.42ms]\n\ntmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts:\n(pass) material validation library reports success only through an explicit reporter [360.10ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.53ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.81ms]\n\n 6 pass\n 0 fail\nRan 6 tests across 2 files. [2.90s]\n"
+      },
+      {
+        "name": "5-baseline-contended",
+        "args": [
+          "test",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 5539.800105000002,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\ntmp/validation-evidence-rewrite-20261019/baseline/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3212.99ms]\n(pass) root validate CLI forwards focused material selections [5.59ms]\n(pass) root validate CLI rejects the retired docs entrypoint [674.25ms]\n\ntmp/validation-evidence-rewrite-20261019/baseline/workflow.test.ts:\n(pass) material validation library reports success only through an explicit reporter [399.29ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.55ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.77ms]\n\n 6 pass\n 0 fail\nRan 6 tests across 2 files. [5.51s]\n"
+      },
+      {
+        "name": "5-baseline-scripts-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/5-baseline-scripts.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 8384.796540999996,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "5-baseline-product-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.product.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/5-baseline-product.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 8389.133649999996,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "6-candidate-alone",
+        "args": [
+          "test",
+          "scripts/validation/workspace.test.ts",
+          "scripts/validation/repository-material/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 737.3955419999984,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [2.88ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [10.74ms]\n\nscripts/validation/repository-material/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [4.10ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.16ms]\n(pass) material validation library reports success only through an explicit reporter [0.18ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [0.77ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.41ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.16ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.53ms]\n\n 9 pass\n 0 fail\nRan 9 tests across 2 files. [714.00ms]\n"
+      },
+      {
+        "name": "6-candidate-contended",
+        "args": [
+          "test",
+          "scripts/validation/workspace.test.ts",
+          "scripts/validation/repository-material/workflow.test.ts"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 1702.3926349999965,
+        "watchdog": false,
+        "stdout": "bun test v1.3.14 (0d9b296a)\n",
+        "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validation adapter forwards default and focused material selections [4.70ms]\n(pass) material CLI reports real link failures through stderr and a nonzero return [21.27ms]\n\nscripts/validation/repository-material/workflow.test.ts:\n(pass) material workflow dispatches all default tasks and awaits asynchronous validators [1.45ms]\n(pass) material workflow deduplicates focused selections without broadening them [0.15ms]\n(pass) material validation library reports success only through an explicit reporter [0.35ms]\n(pass) material workflow aggregates expected failures and continues selected tasks [0.94ms]\n(pass) material workflow propagates unexpected failures instead of returning success [0.47ms]\n(pass) material validation returns typed expected failures and keeps the Gate path console-silent [5.66ms]\n(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.93ms]\n\n 9 pass\n 0 fail\nRan 9 tests across 2 files. [1.65s]\n"
+      },
+      {
+        "name": "6-candidate-product-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.product.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/6-candidate-product.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 7109.896216000001,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "6-candidate-scripts-cold",
+        "args": [
+          "node_modules/@typescript/native-preview/bin/tsgo.js",
+          "-p",
+          "tsconfig.json",
+          "--tsBuildInfoFile",
+          "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validation-evidence-rewrite-20261019/6-candidate-scripts.tsbuildinfo"
+        ],
+        "code": 0,
+        "signal": null,
+        "elapsedMs": 7579.923316999993,
+        "watchdog": false,
+        "stdout": "",
+        "stderr": ""
+      }
+    ]
+  },
+  "inputGuardNote": "comparison.jsonCorpus hashes Bun.Glob docs/**/*.json (493 files), a superset of the actual public-collector JSON selection (492 files). The only extra guard path was docs/examples/artifacts/mixed-outcomes/run.json; it was not an extra strict-JSON Check input. Both remained unchanged throughout the comparison. This resource was written after all samples."
+}

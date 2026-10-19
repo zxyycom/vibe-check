@@ -1,0 +1,1979 @@
+{
+  "sourceCommit": "b8cf54f4801397002b739c7945bf83e2ae6806ac",
+  "formedAt": "2026-10-19T07:17:01.388Z",
+  "method": "Derived from five probe JSON outputs: retain all samples, argv, elapsedMs, exit/signal/watchdog, cgroup deltas, stderr, stdout event timestamps; omit duplicated stdout and stderr event arrays. Compiler cache output directory replaced with <probe-output>. No timing values rounded. cgroup deltas cover shared group and overlapping windows, not per-process CPU.",
+  "environment": {
+    "bun": "1.3.14",
+    "os": "Linux WSL2 6.18.33.2 x86_64",
+    "logicalCpus": 4,
+    "cpuMax": "400000 100000",
+    "corpus": {
+      "json": 489,
+      "schemas": 5,
+      "currentArtifactSets": 1,
+      "historicalReports": 4,
+      "markdown": 575
+    }
+  },
+  "originalGate": {
+    "failedRoot": ".log/project-gate/2026-10-19T06-53-17.296Z-737251-b38a5100-be37-40a4-ac1c-7d927ca47eec",
+    "passedRoot": ".log/project-gate/2026-10-19T06-55-39.956Z-744608-1a54842a-fc39-4341-8d21-6ffd3d21cf8c",
+    "failedTranscript": "status=failed\nstdout:\nbun test v1.3.14 (0d9b296a)\n\nstderr:\nkilled 1 dangling process\n\nscripts/validation/workspace.test.ts:\n(fail) root validate CLI runs every material task by default [5078.99ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n.......\n\n7 pass\n1 fail\nRan 8 tests across 4 files. [8.59s]\n",
+    "failedTimeline": [
+      "#000215 +00:00:40.644 [CHECK:tests-scripts-validation] [EXECUTION] [STARTED] invocationId=\"invocation/v1:6cb4df68-e076-4fd9-83b9-687a5a210039\" check.started dependencies=[]",
+      "#000216 +00:00:40.644 [CHECK:typecheck-product] [EXECUTION] [STARTED] invocationId=\"invocation/v1:6cb4df68-e076-4fd9-83b9-687a5a210039\" check.started dependencies=[]",
+      "#000221 +00:00:42.181 [CHECK:typecheck-scripts] [EXECUTION] [STARTED] invocationId=\"invocation/v1:6cb4df68-e076-4fd9-83b9-687a5a210039\" check.started dependencies=[]",
+      "#000223 +00:00:49.281 [CHECK:tests-scripts-validation] [EXECUTION] [FINISHED] [FAILED] invocationId=\"invocation/v1:6cb4df68-e076-4fd9-83b9-687a5a210039\" check.finished durationMs=8637.293",
+      "#000225 +00:00:53.085 [CHECK:typecheck-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:6cb4df68-e076-4fd9-83b9-687a5a210039\" check.finished durationMs=12441.137 messageCount=0",
+      "#000227 +00:00:54.211 [CHECK:typecheck-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:6cb4df68-e076-4fd9-83b9-687a5a210039\" check.finished durationMs=12029.996 messageCount=0"
+    ],
+    "passedTimeline": [
+      "#000012 +00:00:00.087 [CHECK:typecheck-product] [EXECUTION] [STARTED] invocationId=\"invocation/v1:51de0f6d-be6d-4786-a975-f44012373dc7\" check.started dependencies=[]",
+      "#000013 +00:00:00.088 [CHECK:typecheck-scripts] [EXECUTION] [STARTED] invocationId=\"invocation/v1:51de0f6d-be6d-4786-a975-f44012373dc7\" check.started dependencies=[]",
+      "#000020 +00:00:01.292 [CHECK:typecheck-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:51de0f6d-be6d-4786-a975-f44012373dc7\" check.finished durationMs=1204.026 messageCount=0",
+      "#000024 +00:00:01.306 [CHECK:tests-scripts-validation] [EXECUTION] [STARTED] invocationId=\"invocation/v1:51de0f6d-be6d-4786-a975-f44012373dc7\" check.started dependencies=[]",
+      "#000025 +00:00:01.385 [CHECK:typecheck-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:51de0f6d-be6d-4786-a975-f44012373dc7\" check.finished durationMs=1297.549 messageCount=0",
+      "#000046 +00:00:05.809 [CHECK:tests-scripts-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:51de0f6d-be6d-4786-a975-f44012373dc7\" check.finished durationMs=4503.557"
+    ]
+  },
+  "samples": [
+    {
+      "mode": "baseline",
+      "formedAt": "2026-10-19T07:07:31.717Z",
+      "bun": "1.3.14",
+      "results": [
+        {
+          "label": "test-alone-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3124.054699,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 4744602,
+            "user_usec": 3060183,
+            "system_usec": 1684420,
+            "nice_usec": 0,
+            "nr_periods": 31,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2114.99ms]\n(pass) root validate CLI forwards focused material selections [5.47ms]\n(pass) root validate CLI rejects the retired docs entrypoint [448.81ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [3.11s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 4.109079999999999,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "test-alone-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3191.1306409999997,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 4390742,
+            "user_usec": 2880302,
+            "system_usec": 1510439,
+            "nice_usec": 0,
+            "nr_periods": 32,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2284.10ms]\n(pass) root validate CLI forwards focused material selections [5.60ms]\n(pass) root validate CLI rejects the retired docs entrypoint [394.45ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [3.17s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2.0467909999997573,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "test-alone-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2390.1568800000005,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 3426339,
+            "user_usec": 2695510,
+            "system_usec": 730829,
+            "nice_usec": 0,
+            "nr_periods": 24,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1501.96ms]\n(pass) root validate CLI forwards focused material selections [5.05ms]\n(pass) root validate CLI rejects the retired docs entrypoint [401.90ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.37s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2.122516999999789,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "materials-alone-1",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1507.2994909999998,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 2232011,
+            "user_usec": 1836631,
+            "system_usec": 395381,
+            "nice_usec": 0,
+            "nr_periods": 15,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 1084.14178,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 1217.8240879999994,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 1404.0050599999995,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 1429.976928,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 1453.4500320000006,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "materials-alone-2",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1808.297457999999,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 2661259,
+            "user_usec": 2147533,
+            "system_usec": 513725,
+            "nice_usec": 0,
+            "nr_periods": 18,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 1248.9046069999986,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 1430.012682999999,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 1666.876576999999,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 1708.6926899999999,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 1746.5416059999989,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "materials-alone-3",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2669.900855,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 3970345,
+            "user_usec": 3197364,
+            "system_usec": 772982,
+            "nice_usec": 0,
+            "nr_periods": 27,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 1893.422559999999,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2163.6548169999987,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2508.8201259999987,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2562.706882999999,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2600.3765349999994,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "task-json",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials",
+            "json"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1755.0068520000004,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 2309162,
+            "user_usec": 1803738,
+            "system_usec": 505424,
+            "nice_usec": 0,
+            "nr_periods": 17,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 1727.0814520000004,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "task-schema",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials",
+            "schema"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 678.5743330000005,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 1141130,
+            "user_usec": 892695,
+            "system_usec": 248435,
+            "nice_usec": 0,
+            "nr_periods": 7,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 657.3258979999991,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "task-examples",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials",
+            "examples"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 869.3616869999969,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 1392167,
+            "user_usec": 1100516,
+            "system_usec": 291651,
+            "nice_usec": 0,
+            "nr_periods": 9,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 802.0554769999981,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 841.9936329999982,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "task-links",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials",
+            "links"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 614.4524519999977,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 945717,
+            "user_usec": 730796,
+            "system_usec": 214920,
+            "nice_usec": 0,
+            "nr_periods": 6,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 596.2420300000013,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "task-package-api-documentation",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials",
+            "package-api-documentation"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 573.5307920000014,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 898281,
+            "user_usec": 655915,
+            "system_usec": 242366,
+            "nice_usec": 0,
+            "nr_periods": 5,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": []
+        }
+      ]
+    },
+    {
+      "mode": "parallel-materials",
+      "formedAt": "2026-10-19T07:08:40.701Z",
+      "bun": "1.3.14",
+      "results": [
+        {
+          "label": "materials-parallel-1-b",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3599.8115169999996,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 13869599,
+            "user_usec": 10953443,
+            "system_usec": 2916157,
+            "nice_usec": 0,
+            "nr_periods": 36,
+            "nr_throttled": 20,
+            "throttled_usec": 886404,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2516.739831,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2907.1464109999997,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3409.881762,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3477.669825,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3515.2944079999997,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "materials-parallel-1-a",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3623.522078,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 13928269,
+            "user_usec": 10989539,
+            "system_usec": 2938730,
+            "nice_usec": 0,
+            "nr_periods": 36,
+            "nr_throttled": 20,
+            "throttled_usec": 886404,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2537.933852,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2964.677875,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3432.074402,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3490.643623,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3528.120082,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "test-parallel-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5169.189389,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 16342935,
+            "user_usec": 12852358,
+            "system_usec": 3490577,
+            "nice_usec": 0,
+            "nr_periods": 52,
+            "nr_throttled": 20,
+            "throttled_usec": 886404,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3485.40ms]\n(pass) root validate CLI forwards focused material selections [11.15ms]\n(pass) root validate CLI rejects the retired docs entrypoint [673.10ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [5.13s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 6.114274999999999,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "materials-parallel-2-a",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3227.773824,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 12104270,
+            "user_usec": 10249063,
+            "system_usec": 1855206,
+            "nice_usec": 0,
+            "nr_periods": 32,
+            "nr_throttled": 12,
+            "throttled_usec": 540334,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2269.0569749999995,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2629.488316,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3042.1870959999997,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3098.656907999999,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3146.5162920000002,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "materials-parallel-2-b",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3297.332792,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 12290179,
+            "user_usec": 10352613,
+            "system_usec": 1937566,
+            "nice_usec": 0,
+            "nr_periods": 33,
+            "nr_throttled": 12,
+            "throttled_usec": 540334,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2269.2448360000008,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2661.5869220000004,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3090.6361540000007,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3144.77415,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3196.2246430000005,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "test-parallel-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4736.857128999999,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 14574601,
+            "user_usec": 12119497,
+            "system_usec": 2455103,
+            "nice_usec": 0,
+            "nr_periods": 47,
+            "nr_throttled": 12,
+            "throttled_usec": 540334,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3157.93ms]\n(pass) root validate CLI forwards focused material selections [10.94ms]\n(pass) root validate CLI rejects the retired docs entrypoint [667.97ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [4.71s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 9.982616999999664,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "materials-parallel-3-b",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2821.0337409999993,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 10714183,
+            "user_usec": 8961071,
+            "system_usec": 1753112,
+            "nice_usec": 0,
+            "nr_periods": 28,
+            "nr_throttled": 14,
+            "throttled_usec": 515083,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2072.6554259999994,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2290.997007,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2634.869795999999,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2690.3670359999996,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2730.7628989999994,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "materials-parallel-3-a",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2866.703314999999,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 10815815,
+            "user_usec": 9017547,
+            "system_usec": 1798268,
+            "nice_usec": 0,
+            "nr_periods": 29,
+            "nr_throttled": 14,
+            "throttled_usec": 515083,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2115.612309,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2362.9417409999987,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2697.028456,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2735.8025930000003,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2781.6806109999998,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "test-parallel-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4335.747932,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 13192604,
+            "user_usec": 10904295,
+            "system_usec": 2288310,
+            "nice_usec": 0,
+            "nr_periods": 43,
+            "nr_throttled": 14,
+            "throttled_usec": 515083,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2690.84ms]\n(pass) root validate CLI forwards focused material selections [7.69ms]\n(pass) root validate CLI rejects the retired docs entrypoint [640.34ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [4.31s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 6.784069999999701,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "cold-typechecks",
+      "formedAt": "2026-10-19T07:09:33.799Z",
+      "bun": "1.3.14",
+      "results": [
+        {
+          "label": "test-cold-compilers-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 6075.890819,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 23949816,
+            "user_usec": 20460076,
+            "system_usec": 3489741,
+            "nice_usec": 0,
+            "nr_periods": 60,
+            "nr_throttled": 54,
+            "throttled_usec": 9531899,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [4665.77ms]\n(pass) root validate CLI forwards focused material selections [5.44ms]\n(pass) root validate CLI rejects the retired docs entrypoint [488.55ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [6.06s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 5.086756000000001,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "product-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-1.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 10589.130709000001,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 37701134,
+            "user_usec": 33680095,
+            "system_usec": 4021039,
+            "nice_usec": 0,
+            "nr_periods": 106,
+            "nr_throttled": 76,
+            "throttled_usec": 12810418,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 10432.553288000001,
+              "text": "Files:                    1475\nLines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1220008K\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 10432.800788,
+              "text": "Memory allocs:        12819620\nConfig time:            0.008s\nBuildInfo read time:    0.000s\nParse time:             0.452s\nBind time:              0.000s\nCheck time:             8.552s\nEmit time:              0.044s\nChanges compute time:   0.104s\nTotal time:             9.164s\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-1.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 10950.033533000002,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 38692832,
+            "user_usec": 34545831,
+            "system_usec": 4147001,
+            "nice_usec": 0,
+            "nr_periods": 109,
+            "nr_throttled": 78,
+            "throttled_usec": 12835102,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 10829.49465,
+              "text": "Files:                    1640\nLines:                  259562\nIdentifiers:            316932\nSymbols:               1928184\nTypes:                 1115466\nInstantiations:        5092679\nMemory used:          1193648K\nMemory allocs:        12563596\nConfig time:            0.007s\nBuildInfo read time:    0.000s\nParse time:             0.413s\nBind time:              0.000s\nCheck time:             9.004s\nEmit time:              0.033s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 10829.585519,
+              "text": "Changes compute time:   0.118s\nTotal time:             9.578s\n"
+            }
+          ]
+        },
+        {
+          "label": "test-cold-compilers-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5309.154266,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 21130017,
+            "user_usec": 18838297,
+            "system_usec": 2291719,
+            "nice_usec": 0,
+            "nr_periods": 53,
+            "nr_throttled": 51,
+            "throttled_usec": 8631577,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3468.55ms]\n(pass) root validate CLI forwards focused material selections [11.59ms]\n(pass) root validate CLI rejects the retired docs entrypoint [711.43ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [5.29s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2.7023709999994026,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-2.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9492.941588,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 33413632,
+            "user_usec": 30424760,
+            "system_usec": 2988872,
+            "nice_usec": 0,
+            "nr_periods": 95,
+            "nr_throttled": 68,
+            "throttled_usec": 11193486,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 9367.799665,
+              "text": "Files:                    1640\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.169612,
+              "text": "Lines:                  259562\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.238781000002,
+              "text": "Identifiers:            316932\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.258447000002,
+              "text": "Symbols:               1928184\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.275128,
+              "text": "Types:                 1115466\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.295656,
+              "text": "Instantiations:        5092679\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.337374,
+              "text": "Memory used:          1194308K\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.356730000001,
+              "text": "Memory allocs:        12552808\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.425998,
+              "text": "Config time:            0.001s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.459069999999,
+              "text": "BuildInfo read time:    0.000s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9368.975509000002,
+              "text": "Parse time:             0.417s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9369.091113,
+              "text": "Bind time:              0.000s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9369.255718999999,
+              "text": "Check time:             7.517s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 9369.298909,
+              "text": "Emit time:              0.044s\nChanges compute time:   0.125s\nTotal time:             8.106s\n"
+            }
+          ]
+        },
+        {
+          "label": "product-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-2.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 10069.965885,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 35165274,
+            "user_usec": 32039211,
+            "system_usec": 3126063,
+            "nice_usec": 0,
+            "nr_periods": 101,
+            "nr_throttled": 70,
+            "throttled_usec": 11297367,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 9940.774163,
+              "text": "Files:                    1475\nLines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1220332K\nMemory allocs:        12808511\nConfig time:            0.002s\nBuildInfo read time:    0.000s\nParse time:             0.355s\nBind time:              0.000s\nCheck time:             8.065s\nEmit time:              0.090s\nChanges compute time:   0.201s\nTotal time:             8.719s\n"
+            }
+          ]
+        },
+        {
+          "label": "test-cold-compilers-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5183.663488000002,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 20376454,
+            "user_usec": 18288342,
+            "system_usec": 2088112,
+            "nice_usec": 0,
+            "nr_periods": 52,
+            "nr_throttled": 41,
+            "throttled_usec": 7637294,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3530.99ms]\n(pass) root validate CLI forwards focused material selections [7.03ms]\n(pass) root validate CLI rejects the retired docs entrypoint [446.67ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [5.17s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 3.4395370000020193,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "product-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-3.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9135.303485,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 33076265,
+            "user_usec": 30506381,
+            "system_usec": 2569883,
+            "nice_usec": 0,
+            "nr_periods": 91,
+            "nr_throttled": 62,
+            "throttled_usec": 10077983,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 9013.284526,
+              "text": "Files:                    1475\nLines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1219812K\nMemory allocs:        12803658\nConfig time:            0.002s\nBuildInfo read time:    0.000s\nParse time:             0.277s\nBind time:              0.000s\nCheck time:             7.365s\nEmit time:              0.035s\nChanges compute time:   0.122s\nTotal time:             7.802s\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-3.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9439.977454,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 33822735,
+            "user_usec": 31122412,
+            "system_usec": 2700323,
+            "nice_usec": 0,
+            "nr_periods": 94,
+            "nr_throttled": 64,
+            "throttled_usec": 10216863,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 9331.084375000002,
+              "text": "Files:                    1640\nLines:                  259562\nIdentifiers:            316932\nSymbols:               1928184\nTypes:                 1115466\nInstantiations:        5092679\nMemory used:          1194297K\nMemory allocs:        12553617\nConfig time:            0.001s\nBuildInfo read time:    0.000s\nParse time:             0.355s\nBind time:              0.000s\nCheck time:             7.688s\nEmit time:              0.029s\nChanges compute time:   0.110s\nTotal time:             8.185s\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "lane-cold-typechecks",
+      "formedAt": "2026-10-19T07:13:18.005Z",
+      "bun": "1.3.14",
+      "results": [
+        {
+          "label": "lane-cold-typechecks-1-delay-0",
+          "args": [
+            "test",
+            "scripts/validation/repository-material/links.test.ts",
+            "scripts/validation/repository-material/schema/strict-json.test.ts",
+            "scripts/validation/repository-material/workflow.test.ts",
+            "scripts/validation/workspace.test.ts",
+            "--reporter=dots"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 6188.526314,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 24394016,
+            "user_usec": 20406507,
+            "system_usec": 3987510,
+            "nice_usec": 0,
+            "nr_periods": 62,
+            "nr_throttled": 51,
+            "throttled_usec": 8794564,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "........\n\n8 pass\n0 fail\nRan 8 tests across 4 files. [6.16s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 3.1275830000000155,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "product-lane-cold-typechecks-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-lane-cold-typechecks-1.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 10269.940897,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 37847014,
+            "user_usec": 33132744,
+            "system_usec": 4714270,
+            "nice_usec": 0,
+            "nr_periods": 103,
+            "nr_throttled": 76,
+            "throttled_usec": 12631043,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 10121.446437,
+              "text": "Files:                    1475\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 10125.00903,
+              "text": "Lines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1219677K\nMemory allocs:        12801769\nConfig time:            0.003s\nBuildInfo read time:    0.000s\nParse time:             0.358s\nBind time:              0.000s\nCheck time:             8.290s\nEmit time:              0.039s\nChanges compute time:   0.141s\nTotal time:             8.832s\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-lane-cold-typechecks-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-lane-cold-typechecks-1.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 10755.157167,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 39345183,
+            "user_usec": 34483654,
+            "system_usec": 4861529,
+            "nice_usec": 0,
+            "nr_periods": 107,
+            "nr_throttled": 78,
+            "throttled_usec": 12631292,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 10639.940108,
+              "text": "Files:                    1640\nLines:                  259562\nIdentifiers:            316932\nSymbols:               1928184\nTypes:                 1115466\nInstantiations:        5092679\nMemory used:          1193842K\nMemory allocs:        12553316\nConfig time:            0.002s\nBuildInfo read time:    0.000s\nParse time:             0.393s\nBind time:              0.000s\nCheck time:             8.896s\nEmit time:              0.083s\nChanges compute time:   0.158s\nTotal time:             9.533s\n"
+            }
+          ]
+        },
+        {
+          "label": "lane-cold-typechecks-2-delay-500",
+          "args": [
+            "test",
+            "scripts/validation/repository-material/links.test.ts",
+            "scripts/validation/repository-material/schema/strict-json.test.ts",
+            "scripts/validation/repository-material/workflow.test.ts",
+            "scripts/validation/workspace.test.ts",
+            "--reporter=dots"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5380.6267279999975,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 20906330,
+            "user_usec": 18966010,
+            "system_usec": 1940319,
+            "nice_usec": 0,
+            "nr_periods": 53,
+            "nr_throttled": 39,
+            "throttled_usec": 6818747,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "........\n\n8 pass\n0 fail\nRan 8 tests across 4 files. [5.35s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 7.433352999998533,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-lane-cold-typechecks-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-lane-cold-typechecks-2.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9285.178696999998,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 34769596,
+            "user_usec": 32094508,
+            "system_usec": 2675088,
+            "nice_usec": 0,
+            "nr_periods": 93,
+            "nr_throttled": 67,
+            "throttled_usec": 10510416,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 9145.295292999997,
+              "text": "Files:                    1640\nLines:                  259562\nIdentifiers:            316932\nSymbols:               1928184\nTypes:                 1115466\nInstantiations:        5092679\nMemory used:          1194313K\nMemory allocs:        12553242\nConfig time:            0.001s\nBuildInfo read time:    0.000s\nParse time:             0.333s\nBind time:              0.000s\nCheck time:             7.340s\nEmit time:              0.036s\nChanges compute time:   0.109s\nTotal time:             7.822s\n"
+            }
+          ]
+        },
+        {
+          "label": "product-lane-cold-typechecks-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-lane-cold-typechecks-2.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9486.280749000001,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 35063042,
+            "user_usec": 32237235,
+            "system_usec": 2825807,
+            "nice_usec": 0,
+            "nr_periods": 95,
+            "nr_throttled": 68,
+            "throttled_usec": 10624109,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 9367.277096999998,
+              "text": "Files:                    1475\nLines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1219744K\nMemory allocs:        12799997\nConfig time:            0.002s\nBuildInfo read time:    0.000s\nParse time:             0.241s\nBind time:              0.000s\nCheck time:             7.409s\nEmit time:              0.023s\nChanges compute time:   0.160s\nTotal time:             7.837s\n"
+            }
+          ]
+        },
+        {
+          "label": "lane-cold-typechecks-3-delay-1500",
+          "args": [
+            "test",
+            "scripts/validation/repository-material/links.test.ts",
+            "scripts/validation/repository-material/schema/strict-json.test.ts",
+            "scripts/validation/repository-material/workflow.test.ts",
+            "scripts/validation/workspace.test.ts",
+            "--reporter=dots"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5332.573687,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 20292840,
+            "user_usec": 18378121,
+            "system_usec": 1914720,
+            "nice_usec": 0,
+            "nr_periods": 53,
+            "nr_throttled": 32,
+            "throttled_usec": 5445385,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "........\n\n8 pass\n0 fail\nRan 8 tests across 4 files. [5.26s]\n",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8.262421999999788,
+              "text": "bun test v1.3.14 (0d9b296a)\n"
+            }
+          ]
+        },
+        {
+          "label": "product-lane-cold-typechecks-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-lane-cold-typechecks-3.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8452.028456,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 32031024,
+            "user_usec": 29081908,
+            "system_usec": 2949115,
+            "nice_usec": 0,
+            "nr_periods": 85,
+            "nr_throttled": 58,
+            "throttled_usec": 8960787,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8311.019780000002,
+              "text": "Files:                    1475\nLines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1220068K\nMemory allocs:        12799083\nConfig time:            0.002s\nBuildInfo read time:    0.000s\nParse time:             0.244s\nBind time:              0.000s\nCheck time:             7.072s\nEmit time:              0.024s\nChanges compute time:   0.110s\nTotal time:             7.453s\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-lane-cold-typechecks-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-lane-cold-typechecks-3.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9105.714355999997,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 34156310,
+            "user_usec": 31091979,
+            "system_usec": 3064332,
+            "nice_usec": 0,
+            "nr_periods": 91,
+            "nr_throttled": 62,
+            "throttled_usec": 9021983,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8988.253669999998,
+              "text": "Files:                    1640\nLines:                  259562\nIdentifiers:            316932\nSymbols:               1928184\nTypes:                 1115466\nInstantiations:        5092679\nMemory used:          1194336K\nMemory allocs:        12556463\nConfig time:            0.001s\nBuildInfo read time:    0.000s\nParse time:             0.308s\nBind time:              0.000s\nCheck time:             7.893s\nEmit time:              0.031s\nChanges compute time:   0.068s\nTotal time:             8.303s\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "cli-cold-typechecks",
+      "formedAt": "2026-10-19T07:13:45.047Z",
+      "bun": "1.3.14",
+      "results": [
+        {
+          "label": "cli-cold-typechecks-1-delay-0",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3499.981534,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 14141408,
+            "user_usec": 12615895,
+            "system_usec": 1525513,
+            "nice_usec": 0,
+            "nr_periods": 35,
+            "nr_throttled": 34,
+            "throttled_usec": 6340287,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2297.787064,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2688.588125,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3344.411422,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3386.084602,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3386.160523,
+              "text": "report examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3443.060508,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "product-cli-cold-typechecks-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-cli-cold-typechecks-1.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8739.292008,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 30166886,
+            "user_usec": 27904085,
+            "system_usec": 2262801,
+            "nice_usec": 0,
+            "nr_periods": 87,
+            "nr_throttled": 56,
+            "throttled_usec": 9241754,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8606.964393,
+              "text": "Files:                    1475\nLines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1220374K\nMemory allocs:        12803656\nConfig time:            0.002s\nBuildInfo read time:    0.000s\nParse time:             0.344s\nBind time:              0.000s\nCheck time:             6.657s\nEmit time:              0.070s\nChanges compute time:   0.269s\nTotal time:             7.344s\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-cli-cold-typechecks-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-cli-cold-typechecks-1.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9102.552741,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 31169931,
+            "user_usec": 28786183,
+            "system_usec": 2383748,
+            "nice_usec": 0,
+            "nr_periods": 91,
+            "nr_throttled": 59,
+            "throttled_usec": 9374308,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8985.785134,
+              "text": "Files:                    1640\nLines:                  259562\nIdentifiers:            316932\nSymbols:               1928184\nTypes:                 1115466\nInstantiations:        5092679\nMemory used:          1193884K\nMemory allocs:        12549448\nConfig time:            0.001s\nBuildInfo read time:    0.000s\nParse time:             0.321s\nBind time:              0.000s\nCheck time:             7.271s\nEmit time:              0.064s\nChanges compute time:   0.192s\nTotal time:             7.852s\n"
+            }
+          ]
+        },
+        {
+          "label": "cli-cold-typechecks-2-delay-500",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3704.4926429999996,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 14623478,
+            "user_usec": 13509198,
+            "system_usec": 1114281,
+            "nice_usec": 0,
+            "nr_periods": 37,
+            "nr_throttled": 36,
+            "throttled_usec": 6350639,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 3067.1947180000006,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3366.3508309999997,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3597.7489110000006,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3624.563454000001,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3655.669331000001,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-cli-cold-typechecks-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-cli-cold-typechecks-2.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8815.877446,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 30822918,
+            "user_usec": 28736329,
+            "system_usec": 2086589,
+            "nice_usec": 0,
+            "nr_periods": 88,
+            "nr_throttled": 60,
+            "throttled_usec": 9751146,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8684.621208999999,
+              "text": "Files:                    1640\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.708001,
+              "text": "Lines:                  259562\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.729089999999,
+              "text": "Identifiers:            316932\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.744729,
+              "text": "Symbols:               1928184\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.759857,
+              "text": "Types:                 1115466\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.775065,
+              "text": "Instantiations:        5092679\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.792818,
+              "text": "Memory used:          1194235K\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.807936,
+              "text": "Memory allocs:        12553446\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.822874,
+              "text": "Config time:            0.001s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.859873,
+              "text": "BuildInfo read time:    0.000s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.879018000001,
+              "text": "Parse time:             0.261s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.895268000002,
+              "text": "Bind time:              0.000s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8684.92852,
+              "text": "Check time:             7.069s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8685.179246000002,
+              "text": "Emit time:              0.036s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8685.227104,
+              "text": "Changes compute time:   0.090s\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8685.290202000002,
+              "text": "Total time:             7.458s\n"
+            }
+          ]
+        },
+        {
+          "label": "product-cli-cold-typechecks-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-cli-cold-typechecks-2.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9042.964537999998,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 31244251,
+            "user_usec": 29009127,
+            "system_usec": 2235124,
+            "nice_usec": 0,
+            "nr_periods": 91,
+            "nr_throttled": 61,
+            "throttled_usec": 9892451,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8926.329211999999,
+              "text": "Files:                    1475\nLines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1220010K\nMemory allocs:        12802026\nConfig time:            0.002s\nBuildInfo read time:    0.000s\nParse time:             0.279s\nBind time:              0.000s\nCheck time:             7.230s\nEmit time:              0.041s\nChanges compute time:   0.097s\nTotal time:             7.652s\n"
+            }
+          ]
+        },
+        {
+          "label": "cli-cold-typechecks-3-delay-1500",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3078.6597269999984,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 12191143,
+            "user_usec": 11341330,
+            "system_usec": 849813,
+            "nice_usec": 0,
+            "nr_periods": 30,
+            "nr_throttled": 28,
+            "throttled_usec": 4583045,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 2438.0577190000004,
+              "text": "strict JSON validation ok: 489 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2599.9252290000004,
+              "text": "schema strict compile ok: 5 schema file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 2936.397731000001,
+              "text": "current machine artifact examples ok: 1 set(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3011.71558,
+              "text": "schema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 3035.9056519999976,
+              "text": "markdown links ok: 575 file(s)\n"
+            }
+          ]
+        },
+        {
+          "label": "product-cli-cold-typechecks-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/product-cli-cold-typechecks-3.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8335.460458999998,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 29424186,
+            "user_usec": 27176641,
+            "system_usec": 2247546,
+            "nice_usec": 0,
+            "nr_periods": 83,
+            "nr_throttled": 60,
+            "throttled_usec": 9067603,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8200.068852,
+              "text": "Files:                    1475\n"
+            },
+            {
+              "channel": "stdout",
+              "atMs": 8200.462422999997,
+              "text": "Lines:                  255264\nIdentifiers:            314472\nSymbols:               2016595\nTypes:                 1124762\nInstantiations:        5125539\nMemory used:          1219513K\nMemory allocs:        12798646\nConfig time:            0.002s\nBuildInfo read time:    0.000s\nParse time:             0.217s\nBind time:              0.000s\nCheck time:             6.657s\nEmit time:              0.033s\nChanges compute time:   0.172s\nTotal time:             7.083s\n"
+            }
+          ]
+        },
+        {
+          "label": "scripts-cli-cold-typechecks-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "<probe-output>/scripts-cli-cold-typechecks-3.tsbuildinfo",
+            "--diagnostics"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8718.104492999999,
+          "watchdog": false,
+          "cpuCgroupDelta": {
+            "usage_usec": 30532533,
+            "user_usec": 28177954,
+            "system_usec": 2354578,
+            "nice_usec": 0,
+            "nr_periods": 87,
+            "nr_throttled": 62,
+            "throttled_usec": 9149455,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "stderr": "",
+          "stdoutEvents": [
+            {
+              "channel": "stdout",
+              "atMs": 8609.045543,
+              "text": "Files:                    1640\nLines:                  259562\nIdentifiers:            316932\nSymbols:               1928184\nTypes:                 1115466\nInstantiations:        5092679\nMemory used:          1193769K\nMemory allocs:        12550141\nConfig time:            0.001s\nBuildInfo read time:    0.000s\nParse time:             0.233s\nBind time:              0.000s\nCheck time:             7.176s\nEmit time:              0.039s\nChanges compute time:   0.149s\nTotal time:             7.598s\n"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

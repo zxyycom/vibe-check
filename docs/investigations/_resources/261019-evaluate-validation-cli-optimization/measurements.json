@@ -1,0 +1,3450 @@
+{
+  "formedAt": "2026-10-19T07:55:32.246Z",
+  "method": "Measurements copied from owned probes; original stdout/stderr, commands and sample order retained. Corpus manifest deduplicated. CPU profile below is an excerpt, not all samples. No estimates of failure rate or P95.",
+  "environment": {
+    "os": "Linux WSL2 x86_64",
+    "logicalCpuCount": 4,
+    "cgroupCpuQuota": 4,
+    "bun": "1.3.14",
+    "node": "24.18.0"
+  },
+  "corpus": {
+    "count": 490,
+    "totalBytes": 34811143,
+    "paths": [
+      "docs/decisions/decision-index.json",
+      "docs/examples/historical/v1/diagnostic-report.json",
+      "docs/examples/historical/v1/empty-scope-report.json",
+      "docs/examples/historical/v1/gate-failing-report.json",
+      "docs/examples/historical/v1/passing-report.json",
+      "docs/investigations/_resources/260903-analyze-markdown-link-cache-packing/direct-cache-api-profile-results.json",
+      "docs/investigations/_resources/260903-analyze-markdown-link-cache-packing/raw-results.json",
+      "docs/investigations/_resources/260903-assess-lizard-extension-adoption-value/lizard-1.23.0-provenance.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-full/evidence.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-full/historical-product-request.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/evidence.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/historical-product-request.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/evidence.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/representative-batch-request.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/tiny-cold-start-request.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/evidence.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/tiny-cold-start-request.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/c-current-product-full/current-decomposition-request.json",
+      "docs/investigations/_resources/260903-compare-lizard-python-typescript-performance/c-current-product-full/evidence.json",
+      "docs/investigations/_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/evidence.json",
+      "docs/investigations/_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-summary.json",
+      "docs/investigations/_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-summary.json",
+      "docs/investigations/_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw-summary.json",
+      "docs/investigations/_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-cost.json",
+      "docs/investigations/_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/provenance.json",
+      "docs/investigations/_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/provenance.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-evidence.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-measurement.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-base-tokenizer.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-cpu-profile-run.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-counterfactual.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-fastpath-count.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-ordered-resolver-counterfactual.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-count.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-abba.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-full-warm-cache.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-profile-observations.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-runtime-native-probe.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-selection.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/reader-family-medians.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-bun.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-node-24.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-dispatch-counterfactual.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-regexp-construction.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-selection.json",
+      "docs/investigations/_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-stage-profile.json",
+      "docs/investigations/_resources/260903-evaluate-markdown-link-serial-io-optimization/after-final-hit-utf8.json",
+      "docs/investigations/_resources/260903-evaluate-markdown-link-serial-io-optimization/before-old-cfe715d.json",
+      "docs/investigations/_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike-output.json",
+      "docs/investigations/_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/upstream-snapshot.json",
+      "docs/investigations/_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/evidence.json",
+      "docs/investigations/_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/provenance.json",
+      "docs/investigations/_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/typescript-token-pattern.json",
+      "docs/investigations/_resources/260903-investigate-fortran-lizard-performance-hotspot/fortran-family-evidence.json",
+      "docs/investigations/_resources/260903-remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json",
+      "docs/investigations/_resources/260903-remeasure-function-metrics-product-reader-fast-path/evidence.json",
+      "docs/investigations/_resources/260903-remeasure-function-metrics-product-reader-fast-path/summary.json",
+      "docs/investigations/_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/corpus-manifest.json",
+      "docs/investigations/_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/evidence.json",
+      "docs/investigations/_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/preflight-canonical-metrics.json",
+      "docs/investigations/_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
+      "docs/investigations/_resources/260903-survey-lizard-host-acceleration-candidates/candidate-probes.json",
+      "docs/investigations/_resources/260903-survey-lizard-host-acceleration-candidates/oniguruma-compile-inventory.json",
+      "docs/investigations/_resources/260903-survey-lizard-host-acceleration-candidates/oniguruma-real-typescript-raw-scan.json",
+      "docs/investigations/_resources/260903-survey-lizard-host-acceleration-candidates/regex-feature-inventory.json",
+      "docs/investigations/_resources/260903-verify-lizard-reader-resolution-fast-path/facade-acceptance.json",
+      "docs/investigations/_resources/260908-calibrate-gate-duration-variation/observations.json",
+      "docs/investigations/_resources/260908-calibrate-gate-duration-variation/summary.json",
+      "docs/investigations/_resources/260908-compare-simple-admission-algorithms/evidence.json",
+      "docs/investigations/_resources/260908-compare-simple-admission-algorithms/run-manifest.json",
+      "docs/investigations/_resources/260908-compare-simple-admission-algorithms/simple-admission-comparison.protocol.json",
+      "docs/investigations/_resources/260908-compare-simple-admission-algorithms/summary.json",
+      "docs/investigations/_resources/260908-compare-simple-admission-algorithms/trace-excerpts.json",
+      "docs/investigations/_resources/260908-explain-learned-heuristic-rejection/evidence-map.json",
+      "docs/investigations/_resources/260914-measure-scc-file-batch-transport-performance/corpus-manifest.json",
+      "docs/investigations/_resources/260914-measure-scc-file-batch-transport-performance/initial-summary.json",
+      "docs/investigations/_resources/260914-measure-scc-file-batch-transport-performance/runtime-summary.json",
+      "docs/investigations/_resources/260926-diagnose-required-gate-head-of-line-wait/execution-bottleneck-breakdown.json",
+      "docs/investigations/_resources/260926-diagnose-required-gate-head-of-line-wait/measurements.json",
+      "docs/investigations/_resources/260926-diagnose-required-gate-head-of-line-wait/test-cost-breakdown.json",
+      "docs/investigations/_resources/261006-compare-node-file-collection-backends/evidence-snapshot.json",
+      "docs/investigations/_resources/261008-assess-lizard-1-24-1-upgrade/observations.json",
+      "docs/investigations/_resources/261008-assess-lizard-1-24-1-upgrade/source-review.json",
+      "docs/investigations/_resources/261008-assess-lizard-1-24-1-upgrade/survey-inputs.json",
+      "docs/investigations/_resources/261008-fast-glob-git-collection-boundaries/native-git-observations.json",
+      "docs/investigations/_resources/261008-trace-typescript-metrics-upstream-origin/input-and-port-observations.json",
+      "docs/investigations/_resources/261008-trace-typescript-metrics-upstream-origin/source-identity.json",
+      "docs/investigations/_resources/261008-trace-typescript-metrics-upstream-origin/upstream-observations.json",
+      "docs/investigations/_resources/261008-verify-lizard-latest-typescript-defects/observations.json",
+      "docs/investigations/_resources/261008-verify-lizard-latest-typescript-defects/source-identity.json",
+      "docs/investigations/_resources/261008-verify-typescript-function-metrics-defects/observations.json",
+      "docs/investigations/_resources/261008-verify-typescript-function-metrics-defects/source-identity.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/bun-readiness-observations.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/check-bun-after-review.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/check-final-bun.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/check-final-node.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/check-node-after-review.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/check-node-observations.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-after-byte-identity-bun.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-after-byte-identity-node.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-after-compiled-pruning.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-after-review-bun.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-after-review-node.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-after.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-before.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-final-bun.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/filesystem-final-node.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/identity-review-bun-observations.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/identity-review-node-observations.json",
+      "docs/investigations/_resources/261011-project-file-collection-readiness/node-readiness-observations.json",
+      "docs/investigations/_resources/261011-project-file-region-index-readiness/rebuild-bun-observations.json",
+      "docs/investigations/_resources/261011-project-file-region-index-readiness/rebuild-node-observations.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/acceptance.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/before-identity.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/corpus-manifest.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-identity.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-module-difference.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-performance.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-real-records-1.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-real-records-2.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-real-records-3.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-real-records-4.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-real-records-5.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/final-resources.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/preliminary-identity.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/preliminary-performance.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/preliminary-real-records-1.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/preliminary-real-records-2.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/preliminary-real-records-3.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/preliminary-real-records-4.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/preliminary-real-records-5.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/preliminary-resources.json",
+      "docs/investigations/_resources/261011-verify-function-metrics-admission-implementation/production-module-difference.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/acceptance.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/changed-source-parity.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/completed.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/corpus-manifest.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/final-cost-location.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/gate-closure-metrics.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/guard-diagnostic-samples.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/measurement-identity.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/output-difference.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/paths.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/performance-samples.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/performance-summary.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/pre-guard-measurement-identity.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/pre-guard-performance-samples.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/pre-guard-performance-summary.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/pre-guard-profile-summary.json",
+      "docs/investigations/_resources/261011-verify-lizard-1-24-1-implementation/seven-source-identity.json",
+      "docs/investigations/_resources/261011-verify-typescript-metrics-implementation/acceptance.json",
+      "docs/investigations/_resources/261011-verify-typescript-metrics-implementation/baseline-observations.json",
+      "docs/investigations/_resources/261011-verify-typescript-metrics-implementation/installed-observations.json",
+      "docs/investigations/_resources/261011-verify-typescript-metrics-implementation/source-observations.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/analyzer-coverage.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/analyzer-observations.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/analyzer-validated-observations.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/checks-coverage.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/checks-observations.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/core-foundations-coverage.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/core-foundations-observations-locked.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/core-foundations-observations.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/coverage-summary.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/project-run-coverage.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/project-run-observations.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/review-observations.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/review-ruby-observations.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/source-inventory.json",
+      "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/tools-coverage.json",
+      "docs/investigations/_resources/261012-audit-function-metrics-pathological-input-cost/comment-scaling.json",
+      "docs/investigations/_resources/261012-audit-function-metrics-pathological-input-cost/template-scaling.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/candidate-source-identity.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/case-core-before.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/case-typescript-before.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/copy-manifest.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/corpus-manifest.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/frozen-input-provenance.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness-coding-style-review.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/harness-source-history.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/legal-corpus-summary.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/product-token-relation.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/production-behavior-summary.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/supported-node-comment-0-full.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/supported-node-comment-1-full.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/supported-node-template-0-full.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/supported-node-template-1-full.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/timing-observations.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/token-differential.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3-dispatch-counts.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3-legal-corpus-summary.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3-lifecycle-probes.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3-source-identity.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3-timing-observations.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3-token-differential.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-leading-addition-probes.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-legal-corpus-summary.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-lifecycle-probes.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-long-token-bun.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-long-token-node.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-overlap-review.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-rejected-lifecycle-probes.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-snapshot-closure.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-source-identity.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-timing-observations.json",
+      "docs/investigations/_resources/261012-evaluate-bounded-tokenizer-optimization/v3.1-token-differential.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/before-source-provenance.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/behavioral-verification.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/bun-baseline.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/bun-tmp-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/delivery-verification.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/fixture-provenance.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/helper-source-history.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/lazy-default-provenance.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/long-literal-bun-guarded.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/long-literal-bun-unguarded.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/long-literal-node-guarded.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/long-literal-node-unguarded.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/manifest.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/node-baseline.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/node-instrumented-profile.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/node-tmp-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/phase-b-bun-frozen-fixture.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/phase-b-lazy-bun-frozen-fixture.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/phase-b-lazy-node-frozen-fixture.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/phase-b-lazy-summary.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/phase-b-node-frozen-fixture.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/phase-b-summary.json",
+      "docs/investigations/_resources/261012-evaluate-project-file-selection-optimization/summary.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/before-source-manifest.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/behavior-validation.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/candidate-source-manifest.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/environment.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/helper-source-history.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/identity.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-chain-128-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-chain-128-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-chain-128-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-chain-128-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-chain-512-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-chain-512-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-chain-512-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-chain-512-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-independent-128-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-independent-128-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-independent-128-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-independent-128-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-independent-512-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-independent-512-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-independent-512-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/bun-independent-512-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/cancellation.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/count-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/count-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-128-p1-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-128-p1-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-128-p1-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-128-p1-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-128-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-128-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-128-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-128-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-32-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-32-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-32-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-32-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-512-p1-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-512-p1-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-512-p1-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-512-p1-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-512-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-512-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-512-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-chain-512-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-128-p1-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-128-p1-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-128-p1-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-128-p1-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-128-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-128-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-128-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-128-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-32-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-32-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-32-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-32-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-512-p1-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-512-p1-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-512-p1-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-512-p1-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-512-p4-0-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-512-p4-1-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-512-p4-2-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/node-independent-512-p4-3-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/smoke-before.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/raw/smoke-candidate.json",
+      "docs/investigations/_resources/261012-evaluate-run-projection-optimization/summary.json",
+      "docs/investigations/_resources/261012-measure-product-performance-baseline/bun-check-evidence.json",
+      "docs/investigations/_resources/261012-measure-product-performance-baseline/bun-scheduler-evidence.json",
+      "docs/investigations/_resources/261012-measure-product-performance-baseline/combined-evidence.json",
+      "docs/investigations/_resources/261012-measure-product-performance-baseline/node-evidence.json",
+      "docs/investigations/_resources/261012-measure-product-performance-baseline/summary.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/cpu/chain-512.stdout.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/cpu/independent-512.stdout.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/cpu/lint-result.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/cpu/lint.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/cpu/offline-review-correction.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/cpu/summary.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/cpu/tsconfig.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/cpu/validation.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/execution-transcript.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/identity-attempt-one-after.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/identity-attempt-one-before.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/identity-cpu-after.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/identity-cpu-before.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/identity-formal-after.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/identity-formal-before.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/lint.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-00-independent-8-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-01-independent-8-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-02-independent-8-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-03-independent-8-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-04-independent-32-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-05-independent-32-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-06-independent-32-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-07-independent-32-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-08-independent-128-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-09-independent-128-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-10-independent-128-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-11-independent-128-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-12-independent-512-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-13-independent-512-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-14-independent-512-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-15-independent-512-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-16-chain-8-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-17-chain-8-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-18-chain-8-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-19-chain-8-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-20-chain-32-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-21-chain-32-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-22-chain-32-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-23-chain-32-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-24-chain-128-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-25-chain-128-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-26-chain-128-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-27-chain-128-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-28-chain-512-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-29-chain-512-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-30-chain-512-baseline.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/raw/formal-31-chain-512-instrumented.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/summary.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/tsconfig.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/validation/config-generation.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/validation/lint.json",
+      "docs/investigations/_resources/261012-profile-post-optimization-run-stages/validation/result.json",
+      "docs/investigations/_resources/261012-review-product-algorithmic-complexity/bounded-operation-counts.json",
+      "docs/investigations/_resources/261012-review-product-algorithmic-complexity/candidate-status.json",
+      "docs/investigations/_resources/261012-review-product-algorithmic-complexity/source-inventory.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-after-identity.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-after-operation-counts.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-after.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-before-identity.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-before-operation-counts.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-before-summary.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-before.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-broad-after.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-broad-before.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-broad-comparison.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-comparison.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-broad-after.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-broad-before.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-broad-comparison.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-comparison.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-identity.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-interleaved-controls.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-operation-count-comparison.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-operation-counts.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final-verification.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-final.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-fixture-consistency.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-fixture-manifest.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-interleaved-controls.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-operation-count-comparison.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-pilot-anchors-16.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-pilot-anchors-4096.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-pilot-directory-1024.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-pilot-directory-32.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-pilot-directory-4096.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-pilot-directory-512.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-pilot-reminders-32.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-pilot-reminders-4.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/core-after-operation-counts.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/core-before-operation-counts.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/final-gate-summary.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/first-gate-summary.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-after-identity.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-after-operation-counts.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-after.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-before-identity.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-before-operation-counts.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-before-summary.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-before.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-bun-pilot-256.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-bun-smoke.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-comparison.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-interleaved-controls.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-node-smoke.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-operation-count-comparison.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-snapshot-lifecycle.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/style-review-verification.json",
+      "docs/investigations/_resources/261012-verify-priority-complexity-optimizations/temporary-cleanup.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/audit-results.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/copy-identities.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/helper-validation/helper-lint-input-identities.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/helper-validation/mirror-oxlintrc.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/helper-validation/mirror-tsconfig.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/initial/samples.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/initial/summary-paired.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/prefix/samples.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/prefix/summary-paired.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/threshold64/samples.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/threshold64/summary-historical.json",
+      "docs/investigations/_resources/261013-evaluate-exact-key-membership-candidates/threshold64/summary-paired.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/audit-result.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/engineering/audit-oxlintrc.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/engineering/helper-lint-input-identities.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/engineering/mirror-oxlintrc.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/methods/audit/tsconfig.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/methods/tsconfig.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/raw/bun-smoke-typed-helper.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/raw/bun-smoke.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/raw/node-measure.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/raw/node-smoke-typed-helper.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/raw/node-smoke.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/raw/node-trace-parity.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/resource-origins.json",
+      "docs/investigations/_resources/261013-evaluate-markdown-path-cursor/summary.json",
+      "docs/investigations/_resources/261015-evaluate-strict-json-parser-replacement/evidence.json",
+      "docs/investigations/_resources/261015-evaluate-strict-json-parser-replacement/momoa-artifact-comparison.json",
+      "docs/investigations/_resources/261015-evaluate-strict-json-parser-replacement/registry-snapshot.json",
+      "docs/investigations/_resources/261015-review-product-complexity-after-core-optimizations/bounded-operations.json",
+      "docs/investigations/_resources/261015-review-product-complexity-after-core-optimizations/candidate-status.json",
+      "docs/investigations/_resources/261015-review-product-complexity-after-core-optimizations/coverage.json",
+      "docs/investigations/_resources/261015-survey-product-api-performance-and-tradeoffs/after-bun.json",
+      "docs/investigations/_resources/261015-survey-product-api-performance-and-tradeoffs/after-node.json",
+      "docs/investigations/_resources/261015-survey-product-api-performance-and-tradeoffs/baseline-bun.json",
+      "docs/investigations/_resources/261015-survey-product-api-performance-and-tradeoffs/baseline-node.json",
+      "docs/investigations/_resources/261015-survey-product-api-performance-and-tradeoffs/comparison.json",
+      "docs/investigations/_resources/261015-survey-product-api-performance-and-tradeoffs/method.json",
+      "docs/investigations/_resources/261016-correct-scheduler-cancel-forced-settlement/observations.json",
+      "docs/investigations/_resources/261016-correct-scheduler-seed-viability/observations.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/allocation-node-trees.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/memory-bun.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/memory-isolated-bun.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/memory-isolated-node.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/memory-node.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/metrics-node.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/source-manifest.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/timing-bun.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/timing-node.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/timing-v2-bun.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-delta-overlay-materialization/timing-v2-node.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/bun-memory-v2.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/bun-memory.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/bun-partial-timing.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/bun-partial-v2-timing.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/bun-timing.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/bun-total.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/evidence-manifest.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/node-memory-v2.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/node-memory.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/node-partial-timing.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/node-partial-v2-timing.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/node-timing.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/node-total.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/partial-verify-v2.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/partial-verify.json",
+      "docs/investigations/_resources/261017-evaluate-scheduler-shared-condition-state/verify.json",
+      "docs/investigations/_resources/261019-investigate-validation-cli-timeout/measurements.json",
+      "docs/investigations/investigation-index.json",
+      "docs/package-documents.json",
+      "docs/schemas/historical/v1/vibe-check-report.schema.json",
+      "docs/schemas/historical/v2/vibe-check-record.schema.json",
+      "docs/schemas/historical/v2/vibe-check-run.schema.json",
+      "docs/schemas/vibe-check-record.schema.json",
+      "docs/schemas/vibe-check-run.schema.json",
+      "docs/testing/cases/topics.json"
+    ]
+  },
+  "baselinePhases": [
+    {
+      "bun": "1.3.14",
+      "formedAt": "2026-10-19T07:33:46.309Z",
+      "totalMs": 1963.553795,
+      "events": [
+        {
+          "phase": "module-load",
+          "elapsedMs": 549.9324330000001
+        },
+        {
+          "phase": "json",
+          "elapsedMs": 940.6455679999999,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "schema",
+          "elapsedMs": 152.98382100000003,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "examples",
+          "elapsedMs": 204.45245,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "links",
+          "elapsedMs": 72.34894499999996,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "package-api-documentation",
+          "elapsedMs": 43.09718500000008,
+          "status": "passed",
+          "diagnostics": []
+        }
+      ]
+    },
+    {
+      "bun": "1.3.14",
+      "formedAt": "2026-10-19T07:33:47.731Z",
+      "totalMs": 1330.092403,
+      "events": [
+        {
+          "phase": "module-load",
+          "elapsedMs": 268.597912
+        },
+        {
+          "phase": "json",
+          "elapsedMs": 665.7197779999999,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "schema",
+          "elapsedMs": 145.76029699999992,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "examples",
+          "elapsedMs": 199.45079899999996,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "links",
+          "elapsedMs": 28.48747000000003,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "package-api-documentation",
+          "elapsedMs": 22.044587999999976,
+          "status": "passed",
+          "diagnostics": []
+        }
+      ]
+    },
+    {
+      "bun": "1.3.14",
+      "formedAt": "2026-10-19T07:33:49.093Z",
+      "totalMs": 1286.517133,
+      "events": [
+        {
+          "phase": "module-load",
+          "elapsedMs": 242.16489
+        },
+        {
+          "phase": "json",
+          "elapsedMs": 656.84631,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "schema",
+          "elapsedMs": 128.37462000000005,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "examples",
+          "elapsedMs": 210.83666199999993,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "links",
+          "elapsedMs": 23.871733999999833,
+          "status": "passed",
+          "diagnostics": []
+        },
+        {
+          "phase": "package-api-documentation",
+          "elapsedMs": 24.392419999999902,
+          "status": "passed",
+          "diagnostics": []
+        }
+      ]
+    }
+  ],
+  "baselineCpuProfileExcerpt": "# CPU Profile\n\n| Duration | Samples | Interval | Functions |\n|----------|---------|----------|----------|\n| 1.60s | 1259 | 1.0ms | 1228 |\n\n**Top 10:** `(anonymous)` 17.1%, `freeze` 11.6%, `values` 6.7%, `recordPropertyName` 6.5%, `anonymous` 4.6%, `parse` 4.4%, `keys` 2.9%, `(anonymous)` 1.7%, `readBoundedFile` 1.4%, `recordPropertyName` 1.3%\n\n## Hot Functions (Self Time)\n\n| Self% | Self | Total% | Total | Function | Location |\n|------:|-----:|-------:|------:|----------|----------|\n| 17.1% | 274.2ms | 99.2% | 1.58s | `(anonymous)` | `[native code]` |\n| 11.6% | 187.2ms | 11.6% | 187.2ms | `freeze` | `[native code]` |\n| 6.7% | 108.4ms | 6.7% | 108.4ms | `values` | `[native code]` |\n| 6.5% | 104.7ms | 6.5% | 104.7ms | `recordPropertyName` | `/home/dev/.codex/worktrees/package-release-preparation/vibe-check/src/package-checks/json-document/decoded-duplicate-keys.ts:66` |\n| 4.6% | 75.0ms | 15.9% | 254.9ms | `anonymous` | `[native code]` |\n| 4.4% | 71.8ms | 4.4% | 71.8ms | `parse` | `[native code]` |\n| 2.9% | 46.7ms | 2.9% | 46.7ms | `keys` | `[native code]` |\n| 1.7% | 28.6ms | 1.7% | 28.6ms | `(anonymous)` | `/home/dev/.codex/worktrees/package-release-preparation/vibe-check/node_modules/.pnpm/typescript@6.0.3/node_modules/typescript/lib/typescript.js` |\n| 1.4% | 23.6ms | 2.1% | 33.7ms | `readBoundedFile` | `/home/dev/.codex/worktrees/package-release-preparation/vibe-check/src/package-checks/json-document/strict-document.ts:68` |\n| 1.3% | 20.9ms | 1.3% | 20.9ms | `recordPropertyName` | `/home/dev/.codex/worktrees/package-release-preparation/vibe-check/src/package-checks/json-document/decoded-duplicate-keys.ts:65` |\n| 1.1% | 19.1ms | 1.1% | 19.1ms | `(anonymous)` | `/home/dev/.codex/worktrees/package-release-preparation/vibe-check/node_modules/.pnpm/jiti@2.7.0/node_modules/jiti/dist/babel.cjs` |\n| 1.1% | 18.3ms | 1.1% | 18.3ms | `addNames` | `/home/dev/.codex/worktrees/package-release-preparation/vibe-check/node_modules/.pnpm/ajv@8.20.0/node_modules/ajv/dist/compile/codegen/index.js:639` |",
+  "integration": {
+    "before-integration": {
+      "label": "before",
+      "bun": "1.3.14",
+      "formedAt": "2026-10-19T07:41:57.421Z",
+      "sourceSha256": "588923857c2c2ff95fabff66694233547d98c02c0b2cc107ef2ba97232a1c1d6",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "results": [
+        {
+          "name": "test-alone-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3282.963382,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2005.25ms]\n(pass) root validate CLI forwards focused material selections [7.59ms]\n(pass) root validate CLI rejects the retired docs entrypoint [623.16ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [3.25s]\n"
+        },
+        {
+          "name": "test-cold-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 9815.992307,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5082.19ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [102.49ms]\n(pass) root validate CLI rejects the retired docs entrypoint [3301.95ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [9.76s]\n"
+        },
+        {
+          "name": "product-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/before-product-1.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 24690.653117,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/before-scripts-1.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 25416.909293,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "test-alone-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3819.438580000002,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2502.58ms]\n(pass) root validate CLI forwards focused material selections [10.64ms]\n(pass) root validate CLI rejects the retired docs entrypoint [633.49ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [3.79s]\n"
+        },
+        {
+          "name": "test-cold-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 10847.103799000004,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5074.18ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [18.03ms]\n(pass) root validate CLI rejects the retired docs entrypoint [2709.55ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [10.81s]\n"
+        },
+        {
+          "name": "product-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/before-product-2.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 21430.565129,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/before-scripts-2.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 21680.349380000003,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "test-alone-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3689.888982999997,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2290.85ms]\n(pass) root validate CLI forwards focused material selections [8.96ms]\n(pass) root validate CLI rejects the retired docs entrypoint [634.61ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [3.66s]\n"
+        },
+        {
+          "name": "test-cold-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 8435.987824999997,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5054.65ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [16.29ms]\n(pass) root validate CLI rejects the retired docs entrypoint [1237.19ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [8.41s]\n"
+        },
+        {
+          "name": "product-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/before-product-3.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 13757.170768000004,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/before-scripts-3.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 13799.663458999996,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    },
+    "optimized-integration": {
+      "label": "optimized",
+      "bun": "1.3.14",
+      "formedAt": "2026-10-19T07:46:15.621Z",
+      "sourceSha256": "bf23365236b1dc440a7f2da2ff9d49497e9027c3b4d23d0eb0111827d0b5cefc",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "results": [
+        {
+          "name": "test-alone-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2556.022387,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1610.85ms]\n(pass) root validate CLI forwards focused material selections [6.33ms]\n(pass) root validate CLI rejects the retired docs entrypoint [420.93ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.54s]\n"
+        },
+        {
+          "name": "test-cold-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 6140.495186,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [4015.74ms]\n(pass) root validate CLI forwards focused material selections [17.44ms]\n(pass) root validate CLI rejects the retired docs entrypoint [833.55ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [6.12s]\n"
+        },
+        {
+          "name": "product-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/optimized-product-1.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 10317.04697,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/optimized-scripts-1.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 10413.057329,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "test-alone-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2481.285593999999,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1447.64ms]\n(pass) root validate CLI forwards focused material selections [7.41ms]\n(pass) root validate CLI rejects the retired docs entrypoint [443.22ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.46s]\n"
+        },
+        {
+          "name": "test-cold-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5951.512062000002,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3556.15ms]\n(pass) root validate CLI forwards focused material selections [16.80ms]\n(pass) root validate CLI rejects the retired docs entrypoint [790.75ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [5.93s]\n"
+        },
+        {
+          "name": "product-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/optimized-product-2.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8810.246125999998,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/optimized-scripts-2.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 8894.778514,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "test-alone-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2409.622785000003,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1463.06ms]\n(pass) root validate CLI forwards focused material selections [7.01ms]\n(pass) root validate CLI rejects the retired docs entrypoint [406.66ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.39s]\n"
+        },
+        {
+          "name": "test-cold-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5602.440190000001,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3879.53ms]\n(pass) root validate CLI forwards focused material selections [7.48ms]\n(pass) root validate CLI rejects the retired docs entrypoint [517.05ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [5.59s]\n"
+        },
+        {
+          "name": "product-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/optimized-product-3.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9158.00017,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/optimized-scripts-3.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9319.65654,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    },
+    "interleaved-integration": {
+      "formedAt": "2026-10-19T07:48:56.611Z",
+      "bun": "1.3.14",
+      "candidateHash": "bf23365236b1dc440a7f2da2ff9d49497e9027c3b4d23d0eb0111827d0b5cefc",
+      "baselineHash": "588923857c2c2ff95fabff66694233547d98c02c0b2cc107ef2ba97232a1c1d6",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "results": [
+        {
+          "name": "interleaved-0-baseline-alone",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4283.167361000001,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2698.93ms]\n(pass) root validate CLI forwards focused material selections [10.62ms]\n(pass) root validate CLI rejects the retired docs entrypoint [1000.25ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [4.25s]\n"
+        },
+        {
+          "name": "interleaved-0-baseline-cold",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 9960.355824000002,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5171.94ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [25.20ms]\n(pass) root validate CLI rejects the retired docs entrypoint [1459.91ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [9.94s]\n"
+        },
+        {
+          "name": "interleaved-0-baseline-product",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-0-baseline-product.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 19152.800553,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-0-baseline-scripts",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-0-baseline-scripts.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 19826.688002000003,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-1-candidate-alone",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3855.112175000002,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2057.24ms]\n(pass) root validate CLI forwards focused material selections [12.57ms]\n(pass) root validate CLI rejects the retired docs entrypoint [781.48ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [3.82s]\n"
+        },
+        {
+          "name": "interleaved-1-candidate-cold",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 8758.226190999998,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5045.40ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [10.49ms]\n(pass) root validate CLI rejects the retired docs entrypoint [1279.92ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [8.70s]\n"
+        },
+        {
+          "name": "interleaved-1-candidate-scripts",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-1-candidate-scripts.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 18932.358838999997,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-1-candidate-product",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-1-candidate-product.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 19694.488957999998,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-2-candidate-alone",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4881.789628999999,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3034.82ms]\n(pass) root validate CLI forwards focused material selections [11.82ms]\n(pass) root validate CLI rejects the retired docs entrypoint [755.55ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [4.84s]\n"
+        },
+        {
+          "name": "interleaved-2-candidate-cold",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 11110.942208,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5124.81ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [80.35ms]\n(pass) root validate CLI rejects the retired docs entrypoint [2877.11ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [11.06s]\n"
+        },
+        {
+          "name": "interleaved-2-candidate-product",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-2-candidate-product.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 19670.725363000005,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-2-candidate-scripts",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-2-candidate-scripts.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 20122.72867399999,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-3-baseline-alone",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2923.8250960000005,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1837.47ms]\n(pass) root validate CLI forwards focused material selections [7.94ms]\n(pass) root validate CLI rejects the retired docs entrypoint [492.30ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.90s]\n"
+        },
+        {
+          "name": "interleaved-3-baseline-cold",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 7316.626194000011,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5064.62ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [9.38ms]\n(pass) root validate CLI rejects the retired docs entrypoint [735.11ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [7.30s]\n"
+        },
+        {
+          "name": "interleaved-3-baseline-scripts",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-3-baseline-scripts.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 11387.864128000001,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-3-baseline-product",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-3-baseline-product.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 11807.394767999998,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-4-baseline-alone",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2696.5028639999946,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1612.50ms]\n(pass) root validate CLI forwards focused material selections [8.10ms]\n(pass) root validate CLI rejects the retired docs entrypoint [520.47ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.68s]\n"
+        },
+        {
+          "name": "interleaved-4-baseline-cold",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 6220.339728999999,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3788.43ms]\n(pass) root validate CLI forwards focused material selections [9.36ms]\n(pass) root validate CLI rejects the retired docs entrypoint [709.37ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [6.18s]\n"
+        },
+        {
+          "name": "interleaved-4-baseline-product",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-4-baseline-product.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9301.610377000005,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-4-baseline-scripts",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-4-baseline-scripts.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9704.290602000008,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-5-candidate-alone",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 2311.9157810000033,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [1383.62ms]\n(pass) root validate CLI forwards focused material selections [8.70ms]\n(pass) root validate CLI rejects the retired docs entrypoint [393.01ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [2.29s]\n"
+        },
+        {
+          "name": "interleaved-5-candidate-cold",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5839.517423999991,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3790.96ms]\n(pass) root validate CLI forwards focused material selections [10.09ms]\n(pass) root validate CLI rejects the retired docs entrypoint [746.52ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [5.81s]\n"
+        },
+        {
+          "name": "interleaved-5-candidate-product",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-5-candidate-product.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9595.553761000003,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "interleaved-5-candidate-scripts",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/interleaved-5-candidate-scripts.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9853.062430000005,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    },
+    "direct-cli-integration": {
+      "label": "direct-cli",
+      "bun": "1.3.14",
+      "formedAt": "2026-10-19T07:51:07.321Z",
+      "sourceSha256": "bf23365236b1dc440a7f2da2ff9d49497e9027c3b4d23d0eb0111827d0b5cefc",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "results": [
+        {
+          "name": "test-alone-1",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1691.861472,
+          "watchdog": false,
+          "stdout": "strict JSON validation ok: 490 file(s)\nschema strict compile ok: 5 schema file(s)\ncurrent machine artifact examples ok: 1 set(s)\nschema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\nmarkdown links ok: 576 file(s)\n",
+          "stderr": ""
+        },
+        {
+          "name": "test-cold-1",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4395.272247999999,
+          "watchdog": false,
+          "stdout": "strict JSON validation ok: 490 file(s)\nschema strict compile ok: 5 schema file(s)\ncurrent machine artifact examples ok: 1 set(s)\nschema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\nmarkdown links ok: 576 file(s)\n",
+          "stderr": ""
+        },
+        {
+          "name": "product-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/direct-cli-product-1.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9278.199204,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/direct-cli-scripts-1.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9670.562346,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "test-alone-2",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1385.9799519999997,
+          "watchdog": false,
+          "stdout": "strict JSON validation ok: 490 file(s)\nschema strict compile ok: 5 schema file(s)\ncurrent machine artifact examples ok: 1 set(s)\nschema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\nmarkdown links ok: 576 file(s)\n",
+          "stderr": ""
+        },
+        {
+          "name": "test-cold-2",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4870.308022000001,
+          "watchdog": false,
+          "stdout": "strict JSON validation ok: 490 file(s)\nschema strict compile ok: 5 schema file(s)\ncurrent machine artifact examples ok: 1 set(s)\nschema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\nmarkdown links ok: 576 file(s)\n",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/direct-cli-scripts-2.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 12154.054201,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "product-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/direct-cli-product-2.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 12287.571529,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "test-alone-3",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 1807.9185460000008,
+          "watchdog": false,
+          "stdout": "strict JSON validation ok: 490 file(s)\nschema strict compile ok: 5 schema file(s)\ncurrent machine artifact examples ok: 1 set(s)\nschema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\nmarkdown links ok: 576 file(s)\n",
+          "stderr": ""
+        },
+        {
+          "name": "test-cold-3",
+          "args": [
+            "scripts/validation/workspace.ts",
+            "materials"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 4778.657633999999,
+          "watchdog": false,
+          "stdout": "strict JSON validation ok: 490 file(s)\nschema strict compile ok: 5 schema file(s)\ncurrent machine artifact examples ok: 1 set(s)\nschema ok: docs/schemas/historical/v1/vibe-check-report.schema.json (4 file(s))\nreport examples ok: 4 file(s)\nmarkdown links ok: 576 file(s)\n",
+          "stderr": ""
+        },
+        {
+          "name": "product-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/direct-cli-product-3.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9009.760420000002,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/direct-cli-scripts-3.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 9407.735978,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    },
+    "final-integration": {
+      "label": "final",
+      "bun": "1.3.14",
+      "formedAt": "2026-10-19T07:54:53.296Z",
+      "sourceSha256": "43652141f13d25d30f9c28877592122d1305c0c65296014633360c8da799ad44",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "results": [
+        {
+          "name": "test-alone-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 5400.436600999999,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [3427.98ms]\n(pass) root validate CLI forwards focused material selections [12.11ms]\n(pass) root validate CLI rejects the retired docs entrypoint [767.29ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [5.37s]\n"
+        },
+        {
+          "name": "test-cold-1",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 9292.665281,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5080.70ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [24.03ms]\n(pass) root validate CLI rejects the retired docs entrypoint [2266.19ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [9.26s]\n"
+        },
+        {
+          "name": "product-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/final-product-1.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 16814.472131000002,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-1",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/final-scripts-1.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 17154.770288,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "test-alone-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 3650.4731960000026,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [2292.03ms]\n(pass) root validate CLI forwards focused material selections [12.36ms]\n(pass) root validate CLI rejects the retired docs entrypoint [664.61ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [3.63s]\n"
+        },
+        {
+          "name": "test-cold-2",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 8456.165616999999,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5064.31ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [34.25ms]\n(pass) root validate CLI rejects the retired docs entrypoint [1564.18ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [8.44s]\n"
+        },
+        {
+          "name": "scripts-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/final-scripts-2.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 20133.644835,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "product-cold-2",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/final-product-2.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 20292.091065999997,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "test-alone-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 6670.071873000001,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\n(pass) root validate CLI runs every material task by default [4192.17ms]\n(pass) root validate CLI forwards focused material selections [23.40ms]\n(pass) root validate CLI rejects the retired docs entrypoint [1136.32ms]\n\n 3 pass\n 0 fail\nRan 3 tests across 1 file. [6.63s]\n"
+        },
+        {
+          "name": "test-cold-3",
+          "args": [
+            "test",
+            "scripts/validation/workspace.test.ts"
+          ],
+          "code": 1,
+          "signal": null,
+          "elapsedMs": 10666.924824999995,
+          "watchdog": false,
+          "stdout": "bun test v1.3.14 (0d9b296a)\n",
+          "stderr": "\nscripts/validation/workspace.test.ts:\nkilled 1 dangling process\n14 | const workspaceRoot = resolve(moduleDirectory, \"..\", \"..\");\n15 | \n16 | test(\"root validate CLI runs every material task by default\", () => {\n17 |   const result = runValidate(\"materials\");\n18 | \n19 |   assert.equal(result.status, 0);\n              ^\nAssertionError: Expected values to be strictly equal:\n\nnull !== 0\n\n generatedMessage: true,\n     actual: null,\n   expected: 0,\n   operator: \"strictEqual\",\n       code: \"ERR_ASSERTION\"\n\n      at /home/dev/.codex/worktrees/package-release-preparation/vibe-check/scripts/validation/workspace.test.ts:19:10\n      at fn (node:test:215:18)\n(fail) root validate CLI runs every material task by default [5093.92ms]\n  ^ this test timed out after 5000ms, before its done callback was called. If a done callback was not intended, remove the last parameter from the test callback function\n(pass) root validate CLI forwards focused material selections [27.58ms]\n(pass) root validate CLI rejects the retired docs entrypoint [2679.50ms]\n\n 2 pass\n 1 fail\nRan 3 tests across 1 file. [10.62s]\n"
+        },
+        {
+          "name": "product-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.product.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/final-product-3.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 18241.37494000001,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "scripts-cold-3",
+          "args": [
+            "node_modules/@typescript/native-preview/bin/tsgo.js",
+            "-p",
+            "tsconfig.json",
+            "--tsBuildInfoFile",
+            "/home/dev/.codex/worktrees/package-release-preparation/vibe-check/tmp/validate-cli-optimization-20261019/final-scripts-3.tsbuildinfo"
+          ],
+          "code": 0,
+          "signal": null,
+          "elapsedMs": 18437.307792,
+          "watchdog": false,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    }
+  },
+  "boundary": {
+    "actual-boundary-bun": {
+      "formedAt": "2026-10-19T07:49:17.625Z",
+      "runtime": "v24.3.0",
+      "bun": "1.3.14",
+      "baselineSha256": "588923857c2c2ff95fabff66694233547d98c02c0b2cc107ef2ba97232a1c1d6",
+      "candidateSha256": "bf23365236b1dc440a7f2da2ff9d49497e9027c3b4d23d0eb0111827d0b5cefc",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "equivalence": "All corpus, synthetic, primitive, grammar, duplicate-key, BOM and UTF-8 inputs matched in closed verdicts, own keys/order/descriptors/prototypes/deep freezing/primitive Object.is",
+      "measurements": [
+        {
+          "shape": "corpus",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 486.6992479999999
+        },
+        {
+          "shape": "corpus",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 412.228889
+        },
+        {
+          "shape": "corpus",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 376.1037409999999
+        },
+        {
+          "shape": "corpus",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 498.979566
+        },
+        {
+          "shape": "corpus",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 499.38133400000015
+        },
+        {
+          "shape": "corpus",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 416.28301400000055
+        },
+        {
+          "shape": "corpus",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 443.51888299999973
+        },
+        {
+          "shape": "corpus",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 589.8616810000003
+        },
+        {
+          "shape": "corpus",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 544.9656159999995
+        },
+        {
+          "shape": "corpus",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 410.7687449999994
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 434.88500600000043
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 268.1682979999996
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 295.7051740000006
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 471.15573400000085
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 464.78280900000027
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 282.66617600000063
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 296.814531
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 463.4930889999996
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 432.05007099999966
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 295.72746800000095
+        },
+        {
+          "shape": "wideObject",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 55.83484099999987
+        },
+        {
+          "shape": "wideObject",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 70.74542199999996
+        },
+        {
+          "shape": "wideObject",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 53.75884699999915
+        },
+        {
+          "shape": "wideObject",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 52.897376000000804
+        },
+        {
+          "shape": "wideObject",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 49.65481500000169
+        },
+        {
+          "shape": "wideObject",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 57.86636400000134
+        },
+        {
+          "shape": "wideObject",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 57.445685999999114
+        },
+        {
+          "shape": "wideObject",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 46.90909600000123
+        },
+        {
+          "shape": "wideObject",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 50.35299599999962
+        },
+        {
+          "shape": "wideObject",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 56.86745399999927
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 10.158894000000146
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 6.965715000000273
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.854464000000007
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 9.183325000001787
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 7.499565999998595
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.6028239999996
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 6.620279999999184
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 9.138762000000497
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 9.08800599999995
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.002920000000813
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.747380000000703
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.398998999999094
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.140090000000782
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.260270999999193
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.894609000000855
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.990773999999874
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 3.6257630000000063
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.789353999998639
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.102177000000665
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.008379999999306
+        },
+        {
+          "shape": "smallMixed",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 6.384487999999692
+        },
+        {
+          "shape": "smallMixed",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 3.847193999999945
+        },
+        {
+          "shape": "smallMixed",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 4.144516000000294
+        },
+        {
+          "shape": "smallMixed",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 4.833063999998558
+        },
+        {
+          "shape": "smallMixed",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 8.005225999999311
+        },
+        {
+          "shape": "smallMixed",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 4.274836000000505
+        },
+        {
+          "shape": "smallMixed",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 3.485661999999138
+        },
+        {
+          "shape": "smallMixed",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 8.700668999999834
+        },
+        {
+          "shape": "smallMixed",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 4.586653999998816
+        },
+        {
+          "shape": "smallMixed",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 3.635320999999749
+        }
+      ]
+    },
+    "actual-boundary-node": {
+      "formedAt": "2026-10-19T07:49:23.034Z",
+      "runtime": "v24.18.0",
+      "bun": null,
+      "baselineSha256": "588923857c2c2ff95fabff66694233547d98c02c0b2cc107ef2ba97232a1c1d6",
+      "candidateSha256": "bf23365236b1dc440a7f2da2ff9d49497e9027c3b4d23d0eb0111827d0b5cefc",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "equivalence": "All corpus, synthetic, primitive, grammar, duplicate-key, BOM and UTF-8 inputs matched in closed verdicts, own keys/order/descriptors/prototypes/deep freezing/primitive Object.is",
+      "measurements": [
+        {
+          "shape": "corpus",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 270.0916709999999
+        },
+        {
+          "shape": "corpus",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 232.85812499999997
+        },
+        {
+          "shape": "corpus",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 228.690206
+        },
+        {
+          "shape": "corpus",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 243.94837899999993
+        },
+        {
+          "shape": "corpus",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 265.244408
+        },
+        {
+          "shape": "corpus",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 257.34240899999986
+        },
+        {
+          "shape": "corpus",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 232.98968400000012
+        },
+        {
+          "shape": "corpus",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 251.98680300000024
+        },
+        {
+          "shape": "corpus",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 288.73424499999965
+        },
+        {
+          "shape": "corpus",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 247.17807399999992
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 28.410139000000072
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 17.926030000000083
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 24.238659000000098
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 30.22244099999989
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 54.75291299999981
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 37.80232100000012
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 35.092013999999836
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 47.50688199999968
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 48.1848030000001
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 32.98425099999986
+        },
+        {
+          "shape": "wideObject",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 153.0285389999999
+        },
+        {
+          "shape": "wideObject",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 95.51323000000048
+        },
+        {
+          "shape": "wideObject",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 87.54224199999953
+        },
+        {
+          "shape": "wideObject",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 108.91958999999952
+        },
+        {
+          "shape": "wideObject",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 81.56180700000004
+        },
+        {
+          "shape": "wideObject",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 58.02899600000001
+        },
+        {
+          "shape": "wideObject",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 64.3939049999999
+        },
+        {
+          "shape": "wideObject",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 71.19340099999954
+        },
+        {
+          "shape": "wideObject",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 71.98444000000018
+        },
+        {
+          "shape": "wideObject",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 64.7746589999997
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.218800999999985
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.4314989999993486
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.471813000000111
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.2744299999994837
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.385334000000512
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.4036360000000059
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.3699440000000322
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.2284979999994903
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.43118400000003
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.4131850000003396
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.760465999999724
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.061221999999361
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.150928000000022
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.622900999999729
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.772203999999874
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.108337000000574
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.47425899999962
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.484136000000035
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.412209999999504
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.948167999999896
+        },
+        {
+          "shape": "smallMixed",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.477088999999978
+        },
+        {
+          "shape": "smallMixed",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.4703669999998965
+        },
+        {
+          "shape": "smallMixed",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.424362000000656
+        },
+        {
+          "shape": "smallMixed",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.5495139999993626
+        },
+        {
+          "shape": "smallMixed",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.6692970000003697
+        },
+        {
+          "shape": "smallMixed",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.4278580000000147
+        },
+        {
+          "shape": "smallMixed",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.7374229999995805
+        },
+        {
+          "shape": "smallMixed",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.413781000000199
+        },
+        {
+          "shape": "smallMixed",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.9085210000002917
+        },
+        {
+          "shape": "smallMixed",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.2918970000000627
+        }
+      ]
+    },
+    "final-boundary-bun": {
+      "formedAt": "2026-10-19T07:53:25.676Z",
+      "runtime": "v24.3.0",
+      "bun": "1.3.14",
+      "baselineSha256": "588923857c2c2ff95fabff66694233547d98c02c0b2cc107ef2ba97232a1c1d6",
+      "candidateSha256": "43652141f13d25d30f9c28877592122d1305c0c65296014633360c8da799ad44",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "equivalence": "All corpus, synthetic, primitive, grammar, duplicate-key, BOM and UTF-8 inputs matched in closed verdicts, own keys/order/descriptors/prototypes/deep freezing/primitive Object.is",
+      "measurements": [
+        {
+          "shape": "corpus",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 488.70913700000006
+        },
+        {
+          "shape": "corpus",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 389.8753920000004
+        },
+        {
+          "shape": "corpus",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 396.160441
+        },
+        {
+          "shape": "corpus",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 469.9233629999999
+        },
+        {
+          "shape": "corpus",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 475.92652
+        },
+        {
+          "shape": "corpus",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 383.9115499999998
+        },
+        {
+          "shape": "corpus",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 382.11449600000014
+        },
+        {
+          "shape": "corpus",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 466.3762710000001
+        },
+        {
+          "shape": "corpus",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 463.9041909999996
+        },
+        {
+          "shape": "corpus",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 388.30370200000016
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 368.57852699999967
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 248.1189260000001
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 268.67142199999944
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 349.40369699999974
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 412.51078400000006
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 225.2391890000008
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 219.9937030000001
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 332.7901469999997
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 384.21823100000074
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 278.8116119999995
+        },
+        {
+          "shape": "wideObject",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 58.709404000001086
+        },
+        {
+          "shape": "wideObject",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 60.86239999999998
+        },
+        {
+          "shape": "wideObject",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 61.32623500000045
+        },
+        {
+          "shape": "wideObject",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 55.977561000001515
+        },
+        {
+          "shape": "wideObject",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 49.12823799999933
+        },
+        {
+          "shape": "wideObject",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 58.091952000000674
+        },
+        {
+          "shape": "wideObject",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 57.897155000000566
+        },
+        {
+          "shape": "wideObject",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 45.524115000000165
+        },
+        {
+          "shape": "wideObject",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 49.58243200000106
+        },
+        {
+          "shape": "wideObject",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 58.32739499999843
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 9.200441999999384
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 6.227785999999469
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.34777000000031
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 8.087799000000814
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 8.617693000000145
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 6.2333550000003015
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.078571000000011
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 8.819106999999349
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 6.864215999999942
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.664592000000994
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.639993999999206
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 3.9848710000005667
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.096763999999894
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.267458000000261
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.107733999999255
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.406671999999162
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 5.3398680000009335
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 4.069507000000158
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 3.879473999999391
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.770546000001559
+        },
+        {
+          "shape": "smallMixed",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 4.7789040000006935
+        },
+        {
+          "shape": "smallMixed",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 3.4213629999994737
+        },
+        {
+          "shape": "smallMixed",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 3.3212769999990996
+        },
+        {
+          "shape": "smallMixed",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 4.449001999999382
+        },
+        {
+          "shape": "smallMixed",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 4.570897999999943
+        },
+        {
+          "shape": "smallMixed",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 3.5715820000004896
+        },
+        {
+          "shape": "smallMixed",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 3.7534900000009657
+        },
+        {
+          "shape": "smallMixed",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 4.9999339999994845
+        },
+        {
+          "shape": "smallMixed",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 6.594556000000011
+        },
+        {
+          "shape": "smallMixed",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 3.41040299999986
+        }
+      ]
+    },
+    "final-boundary-node": {
+      "formedAt": "2026-10-19T07:53:30.139Z",
+      "runtime": "v24.18.0",
+      "bun": null,
+      "baselineSha256": "588923857c2c2ff95fabff66694233547d98c02c0b2cc107ef2ba97232a1c1d6",
+      "candidateSha256": "43652141f13d25d30f9c28877592122d1305c0c65296014633360c8da799ad44",
+      "corpusSha256": "c1450dcd9090d7ffe2245780114d12a095919c81396b808f36cb564f36e99a6a",
+      "equivalence": "All corpus, synthetic, primitive, grammar, duplicate-key, BOM and UTF-8 inputs matched in closed verdicts, own keys/order/descriptors/prototypes/deep freezing/primitive Object.is",
+      "measurements": [
+        {
+          "shape": "corpus",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 241.15001899999993
+        },
+        {
+          "shape": "corpus",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 225.65667399999984
+        },
+        {
+          "shape": "corpus",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 220.68397600000003
+        },
+        {
+          "shape": "corpus",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 235.96621099999993
+        },
+        {
+          "shape": "corpus",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 250.64491799999996
+        },
+        {
+          "shape": "corpus",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 223.9353369999999
+        },
+        {
+          "shape": "corpus",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 220.75006699999994
+        },
+        {
+          "shape": "corpus",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 240.08731699999998
+        },
+        {
+          "shape": "corpus",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 1,
+          "elapsedMs": 234.74519999999984
+        },
+        {
+          "shape": "corpus",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 1,
+          "elapsedMs": 224.57162299999982
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 24.923521000000164
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 16.877882000000227
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 17.63559000000032
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 24.821031999999832
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 24.030942999999752
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 17.012500999999702
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 16.72315400000025
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 24.76762000000008
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 24.643790999999965
+        },
+        {
+          "shape": "primitiveArray",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 16.974501000000146
+        },
+        {
+          "shape": "wideObject",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 62.46386600000005
+        },
+        {
+          "shape": "wideObject",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 47.35768000000007
+        },
+        {
+          "shape": "wideObject",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 46.322948
+        },
+        {
+          "shape": "wideObject",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 69.090146
+        },
+        {
+          "shape": "wideObject",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 66.08674799999972
+        },
+        {
+          "shape": "wideObject",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 52.49282399999993
+        },
+        {
+          "shape": "wideObject",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 54.97563599999967
+        },
+        {
+          "shape": "wideObject",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 67.10391800000025
+        },
+        {
+          "shape": "wideObject",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 62.07427699999971
+        },
+        {
+          "shape": "wideObject",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 50.6981939999996
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.112022000000252
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.5124380000006568
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.4455740000003061
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.07530399999996
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.1368679999995948
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.4049629999999524
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.328056000000288
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.0853720000004614
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 2.0964130000002115
+        },
+        {
+          "shape": "nestedArrays",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 1.3618390000001455
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.184006999999838
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.167798999999832
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.382974000000104
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.27140800000052
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.264345999999932
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.2261179999995875
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.641860000000634
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.236845999999787
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 5,
+          "elapsedMs": 5.199496000000181
+        },
+        {
+          "shape": "nestedObjects",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 5,
+          "elapsedMs": 4.463949999999386
+        },
+        {
+          "shape": "smallMixed",
+          "round": 0,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.7199609999997847
+        },
+        {
+          "shape": "smallMixed",
+          "round": 0,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.458364999999503
+        },
+        {
+          "shape": "smallMixed",
+          "round": 1,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.3117019999999684
+        },
+        {
+          "shape": "smallMixed",
+          "round": 1,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.538123999999698
+        },
+        {
+          "shape": "smallMixed",
+          "round": 2,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.632869000000028
+        },
+        {
+          "shape": "smallMixed",
+          "round": 2,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.416476999999759
+        },
+        {
+          "shape": "smallMixed",
+          "round": 3,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.5123960000000807
+        },
+        {
+          "shape": "smallMixed",
+          "round": 3,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.408281999999417
+        },
+        {
+          "shape": "smallMixed",
+          "round": 4,
+          "name": "baseline",
+          "repetitions": 1000,
+          "elapsedMs": 2.6786539999993693
+        },
+        {
+          "shape": "smallMixed",
+          "round": 4,
+          "name": "candidate",
+          "repetitions": 1000,
+          "elapsedMs": 2.3112780000001294
+        }
+      ]
+    }
+  }
+}

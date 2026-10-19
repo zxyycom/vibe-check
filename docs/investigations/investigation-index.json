@@ -2473,6 +2473,92 @@
         "scheduler"
       ],
       "title": "Scheduler 共享条件与个体状态的惰性组合评估"
+    },
+    "261019-diagnose-external-consumer-install-timeout": {
+      "formedAt": "2026-10-19T09:58:21Z",
+      "name": "diagnose-external-consumer-install-timeout",
+      "question": "完整 Gate 的 external consumer 安装为何超过三十秒，能否在不改变验收语义或预算的前提下定位责任边界？",
+      "relations": [],
+      "resourceIds": [
+        "261019-diagnose-external-consumer-install-timeout/evidence.json"
+      ],
+      "sourcePath": "diagnose-external-consumer-install-timeout.md",
+      "tags": [
+        "external-consumer",
+        "network",
+        "package-candidate",
+        "project-gate"
+      ],
+      "title": "外部消费者安装超时的网络等待定位"
+    },
+    "261019-evaluate-validation-cli-optimization": {
+      "formedAt": "2026-10-19T07:50:53Z",
+      "name": "evaluate-validation-cli-optimization",
+      "question": "在可复现的冷类型检查竞争下，严格 JSON 遍历优化能否解决五秒 CLI 测试超时，应采用什么范围的后续方案？",
+      "relations": [
+        {
+          "summary": "复现竞争超时并区分局部收益与可靠性修复",
+          "target": "261019-investigate-validation-cli-timeout",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261019-evaluate-validation-cli-optimization/gate-followup.json",
+        "261019-evaluate-validation-cli-optimization/measurements.json"
+      ],
+      "sourcePath": "evaluate-validation-cli-optimization.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "validation"
+      ],
+      "title": "validation CLI 超时复现与严格 JSON 局部优化评估"
+    },
+    "261019-investigate-validation-cli-timeout": {
+      "formedAt": "2026-10-19T07:14:56Z",
+      "name": "investigate-validation-cli-timeout",
+      "question": "发布准备的默认全材料 CLI 测试为何触发五秒超时，现有证据能否确认根因与严重程度？",
+      "relations": [
+        {
+          "summary": "复查当前 validation 实体超时及并发影响",
+          "target": "260904-audit-project-gate-validation-and-type-acceptance-overhead",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261019-investigate-validation-cli-timeout/measurements.json"
+      ],
+      "sourcePath": "investigate-validation-cli-timeout.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "validation"
+      ],
+      "title": "发布准备中 validation CLI 五秒超时的定向调查"
+    },
+    "261019-reassess-validation-test-boundaries": {
+      "formedAt": "2026-10-19T08:33:00Z",
+      "name": "reassess-validation-test-boundaries",
+      "question": "默认全材料校验是否需要真实子进程测试，如何在原五秒预算内保留独立且可证伪的证明？",
+      "relations": [
+        {
+          "summary": "纠正必须保留全量进程测试的前提，按独立义务重分工",
+          "target": "261019-evaluate-validation-cli-optimization",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [
+        "261019-reassess-validation-test-boundaries/evidence.json",
+        "261019-reassess-validation-test-boundaries/gate-evidence.json"
+      ],
+      "sourcePath": "reassess-validation-test-boundaries.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "test-evidence",
+        "validation"
+      ],
+      "title": "validation 测试必要性与五秒预算内的证明重分工"
     }
   },
   "metadata": {},
@@ -2566,7 +2652,11 @@
       "261016-correct-scheduler-cancel-forced-settlement": "sha256:dfd2cd084f1f5a85445aafd0004a36f4cc1b30b2b3866e34c057eb36a72c9bb8",
       "261016-correct-scheduler-seed-viability": "sha256:2d4b68e214c11e7ca7dcfafe338ed1c0a227c6ed8812076a8bc373af4f5dcd54",
       "261017-evaluate-scheduler-delta-overlay-materialization": "sha256:f31cdaa1bb68b4a8ea6ff379f3ba572f83c1dcb135e3ee14d57a752775e0180a",
-      "261017-evaluate-scheduler-shared-condition-state": "sha256:5584987be5675523e4af3d92c4b8800e33457e55faafbb7fa352b05344dd6f2a"
+      "261017-evaluate-scheduler-shared-condition-state": "sha256:5584987be5675523e4af3d92c4b8800e33457e55faafbb7fa352b05344dd6f2a",
+      "261019-diagnose-external-consumer-install-timeout": "sha256:1cd77e06da936ead34369785dc48972133093fbfb045bc8f9579ac8b9a56ad2b",
+      "261019-evaluate-validation-cli-optimization": "sha256:597a5addc1e2ae515ab2dc6f640bd2efe576a8b332abb18aa45f1d3512bc1025",
+      "261019-investigate-validation-cli-timeout": "sha256:d609ad0e191783fde3bdc6cc081505665c1ebdd9a36443c4cf6bc2f25d2ee394",
+      "261019-reassess-validation-test-boundaries": "sha256:704bb960c85cd3c35f4773a024499c52dc7a6c457de1f2408ec862adbfb60559"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }
