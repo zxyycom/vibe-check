@@ -22,7 +22,10 @@ test("root validation adapter forwards default and focused material selections",
     }
   }
 
-  for (const argv of [["materials", "unknown"], ["docs"]]) {
+  for (const { argv, expectedError } of [
+    { argv: ["materials", "unknown"], expectedError: /unknown validation task: unknown/ },
+    { argv: ["docs"], expectedError: /usage:/ }
+  ]) {
     const invalidDispatches: Array<readonly string[]> = [];
     await assert.rejects(
       () =>
@@ -32,7 +35,7 @@ test("root validation adapter forwards default and focused material selections",
             return 0;
           }
         }),
-      /unknown validation task|usage:/
+      expectedError
     );
     assert.deepEqual(invalidDispatches, []);
   }
@@ -59,13 +62,10 @@ test("material CLI reports real link failures through stderr and a nonzero retur
     });
     assert.equal(exitCode, 1);
     assert.deepEqual(stdout, []);
-    assert.equal(
-      stderr.join("\n"),
-      [
-        "docs/broken-links.md:1:1 missing local Markdown link target: docs/missing-first.md.",
-        "docs/broken-links.md:2:1 missing local Markdown link target: docs/missing-second.md."
-      ].join("\n")
-    );
+    assert.deepEqual(stderr, [
+      "docs/broken-links.md:1:1 missing local Markdown link target: docs/missing-first.md.",
+      "docs/broken-links.md:2:1 missing local Markdown link target: docs/missing-second.md."
+    ]);
   } finally {
     rmSync(documentationRoot, { force: true, recursive: true });
   }

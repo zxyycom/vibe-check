@@ -179,9 +179,9 @@ test("material workflow aggregates expected failures and continues selected task
       throw exampleFailure;
     }
   };
-  const stdout: string[] = [];
+  const reportedMessages: string[] = [];
   const result = await validateRepositoryMaterials(
-    { report: (message) => stdout.push(message) },
+    { report: (message) => reportedMessages.push(message) },
     validators
   );
   assert.deepEqual(jsonRoundTrip(result), {
@@ -208,7 +208,9 @@ test("material workflow aggregates expected failures and continues selected task
     "links",
     "package-api-documentation"
   ]);
+  assert.deepEqual(reportedMessages, ["fixture links ok"]);
 
+  const stdout: string[] = [];
   const stderr: string[] = [];
   const exitCode = await runMaterialValidationCli(
     {
@@ -224,7 +226,7 @@ test("material workflow aggregates expected failures and continues selected task
     schemaFailure.message,
     exampleFailure.message
   ]);
-  assert.deepEqual(stdout, ["fixture links ok", "fixture links ok"]);
+  assert.deepEqual(stdout, ["fixture links ok"]);
 });
 
 test("material workflow propagates unexpected failures instead of returning success", async () => {
