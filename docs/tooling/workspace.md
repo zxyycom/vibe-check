@@ -21,8 +21,8 @@ Product 与仓库工作流的责任划分见[系统边界](../development/archit
 | --- | --- |
 | `scripts/development/**` | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`scripts/process-execution/command.ts` 提供其进程命令边界。 |
 | `scripts/environment/manage.ts` | `env:setup` 和 `env:check` 的 mise、依赖与 CodeGraph 环境管理，以及 `env:setup` 返回前完成的 local package candidate 自举。 |
-| `scripts/validation/**` | workspace root、repository layout 与 `documentation/**` 的 material acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。 |
-| `scripts/docs/**` | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 material validation orchestration。 |
+| `scripts/validation/**` | workspace root、repository layout、共同扫描政策 `repository-scan-policy.ts` 与 `repository-material/**` 的 material acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。 |
+| `scripts/docs/**` | machine artifact schema/example、package Markdown collector `package-markdown.ts`、fenced/JSDoc example 与 Check guide 的投影或收集 provider；不拥有 package 文档正文或 material validation orchestration。 |
 | `scripts/package/**` | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate/release 共用 package-material audit；子模块职责与 candidate fingerprint 边界见[package 子模块职责](#package-子模块职责)。 |
 | `scripts/project/**` | 唯一 private candidate consumer root；其 Gate child owner 见[Project Gate and Test Evidence child owners](#project-gate-and-test-evidence-child-owners)。 |
 | `scripts/maintenance/**` | 仅承接由对应 root maintenance command 显式选择的仓库维护查询；每个脚本固定自己的外部 target、transport 与 advisory result，不进入 Product 或默认 Gate。 |
@@ -47,6 +47,14 @@ nonliteral loading、`require`、`import = require(...)`、解析失败和未知
 本节拥有受检生产材料和 fail-closed 规则；`package-tools-boundary.ts` 与其边界测试只实现并验证这些规则，不是第二
 规则来源。新增工具成员或改变 Architecture 的模块分类后，必须重新通过该 layout validation。
 
+### Repository validation 共享扫描政策
+
+`scripts/validation/repository-scan-policy.ts` 的 `REPOSITORY_SCAN_IGNORED_DIRECTORIES` 由 repository layout 与
+material walkers 共同消费，集中定义仓库扫描时忽略的目录集合。
+`repository-layout.ts` 验证已声明的入口、依赖和材料布局约束；命名与拆分的语义审查使用
+[编码规范](../development/coding-style.md#8-目录文件与模块命名)。
+具体 material task 及其显式输入仍由[仓库材料验证](repository-material-validation.md)拥有；此扫描政策不改变 Product 的 file selection。
+
 ### package 子模块职责
 
 - `artifact/**` 构建和审计 tarball。
@@ -60,7 +68,7 @@ candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 
 | Owner | 责任与入口 |
 | --- | --- |
-| `scripts/process-execution/**` | repository automation 的 process facade、contract、runner、failure、plain-text environment 与根命令 adapter；跨 owner 只消费 `execute.ts`。 |
+| `scripts/process-execution/**` | repository automation 的 process facade、contract、runner、failure、plain-text environment 与根命令 adapter；跨 owner 只消费 `execution.ts`。 |
 | `scripts/repository-files/**` | repository 文件遍历、文本读写和路径 containment；不拥有 JSON validation 或 generic serialization。 |
 | `scripts/canonical-json.ts`、`scripts/diagnostic-safety.ts`、`scripts/error-message.ts` 与 `scripts/value-guards.ts` | 跨 scripts owner 复用的根级安全 capability：canonical JSON machine facts、owner-local diagnostic ID/单行 presentation 的安全不变量，以及明确的诊断字符串和值形状小边界。它们不拥有字段语义、排序或 Product contract。 |
 | `scripts/decision-records/command.ts` | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。 |
@@ -219,6 +227,9 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 ## Development tooling
 
 根目录 `.oxlintrc.json` 是可机械执行的 TypeScript lint rule set 的唯一 owner，`.oxfmtrc.json` 拥有 format 选项，`scripts/development/format-targets.ts` 拥有显式 format target。
+
+`bun run test` 只运行 Product 的 `src/**` 测试，不覆盖 scripts 测试。
+需要按证明责任运行 Product 与 scripts 的测试 lanes 时，使用 `bun run check -- --test`；完整验收使用 `bun run check -- --all`。
 
 `lint.ts` 与 `typecheck.ts` 只拥有 `product` / `scripts` scope 到路径或 tsconfig 的映射。根 `tsconfig.json` 是 Product 与 scripts 共享的 source compiler profile：`strict`、`noUncheckedIndexedAccess`、`exactOptionalPropertyTypes`、`noImplicitOverride`、`noImplicitReturns` 与 `allowUnreachableCode: false`；`tsconfig.product.json` 只继承该 profile 并定义 Product roots/cache。因 artifact emit 使用 `--ignoreConfig`，它在自己的 CLI 中镜像这六项实现语义；这是[产物契约](package-artifact.md#构建输入与包接口边界)的同步义务，不是第二份 source profile。external-consumer 的 types fixture 则以自己的严格 profile 验收 installed declarations；其范围与不继承的 implementation-only 规则见[候选包安装与外部使用方验收](package-lifecycle.md#候选包安装与外部使用方验收)。
 

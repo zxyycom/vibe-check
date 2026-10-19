@@ -3,12 +3,8 @@ import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "node:test";
 
-import { validateRepositoryLayout } from "./layout-characterization.ts";
-import {
-  createTargetLayout,
-  escapeRegExp,
-  writeSource
-} from "./layout-characterization.test-support.ts";
+import { validateRepositoryLayout } from "./repository-layout.ts";
+import { createTargetLayout, escapeRegExp, writeSource } from "./repository-layout.test-support.ts";
 
 const PRIVATE_PROCESS_IMPORT = ["../process-execution", "runner.ts"].join("/");
 const PRIVATE_FUNCTION_METRICS_ANALYZER_IMPORT = [
@@ -16,12 +12,14 @@ const PRIVATE_FUNCTION_METRICS_ANALYZER_IMPORT = [
   "pipeline.ts"
 ].join("/");
 
-it("characterizes repository layout and dependency boundaries", { timeout: 60_000 }, () => {
+it("validates repository layout and dependency boundaries", { timeout: 60_000 }, () => {
   assert.doesNotThrow(() => {
     validateRepositoryLayout();
   });
   const representativeLayout = createTargetLayout();
   try {
+    // Semantic naming is reviewed with owner context, not a basename blacklist.
+    writeSource(representativeLayout, "scripts/validation/model.test.ts", "export {};\n");
     assert.doesNotThrow(() => {
       validateRepositoryLayout({ repositoryRoot: representativeLayout });
     });
@@ -65,12 +63,6 @@ it("characterizes repository layout and dependency boundaries", { timeout: 60_00
       expected: "unapproved-index: src/project-definition/index.ts",
       mutate: (root) => {
         writeSource(root, "src/project-definition/index.ts", "export {};\n");
-      }
-    },
-    {
-      expected: "generic-basename: scripts/validation/model.test.ts (model)",
-      mutate: (root) => {
-        writeSource(root, "scripts/validation/model.test.ts", "export {};\n");
       }
     },
     {

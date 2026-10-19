@@ -1,47 +1,10 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, join, normalize, relative, resolve } from "node:path";
+import { join, relative } from "node:path";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
-import { collectPackageMachineMaterials } from "../machine-artifacts/package-materials.ts";
-import {
-  loadPackageDocuments,
-  repositoryPath,
-  type PackageCheckGuide
-} from "../package-documents.ts";
-import { hasPackageApiExampleProjectionMarker } from "./markdown-example-fences.ts";
+import { repositoryPath, type PackageCheckGuide } from "../package-documents.ts";
+import type { PackageDocumentationFile } from "../package-markdown.ts";
 
-const README_PATH = "README.md";
-const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
-  CURRENT_PUBLIC_CONTRACT.operations.all,
-  CURRENT_PUBLIC_CONTRACT.operations.any,
-  CURRENT_PUBLIC_CONTRACT.operations.changeFlag,
-  CURRENT_PUBLIC_CONTRACT.operations.debugChangeFlags,
-  CURRENT_PUBLIC_CONTRACT.operations.formatChangeFlagDebugReport,
-  CURRENT_PUBLIC_CONTRACT.operations.exactlyOne,
-  CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles,
-  CURRENT_PUBLIC_CONTRACT.operations.commandCheck,
-  CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey,
-  CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonObject,
-  CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonValue,
-  CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonBytes,
-  CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonText,
-  CURRENT_PUBLIC_CONTRACT.operations.createAdmissionGraph,
-  CURRENT_PUBLIC_CONTRACT.operations.createLearnedCriticalPathStrategy,
-  CURRENT_PUBLIC_CONTRACT.operations.createProjectFileRegionIndex,
-  CURRENT_PUBLIC_CONTRACT.operations.defineAdmissionPolicy,
-  CURRENT_PUBLIC_CONTRACT.operations.defineContextCallback,
-  CURRENT_PUBLIC_CONTRACT.operations.defineCheck,
-  CURRENT_PUBLIC_CONTRACT.operations.defineConfig,
-  CURRENT_PUBLIC_CONTRACT.operations.inherit,
-  CURRENT_PUBLIC_CONTRACT.operations.none,
-  CURRENT_PUBLIC_CONTRACT.operations.not,
-  CURRENT_PUBLIC_CONTRACT.operations.notAll,
-  CURRENT_PUBLIC_CONTRACT.operations.presentCheckFindings,
-  CURRENT_PUBLIC_CONTRACT.operations.reconcileFindingWaivers,
-  CURRENT_PUBLIC_CONTRACT.operations.run,
-  CURRENT_PUBLIC_CONTRACT.operations.snapshotClosedArray,
-  CURRENT_PUBLIC_CONTRACT.operations.snapshotExactClosedRecord
-]);
 const GUIDE_HEADINGS = Object.freeze([
   "## 用途",
   "## 参数与默认配置",
@@ -53,64 +16,36 @@ const GUIDE_HEADINGS = Object.freeze([
   "## 适用边界"
 ]);
 
-export interface PackageDocumentationFile {
-  readonly content: string;
-  readonly packagePath: string;
-}
-
-/** Closes the published Markdown and exact hand-written Check guide inventories. */
-export function collectPackageDocumentation(
-  repositoryRoot: string,
-  renderedMarkdown: readonly PackageDocumentationFile[]
+/** Reads and closes the package-provided Check guide registry and source directory. */
+export function collectPackageCheckGuides(
+  root: string,
+  guides: readonly PackageCheckGuide[]
 ): readonly PackageDocumentationFile[] {
-  const root = resolve(repositoryRoot);
-  const mapping = loadPackageDocuments(root);
-  const guides = mapping.checkGuides;
   assertGuideRegistry(guides);
-  const rendered = assertRenderedMarkdownInventory(renderedMarkdown, mapping.markdownDocuments);
   assertExactGuideDirectory(
     root,
     guides.map((guide) => guide.sourcePath)
   );
-  const checkGuides = guides.map((guide) => readCheckGuide(root, guide));
-  const machineMaterials = collectPackageMachineMaterials(root);
-  const machineMarkdown = machineMarkdownDocuments(machineMaterials);
-  const readme = requiredDocument(rendered, README_PATH);
-  const publishedDocuments = rendered.filter((document) => document.packagePath !== README_PATH);
-  const supportingDocuments = [...publishedDocuments, ...checkGuides];
-  const publishedMarkdownDocuments = [readme, ...supportingDocuments, ...machineMarkdown];
-  for (const document of publishedMarkdownDocuments)
-    assertNoPackageApiExampleProjectionMarker(document);
-  assertGuideLinks(
-    readme,
-    supportingDocuments,
-    mapping.markdownDocuments,
-    guides,
-    mapping.machineMaterials.map((material) => material.packagePath)
-  );
-  assertLocalMarkdownLinks(
-    publishedMarkdownDocuments,
-    mapping.machineMaterials.map((material) => material.packagePath)
-  );
-  return Object.freeze(supportingDocuments);
+  return Object.freeze(guides.map((guide) => readCheckGuide(root, guide)));
 }
 
-function assertRenderedMarkdownInventory(
+/** Verifies each registered guide's README link and public Check identity. */
+export function assertPackageCheckGuideLinks(
+  readme: PackageDocumentationFile,
   documents: readonly PackageDocumentationFile[],
-  markdownDocuments: readonly Readonly<{ readonly packagePath: string }>[]
-): readonly PackageDocumentationFile[] {
-  const expected = markdownDocuments.map((document) => document.packagePath).sort();
-  const actual = documents.map((document) => document.packagePath).sort();
-  if (
-    actual.length !== expected.length ||
-    actual.some((packagePath, index) => packagePath !== expected[index])
-  ) {
-    throw new Error(
-      `rendered package Markdown must exactly match the document registry: received ${actual.join(", ")}`
-    );
+  guides: readonly PackageCheckGuide[]
+): void {
+  for (const guide of guides) {
+    if (!readme.content.includes(`](./${guide.packagePath})`)) {
+      throw new Error(`README is missing a direct package Check guide link: ${guide.packagePath}`);
+    }
+    const document = documents.find((candidate) => candidate.packagePath === guide.packagePath);
+    if (document === undefined)
+      throw new Error(`package documentation is missing: ${guide.packagePath}`);
+    if (!document.content.includes(`# \`${guide.exportName}\``)) {
+      throw new Error(`package Check guide must identify its public export: ${guide.packagePath}`);
+    }
   }
-  for (const document of documents) assertDocumentText(document);
-  return documents;
 }
 
 function assertGuideRegistry(guides: readonly PackageCheckGuide[]): void {
@@ -130,9 +65,7 @@ function assertGuideRegistry(guides: readonly PackageCheckGuide[]): void {
     names.add(guide.exportName);
     paths.add(guide.sourcePath);
   }
-  const expectedCheckExports = Object.values(CURRENT_PUBLIC_CONTRACT.operations)
-    .filter((operation) => !NON_CHECK_OPERATIONS.includes(operation))
-    .sort();
+  const expectedCheckExports = Object.values(CURRENT_PUBLIC_CONTRACT.checks).sort();
   const actualCheckExports = [...names].sort();
   if (actualCheckExports.join("\0") !== expectedCheckExports.join("\0")) {
     throw new Error(
@@ -180,7 +113,6 @@ function readCheckGuide(root: string, guide: PackageCheckGuide): PackageDocument
     content: readFileSync(path, "utf8"),
     packagePath: guide.packagePath
   });
-  assertDocumentText(document);
   for (const heading of GUIDE_HEADINGS) {
     if (!document.content.includes(heading)) {
       throw new Error(
@@ -189,110 +121,4 @@ function readCheckGuide(root: string, guide: PackageCheckGuide): PackageDocument
     }
   }
   return document;
-}
-
-function machineMarkdownDocuments(
-  materials: readonly Readonly<{ readonly content: Buffer; readonly packagePath: string }>[]
-): readonly PackageDocumentationFile[] {
-  return Object.freeze(
-    materials
-      .filter((material) => material.packagePath.endsWith(".md"))
-      .map((material) =>
-        Object.freeze({
-          content: material.content.toString("utf8"),
-          packagePath: material.packagePath
-        })
-      )
-  );
-}
-
-function assertDocumentText(document: PackageDocumentationFile): void {
-  if (
-    !document.content.endsWith("\n") ||
-    document.content.endsWith("\n\n") ||
-    document.content.includes("\r")
-  ) {
-    throw new Error(
-      `package documentation must use LF and one trailing LF: ${document.packagePath}`
-    );
-  }
-}
-
-function assertNoPackageApiExampleProjectionMarker(document: PackageDocumentationFile): void {
-  if (hasPackageApiExampleProjectionMarker(document.content)) {
-    throw new Error(
-      `package documentation contains a package API example projection marker: ${document.packagePath}`
-    );
-  }
-}
-
-function requiredDocument(
-  documents: readonly PackageDocumentationFile[],
-  packagePath: string
-): PackageDocumentationFile {
-  const document = documents.find((candidate) => candidate.packagePath === packagePath);
-  if (document === undefined) throw new Error(`package documentation is missing: ${packagePath}`);
-  return document;
-}
-
-function assertGuideLinks(
-  readme: PackageDocumentationFile,
-  documents: readonly PackageDocumentationFile[],
-  markdownDocuments: readonly Readonly<{ readonly packagePath: string }>[],
-  guides: readonly PackageCheckGuide[],
-  machineMaterialPaths: readonly string[]
-): void {
-  for (const document of documents.filter((candidate) =>
-    markdownDocuments.some((registered) => registered.packagePath === candidate.packagePath)
-  )) {
-    if (!readme.content.includes(`](./${document.packagePath})`)) {
-      throw new Error(`README is missing a direct package document link: ${document.packagePath}`);
-    }
-  }
-  for (const packagePath of machineMaterialPaths.filter((path) => path.endsWith(".md"))) {
-    if (!readme.content.includes(`](./${packagePath})`)) {
-      throw new Error(`README is missing a direct package machine guide link: ${packagePath}`);
-    }
-  }
-  for (const guide of guides) {
-    if (!readme.content.includes(`](./${guide.packagePath})`)) {
-      throw new Error(`README is missing a direct package Check guide link: ${guide.packagePath}`);
-    }
-    const document = requiredDocument(documents, guide.packagePath);
-    if (!document.content.includes(`# \`${guide.exportName}\``)) {
-      throw new Error(`package Check guide must identify its public export: ${guide.packagePath}`);
-    }
-  }
-}
-
-function assertLocalMarkdownLinks(
-  documents: readonly PackageDocumentationFile[],
-  machineMaterialPaths: readonly string[]
-): void {
-  const paths = new Set([
-    ...documents.map((document) => document.packagePath),
-    ...machineMaterialPaths
-  ]);
-  for (const document of documents) {
-    for (const match of document.content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
-      const rawTarget = match[1];
-      if (rawTarget === undefined) {
-        throw new TypeError(`package documentation link has no target: ${document.packagePath}`);
-      }
-      const [target] = rawTarget.replace(/^<|>$/g, "").split(/[?#]/, 1);
-      if (
-        target === undefined ||
-        target === "" ||
-        /^[a-z][a-z0-9+.-]*:/i.test(target) ||
-        target.startsWith("/")
-      )
-        continue;
-      const resolved = normalize(join(dirname(document.packagePath), target)).replaceAll("\\", "/");
-      if (!paths.has(resolved)) {
-        throw new Error(
-          `package documentation link does not resolve: ${document.packagePath} -> ${target}`
-        );
-      }
-    }
-  }
 }

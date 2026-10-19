@@ -28,6 +28,7 @@ const sharedMaterialProviderInputs = [
   "scripts/error-message.ts",
   "scripts/process-execution/**",
   "scripts/repository-files/**",
+  "scripts/validation/repository-scan-policy.ts",
   "scripts/value-guards.ts"
 ] as const;
 const REQUIRED_CHANGE_FLAGS_BY_CHECK_ID: Readonly<Record<string, string>> = Object.freeze({
@@ -151,6 +152,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/package/**",
       "scripts/development/**",
       "scripts/validation/repository-material/**",
+      "scripts/validation/repository-scan-policy.ts",
       "scripts/test-evidence/**",
       "scripts/process-execution/**",
       "scripts/repository-files/**",
@@ -228,6 +230,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       ...sharedPackageCheckInputs,
       "scripts/project/gate/definition.ts",
       "scripts/validation/repository-material/task-contract.ts",
+      "scripts/validation/repository-scan-policy.ts",
       "package.json",
       "pnpm-lock.yaml",
       "!src/**/*.test.ts",
@@ -237,12 +240,13 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   "material-schema-input": {
     patterns: [
       "docs/schemas/**",
-      "docs/examples/json/*-report.json",
+      "docs/examples/historical/v1/*-report.json",
       "src/package-checks/json-schema-validation/**",
       "src/package-checks/json-document/**",
       ...sharedPackageCheckInputs,
       "scripts/project/gate/definition.ts",
       "scripts/validation/repository-material/task-contract.ts",
+      "scripts/validation/repository-scan-policy.ts",
       "package.json",
       "pnpm-lock.yaml",
       "!src/**/*.test.ts",
@@ -315,6 +319,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/validation/repository-material/repository-files.ts",
       "scripts/validation/repository-material/repository-paths.ts",
       "scripts/validation/repository-material/task-contract.ts",
+      "scripts/validation/repository-scan-policy.ts",
       "scripts/validation/repository-material/json/**",
       "scripts/validation/repository-material/schema/**",
       "scripts/docs/machine-artifacts/**",
@@ -339,8 +344,8 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   },
   "package-tools-boundary-tests": {
     patterns: [
-      "scripts/validation/layout-characterization.ts",
-      "scripts/validation/layout-characterization.test-support.ts",
+      "scripts/validation/repository-layout.ts",
+      "scripts/validation/repository-layout.test-support.ts",
       "scripts/validation/package-tools-core-closure.test.ts",
       "scripts/validation/package-tools-boundary.ts",
       "scripts/validation/package-tools-core-closure.ts",
@@ -349,6 +354,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/validation/import-boundaries.ts",
       "scripts/validation/project-gate-layout.ts",
       "scripts/validation/repository-material/task-contract.ts",
+      "scripts/validation/repository-scan-policy.ts",
       "scripts/repository-files/**",
       "tsconfig*.json",
       "package.json",
@@ -379,6 +385,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   "validation-tests": {
     patterns: [
       "scripts/validation/repository-material/**",
+      "scripts/validation/repository-scan-policy.ts",
       "scripts/validation/workspace.ts",
       "scripts/validation/workspace.test.ts",
       "scripts/docs/**",

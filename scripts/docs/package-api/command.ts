@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { collectPackageDocumentation } from "./check-guides.ts";
+import { collectPackageDocumentation } from "../package-markdown.ts";
 import { renderPackageApiDocumentation } from "./render.ts";
 
 type PackageApiDocumentationMode = "--check" | "--write";

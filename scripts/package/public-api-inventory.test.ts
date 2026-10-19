@@ -103,25 +103,19 @@ describe("public API inventory", () => {
     assert.equal(defineCheck.name, CURRENT_PUBLIC_CONTRACT.operations.defineCheck);
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.defineConfig);
     assert.equal(exactlyOne.name, CURRENT_PUBLIC_CONTRACT.operations.exactlyOne);
-    assert.equal(duplicateDetection.name, CURRENT_PUBLIC_CONTRACT.operations.duplicateDetection);
-    assert.equal(fileMetrics.name, CURRENT_PUBLIC_CONTRACT.operations.fileMetrics);
-    assert.equal(functionMetrics.name, CURRENT_PUBLIC_CONTRACT.operations.functionMetrics);
-    assert.equal(
-      jsonSchemaValidation.name,
-      CURRENT_PUBLIC_CONTRACT.operations.jsonSchemaValidation
-    );
-    assert.equal(jsonValidation.name, CURRENT_PUBLIC_CONTRACT.operations.jsonValidation);
+    assert.equal(duplicateDetection.name, CURRENT_PUBLIC_CONTRACT.checks.duplicateDetection);
+    assert.equal(fileMetrics.name, CURRENT_PUBLIC_CONTRACT.checks.fileMetrics);
+    assert.equal(functionMetrics.name, CURRENT_PUBLIC_CONTRACT.checks.functionMetrics);
+    assert.equal(jsonSchemaValidation.name, CURRENT_PUBLIC_CONTRACT.checks.jsonSchemaValidation);
+    assert.equal(jsonValidation.name, CURRENT_PUBLIC_CONTRACT.checks.jsonValidation);
     assert.equal(inherit.name, CURRENT_PUBLIC_CONTRACT.operations.inherit);
     assert.equal(none.name, CURRENT_PUBLIC_CONTRACT.operations.none);
     assert.equal(not.name, CURRENT_PUBLIC_CONTRACT.operations.not);
     assert.equal(notAll.name, CURRENT_PUBLIC_CONTRACT.operations.notAll);
-    assert.equal(
-      maintenanceReminders.name,
-      CURRENT_PUBLIC_CONTRACT.operations.maintenanceReminders
-    );
+    assert.equal(maintenanceReminders.name, CURRENT_PUBLIC_CONTRACT.checks.maintenanceReminders);
     assert.equal(
       markdownLinkValidation.name,
-      CURRENT_PUBLIC_CONTRACT.operations.markdownLinkValidation
+      CURRENT_PUBLIC_CONTRACT.checks.markdownLinkValidation
     );
     assert.equal(
       presentCheckFindings.name,
@@ -220,6 +214,7 @@ describe("public API inventory", () => {
       [
         ...Object.values(CURRENT_PUBLIC_CONTRACT.defaults),
         ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
+        ...Object.values(CURRENT_PUBLIC_CONTRACT.checks),
         ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers)
       ].sort()
     );
@@ -236,6 +231,7 @@ function assertPublicRootsHaveChineseJSDoc(contract: typeof CURRENT_PUBLIC_CONTR
   const publicRootNames = [
     ...Object.values(contract.defaults),
     ...Object.values(contract.operations),
+    ...Object.values(contract.checks),
     ...Object.values(contract.parsers),
     ...Object.values(contract.types)
   ];

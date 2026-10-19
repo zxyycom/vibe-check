@@ -5,7 +5,7 @@ import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../docs/package-api/example-
 import {
   collectPackageDocumentation,
   type PackageDocumentationFile
-} from "../../docs/package-api/check-guides.ts";
+} from "../../docs/package-markdown.ts";
 import {
   renderPackageApiDocumentation,
   type RenderedPackageApiDocumentation,

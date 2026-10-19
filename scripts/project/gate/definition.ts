@@ -87,11 +87,11 @@ function createRepositorySchemaMaterialCheck() {
       "passing-report"
     ].map((id) => ({
       id,
-      instancePath: `docs/examples/json/${id}.json`,
+      instancePath: `docs/examples/historical/v1/${id}.json`,
       schemaId: "https://vibe-check.local/schemas/vibe-check-report.schema.json"
     })),
     checkId: "materials-schema-validator",
-    files: { patterns: ["docs/schemas/**/*.json", "docs/examples/json/*-report.json"] },
+    files: { patterns: ["docs/schemas/**/*.json", "docs/examples/historical/v1/*-report.json"] },
     maximumBytes: REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES,
     schemas: [
       {
@@ -100,7 +100,7 @@ function createRepositorySchemaMaterialCheck() {
       },
       {
         id: "https://vibe-check.local/schemas/vibe-check-report.schema.json",
-        path: "docs/schemas/vibe-check-report.schema.json"
+        path: "docs/schemas/historical/v1/vibe-check-report.schema.json"
       },
       { id: "urn:vibe-check:schema:run:v4", path: "docs/schemas/vibe-check-run.schema.json" },
       {

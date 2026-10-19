@@ -21,7 +21,7 @@
 - fence 未闭合；
 - 出现 `<!-- package-api-example:` 或 `<!-- /package-api-example:` projection marker。
 
-随包材料收集器对 renderer 输出、手写 Check guide 和 machine Markdown 执行同一 marker 拒绝规则，
+`scripts/docs/package-markdown.ts` 的全包材料收集器对 renderer 输出、手写 Check guide 和 machine Markdown 执行同一 marker 拒绝规则，
 因此这类内部定位信息不会进入 staging、tarball 或 installed package。
 
 ### 投影一致性验收
@@ -31,6 +31,10 @@ artifact audit 再次计算投影，要求 checked-in Markdown/JSDoc 与计算�
 交给 package material collector。
 
 ## 随包材料验收
+
+`scripts/docs/package-markdown.ts` 的 `collectPackageDocumentation` 与 `PackageDocumentationFile`
+拥有全包 Markdown 收集与共同文件契约。`scripts/docs/package-api/check-guides.ts` 承接 Check 指南的
+收集、结构和链接要求，并使用公开 API inventory 的 `checks` 分类核对随包 Check 身份。
 
 映射 loader 从当前 repository root 读取 `docs/package-documents.json`，先验证结构、身份与安全相对路径，
 拒绝目标冲突。配置原始 bytes、读取实现与所引用源文件参与 artifact fingerprint；fixture 与冻结工作区使用各自配置。
@@ -48,6 +52,8 @@ Markdown 的源码检查使用 `sourcePath`，包内链接和 staging/tar/instal
 
 material task 的唯一名称是 `json`、`schema`、`examples`、`links` 和 `package-api-documentation`。
 根 validation adapter 默认运行全部 task；显式 focused selection 原样转发，不静默扩张或跳过。
+repository/material walkers 共用[共享扫描政策](workspace.md#repository-validation-共享扫描政策)的忽略目录集合；
+各 task 仍拥有自己的显式输入。
 
 workspace process entry 与 focused dispatch 测试共用内部 `runWorkspaceValidation` adapter，证明责任如下：
 

@@ -266,6 +266,7 @@ function assertEmittedPublicDocumentation(stagingDirectory: string): void {
   const publicRoots = [
     ...Object.values(CURRENT_PUBLIC_CONTRACT.defaults),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
+    ...Object.values(CURRENT_PUBLIC_CONTRACT.checks),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.types)
   ];

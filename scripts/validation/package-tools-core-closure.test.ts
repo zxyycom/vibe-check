@@ -3,14 +3,14 @@ import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "node:test";
 
-import { validateRepositoryLayout } from "./layout-characterization.ts";
+import { validateRepositoryLayout } from "./repository-layout.ts";
 import {
   createTargetLayout,
   escapeRegExp,
   PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS,
   writePackageToolContract,
   writeSource
-} from "./layout-characterization.test-support.ts";
+} from "./repository-layout.test-support.ts";
 import {
   validatePackageToolsBoundary,
   validatePackageToolsCoreNoEmit

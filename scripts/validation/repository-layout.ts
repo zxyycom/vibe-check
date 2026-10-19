@@ -3,7 +3,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { walkFiles } from "../repository-files/files.ts";
-import { FILE_SYSTEM } from "./repository-material/task-contract.ts";
+import { REPOSITORY_SCAN_IGNORED_DIRECTORIES } from "./repository-scan-policy.ts";
 import { validateFunctionMetricsAnalyzerBoundary } from "./function-metrics-analyzer-boundary.ts";
 import { relativePath, validateImportBoundaries } from "./import-boundaries.ts";
 import { validatePackageToolsBoundary } from "./package-tools-boundary.ts";
@@ -34,16 +34,6 @@ const RETIRED_SOURCE_DIRECTORIES = Object.freeze([
   "scripts/quality",
   "scripts/project-gate"
 ]);
-const GENERIC_BASENAMES = new Set([
-  "current",
-  "model",
-  "types",
-  "common",
-  "shared",
-  "utils",
-  "helpers",
-  "workflows"
-]);
 const PACKAGE_ARTIFACT_COMPILER_ROOTS_SOURCE = new RegExp(
   "export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS\\s*=\\s*Object\\.freeze\\(\\s*\\[\\s*[\"']src/index\\.ts[\"']\\s*,\\s*PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH\\s*\\]\\s*\\)",
   "u"
@@ -56,7 +46,6 @@ const PACKAGE_ARTIFACT_COMPILER_ROOTS_USE = new RegExp(
   "PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS\\.map\\(\\s*\\(sourcePath\\)\\s*=>\\s*join\\(\\s*repositoryRoot\\s*,\\s*sourcePath\\s*\\)\\s*\\)",
   "u"
 );
-const MODULE_BASENAME_SUFFIX = new RegExp("(?:\\.test-support|\\.test)?\\.ts$", "u");
 
 export function validateRepositoryLayout(
   input: Readonly<{ readonly repositoryRoot?: string }> = {}
@@ -79,14 +68,14 @@ export function validateRepositoryLayout(
   validatePackageArtifactEntry(root, violations);
 
   if (violations.length > 0) {
-    throw new Error(`repository layout characterization failed:\n${violations.join("\n")}`);
+    throw new Error(`repository layout validation failed:\n${violations.join("\n")}`);
   }
 }
 
 function sourceFilesUnder(root: string, sourceRoot: string): readonly string[] {
   const directory = join(root, sourceRoot);
   if (!existsSync(directory)) return [];
-  return walkFiles({ ignoredDirs: FILE_SYSTEM.ignoredDirs, rootDir: directory })
+  return walkFiles({ ignoredDirs: REPOSITORY_SCAN_IGNORED_DIRECTORIES, rootDir: directory })
     .filter((filePath) => filePath.endsWith(".ts"))
     .map((filePath) => join(directory, filePath));
 }
@@ -107,7 +96,9 @@ function validateProductOwners(root: string, violations: string[]): void {
   }
 
   const actual = readdirSync(sourceRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && !FILE_SYSTEM.ignoredDirs.includes(entry.name))
+    .filter(
+      (entry) => entry.isDirectory() && !REPOSITORY_SCAN_IGNORED_DIRECTORIES.includes(entry.name)
+    )
     .map((entry) => entry.name)
     .sort();
   if (actual.join("\0") !== PRODUCT_OWNER_DIRECTORIES.join("\0")) {
@@ -126,11 +117,6 @@ function validateSourceNames(
     const repositoryPath = relativePath(root, sourcePath);
     if (basename(sourcePath) === "index.ts" && repositoryPath !== "src/index.ts") {
       violations.push(`unapproved-index: ${repositoryPath}`);
-    }
-
-    const moduleName = moduleBasename(sourcePath);
-    if (GENERIC_BASENAMES.has(moduleName)) {
-      violations.push(`generic-basename: ${repositoryPath} (${moduleName})`);
     }
   }
 }
@@ -157,8 +143,4 @@ function validatePackageArtifactEntry(root: string, violations: string[]): void 
       "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots"
     );
   }
-}
-
-function moduleBasename(sourcePath: string): string {
-  return basename(sourcePath).replace(MODULE_BASENAME_SUFFIX, "");
 }

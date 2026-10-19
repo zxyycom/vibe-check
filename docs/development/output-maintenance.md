@@ -56,3 +56,10 @@ JSON 文件映射；installed consumer typecheck 直接包含随包 Definition�
 candidate `run`，核对 package-provided/custom outcomes、三条 RunResult messages、两条 Records 和已配置的 machine
 publication。该映射的随包范围止于 current guide、schemas 与 example；historical schemas、repository tooling、
 generators 和 validators 保留为仓库维护材料。
+
+历史材料保留形成时的版本身份和原始 bytes，仅用于显式 historical validation：
+
+| 历史材料 | 仓库位置 |
+| --- | --- |
+| v1 report schema 与四份 report examples | `docs/schemas/historical/v1/` 与 `docs/examples/historical/v1/` |
+| v2 machine schemas | `docs/schemas/historical/v2/` |

@@ -4,14 +4,14 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
-import { collectPackageDocumentation } from "./check-guides.ts";
-import { loadPackageDocuments } from "../package-documents.ts";
-import { renderPackageApiDocumentation } from "./render.ts";
-import { createPackageApiDocumentationFixture } from "./test-support.ts";
+import { collectPackageDocumentation } from "./package-markdown.ts";
+import { loadPackageDocuments } from "./package-documents.ts";
+import { renderPackageApiDocumentation } from "./package-api/render.ts";
+import { createPackageApiDocumentationFixture } from "./package-api/test-support.ts";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
-describe("package Check guides", () => {
+describe("package Markdown", () => {
   it("requires one README-linked guide for every package-provided Check function", () => {
     const mapping = loadPackageDocuments(repositoryRoot);
     const rendered = renderPackageApiDocumentation({ repositoryRoot });
@@ -75,6 +75,20 @@ describe("package Check guides", () => {
           /README is missing a direct package document link/
         );
       }
+
+      const mappingPath = join(fixture, "docs/package-documents.json");
+      const mappingText = readFileSync(mappingPath, "utf8");
+      const mapping = loadPackageDocuments(fixture);
+      writeFileSync(
+        mappingPath,
+        JSON.stringify({ ...mapping, checkGuides: mapping.checkGuides.slice(1) }),
+        "utf8"
+      );
+      assert.throws(
+        () => collectPackageDocumentation(fixture, rendered.markdownDocuments),
+        /must exactly cover package-provided Check functions/
+      );
+      writeFileSync(mappingPath, mappingText, "utf8");
 
       writeFileSync(join(fixture, "docs/checks/extra.md"), "# extra\n", "utf8");
       assert.throws(

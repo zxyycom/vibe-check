@@ -4,7 +4,7 @@ import { join, relative, resolve } from "node:path";
 import * as ts from "typescript";
 
 import { walkFiles } from "../repository-files/files.ts";
-import { FILE_SYSTEM } from "./repository-material/task-contract.ts";
+import { REPOSITORY_SCAN_IGNORED_DIRECTORIES } from "./repository-scan-policy.ts";
 
 export interface ModuleEdge {
   readonly bindings: readonly ModuleBinding[];
@@ -31,7 +31,7 @@ type ModuleSyntaxPolicy = Readonly<{
 export function productionSourceFilesUnder(root: string, directory: string): readonly string[] {
   const absoluteDirectory = join(root, directory);
   if (!existsSync(absoluteDirectory)) return [];
-  return walkFiles({ ignoredDirs: FILE_SYSTEM.ignoredDirs, rootDir: absoluteDirectory })
+  return walkFiles({ ignoredDirs: REPOSITORY_SCAN_IGNORED_DIRECTORIES, rootDir: absoluteDirectory })
     .filter((path) => path.endsWith(".ts") && isProductionPath(`${directory}/${path}`))
     .map((path) => join(absoluteDirectory, path));
 }

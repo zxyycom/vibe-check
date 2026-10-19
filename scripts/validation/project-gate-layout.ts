@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-import { FILE_SYSTEM } from "./repository-material/task-contract.ts";
+import { REPOSITORY_SCAN_IGNORED_DIRECTORIES } from "./repository-scan-policy.ts";
 
 const PROJECT_GATE_ROOT_DIRECTORIES = Object.freeze(["checks", "runtime"]);
 const PROJECT_GATE_ROOT_FILES = Object.freeze([
@@ -19,7 +19,7 @@ export function validateProjectGateRoot(root: string, violations: string[]): voi
     return;
   }
   const entries = readdirSync(gateRoot, { withFileTypes: true }).filter(
-    (entry) => !FILE_SYSTEM.ignoredDirs.includes(entry.name)
+    (entry) => !REPOSITORY_SCAN_IGNORED_DIRECTORIES.includes(entry.name)
   );
   const directories = entries
     .filter((entry) => entry.isDirectory())

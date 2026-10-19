@@ -153,6 +153,16 @@ describe("Project Gate change regions", () => {
         selected: ["project-tests", "layout-tests", "validation-tests"]
       },
       {
+        path: "scripts/validation/repository-scan-policy.ts",
+        selected: [
+          "project-tests",
+          "layout-tests",
+          "machine-artifact-tests",
+          "package-tools-boundary-tests",
+          "validation-tests"
+        ]
+      },
+      {
         path: "scripts/validation/repository-material/machine-artifacts/validation.test.ts",
         selected: ["layout-tests", "machine-artifact-tests"]
       },
@@ -214,12 +224,25 @@ describe("Project Gate change regions", () => {
         ]
       },
       {
-        path: "docs/examples/json/passing-report.json",
+        path: "docs/examples/historical/v1/passing-report.json",
         selected: [
           "duplicate-input",
           "file-metrics-input",
           "material-json-input",
           "material-schema-input"
+        ]
+      },
+      {
+        path: "scripts/validation/repository-scan-policy.ts",
+        selected: [
+          "duplicate-input",
+          "file-metrics-input",
+          "function-input",
+          "material-json-input",
+          "material-schema-input",
+          "material-schema-publication-input",
+          "material-examples-input",
+          "test-surface"
         ]
       },
       {

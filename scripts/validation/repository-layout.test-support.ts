@@ -19,7 +19,7 @@ const PRODUCT_OWNERS = [
 ];
 
 export function createTargetLayout(): string {
-  const root = mkdtempSync(join(tmpdir(), "vibe-check-layout-characterization-"));
+  const root = mkdtempSync(join(tmpdir(), "vibe-check-repository-layout-"));
   writeFileSync(join(root, "package.json"), '{"type":"module"}\n', "utf8");
   writeSource(root, "src/index.ts", "export {};\n");
   for (const owner of PRODUCT_OWNERS) {

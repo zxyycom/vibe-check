@@ -13,21 +13,8 @@ export const REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES = 2 * 1024 * 1024;
 
 export const FILE_SYSTEM = {
   docsDir: "docs",
-  examplesJsonDir: "docs/examples/json",
+  examplesJsonDir: "docs/examples/historical/v1",
   schemasDir: "docs/schemas",
-  ignoredDirs: [
-    ".git",
-    ".codegraph",
-    ".cache",
-    ".log",
-    ".tmp",
-    "artifacts",
-    "node_modules",
-    "target",
-    ".venv",
-    "dist",
-    "build"
-  ],
   markdownLinkRoots: ["AGENTS.md", "docs"],
   jsonExtension: ".json",
   markdownExtension: ".md",
@@ -40,7 +27,7 @@ export const CURRENT_SCHEMAS = {
 };
 
 export const HISTORICAL_SCHEMAS = {
-  report: "docs/schemas/vibe-check-report.schema.json",
+  report: "docs/schemas/historical/v1/vibe-check-report.schema.json",
   machineRecordV2: "docs/schemas/historical/v2/vibe-check-record.schema.json",
   machineRunV2: "docs/schemas/historical/v2/vibe-check-run.schema.json"
 };

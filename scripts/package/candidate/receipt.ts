@@ -6,7 +6,7 @@ import { packageCandidatePaths, type PackageCandidatePathOptions } from "../buil
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { auditCandidateArtifact } from "../artifact/packed-tar-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
-import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageDocumentationFile } from "../../docs/package-markdown.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 
 const RECEIPT_SCHEMA_VERSION = 3;

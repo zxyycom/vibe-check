@@ -1,9 +1,9 @@
 import path from "node:path";
 
-import { FILE_SYSTEM } from "./task-contract.ts";
+import { REPOSITORY_SCAN_IGNORED_DIRECTORIES } from "../repository-scan-policy.ts";
 import { walkFiles } from "../../repository-files/files.ts";
 
-const ignoredDirs = new Set(FILE_SYSTEM.ignoredDirs);
+const ignoredDirs = new Set(REPOSITORY_SCAN_IGNORED_DIRECTORIES);
 
 export function walkDocumentationFiles(
   directory: string,

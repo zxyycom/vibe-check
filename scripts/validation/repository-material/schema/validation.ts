@@ -119,7 +119,7 @@ export function validateReportExamples(report?: (message: string) => void): void
   const exampleRelPaths = listExampleJson(/^[a-z-]+-report\.json$/);
   if (exampleRelPaths.length === 0) {
     throw expectedMaterialValidationFailure([
-      schemaDiagnostic("report-example-missing", "docs/examples/json")
+      schemaDiagnostic("report-example-missing", "docs/examples/historical/v1")
     ]);
   }
 

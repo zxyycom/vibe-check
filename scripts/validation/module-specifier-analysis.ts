@@ -28,7 +28,7 @@ export function analyzeModuleSpecifiers(
   repositoryPath: string
 ): ModuleSpecifierAnalysis {
   const sourceFile = ts.createSourceFile(
-    "layout-characterization.ts",
+    "repository-layout.ts",
     source,
     ts.ScriptTarget.Latest,
     false,

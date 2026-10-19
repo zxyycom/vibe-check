@@ -27,6 +27,7 @@ const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/package-api/markdown-example-fences.ts",
   "scripts/docs/package-api/render.ts",
   "scripts/docs/package-api/check-guides.ts",
+  "scripts/docs/package-markdown.ts",
   "scripts/docs/machine-artifacts/package-materials.ts"
 ]);
 const DOCUMENTATION_EXAMPLES_DIRECTORY = "docs/examples/package-api";

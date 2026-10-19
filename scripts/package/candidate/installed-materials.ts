@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
-import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageDocumentationFile } from "../../docs/package-markdown.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 import { errorMessage } from "../../error-message.ts";
 import { collectFilePaths } from "../file-inventory.ts";

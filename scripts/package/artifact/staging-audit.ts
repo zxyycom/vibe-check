@@ -26,7 +26,7 @@ import {
   assertPackageLicenseContent,
   sameOrderedStrings
 } from "../package-material-audit.ts";
-import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageDocumentationFile } from "../../docs/package-markdown.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 import { auditCandidateManifest } from "./manifest.ts";
 

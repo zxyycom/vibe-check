@@ -8,7 +8,7 @@ import { describe, it } from "node:test";
 import { createArtifactFingerprint } from "../package/artifact/fingerprint.ts";
 import { copyArtifactFingerprintFixture } from "../package/artifact/fingerprint.test-support.ts";
 import { collectPackageMachineMaterials } from "./machine-artifacts/package-materials.ts";
-import { collectPackageDocumentation } from "./package-api/check-guides.ts";
+import { collectPackageDocumentation } from "./package-markdown.ts";
 import { renderPackageApiDocumentation } from "./package-api/render.ts";
 import { createPackageApiDocumentationFixture } from "./package-api/test-support.ts";
 import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "./package-api/example-projections.ts";

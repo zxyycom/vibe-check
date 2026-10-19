@@ -183,10 +183,10 @@ Entities:
 Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
 Entities:
 
-- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > requires one README-linked guide for every package-provided Check function`
-- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects a missing direct README link and an extra Check guide page`
-- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects package documentation without exactly one trailing LF`
-- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects package example projection markers in hand-written and machine Markdown`
+- `bun|scripts/docs/package-markdown.test.ts|package Markdown > requires one README-linked guide for every package-provided Check function`
+- `bun|scripts/docs/package-markdown.test.ts|package Markdown > rejects a missing direct README link and an extra Check guide page`
+- `bun|scripts/docs/package-markdown.test.ts|package Markdown > rejects package documentation without exactly one trailing LF`
+- `bun|scripts/docs/package-markdown.test.ts|package Markdown > rejects package example projection markers in hand-written and machine Markdown`
   Proves:
 
 - Package documentation has exactly one README-linked guide for every package-provided Check function and a direct machine-output guide link. The README and exact guide directory cannot omit a direct link, publish an unregistered extra page, or restore a Check index layer.
@@ -246,14 +246,15 @@ Entities:
 
 ## Case AUX-REPOSITORY-LAYOUT-001: Repository layout preserves module ownership and dependency direction
 
-Owner: `docs/development/coding-style.md#2-owner-与实现归属先行`
+Owner: `docs/tooling/workspace.md#source-owners-and-dependency-direction`
 Entities:
 
-- `bun|scripts/validation/layout-characterization.test.ts|characterizes repository layout and dependency boundaries`
+- `bun|scripts/validation/repository-layout.test.ts|validates repository layout and dependency boundaries`
 - `bun|scripts/validation/package-tools-core-closure.test.ts|enforces package-tool public contracts and Core closure`
   Proves:
 
-- Workspace validation keeps the Product owner inventory closed, including the declared Core and non-Core tool owners, and rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package compiler-root contract other than exactly public `src/index.ts` plus the internal function-metrics Worker root (which does not add a public entry).
+- Workspace validation keeps the Product owner inventory closed, including the declared Core and non-Core tool owners, and rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package compiler-root contract other than exactly public `src/index.ts` plus the internal function-metrics Worker root (which does not add a public entry).
+- A contextually named module is accepted even when its basename is a generic word; layout validation does not replace owner-aware naming review with a context-free word blacklist.
 - It also fail-closes the function-metrics private port boundary: only `analyzer-adapter.ts` may consume `analyzer/port-facade.ts`; port code cannot import Product; `analyzer-worker.ts` and `target-files.ts` must value-import the adapter; a later syntax error still reports its parse diagnostic but cannot create a false missing-adapter-import violation; port-external Product tests cannot deep-import analyzer modules; and public/package entry points cannot leak the façade, adapter, Worker, or deep path.
 - Optional package-tool production modules are discovered recursively and may use only named Product symbols whose TypeScript identity and type/value role are genuinely exported by the package root; public aliases, values and callback-shaped contracts remain valid while same-module private symbols, package-root round trips, test material, external modules outside the exact approved `node:crypto`, `node:fs`, and `node:path` production set, unresolved paths, and default/namespace/side-effect/star/dynamic/require/import-type-query loading forms fail closed. The fixed Core roots traverse their production import closure under the current TypeScript resolution options, so relative, absolute workspace and configured-alias edges cannot bypass direct or indirect tool rejection; literal dynamic imports join that closure, while nonliteral loading, `require`, and import-equals forms fail closed. The separately executable in-memory TypeScript no-emit proof accepts valid Core and reports an actual argument-type error.
 

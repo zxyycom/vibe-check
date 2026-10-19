@@ -58,7 +58,8 @@ JSON 的 `checkGuides` 拥有文件映射，两者与 public package-provided Ch
 
 `docs/index.md` 和 `docs/checks/index.md` 不发布。
 
-collector 对已登记 Markdown 和手写 Check 指南检查以下要求：
+全包 Markdown collector 对已登记 Markdown 和手写 Check 指南检查以下要求；实现职责见
+[随包材料验收](repository-material-validation.md#随包材料验收)：
 
 - 使用 LF，且恰有一个 trailing LF；
 - 不缺少 README 直链，也不存在额外 Check 页面；
@@ -92,6 +93,6 @@ legacy schemas、historical examples、generator sources 与 validation scripts 
 | --- | --- |
 | `bun run docs:api` | 只读检查 API 文档投影是否与源一致 |
 | `bun run validate -- materials` | 只运行全部 repository-material task，不执行 layout 或 diff 检查 |
-| `bun run validate` | 先运行全部 repository-material task，再执行 repository layout characterization，最后运行 `git diff --check` |
+| `bun run validate` | 先运行全部 repository-material task，再执行 repository layout validation，最后运行 `git diff --check` |
 
 各 task 的结果、诊断与独立验收边界见[仓库材料验证](repository-material-validation.md)。

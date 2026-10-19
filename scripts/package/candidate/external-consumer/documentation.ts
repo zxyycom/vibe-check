@@ -4,7 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { collectPackageDocumentation } from "../../../docs/package-api/check-guides.ts";
+import { collectPackageDocumentation } from "../../../docs/package-markdown.ts";
 import {
   PACKAGE_API_EXAMPLE_PROJECTIONS,
   PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS

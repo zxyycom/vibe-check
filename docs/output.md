@@ -79,7 +79,7 @@ generation，因此必须按完整集合执行 fingerprint validation；需要 g
 
 示例的输入与结果可按三条路径核对：
 
-- `jsonValidation` 显式检查 `package.json`，保留默认 source/exclude；自定义 provider 在空 authored files 时以 preparation fallback 继续并通过。
+- `jsonValidation` 显式检查 `package.json`，保留默认 selection 基线；自定义 provider 在空 authored files 时以 preparation fallback 继续并通过。
 - 递归 workflow 继承 manifest dependency；policy 用 `inherit` 追加 provider，解析两份 upstream data，再形成 failed data 与两条 Records。container 不产生 Check row。
 - 另两项分别直接 `not-applicable` 与被本项 preparation block 为 `unavailable`，不阻挡无 relation 的其它 Check。preparation 和 policy messages 仅进入 `RunResult.checkMessages`。
 
