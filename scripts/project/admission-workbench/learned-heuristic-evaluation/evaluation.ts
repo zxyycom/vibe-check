@@ -1,27 +1,23 @@
-import { canonicalJsonText } from "./evidence.ts";
-import { compareSuites } from "./learned-heuristic-comparison.ts";
-import { measureComparableCost } from "./learned-heuristic-cost.ts";
+import { canonicalJsonText } from "../evidence.ts";
+import { compareSuites } from "./comparison.ts";
+import { measureComparableCost } from "./cost.ts";
 import {
   loadArtifact,
   loadProtocol,
   loadScenarioCases,
   parseInvocation,
   writeExclusive
-} from "./learned-heuristic-evaluation-input.ts";
-import type {
-  EvaluationEvidence,
-  Protocol,
-  ScenarioCase,
-  Suite
-} from "./learned-heuristic-evaluation-types.ts";
+} from "./input.ts";
+import type { EvaluationEvidence, Protocol, ScenarioCase, Suite } from "./types.ts";
 import {
   prepareLearnedPolicyWithFactory,
   REGISTERED_LEARNED_FIXTURE,
   type PolicyIdentity
-} from "./policy.ts";
-import { simulateEvidence, type SimulationEvidence } from "./simulate.ts";
+} from "../policy.ts";
+import { simulateEvidence, type SimulationEvidence } from "../simulate.ts";
 
-const COMMAND_ID = "bun scripts/project/admission-workbench/learned-heuristic-evaluation.ts";
+const COMMAND_ID =
+  "bun scripts/project/admission-workbench/learned-heuristic-evaluation/evaluation.ts";
 
 /**
  * Compares two published package directories. Virtual behavior is evaluated against each

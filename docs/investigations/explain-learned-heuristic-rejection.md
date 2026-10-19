@@ -32,8 +32,8 @@ relations:
 
 ### 实际读取的材料
 
-- v2 结论 owner：[双 artifact 对照证据](../../scripts/project/admission-workbench/learned-heuristic-dual-artifact.evidence.json)；它保留两个 artifact identity、13 场景、每场景 5 个 fixed replicate、host-cost 原始样本，以及**该回归反例的代表性**逐事件 trace；不是所有 13 场景的完整逐事件 trace。
-- 规则 owner：[冻结对照协议](../../scripts/project/admission-workbench/learned-heuristic-evaluation.protocol.json)。主指标为 makespan；每一场景、每个 replicate 均要求候选不高于基线，容忍度为零，且不得以跨场景平均替代。secondary 指标只在主指标通过后评估。
+- v2 结论 owner：[双 artifact 对照证据](../../scripts/project/admission-workbench/learned-heuristic-evaluation/learned-heuristic-dual-artifact.evidence.json)；它保留两个 artifact identity、13 场景、每场景 5 个 fixed replicate、host-cost 原始样本，以及**该回归反例的代表性**逐事件 trace；不是所有 13 场景的完整逐事件 trace。
+- 规则 owner：[冻结对照协议](../../scripts/project/admission-workbench/learned-heuristic-evaluation/protocol.json)。主指标为 makespan；每一场景、每个 replicate 均要求候选不高于基线，容忍度为零，且不得以跨场景平均替代。secondary 指标只在主指标通过后评估。
 - 输入与实现：`learned-heuristic-weighted-shared-dependency-regression.json`、`learned-heuristic-evaluation-input.ts`、`learned-heuristic-comparison.ts`、当前 `src/learned-critical-path/strategy.ts`、`src/learned-critical-path/selection-layers.ts`，以及 critical-path score owner `src/project-run/task-scheduler/critical-path-ranking.ts`。
 - 两个保留的 public package artifact 实际存在，版本分别为 `0.0.0-local.ec1320793b5f` 与 `0.0.0-local.67408df9c41c`。逐文件差异显示它们的 source 差异仅在 `src/learned-critical-path/strategy.ts`（以及对应构建产物/manifest）。随附 `candidate-c2.patch` 是从这两个真实 source 文件直接提取的完整 unified diff；它保存 baseline→c2 的组合差异（包含 c1），不声称独立 c1 source 被恢复，也不是重采样、采用或应用该 patch 的授权。
 - 形成时复核 HEAD 为 `b82ae4ce27a5e80a3b386c0abff9af09ecacd8ca`。随附最小索引固定 source commit、SHA-256、artifact source digest、关键数字与历史非门禁材料名；不复制 10 MB 级 raw output。
@@ -54,7 +54,7 @@ relations:
 
 `historical-non-gating` 的 v1 trajectory/context 成本和 wrapper-inclusive cost 只记录探索来历，不能支持采用判断。v2 的 `current-replay` 双 artifact 对照才是这里的结论输入。固定 5 次反例的 `multiplierSamples: [1]` 是同一确定性轨迹的重复，不是五个独立随机压力试验。
 
-随附 patch 与 Git 中的基线能够恢复被撤回的 c2 单个源码文件，不保证自动重建同一 identity 的完整历史 package。实际重放仍须准备两个公开 artifact，并重新记录其身份；命令与边界见[工作区对照说明](../tooling/workspace.md#learned-admission-heuristic-对照记录)。
+随附 patch 与 Git 中的基线能够恢复被撤回的 c2 单个源码文件，不保证自动重建同一 identity 的完整历史 package。实际重放仍须准备两个公开 artifact，并重新记录其身份；命令与边界见[工作区对照说明](../tooling/admission-workbench.md#learned-admission-heuristic-对照记录)。
 
 ## 调查结果与边界
 

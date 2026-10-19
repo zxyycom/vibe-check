@@ -3,19 +3,19 @@ import { readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { FIXTURES } from "./fixture-registry.ts";
+import { FIXTURES } from "../fixture-registry.ts";
 import type {
   Artifact,
   EvaluationInvocation,
   Protocol,
   ProtocolScenarioInput,
   ScenarioCase
-} from "./learned-heuristic-evaluation-types.ts";
-import type { LearnedStrategyFactory } from "./policy.ts";
-import { validateScenario } from "./scenario.ts";
+} from "./types.ts";
+import type { LearnedStrategyFactory } from "../policy.ts";
+import { validateScenario } from "../scenario.ts";
 
 const PROTOCOL_PATH =
-  "scripts/project/admission-workbench/learned-heuristic-evaluation.protocol.json";
+  "scripts/project/admission-workbench/learned-heuristic-evaluation/protocol.json";
 
 export async function loadProtocol(): Promise<
   Readonly<{ readonly protocol: Protocol; readonly sha256: string }>

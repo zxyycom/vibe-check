@@ -82,6 +82,7 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | translated source inventory、identity 与派生 pin | [来源映射维护](tooling/source-mapping.md)与 source identity audit |
 | Markdown 正文、Check 指南、可执行示例 | [Documentation](tooling/documentation.md)、目标正文与示例源 |
 | 示例投影器、repository-material 校验器或材料验收 | [Repository material validation](tooling/repository-material-validation.md)、provider/validator 与测试 |
+| 虚拟 admission 模拟、heuristic 双 artifact 对照 | [Admission workbench](tooling/admission-workbench.md)与 workbench tests |
 | Lizard 性能测量 | [性能测量](tooling/lizard-performance.md)的显式 evidence workflow |
 | Lizard 上游维护查询 | [上游查询](tooling/lizard-upstream.md)；仅显式运行时联网 |
 | 测试、fixture、Case 或测试工具 | [测试策略](testing/strategy.md)、[Case 维护](testing/case-maintenance.md)、行为 owner 与目标测试；修改或审查测试/Case 时使用 `test-evidence-review` skill |

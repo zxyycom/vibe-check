@@ -3,17 +3,17 @@ import { test } from "node:test";
 
 import { defineContextCallback, type AdmissionPolicyContext } from "@zxyycom/vibe-check";
 
-import { compareSuites } from "./learned-heuristic-comparison.ts";
-import type { CostSummary, Protocol, Suite } from "./learned-heuristic-evaluation-types.ts";
-import { requiredFixture } from "./fixture-registry.ts";
+import { compareSuites } from "./comparison.ts";
+import type { CostSummary, Protocol, Suite } from "./types.ts";
+import { requiredFixture } from "../fixture-registry.ts";
 import {
   prepareLearnedPolicyWithFactory,
   REGISTERED_LEARNED_FIXTURE,
   staticIdentity,
   staticPolicy,
   type LearnedStrategyFactory
-} from "./policy.ts";
-import { simulate, type SimulationResult } from "./simulate.ts";
+} from "../policy.ts";
+import { simulate, type SimulationResult } from "../simulate.ts";
 
 const protocol: Protocol = Object.freeze({
   hostCost: Object.freeze({ corpusIterations: 1, samples: 1, warmups: 0 }),

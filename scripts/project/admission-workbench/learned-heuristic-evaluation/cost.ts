@@ -1,4 +1,4 @@
-import { sha256Json } from "./evidence.ts";
+import { sha256Json } from "../evidence.ts";
 import type {
   Artifact,
   CapturedCorpusEntry,
@@ -7,13 +7,13 @@ import type {
   ScenarioCase,
   TimingCorpusEntry,
   TimingSummary
-} from "./learned-heuristic-evaluation-types.ts";
+} from "./types.ts";
 import {
   prepareLearnedPolicyWithFactory,
   REGISTERED_LEARNED_FIXTURE,
   type PreparedPolicyHandle
-} from "./policy.ts";
-import { simulateEvidence } from "./simulate.ts";
+} from "../policy.ts";
+import { simulateEvidence } from "../simulate.ts";
 
 /** Measures only fresh public prepared `decide` calls over the baseline-captured context corpus. */
 export async function measureComparableCost(

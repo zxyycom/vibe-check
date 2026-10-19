@@ -1,9 +1,9 @@
 import type { AdmissionPolicyContext } from "@zxyycom/vibe-check";
 
-import type { CandidateIdentity } from "./evidence.ts";
-import type { DecisionPolicy, LearnedStrategyFactory, PolicyIdentity } from "./policy.ts";
-import type { Scenario } from "./scenario.ts";
-import type { SimulationEvidence } from "./simulate.ts";
+import type { CandidateIdentity } from "../evidence.ts";
+import type { DecisionPolicy, LearnedStrategyFactory, PolicyIdentity } from "../policy.ts";
+import type { Scenario } from "../scenario.ts";
+import type { SimulationEvidence } from "../simulate.ts";
 
 export interface ArtifactIdentity extends CandidateIdentity {
   readonly packageContentsSha256: string;

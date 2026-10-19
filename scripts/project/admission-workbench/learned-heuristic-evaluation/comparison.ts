@@ -1,10 +1,5 @@
-import type {
-  Comparison,
-  CostSummary,
-  Protocol,
-  Suite
-} from "./learned-heuristic-evaluation-types.ts";
-import type { SimulationResult } from "./simulate.ts";
+import type { Comparison, CostSummary, Protocol, Suite } from "./types.ts";
+import type { SimulationResult } from "../simulate.ts";
 
 /** Applies the frozen primary, secondary, and host-cost acceptance criteria to two suites. */
 export function compareSuites(
