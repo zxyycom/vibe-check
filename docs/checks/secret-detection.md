@@ -140,7 +140,8 @@ const check = secretDetection({
 
 ## I/O 与安全边界
 
-I/O 只限 files 选择的 local paths；无 command、network、history、environment、home、binary 或 remote secret-manager I/O。
+I/O 只限 `files` 选择的 local paths，按上述身份校验和预算受限读取；读取后只有通过 NUL/UTF-8 检查的 text 交给 detector。
+无 command、network、history、environment、home 或 remote secret-manager I/O。
 raw detector material 不进入 result、Record、message、machine output、cache、log 或 error。
 
 这些检查只绑定 final leaf；Node 没有 portable `openat`/dirfd traversal，无法保证中间目录不被恶意并发替换，也无法排除

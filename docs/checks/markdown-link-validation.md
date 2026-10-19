@@ -122,6 +122,8 @@ const completeDocumentationLinks = markdownLinkValidation({
 
 ### Parse-facts cache
 
+#### 启用与复用
+
 启用后，cache 在调用方指定的 absolute directory 保存可删除的 Markdown parse facts；调用方负责目录容量与删除。
 它不是输出目录，也不提供机密性或防篡改保护；不愿复制到本地状态的 Markdown 不应启用 cache。
 
@@ -138,6 +140,8 @@ const cachedLinks = markdownLinkValidation({
 命中只避免重复计算 parse facts；每次仍用当前 selection、Markdown bytes 与 target policy 形成 Finding、Record 和 outcome，
 不改变 Check ID 或 finding policy。无法恢复 facts 时 fresh-parse；写入失败只影响后续复用，不改变本次结果或任何发布字段。
 
+#### 容量提醒
+
 首次实际需要 parse facts 并成功读取
 `<directory>/markdown-link-parse-facts-v1.jsonl` 后，已读文件 bytes 严格超过 `warnAboveBytes` 才追加一条
 `parse-facts-cache-capacity` warning。默认 16 MiB 只是维护提醒，不是性能安全线或容量限制。message 给出
@@ -149,6 +153,8 @@ terminal status 或 finding policy。missing/read-failed cache 不提醒；已�
 容量判断只使用该次已读 bytes，不额外扫描、stat 或读取。未用到 cache（关闭、无输入、首个 parse 前错误/取消或源 bytes
 非 UTF-8）不访问 cache 文件，也不提醒。read 返回时已经取消不提醒；已产生的提醒随后续正常返回的
 `unavailable` result 保留，原错误优先级不变。
+
+#### 取消与发布
 
 publication 开始前取消不会启动写入；append 开始后会等待完成。cache 不缓存 settlement，也不保证跨进程协调、持久性或自动清理。
 

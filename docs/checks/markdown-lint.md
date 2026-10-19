@@ -6,6 +6,32 @@
 
 它与 [`markdownLinkValidation`](./markdown-link-validation.md) 分工互补：`markdownLint` 检查本页列出的结构与内容规则；`markdownLinkValidation` 检查本地 link target 与 anchor 完整性。需要两类 evidence 时，将两个 Check 一起放入 `checks`；`link-fragments` 默认不启用，避免默认产生与链接 Check 重复的 same-document anchor evidence。
 
+## 最小用法
+
+```ts
+import { defineConfig, markdownLint, run } from "@zxyycom/vibe-check";
+
+const check = markdownLint({ findingPolicy: "blocking" });
+const definition = defineConfig({
+  checks: [check],
+  outputs: {
+    diagnosticLogging: { enabled: false },
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
+  }
+});
+
+const result = await run(definition);
+if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
+const outcome = result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome;
+if (outcome?.status !== "passed" && outcome?.status !== "not-applicable") {
+  throw new Error(`Markdown lint did not pass: ${outcome?.status ?? "no outcome"}`);
+}
+if (outcome.status === "not-applicable") console.warn("No Markdown input selected; no lint evidence.");
+```
+
+本例对 blocking Finding 和其它 Check 失败退出非零；`not-applicable` 仅表示没有可检查的 Markdown，不是 lint 通过的证据。默认严格 `aggregate` 会把有效的 `not-applicable` 结论为 `failed`，调用方可将其映射为 Gate 失败；需要不同领域解释时才提供同步 `checkAggregation` 函数。仅有 `RunResult.kind === "completed"` 不代表 Check 通过。
+
 ## 构造器项目声明
 
 `markdownLint` 有三类 overload：`markdownLint(options?: MarkdownLintOptions<"markdown-lint">)` 保留默认 literal；
@@ -135,32 +161,6 @@ Check 不读取 backend 配置文件，不访问网络，不读取 project root 
 ## `not-applicable` 与 `unavailable`
 
 `unavailable` 的稳定 reason code 是 `invalid-options`、`project-root-unavailable`、`source-unavailable`、`source-too-large`、`finding-limit-exceeded`、`backend-failed`、`backend-protocol-invalid` 或 `cancelled`。其中 `source-unavailable` 包含 selection、containment、读取或 UTF-8 decode 无法完成的情形。
-
-## 最小用法
-
-```ts
-import { defineConfig, markdownLint, run } from "@zxyycom/vibe-check";
-
-const check = markdownLint({ findingPolicy: "blocking" });
-const definition = defineConfig({
-  checks: [check],
-  outputs: {
-    diagnosticLogging: { enabled: false },
-    machinePublication: { enabled: false },
-    progressRendering: { enabled: false }
-  }
-});
-
-const result = await run(definition);
-if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
-const outcome = result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome;
-if (outcome?.status !== "passed" && outcome?.status !== "not-applicable") {
-  throw new Error(`Markdown lint did not pass: ${outcome?.status ?? "no outcome"}`);
-}
-if (outcome.status === "not-applicable") console.warn("No Markdown input selected; no lint evidence.");
-```
-
-本例对 blocking Finding 和其它 Check 失败退出非零；`not-applicable` 仅表示没有可检查的 Markdown，不是 lint 通过的证据。默认严格 `aggregate` 会把有效的 `not-applicable` 结论为 `failed`，调用方可将其映射为 Gate 失败；需要不同领域解释时才提供同步 `checkAggregation` 函数。仅有 `RunResult.kind === "completed"` 不代表 Check 通过。
 
 ## 适用边界
 

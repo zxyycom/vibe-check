@@ -4,7 +4,7 @@
 
 ## Why
 
-main 的用户文档、对外 JSDoc 修复与候选包完整 Gate 已完成，需要将已审材料绑定正式版本、冻结源码和 receipt，才能进入发布。
+main 的用户文档和对外 JSDoc 已完成一轮修复，初次正式包也通过验收。用户要求先继续按 ai-ready-docs 复查 changelog 与文档；新材料完成独立复核后，须重新绑定冻结源码和 receipt，才能进入发布。
 
 ## Outcome
 
@@ -17,12 +17,14 @@ main 的用户文档、对外 JSDoc 修复与候选包完整 Gate 已完成，�
 
 - 沿用 [Package release](../../docs/tooling/package-release.md) 的 registry、public access、latest、交互式 2FA、双工作区和归档规则。
 - 在 `release-0-0-4` 分支准备版本说明、Change、同包验收和非敏感证据；不向 main 提前合入。
+- 重新阅读全部 29 篇随包 Markdown，按使用任务修正重心、层级、重复和过强表述；保留必要安全边界、历史版本事实及完整示例。
 - 从干净提交 S 建立独立 detached worktree，生成并验证正式 tarball；外部发布时只使用该产物。
 
 ### Resulting Impacts
 
 - changelog 顶部由未发布内容确定为 0.0.4；不增加产品行为或虚构发布日期、npm 发布结果。
 - 独立审查者确认原有整包阅读结论与正式包的一致性，复核版本说明差异及关联路径。
+- 文档优化改变 package fingerprint；旧冻结包的验收和归档保留为历史证据，不覆盖优化后的材料。
 - 发布后才创建指向 S 的版本 tag，并按授权合回 main；工作区和 Change 在交接前保留。
 
 ## Success Criteria

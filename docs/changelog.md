@@ -11,18 +11,23 @@ Node `>=24.18` 与包根程序化入口保持不变；纯说明补全和不改�
 
 本次是一次 breaking 切换，不保留旧 helper、旧字段或运行时兼容层。
 Check callback 统一为 `prepare(options, context)` / `execute(options, context)`，options 不再属于 context。
-同时逐项核对；下表也覆盖 tag 后曾使用的阶段性 Scheduler helper，不表示这些中间 API 属于 `0.0.3`：
+从正式 `0.0.3` 升级时，逐项核对以下签名和字段：
 
 | 原用法 | 新用法与升级影响 |
 | --- | --- |
-| function 或缺省 needs 隐式读取完整 context | 默认零需求，仍调用并传冻结空对象；需要字段用 `defineContextCallback(phase, { contextNeeds, callback })`。 |
-| `defineSchedulerContextCallback` 与 preparation/decision/terminal phase | 改用通用 helper 及 `scheduler.prepare` / `scheduler.decide` / `scheduler.terminal`；Check 和 command 使用自己的 phase。 |
+| callback function 隐式取得该阶段的框架字段 | 默认零需求，仍调用并传冻结空对象；需要字段用 `defineContextCallback(phase, { contextNeeds, callback })`。 |
 | `measurement.cumulative` / `measurementCount` / `measurementAt` | decision 分别声明 `cumulative` / `actionHistory`；prefix reader 位于 actionHistory 下，只有需要 history 才维护。 |
 | terminal `rawMeasurement` | 按任务分别声明 `runMeasurement`（原 Run facts，去除 admissions）和 `taskTimings`（独立 timing availability 与可用 admissions）。 |
 | `AdmissionPolicyMeasurement` / `SchedulerRawMeasurement` 类型 | 分别改用 `SchedulerActionHistory` / `SchedulerRunMeasurement`；admissions 从独立 `SchedulerTaskTimings` 读取。 |
 | command resolver 单 context、completion 把 command/options 混入 context | environment 改为 `(options, context)`；completion 改为 `({ options, command }, context)`，各自声明所需框架字段。 |
-| 同阶段 union 或 terminal 共享外层 identity | 各自只有声明的 own data fields，冻结且无跨消费者外层 identity 保证；同 Run 的冻结底层事实可复用。 |
-| 具体 learned/command callback 当作旧 function 调用 | 具体 descriptor 使用 `.callback` 并自行提供 input/context；广义槽位先收窄，不绕过 raw descriptor 的 never 边界。 |
+
+迁移后，每个 callback context 只有自身声明的 own data fields，冻结且无跨消费者外层 identity 保证；
+同 Run 的冻结底层事实可复用。直接调用具体 learned/command descriptor 时，使用 `.callback` 并自行提供
+input/context；广义槽位先收窄，不绕过 raw descriptor 的 never 边界。
+
+**使用过开发期 API 时：** tag 后曾出现的 `defineSchedulerContextCallback` 不属于正式 `0.0.3`。
+若使用了该 helper 及 preparation/decision/terminal phase，改为通用 `defineContextCallback` 与
+`scheduler.prepare` / `scheduler.decide` / `scheduler.terminal`；Check 和 command 使用各自的 phase。
 
 terminal effect 在 sealed terminal boundary 交付，零需求 effect 到达该边界也会调用；未到该边界仍不保证调用，资源释放不能依赖它。
 
@@ -63,23 +68,26 @@ Scheduler 以同源增量变化维护成员、选择视图和已请求的统计�
   重新收集当前文件全集，保留零/单/多命中，返回范围元数据、token 双向查询与命中数。
   `formatChangeFlagDebugReport` 按需返回文本，不自动输出或分享；不替代实际 Git evidence、effective flags 或 Check 覆盖证明。
 
-### 函数分析器源码升级
+### 函数指标：结果变化与读取优化
 
-[`functionMetrics`](checks/function-metrics.md) 的内置源码基线升级到 Lizard `1.24.1`，改善 regex 和 TS/TSX template 后的函数边界、Python PEP 695 泛型名、Kotlin expression/when 函数、PHP trait method 结束位置和 Rust match arm CCN。Rust 真实 arm 贡献与 Kotlin 正文位置按既有产品结果承诺局部校正。四项指标、默认 limits、27 readers / 55 suffixes、配置与公共 API 保持不变，不提供 Cognitive Complexity。
+[`functionMetrics`](checks/function-metrics.md) 的四项指标、默认 limits、27 readers / 55 suffixes、配置与公共 API 保持不变，不提供 Cognitive Complexity。本次变化分为结果准确性和读取让步两部分。
 
-同一源文件可能出现新增函数、不同名称/位置或指标，从而改变 Finding 及 blocking 结果。升级后请复核 Records 与精确 waiver；旧函数 identity 可能产生 unused audit。
+#### 结果变化
 
-### TypeScript 函数指标修复
+- 内置源码基线升级到 Lizard `1.24.1`，改善 regex 和 TS/TSX template 后的函数边界、Python PEP 695 泛型名、Kotlin expression/when 函数、PHP trait method 结束位置和 Rust match arm CCN。Rust 真实 arm 贡献与 Kotlin 正文位置按既有产品结果承诺局部校正。
+- 独立于来源升级，修正 TypeScript 显式返回类型后的函数边界，尾随控制流不再进入该函数的位置或指标。
+- TS/JS、TSX/JSX 与 Vue 的真实 `??` 按单 token、每项 CCN +1 和完整贡献处理，ND 沿用现有短路状态路径，空白不再改变结果。
 
-独立于来源升级，[`functionMetrics`](checks/function-metrics.md) 修正显式返回类型后的函数边界，尾随控制流不再进入该函数的位置或指标。
-TS/JS、TSX/JSX 与 Vue 的真实 `??` 按单 token、每项 CCN +1 和完整贡献处理，ND 沿用现有短路状态路径，空白不再改变结果。
-这些修正可移除误报或改变指标 Finding，默认阈值和公共配置保持不变；请一并复核上述 Records 与 waiver 升级影响。
+#### 升级复核
 
-### 函数指标读取让步优化
+同一源文件可能出现新增函数、不同名称/位置或指标，也可能移除原有误报，从而改变 Finding 及 blocking 结果。
+升级后请复核 Records 与精确 waiver；旧函数 identity 可能产生 unused audit。Records 的结构与结算语义不变。
 
-[`functionMetrics`](checks/function-metrics.md) 对每个非空读取块使用 `setImmediate` 替代 timer 等待，
+#### 读取效率与取消边界
+
+对每个非空读取块使用 `setImmediate` 替代 timer 等待，
 减少读取准入的额外等待，保留同线程协作取消、实际输入资源上限与完整批次结果。
-默认指标阈值、配置、公共 API 和 Records 语义不变；同步 I/O 仍不可抢占，不新增毫秒响应或 Gate 加速承诺。
+同步 I/O 仍不可抢占，不新增毫秒响应或 Gate 加速承诺。
 
 ### Markdown 引用图、预算与缓存提醒
 

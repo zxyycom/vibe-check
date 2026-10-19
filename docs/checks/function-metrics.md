@@ -66,14 +66,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 | `parameters.maximum` | `6` |
 
 嵌套字段可分别省略；所有 limit 值必须是正安全整数，allowance maximum 不得小于普通 NLOC maximum。
-指标严格超过有效上限才形成 Finding。TypeScript、JavaScript、TSX/JSX 与 Vue 的每个真实 `??` 为单 token，
-与 `&&`/`||` 一样逐项增加 CCN，并保留真实 token/line 贡献；空白不改变结果，可选参数和真实三元仍各按其语义处理。
-
-nesting depth（ND）不是 AST 或纯大括号深度：它计算控制结构与 ternary `?`，并对上述 reader 的 `??` 沿用
-`&&`/`||` 的状态路径。括号参与 condition tracking，每次打开括号重置首项标记；condition 内只计当前标记下的首个短路运算符，
-condition 外逐项处理，`else if` 不额外增深。
-例如函数内 `return a ?? b ?? c;` 为 ND 2，而 `return (a ?? b ?? c);` 为 ND 1；
-`if (a ?? (b ?? c)) { return a; }` 为 ND 3。同一短路链的 ND 可因括号和控制结构而改变。
+指标严格超过有效上限才形成 Finding。
 
 每次 analysis 还受独立的输入资源上限约束：单个 source file 最大 `8 MiB`，本次 invocation 的 accepted
 source aggregate 最大 `64 MiB`。这两个上限不改变上述 metric limits；超限结算为
@@ -131,15 +124,27 @@ const metrics = functionMetrics({
 ## 工作原理
 
 内置 analyzer 的源码基线固定为 Lizard `1.24.1`，以 27 个 readers 覆盖下表源文件并提供上述四项指标；不提供 Cognitive Complexity。
-Rust 每个 `match` scope 的首 arm 不增加 CCN，第二及后续 arm 在真实 `=>` 处增加，并发布对应 token/line 贡献。
-Kotlin expression body 的位置/NLOC 止于最后正文 token，不包含下一 declaration 或外层关闭符。
-TypeScript 显式返回类型后的函数边界在真实正文闭合位置结束，函数外控制流不进入该函数的位置或指标。
-这些局部产品修正不改变固定上游身份；analyzer 仍是启发式 reader，不承诺完整语法或 AST 解析。
+analyzer 是启发式 reader，不承诺完整语法或 AST 解析；下述指标与函数边界是本 Check 的结果契约。
 
 Check 用内置 reader registry 将 selected paths 分为 accepted/rejected；suffix 大小写不敏感。
 Markdown、JSON、YAML、无扩展名等不支持路径不进入 analyzer，每项先发布 non-blocking input-rejected Record。
 accepted paths 经有界读取后整批分析，只使用本次 exact inputs，不重新发现文件；取消会停止分析。
 空 selection、全 rejected 与分析失败的区别见[不可用原因](#not-applicable-与-unavailable)。
+
+### 指标计量与函数边界
+
+Rust 每个 `match` scope 的首 arm 不增加 CCN，第二及后续 arm 在真实 `=>` 处增加，并发布对应 token/line 贡献。
+Kotlin expression body 的位置/NLOC 止于最后正文 token，不包含下一 declaration 或外层关闭符。
+TypeScript 显式返回类型后的函数边界在真实正文闭合位置结束，函数外控制流不进入该函数的位置或指标。
+
+TypeScript、JavaScript、TSX/JSX 与 Vue 的每个真实 `??` 为单 token，
+与 `&&`/`||` 一样逐项增加 CCN，并保留真实 token/line 贡献；空白不改变结果，可选参数和真实三元仍各按其语义处理。
+
+nesting depth（ND）不是 AST 或纯大括号深度：它计算控制结构与 ternary `?`，并对上述 reader 的 `??` 沿用
+`&&`/`||` 的状态路径。括号参与 condition tracking，每次打开括号重置首项标记；condition 内只计当前标记下的首个短路运算符，
+condition 外逐项处理，`else if` 不额外增深。
+例如函数内 `return a ?? b ?? c;` 为 ND 2，而 `return (a ?? b ?? c);` 为 ND 1；
+`if (a ?? (b ?? c)) { return a; }` 为 ND 3。同一短路链的 ND 可因括号和控制结构而改变。
 
 ### 支持的源文件
 

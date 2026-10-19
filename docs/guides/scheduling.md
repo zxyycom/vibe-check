@@ -261,11 +261,19 @@ if (result.kind !== "completed" || settledTaskCount !== 2) {
 }
 ```
 
-策略需要的配置、logger 或 clock 由调用方提供并捕获在 closure 中；context 只提供调度事实，真实 Task 启动与结算由 Scheduler 控制。准备失败与终态收尾边界如下。
+策略需要的配置、logger 或 clock 由调用方提供并捕获在 closure 中；context 只提供调度事实，真实 Task 启动与结算由 Scheduler 控制。
 
-### 交付终态 measurement
+`prepare` 只在 graph 已有效且 Run 尚未于 pre-work / planning 取消后调用；它没有 cancellation signal、timeout 或“必有 terminalEffect”的 cleanup 保证。prepare reject 会结束为 `admission-strategy-preparation-failed`。一旦 Run 进入 Scheduler，正常结束、取消或 policy fault 的 drain 只要 seal 出 terminal context，都会在 Definition effects 后调用 `terminalEffect`；早期 setup / execution failure 没有 terminal context 时不会调用它。因此不要在 `prepare` 中取得必须依赖 `terminalEffect` 释放的资源。
 
-任何 scheduler policy 都可配置 `scheduler.terminalEffects`。每个 effect 在 Scheduler drain 并 seal 后收到只含自身声明字段的冻结视图（普通 function 为冻结空视图）；不同 effect 不保证外层 identity 相同；它适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。若同时配置 Definition effect 与 prepared `terminalEffect`，Definition effects 先结算，随后才调用 `terminalEffect`。如果任一 effect 或 `terminalEffect` 抛错或 reject，`result.outputs.terminalEffects.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
+## 交付终态 measurement
+
+任何 scheduler policy 都可配置 `scheduler.terminalEffects`。每个 effect 在 Scheduler drain 并 seal 后收到只含自身声明字段的冻结视图（普通 function 为冻结空视图）；不同 effect 不保证外层 identity 相同。
+
+effect 适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。
+
+若同时配置 Definition effect 与 prepared `terminalEffect`，Definition effects 先结算，随后才调用 `terminalEffect`。
+
+如果任一 effect 或 `terminalEffect` 抛错或 reject，`result.outputs.terminalEffects.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
 
 终态测量分为两个可独立请求的类型：
 
@@ -280,8 +288,6 @@ if (result.kind !== "completed" || settledTaskCount !== 2) {
 无法有效表示所请求结果时返回 unavailable，既有离散事实与 peaks 仍保留。后续执行或其它推演分支不会修改已保存的视图。
 
 它们不同于 decision 的 `cumulative` / `actionHistory`。逐项业务数据、失败原因或 Records 由 Check 的 `execute` 形成，再从 `RunResult` 读取。
-
-`prepare` 只在 graph 已有效且 Run 尚未于 pre-work / planning 取消后调用；它没有 cancellation signal、timeout 或“必有 terminalEffect”的 cleanup 保证。prepare reject 会结束为 `admission-strategy-preparation-failed`。一旦 Run 进入 Scheduler，正常结束、取消或 policy fault 的 drain 只要 seal 出 terminal context，都会在 Definition effects 后调用 `terminalEffect`；早期 setup / execution failure 没有 terminal context 时不会调用它。因此不要在 `prepare` 中取得必须依赖 `terminalEffect` 释放的资源。
 
 保存后续 Run 会使用的 caller-owned data 时，先根据自己的目标定义“可接受样本”。请求了 `runMeasurement` 或 `taskTimings` 时，对应字段的 `timing.availability === "available"` 只证明终态 timing facts 可读，不证明 Run quality 成功；`settledTasks.kind === "completed"` 是 Scheduler settlement，不等于 Check `passed`，且 context 不提供 `RunResult.kind`。若业务只允许成功 Run，先暂存候选，在 `run(...)` 返回后同时核对 `result.kind` 与业务要求的 Check outcomes 或 aggregate，再决定是否提交。`kind: "completed"` 本身不表示质量检查全部通过。
 

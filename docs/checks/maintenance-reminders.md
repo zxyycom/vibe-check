@@ -2,11 +2,11 @@
 
 ## 用途
 
-`maintenanceReminders(entries)` 创建固定 ID 为 `maintenance-reminders` 的 Check，用 Git first-parent history 提醒定期复核。
+`maintenanceReminders` 用 Git first-parent history 提醒定期复核，默认 Check ID 为 `maintenance-reminders`。可传入 `entries` 数组，或用 object input 同时声明项目行为。
 
 ## 构造器项目声明
 
-`maintenanceReminders` 保留 `maintenanceReminders(entries)`，并为 object input 提供三类 overload：
+`maintenanceReminders(entries)` 使用默认 identity；object input 提供三类 overload：
 `MaintenanceRemindersInput<"maintenance-reminders">` 保留默认 literal；带必填
 `{ checkId: Id }` 的 `MaintenanceRemindersInput<Id>` 保留 custom literal；宽化为
 `MaintenanceRemindersInput` 的变量返回 `string` identity。默认 `checkId` 是 `maintenance-reminders`，默认
@@ -65,7 +65,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 
 ## 参数与默认配置
 
-构造函数接收以下 `entries`；它不接受 Git executable override：
+两种调用形式共用以下 `entries`；构造函数不接受 Git executable override：
 
 ```ts
 ReadonlyArray<{

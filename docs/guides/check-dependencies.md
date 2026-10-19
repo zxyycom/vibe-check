@@ -1,6 +1,6 @@
 # 读取 Check 依赖与类型化数据
 
-需要把一项 Check 的结果交给另一项使用时，先声明 direct `dependsOn` 或 `observes`，再通过 dependency reader 读取上游结果，并用 provider parser 恢复业务类型。需要上游通过才开始时选择 `dependsOn`；需要审计任意终态时选择 `observes`。若同一次 Run 的 direct prerequisite 还必须交接不能 canonicalize 的 reference（例如 `Map` 或 typed bytes），provider 在 `defineCheck` 中声明 `handoff: true`，consumer 才能以 provider object 读取它。这些关系还约束 Scheduler 准入，调度预算见[调度 Check](scheduling.md)。
+需要把一项 Check 的结果交给另一项使用时，先声明 direct `dependsOn` 或 `observes`，再通过 dependency reader 读取上游结果，并用 provider parser 恢复业务类型。需要上游通过才开始时选择 `dependsOn`；需要审计任意终态时选择 `observes`。这些关系还约束 Scheduler 准入，调度预算见[调度 Check](scheduling.md)。
 
 ## 先选择读取契约
 
@@ -9,9 +9,17 @@
 | 只需要已结算的 canonical final data，或需要审计任意终态 | 以 `dependsOn` 或 `observes` 声明 relation；使用 string `get(checkId)` 或 `list()` | 不保留原始 reference identity，也不能读取未声明或传递 provider。 |
 | 必须在同一次 Run 内交接不可 canonicalize 的 reference | provider 声明 `handoff: true`，在 `passed` 返回 `handoff`；consumer 将 provider 设为 direct `dependsOn` 并调用 `get(provider)` | 不授权 `observes`、string ID、传递 provider 或任何 Run 外读取；reference 不会发布。 |
 
-`handoff: true` 是唯一的 authoring declaration：它必须写在 `defineCheck(...)` 的 executable provider 上，不是数据、parser、serializer 或 author 创建的 token。Product 在 package-runtime 内部的 WeakMap 注册该 provider identity；identity 只连接已定义 provider、Definition 与 execution，不是 package API 或跨 package instance 的兼容协议。每次 Run 的 private store 才暂存已接受的 handoff reference。`handoff` 只可为 executable provider 的精确 `true`；container、其它值和自有 `undefined` 都会在 Definition validation 被拒绝。
+普通数据交接按以下顺序完成：
+
+1. consumer 声明与 provider 的 direct relation。
+2. callback 请求 `dependencies`，调用 `dependencies.get(provider.checkId)`。
+3. 先检查 `read.ok`，再用 provider 的 `parseData(read.data)` 恢复业务类型。
+
+[构建 Gate 的共享准备示例](building-project-gate.md#2准备一次分别验收)演示这条 canonical-data 路径；不需要保留 reference 时，无需配置 handoff。
 
 ## 完整运行示例
+
+下面同时演示可选的 handoff：同一次 Run 的 direct prerequisite 除 canonical data 外，还交接一个 `Map`，其中保存 typed bytes。
 
 ```ts
 import { defineCheck, defineConfig, defineContextCallback, run } from "@zxyycom/vibe-check";
@@ -88,7 +96,11 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
 
-上例的 `handoff: true` 是 provider 的最小 runtime declaration；`passed` result 中的 `Map<string, Uint8Array>` 自动成为 provider-aware read 的 handoff 类型。provider 只能在 `passed` branch 返回同型、non-null 的 `handoff`；`dependencies.get(changedFiles)` 只在 current Run 中由 direct `dependsOn` consumer 成功，返回 provider 的 canonical `data` 和同一 `Map` reference。fan-out consumer 读取的也是这个引用，而 repeated Run 不共享它。
+### 可选 handoff 的身份与生命周期
+
+`handoff: true` 必须写在 `defineCheck(...)` 的 executable provider 上；它是声明，不是数据、parser、serializer 或 author 创建的 token。provider identity 在同一 package runtime 内连接 provider、Definition 与 execution，不构成跨 package instance 的兼容协议。每次 Run 的 private store 暂存已接受的 reference。`handoff` 只可为精确 `true`；container、其它值和自有 `undefined` 都会在 Definition validation 被拒绝。
+
+上例 `passed` result 中的 `Map<string, Uint8Array>` 自动成为 provider-aware read 的 handoff 类型。provider 只能在 `passed` branch 返回同型、non-null 的 `handoff`；`dependencies.get(changedFiles)` 只在 current Run 中由 direct `dependsOn` consumer 成功，返回 provider 的 canonical `data` 和同一 `Map` reference。fan-out consumer 读取的也是这个引用，而 repeated Run 不共享它。
 
 先收窄 `get` 的 `ok`，再显式调用 producer 的 `parseData(read.data)`：parser 继续只负责 detached、deep-frozen canonical data，绝不解析或 clone `handoff`。`dependsOn` 保证 callback 只在 provider `passed` 后开始；`!read.ok` 仍是读取边界防御。九个随包 Check 都提供 `parseData` 和同实现的 package-root parser，名称与类型见各自指南。
 

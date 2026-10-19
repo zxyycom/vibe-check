@@ -153,7 +153,11 @@ project 视图、dependencies facade、Record reporter 只在有需求时建立�
 - `{ status: "failure", action: "block", reason }`：本 Check 使用该 reason 直接结算为 `unavailable`，不接受 `fallback`，不会运行 `execute`。
 - `{ status: "failure", action: "continue", fallback, reason, messages? }`：以 `fallback` 继续执行。`reason` 是 Check-owned diagnostic identity，不会单独形成 outcome；需要让调用方观察准备诊断时，在 `messages` 返回说明，随后仍以 execution 的 terminal outcome 为准。
 
-准备值只属于本次 invocation，Product 会 canonicalize 并冻结后再交给 `execute`；不要修改传入 options，也不要把它当作跨 Run 缓存。preparation throw/reject 使用 `preparation-threw`，非法结果/message/reason 或非 canonical prepared/fallback 使用 `invalid-preparation-result`，只使本项 `unavailable`，不是整个 Definition 的配置错误。block 或 preparation failure 尚未开始 author execution，duration 为 `null`；已经接受的 preparation messages 仍保留。execution 的 throw、非法返回值和 Record 写入错误也会由 Product 结算为本项不可用。
+准备值只属于本次 invocation，Product 会 canonicalize 并冻结后再交给 `execute`；不要修改传入 options，也不要把它当作跨 Run 缓存。
+
+preparation throw/reject 使用 `preparation-threw`，非法结果/message/reason 或非 canonical prepared/fallback 使用 `invalid-preparation-result`，只使本项 `unavailable`，不是整个 Definition 的配置错误。
+
+block 或 preparation failure 尚未开始 author execution，duration 为 `null`；已经接受的 preparation messages 仍保留。execution 的 throw、非法返回值和 Record 写入错误也会由 Product 结算为本项不可用。
 
 ## `execute` 可读取与可写入的内容
 

@@ -80,28 +80,27 @@ TTY 使用可更新的 running region；plain output 与 `TERM=dumb` 从不输�
 settled presentation。每个可见 settled row 保留 measured duration 或 `not run`；完整、
 canonical-ordered `RunResult.checkDurations` 仍保留所有 Check，未执行项为 `null`。
 
-启用 `omitQuietPassedRow: true` 的 executable Check 在 TTY 中运行时仍可见，但 running row 与
+在 [Check 声明](extending-check-lifecycle.md#省略安静通过行)中启用 `omitQuietPassedRow: true` 后，该 executable Check 在 TTY 中运行时仍可见，但 running row 与
 所有保留的 settled row 都使用无编号的 `· <name>` 格式。它安静通过时不写 settled row；安静
 通过是 `passed` 且 accepted Records/messages 均为空，final data、preview limit、formatter 文本和
 终端截断不改变这个判定。带 accepted detail 的通过，以及 `failed`、`not-applicable`、`unavailable`
-都保留为无编号 settled row，并继续使用既有 duration、reason、detail、escaping 和颜色规则。
+都保留为无编号 settled row，并使用相同的 duration、reason、detail、escaping 和颜色规则。
 
 没有该策略的 row 继续显示 `[n/total]`。`n` 是全部 executable Checks 的全局 completion
 accounting：每次 settlement 都推进，即使对应 quiet-pass row 被省略，因此保留的普通 row 可以跳号；
-它不是可见结果行的 ID。flag-condition-not-matched 仍按既有 Definition 顺序进入原因聚合块，
+它不是可见结果行的 ID。flag-condition-not-matched 按 Definition 顺序进入原因聚合块，
 不形成 running row；该聚合优先于 quiet-pass 省略。
 
 至少一个 normalized executable Check 启用该策略时，header 精确追加
 `· <configured> configured for quiet-pass omission`，例如 `total 12 checks · 3 configured for quiet-pass omission`。
 这里的 `configured` 是静态声明数，包含本次因 flags 未匹配而未启动的 Check。final summary 在
-既有 `elapsed` 前精确追加 `quiet-pass rows omitted: <actual>`；`actual` 只计 renderer 实际省略的
+`elapsed` 前精确追加 `quiet-pass rows omitted: <actual>`；`actual` 只计 renderer 实际省略的
 quiet pass，不计 flag mismatch、未完成的潜在省略或任一保留 row。因此两个数可以不同。没有
-configured Check 时，header、final summary、terminal 与 progress tee 的既有 bytes 保持不变。
+configured Check 时，header 与 final summary 不追加这些 quiet-pass 字段。
 
-flag control barrier 结束后，因 `enabledByFlags` 未匹配而未启动的 Checks 以一个原因块分组呈现，而非逐项 settled row；dependency activation 带入的 Check 不在该组。两种显示压缩都不改变 Check facts、accounting 或结果。配置 `progressLogFile` 时，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 使 progress output failed，但不吞掉 terminal presentation。
+flag control barrier 结束后，因 `enabledByFlags` 未匹配而未启动的 Checks 以一个原因块分组呈现，而非逐项 settled row；dependency activation 带入的 Check 不在该组。两种显示压缩都只改变人读 row 的保留和编号格式，不改变 Check facts、accounting、`RunResult` 或 machine schema。
 
-这项呈现策略不新增或改写 `RunResult`、machine schema 或 Check lifecycle facts；它只改变人读
-row 的保留和编号格式。
+配置 `progressLogFile` 时，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 使 progress output failed，但不吞掉 terminal presentation。
 
 ## 日志与输出目标
 
@@ -109,7 +108,12 @@ machine publication 与 diagnostic logging 的 `directory` 都是调用方选择
 
 diagnostic logging 为当前 invocation 写入人工诊断。它用于关联 Run、Check、phase 与 Scheduler 行为；日志不是 parser/schema、跨 invocation discovery 或 retention contract，也不替代 Check final data、Record 或 message。
 
-diagnostic 文件默认使用 `core-<utc-compact>-<uuid>.log` 与 `scheduler-<utc-compact>-<uuid>.log`。调用方已有隔离的 invocation 目录时，可以在 controls 同时设置 `diagnosticLogFileNaming: "channel"` 与 `outputs.diagnosticLogging: { enabled: true, directory: "<本次目录>" }`，得到 `core.log` 与 `scheduler.log`，不额外创建目录层级。Product 不保证该目录独占：每 channel 始终 exclusive-create，冲突即 failed，不覆盖、追加或退回唯一名；两个 channel 不是原子事务，一个失败时另一个仍可成功。从 channel `file` 读取实际目标；命名选项只控制文件名；日志内容保留 invocation ID、共享 sequence 与 elapsed-time correlation 信息。
+diagnostic 文件默认使用 `core-<utc-compact>-<uuid>.log` 与 `scheduler-<utc-compact>-<uuid>.log`。
+
+调用方已有隔离的 invocation 目录时，可以在 controls 同时设置 `diagnosticLogFileNaming: "channel"` 与 `outputs.diagnosticLogging: { enabled: true, directory: "<本次目录>" }`，得到 `core.log` 与 `scheduler.log`，不额外创建目录层级。
+
+Product 不保证该目录独占：每 channel 始终 exclusive-create，冲突即 failed，不覆盖、追加或退回唯一名；两个 channel 不是原子事务，一个失败时另一个仍可成功。
+从 channel `file` 读取实际目标；命名选项只控制文件名，日志内容保留 invocation ID、共享 sequence 与 elapsed-time correlation 信息。
 
 启用 diagnostic logging 时，scheduler channel 可给出本次 Run 的 `scheduler.summary`：它帮助解释 admission、等待、capacity 与 tail 的当前诊断投影。time 与 capacity 指标只描述 Scheduler 行为，不表示 CPU、memory、thread 或 process 的 OS utilization；需要 machine-readable 结论时，仍读取 machine output 和 Check facts。
 
