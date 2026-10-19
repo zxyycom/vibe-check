@@ -1,61 +1,50 @@
 # Design
 
-把可变的发布记录与不可变的正式源码分开，以 receipt、同包验收和独立阅读结论交接发布。
+把持续更新的发布记录与固定源码身份分开，先完成规范审查，再以 receipt、同包验收和独立结论交接正式包。
 
 ## Context
 
-- 起点 main 为 `357fb7c4061c3f576d0b70c8594e458c2941ce39`，工作区干净，相对本地 origin/main 领先一笔 Change 结项提交。
-- 2026-10-19 用户同意按已说明的发布准备方案推进；初次准备授权包含创建发布分支、双 worktree、必要的本地提交、构建、验收与证据保存。
-- npm registry 只读观察为 latest 0.0.3，0.0.4 不存在。按现行 `0.0.<patch>` 契约选择 0.0.4，tag 为 latest；观察不是版本预留或发布权限证明。
-- 候选 `0.0.0-local.ce99cf444ac9` 已通过完整 Gate 和 JSDoc 修复复核；此前全部 29 篇用户页审查与修复完成。具体适用性在本次最终包上独立确认。
-- 固定流程与理由沿用 Decisions `260909-standardize-package-release-procedure`、`260908-isolate-package-release-source-from-change-work`、`260908-use-unprefixed-project-branch-names` 和 `261019-require-consumer-oriented-package-documentation-review`，不修改长期方向。
-- 初次正式验收完成后，用户要求继续按 ai-ready-docs 复查重心、负向描述、迁移残留、篇幅与 Markdown 结构；当前先交付文档改动和新 local candidate 的复核，不自动提交、重新冻结或发布。
-- 文档随后按授权提交为 `b8cf54f48`；[超时调查](../../docs/investigations/investigate-validation-cli-timeout.md)仍只确认五秒实体预算与并发变慢。用户进一步授权尝试修改优化，最终定稿方案须先说明；本阶段不提交、重新冻结或发布。
-- 用户随后明确拒绝 child 10 秒 / entity 15 秒建议：当前 5 秒是红线，必须先证明测试尤其是真实进程测试的必要性，再讨论保留或优化。该加时建议撤回，未实施。
-- 必要性审查交付后，用户授权尝试修改与优化测试证明分工，最终定稿方案仍须先说明；本轮可试改并验证，不自动采用、提交、重新冻结或发布。
-- 试改与独立审查交付后，用户确认“可以按照你的这个方向调整”：采用测试证明重分工，严格 JSON 优化不捆绑。当前只收敛工作树和验证，不扩张为提交、重新冻结或发布授权。
-- 用户随后允许继续推进并在需要决策时报告；当前延续安装可靠性调查，不自动授权提交、冻结、发布或调整宿主网络配置。
-- 安装调查收敛后，用户另行明确授权本地提交已验证测试、owner/Case、调查与 Change 记录；不包含 JSON 草案，不冻结、不推送、不发布。
+- main 起点为 `357fb7c4061c3f576d0b70c8594e458c2941ce39`。发布实现分支已保存文档优化、测试证明重分工和调查；本轮审查起始 HEAD 为 `95488448`。
+- 初次正式包已有验收和归档，但不包含后续文档优化。当前授权、工作区身份和逐轮结果由 [current evidence](current-evidence.md) 统一记录。
+- 固定方向沿用 Decisions `260909-standardize-package-release-procedure`、`260908-isolate-package-release-source-from-change-work`、`260908-use-unprefixed-project-branch-names` 和 `261019-require-consumer-oriented-package-documentation-review`。
+- 用户已确认测试证明重分工、保留 5 秒红线，并将严格 JSON 优化草案分离。后续网络调查指向 registry 元数据等待，具体链路责任未知；用户选择停止专项排查，继续发布准备。
+- 用户已授权从 `95488448` 建立新 detached 工作区，标准自举已完成；随后要求先重新审查优化文档和代码，允许必要提交与正常 hook 推送。本轮审查及 candidate 验收已完成，原冻结身份不用于新输入。
 
 ## Goals / Non-Goals
 
-目标是形成可交给发布者的精确产物与完整证据。当前不执行 npm publish、Git tag、手动 push、合并或清理，也不新增产品功能、修改依赖与门禁。
+目标是让本次变更符合文档和代码规范，并形成可交给发布者的精确产物与完整证据。
+本轮不新增功能、不改变依赖、门禁或安装语义；不继续专项排查网络。npm publish、版本 tag、手动 push、合回 main 和旧材料清理仍按对应授权执行。
 
 ## Decisions
 
 ### Intended Change
 
-- 实现工作区位于 `/home/dev/.codex/worktrees/package-release-preparation/vibe-check`，分支 `release-0-0-4`；main 留在 `/workspace/vibe-check`。
-- 版本说明与准备期审查稳定后提交，选择 clean S，在另一 detached worktree 执行正式 prepare/verify。
-- `current-evidence.md` 保存当次身份、registry 观察、`Manual CR:`、验证结果与操作授权，持续更新只发生在实现工作区。
-- 三名非实施 reviewer 重新全文阅读 29 篇随包 Markdown，实施者据此调整正文，再由原 reviewer 对新候选复核。仅整理本次发布直接相关维护材料，不批量重写历史 Decision/Investigation。
-- 正式验收后按固定公共 Git 目录归档原始 tarball、receipt、Gate 日志及 evidence 摘要快照。
-- 前序优化试验以阶段计时和 CPU 采样缩小成本，形成严格 JSON 私有值的等价遍历草案；局部测量、等价性和独立审阅已完成，但不纳入本轮采用项。已保存精确 patch、三个原样文件及摘要，随后只反向应用这三个已审查文件的 diff；Product 实现、测试和原 Case 映射均恢复为 HEAD bytes。
-- 试验已证明两宿主真实 corpus 的局部收益，也复现旧版与候选的五秒并发超时；收益不能反过来证明测试应保留。必要性审查已发现全量真实进程测试的重复材料校验与证明缺口，详见 current evidence。
-- 已确认采用的证明分工：默认五项任务的完整分发、顺序等待、focused selection、去重及失败汇总，在真实 workflow 中仅替换八个 leaf 依赖来证明；生产 task map、wrappers 与错误翻译不替换。删除 workspace 的两个 child 测试，不搬移全量扫描，保留真实 links 小 fixture。5 秒预算不变。
-- 全量内容正确性仍由既有 Gate/material/artifact 验收承担；薄 main 的 argv、await、console、OS exitCode 与默认真实 leaf 绑定由明确 Manual CR 承担。已实际审查，不声称有自动化 OS exit status 覆盖，也不为测试新增 CLI/env 开关或扩张共享 process API。
+- 实现与证据维护在 `/home/dev/.codex/worktrees/package-release-preparation/vibe-check`；main 继续作为集成线。正式包从独立 detached 工作区的最终 clean S 构建。
+- 文档以 `ai-ready-docs` 按真实阅读任务审查：保留必要规格和风险边界，合并无独立价值的重复，将历史实验留给调查与归档。公开页、维护 owner、形成时报告和当前计划分别拥有自己的主线。
+- 代码先按行为 owner 恢复职责，再按完整编码规范判断实现；只整改具体语义障碍，不凭相邻旧代码、行数或语法偏好重构。审查覆盖本次全部三个 TypeScript 文件及其直接集成边界。
+- 保留已采用的测试分工：真实 workflow 只替换八项 leaf 依赖，生产 task map、wrappers 和错误翻译不替换；证明默认分发、顺序等待、focused selection、去重及失败汇总。workspace 保留真实 links fixture。
+- 全量内容正确性由既有 Gate/material/artifact 验收承担；薄 main 的 argv、await、输出、OS exitCode 和默认绑定由明确 Manual CR 承担。既有 Case 只有证明职责实际变化时才同步。
+- 审查者基于实际 diff 反查改动和使用路径；准备期结论绑定最终 candidate，正式包再按 receipt、清单和内容确认适用性。
 
 ### Resulting Impacts
 
-- 版本说明变化进入 package fingerprint，不能直接把旧候选称为正式发布证据；包内差异需独立复核。
-- 若正式包材料或关联行为需修正，重新提交、冻结、prepare、完整验收和语义确认，不手改 receipt 或冻结工作区。
-- 本轮定稿只包含内部 workflow、两个测试文件、owner 与两个原 Case，不改变 Product、公开签名、schema、timeout 或性能预算。对外 JSDoc 结论按实际包材料复核适用性；前序 JSON 草案的候选身份不能代替还原后的 candidate。
-- repository-material-validation owner 与两个原 Case 已同步，九个实体及六个应失败反例证明真实分发路径；原预算下的整组并发对照与独立语义审查完成。用户已确认采用测试重分工；去除 Product 草案后的验证另记录，不把此前混合工作树的计时直接当作最终输入结果。
-- 新工作区通过标准 `bun run env:setup` 自举锁定依赖、CodeGraph 和 local candidate；只使用标准环境，不选择会清除用户工作的 clear 环境。
-- 本地准备通过不授权发布；交互式认证由用户完成，不读取或保存 token、OTP、认证配置及会话 transcript。
+- 随包文档变化进入 package fingerprint，须生成新 candidate 并完整验收；已有 JSDoc 结论的复用还要核对关联阅读路径和行为。
+- 正式输入变化后重新选择 clean S、prepare 和验收；在实现工作区更新计划不使 frozen 工作区 drift。旧工作区、tarball 和归档保持原 bytes。
+- 新工作区沿用标准 `bun run env:setup`，锁定工具、依赖、CodeGraph 和 local candidate；不使用会丢弃工作区内容的 clear 环境。
+- 网络根因不再阻挡准备。正式完整 Gate 仍包含真实外部安装；若失败，保留该次证据和未完成项，不自动重试至绿或修改验收条件。
+- 正式验收后按公共 Git 目录的固定槽位归档原始产物、receipt、Gate 日志及 evidence 快照，并逐文件核对摘要。交互认证由发布者完成。
 
 ## Risks / Trade-offs
 
-registry 在观察后可能变化，临发布须重查；publisher authority 尚未核验。旧阅读结论只在实际材料和相关行为一致时复用。
-本地归档独立于临时 worktree，但不等同跨机器备份。正式包验收运行当前平台，不新增其它平台认证。
-局部 CPU 收益不等于原超时根因闭合或所有环境更快；若候选需要大改 Product/调度架构，则停止扩大本轮范围并交用户判断。
-前序试改后两次完整 Gate 均为 39 passed / 4 unavailable：目标材料测试通过，外部消费者准备在原 30 秒预算超时，三项依赖验收未执行。最终输入后来取得完整 Gate 43/43，但不证明安装可靠性已修复。后续同包有界诊断在无测试/compiler 竞争时仍超时，verbose 和 curl/Bun fetch 独立请求将本轮阻塞定位为 registry 元数据网络等待；具体链路责任仍未知，不反推历史根因，不提高预算或改变安装语义。
+既有 43/43 只证明当次 candidate，不能代替修改后输入或正式包验收。5 秒测试预算与 provider 的 30 秒预算保持不变；当前网络风险尚未修复。
+文档精简可能误删规格或历史语义，因此保留受管示例、准确迁移说明和独立复核。调查正文优化保留形成时事实和资源 bytes，不用当前决定覆盖旧结论。
+registry 观察可能过期，publisher authority 尚未核验；临发布再检查。本地归档独立于临时 worktree，但不等于跨机器备份。验收只覆盖实际运行的平台。
 
 ## Open Questions
 
-实际 publisher、临发布 freshness/registry 核验与外部写入授权留待本地验收完成后的交接；不阻断本地准备。
-测试证明重分工已获用户确认；严格 JSON 优化本轮不采用，未来单独取舍。本轮安装阻塞已定位到网络元数据等待，宿主、转发路径与远端的具体责任尚未确定；小请求恢复后才继续一次真实 provider 与完整 Gate 验证。加时不是候选方案，离线/固定依赖图需另行确认目标，不能以旧 Gate 或重试通过宣称可靠性闭合。
+审查完成后的最终 S 与重新冻结目标需按精确授权确认；已授权的 `95488448` 工作区先保留。
+实际 publisher、临发布 freshness/registry 及外部写入授权留到本地验收后的交接。当前不需要改变测试方案、采用 JSON 草案或恢复网络专项排查。
 
 ## Implementation Observations
 
-当次可核对事实、失败尝试和剩余步骤统一记录在 [current evidence](current-evidence.md)，不以计划勾选替代证据。
+实际改动、命令结果、独立结论、提交及剩余步骤统一进入 [current evidence](current-evidence.md)，任务仅按证据勾选。
