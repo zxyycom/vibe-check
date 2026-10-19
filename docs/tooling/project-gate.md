@@ -229,7 +229,6 @@ Gate command 的进程边界固定为：
 - environment 使用继承宿主环境并叠加 Product plain-text/no-color variables；依赖数据只能作为显式 overrides 进入 child。
 - stdout/stderr 的上限固定为 `64 MiB`；当前 Gate command entry 不向各 invocation 暴露另一套 output limit 配置。
 - 未单独配置 timeout 的 Gate 单命令使用 `120_000 ms`；package acceptance 与 `lint-product` 保持 `30_000 ms`。
-  这个默认值是新增 bounded policy，不等价于旧 adapter 的无 timeout 行为。
 - Product 在最终 transcript 写入成功后，才调用 Gate completion callback；resolver、取消、timeout、output limit、signal
   和 transcript failure 使用 Product reason code，不由 Gate 复制一套 process reason code。
 
@@ -268,8 +267,8 @@ schemaVersion 1 的每条记录包含 `profile`、`runtime` 和以下字段：
 
 三个预算都必须是正 safe integer 毫秒数；显式 `null` 或非法值失败，不按省略处理。
 Check 默认值使旧记录无需改写也能获得分布观察，维护者可分别显式覆盖；总耗时没有隐式默认值。
-本次本机选择 required `30000` ms、all `90000` ms，并为两者显式配置均值 `2000` ms、P95 `5000` ms。
-这是半分钟级日常反馈、分钟级完整验收和秒级单项成本的留余量目标，不是当前成绩拟合值或其它机器的必填阈值。
+例如，可为 required / all 分别选择 `30000` / `90000` ms，并显式配置均值 `2000` ms、P95 `5000` ms。
+这表达半分钟级日常反馈、分钟级完整验收和秒级单项成本的留余量目标，不代表当前本机配置、实测成绩或其它机器的必填阈值。
 首次建立 required 记录可参考下例，实际填写本机 runtime；all 记录须独立配置：
 
 ```json

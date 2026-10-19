@@ -56,8 +56,6 @@ package README 是消费者文档的唯一总入口。它必须直接链接每�
 只有已登记的示例目标参与代码投影，其余正文保留原始 bytes。README 的随包 Check 索引提供唯一逐项阅读入口；
 JSON 的 `checkGuides` 拥有文件映射，两者与 public package-provided Check functions 完整闭合。
 
-`docs/index.md` 和 `docs/checks/index.md` 不发布。
-
 全包 Markdown collector 对已登记 Markdown 和手写 Check 指南检查以下要求；实现职责见
 [随包材料验收](repository-material-validation.md#随包材料验收)：
 

@@ -4,7 +4,7 @@
 
 ## Why
 
-外链可达性有价值，却引入 DNS rebinding、私网访问、redirect、ambient credentials、速率限制与临时故障。旧计划依赖 Markdown Link Check发布 invocation-private request snapshot和不存在的 Check-level private handoff；当前 `dependencies.get`只读取会进入 Core/machine的 canonical final data，不能安全承载 raw URL或凭据材料。
+外链可达性有价值，却引入 DNS rebinding、私网访问、redirect、ambient credentials、速率限制与临时故障。旧计划依赖 Markdown Link Check发布 invocation-private request snapshot，但离线 Check 当前不提供该材料。当前 Product 已支持同 Run 的 `handoff: true` provider，在 accepted `passed` 后向直接 `dependsOn` consumer交付对象/函数引用；该引用不进入 canonical final data或机器输出。已有 handoff只提供传递与生命周期边界，不证明 Network输入 acquisition、授权或敏感数据处理已安全。
 
 ## Outcome
 
@@ -14,7 +14,7 @@
 
 ### Intended Change
 
-- 恢复前先选择不持久化敏感材料的输入 acquisition：独立重解析 approved Markdown inputs，或经新的、明确评审的 Product private invocation service；不能把 raw URL写入 dependency final data、Records、cache或 artifacts。
+- 恢复前先选择不持久化敏感材料的输入 acquisition：优先评估现有私有 handoff能否安全承接真实 consumer，或由 Network Check独立重解析 approved Markdown inputs；只有二者均不足时才评审新的 Product private invocation service；不能把 raw URL写入 dependency final data、Records、cache或 artifacts。
 - Check-owned options必须显式 `enabled` 并定义 allowlisted schemes/hosts/ports、redirect、timeout、request/host并发和响应 byte上限；缺失/false永不访问网络。
 - DNS与每次 redirect hop都执行 public-address policy，禁止 loopback、link-local、private、metadata和未授权地址；不传播 ambient cookies/auth/proxy credentials。
 - 正常 reachability defect形成 safe Records；DNS/transport/protocol不确定性按 closed policy映射为 domain result或 `unavailable`，不能伪装为 clean。

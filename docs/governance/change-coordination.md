@@ -23,19 +23,11 @@ artifacts 决定。
 
 ### 当前主队列
 
-当前材料入口、变更选择和 Markdown lint adoption 已由
-[Project Gate](../tooling/project-gate.md) 与
-[repository-material owner](../tooling/repository-material-validation.md) 承接；已交付的精确 Finding waiver
-由 [Markdown lint](../checks/markdown-lint.md#精确-finding-waiver)与
-[Finding waiver 指南](../guides/finding-waivers.md#为-markdown-lint-声明精确例外)承接。
-[构建项目 Gate](../guides/building-project-gate.md)已承接 consumer 的多场景构建路径；change region 的完整 `patterns` 列表由[API 机制](../api-mechanics.md#按文件变化选择-check)拥有。
 下列条目按各自已获授权的范围推进；前置能力交付不自动授权其它候选。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
 | P1 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
-
-Waiver 可省略实现由[公开指南](../guides/finding-waivers.md#输入与默认值)承接。
 
 ### 并行与提交边界
 
@@ -49,53 +41,9 @@ owner 时，实施与提交必须串行。
 
 每个 Change 仍须按自身 artifacts、测试和用户授权实施；新的 blocking policy 或公共抽象须有独立证据。
 
-### 文件关系与 change flag 调试
-
-文件轨道已交付三项能力：
-
-- [文件收集](../guides/collecting-project-files.md)拥有纯磁盘范围、统一 patterns 与默认防呆，
-  内部机制归[Project files](../development/project-files.md)。
-- [Core 索引](../guides/file-region-index.md)拥有已取得值数据的合并、追加重建与只读双向关系。
-- [change flag 调试](../guides/debugging-change-flags.md)组合公共收集与 Core，展示当前所选全集的逐文件和按 token 映射。
-
-长期取舍由[文件范围决策](../decisions/unify-file-selection-with-default-excludes.md)与
-[索引决策](../decisions/provide-readonly-file-region-index.md)承接；本节不保留完成 Change 的阶段和验收副本。
-后续触及共同 matcher、Run 接线、包材料、Case 或文档 owner 时，仍按实际重叠串行实施与提交。
-函数指标的来源、计量和读取边界各由对应 owner 拥有；后续是否复用关系索引按具体结果与责任判断，不由本轨道交付自动触发。
-
-### Lizard 升级与 TypeScript 修复
-
-固定 `1.24.1` 来源、Rust 真实 match-arm 贡献和 Kotlin 正文位置由
-[Function Metrics](../checks/function-metrics.md)、[Scanner dependencies](../development/scanner-dependencies.md)
-及[来源映射维护](../tooling/source-mapping.md)拥有；形成时验收见
-[实施调查](../investigations/verify-lizard-1-24-1-implementation.md)。本节不保留已交付升级的 Change 链接或阶段副本。
-
-显式返回类型函数的真实边界与 `??` 单 token/短路计量由
-[Function Metrics](../checks/function-metrics.md)及[有界偏差 owner](../development/scanner-dependencies.md#typescript-函数指标的有界偏差)承接；
-[短路口径 Decision](../decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)已与完整方向对齐，形成时验收见
-[TypeScript 修复调查](../investigations/verify-typescript-metrics-implementation.md)。本节不保留修复 Change 的阶段或恢复副本。
-共享 analyzer、来源账本、Case 与包材料的后续变更仍串行实施和提交，已交付能力不自动授权扩大其它 owner 的范围。
-
-### 函数指标读取优化
-
-逐非空 chunk 的 `setImmediate`、协作取消与资源/完整输入边界由
-[内部 owner](../development/scanner-dependencies.md#package-maintenance-evidence)和
-[Function Metrics](../checks/function-metrics.md)承接；同条件精确安装对照与完整验收见
-[读取优化实施调查](../investigations/verify-function-metrics-admission-implementation.md)。本节不保留已完成 Change 的链接或阶段副本。
-共享 measurement、测试、Case 或包 owner 的后续变更仍串行实施和提交；来源升级、指标修复与读取策略分别验收。
-
-### 全局声明式上下文与 Scheduler 底层重构
-
-声明式上下文与底层状态重构均已交付；当前契约由 [API 机制](../api-mechanics.md#声明式-callback-context)、
-[调度指南](../guides/scheduling.md)与 [Scheduler owner](../development/scheduler.md)拥有。
-本节不保留已结项 Change 的阶段、计划或性能证据副本。
-
-共享 Scheduler、Definition、Invocation、公开类型、Case 和稳定文档的写入与提交串行协调。
-底层项优化已请求数据的维护和计算，不重新打开已交付上下文 API 或把需求开关迁移混入性能结论。
-
 ### Scheduler 证据队列
 
-以下策略证据队列与已交付的底层状态重构独立验收；共用 Scheduler owner 的源码和 Case 写入串行，性能采样使用独占窗口。
+共用 Scheduler owner 的源码和 Case 写入串行，性能采样使用独占窗口。
 策略队列继续前，以当前 Scheduler 数据模型与观察输入重新核对其输入和验收基线。
 
 Scheduler 的当前行为由 runtime、Architecture、API mechanics、

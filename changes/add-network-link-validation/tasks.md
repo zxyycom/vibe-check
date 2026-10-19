@@ -4,9 +4,9 @@
 
 ## Readiness
 
-- [x] 0.1 已按当前 ordinary Check/options/dependency/Core contract重置旧 Plan，确认旧 external snapshot/handoff不存在。
+- [x] 0.1 已复核当前 ordinary Check/options/dependency/Core contract：Product已支持私有 handoff，离线 Link Check仍不提供旧 external request snapshot；该机制不解除本 Plan的安全与 consumer恢复条件。
 - [x] 0.2 已确认 Network Check因 SSRF、credential与 nondeterminism风险后置，不阻塞首次公开发布。
-- [ ] 0.3 取得真实 consumer，选择安全输入 acquisition并固定授权、target、redirect、resource与 four-state policy。
+- [ ] 0.3 取得真实 consumer，优先评估现有 private handoff与独立重解析的安全输入 acquisition，再固定授权、target、redirect、resource与 four-state policy。
 
 ## Implementation
 
