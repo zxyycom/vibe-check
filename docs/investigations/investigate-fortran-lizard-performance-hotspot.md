@@ -25,7 +25,7 @@ relations:
 - **已确认 / 推断 / 未知：**Fortran slice 的 direct-core 差距和不存在 façade-only 修复点已确认；tokenizer/setup 是后续检查顺序只是有限推断；各 core 阶段的可回收比例仍未知。
 - **不能比较或相减：**该 128-file、顺序 warmed、pre-resolved reader 观察不是跨 runtime ABBA，不能与 27-family totals、真实 TypeScript、raw-scan 或 Product 数字相加、相减或外推。
 - **形成时建议（不是当前状态）：**当前不实施；仅在出现 Fortran-heavy consumer workload、明确 budget 或新的 source-alignment 授权后，以 token stream 和同一 corpus 重开 scoped core Investigation。
-- **当前状态 owner：**本轮 Lizard 性能实现已停止；该 Fortran 形成时条件不触发新调查。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 

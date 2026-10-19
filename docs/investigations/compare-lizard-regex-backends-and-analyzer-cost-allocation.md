@@ -25,38 +25,15 @@ relations:
 
 这是一条对 `explain-cpython-jsc-lizard-regex-performance-gap.md` 的**补充**关系，而非重复指向其已归并的两份祖先：新报告增加分配口径和交付成本/CLI 边界，不否定前序关于 JSC pattern-shape hotspot 的核心结论。
 
-### 当前关闭状态（不属于形成时证据）
+### 当轮停止事件与授权边界
 
-- **当前执行结论：**用户已决定到此停止本轮 Lizard 性能实现与后续性能调查；本报告及前序的“下一步”“优先级”和 gate 只保留为形成时认识或将来重新授权时的阅读输入，**不构成当前任务授权**。
-- **Node：**Node 24/V8 是已识别的 runtime-support/migration 候选，但当前不启动其 go/no-go、不改变 Product runtime，也不把 analyzer-only control 当作 Product 收益证明。
-- **Bun 内建路径：**对当前 Bun 1.3.14/JSC、source-aligned pattern 与 real-TS workload，built-in `RegExp` 的实用优化空间有限；保留它为当前基线，不再实施 API/cache 或 tokenizer execution-shape 优化。该表述不预测未来 Bun/JSC 或不同 workload。
-- **WASM/Onig：**不采用 `vscode-oniguruma`。其 direct integration 相对自建 native addon 为中等成本，但完成 all-reader parity、Worker/resource、artifact 与 consumer delivery gate 的总 adoption 成本在当前优先级下过高；不安装依赖、不增加 runtime switch/fallback。
-- **重新开启条件：**只有用户重新授权性能工作时，才从本报告的 measurement layer、停止条件和形成时建议恢复；届时应先确认 workload、runtime 和 Product target 仍适用。
+- **当轮停止事件：**本轮调查收束时，用户决定到此停止该轮 Lizard 性能实现与后续性能调查；本报告及前序的“下一步”“优先级”和 gate 因而只保留为形成时认识或将来获授权时的阅读输入。此处保存该次停止事件，不持续定义今天的执行状态，也不构成任何当前任务授权。
+- **Node：**Node 24/V8 是已识别的 runtime-support/migration 候选，但当轮停止时未启动其 go/no-go、未改变 Product runtime，也不把 analyzer-only control 当作 Product 收益证明。
+- **Bun 内建路径：**对当前 Bun 1.3.14/JSC、source-aligned pattern 与 real-TS workload，built-in `RegExp` 的实用优化空间有限；当轮决定保留它为基线，不再实施 API/cache 或 tokenizer execution-shape 优化。该表述不预测未来 Bun/JSC 或不同 workload。
+- **WASM/Onig：**当轮未采用 `vscode-oniguruma`。其 direct integration 相对自建 native addon 为中等成本，但完成 all-reader parity、Worker/resource、artifact 与 consumer delivery gate 的总 adoption 成本在当轮优先级下过高；当轮未安装依赖、未增加 runtime switch/fallback。
+- **后续工作边界：**今天是否开展性能工作由当前请求授权，范围、实施与验收由相应 Change 承接；长期采用门槛归[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。获授权时可用本报告恢复 measurement layer、停止条件和形成时建议，但仍须重新确认 workload、runtime 和 Product target，不能继承当轮任务状态。
 
-### 当前 runtime 问题的形成时答案
-
-- **Bun 内建正则是否基本到头？**不能据此宣布所有 Bun/JSC `RegExp` 或未来 Bun 版本已无优化空间；built-in staged-generic 仍是需完整 parity 复查的 execution-shape control。但对**当前** real-TS、Bun 1.3.14/JSC、source-aligned pattern/workload，exact runtime control 已把主要差距强烈定位到 runtime engine/execution，且 Bun 内 backend 筛选中没有比 `vscode-oniguruma` 更值得继续的外部候选。因此不应先投入另一种 Bun `RegExp` API/cache 小改；只有 Bun 仍被选择或必须支持时，才按 Onig gate 继续。
-- **改 Node 会更好吗？**在同一 TS port、request、driver 和 exact output guards 的 warmed **analyzer-only** control 中，Node 24/V8 complete analyzer + Product-field projection median 为 **128.79 ms**，Bun/JSC 为 **636.85 ms**（Bun 约 **5.02×**）；raw matcher 与 token materialization 也同向。它支持优先开展 Node 24 runtime-support/migration **go/no-go**，不证明 Product 已更快、更不授权切换 runtime。
-- **为什么不能在 Bun 内私用 V8？**Bun-hosted `new Worker(...)` 仍使用 Bun/JSC；从 Bun parent 获得 Node/V8 需要 child process/IPC，违反当前 FunctionMetrics 的 child-process/scanner-command I/O 边界。这是 runtime-support/migration 问题，不是 private tokenizer backend option。
-- **冷启动与 Product 边界：**上述 `operationMs` 排除 process start、TS stripping/import、preflight/warm/guard；独立 fresh import-only wall 反而是 Node **99.20 ms**、Bun **26.34 ms**。完整 Product API、Worker lifecycle、package/consumer、cold/warm representative workload 尚未验证，故不能以 analyzer-only speedup 预测端到端收益。
-- **形成时行动优先级（不是当前状态）：**先做 Node 24 runtime-support/migration go/no-go；仅当 Bun 仍被选择或必须支持时，再做 private Oniguruma full-parity/full-analyzer spike。两条路径都不是采用、依赖或 Product runtime 变更授权；当前关闭状态以上文为准。
-
-### 入口结论：三个问题的形成时答案
-
-| 用户问题                        | 本轮可恢复的答案                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 证据强度与非授权边界                                                                                                                                                                                                                                                                                                                                                                   |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **WASM 接入难度如何？**         | `vscode-oniguruma@2.0.1` 是**中等**接入成本，而非一行替换：需要随包 WASM artifact、realm-global async init、capture-range/flag adapter、显式 dispose，以及 Worker cancel/RSS、external-consumer artifact 验证。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 有真实 TS raw token text/UTF-16 offset parity 与 raw speed signal；尚无全 reader、full analyzer、Product 或 resource gate 证据，故不采用、不安装、不增加 runtime switch/fallback。                                                                                                                                                                                                     |
-| **正则是否是主卡点、占多少？**  | 在这个 real-TS analyzer-only workload 中，token path 是**最强的主要候选**：TS isolated token/full median scale 约 **71.4%**，Python 为约 **32.8%**；token-generation gap **410.68 ms** 与 formal full gap **410.90 ms**量级近乎相同。regex-only 的直接热点证据是 combined native `RegExp` **68.0% self samples**。                                                                                                                                                                                                                                                                                                                                                                                                    | 71.4%/32.8% 与“gap≈full gap”来自不同 driver、样本和嵌套 pipeline 的比例观察；68% 是 sampling self。它们支持优先级，**不**证明 regex 精确占比、100% 因果归属或可回收毫秒。                                                                                                                                                                                                              |
-| **npm/native/CLI 还有候选吗？** | 有真正的现代 npm PCRE2-WASM engine，但兼容不等于高效或可交付：`pcre2-wasm@10.47.5` 通过 exact stream guard，却在**同 raw corpus/guard/字段消费协议**的 warm `matchAll` 为 2,842.38 ms、native 为 666.94 ms（**4.26×慢**）。`onigasm@2.2.5` 也通过 exact guard；其 own raw driver 为 465.82 ms、生命周期较弱，因而不是第二 engine candidate（不把该数与 VS Code Oniguruma driver 直接比较）。其它 PCRE2 wrapper 分别 import 或 mandatory property 失败，RE2 variants 因 `(?=`拒绝。**在 Bun 内 regex-backend 筛选中**唯一仍值得继续的候选是 Oniguruma WASM；native/Node-API 是远期交付项目，CLI 不应产品化或继续 benchmark full pipeline。独立于 backend，Node 24 runtime-support/migration 是应先做 go/no-go 的路径。 | PCRE2 只可与同协议 native control 比较，且仅属于 raw scanner；不得与 Onig 的其他 raw driver、token/full driver 相减。CLI 的 **38.70 ms**只是预写文件后的 child+scan+JSON parse；纳入 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 后为 **306.24 ms**，其中 16.05 MB stdout 和 **291.80 ms** scan+decode/parse+mapping+digest 吞没 raw-engine signal。 |
-
-### 数字阅读顺序与不可相减边界
-
-1. 先读“可声称的性能分配观察”：它拥有 formal full-analyzer、raw-token 与 sampling 数字的 measurement layer 和强度。
-2. 再读“bounded Node/V8 vs Bun/JSC runtime control”：它拥有 warmed analyzer-only 的同-port runtime 对照、冷 import 反向和 Bun/V8 boundary；它不拥有 Product runtime 采用结论。
-3. 再读“WASM 接入成本与 Oniguruma evidence”“第二轮现代 npm engine 实测”与“npm/native/CLI 矩阵”：它们拥有候选的 parity、生命周期和 delivery 判断；PCRE2 只与同协议 native control 可比，raw scanner 时间也不等于 full analyzer 或 Product 时间。
-4. 最后读“建议、停止条件与未知”：这是**形成时**的调查顺序——先做 **Node 24 runtime-support/migration** go/no-go，再在 Bun 仍被选择或必须支持时评估 private `vscode-oniguruma` tokenizer spike；当前是否行动只由上文“当前关闭状态”决定。
-
-不得把 raw-token、formal full-analyzer、sampling、WASM raw 或 CLI bounded-control 的 median/ratio 横向相减、相加或换算为 Product 加速；它们的 driver、sample count、warm/JIT/GC、I/O/transport 与包含工作不同。
+结果摘要与数字阅读顺序见[调查结果与边界](#调查结果与边界)。
 
 ## 调查目的
 
@@ -88,6 +65,43 @@ relations:
 - [ripgrep README](https://github.com/BurntSushi/ripgrep) 说明 PCRE2 是 opt-in build feature；其 [FAQ](https://github.com/BurntSushi/ripgrep/blob/master/FAQ.md) 说明 multiline/PCRE2 的速度与内存边界。这些来源只支撑能力和交付约束；本机 timing 以随附 evidence 为准。
 
 ## 调查结果与边界
+
+### 当前 runtime 问题的形成时答案
+
+- **Bun 内建正则是否基本到头？**不能据此宣布所有 Bun/JSC `RegExp` 或未来 Bun 版本已无优化空间；built-in staged-generic 仍是需完整 parity 复查的 execution-shape control。但对**当前** real-TS、Bun 1.3.14/JSC、source-aligned pattern/workload，exact runtime control 已把主要差距强烈定位到 runtime engine/execution，且 Bun 内 backend 筛选中没有比 `vscode-oniguruma` 更值得继续的外部候选。因此不应先投入另一种 Bun `RegExp` API/cache 小改；只有 Bun 仍被选择或必须支持时，才按 Onig gate 继续。
+- **改 Node 会更好吗？**在同一 TS port、request、driver 和 exact output guards 的 warmed **analyzer-only** control 中，Node 24/V8 complete analyzer + Product-field projection median 为 **128.79 ms**，Bun/JSC 为 **636.85 ms**（Bun 约 **5.02×**）；raw matcher 与 token materialization 也同向。它支持优先开展 Node 24 runtime-support/migration **go/no-go**，不证明 Product 已更快、更不授权切换 runtime。
+- **为什么不能在 Bun 内私用 V8？**Bun-hosted `new Worker(...)` 仍使用 Bun/JSC；从 Bun parent 获得 Node/V8 需要 child process/IPC，违反当前 FunctionMetrics 的 child-process/scanner-command I/O 边界。这是 runtime-support/migration 问题，不是 private tokenizer backend option。
+- **冷启动与 Product 边界：**上述 `operationMs` 排除 process start、TS stripping/import、preflight/warm/guard；独立 fresh import-only wall 反而是 Node **99.20 ms**、Bun **26.34 ms**。完整 Product API、Worker lifecycle、package/consumer、cold/warm representative workload 尚未验证，故不能以 analyzer-only speedup 预测端到端收益。
+- **形成时行动优先级（不是当前状态）：**先做 Node 24 runtime-support/migration go/no-go；仅当 Bun 仍被选择或必须支持时，再做 private Oniguruma full-parity/full-analyzer spike。两条路径都不是采用、依赖或 Product runtime 变更授权；上文另记录当轮停止事件。
+
+### 入口结论：三个问题的形成时答案
+
+#### WASM 接入难度如何？
+
+**本轮答案：**`vscode-oniguruma@2.0.1` 是**中等**接入成本，而非一行替换：需要随包 WASM artifact、realm-global async init、capture-range/flag adapter、显式 dispose，以及 Worker cancel/RSS、external-consumer artifact 验证。
+
+**证据强度与非授权边界：**有真实 TS raw token text/UTF-16 offset parity 与 raw speed signal；尚无全 reader、full analyzer、Product 或 resource gate 证据，故不采用、不安装、不增加 runtime switch/fallback。
+
+#### 正则是否是主卡点、占多少？
+
+**本轮答案：**在这个 real-TS analyzer-only workload 中，token path 是**最强的主要候选**：TS isolated token/full median scale 约 **71.4%**，Python 为约 **32.8%**；token-generation gap **410.68 ms** 与 formal full gap **410.90 ms**量级近乎相同。regex-only 的直接热点证据是 combined native `RegExp` **68.0% self samples**。
+
+**证据强度与非授权边界：**71.4%/32.8% 与“gap≈full gap”来自不同 driver、样本和嵌套 pipeline 的比例观察；68% 是 sampling self。它们支持优先级，**不**证明 regex 精确占比、100% 因果归属或可回收毫秒。
+
+#### npm/native/CLI 还有候选吗？
+
+**本轮答案：**有真正的现代 npm PCRE2-WASM engine，但兼容不等于高效或可交付：`pcre2-wasm@10.47.5` 通过 exact stream guard，却在**同 raw corpus/guard/字段消费协议**的 warm `matchAll` 为 2,842.38 ms、native 为 666.94 ms（**4.26×慢**）。`onigasm@2.2.5` 也通过 exact guard；其 own raw driver 为 465.82 ms、生命周期较弱，因而不是第二 engine candidate（不把该数与 VS Code Oniguruma driver 直接比较）。其它 PCRE2 wrapper 分别 import 或 mandatory property 失败，RE2 variants 因 `(?=`拒绝。**在 Bun 内 regex-backend 筛选中**唯一仍值得继续的候选是 Oniguruma WASM；native/Node-API 是远期交付项目，CLI 不应产品化或继续 benchmark full pipeline。独立于 backend，Node 24 runtime-support/migration 是应先做 go/no-go 的路径。
+
+**证据强度与非授权边界：**PCRE2 只可与同协议 native control 比较，且仅属于 raw scanner；不得与 Onig 的其他 raw driver、token/full driver 相减。CLI 的 **38.70 ms**只是预写文件后的 child+scan+JSON parse；纳入 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 后为 **306.24 ms**，其中 16.05 MB stdout 和 **291.80 ms** scan+decode/parse+mapping+digest 吞没 raw-engine signal。
+
+### 数字阅读顺序与不可相减边界
+
+1. 先读“可声称的性能分配观察”：它拥有 formal full-analyzer、raw-token 与 sampling 数字的 measurement layer 和强度。
+2. 再读“bounded Node/V8 vs Bun/JSC runtime control”：它拥有 warmed analyzer-only 的同-port runtime 对照、冷 import 反向和 Bun/V8 boundary；它不拥有 Product runtime 采用结论。
+3. 再读“WASM 接入成本与 Oniguruma evidence”“第二轮现代 npm engine 实测”与“npm/native/CLI 矩阵”：它们拥有候选的 parity、生命周期和 delivery 判断；PCRE2 只与同协议 native control 可比，raw scanner 时间也不等于 full analyzer 或 Product 时间。
+4. 最后读“建议、停止条件与未知”：这是**形成时**的调查顺序——先做 **Node 24 runtime-support/migration** go/no-go，再在 Bun 仍被选择或必须支持时评估 private `vscode-oniguruma` tokenizer spike；该顺序不是今天的行动授权。
+
+不得把 raw-token、formal full-analyzer、sampling、WASM raw 或 CLI bounded-control 的 median/ratio 横向相减、相加或换算为 Product 加速；它们的 driver、sample count、warm/JIT/GC、I/O/transport 与包含工作不同。
 
 ### 可声称的性能分配观察
 
@@ -155,9 +169,9 @@ WASM 比自建 Node-API addon 避免每 OS/arch prebuild、native binary 供应�
 
 ### 建议、停止条件与未知
 
-**形成时第一优先级、独立的 Investigation 是 Node 24 runtime-support/migration go/no-go，而不是采用授权。**在项目 engines `>=24 <25` 内，Node 24 的同-port control 仍显示 matcher、token、full operation 的 material speedup；这条路径不要求重写 translated core，却不能凭 benchmark 直接改变 Product runtime。它必须验证：正式 Product API 与 error contract、Worker creation/cancel/termination、package/packed artifact、external Node consumer、现有 Bun support/consumer compatibility、Project Gate 与 cold/warm representative workload。任一支持、语义、交付或端到端收益 gate 不闭合即停止；本报告不授权更改官方 runtime、依赖或 package contract。当前不启动此 Investigation，以上“当前关闭状态”为准。
+**形成时第一优先级、独立的 Investigation 是 Node 24 runtime-support/migration go/no-go，而不是采用授权。**在项目 engines `>=24 <25` 内，Node 24 的同-port control 仍显示 matcher、token、full operation 的 material speedup；这条路径不要求重写 translated core，却不能凭 benchmark 直接改变 Product runtime。它必须验证：正式 Product API 与 error contract、Worker creation/cancel/termination、package/packed artifact、external Node consumer、现有 Bun support/consumer compatibility、Project Gate 与 cold/warm representative workload。任一支持、语义、交付或端到端收益 gate 不闭合即停止；本报告不授权更改官方 runtime、依赖或 package contract。当轮停止时未启动此 Investigation；本报告不定义今天是否行动。
 
-**形成时仅在 Bun 仍被选择或必须支持的前提下，Bun 内 regex-backend 路径唯一值得继续的是 `vscode-oniguruma`。**第二轮实测确认“有真正 npm engine”不代表它在 required stream 上快或易交付；`pcre2-wasm@10.47.5` 已因 same-harness 4.26× 的 raw slowdown 排除。Onig spike 仍先闭合：每 token text/UTF-16 offset/progress、26 shared readers + PHP、现有 27-reader oracle、macro/template/processor/extensions、Worker cancellation/error/RSS、no-download packed artifact/external Bun consumer；之后才在同 runner 比较 raw、full analyzer与 Product cold/warm。任一语义、resource、delivery或稳定收益门槛失败即停止，保留 built-in baseline。它不是依赖、runtime switch/fallback 或 WASM adoption 授权；当前不启动该 spike。
+**形成时仅在 Bun 仍被选择或必须支持的前提下，Bun 内 regex-backend 路径唯一值得继续的是 `vscode-oniguruma`。**第二轮实测确认“有真正 npm engine”不代表它在 required stream 上快或易交付；`pcre2-wasm@10.47.5` 已因 same-harness 4.26× 的 raw slowdown 排除。Onig spike 仍先闭合：每 token text/UTF-16 offset/progress、26 shared readers + PHP、现有 27-reader oracle、macro/template/processor/extensions、Worker cancellation/error/RSS、no-download packed artifact/external Bun consumer；之后才在同 runner 比较 raw、full analyzer与 Product cold/warm。任一语义、resource、delivery或稳定收益门槛失败即停止，保留 built-in baseline。它不是依赖、runtime switch/fallback 或 WASM adoption 授权；当轮停止时未启动该 spike。
 
 built-in staged-generic仍是无依赖 same-output control，但它会改 translated tokenizer execution shape；quoted-string staging因语义难度已明确不在当前路径。不得以 RE2/Rust/Hyperscan 的 feature限制反向驱动 regex rewrite，也不得以 CLI、Worker pooling或 Product adapter 重构绕过 tokenizer gate。
 

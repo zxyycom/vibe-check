@@ -8,9 +8,19 @@ This directory preserves two **non-equivalent diagnostic lanes** for a possible 
 
 Each raw sample also retains `processMaxRssBytes`, but it is `process.resourceUsage().maxRSS` sampled after the scenario: a **process-lifetime cumulative high-water**, not per-sample memory, a delta, or timed-interval memory. It is diagnostic context only and does not support a memory or optimization conclusion.
 
+The historical command used the pre-dated resource locator below. It is retained as run identity, not as a current replay recipe:
+
 ```sh
 bun docs/investigations/_resources/analyze-markdown-link-cache-packing/benchmark.ts \
   --output docs/investigations/_resources/analyze-markdown-link-cache-packing/latest.json
+```
+
+The archived script now lives under the dated resource owner. This separate replay example writes new diagnostic output to a fresh temporary file, not over the saved evidence; it is not evidence that the script still runs against today's implementation.
+
+```sh
+OUTPUT="$(mktemp /tmp/markdown-cache-packing.XXXXXX.json)"
+bun docs/investigations/_resources/260903-analyze-markdown-link-cache-packing/benchmark.ts \
+  --output "$OUTPUT"
 ```
 
 Five-sample median wall times in milliseconds:

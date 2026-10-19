@@ -40,7 +40,7 @@ relations:
 - **已确认 / 推断 / 未知：**“证据状态”是唯一的强度地图：Oniguruma 的 raw-match/offset parity 与 isolated signal 已确认；它值得 full-token experiment 是推断；all-reader semantics、Product lifecycle、delivery 和稳定 full-pipeline 收益仍未知。
 - **不能比较或相减：**Oniguruma/native raw-scan 数字仅覆盖 raw tokens/digest，且两侧缓存/构造形态不同；不得换算为 analyzer 或 Product 加速，也不得与 profile 百分比、27-language 或完整 Product timing 相减。
 - **后继的当前结论：**[CPython 与 JavaScriptCore 性能差距解释](explain-cpython-jsc-lizard-regex-performance-gap.md)新增 same-output built-in staged-generic signal；它把 built-in staged-generic 提升为先于或不低于 Oniguruma 的调查候选。该后继拥有其 raw/full measurement layer、已排除项和引擎机制未知项，本报告的形成时 probe 不被回写为该结论的证据。
-- **当前状态 owner：**本轮已停止进一步性能实现，不执行本报告或后继中的形成时实验顺序；Node、built-in staged-generic 与 Oniguruma 都不是当前候选。当前关闭状态和重新授权时的阅读入口由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有；未来采用门槛仍由[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)拥有。
+- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 

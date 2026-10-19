@@ -27,7 +27,7 @@ relations:
 - **已确认 / 推断 / 未知：**所有计数样本 output 等价和本轮 wall observations 已确认；小幅下降是否是稳定实现收益仍是推断未闭合，Product stage 的因果占比未知。
 - **不能比较或相减：**本报告完整 Product time 不可与 direct analyzer、tokenizer 或旧 synthetic batch 的时间相减；它包含 read/decode、Worker、adapter、Records 与 settlement，且本轮不证明 cold/session/resource 指标。
 - **形成时建议（不是当前状态）：**若要据此作性能决策，需在明确 consumer corpus、稳定 host 条件和预定义统计阈值下复查；本报告不授权继续改 core、Worker、I/O 或 settlement。
-- **当前状态 owner：**本轮已停止进一步性能实现；本报告不触发新的 Product 性能复查。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 

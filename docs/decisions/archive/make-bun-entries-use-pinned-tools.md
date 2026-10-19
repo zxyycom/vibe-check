@@ -1,7 +1,7 @@
 ---
 title: 让 Bun 入口自行绑定项目锁定工具
 id: 260812-make-bun-entries-use-pinned-tools
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-12T15:04:30Z
 purpose: 让正式 Bun 命令可复现地使用仓库锁定工具，并拒绝执行 ambient PATH 中的同名程序。

@@ -25,7 +25,7 @@ relations: []
 - **此记录的 owner：**它只拥有未来在 private Lizard port 采用等价宿主原语的长期约束和验收门槛；它不拥有任何 benchmark 数字、当前实现状态或某个候选的兼容性结论。
 - **证据读取顺序：**先读[宿主加速候选调查](../investigations/survey-lizard-host-acceleration-candidates.md)取得候选的形成时证据与下一轮实验；其直接前序[真实 TypeScript 慢路径诊断](../investigations/diagnose-lizard-real-typescript-analyzer-hot-path.md)拥有热点定位，并继续追溯其两份直接前序以恢复 workload 和 measurement layer。
 - **不得从本 Decision 推断：**它没有性能数字可供横向比较、相减或换算为 Product 加速；raw-scan、analyzer-only 与完整 Product 的数字分别由其 Investigation 在限定 workload 和计时边界内拥有。
-- **当前关闭状态：**当前用户决定停止本轮 Lizard 性能实现；Node runtime-support/migration 与 WASM/Oniguruma 都不是正在执行的候选，当前 built-in `RegExp` 基线保持不变。此状态由[最新综合调查](../investigations/compare-lizard-regex-backends-and-analyzer-cost-allocation.md)的“当前关闭状态”拥有，本 Decision 不把历史候选门槛变成当前授权。
+- **当前授权边界：**[综合调查](../investigations/compare-lizard-regex-backends-and-analyzer-cost-allocation.md)只记录当轮停止事件和形成时证据，不拥有持续状态。今天是否开展性能工作由当前请求授权，并由相应 Change 承接范围、实施与验收；本 Decision 的未来候选门槛本身不启动工作。
 - **重新开启时的门槛：**只有某候选先在独立 Investigation 闭合本记录要求的语义、资源、打包和同 workload 性能证据后，才可由独立 Decision/Change 请求实施；否则保持 built-in `RegExp` 基线。
 
 ### 适用范围与非授权边界

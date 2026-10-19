@@ -27,7 +27,7 @@ relations:
 - **已确认 / 推断 / 未知：**本工作负载上的跨实现 wall-time 差异及 output equality 已确认；它不解释根因，Product、consumer workload、其他语言、session 与 runtime 版本的适用性仍未知。
 - **不能比较或相减：**本报告 analyzer-only 数字不能与完整 Product fast-path 复测或 historical Product 数字相减；三者输入、计时边界和运行模型不同，即使量级相近也不代表层级成本相同。
 - **形成时建议（不是当前状态）：**保持实现不变，另做同一 request 的 root-cause profile/隔离调查；任何 translated core 或 runtime 改动都需独立授权。
-- **当前状态 owner：**本轮已停止进一步性能实现；这里的 root-cause 后续调查不再执行。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 

@@ -15,6 +15,9 @@ relations:
   - type: 修订
     target: 260904-unify-effective-flag-selection-and-aggregation
     summary: 替换旧 policy 与 null 默认聚合
+  - type: 修订
+    target: 260830-aggregate-all-eligible-project-gate-check-statuses
+    summary: 保留全部有效终态与 producing policy，改用默认严格聚合
 ---
 
 ## 目的
@@ -27,6 +30,7 @@ relations:
 
 - 前序 Decision 已把 flag 选择、dependsOn 传播和 aggregation 输入收敛为 canonical-order 的私有 effective selection，但它仍保留 `checkAggregation.checks` 的 `"all"` / ID list / `"effective"` selector、闭合 policy 和 `aggregate: null` 默认。
 - 结算后的有效 Check facts 已足以为默认结论服务；继续要求 caller 表达选择集合会重新引入与 Product selection 漂移的机会，也不能让 caller 读取 Check final data 形成其领域结论。
+- Gate 的较早判断曾以显式 `all` policy 聚合全部 eligible statuses，纠正 quality entry 排除 raw failed 的模型。本记录保留完整有效成员与 producing Check policy 边界，但以 Product 默认严格聚合取代 Gate 的旧配置机制。
 - callback 只能解释已经结算的事实。若 Product 吞没其错误并伪造普通 RunResult，将混淆 caller authoring fault 与 Check、planning、configuration、execution 或 output 的既有结算分支。
 
 ## 决策
@@ -36,4 +40,5 @@ relations:
 - 采用: 提供 callback 时，Product 只验证并采用其同步四态返回，不等待 Promise 或提供异步、选择、调度、状态写入或结果变换能力。callback 只在完整 settlement 后执行，不进入 Definition fingerprint，也不成为 public effective-selection resolver。
 - 采用: callback 抛错、非 Error throwable、Promise 或其他非法返回均使 `run` Promise 拒绝；原 Error 保持其身份，其它故障转为可定位 Error。拒绝路径关闭 invocation-owned diagnostics 与 progress writer，且不呈现正常成功 summary 或发布伪造 RunResult；清理错误不得掩盖 callback 原错误。普通配置、planning、Check callback、execution 和 output 故障继续由原有 RunResult 分支结算。
 - 采用: Project Gate 省略 `checkAggregation` 并消费默认严格聚合；它继续拥有将 bound Run 的正常 aggregate 或 Promise rejection 映射为报告和 process exit 的责任。此变更不改变有效选择、dependsOn / observes、Check outcome、candidate binding、scheduler 或 machine facts。
+- 采用: Gate 的 required、full 与 local partial selection 都消费同次 Product effective selection 的全部 settled facts，不以 quality 标签、entry metadata、Records、messages、findings 或呈现重算或排除 outcome。非阻断 finding 必须由 producing Check 的 `findingPolicy` 返回 `passed`、完整 final data/Records 和 actionable warning；blocking finding 返回 `failed`。scanner、source、parse 等不可用仍为 ordinary `unavailable`，不能伪造为 advisory finding 或成功。Gate 使用默认严格折叠，因此任何有效非 passed 终态都影响结论。
 - 不采用: 继续要求 caller 配置 `"effective"` 或其它 selector、为 default 建立可配置空集合例外、保留旧 policy 兼容、将 callback 设计为 async，或让 callback 接收全量 snapshot、控制执行、修改 facts 或替代 Gate 映射。

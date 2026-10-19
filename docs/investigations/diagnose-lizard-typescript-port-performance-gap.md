@@ -34,7 +34,7 @@ relations:
 - **已确认 / 推断 / 未知：**“已证结论”和“已证热点”是本轮确认；suffix-index/preselected-reader 的回收方向及 family 排名只是探索性推断；未隔离的 core、runtime 内部原因和任意 filename 等价性仍未知。
 - **不能比较或相减：**sampling inclusive time、独立 family warmed observations、dispatch microbenchmark 与正式 ABBA wall samples 不是同一计时实验；不得相加为总差距或相减得到其他阶段成本。
 - **形成时建议（不是当前状态）：**在独立 Change/Decision 中先验证带 registry fallback 的 façade resolver；若要触及 translated tokenizer/core，先另开 scoped Investigation，而不是从本报告直接实施。
-- **当前状态 owner：**本轮已停止进一步性能实现；这里的 façade/core 建议仅保存形成时路径，不应创建 Change。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 

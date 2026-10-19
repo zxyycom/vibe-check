@@ -25,12 +25,12 @@ relations:
 
 - 一个 resolved Check 仍可以没有 Records，而已接受的 Record 也可以先于其 Check 的后续 unavailable settlement 成立；二者必须保留为独立事实。
 - Check 的 primary data 与 supplemental Record data 都需要相同的 canonical JSON snapshot，而已退休的双层 outcome 表示和 Record type/opaque identity 不再表达当前契约。
-- Core snapshot 需要稳定的两实体边界；聚合是按 invocation 配置从 settled Check statuses 得到的 derived Run result，而不是第三种 Core entity。
+- Core snapshot 需要稳定的两实体边界；聚合是从 invocation 的 settled effective Check facts 得到的 derived Run result，而不是第三种 Core entity。
 
 ## 决策
 
-- 采用: Definition 只形成 canonical Normalized Checks，Package Run pre-work 对每项只 resolution 一次；每个 resolved executable Check 在 Core snapshot 中恰有一个 Core Check，不为 container 或未选择的 leaf 生成事实。
+- 采用: Definition 只形成 canonical Normalized Checks，Package Run pre-work 对每项只 resolution 一次；每个 resolved executable Check 在 Core snapshot 中恰有一个 Core Check，不为 container 或未在 Definition 声明的 executable 生成事实。这里的“缺席”是 Definition membership，不是 invocation 的 flag/effective selection；现行选择下，已声明的 canonical executable 即使未选也保留其终态，见[选择与聚合判断](default-effective-check-aggregation-with-caller-local-callback.md)及[当前 facts owner](../development/check-results.md#check-and-record-facts)。
 - 采用: Core Check 的 outcome 是 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)`；通过/失败的 final data 与 Record data 都是 detached、deep-frozen canonical JSON object。
 - 采用: Core Record 固定为 `{ checkId, id, data }`。`id` 只在 owning Check 内唯一，Product 以结构性 `{ checkId, id }` 建立 ownership 和重复检测；不同 Checks 可以重用相同 local ID。
-- 采用: 最终 Core snapshot 的 entity collections 恰为 `checks` 与 `records`。completed/output Run facts 始终保留这两组 raw facts；是否产生 aggregate 只由显式 Run Controls 决定。
+- 采用: 最终 Core snapshot 的 entity collections 恰为 `checks` 与 `records`。completed/output Run facts 始终保留这两组 raw facts；aggregation 不成为第三实体；完成完整结算后始终形成调用级 aggregate，默认严格折叠与 caller-local callback 由[聚合决策](default-effective-check-aggregation-with-caller-local-callback.md)和[当前 owner](../development/check-results.md#effective-aggregation-and-repository-gate-mapping)承接。
 - 不采用：`checkRunId`、Record type identity、Product-generated opaque Record ID、catalog/field projection、由 Records 推断 Check status，或 completeness/integrity/aggregate 第三实体集合。

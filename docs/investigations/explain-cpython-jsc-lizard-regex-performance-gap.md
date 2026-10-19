@@ -36,7 +36,7 @@ relations:
 - **已排除与未排除：**当前 reader dispatch、per-file `RegExp` construction/reuse、`matchAll`/`exec` wrapper、Unicode word class 与 default token factory 没有主因信号；quoted-string branches 仍只是改变 segmentation 的次级候选，不能据此改实现。
 - **结论强度：**“两边都有 native engine”“raw output 相同而约 8–10×”“generic branch 对 Bun/JSC 特别敏感”有直接依据；“Yarr 内部哪条 codegen、回溯或字符宽度路径导致该结果”仍未知。
 - **形成时候选优先级（不是当前状态）：**先以完整 parity 重查 built-in staged-generic control；Oniguruma 是并列 backend candidate；两者不能闭合或仍有 material gap 后，才调查 quoted-string same-output control。这个顺序是调查优先级，不是采用或实现授权。
-- **当前状态 owner：**本轮已停止进一步性能实现；Node 与 Onig 都不在执行。当前关闭状态及若重新授权时的唯一阅读入口由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 - **非授权边界：**所有 ablation/staged scanner 都是诊断反事实，不是 production implementation。任何 port 改动仍须独立 Change、Decision、全 reader/token/extension parity 和 Product delivery 验证。
 
 ## 调查目的

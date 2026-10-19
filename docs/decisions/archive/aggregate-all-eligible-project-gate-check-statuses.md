@@ -1,7 +1,7 @@
 ---
 title: 聚合 Project Gate 的全部 eligible Check statuses
 id: 260830-aggregate-all-eligible-project-gate-check-statuses
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:05:34Z
 purpose: 让 Project Gate 的调用级结论只由同次 selection 的全部 eligible Check terminal statuses 通过显式 all policy 形成。

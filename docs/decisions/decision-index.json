@@ -62,7 +62,7 @@
       "260812-expose-two-public-operations": "sha256:059ca7f83aeb8d12020300db2678fba42ec44aadfff8c088ce939f38a9956ab1",
       "260812-keep-prestable-package-releases-on-0-0-x": "sha256:8b8c37ce1357a9623aeac856945663f9e4c102ef508f369d7d36d95f8cd551fe",
       "260812-keep-seven-distinct-project-skills": "sha256:83e3718139414c33e86e569e043445e0735015d313dffdbefb6d69434e4c853a",
-      "260812-make-bun-entries-use-pinned-tools": "sha256:6ff180bbfdbfd1a05446389e002b67268fe9777f1699d3334d6f67416639922e",
+      "260812-make-bun-entries-use-pinned-tools": "sha256:00e0def13a8ab28e6738f365af178d0171380d4ae5e4874ecd85f744345537a2",
       "260812-release-one-versioned-npm-product-unit": "sha256:2e6d1a5f34eb3780008a505b56392769c5524a6b7d1c01c18b4a31eed961dcde",
       "260812-support-bun-as-the-package-host": "sha256:18bfe5d7a2b68841208c742a4f3b5e9b61b871bd7c50b152ec6a46c6c5070367",
       "260812-use-programmatic-api-as-product-entry": "sha256:260ce6e42e7be5c183ba5ace4a17f5f938cb1515dfc7924810ff186614b15ea5",
@@ -118,7 +118,7 @@
       "260817-use-direct-check-execution-with-structured-results": "sha256:7e3150a01d64af5b9b5f373204b3aef62be3c7148977eee2a3663abfef7bc3c8",
       "260817-use-inherit-for-check-collection-edits": "sha256:44a9fe9fda2faf270ec80621883e22a67eabaa35b786a1a93eed43b427ab066a",
       "260817-use-native-object-composition-for-check-customization": "sha256:1b4e055317c0ea31b7202c6f616dfe8710bcfe8546540a7b6342be59dfa90c20",
-      "260817-use-recursive-check-values-with-optional-execution": "sha256:d3656d14746b003c6c2af02e9a33cadf4ac46ca921ac8125ef60a84aedac514e",
+      "260817-use-recursive-check-values-with-optional-execution": "sha256:7d2a0c45df0cf526cbd613d1fcd17161153f9a7f8c4eecc31ae70eed0cb423eb",
       "260818-use-tags-for-decision-classification": "sha256:6ec3bc9a517805aa8ea5addb3b3341dacfa936d6d6d4e41e58798f9744e82ca5",
       "260818-vendor-foundation-as-repository-owned-script-tool": "sha256:349f8dd3fbf3149407f951230a2105f6b0b1407c7c2f475b6b55e2a31e3fb4e4",
       "260819-complete-project-gate-before-public-package-release": "sha256:66a889aa44c72d2aa645814c2c3ded3fdac3c165c5f9c0d51d304d1995d0ddad",
@@ -133,10 +133,10 @@
       "260821-publish-fingerprint-bound-check-record-machine-v4": "sha256:4bc3df18e460fee4c4271a3a1bbf495e1f441a885165a9d38c682dbbcd36b797",
       "260821-report-check-owned-record-data-with-local-identities": "sha256:b67b29e4c70ecd68ad7d925fa789290fd3bbcfc0c9bf16729584ba3122f12362",
       "260821-use-check-owned-extractors-for-opaque-record-identities": "sha256:289f2448f5552f13d169b80f6ba4f81d58e89e7c477885b7909fd8f05059bff8",
-      "260821-use-core-check-record-facts-with-final-data": "sha256:721b4fd4c926dc8147cb83b1beda31416c2c9db8e59a2040a969729bc4fe2415",
+      "260821-use-core-check-record-facts-with-final-data": "sha256:65923625f2d6ce189bafc976571e61a838fd694753f029c92e543dcf09fed44c",
       "260821-use-direct-check-execution-with-minimal-record-reporting": "sha256:32c3ddccca22607874db018c33745f4f21738f6608f2f764a7d358ba3379393c",
       "260821-use-explicit-run-controls-check-aggregation": "sha256:3b7c64301760554e5c4a087ac0e5debc08e8ad3c9b19d95fe7100c1fc5974b46",
-      "260821-use-four-state-check-results-with-final-data": "sha256:48a5ad1136f17f7c3147b0416b7b7f2bebe473e013f567e9b6a74973fe763eaf",
+      "260821-use-four-state-check-results-with-final-data": "sha256:1166f0028706e28d0abf5ce06f283237c83ec4af0690d8c9d4f227a71c6b816d",
       "260822-allow-check-terminal-messages-and-explicit-visibility": "sha256:b55c84eedaadb4fd934d14e5d1fe7326c166cef434bfb1e52d2a437878e77cad",
       "260822-distinguish-primary-and-derived-change-problem-sets": "sha256:521003079196a1fa338954d14b5d7a3a16ba39223e4bc7742001307cdc1ecb81",
       "260822-distinguish-primary-and-derived-change-problems": "sha256:11fafd372af3daf74d0990d817d588468c24819ef73b870aae625d9ae689e667",
@@ -198,7 +198,7 @@
       "260829-run-repository-quality-checks-inside-project-gate": "sha256:85d3e5361996450191200d14e16bbb546c8bff595799ecb68420722f1afa704c",
       "260829-ship-one-capability-rich-machine-example": "sha256:40f67ca5b052290c30fb2a1a94b668eb4b3ee0d949f2b0cfd4addb5096686315",
       "260829-ship-one-definition-backed-machine-example": "sha256:eca2ebf25c2c047d6e9a1f230c7adaacdf425d200b4db8ed394c38f06978a628",
-      "260830-aggregate-all-eligible-project-gate-check-statuses": "sha256:9940a511ed94dfeebc3832d18885e9d1c264941fe62293a0f25a3bbdffab3307",
+      "260830-aggregate-all-eligible-project-gate-check-statuses": "sha256:83a5e0cf67a4b72edca5ff82e68b626f9028d5006adf354d9d4cd9ea424f3484",
       "260830-align-function-metrics-inputs-with-lizard-supported-languages": "sha256:7d515d4e0a72fcfbdba9a8c5d250e4385db6cd7632d188c21fbf91eb707189ec",
       "260830-allow-explicitly-controlled-json-schema-reference-sources": "sha256:1690c5193d22617e977ef6a83c1648234b19f5155577c86ff5408459e77141f1",
       "260830-default-package-quality-findings-to-advisory": "sha256:7aafb4fa34e7b7019330c5ff1a265852e5cea358158e2d478d6bd460e1c698e1",
@@ -262,21 +262,21 @@
       "260902-keep-repository-quality-findings-advisory-through-release": "sha256:dc3025469fcd78df79a08078b27667191b0a656928f999b2b181a3e3b78d9bdf",
       "260902-learn-check-task-durations-for-critical-path-admission": "sha256:73acba8e58ee51febc69c358ceb7070d440a8ee955cce970b398fa0e7c371b56",
       "260902-observe-post-action-policy-measurement": "sha256:979868c0e88b2bd0f2cc57c033b246b8b23c250524899c93a93716985a3db086",
-      "260902-preserve-applicable-upstream-licenses-for-translated-analyzers": "sha256:269a48ae43f1be81262336c355faf41f8c8b45e1d49416ddebd3e6be5e2fcd99",
+      "260902-preserve-applicable-upstream-licenses-for-translated-analyzers": "sha256:34aec69b2820634be26b70de95d8eccc9a81bd789a0ddb47b56eb3af591be947",
       "260902-preserve-primary-run-failures-over-measurement-hook-output": "sha256:c0034e07d5ae0eeb735129a98d06c8c0031543e9c5274e3e9aae9293a11a93ff",
       "260902-provide-decision-boundary-admission-measurement": "sha256:a80286db3533126a85a483d02de3a52174122c29233670a1648c2cf874827c3f",
       "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers": "sha256:b513d6d7ef250ea198bc57e9592c44d7cd300e594dc0010916935b8b150e3140",
       "260902-track-lizard-supported-languages-with-upstream-advisory": "sha256:0eadf275cd5dc02e5355b078b0a9c9c0b8a8c37eabf7fc148c548bc3a1f61e76",
       "260902-treat-flag-control-settlements-as-scheduler-results": "sha256:07a0aa2eed049839d410c5fe64dd3cc92042107bb3ef511c689b9c9e2fcc2f92",
       "260902-unify-default-summary-with-terminal-measurement-hooks": "sha256:6171c82d61d4919eea25698384f1b4bef391a661401c93a3c2c6e3fcd3387bf6",
-      "260903-add-secret-detection-to-package-check-contract": "sha256:66a576630037940d53aeecc511f4e485b6398feee13989542455f022c04eeb7c",
-      "260903-adopt-invocation-scoped-custom-admission-strategy-authoring": "sha256:abffd56175789f508fdcfccef2dc76d605776afda9e7449129c35df84d6eb7ad",
+      "260903-add-secret-detection-to-package-check-contract": "sha256:349cc74d496be82ae6ca2315447d0e5bd59bfdc45a07abd3c88200029f81ccc5",
+      "260903-adopt-invocation-scoped-custom-admission-strategy-authoring": "sha256:36c27c40bfcddfc401bee6e8075deef1aed7faca9d08f7fc2e3d55377a21c916",
       "260903-adopt-selected-lizard-extensions-in-product-owned-analyzer": "sha256:8aa2ce7bd9cb962ff08b8452ed326fb9ed1c2d599cdb2da744176f5c510e6b7b",
       "260903-exclude-lizard-port-from-repository-quality-metrics": "sha256:b97f3486b13f7111df8ce1ee80c4d1cf10ef678e09238bc849b74a5db4697647",
       "260903-extend-measurement-hook-output-to-prepared-complete": "sha256:c188534936e5ed0586041403c06770b057709eca2d4346ff65fdeb2bc9c70ccd",
       "260903-introduce-invocation-scoped-admission-strategy-lifecycle": "sha256:7d8bb3c9ee0e22792e73f0aa8b0999549bb3549beff8a4655b1e13e86ca56a92",
       "260903-keep-lizard-advisory-explicit-with-selected-extension-adoption": "sha256:e2273cb34fc6bff342f2843c55ef3e6a1e36f3b3948fa1a2c017636736c4bf17",
-      "260903-permit-evidence-backed-host-primitive-optimization-in-lizard-port": "sha256:04385438dcb575170f7bfa298eb146a693e3a9b5835fd937471c28052ce80a6f",
+      "260903-permit-evidence-backed-host-primitive-optimization-in-lizard-port": "sha256:2f886c49ca8d4848ecd2ded16d24d86453879034ae832c1a466931a97eb51468",
       "260903-provide-immutable-admission-graph-state": "sha256:2fabf1fccc6b360ddfc4e7ef7cf11a262a19dcc8909b3bbdbcc1404b4f4d86f6",
       "260903-retain-private-invocation-admission-strategy-lifecycle": "sha256:0f73f3ba9e9db4ba8c44e0d27c8f1f09d0b5c81fa50f96c417e061958d64cf01",
       "260903-use-a-verified-fast-path-for-lizard-reader-resolution": "sha256:027d3ec01308a2bb79acdab981fa00e13a3ef3ba36adef78b22bd11d8f0df989",
@@ -289,7 +289,7 @@
       "260904-publish-project-gate-machine-facts-in-machine-namespace": "sha256:c7541c56895fd0403dfe644bc32e07a154c0de55c204f24b2123bd73a78ab373",
       "260904-render-record-and-message-previews-in-product-progress": "sha256:bcbd648f1291757d2360e2071821a6a2994551976b6e5d58e508711025e1b6e7",
       "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes": "sha256:225dada187603fbf1ca08509cbbbe8db79710ae1b94b6a38b6576538a67bedc5",
-      "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": "sha256:de56f33381ee073f405c3463c9e958d832351a8c868fd57024bd158764bab73e",
+      "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": "sha256:74a6c8734cace02cb7ade0720773be9e61255f990778e2b47ee655ae1caef5b6",
       "260904-unify-effective-flag-selection-and-aggregation": "sha256:bf8c3e22a82bbf05a7a19681c4c3fbc8d75546e8ae2c1168d9d5f43fcfaff9ce",
       "260904-use-project-check-command-with-focused-gate-presets": "sha256:39c5ba6bb62abbc55c6733a42f7510741a245237b30cf1b04e90d62f292ad60b",
       "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict": "sha256:ff0bb1d9104b3d745b2a0cb9bd72f503be9889a389b5ceadca774f9c696613aa",
@@ -342,10 +342,10 @@
       "260914-narrow-project-gate-to-result-contribution": "sha256:c8093695eeae49b9fe58b9f50cd350481a298c4e706b7b35a7a95cf06d663c4e",
       "260914-unify-project-change-flags-as-effective-flags": "sha256:f61d2b400b55f35d459c0933b611c9ab28468421307c55b4ad85a73557fbcd4d",
       "260914-use-prepare-and-execute-check-authoring-names": "sha256:a4f1c485d6be5e4998df6915ef8b83ad7b0bc8c802ec773be304c2f6f0b3f3e0",
-      "260915-default-effective-check-aggregation-with-caller-local-callback": "sha256:39a3a13259fe1b74a0be2d95ecd22eb8c36f3c8419b2970701f0916011ee31f8",
+      "260915-default-effective-check-aggregation-with-caller-local-callback": "sha256:3aebc4cb5d6aecf41fd0c0d23ff0ff0039c93e604fef4fa18bb35af819f43ed4",
       "260915-delegate-project-gate-direct-presets-to-effective-selection": "sha256:653512fa1e4987b4e011cc813379cee0dbe9a6dac65828e2d22867053cb89731",
       "260915-keep-package-quality-advisory-with-default-gate-aggregation": "sha256:8bd357cc49a4058d0b721e953a79bba37505aee4a646b55b2b0ea1962f695d8d",
-      "260915-provide-bounded-markdown-lint-check": "sha256:37fb68f0951b63c35527be3ec0c95d6af659f29eeca2abc22a7570a75f77a36d",
+      "260915-provide-bounded-markdown-lint-check": "sha256:86f4bccc2ff150a087a9bf6fd865674a43eb3e9326cfd04f1a40f41550c3e95f",
       "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b",
       "260920-configure-package-checks-through-constructor-options": "sha256:5bfb97f0f60af82f16afc762d6a26903c94fd513ed48ae57d531ea13cd30c811",
       "260920-extend-command-check-with-caller-owned-completion": "sha256:d31e73e1254bad1dc7805296b64317b4676e3f1b00b54f66df8a8259c1b71a55",
@@ -374,7 +374,8 @@
       "261016-preserve-terminal-effects-with-grouped-measurements": "sha256:10a981906c448061f2eff146c4d77ba192ffb737d35ec59bfe5304b9ca17dc1f",
       "261016-separate-post-action-observation-demands": "sha256:fca9f294283ee764e3e81973ca443516a2db4badc6570754236988dc0abb7498",
       "261017-observe-markdown-reference-graph": "sha256:9b36861435c3b4d7093f084afcd9329a576e11a590db6af0cf065724975d3854",
-      "261017-validate-complete-gate-markdown-graph": "sha256:6e052716c66ef6375f850f6b1af78e786d599eeaf9c8d400e62631b77e604262"
+      "261017-validate-complete-gate-markdown-graph": "sha256:6e052716c66ef6375f850f6b1af78e786d599eeaf9c8d400e62631b77e604262",
+      "261019-bind-gate-pinned-tools-at-check-owned-boundaries": "sha256:a239178c818aa4091199f3bd39bb078b945655087a7ef357525096b3e78497f8"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -1411,9 +1412,9 @@
     },
     "260812-make-bun-entries-use-pinned-tools": {
       "name": "make-bun-entries-use-pinned-tools",
-      "sourcePath": "make-bun-entries-use-pinned-tools.md",
+      "sourcePath": "archive/make-bun-entries-use-pinned-tools.md",
       "title": "让 Bun 入口自行绑定项目锁定工具",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-12T15:04:30Z",
       "purpose": "让正式 Bun 命令可复现地使用仓库锁定工具，并拒绝执行 ambient PATH 中的同名程序。",
@@ -2520,13 +2521,13 @@
     "260817-use-recursive-check-values-with-optional-execution": {
       "name": "use-recursive-check-values-with-optional-execution",
       "sourcePath": "use-recursive-check-values-with-optional-execution.md",
-      "title": "使用可选 execution 的递归 Check 普通对象",
+      "title": "使用可选 execute 的递归 Check 普通对象",
       "status": "active",
       "alignment": "aligned",
       "createdAt": "2026-08-17T15:28:16Z",
       "purpose": "让同一种递归 Check 对象同时表达独立执行节点和只负责组织与继承的信息节点。",
       "background": "每个递归节点都执行会把 composition 误写成运行事实，也容易引入父子 completion 和聚合语义。",
-      "decision": "Check 使用普通递归对象；有 execution 的节点独立执行，children 继续展开，无 execution 的节点只传递组织与继承上下文。",
+      "decision": "Check 使用普通递归对象；有 execute 的节点独立执行，children 继续展开，无 execute 的节点只传递组织与继承上下文。",
       "tags": [
         "configuration"
       ],
@@ -4117,9 +4118,9 @@
     },
     "260830-aggregate-all-eligible-project-gate-check-statuses": {
       "name": "aggregate-all-eligible-project-gate-check-statuses",
-      "sourcePath": "aggregate-all-eligible-project-gate-check-statuses.md",
+      "sourcePath": "archive/aggregate-all-eligible-project-gate-check-statuses.md",
       "title": "聚合 Project Gate 的全部 eligible Check statuses",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-30T04:05:34Z",
       "purpose": "让 Project Gate 的调用级结论只由同次 selection 的全部 eligible Check terminal statuses 通过显式 all policy 形成。",
@@ -5640,9 +5641,9 @@
       "status": "active",
       "alignment": "aligned",
       "createdAt": "2026-09-03T05:59:31Z",
-      "purpose": "让 custom 准入作者以 simple 或 prepared 两种明确形态表达一次 Run 的同步选择和可选 completion，而不扩大 Scheduler 的控制或状态边界。",
+      "purpose": "让 custom 准入作者以 simple 或 prepared 两种明确形态表达一次 Run 的同步选择和可选 terminal effect，而不扩大 Scheduler 的控制或状态边界。",
       "background": "本记录建立前，public callback 只有 proposeAdmission；private lifecycle 与 terminal output 各由独立 Decision 承接。",
-      "decision": "采用 simple/prepared public grammar、Invocation-owned preparation/completion 和无兼容 authoring migration。",
+      "decision": "采用 simple/prepared authoring，由 Invocation 拥有准备与终态 effect，不保留兼容形态。",
       "tags": [
         "configuration",
         "product-contract",
@@ -7108,6 +7109,11 @@
           "type": "修订",
           "target": "260904-unify-effective-flag-selection-and-aggregation",
           "summary": "替换旧 policy 与 null 默认聚合"
+        },
+        {
+          "type": "修订",
+          "target": "260830-aggregate-all-eligible-project-gate-check-statuses",
+          "summary": "保留全部有效终态与 producing policy，改用默认严格聚合"
         }
       ]
     },
@@ -7769,6 +7775,28 @@
         {
           "type": "修订",
           "target": "261014-enable-gate-markdown-parse-cache"
+        }
+      ]
+    },
+    "261019-bind-gate-pinned-tools-at-check-owned-boundaries": {
+      "name": "bind-gate-pinned-tools-at-check-owned-boundaries",
+      "sourcePath": "bind-gate-pinned-tools-at-check-owned-boundaries.md",
+      "title": "在 Check owner 边界绑定 Gate 锁定工具",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-19T03:58:47Z",
+      "purpose": "让正式 Gate 自行进入锁定环境，同时由普通 Check 结算实际外部工具不可用。",
+      "background": "外置 Lizard 已退场；Gate 仅需 SCC binding，旧全局缺 binding failure 不再符合 ordinary Check 边界。",
+      "decision": "Gate 自行进入 mise 且只注入绝对 SCC command；缺失时由 fileMetrics unavailable，函数指标使用内置 analyzer。",
+      "tags": [
+        "dependency-policy",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260812-make-bun-entries-use-pinned-tools",
+          "summary": "保留自绑定，改由实际 Check 结算 SCC 不可用"
         }
       ]
     }

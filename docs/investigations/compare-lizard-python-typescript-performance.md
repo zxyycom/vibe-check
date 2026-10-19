@@ -37,7 +37,7 @@ A 的 mise pin 未提供 bit-for-bit Python/Pygments/PathSpec provenance。因�
 - **已确认 / 推断 / 未知：**已确认的 output guard 与 wall-time 分类见“已确认的输出前置条件”和“wall-time 观察”；因果归属仍未知，故“后续实施边界”不是优化授权。
 - **不能比较或相减：**A、B、C 的数值不得横向相减、相加或用一层的方向解释另一层；尤其 C stage 记录有重叠，CPU/RSS 与 long-lived session 也不在可比范围。
 - **形成时建议（不是当前状态）：**若要选择优化层，先用与目标层相同的 workload/profile 取得因果证据；本报告本身只提供该调查入口，不授权改动。
-- **当前状态 owner：**本轮已停止进一步性能实现；本报告的形成时调查入口不应触发新工作。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 

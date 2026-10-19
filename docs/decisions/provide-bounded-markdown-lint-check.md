@@ -42,7 +42,7 @@ relations: []
 - 采用: 单文件 bytes、全次 Findings 和 cancellation 采用有界策略；读取、解码、limit、backend 或 protocol
   无法形成完整可信结果时结算为 `unavailable`，不发布 partial lint Findings。
 - 采用: Consumer 省略 `findingPolicy` 时 lint Finding 为 `non-blocking`；显式 `blocking` 由 owning Check 结算。
-  当前 Project Gate 不选择本 Check，后续 repository dogfood 以独立 Change 评审 corpus、exclusions、迁移和
-  preset membership。
-- 采用: 首版按稳定顺序逐文件执行且不持久化 cache；缓存 identity、收益门槛和 failure fallback 由后续
-  Markdown lint cache Change 决定。
+  Gate 是否选择及是否阻断由 repository owner 独立决定；形成时首版未接入 Gate，后续已由
+  [Gate advisory 决策](adopt-project-gate-markdown-lint-advisory.md)承接 dogfood，现行 selection 见[Project Gate](../tooling/project-gate.md)。
+- 采用: 形成时首版按稳定顺序逐文件执行且不持久化 cache；这不是永久禁用缓存的方向。后续缓存的
+  identity、显式 opt-in、完整事实验收与 failure fallback 由[当前 Check owner](../checks/markdown-lint.md)定义。

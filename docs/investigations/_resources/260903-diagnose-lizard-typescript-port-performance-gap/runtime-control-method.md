@@ -11,11 +11,14 @@ This resource records the exploratory same-bundle runtime screen used by the inv
 - Node version reported by the entry: `v24.18.0`
 - Built bundle SHA-256: `ebdb65e5e60615910d6aca5f27c69f489a2c150eaa937565fe251caa84c2baf6`
 - Request SHA-256: `7b0c68abab42a12e1f6799d94f8e23f777600dcca1a8e484d18048b5c0bf68ff`
-- Request resource: `../compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json`
+- Archived request resource: [`representative-batch-request.json`](../260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json)
+- Historical request locator: `../compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json` (the same request before resource owners gained dated IDs).
 
 The generated bundle is not retained because the entry source and repository baseline identify its inputs; its digest identifies the exact generated artifact used for the saved results.
 
-## Commands
+## Historical commands
+
+The commands below preserve the paths used for the saved run, not a current replay recipe. Today the retained request is at the dated archive link above; temporary entry/bundle files and runtime installations are not promised to exist. Any separately authorized replay must use the archived input and fresh temporary output paths, without overwriting this evidence.
 
 ```bash
 REQUEST='docs/investigations/_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json'

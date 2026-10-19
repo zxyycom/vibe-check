@@ -1,12 +1,12 @@
 ---
-title: 使用可选 execution 的递归 Check 普通对象
+title: 使用可选 execute 的递归 Check 普通对象
 id: 260817-use-recursive-check-values-with-optional-execution
 status: active
 alignment: aligned
 createdAt: 2026-08-17T15:28:16Z
 purpose: 让同一种递归 Check 对象同时表达独立执行节点和只负责组织与继承的信息节点。
 background: 每个递归节点都执行会把 composition 误写成运行事实，也容易引入父子 completion 和聚合语义。
-decision: Check 使用普通递归对象；有 execution 的节点独立执行，children 继续展开，无 execution 的节点只传递组织与继承上下文。
+decision: Check 使用普通递归对象；有 execute 的节点独立执行，children 继续展开，无 execute 的节点只传递组织与继承上下文。
 tags:
   - configuration
 relations:
@@ -29,10 +29,12 @@ relations:
 
 ## 决策
 
+本记录拥有递归 composition 与独立执行的判断；字段名沿用[prepare/execute 命名决策](use-prepare-and-execute-check-authoring-names.md)，不恢复旧 `execution` 槽位。
+
 - 采用: Project Definition 的 `checks` 使用一种递归普通对象 shape；Product 默认 values 与项目声明 values 都直接使用该 shape。
-- 采用: node 有 `execution` 时展开为一个独立 executable Check；node 有 `checks` 时以本节点的 effective configuration 继续递归展开 children。这两个动作彼此独立。
-- 采用: node 没有 `execution` 时是 information-only composition node，只承接显示、组织和继承上下文，不形成自己的 runtime outcome、Records 或 child aggregate。
-- 采用: information-only node 可以声明递归 children 与可继承 scheduling fields；当前节点专属的 `options` 必须与 `execution` 同时存在，否则 Definition fail closed，不能把它误解为 child inheritance 或虚拟 Record owner。
-- 采用: 一个 node 同时拥有 `execution` 与 `checks` 时，parent 与 execution-bearing descendants 各自形成独立 Checks；containment 不产生隐式依赖、顺序、等待或汇总。
-- 采用: 当前每项 `execution` 只表示该 Check 自己的一次 execution callback；不公开 per-Check TaskPlan factory、leaf Task 或 completion contract。
+- 采用: node 有 `execute` 时展开为一个独立 executable Check；node 有 `checks` 时以本节点的 effective configuration 继续递归展开 children。这两个动作彼此独立。
+- 采用: node 没有 `execute` 时是 information-only composition node，只承接显示、组织和继承上下文，不形成自己的 runtime outcome、Records 或 child aggregate。
+- 采用: information-only node 可以声明递归 children 与可继承 scheduling fields；当前节点专属的 `options` 必须与 `execute` 同时存在，否则 Definition fail closed，不能把它误解为 child inheritance 或虚拟 Record owner。
+- 采用: 一个 node 同时拥有 `execute` 与 `checks` 时，parent 与 execution-bearing descendants 各自形成独立 Checks；containment 不产生隐式依赖、顺序、等待或汇总。
+- 采用: 当前每项 `execute` 只表示该 Check 自己的一次 execution callback；不公开 per-Check TaskPlan factory、leaf Task 或 completion contract。
 - 不采用: group/custom/built-in tree variants、every-node execution、child-first parent completion、containment aggregate，或让普通对象来源决定运行语义。

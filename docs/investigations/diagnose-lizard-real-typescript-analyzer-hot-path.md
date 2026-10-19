@@ -32,7 +32,7 @@ relations:
 - **已确认 / 推断 / 未知：**“已确认事实”只确认 current fast path 未走 ordered resolver、以及 profile/计数所示热点排序；“推断与未闭合环节”明确保留 regex 可回收比例、跨 runtime 原因及 full pipeline/Product 效果为未知。
 - **不能比较或相减：**direct/current/ordered 受限反事实、stage observations 和 sampling percentages 不构成同一正式 ABBA；不得将它们相减为 resolver 或 tokenizer 的精确 wall-time 份额，也不得与 Python profile 直接比较。
 - **形成时建议（不是当前状态）：**先在独立 core Investigation 中对 combined-regex tokenizer 取得完整 token-stream parity 和同 workload before/after；不从 sampling 百分比直接修改实现。
-- **当前状态 owner：**本轮已停止进一步性能实现；本报告的 core Investigation 只保留为形成时诊断出口。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 
