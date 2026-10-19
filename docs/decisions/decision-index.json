@@ -375,7 +375,8 @@
       "261016-separate-post-action-observation-demands": "sha256:fca9f294283ee764e3e81973ca443516a2db4badc6570754236988dc0abb7498",
       "261017-observe-markdown-reference-graph": "sha256:9b36861435c3b4d7093f084afcd9329a576e11a590db6af0cf065724975d3854",
       "261017-validate-complete-gate-markdown-graph": "sha256:6e052716c66ef6375f850f6b1af78e786d599eeaf9c8d400e62631b77e604262",
-      "261019-bind-gate-pinned-tools-at-check-owned-boundaries": "sha256:a239178c818aa4091199f3bd39bb078b945655087a7ef357525096b3e78497f8"
+      "261019-bind-gate-pinned-tools-at-check-owned-boundaries": "sha256:a239178c818aa4091199f3bd39bb078b945655087a7ef357525096b3e78497f8",
+      "261019-require-consumer-oriented-package-documentation-review": "sha256:99f9cc0cc0b37c8e7664dab27b04a390d5a1402d22a7bc0e8f75a1310e21e8d6"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7799,6 +7800,22 @@
           "summary": "保留自绑定，改由实际 Check 结算 SCC 不可用"
         }
       ]
+    },
+    "261019-require-consumer-oriented-package-documentation-review": {
+      "name": "require-consumer-oriented-package-documentation-review",
+      "sourcePath": "require-consumer-oriented-package-documentation-review.md",
+      "title": "从包消费者视角审查对外文档并作为发布前置",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-19T04:50:12Z",
+      "purpose": "让用户仅凭实际包中的文档与公开声明说明正确使用能力，并使内容审查成为稳定职责",
+      "background": "投影、链接和声明检查不能判断说明本身的质量，按 diff 的同步审查也会遗漏未修改材料",
+      "decision": "由文档 owner 定义包消费者语义审查，每次发布必须形成绑定正式包的独立结论",
+      "tags": [
+        "documentation",
+        "workflow-policy"
+      ],
+      "relations": []
     }
   }
 }

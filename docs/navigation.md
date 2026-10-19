@@ -78,9 +78,10 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | Gate native/process diagnostics、Record 投影 | [Gate diagnostics](tooling/gate-diagnostics.md)与各 producing owner tests |
 | 本地候选包状态、准备、安装与 external consumer | [Package lifecycle](tooling/package-lifecycle.md)与 candidate / consumer acceptance |
 | package 构建、manifest、ESM 布局与随包法律材料 | [Package artifact](tooling/package-artifact.md)与 artifact acceptance |
-| 正式发布、冻结 source、receipt 与发布后交接 | [Package release](tooling/package-release.md)与同产物完整 Gate |
+| 正式发布、冻结 source、receipt 与发布后交接 | [Package release](tooling/package-release.md)、必需的[对外文档复核](tooling/package-release.md#发布前对外文档复核)与同产物完整 Gate |
 | translated source inventory、identity 与派生 pin | [来源映射维护](tooling/source-mapping.md)与 source identity audit |
 | Markdown 正文、Check 指南、可执行示例 | [Documentation](tooling/documentation.md)、目标正文与示例源 |
+| 从包使用者视角审查文档与对外 JSDoc | [对外文档使用者审查](tooling/documentation.md#对外文档使用者审查)：实际包范围、阅读任务与完成条件 |
 | 示例投影器、repository-material 校验器或材料验收 | [Repository material validation](tooling/repository-material-validation.md)、provider/validator 与测试 |
 | 虚拟 admission 模拟、heuristic 双 artifact 对照 | [Admission workbench](tooling/admission-workbench.md)与 workbench tests |
 | Lizard 性能测量 | [性能测量](tooling/lizard-performance.md)的显式 evidence workflow |

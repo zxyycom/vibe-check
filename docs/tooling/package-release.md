@@ -14,6 +14,7 @@
 | 发布产物 | 发布通过正式 receipt 与完整验收的同一份本地 tarball，不从源码目录再次打包。 |
 | 发布与认证方式 | 发布者在本地交互式终端执行发布并完成 2FA；认证步骤不放入 Gate，也不采集 token、OTP 或认证配置。 |
 | 发布说明 | 随包的 [changelog](../changelog.md) 与 README 入口；不另设 GitHub Release 渠道。 |
+| 对外文档复核 | 按[发布前复核](#发布前对外文档复核)取得适用于最终正式包的独立语义结论。 |
 | Git 交接 | 发布及分发验证成功后，版本标签绑定冻结提交 S，再按授权合回 main。 |
 | 证据保存 | 使用下节[固定归档位置](#固定归档位置与保存内容)，保留原始产物及可核对摘要。 |
 
@@ -33,14 +34,29 @@ bun run package:release:prepare -- --version <selected-version> --tag latest
 
 这些输入只选择本地 build identity，不证明 registry availability 或 publish 授权；public access 由 version 投影后的 staging manifest 的 `publishConfig` 闭合。prepare/verify 均不查询 registry、核验 publisher authority 或授权状态，也不执行外部 publish mechanism。
 
+## 发布前对外文档复核
+
+每次正式发布，执行者都须将[对外文档使用者审查](documentation.md#对外文档使用者审查)纳入 release Change 的任务与验收。
+审查方法和完成条件由文档 owner 定义；本节负责发布时序与最终包确认。
+
+1. **准备期审查。** 对实际候选包的全部用户文档与对外 JSDoc 完成独立审查，在冻结源码前尽早修正问题；范围包含本版本未修改的内容。
+2. **正式包确认。** 从冻结提交 S 形成正式 tarball 后，用 receipt、摘要和包内实际材料确认身份。
+   独立审查者核对正式包清单、内容及相关行为与已审对象的一致性，再确认可复用的阅读结论。
+   版本、changelog、声明或其它材料有差异时复核差异及关联阅读路径；影响不明时扩大审查。
+3. **发布前判定。** 在 release Change 的 current evidence 保存 `Manual CR:`、正式包身份与独立结论。
+   只有满足文档 owner 的完成条件才可进入发布；覆盖不足、必要核对未完成、独立复核缺失或关键问题未解决时阻断发布。
+
+执行者分别核对语义结论与机械结果：现有 CLI 不读取审查记录，prepare/verify 或 Gate 成功不表示文档审查通过。
+确认后若需修正发布输入，按[冻结与验收流程](#发布工作区冻结源与交接)重建并复核新包；记录始终在 Change 实现工作区维护。
+
 ## 发布工作区、冻结源与交接
 
 正式发布有两个职责分离的 worktree，不能以同一 checkout 中的暂存记录代替：
 
-1. **准备。** Change 实现 worktree 在无前缀发布分支（例如 `release-0-0-2`）准备 Plan、实现修正、升级说明与非敏感证据，可以持续记录工作，但不是正式构建输入；`main` 保持开发集成线。
-2. **冻结。** 选定 clean source commit `S` 后，建立独立 detached 发布 worktree 并固定在 `S`。prepare 前仍须满足上节的同一 clean `HEAD` 条件，不以工作区隔离放宽校验。
-3. **验收。** 在 frozen worktree 从 `S` prepare 正式 tarball 与 receipt，再运行 `bun run package:release:verify -- --receipt <receipt-path>`，将完整 `--all` Gate 与 external-consumer acceptance 绑定到同一 tarball。local candidate、开发期 Gate 或重新打包的 tarball 都不能替代。
-4. **发布与标记。** 同一 tarball 的完整验收、临发布 freshness/registry/authority 核验和精确外部写入授权均满足后，才按已确认机制发布。发布及分发验证成功后，Git `v<selected-version>` tag 才指向 `S`，不能指向后续 `main` 或合并提交。
+1. **准备。** Change 实现 worktree 在无前缀发布分支（例如 `release-0-0-2`）准备 Plan、实现修正、升级说明与非敏感证据，并开展[对外文档复核](#发布前对外文档复核)。该工作区承接持续记录，正式构建使用下一步的冻结工作区；`main` 保持开发集成线。
+2. **冻结。** 选定 clean source commit `S` 后，建立独立 detached 发布 worktree 并固定在 `S`。prepare 前须满足[发布身份要求](#发布身份与授权边界)中的同一 clean `HEAD` 条件。
+3. **验收。** 在 frozen worktree 从 `S` prepare 正式 tarball 与 receipt，运行 `bun run package:release:verify -- --receipt <receipt-path>`，将完整 `--all` Gate 与 external-consumer acceptance 绑定到同一 tarball；同时完成[正式包文档确认](#发布前对外文档复核)。
+4. **发布与标记。** 同一 tarball 的完整验收、对外文档独立语义复核、临发布 freshness/registry/authority 核验和精确外部写入授权均满足后，才按已确认机制发布。发布及分发验证成功后，Git `v<selected-version>` tag 指向 `S`。
 5. **合入。** 发布修正、Plan 和非敏感证据可在 Change 实现 worktree 持续维护，不使 detached worktree drift；只有正式发布及分发验证成功后，才按授权和受影响验证合回 `main`。任何拟纳入发布的 source 或 packaged-material 变更都须重选 clean commit、重新建立冻结 worktree、prepare 和完整验收。
 
 释放冻结 worktree 前，按下节保存证据并完成字节核对；Change evidence 记录实际归档路径与结果，非敏感摘要继续在实现 worktree 维护。
@@ -59,7 +75,7 @@ bun run package:release:prepare -- --version <selected-version> --tag latest
 | --- | --- |
 | tarball 与 receipt | 按原工作区相对路径保存到 `build/artifacts/` 和 `build/releases/`，原始 bytes 不变。 |
 | 正式 Gate 日志 | 保留对应 `.log/project-gate/<invocation-id>/` 目录结构，供定位具体 Check 和同包验收结果。 |
-| `evidence/<sha256>.md` | 保存当次 Change evidence 的非敏感快照，文件名为快照 bytes 的 SHA-256；包含版本、S、产物摘要、日志索引、发布及分发结果、Git 标签与交接提交。 |
+| `evidence/<sha256>.md` | 保存当次 Change evidence 的非敏感快照，文件名为快照 bytes 的 SHA-256；包含版本、S、产物摘要、日志索引、对外文档审查覆盖与独立结论、发布及分发结果、Git 标签与交接提交。 |
 
 正式验收后先保存 tarball、receipt 和 Gate 证据，发布及交接后新增包含后续结果的 evidence 快照。复制前检查材料不含认证秘密，
 禁止归档 `.npmrc`、token、OTP 或登录会话 transcript；若日志含敏感内容，停止归档和工作区清理并单独处理。
