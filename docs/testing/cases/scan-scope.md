@@ -191,11 +191,11 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > generates fresh GitHub-compatible slugs for ATX and Setext headings`
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > reports decoded UTF-16 source ranges with 1-based, end-exclusive positions`
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > returns immutable facts and a controlled failure for malformed decoded text`
-- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > restores only closed immutable parser facts`
-- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > invalidates entries written for a different parser-contract version`
-- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > awaits the append once publication has started despite later cancellation`
-- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > ignores malformed, unknown, and unterminated lines while last valid identity wins`
-- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > rejects cached facts when the exact source bytes are not valid UTF-8`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache/cache.test.ts|Markdown Link parse-facts cache > restores only closed immutable parser facts`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache/cache.test.ts|Markdown Link parse-facts cache > invalidates entries written for a different parser-contract version`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache/cache.test.ts|Markdown Link parse-facts cache > awaits the append once publication has started despite later cancellation`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache/cache.test.ts|Markdown Link parse-facts cache > ignores malformed, unknown, and unterminated lines while last valid identity wins`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache/cache.test.ts|Markdown Link parse-facts cache > rejects cached facts when the exact source bytes are not valid UTF-8`
   Proves:
 - Each eligible Markdown source yields only the documented Link occurrence grammar and heading facts; excluded Markdown forms and undefined references do not become target work.
 - A fresh GitHub-priority heading slugger and decoded UTF-16 navigation range make anchor facts source-local and reproducible.

@@ -2,7 +2,7 @@ import type { FileMetric } from "./measurement-model.ts";
 import type { ProjectFileRegionIndex } from "../../data-boundary/project-file-region-index.ts";
 import type { FileMetricsFindingIdentity, ResolvedFileMetricsCodeAreaOptions } from "./options.ts";
 import { isBlockingFinding } from "../code-quality-findings/policy.ts";
-import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
+import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
 import type { MaterializedFindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 import {
   buildFindingWaiverAuditRecordData,

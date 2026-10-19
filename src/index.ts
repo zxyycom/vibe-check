@@ -35,7 +35,7 @@ export type {
   ProjectFileRegionIndex,
   ProjectFileRegionSources
 } from "./data-boundary/project-file-region-index.ts";
-export { duplicateDetection } from "./package-checks/duplicate-detection/default-check.ts";
+export { duplicateDetection } from "./package-checks/duplicate-detection/constructor.ts";
 export type { PackageCheckAuthoringOptions } from "./package-checks/check-authoring.ts";
 export { parseDuplicateDetectionData } from "./package-checks/duplicate-detection/final-data.ts";
 export type { DuplicateDetectionFinalData } from "./package-checks/duplicate-detection/final-data.ts";
@@ -71,7 +71,7 @@ export type {
 } from "./package-checks/function-metrics/options.ts";
 export type { FunctionMetricsUnavailableReasonCode } from "./package-checks/function-metrics/execution.ts";
 export type { FunctionMetricsRecordData } from "./package-checks/function-metrics/records.ts";
-export { secretDetection } from "./package-checks/secret-detection/default-check.ts";
+export { secretDetection } from "./package-checks/secret-detection/constructor.ts";
 export { parseSecretDetectionData } from "./package-checks/secret-detection/final-data.ts";
 export type { SecretDetectionFinalData } from "./package-checks/secret-detection/final-data.ts";
 export type {
@@ -82,7 +82,7 @@ export type {
 } from "./package-checks/secret-detection/options.ts";
 export type { SecretDetectionUnavailableReasonCode } from "./package-checks/secret-detection/execution.ts";
 export type { SecretDetectionRecordData } from "./package-checks/secret-detection/records.ts";
-export { jsonSchemaValidation } from "./package-checks/json-schema-validation/default-check.ts";
+export { jsonSchemaValidation } from "./package-checks/json-schema-validation/constructor.ts";
 export { parseJsonSchemaValidationData } from "./package-checks/json-schema-validation/final-data.ts";
 export type { JsonSchemaValidationFinalData } from "./package-checks/json-schema-validation/final-data.ts";
 export type {
@@ -101,7 +101,7 @@ export type {
   JsonSchemaValidationRecordReason,
   JsonSchemaValidationUnavailableCode
 } from "./package-checks/json-schema-validation/json-schema-validation.ts";
-export { jsonValidation } from "./package-checks/json-validation/default-check.ts";
+export { jsonValidation } from "./package-checks/json-validation/constructor.ts";
 export { parseJsonValidationData } from "./package-checks/json-validation/final-data.ts";
 export type { JsonValidationFinalData } from "./package-checks/json-validation/final-data.ts";
 export type {
@@ -143,7 +143,7 @@ export type {
   MaintenanceReminderUnavailableReason,
   MaintenanceRemindersFinalData
 } from "./package-checks/maintenance-reminders/final-data.ts";
-export { markdownLint } from "./package-checks/markdown-lint/default-check.ts";
+export { markdownLint } from "./package-checks/markdown-lint/constructor.ts";
 export { parseMarkdownLintData } from "./package-checks/markdown-lint/final-data.ts";
 export type { MarkdownLintFinalData } from "./package-checks/markdown-lint/final-data.ts";
 export type {
@@ -158,7 +158,7 @@ export type {
   MarkdownLintRecordData
 } from "./package-checks/markdown-lint/records.ts";
 export type { MarkdownLintUnavailableReason } from "./package-checks/markdown-lint/execution.ts";
-export { markdownLinkValidation } from "./package-checks/markdown-link-validation/default-check.ts";
+export { markdownLinkValidation } from "./package-checks/markdown-link-validation/constructor.ts";
 export { parseMarkdownLinkValidationData } from "./package-checks/markdown-link-validation/final-data.ts";
 export type { MarkdownLinkValidationFinalData } from "./package-checks/markdown-link-validation/final-data.ts";
 export type {

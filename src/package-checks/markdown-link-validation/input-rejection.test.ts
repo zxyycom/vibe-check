@@ -4,16 +4,12 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { executeMarkdownLinkValidation } from "./execution.ts";
-import {
-  createMarkdownTestRoot,
-  execute,
-  MARKDOWN_FILES,
-  MARKDOWN_LINK_OPTIONS
-} from "./default-check.test-support.ts";
+import { createTypeScriptSourceRoot } from "../check-execution.test-support.ts";
+import { execute, MARKDOWN_FILES, MARKDOWN_LINK_OPTIONS } from "./constructor.test-support.ts";
 
 describe("Markdown Link input rejection", () => {
   it("is not applicable only when its file selection selects no path", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-empty-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-empty-");
     try {
       const result = await execute(
         executeMarkdownLinkValidation,
@@ -32,7 +28,7 @@ describe("Markdown Link input rejection", () => {
   });
 
   it("reports every selected non-Markdown path without making blocking policy fail", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-rejected-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-rejected-");
     try {
       const broadFiles = Object.freeze({
         patterns: [...Object.freeze(["**/*"])]

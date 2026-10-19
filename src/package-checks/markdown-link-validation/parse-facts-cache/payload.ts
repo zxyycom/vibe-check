@@ -3,16 +3,16 @@ import { createHash } from "node:crypto";
 import {
   snapshotClosedArray,
   snapshotExactClosedRecord
-} from "../../data-boundary/closed-values.ts";
-import { canonicalJsonText } from "../../data-boundary/canonical-data.ts";
-import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
+} from "../../../data-boundary/closed-values.ts";
+import { canonicalJsonText } from "../../../data-boundary/canonical-data.ts";
+import { isPositiveSafeInteger } from "../../../data-boundary/value-shapes.ts";
 import type {
   MarkdownHeading,
   MarkdownLinkOccurrence,
   MarkdownSourcePosition,
   MarkdownSourceRange,
   ParsedMarkdownLinkFacts
-} from "./markdown-parser.ts";
+} from "../markdown-parser.ts";
 
 const CACHE_FORMAT_VERSION = "markdown-link-parse-facts-jsonl-v1";
 const CACHE_PAYLOAD_VERSION = "1";

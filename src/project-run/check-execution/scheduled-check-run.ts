@@ -17,7 +17,7 @@ import {
   type AdmittedCheckExecutionInput,
   type CheckExecutionClock
 } from "./admitted-check-execution.ts";
-import type { PreparedCheckExecutionInput } from "./resolved-checks.ts";
+import type { PlannedCheckExecutionInput } from "./resolved-checks.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
 const DIRECT_EXECUTION_INVOCATION_ID = "invocation/v1:direct-check-execution";
@@ -27,7 +27,7 @@ const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({
 
 export async function runScheduledChecks(
   input: Readonly<{
-    readonly execution: PreparedCheckExecutionInput & {
+    readonly execution: PlannedCheckExecutionInput & {
       readonly checks: readonly NormalizedCheck[];
     };
     readonly taskGraph: ExecutableTaskGraph;
@@ -44,7 +44,7 @@ export async function runScheduledChecks(
 
 function schedulerOptionsFor(
   input: Readonly<{
-    readonly execution: PreparedCheckExecutionInput & {
+    readonly execution: PlannedCheckExecutionInput & {
       readonly checks: readonly NormalizedCheck[];
     };
     readonly taskGraph: ExecutableTaskGraph;
@@ -119,7 +119,7 @@ function requiredNormalizedCheck(
 }
 
 function admittedExecutionFacts(
-  execution: PreparedCheckExecutionInput
+  execution: PlannedCheckExecutionInput
 ): Omit<AdmittedCheckExecutionInput, keyof CheckExecutionState | "check" | "signal"> {
   return {
     clock: execution.clock ?? SYSTEM_MONOTONIC_CLOCK,

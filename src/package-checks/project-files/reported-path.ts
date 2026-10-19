@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { toSlashPath } from "../host-environment/path.ts";
+import { toSlashPath } from "../../data-boundary/project-path.ts";
 
 export function normalizeScannerReportedPath(reportedPath: string, projectRoot: string): string {
   const normalizedReportedPath = stripWindowsExtendedPathPrefix(reportedPath);

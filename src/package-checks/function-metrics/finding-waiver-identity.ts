@@ -1,6 +1,6 @@
 import { snapshotClosedPolicyRecord } from "../../data-boundary/closed-values.ts";
 import { isNonEmptyString, isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
-import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
+import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
 import type { FunctionMetricsFindingIdentity, FunctionMetricsFindingMetric } from "./options.ts";
 
 export function resolveFunctionMetricsFindingIdentity(

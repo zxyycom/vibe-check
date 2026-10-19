@@ -1,11 +1,7 @@
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import type { CheckResult } from "../../check/check.ts";
-import {
-  createTypeScriptSourceRoot,
-  executeCheck,
-  type ReportedCheckRecord
-} from "../check-execution.test-support.ts";
+import { executeCheck, type ReportedCheckRecord } from "../check-execution.test-support.ts";
 
 const FILES = Object.freeze({
   patterns: [...Object.freeze(["**/*.ts"])]
@@ -31,10 +27,6 @@ export const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Obje
   })
 });
 
-export function createMarkdownTestRoot(prefix: string): string {
-  return createTypeScriptSourceRoot(prefix);
-}
-
 export async function execute(
   callback: Parameters<typeof executeCheck>[0],
   options: ResolvedMarkdownLinkValidationOptions,
@@ -43,7 +35,7 @@ export async function execute(
   signal: AbortSignal = new AbortController().signal
 ): Promise<
   Readonly<{
-    readonly records: readonly ReportedRecord[];
+    readonly records: readonly ReportedCheckRecord[];
     readonly result: CheckResult;
   }>
 > {
@@ -53,5 +45,3 @@ export async function execute(
   });
   return executeCheck(callback, executionOptions, root, signal);
 }
-
-export type ReportedRecord = ReportedCheckRecord;

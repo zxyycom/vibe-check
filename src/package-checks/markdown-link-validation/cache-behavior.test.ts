@@ -4,16 +4,12 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { executeMarkdownLinkValidation } from "./execution.ts";
-import {
-  createMarkdownTestRoot,
-  execute,
-  MARKDOWN_FILES,
-  MARKDOWN_LINK_OPTIONS
-} from "./default-check.test-support.ts";
+import { createTypeScriptSourceRoot } from "../check-execution.test-support.ts";
+import { execute, MARKDOWN_FILES, MARKDOWN_LINK_OPTIONS } from "./constructor.test-support.ts";
 
 describe("default Check direct callbacks", () => {
   it("adds only an actionable capacity message without changing link settlement", async () => {
-    const root = createMarkdownTestRoot("vibe-check-markdown-link-capacity-");
+    const root = createTypeScriptSourceRoot("vibe-check-markdown-link-capacity-");
     const cacheDirectory = join(root, "cache-state");
     const cacheFile = join(cacheDirectory, "markdown-link-parse-facts-v1.jsonl");
     try {
@@ -79,7 +75,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("uses an explicit parse-facts cache only as best-effort state", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cache-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-cache-");
     const cacheDirectory = join(root, "cache-state");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
@@ -143,7 +139,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("invalidates source and direct-target parse facts by exact content bytes", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cache-identity-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-cache-identity-");
     const cacheDirectory = join(root, "cache-state");
     const enabledOptions = {
       ...MARKDOWN_LINK_OPTIONS,

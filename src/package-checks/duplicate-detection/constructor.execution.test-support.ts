@@ -1,14 +1,10 @@
-import {
-  prepareCheckOptions,
-  createTypeScriptSourceRoot,
-  executeCheck
-} from "../check-execution.test-support.ts";
+import { prepareCheckOptions, executeCheck } from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { chmodSync, existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { duplicateDetection } from "./default-check.ts";
+import { duplicateDetection } from "./constructor.ts";
 import { executeDuplicateDetection } from "./execution.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
 
@@ -19,12 +15,6 @@ export const FILES = Object.freeze({
 export const CODE_AREAS = Object.freeze({
   source: Object.freeze({ files: FILES, minimumLines: 3, minimumTokens: 50 })
 });
-
-export const execute = executeCheck;
-
-export function createRoot(prefix: string): string {
-  return createTypeScriptSourceRoot(prefix);
-}
 
 export function createRealDuplicateRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-public-duplicate-"));
@@ -123,7 +113,7 @@ export async function assertInvalidOptionsAreRejected(
     );
   }
   assert.deepEqual(
-    (await execute(executeDuplicateDetection, { ...options, codeAreas: {} }, root)).result,
+    (await executeCheck(executeDuplicateDetection, { ...options, codeAreas: {} }, root)).result,
     {
       status: "unavailable",
       reason: { code: "invalid-options" },
@@ -193,7 +183,7 @@ export async function assertSelfMatchedFragmentIsRejected(
       "}"
     ].join("\n")
   );
-  const result = await execute(
+  const result = await executeCheck(
     executeDuplicateDetection,
     {
       ...options,
@@ -223,7 +213,7 @@ export async function assertSourceAndCacheWriteFailures(
 ): Promise<void> {
   const sourceArea = options.codeAreas.source;
   if (sourceArea === undefined) throw new Error("duplicateDetection source area is missing");
-  const sourceUnavailable = await execute(
+  const sourceUnavailable = await executeCheck(
     executeDuplicateDetection,
     {
       ...options,
@@ -250,7 +240,7 @@ export async function assertSourceAndCacheWriteFailures(
   });
   assert.equal(existsSync(join(root, ".cache", "vibe-check", "quality-scan-cache-v3")), true);
   writeFileSync(join(root, "blocked-cache"), "not a directory");
-  const cacheWriteFailure = await execute(
+  const cacheWriteFailure = await executeCheck(
     executeDuplicateDetection,
     { ...options, cache: { directory: "blocked-cache", enabled: true } },
     root

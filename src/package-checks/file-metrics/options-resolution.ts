@@ -17,7 +17,7 @@ import {
   resolveFindingPolicy,
   type FindingPolicy
 } from "../code-quality-findings/policy.ts";
-import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
+import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
 import type {
   FileMetricsFindingIdentity,
   FileMetricsFindingWaiver,

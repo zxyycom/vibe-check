@@ -3,7 +3,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { markdownLint } from "./default-check.ts";
+import { markdownLint } from "./constructor.ts";
 import { executeMarkdownLint } from "./execution.ts";
 import { parseMarkdownLintData } from "./final-data.ts";
 import { orderedMarkdownLintCandidates } from "./records.ts";

@@ -6,9 +6,10 @@ import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import { run } from "../../project-run/run.ts";
-import { duplicateDetection } from "./default-check.ts";
+import { duplicateDetection } from "./constructor.ts";
 import { executeDuplicateDetection } from "./execution.ts";
-import { assertConditionalCacheAcquisition } from "./default-check.cache.test-support.ts";
+import { createTypeScriptSourceRoot, executeCheck } from "../check-execution.test-support.ts";
+import { assertConditionalCacheAcquisition } from "./constructor.cache.test-support.ts";
 import { DUPLICATE_DETAILS } from "./finding-messages.test-support.ts";
 import {
   assertInvalidOptionsAreRejected,
@@ -16,22 +17,20 @@ import {
   assertSourceAndCacheWriteFailures,
   CODE_AREAS,
   createRealDuplicateRoot,
-  createRoot,
-  duplicateScannerExecutable,
-  execute
-} from "./default-check.execution.test-support.ts";
+  duplicateScannerExecutable
+} from "./constructor.execution.test-support.ts";
 import {
   assertDefaultCheckComposition,
   assertInitialCommonAreaResult,
   assertReevaluatedCommonAreaPolicies,
   createCommonAreaCheck
-} from "./default-check.overlap.test-support.ts";
+} from "./constructor.overlap.test-support.ts";
 
 describe("default Check direct callbacks", () => {
   it("executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options", async function executesDuplicateDetectionWithCheckOwnedOptions() {
     assertDefaultCheckComposition();
     assertConditionalCacheAcquisition();
-    const root = createRoot("vibe-check-direct-duplicate-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-duplicate-");
     try {
       const executable = duplicateScannerExecutable(root);
       const check = duplicateDetection({
@@ -43,7 +42,7 @@ describe("default Check direct callbacks", () => {
       });
       const options = check.options;
       await assertInvalidOptionsAreRejected(check, options, root, executable);
-      const result = await execute(executeDuplicateDetection, options, root);
+      const result = await executeCheck(executeDuplicateDetection, options, root);
       assert.deepEqual(result.result, {
         status: "passed",
         data: { blockingFindingCount: 0, findingCount: 1 },

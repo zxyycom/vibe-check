@@ -1,6 +1,6 @@
 import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
 import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
-import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
+import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
 import {
   MARKDOWN_LINT_RULE_NAMES,
   type MarkdownLintFindingIdentity,

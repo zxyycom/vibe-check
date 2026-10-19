@@ -3,25 +3,25 @@ import type { ResourceUnitMapping } from "../../project-definition/resource-unit
 import { prepareExecutableTaskGraph, type ExecutableTaskGraph } from "../task-scheduler/graph.ts";
 import { planStaticCheckGraph } from "./plan.ts";
 
-const PREPARED_CHECK_EXECUTION = Symbol("prepared-check-execution");
+const STATIC_CHECK_EXECUTION_PLAN = Symbol("static-check-execution-plan");
 
-/** One preparation binds the Check collection to its validated static graph and root cap. */
-export interface PreparedCheckExecution {
-  readonly [PREPARED_CHECK_EXECUTION]: true;
+/** Binds normalized Checks to their validated static graph and root cap; no Check prepare runs here. */
+export interface StaticCheckExecutionPlan {
+  readonly [STATIC_CHECK_EXECUTION_PLAN]: true;
   readonly checks: readonly NormalizedCheck[];
   readonly taskGraph: ExecutableTaskGraph;
 }
 
-export function prepareCheckExecution(
+export function createStaticCheckExecutionPlan(
   input: Readonly<{
     readonly checks: readonly NormalizedCheck[];
     readonly maxParallel: number;
     readonly resourceCapacities?: ResourceUnitMapping;
   }>
-): PreparedCheckExecution {
+): StaticCheckExecutionPlan {
   const checks = Object.freeze([...input.checks]);
   return Object.freeze({
-    [PREPARED_CHECK_EXECUTION]: true as const,
+    [STATIC_CHECK_EXECUTION_PLAN]: true as const,
     checks,
     taskGraph: prepareExecutableTaskGraph(
       planStaticCheckGraph(checks, input.resourceCapacities),

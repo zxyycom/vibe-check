@@ -3,15 +3,14 @@ import { rmSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import { assertOvermatchedFindingWaiverEvidence } from "../code-quality-findings/finding-waiver-evidence.test-support.ts";
-import { duplicateDetection } from "./default-check.ts";
+import { duplicateDetection } from "./constructor.ts";
 import { executeDuplicateDetection } from "./execution.ts";
+import { createTypeScriptSourceRoot, executeCheck } from "../check-execution.test-support.ts";
 import {
   CODE_AREAS,
-  createRoot,
   duplicateScannerExecutable,
-  execute,
   scanner
-} from "./default-check.execution.test-support.ts";
+} from "./constructor.execution.test-support.ts";
 
 const DUPLICATE_IDENTITY = {
   locations: [
@@ -32,7 +31,7 @@ describe("duplicateDetection finding waivers", () => {
   });
 
   it("preserves applied and stale waiver evidence while removing only exact duplicates from settlement", async () => {
-    const root = createRoot("vibe-check-duplicate-waiver-");
+    const root = createTypeScriptSourceRoot("vibe-check-duplicate-waiver-");
     try {
       const executable = duplicateScannerExecutable(root);
       const staleIdentity = {
@@ -53,7 +52,7 @@ describe("duplicateDetection finding waivers", () => {
         ],
         scanner: { command: { executable, kind: "custom" } }
       });
-      const observed = await execute(executeDuplicateDetection, check.options, root);
+      const observed = await executeCheck(executeDuplicateDetection, check.options, root);
 
       assert.deepEqual(observed.result, {
         status: "passed",
@@ -96,7 +95,7 @@ describe("duplicateDetection finding waivers", () => {
   });
 
   it("keeps repeated duplicate identities actionable when a waiver overmatches", async () => {
-    const root = createRoot("vibe-check-duplicate-overmatched-waiver-");
+    const root = createTypeScriptSourceRoot("vibe-check-duplicate-overmatched-waiver-");
     try {
       const executable = duplicateScanner(root, [duplicateReportItem(), duplicateReportItem()]);
       const check = duplicateDetection({
@@ -107,7 +106,7 @@ describe("duplicateDetection finding waivers", () => {
         findingWaivers: [{ identity: DUPLICATE_IDENTITY, reason: "Must not cover two fragments." }],
         scanner: { command: { executable, kind: "custom" } }
       });
-      const observed = await execute(executeDuplicateDetection, check.options, root);
+      const observed = await executeCheck(executeDuplicateDetection, check.options, root);
       assert.equal(observed.result.status, "failed");
       if (observed.result.status !== "failed") return;
       assert.deepEqual(observed.result.data, { blockingFindingCount: 2, findingCount: 2 });
@@ -189,7 +188,7 @@ function assertInvalidDuplicateWaiverAuthoring(): void {
 }
 
 async function assertDuplicateScannerFailureDoesNotAuditWaiver(): Promise<void> {
-  const root = createRoot("vibe-check-duplicate-failed-scan-waiver-");
+  const root = createTypeScriptSourceRoot("vibe-check-duplicate-failed-scan-waiver-");
   try {
     const executable = scanner(
       root,
@@ -201,7 +200,7 @@ async function assertDuplicateScannerFailureDoesNotAuditWaiver(): Promise<void> 
       findingWaivers: [{ identity: DUPLICATE_IDENTITY, reason: "Awaiting complete scan." }],
       scanner: { command: { executable, kind: "custom" } }
     });
-    const observed = await execute(executeDuplicateDetection, check.options, root);
+    const observed = await executeCheck(executeDuplicateDetection, check.options, root);
     assert.deepEqual(observed.result, {
       status: "unavailable",
       reason: { code: "external-execution-failed" },
@@ -221,7 +220,7 @@ async function assertDuplicateScannerFailureDoesNotAuditWaiver(): Promise<void> 
 }
 
 async function assertDuplicateUnusedWaiverAudit(): Promise<void> {
-  const root = createRoot("vibe-check-duplicate-no-input-waiver-");
+  const root = createTypeScriptSourceRoot("vibe-check-duplicate-no-input-waiver-");
   try {
     const check = duplicateDetection({
       codeAreas: {
@@ -229,7 +228,7 @@ async function assertDuplicateUnusedWaiverAudit(): Promise<void> {
       },
       findingWaivers: [{ identity: DUPLICATE_IDENTITY, reason: "Stale duplicate policy." }]
     });
-    const observed = await execute(executeDuplicateDetection, check.options, root);
+    const observed = await executeCheck(executeDuplicateDetection, check.options, root);
     assert.deepEqual(observed.result, {
       status: "not-applicable",
       reason: { code: "no-eligible-input" },

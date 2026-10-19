@@ -10,7 +10,7 @@ import {
 } from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
-import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
+import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
 import type { ResolvedFileMetricsOptions } from "./options.ts";
 
 /** 验证 constructor 产物或普通对象组合形成的完整 file-metrics options。 */

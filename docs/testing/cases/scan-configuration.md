@@ -110,7 +110,7 @@ Entities:
 Owner: `docs/checks/markdown-link-validation.md#参数与默认配置`
 Entities:
 
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > materializes bounded Markdown Link defaults and rejects malformed resolved options`
+- `bun|src/package-checks/markdown-link-validation/constructor.test.ts|default Check direct callbacks > materializes bounded Markdown Link defaults and rejects malformed resolved options`
   Proves:
 - `markdownLinkValidation(options?)` accepts closed partial authoring fields, derives its precise case-insensitive Markdown include from the public source/exclude baseline, defaults `findingPolicy` to non-blocking, and fills/freezes the complete bounded resolved policy. Its cache branch defaults to exact `{ enabled: false }`; only exact enabled/disabled alternatives are accepted, enabled requires a non-empty absolute directory without U+0000, and that resolved branch participates in declarative identity. Both total budgets accept false or arbitrary positive safe integers while retaining omitted numeric defaults and the per-file byte bound; true, null, non-positive, fractional, non-finite, unsafe or non-numeric totals fail authoring and preparation. It exposes its final-data parser. Unknown authoring fields or an unsupported policy fail synchronously; malformed complete replacements fail in the owning Check before execution with an actionable message.
 
@@ -274,7 +274,7 @@ Entities:
 Owner: `docs/checks/markdown-lint.md#参数与默认配置`
 Entities:
 
-- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > materializes the closed recommended policy and rejects malformed authoring`
+- `bun|src/package-checks/markdown-lint/constructor.test.ts|Markdown lint Check > materializes the closed recommended policy and rejects malformed authoring`
   Proves:
 - `markdownLint(options?)` materializes the eight recommended Product rules, default advisory policy, disabled cache and frozen empty waiver list, exposes its final-data parser, and rejects empty, duplicate, unknown or invalid-cache authoring fields before execution.
 

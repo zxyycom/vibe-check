@@ -1,9 +1,9 @@
 import { normalizeSchedulerContextCallback } from "../../project-definition/scheduler-context-validation.ts";
 import type { CheckProjectContextSource } from "../project-context.ts";
 import type { PreparedAdmissionStrategy } from "../admission-strategy-provider/prepared-admission-strategy.ts";
-import { executePreparedChecks } from "../check-execution/resolved-checks.ts";
+import { executeStaticCheckPlan } from "../check-execution/resolved-checks.ts";
 import type { ResolvedCheckExecution } from "../check-execution/resolved-execution-result.ts";
-import type { PreparedCheckExecution } from "../check-execution/prepared-check-execution.ts";
+import type { StaticCheckExecutionPlan } from "../check-execution/static-execution-plan.ts";
 import type { Invocation } from "./run.ts";
 import type { NonConfigurationRunResult } from "../result.ts";
 
@@ -13,17 +13,17 @@ export type SchedulerExecution =
 
 type SchedulerAdapterInput = Readonly<{
   readonly invocation: Invocation;
-  readonly prepared: PreparedCheckExecution;
+  readonly plan: StaticCheckExecutionPlan;
   readonly preparedStrategy: PreparedAdmissionStrategy;
   readonly project: CheckProjectContextSource;
 }>;
 
-/** Bridges one prepared invocation to resolved Check execution and contains task-engine faults. */
+/** Bridges the invocation's static plan to Check execution and contains task-engine faults. */
 export async function executeScheduler(input: SchedulerAdapterInput): Promise<SchedulerExecution> {
   const { invocation, preparedStrategy } = input;
   try {
     const performanceDiagnostics = schedulerPerformanceDiagnostics(input);
-    return await executePreparedChecks(input.prepared, {
+    return await executeStaticCheckPlan(input.plan, {
       admissionPolicy: preparedStrategy.admissionPolicy,
       clock: invocation.clock,
       diagnosticLogger: invocation.diagnosticLogging.core,

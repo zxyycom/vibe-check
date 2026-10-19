@@ -8,9 +8,9 @@ import {
 import type { CheckAggregation, RunControls } from "../controls/contract.ts";
 import type { AdmissionStrategyProviderFactory } from "../admission-strategy-provider/provider.ts";
 import {
-  prepareCheckExecution,
-  type PreparedCheckExecution
-} from "../check-execution/prepared-check-execution.ts";
+  createStaticCheckExecutionPlan,
+  type StaticCheckExecutionPlan
+} from "../check-execution/static-execution-plan.ts";
 import type { ValidatedProjectDefinition } from "../../project-definition/project-definition-validation.ts";
 import { CheckAggregationFailure } from "../aggregation.ts";
 import { type CheckExecutionClock } from "../check-execution/resolved-checks.ts";
@@ -30,7 +30,11 @@ import {
   type DiagnosticLoggingRouter
 } from "../diagnostic-logging/logger.ts";
 import { createInvocation } from "./creation.ts";
-import { cancelledBeforeExecution, executionResult, planningResult } from "./candidates.ts";
+import {
+  cancelledBeforeExecution,
+  executionResult,
+  planningResult
+} from "./early-return-results.ts";
 import { executePlannedInvocation } from "./execution.ts";
 export type Invocation = Readonly<{
   /** Product-private test seam; package `run` never accepts a provider factory. */
@@ -109,11 +113,11 @@ async function executeNormalizedRun(
     if (isCancelled(controls)) {
       candidate = cancelledBeforeExecution(invocation, "pre-work");
     } else {
-      const prepared = prepareInvocationChecks(invocation);
+      const plan = planInvocationChecks(invocation);
       candidate =
-        prepared === undefined
+        plan === undefined
           ? planningResult(invocation, "task-graph-invalid")
-          : await executePlannedInvocation(invocation, prepared, controls.checkAggregation);
+          : await executePlannedInvocation(invocation, plan, controls.checkAggregation);
     }
   } catch (error) {
     if (error instanceof CheckAggregationFailure) {
@@ -142,9 +146,9 @@ function observeInvocationStarted(
   });
 }
 
-function prepareInvocationChecks(invocation: Invocation): PreparedCheckExecution | undefined {
+function planInvocationChecks(invocation: Invocation): StaticCheckExecutionPlan | undefined {
   try {
-    const prepared = prepareCheckExecution({
+    const plan = createStaticCheckExecutionPlan({
       checks: invocation.normalized.checks,
       resourceCapacities: invocation.normalized.declarative.scheduler.resourceCapacities,
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel
@@ -157,7 +161,7 @@ function prepareInvocationChecks(invocation: Invocation): PreparedCheckExecution
         maxParallel: invocation.normalized.declarative.scheduler.maxParallel
       }
     });
-    return prepared;
+    return plan;
   } catch {
     invocation.diagnosticLogging.core.observe({
       event: "run.planning.failed",

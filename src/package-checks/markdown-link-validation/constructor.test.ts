@@ -1,4 +1,7 @@
-import { prepareCheckOptions } from "../check-execution.test-support.ts";
+import {
+  createTypeScriptSourceRoot,
+  prepareCheckOptions
+} from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -11,15 +14,10 @@ import {
   normalizeProjectDefinition
 } from "../../project-definition/project-definition.ts";
 import { executeMarkdownLinkValidation } from "./execution.ts";
-import { markdownLinkValidation } from "./default-check.ts";
+import { markdownLinkValidation } from "./constructor.ts";
 import { parseMarkdownLinkValidationData } from "./final-data.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
-import {
-  createMarkdownTestRoot,
-  execute,
-  MARKDOWN_FILES,
-  MARKDOWN_LINK_OPTIONS
-} from "./default-check.test-support.ts";
+import { execute, MARKDOWN_FILES, MARKDOWN_LINK_OPTIONS } from "./constructor.test-support.ts";
 
 describe("default Check direct callbacks", () => {
   it("materializes bounded Markdown Link defaults and rejects malformed resolved options", async () => {
@@ -196,7 +194,7 @@ describe("default Check direct callbacks", () => {
     ]) {
       assert.equal(validMarkdownLinkValidationOptions(options), false);
     }
-    const root = createMarkdownTestRoot("vibe-check-invalid-markdown-link-");
+    const root = createTypeScriptSourceRoot("vibe-check-invalid-markdown-link-");
     const invalidDirectOptions = {
       ...MARKDOWN_LINK_OPTIONS,
       limits: { ...MARKDOWN_LINK_OPTIONS.limits }

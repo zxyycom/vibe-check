@@ -4,7 +4,7 @@ import path from "node:path";
 import { describe, it } from "node:test";
 
 import { executeMarkdownLinkValidation } from "./execution.ts";
-import { execute, MARKDOWN_LINK_OPTIONS } from "./default-check.test-support.ts";
+import { execute, MARKDOWN_LINK_OPTIONS } from "./constructor.test-support.ts";
 import {
   createdResolver,
   readSource,

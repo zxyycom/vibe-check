@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { executeMarkdownLint } from "./execution.ts";
-import { markdownLint } from "./default-check.ts";
+import { markdownLint } from "./constructor.ts";
 import { lintMarkdownWithCache } from "./findings-cache.ts";
 import {
   createMarkdownLintTestRoot,

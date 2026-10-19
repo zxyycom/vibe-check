@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import processes from "node:child_process";
 import path from "node:path";
 
-import type { CacheAcquisitionProbe } from "./default-check.cache.test-support.ts";
+import type { CacheAcquisitionProbe } from "./constructor.cache.test-support.ts";
 
 // Builtin mocks stay in this independently spawned process, never in the shared test runner.
 const root = process.argv[2];
@@ -51,7 +51,7 @@ mockBuiltin("node:path", () => ({
 }));
 const { defineConfig, duplicateDetection, run } = await import("../../index.ts");
 // Load the expectations after Product imports so its fingerprint module observes the builtin mocks.
-const { assertCacheAcquisitionSequence } = await import("./default-check.cache.test-support.ts");
+const { assertCacheAcquisitionSequence } = await import("./constructor.cache.test-support.ts");
 let probeCount = 0;
 const probe: CacheAcquisitionProbe = async (mode, minimumTokens = 100) => {
   // Fixture reads/assertions between Runs must not contribute to the next Run's acquisition counts.

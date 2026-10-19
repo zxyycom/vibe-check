@@ -3,18 +3,14 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { markdownLinkValidation } from "./default-check.ts";
+import { markdownLinkValidation } from "./constructor.ts";
 import { executeMarkdownLinkValidation } from "./execution.ts";
-import {
-  createMarkdownTestRoot,
-  execute,
-  MARKDOWN_FILES,
-  MARKDOWN_LINK_OPTIONS
-} from "./default-check.test-support.ts";
+import { createTypeScriptSourceRoot } from "../check-execution.test-support.ts";
+import { execute, MARKDOWN_FILES, MARKDOWN_LINK_OPTIONS } from "./constructor.test-support.ts";
 
 describe("default Check direct callbacks", () => {
   it("reports safe Markdown Link findings only after a complete traversal", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(
@@ -103,7 +99,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("reports a root-external target without persisting its path, fragment, or query", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-external-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-external-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(
@@ -168,7 +164,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("validates a direct Markdown target outside source scope without scanning its links", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-scope-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-scope-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       mkdirSync(join(root, "notes"), { recursive: true });

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { describe, it } from "node:test";
 
-import { jsonSchemaValidation } from "./default-check.ts";
+import { jsonSchemaValidation } from "./constructor.ts";
 import { parseJsonSchemaValidationData } from "./final-data.ts";
 import {
   offlineOptions,

@@ -338,7 +338,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       Object.freeze({
         declarationName: "markdownLinkValidation",
         kind: "jsdoc",
-        sourcePath: "src/package-checks/markdown-link-validation/default-check.ts"
+        sourcePath: "src/package-checks/markdown-link-validation/constructor.ts"
       })
     ]),
     title: "离线 Markdown 本地链接完整性"
@@ -352,7 +352,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       Object.freeze({
         declarationName: "markdownLint",
         kind: "jsdoc",
-        sourcePath: "src/package-checks/markdown-lint/default-check.ts"
+        sourcePath: "src/package-checks/markdown-lint/constructor.ts"
       })
     ]),
     title: "最小用法"

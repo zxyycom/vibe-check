@@ -3,11 +3,12 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { defaultProjectFileSelection } from "../project-files/configuration.ts";
-import { duplicateDetection } from "./default-check.ts";
+import { duplicateDetection } from "./constructor.ts";
 import { executeDuplicateDetection } from "./execution.ts";
 import { DUPLICATE_DETAILS } from "./finding-messages.test-support.ts";
 import { parseDuplicateDetectionData } from "./final-data.ts";
-import { execute, FILES, scanner } from "./default-check.execution.test-support.ts";
+import { executeCheck } from "../check-execution.test-support.ts";
+import { FILES, scanner } from "./constructor.execution.test-support.ts";
 
 export function createCommonAreaCheck(root: string) {
   mkdirSync(join(root, "scripts"), { recursive: true });
@@ -129,7 +130,7 @@ export async function assertInitialCommonAreaResult(
   root: string,
   scanCountPath: string
 ): Promise<void> {
-  const result = await execute(executeDuplicateDetection, options, root);
+  const result = await executeCheck(executeDuplicateDetection, options, root);
   assert.deepEqual(result.result, {
     status: "passed",
     data: { blockingFindingCount: 0, findingCount: 1 },
@@ -165,7 +166,7 @@ export async function assertReevaluatedCommonAreaPolicies(
 ): Promise<void> {
   const sharedArea = options.codeAreas.shared;
   if (sharedArea === undefined) throw new Error("duplicateDetection shared area is missing");
-  const blockingCommonArea = await execute(
+  const blockingCommonArea = await executeCheck(
     executeDuplicateDetection,
     {
       ...options,
@@ -191,7 +192,7 @@ export async function assertReevaluatedCommonAreaPolicies(
   });
   assert.equal(Reflect.get(blockingCommonArea.records[0]?.data ?? {}, "blocking"), true);
   assert.equal(readFileSync(scanCountPath, "utf8"), "1");
-  const stricter = await execute(
+  const stricter = await executeCheck(
     executeDuplicateDetection,
     {
       ...options,
@@ -215,7 +216,7 @@ export async function assertReevaluatedCommonAreaPolicies(
       "also-shared": { ...sharedArea, minimumLines: 12, minimumTokens: 100 }
     }
   };
-  const overlapping = await execute(executeDuplicateDetection, multipleCommonAreas, root);
+  const overlapping = await executeCheck(executeDuplicateDetection, multipleCommonAreas, root);
   assert(overlapping.result.status === "passed");
   assert.deepEqual(overlapping.result.data, { blockingFindingCount: 0, findingCount: 1 });
   assert.equal(overlapping.records.length, 1);
@@ -223,7 +224,7 @@ export async function assertReevaluatedCommonAreaPolicies(
     "also-shared",
     "shared"
   ]);
-  const stricterLines = await execute(
+  const stricterLines = await executeCheck(
     executeDuplicateDetection,
     {
       ...multipleCommonAreas,

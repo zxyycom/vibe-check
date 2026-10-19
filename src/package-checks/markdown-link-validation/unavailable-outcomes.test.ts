@@ -5,16 +5,12 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { executeMarkdownLinkValidation } from "./execution.ts";
-import {
-  createMarkdownTestRoot,
-  execute,
-  MARKDOWN_FILES,
-  MARKDOWN_LINK_OPTIONS
-} from "./default-check.test-support.ts";
+import { createTypeScriptSourceRoot } from "../check-execution.test-support.ts";
+import { execute, MARKDOWN_FILES, MARKDOWN_LINK_OPTIONS } from "./constructor.test-support.ts";
 
 describe("default Check direct callbacks", () => {
   it("returns unavailable without publishing an earlier Markdown Link finding", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-limit-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-limit-");
     const cacheDirectory = join(root, "cache-state");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
@@ -51,7 +47,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("returns unavailable without publishing an earlier finding when target work reaches its limit", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-target-limit-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-target-limit-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(join(root, "docs", "a.md"), "[missing](missing.md)\n", "utf8");
@@ -108,7 +104,7 @@ describe("default Check direct callbacks", () => {
     });
     assert.deepEqual(result.records, []);
 
-    const sourceRoot = createMarkdownTestRoot("vibe-check-direct-markdown-link-source-limit-");
+    const sourceRoot = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-source-limit-");
     try {
       mkdirSync(join(sourceRoot, "docs"), { recursive: true });
       writeFileSync(join(sourceRoot, "docs", "source.md"), "# Source\n", "utf8");
@@ -141,7 +137,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("returns unavailable before source collection when its Run signal is already cancelled", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cancelled-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-cancelled-");
     const cacheDirectory = join(root, "cache-state");
     const controller = new AbortController();
     controller.abort();
@@ -176,7 +172,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("does not start parse-facts publication after cancellation without reporting stale findings", async () => {
-    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cache-cancelled-");
+    const root = createTypeScriptSourceRoot("vibe-check-direct-markdown-link-cache-cancelled-");
     const cacheDirectory = join(root, "cache-state");
     const controller = new AbortController();
     try {

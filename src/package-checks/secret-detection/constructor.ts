@@ -14,7 +14,7 @@ import { validSecretDetectionOptions } from "./options-validation.ts";
  * 构造只检查其必填、显式 `files` policy 所选择输入的 high-confidence secret Check。
  *
  * @param options - 必须声明完整 `files`；limits 和 finding waivers 使用本 Check 的固定安全策略。
- * @returns 固定 `secret-detection` identity、完整冻结 options、final-data parser 与 execution。
+ * @returns 使用默认 `secret-detection` 或显式 `checkId` 的 Check，携带完整冻结 options、final-data parser 与 execution。
  * @throws {TypeError} files 缺失、策略不完整或输入含未知字段时抛出。
  */
 export function secretDetection(

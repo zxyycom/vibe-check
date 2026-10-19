@@ -245,6 +245,7 @@ terminal seal 前验证逐 Task 及实际启用 summary 的全部派生结果（
 
 停止 admission 且全部 started work drain 后，Scheduler seal 同一终态事实边界，按需要生产 graph、admitted/settled kind-only execution、Run measurement 与逐 Task timings，再为每个消费者分别投影精确冻结视图。交付与 collector 是否存在分离，none/graph/execution-only effect 仍取得 sealed context；没有 collector 不能作为跳过 effect 的条件。diagnostic-enabled internal summary wrapper 与 caller terminal effects 使用同一 ordered runner，不保证外层 context identity 相同，prepared effect 也按自己的需求取得精确视图；summary wrapper 包含 projection/writer failure，runner 只执行各 wrapper 的 failure policy，不识别 summary identity。
 
+ordered runner 先交付 internal summary wrapper，再按声明顺序交付 caller terminal effects。
 sync/async terminal effects 逐个 await，effect elapsed 不计已 seal 的 measurement；一个 caller terminal effect throw/reject 不阻止后续 terminal effect，也不改写 sealed facts。Scheduler 返回完成 delivery 的 sealed terminal facts 后，Invocation 才交付 `terminalEffect`；成功 terminalEffect 不能覆盖已记录的 generic terminal effect failure。
 
 nonempty caller terminal effects 或 successful prepared result 实际含 terminalEffect 才启用 terminalEffects output；无 sealed context 时 enabled output 保持 not-run。所有实际 participants 成功才 succeeded，任一失败即 failed。无 primary failure 时按输出指南形成保留完整 facts 的 output failure；已有 cancellation、policy fault 或其它 primary failure 时只记录 terminal effect status，不覆盖 primary kind/diagnostic。pre-work/planning 没有 context，不交付 terminal effects；summary writer failure 属于 diagnostic writer containment，不是 caller terminal effect failure。

@@ -2,19 +2,15 @@ import { isUtf8 } from "node:buffer";
 import { appendFile, mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
-import type { CheckMessage } from "../../check/check.ts";
-import { DEFAULT_CACHE_WARN_ABOVE_BYTES } from "./cache-options.ts";
-import {
-  cacheEnvelopeLine,
-  markdownBytesDigest,
-  parseCacheEnvelopeLine
-} from "./parse-facts-cache-payload.ts";
+import type { CheckMessage } from "../../../check/check.ts";
+import { DEFAULT_CACHE_WARN_ABOVE_BYTES } from "../cache-options.ts";
+import { cacheEnvelopeLine, markdownBytesDigest, parseCacheEnvelopeLine } from "./payload.ts";
 import {
   parseMarkdownLinkFacts,
   type MarkdownLinkParseResult,
   type ParsedMarkdownLinkFacts
-} from "./markdown-parser.ts";
-import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
+} from "../markdown-parser.ts";
+import type { ResolvedMarkdownLinkValidationOptions } from "../options.ts";
 
 const CACHE_FILE_NAME = "markdown-link-parse-facts-v1.jsonl";
 

@@ -1,104 +1,40 @@
-# 生命周期位置与函数契约
+# 选择公开回调位置
 
-本页用“逻辑位置 → 实际执行契约”定位 Vibe Check 的扩展点。逻辑位置只说明某项职责相对领域事实发生的阶段；实际执行契约才定义路径、输入、调用次数、顺序、控制权和失败。相邻时点不表示共享 Hook。
+需要把项目规则、调度策略或呈现逻辑接入 Vibe Check 时，先按要改变的结果选择扩展点。本页只介绍当前 package API；每个位置的完整输入、返回与失败契约由链接的专题拥有。相邻执行阶段不表示同一种 callback，也不共享控制权。
 
-状态标记为：**当前公开**（package API）、**当前 Project**（Project Gate 自有）、**当前内部**（运行时私有）、**相邻 Change**（已有 owner、尚未接线）或**逻辑保留**（没有当前消费者）。只有当前实际契约给出可调用路径和签名。
+## 按任务选择
 
-## 当前时间线
+| 你要完成的任务 | 使用的公开位置 | 输入、作用与边界 |
+| --- | --- | --- |
+| 执行前验证 options，或准备本项执行所需的值 | Check `prepare(options, context)` | 只在本 Check 获准入后至多一次；成功或明确带 fallback 继续后交给 `execute`，block、throw 或非法结果只使本项 unavailable。见[自定义 Check](extending-check-lifecycle.md)。 |
+| 运行领域规则并决定 Check 终态 | Check `execute(options, context)` | 形成 terminal data、messages 和可选 Records；不要遗留未等待的工作。见[自定义 Check](extending-check-lifecycle.md)。 |
+| 读取 direct upstream 的类型化 data | provider `parseData(data)` 与 dependency read | parser 验证 terminal data；relation 授权和读取失败由[依赖与类型化数据](check-dependencies.md)定义。 |
+| 在外部进程 spawn 前选择环境 | `commandCheck({ resolveEnvironment })` | 接收 prepared command options，返回 closed environment policy；不负责领域结算。见[命令环境](command-check.md#环境)。 |
+| 把完整外部命令结果转为领域事实 | `commandCheck({ afterCommand: { execute } })` | 接收冻结 `{ options, command }`，在完整 numeric-exit result 上返回 Check result；spawn/capture/取消等失败不交给它。见[调用方完成阶段](command-check.md#调用方完成阶段)。 |
+| 为一次 Run 准备自定义调度策略 | prepared admission strategy `prepare` | static graph 有效后至多一次，返回同步 `decide` 与可选 `terminalEffect`。见[调度 Check](scheduling.md)。 |
+| 决定下一次准入哪些 Check | simple / prepared strategy `decide` | 同步提出 select/wait，Scheduler 验证合法性；不执行 Check。见[自定义准入 policy](scheduling.md#自定义准入-policy)。 |
+| 在 Scheduler 终态读取测量或执行事实 | `scheduler.terminalEffects[]` 或 prepared `terminalEffect` | 只在 drain 并 seal 后交付声明的冻结字段；不能改写 Check 或 Scheduler 结果，也不是必达的 `finally`。见[调度 Check](scheduling.md)与[输出状态](run-outputs.md#输出状态与失败处理)。 |
+| 改变有效 Check 的整体四态汇总 | `RunControls.checkAggregation(checks)` | 完整结算后至多一次，同步折叠 canonical-order 的有效 `CoreCheck[]`；不是 RunResult transform。见[Check aggregation](../api-mechanics.md#runcontrols-与-check-aggregation)。 |
+| 定制受管进度的 preview 文本 | `outputs.progressRendering.formatter` | 只格式化受预算限制的显示文本，不改变终态或 Records。见[配置 preview 文本](run-outputs.md#配置-preview-文本)。 |
+| 按项目策略处理最终结果或释放调用方资源 | 在 `await run(...)` 后处理，资源清理使用调用方 `try/finally` | 先区分 completed、取消、配置或输出等分支。见[RunResult 分支](../api-mechanics.md#runresult-分支)。 |
 
-```text
-Definition / Controls validation
-→ pre-work cancellation check
-→ static graph preparation and validation
-→ Git Project facts (when configured)
-→ admission-strategy preparation
-→ effective flag-control selection
-→ Scheduler admission
-  → admitted Check: prepare → execute → settle
-→ drained / sealed Scheduler terminal boundary
-  → internal summary → terminalEffects[] → prepared terminalEffect
-→ effective Check aggregation
-→ Run result and output closure
-→ Project Gate initial result → resultContributor → exit/transcript
-```
+## 接着编写 Check
 
-早期取消、无效图和策略准备失败不会形成 sealed terminal context。Check `prepare` 只在该 Check 获准入后运行；它不是 invocation-wide hook。
+选定 `prepare` 或 `execute` 后，按[自定义 Check 的完整可执行示例](extending-check-lifecycle.md#定义-check)编写 options 验证、取消、Records、messages 与 terminal data；该专题拥有 Check authoring 契约与示例，不在本页重复。
+第一业务参数是 options，不是 `{ options }`；需要框架字段时才在第二参数取得声明的 context。
 
-## Product Check
+## 调用时序与失败处理
 
-| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
-| --- | --- | --- | --- |
-| 单项 options 准备 | **当前公开**：`Definition.checks[].prepare`，`CheckPreparation` | admitted Check 至多一次、早于 `execute`；block、throw 或非法结果只将该 Check 结算为 unavailable。 | [自定义 Check](extending-check-lifecycle.md) |
-| 开始执行 | **当前内部**：`CheckExecutionLifecycle.started` | prepare 成功后、execute 前同步投影；不能控制结果。 | Product Run |
-| 领域执行 | **当前公开**：`Definition.checks[].execute` | 形成本 Check result、messages 与 Records。 | [自定义 Check](extending-check-lifecycle.md) |
-| 单项结算 | **当前内部**：`CheckExecutionLifecycle.settled` | Core 接受唯一终态事实后同步一次，覆盖 control、dependency、preparation、execution 和取消。 | Product result model |
+Check `prepare` 只对通过选择、依赖与准入的本项运行，preparation 允许继续后才进入 `execute`。
+所有 Check 完整结算后，Run 才汇总有效 Check；需要最终 RunResult 的代码应留在调用方。
 
-```ts
-const check = defineCheck({
-  checkId: "license-policy",
-  displayName: "License policy",
-  options: { denied: ["GPL-3.0-only"] },
-  prepare(options) {
-    return { status: "success", preparedOptions: options };
-  },
-  execute({ options }) {
-    return { status: "passed", data: { deniedCount: options.denied.length } };
-  }
-});
-```
+Check prepare/execute、Scheduler prepare/decide/terminal 与 command environment/complete 都接受
+[声明式 callback context](../api-mechanics.md#声明式-callback-context)：业务 input 独立，普通 function 默认零需求，
+需要框架字段时用对应 helper 声明；各 phase 的合法字段由其专题定义。回调是受信任宿主代码，声明需求不是 sandbox。
 
-## Project / invocation
+Scheduler terminal effects 按配置顺序逐个 await，之后才交付 prepared strategy 的 terminalEffect；任一失败不阻止后续 effect，
+也不回写 sealed facts。早期取消、无效 graph 或策略准备失败没有 sealed context，因此不能依靠这些 effect 做必达清理。
+失败的 readback 与 primary/output 优先级见[Run 输出与诊断](run-outputs.md#输出状态与失败处理)。
 
-| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
-| --- | --- | --- | --- |
-| Project facts 准备 | **当前内部**：配置 `changes` 后的 Git facts acquisition | static graph 有效后、策略准备和有效选择前取得本次 Project facts；由 Product 执行，不是公开 callback。 | [API 机制](../api-mechanics.md#按文件变化选择-check)；Project Run owner |
-| 有效选择完成 | **当前内部**：`InvocationLifecycle.selectionSettled()` | 所有 flag-control settlements 被接受后、Scheduler graph run 前一次；与逐 Check 生命周期分离。 | Project Run owner |
-| 批量有效输入准备 | **相邻 Change** | `batch-declared-project-file-inputs` 拥有选择后的输入屏障。 | Project Run owner |
-| 有效 Check 汇总 | **当前公开**：`RunControls.checkAggregation(checks)` | 完整结算后至多一次；接收只读、canonical-order 的有效 `CoreCheck[]`，必须同步返回四态。省略时 Product strict-all；throw、Promise 或非法返回直接拒绝 `run`，不是 `RunResult` hook。 | [API 机制](../api-mechanics.md#runcontrols-与-check-aggregation) |
-
-## Admission / Scheduler
-
-| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
-| --- | --- | --- | --- |
-| 策略准备 | **当前公开**：prepared strategy `prepare`（function 或 descriptor） | static graph 有效后至多一次，返回 `decide` 和可选 `terminalEffect`。 | [调度 Check](scheduling.md) |
-| 准入决策 | **当前公开**：simple/prepared `.decide`（function 或 descriptor） | 每个 decision boundary 同步提出 select/wait；Scheduler 验证并转换状态。 | Scheduler |
-| accepted action 测量 | **当前内部**：private collector | accepted transition 后记录，下一次 decide 只读取冻结 prefix。 | Scheduler owner |
-| 终态摘要 | **当前内部**：summary participant | sealed context 后最先运行并自行 contain writer failure。 | Scheduler owner |
-| 终态作用 | **当前公开**：`scheduler.terminalEffects[]` | internal summary 后依声明顺序 await；任一失败不阻止后续作用。 | [调度 Check](scheduling.md) |
-| prepared 策略终态作用 | **当前公开**：prepared `terminalEffect` | public effects 后、sealed context 存在时至多一次；与数组共享 `outputs.terminalEffects`。 | Scheduler owner |
-| 必达资源释放 | **逻辑保留** | 没有当前公开消费者；terminalEffect 不是 `finally`。 | future Change |
-
-Check prepare/execute、Scheduler prepare/decide/terminal 与 command environment/complete 使用同一
-[声明式 context 规则](../api-mechanics.md#声明式-callback-context)：业务 input 独立，普通 function 默认空需求，
-需要字段用 `defineContextCallback` 声明，按消费者精确交付冻结视图。各位置的合法字段与失败时点由对应专题拥有。
-
-terminal effect 在 drain 并 seal 后读取自身声明的冻结字段，空需求和 graph/execution-only effect 同样依序调用；
-交付不要求 timing collector，不保证不同消费者外层 context identity 相同。
-effect 不能修改 Scheduler 或 Check 结果；任一公开或 prepared effect 失败会使 `outputs.terminalEffects` 为 failed。
-正常 completed Run 映射为 `kind: "output"` / `scheduler-terminal-effects-failed`，取消或其它 primary failure 保持原结果。
-
-## Run output
-
-| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
-| --- | --- | --- | --- |
-| Check preview | **当前公开**：`outputs.progressRendering.formatter` | 只格式化受预算限制的显示文本。 | [Run outputs](run-outputs.md) |
-| terminal-effect readback | **当前公开**：`RunResult.outputs.terminalEffects` | 汇总 Definition effects 与 prepared effect；Controls 不能注入。 | Run output owner |
-| Run result handling / policy | **逻辑保留** | 调用方在 `await run(...)` 后自行处理；Product 未提供内部 policy hook。 | future Change |
-
-## Project Gate
-
-| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
-| --- | --- | --- | --- |
-| Gate 结果贡献 | **当前 Project**：`PROJECT_GATE_RUN_CONFIG.resultContributor(context)` | exact candidate Run 形成 `initialResult` 后至多一次；返回闭合的 `{ blocks, messages }`。 | Project Gate |
-| Gate 结果决定 | **当前内部**：initial result → contribution → exit mapper | adapter 追加 messages；`blocks` 可将 passed 降为 failed，其它初步状态保留；throw 或非法贡献为 unavailable。 | Project Gate owner |
-| transcript 完成 | **当前内部**：`ProjectGateTranscript.complete` | final result 与 exit 已确定后写入一次；失败 fail closed。 | Project Gate owner |
-
-`resultContributor` 是 Project Gate 自有的结果处理入口。它能读 `initialResult`、selection、candidate、timing 与 Run facts，
-通过 `blocks` 声明阻断并追加 messages；Product facts 和 RunResult 保持不变。它不是 package API 或完整结果 transform。
-
-## 精确契约
-
-- Check authoring、取消、reason 和 callback context： [自定义 Check](extending-check-lifecycle.md)。
-- Definition validation、closed grammar 和 fingerprint：Project Definition owner（工作区维护材料）。
-- Scheduler measurement、策略及 output priority： [调度 Check](scheduling.md) 与 [Run outputs](run-outputs.md)。
-- Gate candidate binding、result contribution、exit 与 transcript：Project Gate owner（工作区维护材料）。
+`checkAggregation` 的 throw、Promise/thenable 或非法返回会直接拒绝 `run` Promise，而不是变成普通 Check unavailable；
+调用方应按[API 机制](../api-mechanics.md#runcontrols-与-check-aggregation)处理这一不同的失败边界。

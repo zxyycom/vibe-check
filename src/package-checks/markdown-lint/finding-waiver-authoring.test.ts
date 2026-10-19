@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { markdownLint } from "./default-check.ts";
+import { markdownLint } from "./constructor.ts";
 import { executeMarkdownLint } from "./execution.ts";
 import { executeMarkdownLintCheck, MARKDOWN_LINT_OPTIONS } from "./markdown-lint.test-support.ts";
 import { MARKDOWN_LINT_RULE_NAMES } from "./options.ts";

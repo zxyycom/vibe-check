@@ -68,7 +68,7 @@ Entities:
 Owner: `docs/development/scanner-dependencies.md#cache-and-failures`
 Entities:
 
-- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options`
+- `bun|src/package-checks/duplicate-detection/constructor.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options`
 - `bun|src/package-checks/duplicate-detection/cache/store.test.ts|quality measurement cache > treats cache read I/O errors as a Check-local miss`
   Proves:
 
@@ -81,8 +81,8 @@ Entities:
 Owner: `docs/development/scanner-dependencies.md#exact-input-handoff`
 Entities:
 
-- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > detects project-relative duplicates through the public Check and fails the default strict aggregate`
-- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans the exact-input union once and compares fragments only within common areas`
+- `bun|src/package-checks/duplicate-detection/constructor.test.ts|default Check direct callbacks > detects project-relative duplicates through the public Check and fails the default strict aggregate`
+- `bun|src/package-checks/duplicate-detection/constructor.test.ts|default Check direct callbacks > scans the exact-input union once and compares fragments only within common areas`
   Proves:
 
 - One jscpd scan receives the deduplicated approved exact-path union with the lowest effective line/token scanner thresholds and automatic worker policy. Project-relative paths remain the stable input identity but are resolved against the invocation project root for jscpd's project-external config; a real duplicate produces a trusted Record and fails the default strict aggregate rather than becoming an empty report. A raw fragment forms evidence only when every location shares at least one current area; its Record contains exactly those common areas and uses their strictest line/token and blocking policies. Mutually exclusive areas therefore produce no cross-boundary Finding, while an explicit shared area preserves comparison. An unchanged raw cache hit is re-evaluated under current area policy, and a scanner self-match with duplicate identical ranges is rejected as an invalid external result.

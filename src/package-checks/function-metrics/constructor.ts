@@ -19,7 +19,7 @@ const FUNCTION_METRICS_CHECK_DEFINITION = {
  * 使用可省略的区域、阈值与 finding policy 构造一个完整 function-metrics Check。
  *
  * @param options - 省略字段由 package 补齐；显式 files 数组完整替换对应字段的默认数组。
- * @returns 固定 `function-metrics` identity、完整冻结 options、preparation 与 execution。
+ * @returns 使用默认 `function-metrics` 或显式 `checkId` 的 Check，携带完整冻结 options、preparation 与 execution。
  * @throws {TypeError} input 含未知字段、空 area、非法 finding policy/waiver 或非法 limit 时抛出。
  */
 export function functionMetrics(

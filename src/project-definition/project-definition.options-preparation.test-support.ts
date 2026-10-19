@@ -1,6 +1,6 @@
 import { defineConfig } from "./project-definition.ts";
-import { jsonSchemaValidation } from "../package-checks/json-schema-validation/default-check.ts";
-import { jsonValidation } from "../package-checks/json-validation/default-check.ts";
+import { jsonSchemaValidation } from "../package-checks/json-schema-validation/constructor.ts";
+import { jsonValidation } from "../package-checks/json-validation/constructor.ts";
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 
 const schemaId = "https://schemas.example.test/root";

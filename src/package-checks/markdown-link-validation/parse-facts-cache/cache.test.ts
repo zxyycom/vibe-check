@@ -5,13 +5,13 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
 
-import { parseMarkdownLinkFacts } from "./markdown-parser.ts";
-import { MarkdownLinkParseFactsSession } from "./parse-facts-cache.ts";
+import { parseMarkdownLinkFacts } from "../markdown-parser.ts";
+import { MarkdownLinkParseFactsSession } from "./session.ts";
 import {
   MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION,
   parseMarkdownLinkParseFactsPayload,
   projectMarkdownLinkParseFactsPayload
-} from "./parse-facts-cache-payload.ts";
+} from "./payload.ts";
 
 const CACHE_FILE = "markdown-link-parse-facts-v1.jsonl";
 const CACHE_FORMAT = "markdown-link-parse-facts-jsonl-v1";

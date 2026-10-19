@@ -6,7 +6,7 @@ import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import { run } from "../../project-run/run.ts";
-import { secretDetection } from "./default-check.ts";
+import { secretDetection } from "./constructor.ts";
 import { parseSecretDetectionData } from "./final-data.ts";
 import { adaptSecretlintMessages } from "./secretlint/adapter.ts";
 import {

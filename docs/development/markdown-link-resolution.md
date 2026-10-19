@@ -71,8 +71,8 @@ external reachability verdict。本 Check 没有 target discovery、crawler、sh
 
 ## Markdown Link parse-facts cache
 
-`src/package-checks/markdown-link-validation/parse-facts-cache.ts` 拥有每次 resolver invocation 的恢复、命中与
-publication；payload grammar 由相邻 `parse-facts-cache-payload.ts` 拥有。调用方配置、收益和存储安全边界见
+`src/package-checks/markdown-link-validation/parse-facts-cache/session.ts` 拥有每次 resolver invocation 的恢复、命中与
+publication；payload grammar 由同子模块的 `payload.ts` 拥有。调用方配置、收益和存储安全边界见
 [Markdown Link Check 指南](../checks/markdown-link-validation.md#parse-facts-cache)。
 
 启用后，session 首次需要 facts 时只读取一次 `<directory>/markdown-link-parse-facts-v1.jsonl`，以同一个 Promise

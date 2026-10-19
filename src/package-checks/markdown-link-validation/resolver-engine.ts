@@ -1,7 +1,7 @@
 import { setImmediate } from "node:timers/promises";
 import path from "node:path";
 
-import { MarkdownLinkParseFactsSession } from "./parse-facts-cache.ts";
+import { MarkdownLinkParseFactsSession } from "./parse-facts-cache/session.ts";
 import { probeEndpoint } from "./filesystem-probes.ts";
 import { readRootContainedMarkdownSource } from "./source-reader.ts";
 import {

@@ -3,7 +3,7 @@ import { opendir } from "node:fs/promises";
 import { probeEndpoint, probeRootContainedPath, readRegularFile } from "./filesystem-probes.ts";
 import { isMarkdownPath, unavailable, type MarkdownLocalResolution } from "./local-resolution.ts";
 import type { ParsedMarkdownLinkFacts } from "./markdown-parser.ts";
-import type { MarkdownLinkParseFactsSession } from "./parse-facts-cache.ts";
+import type { MarkdownLinkParseFactsSession } from "./parse-facts-cache/session.ts";
 import type { TargetEdge, TargetNode, TargetObservation } from "./reference-graph.ts";
 
 type TargetUnavailable = Extract<MarkdownLocalResolution, { kind: "unavailable" }>;

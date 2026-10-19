@@ -8,7 +8,8 @@ import { isNonArrayRecord } from "../../data-boundary/value-shapes.ts";
 import type { CheckOutcome } from "../../check/check.ts";
 
 import { fingerprintProjectFiles } from "../project-files/file-fingerprint.ts";
-import { createRoot, scanner } from "./default-check.execution.test-support.ts";
+import { createTypeScriptSourceRoot } from "../check-execution.test-support.ts";
+import { scanner } from "./constructor.execution.test-support.ts";
 
 export interface CacheAcquisitionProbeResult {
   readonly counts: Readonly<{
@@ -26,7 +27,7 @@ export type CacheAcquisitionProbe = (
 ) => Promise<CacheAcquisitionProbeResult>;
 
 export function assertConditionalCacheAcquisition(): void {
-  const root = createRoot("vibe-check-duplicate-cache-acquisition-");
+  const root = createTypeScriptSourceRoot("vibe-check-duplicate-cache-acquisition-");
   try {
     createReadingScanner(root);
     const child = spawnSync(
@@ -34,7 +35,7 @@ export function assertConditionalCacheAcquisition(): void {
       [
         join(
           dirname(fileURLToPath(import.meta.url)),
-          "default-check.cache-acquisition.test-support.ts"
+          "constructor.cache-acquisition.test-support.ts"
         ),
         root
       ],

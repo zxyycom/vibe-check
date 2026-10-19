@@ -15,7 +15,7 @@ import { executeFileMetrics } from "./execution.ts";
 import { parseFileMetricsData } from "./final-data.ts";
 import { FILES, createRoot, execute, scanner } from "./file-metrics.test-support.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
-import { jsonValidation } from "../json-validation/default-check.ts";
+import { jsonValidation } from "../json-validation/constructor.ts";
 
 describe("fileMetrics constructor and direct callback", () => {
   it("materializes closed defaults and rejects malformed authored or resolved policy", async () => {

@@ -19,7 +19,10 @@ import {
 } from "./execution-settlement.ts";
 import { checkIdentity, closeResolvedChecks } from "./execution-finalization.ts";
 import type { CheckExecutionLifecycle, InvocationLifecycle } from "./lifecycle.ts";
-import { prepareCheckExecution, type PreparedCheckExecution } from "./prepared-check-execution.ts";
+import {
+  createStaticCheckExecutionPlan,
+  type StaticCheckExecutionPlan
+} from "./static-execution-plan.ts";
 import {
   selectEffectiveCheckIds,
   resolveFlagControlSettlements,
@@ -72,38 +75,38 @@ export type ResolvedCheckExecutionInput = Readonly<{
 export async function executeResolvedChecks(
   input: ResolvedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
-  return executePreparedChecks(prepareCheckExecution(input), input);
+  return executeStaticCheckPlan(createStaticCheckExecutionPlan(input), input);
 }
 
-export type PreparedCheckExecutionInput = Omit<
+export type PlannedCheckExecutionInput = Omit<
   ResolvedCheckExecutionInput,
   "checks" | "maxParallel" | "resourceCapacities"
 >;
 
 /** Consumes the same validated static facts used by Invocation's strategy preparation. */
-export async function executePreparedChecks(
-  prepared: PreparedCheckExecution,
-  input: PreparedCheckExecutionInput
+export async function executeStaticCheckPlan(
+  plan: StaticCheckExecutionPlan,
+  input: PlannedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
-  const effectiveCheckIds = selectEffectiveCheckIds(prepared.checks, input.project.flags);
+  const effectiveCheckIds = selectEffectiveCheckIds(plan.checks, input.project.flags);
   return runWithCheckConsoleRouter(() =>
-    executePreparedResolvedChecks(prepared, input, effectiveCheckIds)
+    executePlannedResolvedChecks(plan, input, effectiveCheckIds)
   );
 }
 
-async function executePreparedResolvedChecks(
-  prepared: PreparedCheckExecution,
-  input: PreparedCheckExecutionInput,
+async function executePlannedResolvedChecks(
+  plan: StaticCheckExecutionPlan,
+  input: PlannedCheckExecutionInput,
   effectiveCheckIds: readonly string[]
 ): Promise<ResolvedCheckExecution> {
   const state = createExecutionState({
-    checks: prepared.checks,
+    checks: plan.checks,
     diagnosticLogger: input.diagnosticLogger,
     lifecycle: input.checkLifecycle
   });
   try {
     const flagControlSettlements = resolveFlagControlSettlements({
-      checks: prepared.checks,
+      checks: plan.checks,
       ...(input.diagnosticLogger === undefined ? {} : { diagnosticLogger: input.diagnosticLogger }),
       effectiveCheckIds,
       signal: input.signal
@@ -113,14 +116,14 @@ async function executePreparedResolvedChecks(
     }
     input.invocationLifecycle?.selectionSettled();
     const graphRun = await runScheduledChecks({
-      execution: { ...input, checks: prepared.checks },
-      taskGraph: prepared.taskGraph,
+      execution: { ...input, checks: plan.checks },
+      taskGraph: plan.taskGraph,
       flagControlSettlements,
       state
     });
 
     return closeResolvedChecks({
-      allChecks: prepared.checks,
+      allChecks: plan.checks,
       effectiveCheckIds,
       graphRun,
       state

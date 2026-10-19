@@ -8,15 +8,15 @@ Definition validation、normalization 与 fingerprint 实现由 [Project Definit
 
 以下路径相对于 `src/project-run/`，列出 Run 内部的职责划分：
 
-| 路径                               | 下级 owner 的职责                                                                                                                                |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `invocation/**`                    | 一次 invocation 的创建、路径、Scheduler handoff、execution candidate 与 progress counter。                                                       |
-| `completion/**`                    | sealed Check facts 之后的 machine publication 与 terminal result。                                                                               |
-| `outputs/**`                       | Run output 的选择与 status。                                                                                                                     |
-| `task-scheduler/admission-core/**` | immutable admission graph/state 的编译、查询、选择与 transition。                                                                                |
-| `task-scheduler/measurement/**`    | timing、summary 与 diagnostic measurement。                                                                                                      |
-| `task-scheduler/**` 父层           | 实际 Scheduler lifecycle、graph validation 与两个子簇间的 integration。                                                                          |
-| 其它直接子 owner                   | `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**` 与 `admission-strategy-provider/**` 各自拥有对应领域职责。 |
+| 路径 | 下级 owner 的职责 |
+| --- | --- |
+| `invocation/**` | 一次 invocation 的创建、路径、Scheduler handoff、execution result mapping、early-return results 与 progress counter。 |
+| `completion/**` | sealed Check facts 之后的 machine publication 与 terminal result。 |
+| `outputs/**` | Run output 的选择与 status。 |
+| `task-scheduler/admission-core/**` | immutable admission graph/state 的编译、查询、选择与 transition。 |
+| `task-scheduler/measurement/**` | timing、summary 与 diagnostic measurement。 |
+| `task-scheduler/**` 父层 | 实际 Scheduler lifecycle、graph validation 与两个子簇间的 integration。 |
+| 其它直接子 owner | `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**` 与 `admission-strategy-provider/**` 各自拥有对应领域职责。 |
 
 ## Invocation and results
 
@@ -77,10 +77,15 @@ invalid Definition 或 Controls 在 author work 前返回 configuration result�
 
 Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution；独立 ready preparation 可并行，不能形成全局 barrier。每项 `prepare(options, context)` 和后续 `execute(options, context)` 独立获得精确声明视图；双方请求 project 时共享冻结 project 值。change flag flow 见[Change preparation and flag projection](#change-preparation-and-flag-projection)，preparation snapshot 与 Definition grammar 见[Project Definition](project-definition.md)。
 
-pre-work cancellation 之后、Git acquisition 之前，一次私有 preparation 将 normalized Checks、validated static graph
-与 root maxParallel 绑定为同一个 invocation-local capability。strategy preparation、Check execution 与 Scheduler 复用该成果；
+pre-work cancellation 之后、Git acquisition 之前，`check-execution/static-execution-plan.ts` 的
+`createStaticCheckExecutionPlan` 将 normalized Checks、validated static graph 与 root maxParallel 绑定为
+同一个 invocation-local `StaticCheckExecutionPlan` capability。strategy preparation、Check execution 与 Scheduler 复用该成果；
 flags 和 pre-admission settlements 仍在静态图之外形成本次动态 seed。独立 raw execution 入口先准备并验证自己的输入；
-prepared 入口只接受已绑定事实来源的 capability。
+`executeStaticCheckPlan` 入口只接受已绑定事实来源的静态计划；该计划不表示 task-local Check preparation 已运行。
+
+`invocation/early-return-results.ts` 构造未经过正常执行结果映射的取消、静态图拒绝、strategy 准备失败与 task-engine 异常结果；
+其中 task-engine 异常也可能发生在 Scheduler 执行期间。Definition / Controls configuration result 由公开 Run 校验边界处理。
+`invocation/execution-result-mapping.ts` 将已解析的 Scheduler result 映射为 Run result candidate，随后交给输出闭合。
 
 Scheduler 是 Run-private child，使用共同 immutable admission reducer 维护 graph、relations、mutex、root/scoped/named capacity、cancellation 与 settlement；real shell 独占真实 Task/Promise 和 effects。policy 只交回决定，不获得执行权限。reducer、simulation、hard guards、measurement 与 terminal handoff 由[Scheduler 实现](scheduler.md)完整拥有。
 
@@ -105,6 +110,18 @@ async console capture 独立于 author attachment：throw 或 malformed result �
 execution owner 在 author execution 前开始 monotonic per-Check timing，在 result/Record validation 与 settlement 后结束；同一 `{ checkId, durationMs | null }` 事实供 lifecycle feedback 和 `RunResult.checkDurations` 使用。flag-control、preparation-blocked 与 prerequisite-blocked 没有 started fact，duration 为 null；timing/messages 都不进入 CheckOutcome、Record 或 machine model。
 
 ordinary throw、malformed result、Record misuse 和 cancellation 在 owning execution boundary 结算 unavailable。Scheduler 对 non-passed prerequisites 阻止 author work，对 observes 只等待 terminal；cancellation 停止新 admission 并向 started callbacks 传同一 signal，drain 后保留已 settled facts、安全关闭剩余 Check。host runtime 不能强停 non-cooperative callback。
+
+### 私有 lifecycle feedback
+
+`CheckExecutionLifecycle` 与 `InvocationLifecycle` 是 Run 内部的同步事实反馈，不是 package authoring hook：
+
+- `CheckExecutionLifecycle.started` 在本项 preparation 允许继续后、execute 前投影，不拥有结果控制权。
+- `CheckExecutionLifecycle.settled` 在 Core 接受唯一终态后同步一次，覆盖 control、dependency、preparation、execution 与取消分支。
+- `InvocationLifecycle.selectionSettled()` 在全部 flag-control settlements 被接受后、Scheduler graph run 前一次；它与逐项 lifecycle 分离。
+
+progress 等消费者只投影已接受事实，不能通过反馈回写 Check、改变选择或取得 callback 执行权限。
+策略 terminal effects 的 sealed 时序与 summary containment 由[Scheduler](scheduler.md#terminal-effects-与-delivery)拥有；
+Gate 的 resultContributor、exit 与 transcript 由[Project Gate](../tooling/project-gate.md#gate-result-post-processing-and-exits)拥有，不属于这些私有反馈或公开回调。
 
 ### 依赖读取与引用生命周期
 

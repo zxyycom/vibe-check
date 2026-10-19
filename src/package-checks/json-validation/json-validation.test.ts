@@ -13,7 +13,7 @@ import type {
   DeepReadonly
 } from "../../check/check.ts";
 import { executeJsonValidation } from "./json-validation.ts";
-import { jsonValidation } from "./default-check.ts";
+import { jsonValidation } from "./constructor.ts";
 import { parseJsonValidationData } from "./final-data.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 

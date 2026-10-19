@@ -360,7 +360,7 @@ Entities:
 Owner: `docs/checks/markdown-lint.md#效果与结果`
 Entities:
 
-- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > publishes Product-owned findings only after a complete bounded traversal`
+- `bun|src/package-checks/markdown-lint/constructor.test.ts|Markdown lint Check > publishes Product-owned findings only after a complete bounded traversal`
   Proves:
 - A completed lint traversal reports only Product-owned public rules and produces a blocking failed outcome with canonical source, finding and rejected-input counts.
 - Omitted and explicit empty waivers preserve the exact legacy Record data, IDs, ordering and terminal message text.
@@ -370,7 +370,7 @@ Entities:
 Owner: `docs/checks/markdown-lint.md#not-applicable-与-unavailable`
 Entities:
 
-- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > settles zero input, rejected input, limits, and cancellation without partial lint publication`
+- `bun|src/package-checks/markdown-lint/constructor.test.ts|Markdown lint Check > settles zero input, rejected input, limits, and cancellation without partial lint publication`
 
 Proves:
 
@@ -381,7 +381,7 @@ Proves:
 Owner: `docs/checks/markdown-lint.md#效果与结果`
 Entities:
 
-- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > reports MD052 reference forms through the public single-rule Check`
+- `bun|src/package-checks/markdown-lint/constructor.test.ts|Markdown lint Check > reports MD052 reference forms through the public single-rule Check`
 
 Proves:
 
@@ -443,7 +443,7 @@ Owner: `docs/checks/markdown-link-validation.md#parse-facts-cache`
 Entities:
 
 - `bun|src/package-checks/markdown-link-validation/cache-behavior.test.ts|default Check direct callbacks > adds only an actionable capacity message without changing link settlement`
-- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > warns once only above the first actual restore byte threshold`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache/cache.test.ts|Markdown Link parse-facts cache > warns once only above the first actual restore byte threshold`
   Proves:
 - 首次实际 restore 的已读文件 bytes 严格超过自定义或默认 16 MiB 阈值才产生一次 warning；等于阈值不提醒，后续 parse 不重读或重复提醒。message 给出大小、阈值和准确可删除文件；除容量 message 外，冷 miss 与 warm hit 均保留相同链接 Records、data、status 和 messages。
 - 未实际 parse、已取消或非 UTF-8 source 不触发提醒；关闭 cache 不改变现有文件，无输入不产生 message。成功读取超阈值的无效 UTF-8 cache 仍 fresh-parse 并提醒，但不追加 publication；后续 traversal 不可用也保留提醒而不发布 partial findings。

@@ -20,7 +20,7 @@ import { validJsonSchemaValidationOptions } from "./options-validation.ts";
  * 使用可省略的 file、identity、reference、schema 与 binding policy 构造 Check。
  *
  * @param options - 省略顶层字段和 file fields 使用 package defaults；显式数组是完整替换值。
- * @returns 固定 `json-schema-validation` identity、完整冻结 options、parser 与执行逻辑。
+ * @returns 使用默认 `json-schema-validation` 或显式 `checkId` 的 Check，携带完整冻结 options、parser 与执行逻辑。
  * @throws {TypeError} input 不符合 closed authoring policy、identity 或 binding 不变量时抛出。
  */
 export function jsonSchemaValidation(
