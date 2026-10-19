@@ -196,7 +196,7 @@ binding 数量为零时结算为 `not-applicable / no-bindings`。`unavailable.r
 | `reason.code` | 触发边界 | 调用方检查项 |
 | --- | --- | --- |
 | `invalid-options` | constructor 返回后形成的 replacement options 不是完整 closed resolved shape | 重新调用 `jsonSchemaValidation(options)`，或检查所有 branches、ID、path、唯一性与 binding 引用 |
-| `scan-input-unavailable` | configured file source 无法形成 selected set | 检查 project root、目录权限或 Git worktree 状态 |
+| `scan-input-unavailable` | 所选 filesystem 无法形成 selected set | 检查 project root、目录权限与必要路径是否可访问 |
 | `document-unavailable` | 某个 selected local schema 或 instance 无法完成受限读取 | 检查文件是否仍存在、是否可读，以及运行期间是否被替换 |
 | `reference-transport-unavailable` | 已授权 HTTPS reference 的 transport 无法完成 | 检查 allowlist、网络与远端可用性；不要把它解释为 schema violation |
 | `engine-unavailable` | schema engine 或内部 settlement 无法形成可信完整结果 | 检查 package/runtime 状态，并保留已接受的 Records 供诊断 |

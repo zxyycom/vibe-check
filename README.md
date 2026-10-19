@@ -32,8 +32,8 @@ npm 负责安装 package；应用代码和质量脚本的最低运行要求是 *
 
 ### 为随包 Check 声明项目行为
 
-八个 object-policy 构造器都在原有顶层 options 接受领域 policy 和项目声明。`maintenanceReminders` 保留
-`maintenanceReminders(entries)`，并增加包含 `entries` 的 object input；为同类 Check 创建多个实例时，直接提供 `checkId`。
+八个 object-policy 构造器都通过顶层 options 接受领域 policy 和项目声明。`maintenanceReminders` 支持
+`maintenanceReminders(entries)` 和包含 `entries` 的 object input；为同类 Check 创建多个实例时，直接提供 `checkId`。
 
 ```ts
 import { defineConfig, fileMetrics } from "@zxyycom/vibe-check";

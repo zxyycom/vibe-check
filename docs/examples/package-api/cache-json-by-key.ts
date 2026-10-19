@@ -26,4 +26,9 @@ const second = await cacheJsonByKey(options);
 if (first.source !== "computed" || second.source !== "cache" || measurements !== 1) {
   throw new Error("Expected one computation followed by a cache hit");
 }
+// 两条路径都返回 parser 接受的 value；业务代码直接消费它。
+const bundleBytes = second.value.bytes;
+if (first.value.bytes !== 1024 || bundleBytes !== 1024) {
+  throw new Error("Expected the computed and cached bundle sizes to agree");
+}
 // #endregion package-api-example:cache-json-by-key

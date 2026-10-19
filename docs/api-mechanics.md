@@ -127,11 +127,11 @@ callback 与 needs 是 runtime 配置，不进入 declarative fingerprint；业�
 
 ## 随包 Check 的构造器项目声明
 
-九个固定身份的随包构造器在现有顶层 options 同时接收领域 policy 与项目 Check 声明：
+九个随包构造器通过顶层 options 同时接收领域 policy 与项目 Check 声明：
 `duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation`、
-`markdownLinkValidation`、`markdownLint`、`secretDetection` 与 `maintenanceReminders`。前八项使用原有
-object input；`maintenanceReminders(entries)` 保持可用，并增加含 `entries` 的 object input。`commandCheck`
-保持自己的既有 contract。
+`markdownLinkValidation`、`markdownLint`、`secretDetection` 与 `maintenanceReminders`。前八项使用
+object input；`maintenanceReminders` 支持 `maintenanceReminders(entries)` 和含 `entries` 的 object input。
+`commandCheck` 的输入与项目声明见[执行外部命令的 Check](guides/command-check.md)。
 
 `PackageCheckAuthoringOptions<Id extends string = string>` 是从 package root 导出的可复用项目声明类型。它的全部字段如下；
 每个字段与 ordinary Check 上的同名字段具有相同含义：

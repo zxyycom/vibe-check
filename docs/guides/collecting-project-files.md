@@ -76,10 +76,8 @@ POSIX 上实际名称含反斜杠、drive-like 前缀，或 byte name 不能忠�
 
 非法 options/root/selection 同步抛 `TypeError`；必要 filesystem inspection 或目录读取失败抛带目标路径上下文及 cause 的普通 `Error`，不返回 partial paths，不回退来源。无匹配与不可用不是同一结果。Check 在自己的生命周期边界将收集失败结算为 unavailable，后续内容读取与 exact-input 安全继续由它负责。
 
+要将所选当前全集映射为 change tokens 并检查零命中、重叠与双向结果，使用[调试 change flags](debugging-change-flags.md)；获取范围仍由本页拥有。
+
 ## 迁移旧配置
 
-旧 `source`、`include`、`exclude` 及 `ProjectFileSource` 已移除；closed validation 明确拒绝旧字段，不提供 alias、双读或隐式映射。将正 include 与用户排除改为一个列表，如 `["src/**", "!src/fixtures/**"]`。需选择依赖、build 或 vendor 路径时，显式设置 `useDefaultExcludes: false`，再自行给出用户负规则。
-
-旧 Git 来源没有等价替代开关：被 Git 忽略的普通文件也可能入选，子仓库普通目录会展开，链接不会入选。复核实际候选而不是仅替换字段；Git 变更选择仍使用独立的 Run `changes`。
-
-要将所选当前全集映射为 change tokens 并检查零命中、重叠与双向结果，使用[调试 change flags](debugging-change-flags.md)；获取范围仍由本页拥有。
+从旧版文件选择配置升级时，先按[变更日志](../changelog.md#文件收集范围迁移)复核字段与候选范围变化。

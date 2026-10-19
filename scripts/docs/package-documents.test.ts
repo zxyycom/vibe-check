@@ -131,6 +131,21 @@ describe("package document mappings", () => {
       const supportFile = join(root, supportPath);
       writeFileSync(supportFile, `${readFileSync(supportFile, "utf8")}\n`, "utf8");
       assert.notEqual(createArtifactFingerprint(root), mappedFingerprint);
+      const supportFingerprint = createArtifactFingerprint(root);
+      const gateGuideProjectionFile = join(
+        root,
+        "scripts/docs/package-api/gate-guide-example-projections.ts"
+      );
+      writeFileSync(
+        gateGuideProjectionFile,
+        `${readFileSync(gateGuideProjectionFile, "utf8")}\n`,
+        "utf8"
+      );
+      assert.notEqual(
+        createArtifactFingerprint(root),
+        supportFingerprint,
+        "Gate-guide projection source changes must invalidate the candidate fingerprint"
+      );
     } finally {
       rmSync(temporaryRoot, { force: true, recursive: true });
     }

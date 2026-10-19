@@ -64,7 +64,7 @@ const licensePolicy = defineCheck({
 把 `omitQuietPassedRow: true` 写在 **executable Check** 上，可在它安静通过时省略其
 settled row。它不是一般 boolean 开关：公开类型和 closed runtime grammar 只接受字面量
 `true`；省略或自有 `undefined` 都表示默认 `false`。container 不能声明它，它也不会继承给
-children；`false`、旧 `visibility` 字段和其它值都会使 Definition validation 失败。
+children；`false` 和其它值都会使 Definition validation 失败。
 
 需要按调用方自己的条件启用时，组合对象以加入或省略字段，不要把条件结果赋给该字段：
 

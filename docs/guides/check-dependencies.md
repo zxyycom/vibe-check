@@ -14,8 +14,7 @@
 ## 完整运行示例
 
 ```ts
-import { defineContextCallback } from "@zxyycom/vibe-check";
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { defineCheck, defineConfig, defineContextCallback, run } from "@zxyycom/vibe-check";
 
 const CHANGED_FILES_DATA_VERSION = 1 as const;
 
@@ -55,22 +54,25 @@ const analyzeChangedFiles = defineCheck({
   checkId: "analyze-changed-files",
   displayName: "Analyze changed files",
   dependsOn: [changedFiles.checkId],
-  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
-    const read = dependencies.get(changedFiles);
-    if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["dependencies"],
+    callback: (_options, { dependencies }) => {
+      const read = dependencies.get(changedFiles);
+      if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
 
-    // canonical data 仍在 parser 边界；handoff 保留 same-Run reference identity。
-    const data = changedFiles.parseData(read.data);
-    const firstFile = data.files[0];
-    const firstFileBytes = firstFile === undefined ? undefined : read.handoff.get(firstFile);
-    if (firstFileBytes === undefined) {
-      return { status: "unavailable", reason: { code: "changed-file-bytes-unavailable" } };
+      // canonical data 仍在 parser 边界；handoff 保留 same-Run reference identity。
+      const data = changedFiles.parseData(read.data);
+      const firstFile = data.files[0];
+      const firstFileBytes = firstFile === undefined ? undefined : read.handoff.get(firstFile);
+      if (firstFileBytes === undefined) {
+        return { status: "unavailable", reason: { code: "changed-file-bytes-unavailable" } };
+      }
+      return {
+        status: "passed",
+        data: { analyzedByteCount: firstFileBytes.byteLength, analyzedFileCount: data.files.length }
+      };
     }
-    return {
-      status: "passed",
-      data: { analyzedByteCount: firstFileBytes.byteLength, analyzedFileCount: data.files.length }
-    };
-  } })
+  })
 });
 
 const definition = defineConfig({
@@ -103,32 +105,39 @@ const auditChangedFiles = defineCheck({
   checkId: "audit-changed-files",
   displayName: "Audit changed files",
   observes: [changedFiles.checkId, analyzeChangedFiles.checkId],
-  execute({ dependencies }) {
-    const observations = dependencies.list();
-    const readable = observations.filter(
-      ({ outcome }) =>
-        outcome.status === "passed" || outcome.status === "failed",
-    );
-    const changedFilesObservation = readable.find(
-      ({ checkId }) => checkId === changedFiles.checkId,
-    );
-    if (changedFilesObservation === undefined) {
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["dependencies"],
+    callback: (_options, { dependencies }) => {
+      const observations = dependencies.list();
+      const changedFilesObservation = observations.find(
+        ({ checkId }) => checkId === changedFiles.checkId
+      );
+      if (
+        changedFilesObservation === undefined ||
+        (changedFilesObservation.outcome.status !== "passed" &&
+          changedFilesObservation.outcome.status !== "failed")
+      ) {
+        return {
+          status: "unavailable",
+          reason: { code: "changed-files-data-unavailable" }
+        };
+      }
+
+      const data = changedFiles.parseData(changedFilesObservation.outcome.data);
       return {
-        status: "unavailable",
-        reason: { code: "changed-files-data-unavailable" },
+        status: "passed",
+        data: {
+          directDependencyCount: observations.length,
+          changedFileCount: data.files.length
+        }
       };
     }
-
-    const data = changedFiles.parseData(changedFilesObservation.outcome.data);
-    return {
-      status: "passed",
-      data: {
-        directDependencyCount: observations.length,
-        changedFileCount: data.files.length,
-      },
-    };
-  },
+  })
 });
+const audited = await run(
+  defineConfig({ ...definition, checks: [changedFiles, analyzeChangedFiles, auditChangedFiles] })
+);
+if (audited.kind !== "completed") throw new Error(`Run did not complete: ${audited.kind}`);
 ```
 
 读取 `passed` / `failed` data 后仍需调用 producer parser；其余状态保留原 reason。consumer 可据此形成 summary、I/O、Records、messages 与自身终态，但不能修改、取消、重跑或重结算 producer。

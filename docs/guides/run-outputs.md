@@ -101,8 +101,7 @@ configured Check 时，header、final summary、terminal 与 progress tee 的既
 flag control barrier 结束后，因 `enabledByFlags` 未匹配而未启动的 Checks 以一个原因块分组呈现，而非逐项 settled row；dependency activation 带入的 Check 不在该组。两种显示压缩都不改变 Check facts、accounting 或结果。配置 `progressLogFile` 时，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 使 progress output failed，但不吞掉 terminal presentation。
 
 这项呈现策略不新增或改写 `RunResult`、machine schema 或 Check lifecycle facts；它只改变人读
-row 的保留和编号格式。当前已发布版本的 [changelog](../changelog.md) 历史不由这项规则改写；
-升级说明由相应发布变更按实际版本净差异维护。
+row 的保留和编号格式。
 
 ## 日志与输出目标
 

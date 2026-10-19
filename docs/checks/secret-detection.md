@@ -144,8 +144,8 @@ I/O 只限 files 选择的 local paths；无 command、network、history、envir
 raw detector material 不进入 result、Record、message、machine output、cache、log 或 error。
 
 这些检查只绑定 final leaf；Node 没有 portable `openat`/dirfd traversal，无法保证中间目录不被恶意并发替换，也无法排除
-已打开 inode 的同长度并发写入。Windows portability branch 未经本次原生 Windows 文件系统验证；路径若在 `lstat` 后被换为
-redirection，底层 open 可能取得目标 descriptor，但身份不匹配时不会读取或交给 detector。需要已承诺的 POSIX 边界之外的
+已打开 inode 的同长度并发写入。Windows portability branch 不提供 POSIX `O_NOFOLLOW` 的同等保证；路径若在 `lstat` 后被换为
+redirection，底层 open 可能取得目标 descriptor，但身份不匹配时不会读取或交给 detector。需要 POSIX 边界之外的
 平台保证或更强隔离时，调用方须自行验证目标 runtime，并使用 OS-level sandbox。
 
 ## 适用边界

@@ -94,7 +94,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 
 ## 定制区域 policy
 
-下面两个 area 各自选择文件和阈值；省略字段使用默认值。追加默认排除项时才组合公开 files 基线：
+下面两个 area 各自选择文件和阈值；省略字段使用默认值。`scripts` area 通过公开 files 基线替换选择 patterns：
 
 ```ts
 import { defaultProjectFileSelection, duplicateDetection } from "@zxyycom/vibe-check";
@@ -117,7 +117,8 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
 });
 ```
 
-上例保留默认排除项再追加测试文件；只写 `["scripts/**/*.test.ts"]` 会替换整个排除数组。
+上例的 `scripts` area 只匹配 `scripts/**/*.ts`，不追加其它 patterns；`useDefaultExcludes` 保持默认启用。
+默认排除独立于 `patterns`，因此 `source` area 不展开基线也保持默认排除；需要纳入默认排除路径时显式设置 `useDefaultExcludes: false`。
 Area 也是比较边界：仅属于 `source` 和仅属于 `scripts` 的文件不会互相形成 Finding。
 跨目录比较需另声明同时选中两类路径的 area；精确规则见[工作原理](#工作原理)。
 

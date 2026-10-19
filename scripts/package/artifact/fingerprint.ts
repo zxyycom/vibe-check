@@ -24,6 +24,7 @@ import {
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/package-documents.ts",
   "scripts/docs/package-api/example-projections.ts",
+  "scripts/docs/package-api/gate-guide-example-projections.ts",
   "scripts/docs/package-api/markdown-example-fences.ts",
   "scripts/docs/package-api/render.ts",
   "scripts/docs/package-api/check-guides.ts",

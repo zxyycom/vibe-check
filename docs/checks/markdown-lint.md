@@ -71,7 +71,7 @@ backend 规则名、preset、rule object、rule 参数、parser plugin 和自动
 2. 对未变化的 source 复用已验证的逐文件 findings；内容、所选规则或 backend 版本变化时重新 lint。缓存身份还包含 source path 与内部 adapter 契约版本。
 3. 根据本次完整遍历结算 Finding 总量限制、记录顺序、Finding policy、Records、消息与终态。缓存命中不复用 Check outcome。
 
-只有成功计算的 findings 可写入缓存。损坏或不可用的缓存会重新计算，不会被视为空结果；取消、source 读取失败、backend 失败及超限仍按原有终态结算。adapter 的规则配置或 finding 解释变化时，维护者必须提升内部缓存契约版本。
+只有成功计算的 findings 可写入缓存。损坏或不可用的缓存会重新计算，不会被视为空结果；取消、source 读取失败、backend 失败及超限仍按原有终态结算。
 
 缓存目录由调用方指定，保存由 source 派生的 findings 和 identity 摘要，不保存原文。调用方应使用可信、可删除的绝对目录并管理容量；该目录不提供防篡改、机密性或自动清理保证。
 
@@ -164,4 +164,4 @@ if (outcome.status === "not-applicable") console.warn("No Markdown input selecte
 
 ## 适用边界
 
-本 Check 的 package 默认仍为 advisory，缓存默认关闭。Project Gate 以独立的 `markdown-lint` identity 使用八项默认规则、完整 `docs/**/*.md` 与 `changes/**/*.md` corpus，以及 non-blocking Finding policy。required 在 Markdown 文档或其实现输入变更时运行；`--materials`、`--quality`、`--all` 可强制运行。Gate 显式使用 `.cache/vibe-check/markdown-lint-findings/` 复用逐文件 findings，不缩小检查范围或改变 consumer 默认值；独立的 Markdown link validation 仍负责链接目标完整性。
+本 Check 默认使用 non-blocking Finding policy，缓存默认关闭。它检查本页 catalog 的结构与内容规则；本地链接目标完整性由独立的 [`markdownLinkValidation`](markdown-link-validation.md) 检查。

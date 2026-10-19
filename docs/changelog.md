@@ -2,9 +2,66 @@
 
 本页随包提供版本变化与升级影响，按版本组织；具体行为规范由链接的用户指南拥有。
 
-## 0.0.3
+## 未发布
 
-本节记录 `0.0.3` 相对 `v0.0.2` 的净变化。Node `>=24.18` 的宿主要求与包根程序化入口保持不变。
+本节仅记录本地 `v0.0.3` tag（`4a830ef3`，2026-10-06）之后的净变化，不指定下一版本或发布日期，也不声明 npm 发布状态。
+Node `>=24.18` 与包根程序化入口保持不变；纯说明补全和不改变公开行为的内部重构不单列为新 API。
+
+### 声明式 callback context 迁移
+
+本次是一次 breaking 切换，不保留旧 helper、旧字段或运行时兼容层。
+Check callback 统一为 `prepare(options, context)` / `execute(options, context)`，options 不再属于 context。
+同时逐项核对；下表也覆盖 tag 后曾使用的阶段性 Scheduler helper，不表示这些中间 API 属于 `0.0.3`：
+
+| 原用法 | 新用法与升级影响 |
+| --- | --- |
+| function 或缺省 needs 隐式读取完整 context | 默认零需求，仍调用并传冻结空对象；需要字段用 `defineContextCallback(phase, { contextNeeds, callback })`。 |
+| `defineSchedulerContextCallback` 与 preparation/decision/terminal phase | 改用通用 helper 及 `scheduler.prepare` / `scheduler.decide` / `scheduler.terminal`；Check 和 command 使用自己的 phase。 |
+| `measurement.cumulative` / `measurementCount` / `measurementAt` | decision 分别声明 `cumulative` / `actionHistory`；prefix reader 位于 actionHistory 下，只有需要 history 才维护。 |
+| terminal `rawMeasurement` | 按任务分别声明 `runMeasurement`（原 Run facts，去除 admissions）和 `taskTimings`（独立 timing availability 与可用 admissions）。 |
+| `AdmissionPolicyMeasurement` / `SchedulerRawMeasurement` 类型 | 分别改用 `SchedulerActionHistory` / `SchedulerRunMeasurement`；admissions 从独立 `SchedulerTaskTimings` 读取。 |
+| command resolver 单 context、completion 把 command/options 混入 context | environment 改为 `(options, context)`；completion 改为 `({ options, command }, context)`，各自声明所需框架字段。 |
+| 同阶段 union 或 terminal 共享外层 identity | 各自只有声明的 own data fields，冻结且无跨消费者外层 identity 保证；同 Run 的冻结底层事实可复用。 |
+| 具体 learned/command callback 当作旧 function 调用 | 具体 descriptor 使用 `.callback` 并自行提供 input/context；广义槽位先收窄，不绕过 raw descriptor 的 never 边界。 |
+
+terminal effect 在 sealed terminal boundary 交付，零需求 effect 到达该边界也会调用；未到该边界仍不保证调用，资源释放不能依赖它。
+
+运行项目类型检查及实际安装包的 TS/JS consumer，并执行代表性 Run，特别核对旧 closure 的隐式字段读取；
+TypeScript 无法发现全部 JavaScript/closure 依赖。顺序、取消、direct dependency/artifact 权限、终态失败优先级和旧快照隔离保持。
+需要恢复旧版本时，同时恢复旧包和匹配的调用方代码/声明；不要把新 helper/签名与旧包混用。
+完整规则见[共同声明](./api-mechanics.md#声明式-callback-context)、[Check](./guides/extending-check-lifecycle.md)、
+[Scheduler](./guides/scheduling.md)与[command](./guides/command-check.md)。
+
+### 文件收集范围迁移
+
+项目文件选择统一为纯磁盘 `{ patterns, useDefaultExcludes? }`。升级时按以下顺序复核：
+
+1. 移除旧 `source`、`include`、`exclude` 字段及 `ProjectFileSource` 类型的用法；closed validation 拒绝旧字段，没有 alias、双读或隐式映射。正 include 与用户排除写在同一列表，如 `["src/**", "!src/fixtures/**"]`。
+2. 确认默认排除范围。默认层固定且默认启用，只有 `useDefaultExcludes: false` 关闭；用户列表不能绕过它。需选择依赖、build 或 vendor 路径时显式关闭，再自行给出用户负规则。
+3. 复核实际候选、后缀 eligibility 与内容安全。旧 Git 来源没有等价替代开关：被 Git 忽略的普通文件和子仓库目录可能进入范围，链接不入选，不能只机械替换字段。
+4. Run 的 Git 变更选择仍使用独立的 `changes`，其中 regions 改为 `{ patterns }`，不应用扫描默认排除。
+
+收集保持同步、冻结排序去重，并区分非法输入、必要 I/O 失败和合法无匹配。完整现行规则见[选择与收集项目文件](./guides/collecting-project-files.md)。
+
+包根新增 `DEFAULT_PROJECT_FILE_EXCLUDES`，用于显式读取固定排除基线；`defaultProjectFileSelection` 继续提供可组合的默认选择。
+
+### 调度状态与测量
+
+Scheduler 以同源增量变化维护成员、选择视图和已请求的统计；该内部重构不另改上节 context 契约、选择约束或 immutable 分支。
+积分与分类等待改用精确累计、最终一次舍入，保留采样归属和单位；最后几位可能变化，不能依赖旧逐次浮点加法结果。
+旧快照和 timing availability 不受后续执行或字段读取顺序影响。消费边界见[调度统计](./guides/scheduling.md#在线选择时读取-observation-prefix)。
+
+修正两项既有错误：pre-admission 依赖已终态但未满足的 Task 不再被错误计入 viable peaks/delay；
+取消 pending 依赖链后不再残留重复 forced settlement，已启动 work 仍按原规则 drain。无需更改配置或回调声明。
+
+### 文件索引与 change flag 调试
+
+- **新增 [Core 文件—区域索引](./guides/file-region-index.md)**：`createProjectFileRegionIndex` 接收多份纯值文件/区域来源，
+  提供冻结排序的双向关系，区分已知空与未知；`appendSources` 合并已接收值后重建新视图，旧视图不变。
+  规则使用共同完整 patterns，实际成员保持来源筛选；构造、查询与追加无 I/O，不应用扫描默认排除。
+- **新增 [change flag 调试工具](./guides/debugging-change-flags.md)**：`debugChangeFlags` 显式接收 root、selection 和当前 regions，
+  重新收集当前文件全集，保留零/单/多命中，返回范围元数据、token 双向查询与命中数。
+  `formatChangeFlagDebugReport` 按需返回文本，不自动输出或分享；不替代实际 Git evidence、effective flags 或 Check 覆盖证明。
 
 ### 函数分析器源码升级
 
@@ -24,18 +81,46 @@ TS/JS、TSX/JSX 与 Vue 的真实 `??` 按单 token、每项 CCN +1 和完整贡
 减少读取准入的额外等待，保留同线程协作取消、实际输入资源上限与完整批次结果。
 默认指标阈值、配置、公共 API 和 Records 语义不变；同步 I/O 仍不可抢占，不新增毫秒响应或 Gate 加速承诺。
 
-### 文件收集范围迁移
+### Markdown 引用图、预算与缓存提醒
 
-项目文件选择统一为纯磁盘 `{ patterns, useDefaultExcludes? }`，移除 source/include/exclude 与 ProjectFileSource。默认排除固定且默认启用，只有 false 关闭；用户列表不能绕过这层。Run change regions 改为 `{ patterns }`，不应用扫描默认排除。被 Git 忽略的普通文件和子仓库目录可能进入范围，链接不入选；请复核候选、后缀 eligibility 与内容安全，而非机械替换来源。收集保持同步、冻结排序去重，并区分非法输入、必要 I/O 失败和合法无匹配。见[选择与收集项目文件](./guides/collecting-project-files.md)。
+[`markdownLinkValidation`](./checks/markdown-link-validation.md) 改为完整读取所选 sources、建立私有引用图，再按首次引用顺序观察目标、逐边结算。
+同一授权域与归一化逻辑路径的节点复用首次取得的事实，包括缺失与目录结果；下一次 Run 才重新观察变化，
+不是文件系统原子快照。逐 occurrence 的位置、Finding 和计数仍独立；`targetReadCount` 及其预算仍按 logical occurrence 而非物理 I/O 计费。
+全部源阶段先于目标观察，因此多故障首错顺序可能改变；新增阶段/批次让步改善协作取消，不提供同步解析抢占保证。
 
-### 调度状态与测量
+`limits.maxOccurrences` 与 `maxTargetReads` 现在接受 `false`，关闭对应总量预算；省略仍为 `10_000` / `1_000`。
+正安全整数不再有固定配置上界，单文档 `maxMarkdownBytes` 边界保持。显式关闭预算时由调用方承担总体资源成本。
+消费 options 类型时须覆盖新增 `false` 分支；依赖首次目标观察或故障优先级的调用方应重新验证代表性 Run。
 
-Scheduler 以同源增量变化维护成员、选择视图和已请求的统计；公开 context 字段、选择约束与 immutable 分支保持不变。
-积分与分类等待改用精确累计、最终一次舍入，保留采样归属和单位；最后几位可能变化，不能依赖旧逐次浮点加法结果。
-旧快照和 timing availability 不受后续执行或字段读取顺序影响。消费边界见[调度统计](./guides/scheduling.md#在线选择时读取-observation-prefix)。
+启用 parse-facts cache 后可配置 `warnAboveBytes`，默认 `16_777_216` bytes。实际成功读取的缓存文件严格超阈值时，
+每次 invocation 至多追加一条 `parse-facts-cache-capacity` warning；不增加 Finding/Records/final data，不改变 Check outcome。
+它只提醒可删除的准确文件，不自动清理、停用缓存或中止检查；现有调用方无需配置新字段。
 
-修正两项既有错误：pre-admission 依赖已终态但未满足的 Task 不再被错误计入 viable peaks/delay；
-取消 pending 依赖链后不再残留重复 forced settlement，已启动 work 仍按原规则 drain。无需更改配置或回调声明。
+### JSON 验证与包依赖
+
+[`jsonValidation`](./checks/json-validation.md) 与 JSON Schema 的文档遍历在每个文档前让出事件循环，
+使 timer/I/O 取消与其它 Check 可以推进；单文档同步读取/解析仍不可抢占，取消不提供部分 final data。
+完整 JSON 语法、UTF-8、解码后重复键与领域结果规则保持；内部实现移除 Momoa 运行依赖。
+文件选择所需的 `fast-glob@3.3.3`、`micromatch@4.0.8` 纳入运行依赖，安装时更新 lockfile。
+
+### 升级验证与追溯
+
+从 `0.0.3` 升级时，先迁移 callback context 和文件 selection，再运行类型检查、实际安装包的 TS/JS consumer 与代表性 Run；
+重点复核函数 Finding/waiver、调度测量末位、Markdown 首次目标观察、错误优先级及新增 options 分支。
+`run.json` / `records.ndjson` 继续使用 [v4 machine schema](./output.md)，不能仅以 schema 版本判断 API 或 Check Record 兼容性。
+
+| 变更主题 | 提交 |
+| --- | --- |
+| 纯磁盘文件选择、Core 索引与调试 | `2b2489cf`、`7302349e`、`0a815704` |
+| Lizard 升级、TypeScript 修复与读取让步 | `255ab3ed`、`848e722d`、`1049c70e` |
+| 声明式 callback context | `de9cf844` |
+| 调度测量与终态修复 | `14a64e5e` |
+| Markdown 缓存提醒与引用图/预算 | `acc3212d`、`a38a3320` |
+| JSON 文档协作取消与语法实现 | `306a0b25`、`965611cf` |
+
+## 0.0.3
+
+本节以本地 `v0.0.3` tag（`4a830ef3`）为边界，记录相对 `v0.0.2` 的净变化；以下旧签名与选择语法描述该版本，不是当前用法。Node `>=24.18` 的宿主要求与包根程序化入口保持不变。
 
 ### 从 0.0.2 升级
 
@@ -47,15 +132,14 @@ Scheduler 以同源增量变化维护成员、选择视图和已请求的统计�
    `CheckPreflight` / `CheckPreflightResult` → `CheckPreparation` / `CheckPreparationResult`，旧字段不保留兼容别名。
    按原因码分类时，将 `preflight-threw`、`invalid-preflight-result` 改为
    `preparation-threw`、`invalid-preparation-result`。
-   Check callback 统一为 `prepare(options, context)` / `execute(options, context)`；options 不再属于 context。
-   普通 function 默认无字段，需要 signal/project/records 等能力时使用 `defineContextCallback` 显式声明；
-   双方请求的 project 仍为同 Run 的冻结值。同步复核 options 深度只读及 typed provider/handoff 推导。
+   `prepare(options, signal, project?)` 每次 Run 都取得与 `execute` 一致的冻结项目上下文，
+   但公开类型的第三参数可省略，读取前须处理该分支；同时复核 options 深度只读类型推导。
    见[自定义 Check](./guides/extending-check-lifecycle.md)。
 2. **调整调度终态回调与状态读取。**
    `scheduler.measurementHooks`、`SchedulerMeasurementHook` 与已准备策略的 `complete` 分别改为
    `scheduler.terminalEffects`、`SchedulerTerminalEffect` 与 `terminalEffect`。
    状态改读 `RunResult.outputs.terminalEffects`，诊断码改为 `scheduler-terminal-effects-failed`。
-   未形成 sealed terminal boundary 时不保证调用，资源释放不能依赖它；零需求 effect 到达该边界仍交付。
+   没有终态测量时不保证调用，资源释放不能依赖它。
    见[调度扩展](./guides/scheduling.md#已准备的-custom-strategy)。
 3. **复核聚合结果与定制函数的失败处理。**
    `completed` / `output` 默认带 `aggregate`：有效 Check 非空且全部 `passed` 才为 `passed`，
@@ -79,27 +163,6 @@ Scheduler 以同源增量变化维护成员、选择视图和已请求的统计�
    `maintenanceReminders` 保持默认省略安静通过行；随包构造器接受 boolean，可用 `false` 撤销默认。
    见[进度呈现](./guides/run-outputs.md#progress-rendering)。
 
-### 声明式 callback context 迁移
-
-本次是一次 breaking 切换，不保留旧 helper、旧字段或运行时兼容层。
-除了上面的 Check 签名，还需逐项核对：
-
-| 原用法 | 新用法与升级影响 |
-| --- | --- |
-| function 或缺省 needs 隐式读取完整 context | 默认零需求，仍调用并传冻结空对象；需要字段用 `defineContextCallback(phase, { contextNeeds, callback })`。 |
-| `defineSchedulerContextCallback` 与 preparation/decision/terminal phase | 改用通用 helper 及 `scheduler.prepare` / `scheduler.decide` / `scheduler.terminal`；Check 和 command 使用自己的 phase。 |
-| `measurement.cumulative` / `measurementCount` / `measurementAt` | decision 分别声明 `cumulative` / `actionHistory`；prefix reader 位于 actionHistory 下，只有需要 history 才维护。 |
-| terminal `rawMeasurement` | 按任务分别声明 `runMeasurement`（原 Run facts，去除 admissions）和 `taskTimings`（独立 timing availability 与可用 admissions）。 |
-| command resolver 单 context、completion 把 command/options 混入 context | environment 改为 `(options, context)`；completion 改为 `({ options, command }, context)`，各自声明所需框架字段。 |
-| 同阶段 union 或 terminal 共享外层 identity | 各自只有声明的 own data fields，冻结且无跨消费者外层 identity 保证；同 Run 的冻结底层事实可复用。 |
-| 具体 learned/command callback 当作旧 function 调用 | 具体 descriptor 使用 `.callback` 并自行提供 input/context；广义槽位先收窄，不绕过 raw descriptor 的 never 边界。 |
-
-运行项目类型检查及实际安装包的 TS/JS consumer，并执行代表性 Run，特别核对旧 closure 的隐式字段读取；
-TypeScript 无法发现全部 JavaScript/closure 依赖。顺序、取消、direct dependency/artifact 权限、终态失败优先级和旧快照隔离保持。
-需要恢复旧版本时，同时恢复旧包和匹配的调用方代码/声明；不要把新 helper/签名与旧包混用。
-完整规则见[共同声明](./api-mechanics.md#声明式-callback-context)、[Check](./guides/extending-check-lifecycle.md)、
-[Scheduler](./guides/scheduling.md)与[command](./guides/command-check.md)。
-
 ### 新能力与现有 Check 修复
 
 #### 项目声明与 Git 变化选择
@@ -112,12 +175,8 @@ TypeScript 无法发现全部 JavaScript/closure 依赖。顺序、取消、dire
   `changeFlag(id)`。每次 Run 在选择前获取一次证据；可信零命中为 `{ ok: true, files: [] }`，
   证据不可用时不伪造 files，而保守派生全部已声明 change flags。
   回调的 `project.flags` 包含调用方与派生 tokens，路径或不可用原因从 `project.changes` 读取；
-  Controls 拒绝 `vibe-check:change:` 前缀。region 使用必填的完整 `patterns` 列表，非法输入仍拒绝。
+  Controls 拒绝 `vibe-check:change:` 前缀。`include` 必填，`exclude` 省略等同 `[]`，非法输入仍拒绝。
   见[文件变化选择](./api-mechanics.md#按文件变化选择-check)。
-
-- **新增 [change flag 调试工具](./guides/debugging-change-flags.md)**：`debugChangeFlags` 显式接收 root、selection 和当前 regions，
-  重新收集当前文件全集，保留零/单/多命中，返回范围元数据、token 双向查询与命中数。
-  `formatChangeFlagDebugReport` 按需返回文本，不自动输出或分享；不替代实际 Git evidence、effective flags 或 Check 覆盖证明。
 
 #### 外部命令与 Markdown 检查
 
@@ -138,10 +197,6 @@ TypeScript 无法发现全部 JavaScript/closure 依赖。顺序、取消、dire
   未命中/过宽发布 audit。`findingCount` 包含已豁免项；消费 `MarkdownLintRecordData` 时须覆盖 audit 分支。
 
 #### 依赖交接与数据工具
-
-- **新增 [Core 文件—区域索引](./guides/file-region-index.md)**：`createProjectFileRegionIndex` 接收多份纯值文件/区域来源，
-  提供冻结排序的双向关系，区分已知空与未知；`appendSources` 合并已接收值后重建新视图，旧视图不变。
-  规则使用共同完整 patterns，实际成员保持来源筛选；构造、查询与追加无 I/O，不应用扫描默认排除。
 
 - **新增同一次 Run 内的私有 handoff**：提供方以 `defineCheck({ handoff: true, ... })` 声明，
   在已接受的 `passed` 结果交付对象/函数引用；直接 `dependsOn` 消费方用 `dependencies.get(provider)`
@@ -201,7 +256,7 @@ RunResult API 与各 Check 的 Record 变化须分别复核，不能仅以 schem
 | candidate 编译复用与文档材料校验 | `106929d8`、`fb6944df`、`bdbe685d`、`abda82a6` |
 
 **历史说明更正**：下方 `0.0.2` 按真实 `v0.0.2` tag 恢复 `preflight`、`measurementHooks` 与 `afterGate`；
-后续改名归于 `0.0.3` 的 `502dd799`，handoff 归于 tag 后的 `9d09b785`。
+生命周期改名（`502dd799`）与 handoff（`9d09b785`）均在 `v0.0.2..v0.0.3` 范围，归于 `0.0.3`。
 此更正仅修订发布说明，不改变 `0.0.2` 已发布产物或发布日期。
 
 ## 0.0.2

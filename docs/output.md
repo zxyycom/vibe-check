@@ -7,12 +7,12 @@
 
 ## 读取与验证顺序
 
-1. 同时读取同一 output directory 的两份原始 bytes；缺少任一文件或混用不同 Run 的文件时拒绝整组。
+1. 同时读取同一 output directory 的两份原始 bytes；缺少任一文件时拒绝整组。
 2. 按 framing 解析：`run.json` 是一个 UTF-8 JSON value；非空 `records.ndjson` 每行一个 JSON value 并以 LF
    结束，空 Record set 恰好是零字节文件。
 3. 分别按 current v4 schema 验证 `run.json` 和每个 Record row。
 4. 验证 Check 与 Record 的排序、`{ checkId, id }` 唯一性和 Record ownership，再重算
-   `recordsFingerprint`。任一步失败都拒绝整组，不保留“已验证前缀”。
+   `recordsFingerprint`；集合不匹配时拒绝整组。任一步失败都拒绝整组，不保留“已验证前缀”。
 5. 只从 `passed` / `failed` Check row 读取 `outcome.data`。随包 Check 的 final-data parser 可以继续验证该
    Check 的业务 shape，但不能替代前四步。
 
@@ -54,6 +54,9 @@ Records 是补充事实；producing Check 拥有二者的业务字段与安全�
 保持 index order，再对所得 UTF-8 canonical JSON text 计算 SHA-256；结果是
 `check-record/v2/records/sha256:<lowercase-hex>`，空 array 也有稳定摘要。它不是 `records.ndjson` bytes 的 hash，JavaScript
 own-key enumeration 与序列化时的 key 排列也不是 public contract。
+
+该摘要证明 `run.json` 声明的 Record 集合与读到的 rows 一致，不证明两份文件来自同一次物理发布。
+不同 Run 若产生完全相同的 Record 集合（包括空集合），混用其文件也可能通过摘要验证。
 
 ## 发布与并发读取边界
 

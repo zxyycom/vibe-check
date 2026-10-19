@@ -163,7 +163,7 @@ Entities:
 
 - Repository-local JSON maps Markdown, Check guide and machine-material sources to package paths. Distinct source and destination paths remain intact through rendering, raw machine-byte collection and package-local Markdown link validation, including a relocated machine schema; the candidate fingerprint changes for configuration-byte changes.
 - The loader rejects unknown fields, non-canonical or out-of-scope source/package paths, duplicate targets and file/ancestor target conflicts with the corresponding diagnostic. Both ancestor insertion orders reject the first conflicting input, while sibling paths sharing only a textual prefix remain legal.
-- Changes to the explicitly registered internal example-acceptance support bytes invalidate the artifact fingerprint, independently of Markdown mapping changes.
+- Changes to the explicitly registered internal example-acceptance support bytes or Gate-guide projection group source bytes invalidate the artifact fingerprint, independently of Markdown mapping changes.
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 

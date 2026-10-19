@@ -33,6 +33,11 @@ const second = await cacheJsonByKey(options);
 if (first.source !== "computed" || second.source !== "cache" || measurements !== 1) {
   throw new Error("Expected one computation followed by a cache hit");
 }
+// 两条路径都返回 parser 接受的 value；业务代码直接消费它。
+const bundleBytes = second.value.bytes;
+if (first.value.bytes !== 1024 || bundleBytes !== 1024) {
+  throw new Error("Expected the computed and cached bundle sizes to agree");
+}
 ```
 
 ## key、payload 与结果
@@ -48,8 +53,9 @@ miss、invalid payload 或 read failure 后，helper 恰好调用一次 `compute
 detached canonical-object/parser boundary。
 
 返回的冻结 result envelope 表示本次 helper 调用，而非 Check 结算：hit 为
-`{ source: "cache", read: "hit", write: "not-attempted" }`；computed 为
-`{ source: "computed", read: "miss" | "invalid" | "failed", write: "stored" | "failed" }`。compute 或
+`{ value: T, source: "cache", read: "hit", write: "not-attempted" }`；computed 为
+`{ value: T, source: "computed", read: "miss" | "invalid" | "failed", write: "stored" | "failed" }`。
+`value` 是同步 parser 返回的 domain value，类型 `T` 由 parser 推断；调用方从中读取计算结果，而不是从 observation 字段恢复 payload。compute 或
 parser failure 直接传播且不写 entry；storage failure 不改变已接受的 computed value，也不自动创建 Check
 message、Record 或 terminal status。parser owner 决定是否进一步冻结它返回的 domain value。
 

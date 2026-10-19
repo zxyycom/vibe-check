@@ -87,6 +87,12 @@ external command 的 availability、process、parse、cache 或 exact-input fail
 [`functionMetrics` 指南](../checks/function-metrics.md#not-applicable-与-unavailable)为准。合法空输入、nonzero
 finding exit 和 parser header 的具体解释，仍各自属于 external adapter tests；不存在 Product-wide scanner failure taxonomy。
 
+### Markdown lint findings cache
+
+`markdownLint` 的逐文件 findings cache identity 包含内部 adapter 契约版本。adapter 规则配置或 Finding 解释变化时，
+维护者必须提升该版本，使旧 findings 不再命中；公开配置、复用与失败语义由
+[Markdown lint 指南](../checks/markdown-lint.md#逐文件-findings-缓存)拥有。
+
 ## Package maintenance evidence
 
 `duplicateDetection` 的默认 jscpd v5 兼容范围由发布 manifest 声明。repository、candidate 与 external-consumer 验收核对 resolved manifest、contained bin 和实际 engine version 一致；这不把每次 runtime availability probe 变成 exact-5.1.1 gate。

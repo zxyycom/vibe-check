@@ -3,7 +3,7 @@
 ## 用途
 
 `functionMetrics` 是普通 Check，评估每个函数的 NLOC、cyclomatic complexity（CCN）、最大 nesting depth 与 parameter count。
-它使用随包 TypeScript analyzer 分析所选的受支持源文件。
+它使用以 TypeScript 实现的随包 analyzer 分析多种语言；可选文件的语言与 suffix 范围见[支持的源文件](#支持的源文件)，并非只分析 TypeScript。
 
 ## 构造器项目声明
 
@@ -55,7 +55,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 `FunctionMetricsOptions` 接受 `codeAreas`、`findingPolicy` 与 `findingWaivers`；未知字段使 constructor 同步抛出 `TypeError`。
 
 无参调用建立冻结的 `project` area：`files` 使用 `defaultProjectFileSelection` 的默认排除，patterns 由内置 analyzer
-支持的大小写不敏感 suffix 生成；finding policy 为 `non-blocking`，无 waiver。
+支持的大小写不敏感 suffix（见[支持的源文件](#支持的源文件)）生成；finding policy 为 `non-blocking`，无 waiver。
 
 | `limits` 字段 | 默认值 |
 | --- | --- |
@@ -130,7 +130,7 @@ const metrics = functionMetrics({
 
 ## 工作原理
 
-内置 analyzer 的源码基线固定为 Lizard `1.24.1`，支持上述四项指标及 27 readers / 55 suffixes；不提供 Cognitive Complexity。
+内置 analyzer 的源码基线固定为 Lizard `1.24.1`，以 27 个 readers 覆盖下表源文件并提供上述四项指标；不提供 Cognitive Complexity。
 Rust 每个 `match` scope 的首 arm 不增加 CCN，第二及后续 arm 在真实 `=>` 处增加，并发布对应 token/line 贡献。
 Kotlin expression body 的位置/NLOC 止于最后正文 token，不包含下一 declaration 或外层关闭符。
 TypeScript 显式返回类型后的函数边界在真实正文闭合位置结束，函数外控制流不进入该函数的位置或指标。
@@ -140,6 +140,43 @@ Check 用内置 reader registry 将 selected paths 分为 accepted/rejected；su
 Markdown、JSON、YAML、无扩展名等不支持路径不进入 analyzer，每项先发布 non-blocking input-rejected Record。
 accepted paths 经有界读取后整批分析，只使用本次 exact inputs，不重新发现文件；取消会停止分析。
 空 selection、全 rejected 与分析失败的区别见[不可用原因](#not-applicable-与-unavailable)。
+
+### 支持的源文件
+
+文件按以下 suffix 选择 reader，匹配不区分大小写；默认 patterns 覆盖这些 suffix。
+显式 `files.patterns` 可以缩小范围，但不能让未列出的 suffix 取得 analyzer 支持。
+
+| 语言 / reader | 文件 suffix |
+| --- | --- |
+| C / C++ | `.c`、`.cpp`、`.cc`、`.cxx`、`.h`、`.hpp` |
+| Java | `.java` |
+| C# | `.cs` |
+| JavaScript | `.js`、`.cjs`、`.mjs` |
+| Python | `.py` |
+| Objective-C | `.m`、`.mm` |
+| TTCN | `.ttcn`、`.ttcnpp` |
+| Ruby | `.rb` |
+| PHP | `.php` |
+| Swift | `.swift` |
+| Scala | `.scala` |
+| GDScript | `.gd` |
+| Go | `.go` |
+| Lua | `.lua` |
+| Rust | `.rs` |
+| TypeScript | `.ts` |
+| Fortran | `.f70`、`.f90`、`.f95`、`.f03`、`.f08`、`.f`、`.for`、`.ftn`、`.fpp` |
+| Kotlin | `.kt`、`.kts` |
+| Solidity | `.sol` |
+| Erlang | `.erl`、`.hrl`、`.es`、`.escript` |
+| Zig | `.zig` |
+| TSX / JSX | `.tsx`、`.jsx` |
+| Vue | `.vue` |
+| Perl | `.pl`、`.pm` |
+| Structured Text | `.st` |
+| R | `.r`（含 `.R`） |
+| PL/SQL | `.sql`、`.pks`、`.pkb`、`.pls`、`.plb`、`.pck` |
+
+表中支持表示由对应启发式 reader 分析，不是对该语言所有版本、语法或扩展的完整解析保证。
 
 ## 效果与结果
 
