@@ -14,13 +14,13 @@ relations: []
 ## 形成时背景
 
 发布准备中的材料测试已按独立证明义务重分工，严格 JSON 优化草案已从交付工作树分离；
-5 秒测试预算未改变。前序完整 Gate 在 2026-10-19 16:50、16:52（Asia/Shanghai）两次出现
+5 秒测试预算未改变。本报告正文时刻均为 2026-10-19 Asia/Shanghai。前序完整 Gate 在 16:50、16:52 两次出现
 `prepared-external-package-consumer` 的 30 秒 command-timeout，另三项消费者验收未执行。
 当时只通过进程快照定位到 Bun install，未取得安装内部阶段证据。
 
 17:22 开始的后续完整 Gate 对最终输入取得 43/43 passed；这是实际完成的一次同包验收，
-不是安装可靠性已经修复。当前证据保存于
-[发布准备记录](../../changes/release-0-0-4/current-evidence.md#当前候选与完整-gate)。
+不是安装可靠性已经修复。原始现场为
+`.log/project-gate/2026-10-19T09-22-46.622Z-808946-5df7b4b2-03d6-42e7-9712-edb31ff8b235/`。
 用户允许继续推进并在需要决策时报告，本轮只调查安装阻塞，不提交、重新冻结或发布。
 
 本轮问题不同于[测试必要性调查](reassess-validation-test-boundaries.md)：它回答外部安装的
@@ -35,6 +35,8 @@ relations: []
 
 ## 调查范围与依据
 
+### 基线与实际安装路径
+
 实现工作区为 `/home/dev/.codex/worktrees/package-release-preparation/vibe-check`，分支
 `release-0-0-4`，HEAD 为 `b8cf54f4801397002b739c7945bf83e2ae6806ac`。使用 mise 锁定的
 Bun 1.3.14、Node 24.18.0、Linux x64，`CLK_TCK=100`。本轮未修改正式源码、测试或 Gate 配置。
@@ -48,7 +50,10 @@ Bun 1.3.14、Node 24.18.0、Linux x64，`CLK_TCK=100`。本轮未修改正式源
 types fixture → public entry resolution → containment 核对。安装的 stdout/stderr 被
 `spawnSync` 捕获，只有命令结束后才交给失败断言；因此外层超时前通常没有安装进度日志。
 
-现场诊断在 17:54:17–17:58:36 进行，早于报告形成的证据和随后补齐的独立 GET 均明确保留实际时点：
+### 诊断方法与计量边界
+
+现场诊断在 17:54:17–17:58:36 进行。末次独立 GET 于 17:58:23 开始，晚于报告 formedAt，
+作为同轮补证保留；各次实际时点与输出见随附资源。
 
 - 真实 provider 使用原源码、exact tarball 和独占临时 root；诊断外层在 30 秒终止自己的进程组。
   每 500 ms 尽力取得本任务进程的 CPU ticks、I/O、wait channel 与 socket 数量。
@@ -96,35 +101,38 @@ types fixture → public entry resolution → containment 核对。安装的 std
 | 4 | Bun fetch | 304；响应 headers 13.518 秒，零 body bytes。 |
 
 这些串行小请求没有解包、依赖图解析或安装并发，仍出现显著等待及连接失败。因此，本轮有独立
-证据表明**当前宿主到公开 registry 的网络访问存在延迟/失败**，不能把症状解释为仅 Bun installer
+证据表明**当时宿主到公开 registry 的网络访问存在延迟/失败**，不能把症状解释为仅 Bun installer
 或仓库测试的 CPU 开销。curl 的 `time_appconnect` 是累计值，不能直接称为 TLS 自身独占耗时。
 
-### 仍未确认与不采用的动作
+### 未知项与形成时处置边界
 
 - 尚未区分本机/宿主网络设施、转发路径、远端服务或其组合的具体责任。没有网络配置、认证、
   抓包或服务端证据；不写成“npm 故障”或“代理配置错误”。
-- 本轮重现解释的是当前时间窗口，不能反向证明 16:50、16:52 两次历史失败具有完全相同根因；
+- 本轮重现解释的是该诊断窗口，不能反向证明 16:50、16:52 两次历史失败具有完全相同根因；
   也不能用网络证据解释此前 candidate preparation 的全部 66 秒。
-- 没有源码修复事实，也没有新的完整 Gate 结果。17:22 的 43/43 仍是最近一次完整验收，
+- 没有源码修复事实，也没有新的完整 Gate 结果。形成时最近一次完整验收仍是 17:22 的 43/43，
   本轮诊断失败另列，不能改写成 39/43 或用成功覆盖不稳定性。
-- 不放宽 5 秒测试或 30 秒 provider 预算，不自动重试直到绿，不改 registry/TLS/代理，
-  不升级 Bun、不换包管理器、不固定新的依赖版本。
-- 不用复制仓库 `node_modules`、复用旧 consumer 或删除 external acceptance 来规避问题；
-  这些不能代替当前 ancestry-external exact-tarball 安装证明。
-- 离线缓存、固定 lockfile 或“优先旧 metadata”会改变依赖选择/新鲜度及失败条件，不能当作
-  无语义变化的速度修复。[Bun 当前安装文档](https://bun.com/docs/pm/cli/install)说明这些模式的
-  不同含义，但本项目固定 Bun 1.3.14，当前网页不是该版本能力证明；本轮没有试改相关 flags。
 
-### 建议与重新调查条件
+本轮保持 5 秒测试和 30 秒 provider 预算、registry/TLS/代理、Bun、包管理器及依赖选择不变，
+没有自动重试直到绿。验收仍需新的 ancestry-external exact-tarball 安装；复制仓库 `node_modules`、
+复用旧 consumer 或删除 external acceptance 都不能提供该证明，本轮也未采用这些路径。
 
-当前最小动作是保存诊断并保留已有测试修复，**不修改 Product 或安装策略来补偿网络等待**。
-当相同公开 metadata 的有界请求不再出现十几秒等待/连接失败后，再运行一次真实 provider 和一次
-完整 Gate；两者通过也只构成届时输入的验证，不外推长期可靠性。
+离线缓存、固定 lockfile 或“优先旧 metadata”会改变依赖选择/新鲜度及失败条件，不能当作
+无语义变化的速度修复。本轮参考的 [Bun 安装文档](https://bun.com/docs/pm/cli/install)说明这些模式的
+不同含义，但项目固定 Bun 1.3.14，网页不是该版本能力证明；本轮没有试改相关 flags。
 
-如小请求恢复而真实 provider 仍稳定超时，再对其尚未完成阶段继续调查；若决定引入固定依赖图、
-离线验收或工具链升级，应先单独确认目标和证明边界。当前不需要用户改变测试方案，但后续提交、
-冻结与发布仍须取得对应授权。本轮新建临时安装根均由 probe 在结束后清理；原始诊断及脚本保留在
-`tmp/external-consumer-install-20261019/`，不属于 current test surface 或发布材料。
+### 形成时建议与重新调查条件
+
+当时建议保存诊断并保留已有测试修复，**不修改 Product 或安装策略来补偿网络等待**，并提出以下
+后续路径；这些是形成时建议，后续选择与授权由相应 Change 承接：
+
+1. 相同公开 metadata 的有界请求不再出现十几秒等待/连接失败后，再运行一次真实 provider 和一次
+   完整 Gate；通过只构成届时输入的验证，不外推长期可靠性。
+2. 小请求恢复而真实 provider 仍稳定超时，再对其尚未完成阶段继续调查。
+3. 若要引入固定依赖图、离线验收或工具链升级，先单独确认目标和证明边界。
+
+本轮无需改变测试方案；后续提交、冻结与发布仍须对应授权。新建临时安装根均由 probe 在结束后清理；
+原始诊断及脚本当时保留在 `tmp/external-consumer-install-20261019/`，不属于 current test surface 或发布材料。
 
 ## 随附资源
 

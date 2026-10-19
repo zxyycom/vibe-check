@@ -29,14 +29,14 @@ relations:
 
 1. 区分材料内容失败、测试实体 timeout、Gate Check timeout 和性能告警。
 2. 用同 runtime 的串行及并发对照缩小原因，判断是否存在产品错误或验证错误放行。
-3. 给出当前严重程度、证据缺口和下一步边界，不用放宽 timeout 或重试通过代替定位。
+3. 判断形成时的严重程度、证据缺口和下一步边界，不用放宽 timeout 或重试通过代替定位。
 
 ## 调查范围与依据
 
-### 源码、契约与现场
+### 形成时基线与失败现场
 
-- 行为 owner：[仓库材料验证](../tooling/repository-material-validation.md#material-task)。
-  Case `AUX-DOCS-VALIDATION-CLI-001` 要求保留真实 CLI 默认全任务完成与退休入口拒绝的证明。
+- 形成时行为依据：[仓库材料验证](../tooling/repository-material-validation.md#material-task)与
+  Case `AUX-DOCS-VALIDATION-CLI-001`；当时要求保留真实 CLI 默认全任务完成与退休入口拒绝的证明。
 - `scripts/validation/workspace.test.ts`：目标实体同步启动当前 Bun 的 `workspace.ts materials`，
   核对零退出、空 stderr 及 JSON/schema/examples/links 的成功摘要；package API task 没有独立成功摘要。
   本实体没有显式 timeout。
@@ -67,7 +67,8 @@ relations:
 并设置独立 30 秒 watchdog。所有样本均在 watchdog 前自然退出。各组串行进行，组内按声明并发，
 未修改共享 typecheck cache、测试、runtime、Gate 或 timeout。
 
-关键命令形状如下；实际运行均由 mise 固定 Bun，完整样本与参数在随附资源：
+关键命令形状如下；实际运行均由 mise 固定 Bun。随附资源保存完整样本、参数与原 Gate 现场节选，
+用于核对下表计时和失败窗口：
 
 ```text
 bun test scripts/validation/workspace.test.ts
@@ -127,15 +128,15 @@ package-api-documentation 574 ms。它们都包含共同模块加载，不可相
   现有流程正确返回失败，没有静默放行。所有定向材料样本都通过，未发现数据损坏、安全影响、
   持续挂死或 Product 功能错误；这只说明本轮未观察到，不是对全部 Product 或平台的正确性证明。
 - 测试的真实 CLI proof 有独立价值，不能用 mock 全替换以消除计时，也不能把单次重试通过称为修复。
-  当前风险是验收不稳定和重复运行成本，而不是已证明 Gate 产生了错误成功结果。
+  当时已观察到的风险是验收不稳定和重复运行成本，尚无 Gate 错误放行证据。
 
-### 实际动作、建议与未证明范围
+### 形成时动作、建议与未证明范围
 
 本轮仅提交前序文档、读取源码与既有日志、完成定向测量，并保存本报告；未改 runtime、测试、Case、
 调度、超时、性能预算或豁免。独立只读 reviewer 对照全部五组原始输出核对 47 个命令样本，
 并审阅报告、资源和当前发布证据，同意保留首要假设而不宣称根因闭合。
 
-正式发布前，建议把该可靠性风险作为独立项处理，而非依赖重试消项。若继续授权定位/修复：
+本轮建议在正式发布前独立处理该可靠性风险，而非依赖重试消项。以下为当时尚待授权的定位/修复路径：
 
 1. 优先取得完整 Gate 竞争下的 child 启动、模块加载和各 material phase 证据，保留真实 CLI、负例和非零退出证明。
 2. 只对已证明的耗时或资源竞争点选择局部修复；若必须调整实体预算，应明确有限的集成测试预算及异常挂起保护，
@@ -144,7 +145,7 @@ package-api-documentation 574 ms。它们都包含共同模块加载，不可相
 
 本轮未重新运行 full Gate、没有原失败的稳定复现、未采进程级 CPU/RSS 或 OS page-cache 状态，
 也未验证 CI、其他机器/平台与更多 Bun 版本。若空闲串行仍超时、出现内容错误或持续资源残留，
-应重新评估当前竞争假设和严重程度。这个报告按复杂 Bug 的环境/时序与跨进程调查条件沉淀，
+应重新评估竞争假设和严重程度。这个报告按复杂 Bug 的环境/时序与跨进程调查条件沉淀，
 不因建立报告而宣告严重产品 Bug 或取得修复、发布授权。
 
 ## 随附资源
