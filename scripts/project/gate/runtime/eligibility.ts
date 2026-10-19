@@ -71,7 +71,13 @@ const REQUIRED_CHANGE_FLAGS_BY_CHECK_ID: Readonly<Record<string, string>> = Obje
 /** Gate-owned regions used only by required selection; focused and --all force their members. */
 export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   "admission-workbench-tests": {
-    patterns: ["scripts/project/admission-workbench/**", "src/**", "package.json", "pnpm-lock.yaml"]
+    patterns: [
+      "scripts/project/admission-workbench/**",
+      "scripts/value-guards.ts",
+      "src/**",
+      "package.json",
+      "pnpm-lock.yaml"
+    ]
   },
   "any-change": { patterns: ["**/*", ".*", "**/.*", "**/.*/**"] },
   "decision-input": { patterns: ["docs/decisions/**", "scripts/decision-records/**"] },

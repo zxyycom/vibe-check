@@ -96,6 +96,15 @@ bun scripts/project/admission-workbench/learned-heuristic-evaluation/evaluation.
 公开 policy 捕获；两个 artifact 各自新建 prepared policy，计时区间只调用原始 public `decide`，fallback
 在计时外检查，发生 sticky failure 时使本次对照无效。虚拟结果与宿主成本分开报告，均不证明真实 Gate 加速。
 
+同目录的 `input.ts` 在加载 artifact 或重放场景前校验协议中实际消费的字段，包括：
+
+- `scenarioInputs` 每项恰有一个非空字符串 `fixtureId` 或 `path`；
+- `virtualComparison.replicates`、`hostCost.samples`、`hostCost.corpusIterations` 为正 safe integer，
+  `virtualComparison.seed`、`hostCost.warmups` 为非负 safe integer；
+- `virtualComparison.secondary.improvementEligibleScenarioIds` 为字符串数组。
+
+校验失败定位到具体字段；loader 从有效输入建立消费视图，不重写冻结 JSON 或改变实验门禁。
+
 冻结 protocol 与 evidence 保持原始 bytes；protocol 的 regression scenario 路径相对仓库根解析。
 重放时须保留这些输入路径及其内容，才能核对原有 identity。
 

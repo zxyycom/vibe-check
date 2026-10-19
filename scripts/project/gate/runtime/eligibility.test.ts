@@ -163,6 +163,17 @@ describe("Project Gate change regions", () => {
         ]
       },
       {
+        path: "scripts/value-guards.ts",
+        selected: [
+          "admission-workbench-tests",
+          "project-tests",
+          "layout-tests",
+          "machine-artifact-tests",
+          "validation-tests",
+          "script-tooling-tests"
+        ]
+      },
+      {
         path: "scripts/validation/repository-material/machine-artifacts/validation.test.ts",
         selected: ["layout-tests", "machine-artifact-tests"]
       },

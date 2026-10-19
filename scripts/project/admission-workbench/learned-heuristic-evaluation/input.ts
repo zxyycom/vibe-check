@@ -3,6 +3,7 @@ import { readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { isNonArrayRecord, isStringArray } from "../../../value-guards.ts";
 import { FIXTURES } from "../fixture-registry.ts";
 import type {
   Artifact,
@@ -22,10 +23,9 @@ export async function loadProtocol(): Promise<
 > {
   const text = await readFile(PROTOCOL_PATH, "utf8");
   const parsed: unknown = JSON.parse(text);
-  if (!isProtocol(parsed))
-    throw new TypeError("heuristic evaluation protocol has an invalid shape");
+  const protocol = parseEvaluationProtocol(parsed);
   return Object.freeze({
-    protocol: parsed,
+    protocol,
     sha256: `sha256:${createHash("sha256").update(text).digest("hex")}`
   });
 }
@@ -38,8 +38,7 @@ export async function loadScenarioCases(protocol: Protocol): Promise<readonly Sc
 
 async function loadScenarioCase(input: ProtocolScenarioInput): Promise<ScenarioCase> {
   if (input.fixtureId !== undefined) return fixtureScenarioCase(input.fixtureId);
-  if (input.path !== undefined) return fileScenarioCase(input.path);
-  throw new TypeError("protocol scenario input must name exactly one fixture or JSON path");
+  return fileScenarioCase(input.path);
 }
 
 function fixtureScenarioCase(fixtureId: string): ScenarioCase {
@@ -154,81 +153,75 @@ export async function writeExclusive(path: string, text: string): Promise<void> 
   await writeFile(resolve(path), text, { encoding: "utf8", flag: "wx" });
 }
 
-function isProtocol(value: unknown): value is Protocol {
-  return (
-    isProtocolObject(value) && hasProtocolScenarioInputs(value) && hasProtocolMeasurements(value)
-  );
+/** Validates the frozen protocol's consumed fields before any artifact or simulation work. */
+export function parseEvaluationProtocol(value: unknown): Protocol {
+  const protocol = protocolRecord(value, "protocol");
+  if (protocol.schemaVersion !== 2) throw new TypeError("protocol.schemaVersion must be 2");
+  if (typeof protocol.protocolId !== "string" || protocol.protocolId.length === 0)
+    throw new TypeError("protocol.protocolId must be a non-empty string");
+  if (!Array.isArray(protocol.scenarioInputs) || protocol.scenarioInputs.length === 0)
+    throw new TypeError("protocol.scenarioInputs must be a non-empty array");
+  const scenarioInputs = protocol.scenarioInputs.map(parseProtocolScenarioInput);
+  const hostCost = protocolRecord(protocol.hostCost, "protocol.hostCost");
+  const comparison = protocolRecord(protocol.virtualComparison, "protocol.virtualComparison");
+  const secondary = protocolRecord(comparison.secondary, "protocol.virtualComparison.secondary");
+  if (!isStringArray(secondary.improvementEligibleScenarioIds))
+    throw new TypeError(
+      "protocol.virtualComparison.secondary.improvementEligibleScenarioIds must be a string array"
+    );
+  return Object.freeze({
+    hostCost: Object.freeze({
+      corpusIterations: protocolInteger(
+        hostCost.corpusIterations,
+        "protocol.hostCost.corpusIterations",
+        1
+      ),
+      samples: protocolInteger(hostCost.samples, "protocol.hostCost.samples", 1),
+      warmups: protocolInteger(hostCost.warmups, "protocol.hostCost.warmups", 0)
+    }),
+    protocolId: protocol.protocolId,
+    scenarioInputs: Object.freeze(scenarioInputs),
+    schemaVersion: 2,
+    virtualComparison: Object.freeze({
+      replicates: protocolInteger(
+        comparison.replicates,
+        "protocol.virtualComparison.replicates",
+        1
+      ),
+      seed: protocolInteger(comparison.seed, "protocol.virtualComparison.seed", 0),
+      secondary: Object.freeze({
+        improvementEligibleScenarioIds: Object.freeze([...secondary.improvementEligibleScenarioIds])
+      })
+    })
+  });
 }
 
-function isProtocolObject(value: unknown): value is Record<string, unknown> {
-  return (
-    isRecord(value) &&
-    value.schemaVersion === 2 &&
-    typeof value.protocolId === "string" &&
-    isRecord(value.hostCost) &&
-    isRecord(value.virtualComparison) &&
-    isRecord(value.virtualComparison.secondary)
-  );
+function parseProtocolScenarioInput(value: unknown, index: number): ProtocolScenarioInput {
+  const field = `protocol.scenarioInputs[${index}]`;
+  const input = protocolRecord(value, field);
+  if (typeof input.fixtureId === "string" && input.fixtureId.length > 0 && input.path === undefined)
+    return Object.freeze({ fixtureId: input.fixtureId });
+  if (typeof input.path === "string" && input.path.length > 0 && input.fixtureId === undefined)
+    return Object.freeze({ path: input.path });
+  throw new TypeError(`${field} must name exactly one non-empty fixtureId or path`);
 }
 
-function hasProtocolScenarioInputs(value: Record<string, unknown>): boolean {
-  return Array.isArray(value.scenarioInputs) && value.scenarioInputs.every(isProtocolScenarioInput);
+function protocolRecord(value: unknown, field: string): Record<string, unknown> {
+  if (!isNonArrayRecord(value)) throw new TypeError(`${field} must be an object`);
+  return value;
 }
 
-function isProtocolScenarioInput(value: unknown): boolean {
-  return (
-    isRecord(value) && (typeof value.fixtureId === "string") !== (typeof value.path === "string")
-  );
-}
-
-function hasProtocolMeasurements(value: Record<string, unknown>): boolean {
-  const records = protocolMeasurementRecords(value);
-  return (
-    records !== undefined &&
-    hasHostCostMeasurements(records.hostCost) &&
-    hasVirtualMeasurements(records.comparison)
-  );
-}
-
-function protocolMeasurementRecords(value: Record<string, unknown>):
-  | Readonly<{
-      readonly comparison: Record<string, unknown>;
-      readonly hostCost: Record<string, unknown>;
-    }>
-  | undefined {
-  const hostCost = value.hostCost;
-  const comparison = value.virtualComparison;
-  if (!isRecord(hostCost) || !isRecord(comparison) || !isRecord(comparison.secondary))
-    return undefined;
-  return Object.freeze({ comparison, hostCost });
-}
-
-function hasHostCostMeasurements(value: Record<string, unknown>): boolean {
-  return (
-    isFiniteNumber(value.corpusIterations) &&
-    isFiniteNumber(value.samples) &&
-    isFiniteNumber(value.warmups)
-  );
-}
-
-function hasVirtualMeasurements(value: Record<string, unknown>): boolean {
-  return (
-    isFiniteNumber(value.replicates) &&
-    isFiniteNumber(value.seed) &&
-    isRecord(value.secondary) &&
-    Array.isArray(value.secondary.improvementEligibleScenarioIds)
-  );
-}
-
-function isFiniteNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
+function protocolInteger(value: unknown, field: string, minimum: number): number {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < minimum)
+    throw new TypeError(`${field} must be a safe integer >= ${minimum}`);
+  return value;
 }
 
 function isPackageManifest(
   value: unknown
 ): value is Readonly<{ readonly name: string; readonly version: string }> {
   return (
-    isRecord(value) &&
+    isNonArrayRecord(value) &&
     value.name === "@zxyycom/vibe-check" &&
     typeof value.version === "string" &&
     value.version.length > 0
@@ -238,9 +231,5 @@ function isPackageManifest(
 function isPublicArtifactModule(value: unknown): value is Readonly<{
   readonly createLearnedCriticalPathStrategy: LearnedStrategyFactory;
 }> {
-  return isRecord(value) && typeof value.createLearnedCriticalPathStrategy === "function";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
+  return isNonArrayRecord(value) && typeof value.createLearnedCriticalPathStrategy === "function";
 }

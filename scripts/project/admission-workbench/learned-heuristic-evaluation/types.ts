@@ -15,10 +15,9 @@ export interface Artifact {
   readonly identity: ArtifactIdentity;
 }
 
-export interface ProtocolScenarioInput {
-  readonly fixtureId?: string;
-  readonly path?: string;
-}
+export type ProtocolScenarioInput =
+  | Readonly<{ readonly fixtureId: string; readonly path?: never }>
+  | Readonly<{ readonly fixtureId?: never; readonly path: string }>;
 
 export interface Protocol {
   readonly hostCost: Readonly<{

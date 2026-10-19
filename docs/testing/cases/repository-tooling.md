@@ -623,3 +623,14 @@ Entities:
   Proves:
 
 - Frozen dual-artifact comparison treats a per-replicate/tail makespan regression as rejection even when the independent 1.25× host-cost guard passes. The bounded timing path calls the raw public prepared `decide.callback` only; public context capture and sticky fallback validation remain outside that interval, and a later fallback invalidates the replay rather than being scored as a candidate benefit.
+
+## Case AUX-LEARNED-HEURISTIC-PROTOCOL-001: 对照协议先建立有效的重放输入
+
+Owner: `docs/tooling/admission-workbench.md#learned-admission-heuristic-对照记录`
+Entities:
+
+- `bun|scripts/project/admission-workbench/learned-heuristic-evaluation/input.test.ts|learned heuristic protocol validates consumed fields before replay without rewriting frozen bytes`
+  Proves:
+
+- 协议解析拒绝歧义或空的场景来源、非法整数计数和非字符串 eligible IDs，并在错误中定位对应字段；合法最小值可构成重放输入。
+- 读取现有冻结协议时保留全部场景输入，并报告原文件 bytes 的 SHA-256，验证投影不替代协议身份。
