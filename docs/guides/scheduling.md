@@ -289,7 +289,13 @@ effect 适合调用方自己的统计、记录或后续处理，不能修改 Tas
 
 它们不同于 decision 的 `cumulative` / `actionHistory`。逐项业务数据、失败原因或 Records 由 Check 的 `execute` 形成，再从 `RunResult` 读取。
 
-保存后续 Run 会使用的 caller-owned data 时，先根据自己的目标定义“可接受样本”。请求了 `runMeasurement` 或 `taskTimings` 时，对应字段的 `timing.availability === "available"` 只证明终态 timing facts 可读，不证明 Run quality 成功；`settledTasks.kind === "completed"` 是 Scheduler settlement，不等于 Check `passed`，且 context 不提供 `RunResult.kind`。若业务只允许成功 Run，先暂存候选，在 `run(...)` 返回后同时核对 `result.kind` 与业务要求的 Check outcomes 或 aggregate，再决定是否提交。`kind: "completed"` 本身不表示质量检查全部通过。
+保存后续 Run 会使用的 caller-owned data 时，先根据自己的目标定义“可接受样本”。若业务只允许成功 Run，按以下顺序处理：
+
+1. 在 terminal effect 中暂存候选数据；context 不提供 `RunResult.kind`，此时尚不能判断 Run 的最终结果。
+2. 等待 `run(...)` 返回，同时核对 `result.kind` 与业务要求的 Check outcomes 或 aggregate。
+3. 只有符合样本条件时，才提交供后续 Run 使用的数据。
+
+`runMeasurement` 或 `taskTimings` 的 `timing.availability === "available"` 只证明终态 timing facts 可读；`settledTasks.kind === "completed"` 只表示 Scheduler settlement，不等于 Check `passed`。`RunResult.kind === "completed"` 同样不表示质量检查全部通过。
 
 ## 复用本地时长历史
 

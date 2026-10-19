@@ -106,7 +106,9 @@ if (result.kind !== "completed") throw new Error(`Run did not complete: ${result
 
 provider-object read 的失败不返回上游 `data` 或 `handoff`：输入不是 `handoff: true` 定义的 provider，或不是 effective direct `dependsOn` 时，错误为 `dependency-not-declared`；已获 direct authorization 但本次 execution 没有接受到该 provider 的 `passed` handoff 时，错误为 `upstream-handoff-unavailable`。consumer 必须像示例一样先处理 `!read.ok`，不能把 TypeScript 推断当作运行时授权。
 
-handoff 保留 identity，因此 Product 不会 freeze、clone、serialize、缓存或验证其领域含义。producer 与所有 consumer 必须把它作为 immutable observation：上例不调用 `Map#set`，也不改写其中的 `Uint8Array`。execution graph 结束时 Product 清空自己的 private-store reference；该 `clear()` **不是** disposer，不会调用 `close`、`dispose` 或任意 symbol hook。真实资源的创建者/调用方必须以显式 graph ordering、consumer `try/finally` 或 Run 外层 lifecycle 在最后一个 consumer 后清理，不能依赖 handoff store、GC 或 machine/diagnostic publication。
+handoff 保留 identity，因此 Product 不会 freeze、clone、serialize、缓存或验证其领域含义。producer 与所有 consumer 必须把它作为 immutable observation：上例不调用 `Map#set`，也不改写其中的 `Uint8Array`。
+
+execution graph 结束时 Product 清空自己的 private-store reference；该 `clear()` **不是** disposer，不会调用 `close`、`dispose` 或任意 symbol hook。真实资源的创建者/调用方必须以显式 graph ordering、consumer `try/finally` 或 Run 外层 lifecycle 在最后一个 consumer 后清理，不能依赖 handoff store、GC 或 machine/diagnostic publication。
 
 ## 批量审计 direct outcomes
 
@@ -174,5 +176,5 @@ consumer 的 execution 通过 `defineContextCallback("check.execute", { contextN
 - `dependsOn` 等所有 direct provider 通过才允许本 Check 的 preparation/execution；任一 provider 非 `passed` 时，本 Check 在 author work 前成为 `unavailable / dependency-not-passed`，reason 带 direct blocker `checkIds`，duration 为 `null`。`observes` 只等待终态，不要求通过。
 - `get(checkId)` 是 non-generic string read，只授权 normalized effective `dependsOn ∪ observes` 的 direct ID（包括各自继承项）。未声明、传递或 malformed ID 返回不泄露 upstream fact 的 `dependency-not-declared`。
 - `get(provider)` 是 provider-aware read，只接受以 `handoff: true` 定义的 provider object，并且只授权 normalized effective direct `dependsOn`。成功时固定为该 provider literal `checkId`、`status: "passed"`、canonical `data` 与 typed `handoff`；direct `observes`、transitive、未声明、lookalike provider 或本次未接受 handoff 都 fail closed，不泄露 upstream data/reference。它不改变 string `get(checkId)` 或 `list()` 的授权、shape 与四态 observation。
-- 已声明 provider 的 `passed` / `failed` 返回 `ok: true`、status 与 canonical data；`not-applicable` / `unavailable` 返回 `ok: false`、该 status 与 `upstream-data-unavailable`。TypeScript 类型本身不授予访问权。
+- string `get(checkId)` 对已声明 provider 的 `passed` / `failed` 返回 `ok: true`、status 与 canonical data；`not-applicable` / `unavailable` 返回 `ok: false`、该 status 与 `upstream-data-unavailable`。TypeScript 类型本身不授予访问权。
 - `list()` 无参返回同一 direct union 的完整四态 observations，按 normalized effective direct ID 稳定排序并去重；数组、每项与 Core-owned outcome 都冻结。不读取传递、未声明或 ambient executed Checks，也不提供 Records、scheduler timing 或全局历史。

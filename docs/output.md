@@ -70,7 +70,7 @@ diagnostic logging 是独立的人读 Run output，由 core 和 scheduler channe
 [Run 输出与诊断](guides/run-outputs.md#输出状态与失败处理)。
 
 两个 canonical files 是独立 filesystem paths，rename 不提供跨路径原子可见性。并发 reader 可能观察到 mixed
-generation，因此必须按完整集合执行 fingerprint validation；需要 generation pointer、reader lock 或跨路径 atomic
+generation，因此必须按完整集合执行 fingerprint validation；需要 generation pointer、reader lock 或跨路径
 原子可见性的系统，应在 Vibe Check 契约之外建立自己的读取协议。
 
 ## 随包材料与版本

@@ -35,7 +35,15 @@
 
 ### Selection 与 Scheduler readiness
 
-Run 先验证 Definition 与 Controls 并规范化 Check tree；若 signal 已取消，会在静态 graph validation 和获取 Git 前结束调用。否则 Product 验证包含全部可执行 Check 的静态 graph。Definition 配置 `changes` 时，Product 随后只取得一次 Git changed-path snapshot，按声明 region 生成受保护的 `vibe-check:change:<id>` flags；可信零命中保留空 evidence，获取失败保留 unavailable evidence 并保守提供所有已声明 change flags。再次检查 cancellation 后，caller/derived flags 共同形成一次 private effective selection。[flag 规则](guides/extending-check-lifecycle.md#按-flag-选择-check)定义其条件；未被选择项先结算为 `not-applicable / flag-condition-not-matched`，不会再次 admission。它们仍属于同一张 graph：`dependsOn` dependent 在 preparation 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 则可等待并读取该终态。
+进入 Check 工作前，Run 按以下顺序确定本次选择：
+
+1. 验证 Definition 与 Controls 并规范化 Check tree；若 signal 已取消，在静态 graph validation 和获取 Git 前结束调用。
+2. 验证包含全部可执行 Check 的静态 graph。
+3. Definition 配置 `changes` 时，只取得一次 Git changed-path snapshot，按声明 region 生成受保护的 `vibe-check:change:<id>` flags。可信零命中保留空 evidence；获取失败保留 unavailable evidence，并保守提供所有已声明 change flags。
+4. 再次检查 cancellation、准备 admission strategy，随后用 caller/derived flags 形成一次 private effective selection。条件见 [flag 规则](guides/extending-check-lifecycle.md#按-flag-选择-check)。
+5. 未被选择项先结算为 `not-applicable / flag-condition-not-matched`，不会再次 admission。
+
+未被选择项仍属于同一张 graph：其 `dependsOn` dependent 在 preparation 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 则可等待并读取该终态。
 
 ### Task-local preparation 与 execution
 
@@ -234,9 +242,15 @@ Check 在获准入后执行自己的 `prepare(options, context)`，再以 prepar
 
 ## terminal result、Records 与 messages
 
-每个可执行 Check 返回一个 terminal result：`passed` / `failed` 带 Check-owned object final data；`not-applicable` 表示本次无适用工作，可省略 reason；`unavailable` 表示无法形成可信结论，必须带非空 `reason.code`。两者都没有 final data；无领域 data 的成功/失败结果可返回 `{}`。settlement 会 detach、canonicalize 并关闭 final data；callback throw、malformed result 或 noncanonical data 对应 `unavailable` outcome。
+每个可执行 Check 返回一个 terminal result：
 
-需要在同一 Run 的 direct prerequisite 间保留引用 identity 时，provider 在 `defineCheck({ handoff: true, ... })` 作最小声明，并只在 accepted `passed` result 返回 non-null object/function reference。handoff 类型由该 result 自动推断；direct `dependsOn` consumer 以 `dependencies.get(provider)` 一次取得 canonical data 和 typed reference。provider 的 `parseData` 仍只处理 canonical data。`handoff: true` 背后的 WeakMap identity 是 Product 内部细节；handoff 是 invocation-private capability，不属于 terminal Check facts。
+| outcome | 含义与必需内容 |
+| --- | --- |
+| `passed` / `failed` | 已形成业务结论，带 Check-owned object final `data`；无领域 data 时可返回 `{}`。 |
+| `not-applicable` | 本次无适用工作，没有 final data，可省略 reason。 |
+| `unavailable` | 无法形成可信结论，没有 final data，必须带非空 `reason.code`。 |
+
+settlement 会 detach、canonicalize 并关闭 final data；callback throw、malformed result 或 noncanonical data 对应 `unavailable` outcome。
 
 final data 与 Record data 使用 canonical JSON object：root 不能是数组，拒绝不支持的 prototype/descriptor、getter、cycles、sparse arrays 和 non-finite numbers，不调用 `toJSON`。接受后形成 detached、deep-frozen 的 null-prototype facts；不要依赖 JavaScript own-key enumeration 推断 canonical 文本顺序。
 
@@ -247,6 +261,8 @@ final data 与 Record data 使用 canonical JSON object：root 不能是数组�
 author `messages` 是无空洞的有序数组，每项是精确 `{ level, code, message }`：level 为 `info | warning | error`，code 和 message 均为非空字符串。Product 不 trim、Unicode normalize、去重或设置 item/正文长度上限；省略、自有 `undefined` 和 `[]` 都表示无 messages。非法 attachment 使 owning Check 不可用且不接受 partial messages。捕获的 console 复用同一 readback shape，使用 `console-<method>` code。
 
 progress 只呈现这些事实，不修改它们。预览默认值、formatter、console capture 与日志见[配置 Run 输出与诊断](guides/run-outputs.md)。
+
+需要在同一 Run 的 direct prerequisite 间保留引用 identity 时，使用可选的 **handoff**：provider 在 `defineCheck({ handoff: true, ... })` 作最小声明，并只在 accepted `passed` result 返回 non-null object/function reference。handoff 类型由该 result 自动推断；direct `dependsOn` consumer 以 `dependencies.get(provider)` 一次取得 canonical data 和 typed reference。provider 的 `parseData` 仍只处理 canonical data。handoff 是 invocation-private capability，不属于 terminal Check facts；授权、只读使用与资源清理见[依赖数据指南](guides/check-dependencies.md#可选-handoff-的身份与生命周期)。
 
 ## 递归组合与继承
 

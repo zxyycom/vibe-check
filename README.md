@@ -90,7 +90,11 @@ node quality.ts
 
 默认最多并行运行四个 Check，显示进度并把 machine files 写入 `artifacts/vibe-check`；diagnostic logging 默认关闭。上例显式关闭 machine publication。配置方法见[输出指南](./docs/guides/run-outputs.md)与[调度指南](./docs/guides/scheduling.md)。
 
-先判断 `RunResult.kind`；`completed` 和 `output` 才同时提供完整 facts 与 `aggregate`，随后再按 `checkId` 读取 `snapshot.checks[].outcome` 的 `passed`、`failed`、`not-applicable` 或 `unavailable`。执行阶段取消也有 snapshot，但没有 aggregate。省略定制函数时，aggregate 仅在有效 Check 列表非空且全部 `passed` 时为 `passed`，否则为 `failed`。`completed` 不代表质量通过；CI 可读取这个严格默认值，或在 [`checkAggregation`](./docs/api-mechanics.md#runcontrols-与-check-aggregation) 中同步解释同一有效列表，再决定退出码。
+按以下顺序读取结果：
+
+1. **判别 Run。** `completed` 和 `output` 才同时提供完整 facts 与 `aggregate`；执行阶段取消也有 snapshot，但没有 aggregate。其它分支按各自的 [RunResult](./docs/api-mechanics.md#runresult-分支) 契约处理。
+2. **读取 Check facts。** 按 `checkId` 读取 `snapshot.checks[].outcome` 的 `passed`、`failed`、`not-applicable` 或 `unavailable`；`completed` 本身不代表质量通过。
+3. **解释本次有效列表。** 默认 `aggregate` 仅在有效 Check 列表非空且全部 `passed` 时为 `passed`，否则为 `failed`。CI 可读取这个严格默认值，或提供同步 [`checkAggregation`](./docs/api-mechanics.md#runcontrols-与-check-aggregation) 函数解释同一列表，再决定退出码。
 
 ## 为随包 Check 声明项目行为
 

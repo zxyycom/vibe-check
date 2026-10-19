@@ -154,7 +154,14 @@ channel setup、write 或 close failure 只使对应 output failed，不改写�
 
 `checkAggregation` 不是 output formatter，也不产生 output status。它在完整 Check settlement 后、正常 final progress summary 与 machine publication 前同步解释有效 Check 列表。若该函数抛错、返回 Promise/thenable 或非法四态值，`run(...)` 直接拒绝：Product 会关闭本次 diagnostic/progress writer，但不呈现正常成功 summary、不发布正常 machine result，也不返回可读取 output status 的 `RunResult`。调用方应处理这个 Promise rejection；它不能靠 `kind: "output"` 恢复。
 
-当 primary Run 已正常完成时，output failure 使结果成为 `kind: "output"`；多个 failure 依次选择 progress rendering、machine publication、diagnostic logging、terminal effects 的第一个作为 diagnostic。`scheduler-terminal-effects-failed` 因而只表示 terminal effect 是按该顺序选中的 failure；cancellation 或 execution diagnostic 保持原有 primary result，terminal-effect failure 仍在 `outputs.terminalEffects.status` 可见。
+当 primary Run 已正常完成时，output failure 使结果成为 `kind: "output"`。多个 output 失败时，按以下优先级选择第一个 failure 作为 diagnostic，其余状态仍从 `outputs` 读取：
+
+1. progress rendering；
+2. machine publication；
+3. diagnostic logging；
+4. terminal effects。
+
+因此，`scheduler-terminal-effects-failed` 只表示 terminal effect 是按该顺序选中的 failure。已有 cancellation 或 execution diagnostic 时，保留原 primary result；terminal-effect failure 仍在 `outputs.terminalEffects.status` 可见。
 
 ### Diagnostic channel 状态
 
