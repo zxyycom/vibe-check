@@ -1,0 +1,129 @@
+{
+  "observedAt": "2026-10-20T10:16:30.925Z",
+  "sourceCommit": "8494f2271262da801ac56d4fe36de44199ecb37c",
+  "platform": "linux",
+  "arch": "x64",
+  "node": "24.18.0",
+  "bun": null,
+  "execa": "9.6.1",
+  "observations": [
+    {
+      "layer": "public-api",
+      "fd": 1,
+      "timeoutMs": 1000,
+      "exitAfter": null,
+      "exitCode": 0,
+      "elapsedMs": 1026.4153820000001,
+      "kind": "completed",
+      "outcome": {
+        "status": "unavailable",
+        "reason": {
+          "code": "command-output-limit-exceeded"
+        }
+      },
+      "callbackCalls": 0,
+      "received": null,
+      "effectAfter250ms": true,
+      "childAliveAfterReturn": false
+    },
+    {
+      "layer": "public-api",
+      "fd": 1,
+      "timeoutMs": 3000,
+      "exitAfter": null,
+      "exitCode": 0,
+      "elapsedMs": 3012.839747,
+      "kind": "completed",
+      "outcome": {
+        "status": "unavailable",
+        "reason": {
+          "code": "command-output-limit-exceeded"
+        }
+      },
+      "callbackCalls": 0,
+      "received": null,
+      "effectAfter250ms": true,
+      "childAliveAfterReturn": false
+    },
+    {
+      "layer": "public-api",
+      "fd": 2,
+      "timeoutMs": 3000,
+      "exitAfter": null,
+      "exitCode": 0,
+      "elapsedMs": 3012.4133759999995,
+      "kind": "completed",
+      "outcome": {
+        "status": "unavailable",
+        "reason": {
+          "code": "command-output-limit-exceeded"
+        }
+      },
+      "callbackCalls": 0,
+      "received": null,
+      "effectAfter250ms": true,
+      "childAliveAfterReturn": false
+    },
+    {
+      "layer": "public-api",
+      "fd": 1,
+      "timeoutMs": 3000,
+      "exitAfter": 600,
+      "exitCode": 0,
+      "elapsedMs": 631.3354360000003,
+      "kind": "completed",
+      "outcome": {
+        "status": "unavailable",
+        "reason": {
+          "code": "command-output-limit-exceeded"
+        }
+      },
+      "callbackCalls": 0,
+      "received": null,
+      "effectAfter250ms": true,
+      "childAliveAfterReturn": false
+    },
+    {
+      "layer": "public-api",
+      "fd": 1,
+      "timeoutMs": 1000,
+      "exitAfter": 200,
+      "exitCode": 23,
+      "elapsedMs": 228.40029800000048,
+      "kind": "completed",
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "accepted": true
+        }
+      },
+      "callbackCalls": 1,
+      "received": {
+        "exitCode": 23,
+        "stdoutLength": 32,
+        "stderrLength": 0
+      },
+      "effectAfter250ms": false,
+      "childAliveAfterReturn": false
+    },
+    {
+      "layer": "raw-execa",
+      "exitCode": 23,
+      "isMaxBuffer": true,
+      "timedOut": false,
+      "signal": null,
+      "stdoutLength": 32
+    },
+    {
+      "layer": "public-api-unicode",
+      "utf8Bytes": 96,
+      "limit": 64,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "exitCode": 0
+        }
+      }
+    }
+  ]
+}

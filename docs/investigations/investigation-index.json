@@ -2559,6 +2559,24 @@
         "validation"
       ],
       "title": "validation 测试必要性与五秒预算内的证明重分工"
+    },
+    "261020-verify-command-output-limit-lifecycle": {
+      "formedAt": "2026-10-20T10:15:37Z",
+      "name": "verify-command-output-limit-lifecycle",
+      "question": "外部反馈的延迟回收、失败阻断与 afterCommand 隔离是否在当前源码及支持运行时成立？",
+      "relations": [],
+      "resourceIds": [
+        "261020-verify-command-output-limit-lifecycle/observations.json",
+        "261020-verify-command-output-limit-lifecycle/reproduce.mjs"
+      ],
+      "sourcePath": "verify-command-output-limit-lifecycle.md",
+      "tags": [
+        "command-check",
+        "execa",
+        "output-limit",
+        "process-boundaries"
+      ],
+      "title": "核实 commandCheck 输出超限的回收与完成回调边界"
     }
   },
   "metadata": {},
@@ -2656,7 +2674,8 @@
       "261019-diagnose-external-consumer-install-timeout": "sha256:41484cac0feabb33bcb557c12d26273c42b6bdf63a5dcdbe01df073e7cfa34f9",
       "261019-evaluate-validation-cli-optimization": "sha256:89b53a68b7789e3c65ce45fed3ea0dae74679c4a35ebe498d1c46cf449a04926",
       "261019-investigate-validation-cli-timeout": "sha256:fecbf3d50684ecb153ed7c74ed64bb1c24b84909955c715b141c6806df015bb7",
-      "261019-reassess-validation-test-boundaries": "sha256:73e06f158765d761309571e3ed00e2017b41debcfb1f0b307584bbe7e98f4871"
+      "261019-reassess-validation-test-boundaries": "sha256:73e06f158765d761309571e3ed00e2017b41debcfb1f0b307584bbe7e98f4871",
+      "261020-verify-command-output-limit-lifecycle": "sha256:812cd5933a2f7ca44868beaf96af0a0c1ab560ac061cde5955c13a01f9fd5854"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }
