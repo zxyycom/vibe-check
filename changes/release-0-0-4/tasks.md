@@ -1,6 +1,6 @@
 # Tasks
 
-文档与编码规范再审、必要优化、独立复核、提交及新 candidate 验收已完成；下一步重新绑定最终源码并冻结正式包。旧轮验证仅证明对应输入；正式发布与交接按精确授权执行。
+本地准备、receipt 验证及同包一次完整 Gate 43/43、独立确认和准备期归档已完成。发布账号权限及临发布状态核验通过，发布者交互发布后已确认 registry 的 `0.0.4/latest` 身份，下载 tarball 与已验收产物逐字节一致；发布与分发核验完成，不重复 publish。已获授权继续 Git 提交、tag、合回并推送 main、推送版本标签及 evidence 归档；所有工作区、旧产物和 Change 保留，不清理。
 
 ## Readiness
 
@@ -13,9 +13,9 @@
 ## Implementation
 
 - [x] 1.1 整理 0.0.4 changelog、发布轨道、Change 与非敏感 current evidence。
-- [ ] 1.2 保存包含文档优化的 clean S，建立对应 detached 冻结工作区并生成新正式 tarball 和 receipt。
-- [ ] 1.3 将新原始产物、receipt、完整 Gate 日志和准备期 evidence 归档并逐文件核对摘要。
-- [ ] 1.4 临发布重新核验 freshness、registry、publisher authority 和精确授权，由发布者交互发布同一 tarball。
+- [x] 1.2 保存包含文档优化的 clean S，建立对应 detached 冻结工作区并生成新正式 tarball 和 receipt。
+- [x] 1.3 将新原始产物、receipt、完整 Gate 日志和准备期 evidence 归档并逐文件核对摘要。
+- [x] 1.4 临发布重新核验 freshness、registry、publisher authority 和精确授权，由发布者交互发布同一 tarball。
 - [ ] 1.5 发布与分发验证成功后，按授权将版本 tag 指向 S 并合回 main。
 - [x] 1.6 完成正文组织与准确性修正，保留示例、历史事实、安全和兼容边界，更新当前证据。
 - [x] 1.7 按用户确认收敛最小测试证明重分工；独立保存严格 JSON 优化 patch、原样文件与摘要，并从本轮工作树分离该草案。
@@ -24,9 +24,9 @@
 ## Verification
 
 - [x] 2.1 新准备材料的文档投影、validate、Case、Change 和 diff 检查通过。
-- [ ] 2.2 新正式 receipt 绑定的完整 Gate 及 external consumer 验收通过。
-- [ ] 2.3 `Manual CR:` 保存新正式包身份与全部用户文档、示例、对外 JSDoc 的独立适用性结论。
-- [ ] 2.4 发布后核对 registry 身份、dist-tag、下载产物 SHA-256/SRI 与 receipted tarball 一致。
+- [x] 2.2 新正式 receipt 绑定的完整 Gate 及 external consumer 验收通过。
+- [x] 2.3 `Manual CR:` 保存新正式包身份与全部用户文档、示例、对外 JSDoc 的独立适用性结论。
+- [x] 2.4 发布后核对 registry 身份、dist-tag、下载产物 SHA-256/SRI 与 receipted tarball 一致。
 - [ ] 2.5 保存发布、Git 交接与归档的最终证据，确认后续工作区保留或清理授权。
 - [x] 2.6 本轮优化后的 local candidate 通过完整 Gate，由独立 reviewer 复核实际包内差异及关联阅读路径。
 - [x] 2.7 按确认的证明分工调整必要测试及 owner/Case，在原 5 秒预算内通过直接证明、代表性并发及独立语义审阅；局部优化另以等价性和测量判断，不混同测试必要性。
@@ -35,4 +35,4 @@
 
 已采用测试分工的九实体、六个应失败反例、37/37 回归及三轮竞争验证通过；原 candidate 的完整 Gate 为 43/43。测试已提交为 `8a503b16`，调查与准备记录为 `95488448`；严格 JSON 草案不在交付范围内。
 
-2.9 只完成有界调查及证据审阅，不声明网络已修复。用户已决定停止专项排查，正式包安装验收要求保持。新 detached 工作区已在 `95488448` 完成标准自举；随后新增的 1.8 已完成；本轮最终输入已取得一次完整 Gate 43/43 及独立包适用性结论，2.6 完成。具体授权、日志和历史包身份见 [current evidence](current-evidence.md)。
+2.9 只完成有界调查及证据审阅，不声明网络已修复。用户已决定停止专项排查，正式包安装验收要求保持。`95488448` 工作区继续保留；1.8 与 local candidate 的 2.6 已完成。2026-10-20 获授权从 `4e3294a9` 新建 detached 工作区，正式 prepare 与包含同包完整 Gate 的 release verify 均成功；发布与分发核验后已取得本轮 Git 交接授权。具体授权、日志、独立复核与归档结果见 [current evidence](current-evidence.md)。
