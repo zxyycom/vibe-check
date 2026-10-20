@@ -1,6 +1,6 @@
 # Proposal
 
-以同一份正式 tarball 的验收与证据交接完成 0.0.4 发布；已完成从 `4e3294a9` 构建的正式包发布与分发核验，当前推进 Git 交接。
+以同一份正式 tarball 的验收与证据交接完成 0.0.4 发布；发布、分发核验、Git 交接与归档均已完成，按授权保留 Change 与工作区。
 
 ## Why
 
@@ -9,7 +9,7 @@
 ## Outcome
 
 `@zxyycom/vibe-check@0.0.4` 的正式包通过同包完整验收与独立文档确认，发布、分发核验、Git 交接和归档均可追溯。
-重新冻结、正式打包、receipt 验证、一次完整 Gate、独立复核及准备期本地归档已完成。发布者交互发布后，已确认 canonical registry 的 `0.0.4/latest` 身份，下载 bytes 与已验收 tarball 一致；当前按新增授权完成提交、tag、合回并推送 main、推送版本标签及后续 evidence 归档。所有工作区、旧产物和 Change 保留，不执行清理。
+重新冻结、正式打包、receipt 验证、一次完整 Gate、独立复核及本地归档已完成。canonical registry 的 `0.0.4/latest` 身份与下载 bytes 核验通过；`v0.0.4` 绑定 S，发布记录已合回并推送 main，main/tag 的远端身份一致。发布后交接 evidence 已归档并读回核对；所有工作区、旧产物和 Change 保留，不执行清理或 finalize。
 
 ## Scope
 

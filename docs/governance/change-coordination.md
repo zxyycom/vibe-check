@@ -31,10 +31,10 @@ artifacts 决定。
 
 ### 0.0.4 发布轨道
 
-[`release-0-0-4`](../../changes/release-0-0-4/proposal.md) 在同名发布分支与独立实现工作区推进，
-从最终干净提交建立 detached 冻结工作区。该轨道负责本地准备、同包验收和证据保存；
-实际输入、进度及各项操作的授权以 [current evidence](../../changes/release-0-0-4/current-evidence.md) 为准。
-发布、Git 交接与清理按[发布流程](../tooling/package-release.md)分别确认。
+[`release-0-0-4`](../../changes/release-0-0-4/proposal.md) 已完成发布、分发核验及 main/tag 交接，
+保留发布分支、实现工作区与 detached 冻结工作区。当前维护交接证据，不再承担发布输入调整；
+归档结果及保留范围以 [current evidence](../../changes/release-0-0-4/current-evidence.md) 为准。
+Change 结项删除与工作区清理尚未授权，不能从发布成功推导清理权限。
 
 ### 并行与提交边界
 

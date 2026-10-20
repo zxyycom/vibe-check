@@ -1,6 +1,6 @@
 # 0.0.4 发布证据
 
-当前阶段：本地正式包准备、同包一次完整 Gate 43/43、独立复核和准备期归档已完成；2026-10-20 10:23–10:25（Asia/Shanghai）确认 canonical registry 已公开提供 `0.0.4`、`latest=0.0.4`，下载 tarball 与已验收产物逐字节一致，SHA-256/SRI 均匹配。发布与分发核验完成，不重复 publish；用户已授权继续提交记录、tag、合回并推送 main、推送版本标签和补齐归档。所有工作区、旧产物与 Change 保留，不执行清理。严格 JSON 优化不在交付范围内。
+当前阶段：本地正式包准备、同包一次完整 Gate 43/43、独立复核、发布与分发核验均完成；npm `0.0.4/latest` 的下载 bytes 与已验收产物一致。`v0.0.4` 已绑定冻结 S 并推送，发布记录已合回并推送 main，远端身份读回一致；发布后交接 evidence 已按固定槽位归档并核对。所有工作区、旧产物与 Change 保留，不执行清理或 finalize。严格 JSON 优化不在交付范围内。
 网络专项排查已停止，正式包仍按原门禁验收。新 detached 工作区固定在 `4e3294a9a481e554340cecdbe63d222992720bae`；原 `95488448` 工作区与更早正式包保留，不作为本轮输入。
 
 固定约定由 [Package release](../../docs/tooling/package-release.md) 拥有；本页保存当次身份、授权、结果与剩余条件。形成时实验细节见下方调查，不作为当前实施指令。
@@ -11,7 +11,7 @@
 
 | 工作区 | 身份与用途 |
 | --- | --- |
-| `/workspace/vibe-check` | main 交接起点为 `357fb7c4061c3f576d0b70c8594e458c2941ce39`；本轮按授权承接发布分支的快进合入。 |
+| `/workspace/vibe-check` | main 已从 `357fb7c4061c3f576d0b70c8594e458c2941ce39` 快进合入发布交接提交 `4d20ce88b61fa3896e708551f7703b2fc261598f`；后续收尾记录仍按授权快进同步。 |
 | `/home/dev/.codex/worktrees/package-release-preparation/vibe-check` | `release-0-0-4` 实现工作区；本轮审查起始 HEAD `954884483d7e566d87bc49393f0402cc818e07c4`。当前记录只在此维护。 |
 | `/home/dev/.codex/worktrees/release-0-0-4-4e3294a9/vibe-check` | 本轮获授权新建的 detached 工作区；冻结 S 为 `4e3294a9a481e554340cecdbe63d222992720bae`，承接新的正式包与验收。 |
 | `/home/dev/.codex/worktrees/release-0-0-4-final/vibe-check` | 用户授权从 `95488448` 新建的 detached 工作区；`bun run env:setup` 已成功，准备了 local candidate，尚无新正式 receipt。 |
@@ -74,11 +74,24 @@
 - 10:24:27 首次 curl tarball 下载发生 TLS unexpected EOF、exit 35，未绕过 TLS 或改变网络配置。10:24:57 改用 Node HTTPS 做一次有界只读核验，HTTP 200，取得 1500651 bytes。
 - 下载地址为 `https://registry.npmjs.org/@zxyycom/vibe-check/-/vibe-check-0.0.4.tgz`。下载 bytes 与 frozen worktree 的 receipted tarball 逐字节一致；SHA-256 为 `a99f0139beefd2b6a71ff44e192b8486d57c8d985da32109a9d57afddf13477d`，SRI 为 `sha512-jwEIc4GX/8YMX6cJoluTj9FzbM7K3e6GMUoqL+tqByAVmhd2OhqlqkzHLwa3rSUvKqZKT0uuG6CSNT8Q51+Scw==`，SHA-1 也与 registry 一致。
 - 本地 receipt SHA-256 仍为 `09c622dd59d5b71557d7ced987115e4f16ce3aa535b258ee556eba0bc3ee0bdb`；其 package identity 为 `0.0.4/latest`，source 仍绑定 S `4e3294a9a481e554340cecdbe63d222992720bae`。下载仅在内存中核验，不覆盖本地产物。
-- 这些证据确认目标包已发布且分发 bytes 正确，不再将发布状态标记为未确认。此前不可见的原因与交互命令的完整过程仍未知，不据此宣称网络问题已修复；代理未执行或重试 publish。Git tag、提交、合入和清理未执行。
+- 这些证据确认目标包已发布且分发 bytes 正确，不再将发布状态标记为未确认。此前不可见的原因与交互命令的完整过程仍未知，不据此宣称网络问题已修复；代理未执行或重试 publish。此轮查询时尚未执行 Git tag、提交或合入，后续结果见下节；清理始终未执行。
 
-### Git 交接预检
+### Git 交接
 
-2026-10-20 10:30:46（Asia/Shanghai）确认 `origin` 为 `github.com:zxyycom/vibe-check.git`，远端 main 为 `cc9c4d1dd63d48365c7c97c07e6ddca6618ffef1`，远端没有 `v0.0.4`。本地 main 干净、起点为 `357fb7c4`，与发布分支无分叉；本地尚无该版本标签。当前四份 Change Markdown 均属于本轮发布记录，没有其它 staged 或工作树改动。
+2026-10-20 10:30:46（Asia/Shanghai）预检确认 `origin` 为 `github.com:zxyycom/vibe-check.git`，远端 main 为 `cc9c4d1dd63d48365c7c97c07e6ddca6618ffef1`，远端没有 `v0.0.4`。本地 main 干净、起点为 `357fb7c4`，与发布分支无分叉；本地也尚无该版本标签。四份 Change Markdown 均属于本轮发布记录，没有其它 staged 或工作树改动。
+
+- 发布证据保存为提交 `4d20ce88b61fa3896e708551f7703b2fc261598f`（`plan：保存 0.0.4 发布成功与分发核验证据`），只含四份 Change Markdown。正常 post-commit hook 因发布分支不适用而跳过 auto-push，未绕过 hook。
+- annotated tag `v0.0.4` 的 tag object 为 `6d65e1a42aae94a09407f7b333a765a74f8d07c7`，peeled commit 为 S `4e3294a9a481e554340cecdbe63d222992720bae`；标签不绑定后续发布记录提交。
+- main 从 `357fb7c4` 以 `git merge --ff-only release-0-0-4` 合入到 `4d20ce88`。相对冻结 S 只有上述四份记录变化，没有新的 source 或 packaged-material 变更；合入后 validate、759 实体/188 Case/16 Topic 检查、当前 Change 检查与 diff 检查通过，工作树干净。未重跑正式 prepare、release verify 或完整 Gate，沿用同一冻结产物已有的 43/43 与独立结论。
+- 显式非强制、`--no-follow-tags` 的 atomic push 仅更新 `origin` 的 `refs/heads/main` 和 `refs/tags/v0.0.4`，成功。10:33:48 远端读回 main 为 `4d20ce88b61fa3896e708551f7703b2fc261598f`，tag object 与 peeled S 均与本地一致；没有推送发布分支或其它标签。
+- 10:34:25 再次逐字节核对固定归档槽位的 38 项原始文件与 frozen 工作区，全部一致；既有准备期 evidence 文件名与 bytes SHA-256 一致。receipt、tarball SHA-256/SRI、版本和 S 均未变化。
+
+### 发布后归档与保留
+
+- 10:36:08 将包含发布、分发验证、Git 标签与交接提交的本页快照保存为固定槽位下的 `evidence/eb06dec7c1d4787d56b5b6ef3befc222bfe42b6538242633a4bc3a6dbcaececf.md`，29985 bytes；文件名为原始 bytes 的 SHA-256，复制后读回逐字节相同。复制前凭据模式筛查无发现，没有复制认证配置或登录会话。
+- 该快照在本页补记归档路径与完成态之前形成，不回写或覆盖；与 38 项原始文件、准备期快照一起构成可复核交接。后续收尾记录仍按内容摘要新增快照，不覆盖既有材料。
+- 发布分支与 main 的交接只增加 Change 记录及协调状态；本轮 validate、Case、17/17 Change 集合、Decision 与 diff 检查均通过。源代码、随包材料及正式包 bytes 不变，不重新打包、发布或重跑完整 Gate。
+- 已明确保留实现工作区、三个 detached 工作区、发布分支、旧正式包、local candidate、调查保留物及全部归档。Change 任务完成不等于 finalize 已授权；本轮不运行 finalize，不删除或清理任何上述材料。
 
 ## 冻结前审查与优化
 
@@ -208,9 +221,9 @@
 
 临时目录、旧 frozen 工作区和归档的清理须独立确认精确范围；不整树覆盖或删除。原始诊断自建的 `/tmp` 安装根已随 probe 清理，本地归档不等同跨机器备份。
 
-## 后续交接条件
+## 完成态与保留边界
 
 1. 本地准备保持固定 S、正式 tarball/receipt、一次同包完整 Gate 与独立结论；本轮不再调整发布输入。网络根因排查不作为前置。
 2. 发布写入授权、publisher authority 与临发布源码/产物核验已闭合；canonical registry 的 `0.0.4/latest` 身份和下载 bytes 也已核对成功，不重复发布或覆盖既有版本。
-3. 本轮已获授权将 `v0.0.4` tag 绑定 S、合回并推送 main、推送版本标签，再保存包含发布与 Git 交接结果的新 evidence 快照；只按实际成功结果记录完成，准备期快照不冒充发布后证据。
-4. 当前 Change 记录在实现工作区维护并按授权提交；冻结工作区保持 clean S，不在其中维护活动记录。所有工作区、旧产物、分支与 Change 保留，结项删除和清理不在本轮范围。
+3. `v0.0.4` 已绑定 S，main 合入、main/tag 推送及远端读回已成功；发布后 evidence 快照已归档并核对，准备期快照不冒充发布后证据。收尾记录随授权提交与 main 同步保存，不移动版本标签。
+4. 当前 Change 记录在实现工作区维护并按授权提交；冻结工作区保持 clean S，不在其中维护活动记录。所有工作区、旧产物、分支与 Change 保留，结项删除和清理不在本轮范围；后续如需执行，须另行确认精确目标及恢复边界。
