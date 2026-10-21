@@ -108,9 +108,16 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 维护者必须提升该版本，使旧 findings 不再命中；公开配置、复用与失败语义由
 [Markdown lint 指南](../checks/markdown-lint.md#逐文件-findings-缓存)拥有。
 
+同一 markdownlint 版本的不同依赖组合可能遗漏 MD052 undefined-reference 能力，因此 adapter 验证实际行为：
+仅在选择 `reference-links-images` 时，通过公开 `strings` API lint 固定的 full/collapsed/image 引用语料，进程内共享一次 Promise。
+这项资格检查先于 fresh lint 和 cache lookup，避免缓存掩盖已加载 backend 的能力缺失；失败映射为 `backend-failed`，
+不发布合成或缓存 lint Findings。Product 不依赖上游私有模块路径来判定能力。
+
+当前 cache adapter 契约为 `markdown-lint-findings-v2`，使采用该资格解释之前的 facts 失效。
+
 ## Package maintenance evidence
 
-`duplicateDetection` 的默认 jscpd v5 兼容范围由发布 manifest 声明。repository、candidate 与 external-consumer 验收核对 resolved manifest、contained bin 和实际 engine version 一致；这不把每次 runtime availability probe 变成 exact-5.1.1 gate。
+`duplicateDetection` 的默认 jscpd v5 兼容范围由发布 manifest 声明。repository、candidate 与 external-consumer 验收核对 resolved manifest、contained bin 和实际 engine version 一致；这不把每次 runtime availability probe 变成 exact-version gate。
 
 `functionMetrics` 的 parent 有界读取 accepted source，再将完整 batch 交给 `node:worker_threads` Worker。Worker 只分析传入文本；取消终止 Worker，error 或未交付完整结果的 exit 映射为 analysis failure。私有 Worker `.mjs` 是必需包材料，artifact 与 installed-consumer 验收需证明其实际可执行。
 

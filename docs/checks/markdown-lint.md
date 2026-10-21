@@ -87,7 +87,11 @@ backend 规则名、preset、rule object、rule 参数、parser plugin 和自动
 
 每次 execution 只收集一次 `files` 选中的路径并稳定排序。选中但后缀不是 `.md` 或 `.markdown` 的路径不会读取内容，而是各发布一条 non-blocking `input-rejected / unsupported-file-type` Record。accepted source 必须位于 project root 内、是 regular file、可作为 UTF-8 读取且不超过 `maxMarkdownBytes`；Check 按路径顺序逐文件执行，并在文件前后响应取消。
 
-私有 adapter 使用随包固定的 `markdownlint@0.41.1` Promise `strings` API，只接收已读取的 source text，不接收项目路径或文件系统权限。inline config 固定禁用；文件开头的 YAML、TOML 和 JSON front matter 受支持。pipe table、HTML comment 与未支持扩展的识别以该固定 backend 版本的实际行为为准，不承诺与任意 Markdown renderer 等价。
+私有 adapter 使用随包固定的 `markdownlint@0.42.0` Promise `strings` API，只接收已读取的 source text，不接收项目路径或文件系统权限。inline config 固定禁用；文件开头的 YAML、TOML 和 JSON front matter 受支持。pipe table、HTML comment 与未支持扩展的识别以该固定 backend 版本的实际行为为准，不承诺与任意 Markdown renderer 等价。
+
+选择 `reference-links-images` 时，适配器先用同一 markdownlint `strings` API 检查固定合成文本，验证已加载的依赖组合具备必要的引用识别能力，进程内复用检查结果。
+缓存读取前同样必须通过检查；能力缺失时，Check 以 `unavailable / backend-failed` 结算，避免将漏报当成无 Finding。
+合成文本与诊断不进入项目 Findings、计数或 waiver 对账。修复安装的依赖组合后，应启动新进程重试。
 
 ### 逐文件 findings 缓存
 

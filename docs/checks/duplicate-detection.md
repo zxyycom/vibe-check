@@ -5,7 +5,7 @@
 `duplicateDetection(options?)` 构造 `duplicate-detection` Check，用 jscpd 报告满足行数/token 策略的重复片段。
 它发布完整 Finding Records，并分别统计总数与 blocking 数量；waiver 不缩小 scanner 输入或 cache evidence。
 
-默认使用随 package 安装的 jscpd v5（manifest 范围 `^5.1.1`），无需另配 executable。
+默认使用随 package 安装的 jscpd v5（manifest 范围 `^5.4.2`），无需另配 executable。
 
 ## 构造器项目声明
 

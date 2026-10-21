@@ -470,6 +470,33 @@ process.stdout.write(
 async function assertInstalledMarkdownLintWaivers() {
   const root = await mkdtemp(join(tmpdir(), "vibe-check-installed-lint-waivers-"));
   try {
+    await writeFile(join(root, "source.md"), "[full][missing]\n", "utf8");
+    const references = markdownLint({
+      files: { patterns: ["source.md"] },
+      rules: ["reference-links-images"],
+      findingPolicy: "blocking",
+      cache: { enabled: false }
+    });
+    const referenceResult = await run(
+      defineConfig({
+        checks: [references],
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          progressRendering: { enabled: false }
+        }
+      }),
+      { projectRoot: root }
+    );
+    assert.equal(referenceResult.kind, "completed");
+    assert.equal(referenceResult.snapshot.checks[0].outcome.status, "failed");
+    assert.deepEqual(references.parseData(referenceResult.snapshot.checks[0].outcome.data), {
+      sourceFileCount: 1,
+      findingCount: 1,
+      rejectedInputCount: 0
+    });
+    assert.equal(referenceResult.snapshot.records.length, 1);
+    assert.equal(referenceResult.snapshot.records[0].data.rule, "reference-links-images");
+
     await writeFile(join(root, "source.md"), "#missing\n", "utf8");
     const options = {
       files: { patterns: ["source.md"] },

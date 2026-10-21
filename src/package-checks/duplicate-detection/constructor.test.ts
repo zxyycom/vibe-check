@@ -7,6 +7,7 @@ import { describe, it } from "node:test";
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import { run } from "../../project-run/run.ts";
 import { duplicateDetection } from "./constructor.ts";
+import { parseDuplicateDetectionData } from "./final-data.ts";
 import { executeDuplicateDetection } from "./execution.ts";
 import { createTypeScriptSourceRoot, executeCheck } from "../check-execution.test-support.ts";
 import { assertConditionalCacheAcquisition } from "./constructor.cache.test-support.ts";
@@ -99,9 +100,12 @@ describe("default Check direct callbacks", () => {
       if (result.kind !== "completed") return;
       assert.equal(result.aggregate, "failed");
       assert.equal(result.snapshot.checks.length, 1);
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, {
-        data: { blockingFindingCount: 1, findingCount: 1 },
-        status: "failed"
+      const outcome = result.snapshot.checks[0]?.outcome;
+      assert.equal(outcome?.status, "failed");
+      if (outcome?.status !== "failed") return;
+      assert.deepEqual(parseDuplicateDetectionData(outcome.data), {
+        blockingFindingCount: 1,
+        findingCount: 1
       });
       assert.equal(result.snapshot.records.length, 1);
       assert.equal(result.snapshot.records[0]?.checkId, "duplicate-detection");

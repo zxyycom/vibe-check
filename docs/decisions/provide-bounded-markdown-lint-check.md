@@ -36,7 +36,8 @@ relations: []
   输入、规则、资源、Records、消息、final data 与四态结算。
 - 采用: v1 提供九个 Product 语义规则名，其中八项构成默认集，`link-fragments` 只由 consumer 显式选择；
   `rules` 是非空、闭合、完整替换的列表，不公开 backend preset、tag、rule object 或 parser 配置。
-- 采用: 固定使用 MIT 许可的 `markdownlint@0.41.1` Promise `strings` API。Product 传入 exact authorized
+- 采用: 使用 MIT 许可的 `markdownlint` Promise `strings` API，根依赖与发布 manifest 固定经本仓库验收的版本；
+  形成时基线为 `0.41.1`，该数值不是永久冻结政策。Product 传入 exact authorized
   UTF-8 Markdown、固定 front matter 与 inline-config policy，验证 backend 结果后只发布 project-relative path、
   公共规则名和安全 range。
 - 采用: 单文件 bytes、全次 Findings 和 cancellation 采用有界策略；读取、解码、limit、backend 或 protocol

@@ -42,6 +42,27 @@ describe("quality scanner output parsing", () => {
     assertSccEmptyAndValidOutputs();
     assertMalformedSccRows();
   });
+
+  it("preserves quoted provider paths across BOM, CRLF and empty CSV lines", () => {
+    const result = parseSccCSV(
+      `\uFEFF${SCC_BY_FILE_CSV_HEADER}\r\n\r\n` +
+        'TypeScript,"src/a,b.ts","a,b.ts",12,8,2,2,1,256,8\r\n' +
+        'Rust,"src/a""b.rs","a""b.rs",12,8,2,2,,256,8\r\n' +
+        '__proto__,"src/multi\nline.ts","multi\nline.ts",12,8,2,2,3,256,8\r\n',
+      "/repo"
+    );
+    assert.deepEqual(result, {
+      ok: true,
+      measurements: [
+        { path: 'src/a"b.rs', value: null },
+        { path: "src/a,b.ts", value: 1 },
+        { path: "src/multi\nline.ts", value: 3 }
+      ].map(({ path, value }) => ({
+        sourcePaths: [path],
+        payload: { path, codeLines: 8, decisionTokens: { source: "scc", value } }
+      }))
+    });
+  });
 });
 function assertSccEmptyAndValidOutputs(): void {
   assert.deepEqual(parseSccCSV(SCC_BY_FILE_CSV_HEADER, "/repo"), {

@@ -8,6 +8,7 @@ import {
 import { cacheJsonByKey } from "../../package-tools/cache/cache-json-by-key.ts";
 import {
   lintMarkdownString,
+  supportsMarkdownLintRules,
   parseMarkdownLintRange,
   type MarkdownLintBackendFinding
 } from "./adapter.ts";
@@ -34,7 +35,7 @@ export type MarkdownLintFactsResult =
   | MarkdownLintUnavailableReason;
 
 /** Bump when adapter configuration or finding interpretation changes without a backend version change. */
-const CACHE_FORMAT_VERSION = "markdown-lint-findings-v1";
+const CACHE_FORMAT_VERSION = "markdown-lint-findings-v2";
 const backendVersion = installedMarkdownlintVersion();
 
 class LintComputationUnavailable extends Error {
@@ -52,6 +53,9 @@ export async function lintMarkdownWithCache(
 ): Promise<MarkdownLintFactsResult> {
   const { sourcePath, sourceText, rules, cache, signal } = input;
   if (signal.aborted) return "cancelled";
+  const supported = await supportsMarkdownLintRules(rules);
+  if (signal.aborted) return "cancelled";
+  if (!supported) return "backend-failed";
   if (!cache.enabled || backendVersion === undefined) return lintFresh(input);
 
   try {

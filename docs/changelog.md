@@ -111,7 +111,7 @@ Scheduler 以同源增量变化维护成员、选择视图和已请求的统计�
 完整 JSON 语法、UTF-8、解码后重复键与领域结果规则保持；内部实现移除 Momoa 运行依赖。
 文件选择所需的 `fast-glob@3.3.3`、`micromatch@4.0.8` 纳入运行依赖，安装时更新 lockfile。
 
-### 命令结果完整性
+### 命令完整性与检测依赖
 
 [`commandCheck`](./guides/command-check.md) 升级至 Execa `10.2.0`：输出超限主动终止子进程，
 不再依赖执行超时才回收；忽略软终止时沿用底层强杀升级，不承诺任意后代进程树的回收。
@@ -119,10 +119,16 @@ Scheduler 以同源增量变化维护成员、选择视图和已请求的统计�
 完整非零退出仍可由调用方解释，默认失败原因优先级保持。
 `outputByteLimit` 名称兼容保留，指南现明确它是各流独立的近似文本缓冲限额，不是严格 UTF-8 字节预算。
 
+检测依赖升级为 `csv-parse@7.0.3`、`markdownlint@0.42.0` 与 `jscpd@^5.4.2`。
+公开规则集合、阈值与 Finding 处理策略保持；重复检测的 Markdown token 计量和 Vue 范围修复可能改变
+Findings/waiver identity，升级时应按实际输入复核，而不是只接受旧计数。
+Markdown reference 检查另验证实际 backend 能力：消费者保留旧解析器锁图而导致 MD052 漏报时，
+沿用 `backend-failed` 阻断，不把空结果当作通过；此资格检查也先于 findings cache 命中。
+
 ### 升级验证与追溯
 
 从 `0.0.3` 升级时，先迁移 callback context 和文件 selection，再运行类型检查、实际安装包的 TS/JS consumer 与代表性 Run；
-重点复核函数 Finding/waiver、调度测量末位、Markdown 首次目标观察、错误优先级及新增 options 分支。
+重点复核函数/重复检测 Finding 与 waiver、调度测量末位、Markdown 首次目标观察、命令完成回调、错误优先级及新增 options 分支。
 `run.json` / `records.ndjson` 继续使用 [v4 machine schema](./output.md)，不能仅以 schema 版本判断 API 或 Check Record 兼容性。
 
 | 变更主题 | 提交 |

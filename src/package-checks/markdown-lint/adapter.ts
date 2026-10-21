@@ -18,6 +18,47 @@ const BACKEND_BY_RULE: Readonly<Record<MarkdownLintRuleName, string>> = {
   "table-column-count": "MD056"
 };
 
+// Imported backend modules are fixed for this process; share one capability observation.
+let referenceSupport: Promise<boolean> | undefined;
+
+/** Rejects a backend graph that silently omits the selected undefined-reference capability. */
+export async function supportsMarkdownLintRules(
+  rules: readonly MarkdownLintRuleName[]
+): Promise<boolean> {
+  if (!rules.includes("reference-links-images")) return true;
+  referenceSupport ??= probeReferenceSupport();
+  return referenceSupport;
+}
+
+async function probeReferenceSupport(): Promise<boolean> {
+  const sourcePath = "vibe-check-reference-capability.md";
+  const sourceText = "[full][missing-full]\n[collapsed][]\n![image][missing-image]\n";
+  const rules: readonly MarkdownLintRuleName[] = ["reference-links-images"];
+  try {
+    const raw: unknown = await lint({
+      config: backendConfiguration(rules),
+      frontMatter: FRONT_MATTER,
+      noInlineConfig: true,
+      strings: { [sourcePath]: sourceText }
+    });
+    const findings = parseBackendFindings(raw, sourcePath, sourceText, rules);
+    const expectedRangeLengthsUtf16 = [20, 13, 23];
+    return (
+      typeof findings !== "string" &&
+      findings.length === expectedRangeLengthsUtf16.length &&
+      findings.every(
+        (finding, index) =>
+          finding.rule === "reference-links-images" &&
+          finding.lineNumber === index + 1 &&
+          finding.range?.[0] === 1 &&
+          finding.range[1] === expectedRangeLengthsUtf16[index]
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
 export interface MarkdownLintBackendFinding {
   readonly lineNumber: number;
   readonly range: readonly [number, number] | null;
@@ -30,6 +71,7 @@ export async function lintMarkdownString(
   sourceText: string,
   rules: readonly MarkdownLintRuleName[]
 ): Promise<readonly MarkdownLintBackendFinding[] | "backend-failed" | "backend-protocol-invalid"> {
+  if (!(await supportsMarkdownLintRules(rules))) return "backend-failed";
   let raw: unknown;
   try {
     raw = await lint({

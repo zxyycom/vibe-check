@@ -70,11 +70,13 @@ candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 
 | 措施 | 用途与边界 |
 | --- | --- |
+| `markdown-it@15.0.2` devDependency | 提供 markdownlint `0.42.0` 声明引用的内置类型，仅供工作区类型检查。 |
+| `micromark@4.0.3` 的精确 override | 使它与 markdownlint 共用 `micromark-core-commonmark@2.0.4`，满足 MD052 shim 的同实例要求；保留其它 micromark 版本的依赖图。 |
 | `patches/execa@10.2.0.patch` | pnpm 登记的本地声明补丁：约束内部 combined-output 泛型，并将缺省 buffer 类型归一为实际默认值。runtime、公开 Options 与 declaration checking policy 保持。 |
 
 Execa 补丁由 `scripts/package/execa-type-compatibility.type-test.ts` 的 TS6/TS7 正向输出推断与拒绝矩阵约束。
 上游版本在无补丁时通过同一矩阵后，才移除对应登记与材料；该补丁不代表官方修复。
-隔离 consumer 不继承 repository patch，须通过公开声明验收。
+隔离 consumer 不继承 repository patch、override 或 dev-only `markdown-it`，须分别以公开声明验收和真实 undefined-reference Run 验证安装后的依赖图。
 
 ### 共享能力与治理责任方
 

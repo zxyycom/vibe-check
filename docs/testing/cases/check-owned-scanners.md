@@ -1,5 +1,17 @@
 # check-owned-scanners
 
+## Case AUX-MARKDOWN-LINT-REFERENCE-CAPABILITY-001: 引用识别能力缺失时拒绝完整 lint
+
+Owner: `docs/checks/markdown-lint.md#工作原理`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/findings-cache.test.ts|Markdown lint findings cache > rejects a missing reference capability before direct, cold and warm cache results`
+
+Proves:
+
+- 已选择引用规则但 backend 对固定未定义引用返回合法空数组时，direct lint、冷缓存和已有可信热缓存均返回 `backend-failed`；Check 不发布 lint 或合成 Records，也不建立冷缓存目录。
+- 故障注入只在独立 child 中替换公开 `markdownlint/promise` API，重现已观察到的混合 core 图响应；并发与后续引用调用共享一次 probe，未选择引用规则的调用不触发 probe。
+
 ## Case AUX-HOST-ENVIRONMENT-PROCESS-LIFECYCLE-001: Product process capability retains closed lifecycle causes
 
 Owner: `docs/development/scanner-dependencies.md#product-private-process-capability`
@@ -101,12 +113,14 @@ Entities:
 - `bun|src/package-checks/duplicate-detection/jscpd/scanner.test.ts|quality jscpd wrapper failure projection > classifies unavailable jscpd dependency binaries in tool availability`
 - `bun|src/package-checks/duplicate-detection/jscpd/scanner.test.ts|quality jscpd wrapper failure projection > does not treat a successful jscpd run without JSON as a successful empty scan`
 - `bun|src/package-checks/duplicate-detection/jscpd/scanner.test.ts|quality jscpd wrapper failure projection > keeps real duplicate findings non-fatal and normalizes jscpd JSON`
+- `bun|src/package-checks/duplicate-detection/jscpd/scanner.measurement.test.ts|quality jscpd real language measurements > keeps Markdown literal tokens and Vue template ranges within exact inputs`
 - `bun|src/package-checks/duplicate-detection/jscpd/scanner.test.ts|quality jscpd wrapper failure projection > uses identifiable jscpd versions as provenance without exact locking`
 - `bun|src/package-checks/duplicate-detection/jscpd/parser.test.ts|quality scanner output parsing > classifies invalid jscpd JSON and duplicate items as parse failures`
 - `bun|src/package-checks/duplicate-detection/jscpd/parser.test.ts|quality scanner output parsing > parses jscpd version and JSON output`
   Proves:
 
 - The duplicate-detection-owned jscpd adapter distinguishes available findings from missing commands, unavailable tools, unidentifiable version provenance, nonzero execution, missing reports, and malformed reports. Package availability reports the actual version of its contained package bin; the repository/candidate/external-consumer release evidence separately verifies that this version agrees with the resolved manifest. Custom availability identifies its command without inferring repository provenance. An identifiable actual version is accepted without an exact runtime lock and partitions raw cache identity. A custom executable directly receives adapter-owned version and scan arguments, while no public worker or argument passthrough can alter that protocol. The adapter removes only a duplicate report `format`-matched path suffix before normalizing valid JSON and never accepts a partial trusted result.
+- Real Markdown URL/comment-like literals retain their token contribution, and Vue template measurements use content-only source ranges with inclusive line counts. Both real scans report only the two approved files despite an identical third file outside the exact input list.
 
 ## Case AUX-FUNCTION-ANALYZER-ADAPTER-OUTCOMES-001: Product analyzer adapter preserves its whole-input boundary
 
@@ -151,9 +165,11 @@ Entities:
 - `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > accounts stdout and stderr cumulatively before a later batch can start`
 - `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > parses scc 4.0 Provider paths and rejects unknown CSV headers`
 - `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > rejects malformed scc rows without losing valid zero-file output`
+- `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > preserves quoted provider paths across BOM, CRLF and empty CSV lines`
   Proves:
 
 - The file-metrics-owned SCC 4.0 adapter skips invocation for empty exact input, always sends `--no-config` before its fixed by-file CSV protocol, and preserves valid zero-file output while rejecting missing headers, unknown headers, or malformed rows.
+- SCC CSV parsing preserves literal commas, escaped quotes and embedded newlines in provider paths across a BOM, CRLF and empty rows; prototype-like cell text remains ordinary array data, and an empty complexity remains an explicit null measurement.
 - Its private conservative UTF-16 estimator partitions approved paths without reorder or overlap, rejects a path that cannot fit before any process starts, and keeps small compatible inputs to one process.
 - For a multi-batch logical scan, each batch accepts only its exact scope. An out-of-scope row, duplicate measurement, process failure, expired shared deadline, or exhausted cumulative output budget rejects the complete scan; stable merged metrics return only after every sequential batch succeeds.
 

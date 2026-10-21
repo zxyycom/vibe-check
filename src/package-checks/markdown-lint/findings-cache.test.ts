@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { executeMarkdownLint } from "./execution.ts";
 import { markdownLint } from "./constructor.ts";
@@ -17,6 +19,40 @@ const SOURCE_PATH = "docs/source.md";
 const SOURCE_TEXT = "#missing\n";
 
 describe("Markdown lint findings cache", () => {
+  it("rejects a missing reference capability before direct, cold and warm cache results", async () => {
+    const fixture = createCacheFixture();
+    try {
+      const input = {
+        sourcePath: "references.md",
+        sourceText: "[full][missing-full]\n[collapsed][]\n![image][missing-image]\n",
+        rules: ["reference-links-images"] as const,
+        cache: fixture.cache,
+        signal: new AbortController().signal
+      };
+      const cold = await lintMarkdownWithCache(input);
+      const warm = await lintMarkdownWithCache(input);
+      assert.equal(typeof cold === "string" ? cold : cold.source, "computed");
+      assert.equal(typeof warm === "string" ? warm : warm.source, "cache");
+      if (typeof warm !== "string") assert.equal(warm.findings.length, 3);
+
+      const child = spawnSync(
+        process.execPath,
+        [
+          fileURLToPath(new URL("./reference-capability.test-support.ts", import.meta.url)),
+          fixture.root,
+          fixture.cacheDirectory
+        ],
+        { encoding: "utf8", killSignal: "SIGKILL", timeout: 10_000 }
+      );
+      assert.equal(child.error, undefined, child.error?.message);
+      assert.equal(child.status, 0, child.stderr);
+      const completion: unknown = JSON.parse(child.stdout);
+      assert.deepEqual(completion, { calls: 3 });
+    } finally {
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
   it("preserves complete Check results on cold and warm traversal", async () => {
     const fixture = createCacheFixture();
     try {
