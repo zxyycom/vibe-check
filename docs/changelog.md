@@ -138,6 +138,7 @@ Markdown reference 检查另验证实际 backend 能力：消费者保留旧解�
 | 声明式 callback context | `de9cf844` |
 | 调度测量与终态修复 | `14a64e5e` |
 | Markdown 缓存提醒与引用图/预算 | `acc3212d`、`a38a3320` |
+| 命令完整性、检测依赖与工作区工具链 | `23535dd7`、`c68f42ac`、`4b9ca374`、`1b9fcae3` |
 | JSON 文档协作取消与语法实现 | `306a0b25`、`965611cf` |
 
 ## 0.0.3
