@@ -80,7 +80,7 @@ describe("commandCheck environment", () => {
                 { id: "command-completion" },
                 { exitCode: completedCommand.exitCode }
               );
-              return { status: "failed", data: { source: "after-command" } };
+              return { status: "passed", data: { source: "after-command" } };
             }
           })
         },
@@ -111,8 +111,8 @@ describe("commandCheck environment", () => {
       assert.equal(resolverCalls, 1);
       assert.deepEqual(settled, { exitCode: 13, stderr: "", stdout: "resolved" });
       const outcome = result.snapshot.checks[0]?.outcome;
-      assert.equal(outcome?.status, "failed");
-      if (outcome?.status === "failed") assert.equal(outcome.data.source, "after-command");
+      assert.equal(outcome?.status, "passed");
+      if (outcome?.status === "passed") assert.equal(outcome.data.source, "after-command");
       const record = result.snapshot.records[0];
       assert.equal(record?.checkId, "command-test");
       assert.equal(record?.id, "command-completion");

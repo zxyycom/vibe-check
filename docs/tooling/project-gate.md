@@ -227,7 +227,8 @@ typed safe Records。
 Gate command 的进程边界固定为：
 
 - environment 使用继承宿主环境并叠加 Product plain-text/no-color variables；依赖数据只能作为显式 overrides 进入 child。
-- stdout/stderr 的上限固定为 `64 MiB`；当前 Gate command entry 不向各 invocation 暴露另一套 output limit 配置。
+- stdout/stderr 的文本 buffer 限额各为 `64 * 1024 * 1024`，计量与回收边界沿用
+  [commandCheck 输出策略](../guides/command-check.md#输出)；当前 Gate command entry 不向各 invocation 暴露另一套 output limit 配置。
 - 未单独配置 timeout 的 Gate 单命令使用 `120_000 ms`；package acceptance 与 `lint-product` 保持 `30_000 ms`。
 - Product 在最终 transcript 写入成功后，才调用 Gate completion callback；resolver、取消、timeout、output limit、signal
   和 transcript failure 使用 Product reason code，不由 Gate 复制一套 process reason code。

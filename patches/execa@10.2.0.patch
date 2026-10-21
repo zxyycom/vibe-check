@@ -1,0 +1,14 @@
+diff --git a/types/return/result-all.d.ts b/types/return/result-all.d.ts
+index 14b79c999539b1a732f58c668229bc9abb8a4841..cb08b73fe7ed4e49424f81a7de08284fead8f800 100644
+--- a/types/return/result-all.d.ts
++++ b/types/return/result-all.d.ts
+@@ -29 +29,8 @@ type ResultAllBuffered<
+-		? ResultAllOutput<Omit<OptionsType, 'buffer'> & {buffer: {stdout: BufferStdout; stderr: BufferStderr}}>
++		? ResultAllOutput<
++			Omit<OptionsType, 'buffer'> & {
++				buffer: {
++					stdout: BufferStdout extends false ? false : true;
++					stderr: BufferStderr extends false ? false : true;
++				};
++			} extends infer BufferedOptions extends CommonOptions ? BufferedOptions : never
++		>

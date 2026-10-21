@@ -136,7 +136,9 @@ function fingerprintCompilerInputs(repositoryRoot: string): Readonly<{
         ...processSources,
         ...compilerPackages,
         join(repositoryRoot, "package.json"),
-        join(repositoryRoot, "pnpm-lock.yaml")
+        join(repositoryRoot, "pnpm-lock.yaml"),
+        join(repositoryRoot, "pnpm-workspace.yaml"),
+        join(repositoryRoot, "patches/execa@10.2.0.patch")
       ],
       `${COMPILER_OPTIONS_VERSION}\0bun=${process.versions.bun ?? "unknown"}`
     ),

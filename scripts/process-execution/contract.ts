@@ -19,14 +19,17 @@ export type ProcessResult = {
   readonly timedOut?: true;
 };
 
+// Repository automation captures text; Execa correlates stdio with the encoding branch.
+type TextSyncOptions = Extract<SyncOptions, { readonly encoding?: "utf8" | "utf16le" | undefined }>;
+
 export type RunProcessSyncOptions = {
   readonly args: readonly string[];
   readonly command: string;
   readonly cwd?: string | URL;
-  readonly encoding?: SyncOptions["encoding"];
+  readonly encoding?: TextSyncOptions["encoding"];
   readonly env?: NodeJS.ProcessEnv;
   readonly maxBuffer?: number;
-  readonly stdio?: SyncOptions["stdio"];
+  readonly stdio?: TextSyncOptions["stdio"];
   readonly timeout?: number;
   readonly windowsHide?: boolean;
 };

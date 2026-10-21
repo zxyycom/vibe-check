@@ -111,6 +111,14 @@ Scheduler 以同源增量变化维护成员、选择视图和已请求的统计�
 完整 JSON 语法、UTF-8、解码后重复键与领域结果规则保持；内部实现移除 Momoa 运行依赖。
 文件选择所需的 `fast-glob@3.3.3`、`micromatch@4.0.8` 纳入运行依赖，安装时更新 lockfile。
 
+### 命令结果完整性
+
+[`commandCheck`](./guides/command-check.md) 升级至 Execa `10.2.0`：输出超限主动终止子进程，
+不再依赖执行超时才回收；忽略软终止时沿用底层强杀升级，不承诺任意后代进程树的回收。
+超限与非零退出等标记同时出现时也不会进入 `afterCommand`，因而不发布该回调的派生成功 data/Records；
+完整非零退出仍可由调用方解释，默认失败原因优先级保持。
+`outputByteLimit` 名称兼容保留，指南现明确它是各流独立的近似文本缓冲限额，不是严格 UTF-8 字节预算。
+
 ### 升级验证与追溯
 
 从 `0.0.3` 升级时，先迁移 callback context 和文件 selection，再运行类型检查、实际安装包的 TS/JS consumer 与代表性 Run；

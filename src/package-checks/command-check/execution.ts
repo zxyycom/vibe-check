@@ -16,8 +16,7 @@ import { runProcess } from "../host-environment/process.ts";
 import { isValidResolvedCommandCheckOptions, resolveCommandCheckEnvironment } from "./options.ts";
 import { closedTranscript, runningTranscript, writeCommandTranscript } from "./transcript.ts";
 
-type CommandProcessResult = Awaited<ReturnType<typeof runProcess>> &
-  Readonly<{ readonly isCanceled?: true; readonly isMaxBuffer?: true; readonly timedOut?: true }>;
+type CommandProcessResult = Awaited<ReturnType<typeof runProcess>>;
 
 /** Executes one validated no-shell command and releases all child material after optional transcript persistence. */
 export async function executeCommandCheck(
@@ -177,13 +176,7 @@ function executionEnvironment(
 function isCompleteCommandResult(result: CommandProcessResult): result is CommandProcessResult & {
   readonly status: number;
 } {
-  return (
-    typeof result.status === "number" &&
-    result.isCanceled !== true &&
-    result.isMaxBuffer !== true &&
-    result.timedOut !== true &&
-    result.signal === null
-  );
+  return result.isComplete && typeof result.status === "number";
 }
 
 function terminalResult(result: CommandProcessResult): Readonly<{

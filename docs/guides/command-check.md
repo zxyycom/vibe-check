@@ -53,7 +53,7 @@ if (outcome?.status !== "passed" || outcome.data.exitCode !== 0) {
 | `environment` | 可选，默认 `{ mode: "exact" }`。它与 `resolveEnvironment` 互斥，见[环境](#环境)。 |
 | `resolveEnvironment` | 可选：在 spawn 前为本次 invocation 返回 closed environment policy，见[环境](#环境)。 |
 | `timeoutMs` | 必填：正安全整数，限定一次 command execution。 |
-| `outputByteLimit` | 必填：正安全整数，stdout 和 stderr 各自的 byte ceiling。 |
+| `outputByteLimit` | 必填：正安全整数，stdout 和 stderr 各自的近似文本缓冲限额。计量与回收边界见[输出](#输出)。 |
 | `output` | 可选，默认 `{ mode: "discard" }`。见[输出](#输出)。 |
 | `afterCommand` | 可选：完整 numeric-exit command 的 caller-owned completion，见[调用方完成阶段](#调用方完成阶段)。 |
 
@@ -122,6 +122,10 @@ resolver throw 或返回非法 policy 时，不启动 child，Check 结算为 `u
 
 transcript 是显式 opt-in artifact capability。没有 `artifactDirectory`，或 running/final write 失败时，Check 为 `unavailable / command-transcript-unavailable`。`process.log` 不包含 executable、arguments、environment 或 native error text。
 
+`outputByteLimit` 分别约束 stdout 和 stderr 的内存捕获，沿用底层 `maxBuffer` 的近似文本计量；它不是两条流的合计预算，也不是严格 UTF-8 字节上限，多字节文本的实际字节数可能大于该值。
+任一流超限后，底层进程执行器主动终止 child；POSIX 下不响应软终止的 child 使用默认约 5 秒的强杀升级。
+这一回收机制针对直接 child，不保证回收任意后代进程树，也不会回滚终止前已经发生的副作用。
+
 ## 调用方完成阶段
 
 `afterCommand` 把完成 callback 与可选 typed-provider parser 放在同一个对象：
@@ -152,7 +156,8 @@ const reportCommand = commandCheck({
 });
 ```
 
-Product 只在 child 具有 numeric exit，且未取消、未 timeout、未达到 output limit、未被 signal 终止时调用 `afterCommand.execute`。若选择 transcript，final write 也必须先成功。`callback(input, context)` 的第一参数是冻结 `{ options, command }`，其中 command 是完整 `{ exitCode, stdout, stderr }`；第二参数只含自己声明的 Check execution 字段；它可以返回普通 `CheckResult` 并按 ordinary Check contract 报告 Records。这个返回值取代完整命令的默认 exit-code mapping。
+Product 只在 child 具有数值退出码，且没有取消、超时、输出超限或 signal 标记时调用 `afterCommand.execute`；完整的非零退出也可由此回调解释。若选择 transcript，final write 也必须先成功。
+`callback(input, context)` 的第一参数是冻结 `{ options, command }`，其中 command 是完整 `{ exitCode, stdout, stderr }`；第二参数只含自己声明的 Check execution 字段；它可以返回普通 `CheckResult` 并按 ordinary Check contract 报告 Records。这个返回值取代完整命令的默认 exit-code mapping。
 
 存在 `parseData` 时，返回值是 typed provider Check，parser 负责验证 callback 返回的 data；没有 parser 时，返回值仍是 ordinary Check。`stdout`、`stderr` 仅在 callback 的业务 input 中提供，不会因 callback 存在而自动发布。调用方决定是否把派生数据或 Records 放入自己的结果边界，并负责其中的敏感信息处理。
 
@@ -167,13 +172,15 @@ Product 只在 child 具有 numeric exit，且未取消、未 timeout、未达�
 | startup failure | `unavailable / command-start-failed` |
 | resolver throw 或非法 policy | `unavailable / command-environment-resolution-failed` |
 | timeout | `unavailable / command-timeout` |
-| stdout 或 stderr 达到 byte limit | `unavailable / command-output-limit-exceeded` |
+| stdout 或 stderr 超出文本缓冲限额 | `unavailable / command-output-limit-exceeded` |
 | 非 timeout、非 cancellation signal | `unavailable / command-terminated-by-signal` |
 | transcript capability 或 write failure | `unavailable / command-transcript-unavailable` |
 | 无法验证 prepared options | `unavailable / invalid-options` |
 | Core 观察到 caller cancellation | `unavailable / execution-cancelled` |
 
-同时出现多个底层终态标记时，Product 以 **nonzero exit → cancellation → timeout → max-buffer → signal → startup failure → zero exit** 的顺序选择默认 cause。只有完整 numeric exit 才能进入 `afterCommand`；其它分支保留 Product-owned mapping。callback 自身的 throw 或 settlement 继续由 ordinary Check/Core lifecycle 处理。
+同时出现多个底层终态标记时，Product 以 **非零退出 → 取消 → 超时 → 输出超限 → signal → 启动失败 → 零退出** 的顺序选择默认原因。
+这一优先级不改变[完成阶段的资格要求](#调用方完成阶段)：例如非零退出与超限同时出现时，默认结果仍为 `failed / { exitCode }`，但不会调用 `afterCommand`。
+callback 自身的 throw 或 settlement 继续由 ordinary Check/Core lifecycle 处理。
 
 ## 安全边界与公开类型
 

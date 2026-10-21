@@ -85,6 +85,14 @@ test("release manifest bytes invalidate the candidate fingerprint", () => {
     const sourcePath = join(root, RELEASE_MANIFEST_SOURCE_PATH);
     writeFileSync(sourcePath, `${readFileSync(sourcePath, "utf8").trimEnd()}\n\n`, "utf8");
     assert.notEqual(createArtifactFingerprint(root), before);
+    const manifestChanged = createArtifactFingerprint(root);
+    const workspacePath = join(root, "pnpm-workspace.yaml");
+    writeFileSync(workspacePath, `${readFileSync(workspacePath, "utf8")}\n`, "utf8");
+    assert.notEqual(createArtifactFingerprint(root), manifestChanged);
+    const configurationChanged = createArtifactFingerprint(root);
+    const patchPath = join(root, "patches/execa@10.2.0.patch");
+    writeFileSync(patchPath, `${readFileSync(patchPath, "utf8")}\n`, "utf8");
+    assert.notEqual(createArtifactFingerprint(root), configurationChanged);
   } finally {
     rmSync(temporaryRoot, { force: true, recursive: true });
   }

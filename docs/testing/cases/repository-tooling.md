@@ -49,7 +49,7 @@ Entities:
 - `bun|scripts/package/artifact/compiler-cache.test.ts|candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs`
   Proves:
 
-- Unchanged Product compiler inputs reuse verified local raw emit when only documentation changes. A changed source graph may retain incremental compiler state, but corrupt cached output/build info or a changed source-file set forces a cold emit. This cache is not the package staging, tarball, installed candidate or a replacement for their full audits.
+- Unchanged Product compiler inputs reuse verified local raw emit when only documentation changes. A changed source graph may retain incremental compiler state, but corrupt cached output/build info, a changed source-file set, dependency lock or dependency patch bytes forces a cold emit. This cache is not the package staging, tarball, installed candidate or a replacement for their full audits.
 
 ## Case AUX-TRANSLATED-SOURCE-MAPPING-001: Source mapping maintenance updates only selected derived material
 

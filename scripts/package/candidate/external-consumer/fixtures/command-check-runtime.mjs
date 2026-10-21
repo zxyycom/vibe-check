@@ -1,10 +1,14 @@
-import { existsSync, readFileSync, readdirSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import assert from "node:assert/strict";
+import { existsSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+import { isAbsolute, join } from "node:path";
 
 import { commandCheck, defineCheck, defineConfig, defineContextCallback, run } from "@zxyycom/vibe-check";
 
 const projectRoot = process.argv[2];
-if (projectRoot === undefined) throw new Error("fixture project root is required");
+if (process.argv.length !== 3 || projectRoot === undefined || !isAbsolute(projectRoot)) {
+  throw new Error("usage: command-check-runtime.mjs <absolute-project-root>");
+}
+assert.equal(statSync(projectRoot).isDirectory(), true, "fixture project root must be a directory");
 
 const DEFAULT_EXECUTABLE_CANARY = "__VIBE_CHECK_DEFAULT_EXECUTABLE_CANARY__";
 const DEFAULT_ARGUMENT_CANARY = "__VIBE_CHECK_DEFAULT_ARGUMENT_CANARY__";
@@ -137,6 +141,7 @@ const defaultPublicMaterial = JSON.stringify({
 });
 const cancellation = await cancellationEvidence(projectRoot);
 const contextDeclarations = await declaredContextEvidence(projectRoot);
+await assertIncompleteCommandBoundaries(projectRoot);
 
 process.stdout.write(
   "__VIBE_CHECK_COMMAND_CHECK_RUN__" +
@@ -281,14 +286,14 @@ async function declaredContextEvidence(root) {
   const checked = commandCheck({
     checkId: "declared-command", displayName: "Declared command",
     executable: process.execPath,
-    arguments: ["--eval", "if (!process.env.DECLARED_PROJECT_ROOT) process.exit(11)"],
+    arguments: ["--eval", "if (!process.env.DECLARED_PROJECT_ROOT) process.exit(11); process.exitCode = 13"],
     outputByteLimit: 256, timeoutMs: 5_000,
     resolveEnvironment: environment,
     afterCommand: {
       execute: defineContextCallback("command.complete", {
         contextNeeds: ["records"],
         callback({ options, command }, context) {
-          businessInputs &&= options.executable === process.execPath && command.exitCode === 0;
+          businessInputs &&= options.executable === process.execPath && command.exitCode === 13;
           completionFields = Object.keys(context);
           frozen &&= Object.isFrozen(context);
           context.records.report({ id: "declared-completion" }, { complete: true });
@@ -301,8 +306,8 @@ async function declaredContextEvidence(root) {
   environment.callback = () => { throw new Error("constructor failed to fix callback"); };
   const empty = commandCheck({
     checkId: "empty-command", displayName: "Empty command",
-    executable: process.execPath, arguments: ["--eval", "process.exit(0)"],
-    outputByteLimit: 256, timeoutMs: 5_000,
+    executable: process.execPath, arguments: ["--eval", "process.stdout.write('中'.repeat(32))"],
+    outputByteLimit: 64, timeoutMs: 5_000,
     resolveEnvironment(_options, context) {
       emptyFields = Object.keys(context);
       frozen &&= Object.isFrozen(context);
@@ -316,4 +321,142 @@ async function declaredContextEvidence(root) {
     businessInputs, completionFields, emptyFields, environmentFields, frozen,
     passed: result.kind === "completed" && result.snapshot.checks.every(({ outcome }) => outcome.status === "passed") && result.snapshot.records.length === 1
   };
+}
+/** Uses the installed Node package, real child PIDs, and a bounded independent cleanup deadline. */
+async function assertIncompleteCommandBoundaries(root) {
+  const ownedPaths = [];
+  let callbackCalls = 0;
+  let cleanupDeadlineExpired = false;
+  const cases = [1, 2].flatMap((fd) =>
+    ["burst", "continuous", "exit-0", "exit-23"].map((mode) => ({ fd, mode }))
+  );
+  if (process.platform !== "win32") cases.push({ fd: 1, mode: "ignore-sigterm" });
+  const checks = cases.map(({ fd, mode }, index) => {
+    const pidPath = join(root, `command-incomplete-${index}.pid`);
+    const terminationPath = join(root, `command-incomplete-${index}.sigterm`);
+    ownedPaths.push({ pidPath, terminationPath });
+    let outputLifecycleSource;
+    switch (mode) {
+      case "continuous":
+        outputLifecycleSource = "setInterval(write, 10);";
+        break;
+      case "burst":
+      case "ignore-sigterm":
+        outputLifecycleSource = "write(); setInterval(() => {}, 1_000);";
+        break;
+      case "exit-0":
+        outputLifecycleSource = "write(); setTimeout(() => process.exit(0), 50);";
+        break;
+      case "exit-23":
+        outputLifecycleSource = "write(); setTimeout(() => process.exit(23), 50);";
+        break;
+      default:
+        throw new Error(`unknown incomplete command mode: ${mode}`);
+    }
+    const source = [
+      "const fs = require('node:fs');",
+      ...(mode === "ignore-sigterm"
+        ? [`process.on('SIGTERM', () => fs.writeFileSync(${JSON.stringify(terminationPath)}, 'ignored'));`]
+        : []),
+      `fs.writeFileSync(${JSON.stringify(pidPath)}, String(process.pid));`,
+      // Keep the child alive after expected pipe closure, but expose any other fixture I/O failure.
+      `const write = () => {
+        try { fs.writeSync(${fd}, 'x'.repeat(4096)); }
+        catch (error) {
+          if (!(error instanceof Error) || !('code' in error) || error.code !== 'EPIPE') throw error;
+        }
+      };`,
+      outputLifecycleSource
+    ].join("\n");
+    return commandCheck({
+      checkId: `command-incomplete-${index}`,
+      displayName: "Incomplete command",
+      executable: process.execPath,
+      arguments: ["--eval", source],
+      outputByteLimit: 32,
+      timeoutMs: 20_000,
+      afterCommand: {
+        execute: defineContextCallback("command.complete", {
+          contextNeeds: ["records"],
+          callback(_input, { records }) {
+            callbackCalls += 1;
+            records.report({ id: "unexpected-partial-completion" }, { partial: true });
+            return { status: "passed", data: { partial: true } };
+          }
+        })
+      }
+    });
+  });
+  const controller = new AbortController();
+  const running = run(defineConfig({
+    checks,
+    outputs: {
+      diagnosticLogging: { enabled: false },
+      machinePublication: { enabled: false },
+      progressRendering: { enabled: false }
+    }
+  }), { projectRoot: root, signal: controller.signal });
+  const watchdog = setTimeout(() => {
+    cleanupDeadlineExpired = true;
+    controller.abort();
+    for (const { pidPath } of ownedPaths) killOwnedChild(pidPath);
+  }, 9_000);
+  try {
+    const result = await running;
+    assert.equal(cleanupDeadlineExpired, false, "overflow waited for the fixture cleanup deadline");
+    assert.equal(result.kind, "completed");
+    assert.equal(callbackCalls, 0);
+    assert.deepEqual(result.snapshot.records, []);
+    for (const { outcome } of result.snapshot.checks) {
+      assert.equal(outcome.status === "failed" || outcome.status === "unavailable", true);
+      if (outcome.status === "failed") assert.deepEqual(outcome.data, { exitCode: 23 });
+      else assert.equal(outcome.reason.code, "command-output-limit-exceeded");
+    }
+    for (const { pidPath } of ownedPaths) {
+      assert.equal(existsSync(pidPath), true, "fixture child did not record its PID");
+      assert.equal(ownedChildAlive(pidPath), false, "installed command returned with a live child");
+    }
+    if (process.platform !== "win32") {
+      assert.equal(existsSync(ownedPaths.at(-1).terminationPath), true);
+    }
+  } finally {
+    clearTimeout(watchdog);
+    controller.abort();
+    for (const { pidPath } of ownedPaths) killOwnedChild(pidPath);
+    await running;
+    for (const { pidPath, terminationPath } of ownedPaths) {
+      rmSync(pidPath, { force: true });
+      rmSync(terminationPath, { force: true });
+    }
+  }
+}
+
+function ownedChildAlive(pidPath) {
+  const pid = readOwnedChildPid(pidPath);
+  if (pid === undefined) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ESRCH") return false;
+    throw error;
+  }
+}
+
+function killOwnedChild(pidPath) {
+  const pid = readOwnedChildPid(pidPath);
+  if (pid === undefined) return;
+  try {
+    process.kill(pid, "SIGKILL");
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ESRCH") return;
+    throw error;
+  }
+}
+
+function readOwnedChildPid(pidPath) {
+  if (!existsSync(pidPath)) return undefined;
+  const pid = Number(readFileSync(pidPath, "utf8"));
+  assert.equal(Number.isSafeInteger(pid) && pid > 0, true, `invalid fixture PID: ${pidPath}`);
+  return pid;
 }

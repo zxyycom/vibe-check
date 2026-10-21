@@ -48,6 +48,9 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
   hash.update(`runtime-compiler-roots=${JSON.stringify(PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS)}\0`);
 
   const inputFiles = [
+    ...["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "patches/execa@10.2.0.patch"].map(
+      (path) => join(repositoryRoot, path)
+    ),
     ...collectRuntimeSourceFilePaths(join(repositoryRoot, "src")),
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),

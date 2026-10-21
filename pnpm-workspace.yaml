@@ -18,3 +18,6 @@ minimumReleaseAgeExclude:
   - jscpd-windows-arm64-msvc@5.1.1
   - jscpd-windows-x64-msvc@5.1.1
   - jscpd@5.1.1
+
+patchedDependencies:
+  execa@10.2.0: patches/execa@10.2.0.patch

@@ -169,7 +169,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       "@secretlint/secretlint-rule-privatekey": "13.0.5",
       ajv: "8.20.0",
       "csv-parse": "7.0.1",
-      execa: "9.6.1",
+      execa: "10.2.0",
       "fast-glob": "3.3.3",
       "github-slugger": "2.0.0",
       immutable: "5.1.9",

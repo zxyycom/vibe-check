@@ -102,7 +102,7 @@ interface CommandCheckBaseInput<Id extends string> {
   /** 省略时使用 project root；相对路径从 project root 解析，绝对路径保持原目标。 */
   readonly workingDirectory?: string;
   readonly timeoutMs: number;
-  /** stdout 和 stderr 各自的 byte 上限，不是两者合计；须为正安全整数。 */
+  /** stdout/stderr 各自的近似文本 buffer 限额，不是两者合计或严格 UTF-8 字节上限；须为正安全整数。 */
   readonly outputByteLimit: number;
   readonly output?: CommandCheckOutput;
   readonly enabledByFlags?: CheckFlagEnablement;
@@ -146,7 +146,7 @@ export interface ResolvedCommandCheckOptions {
       }>;
   readonly executable: string;
   readonly output: Readonly<{ readonly mode: "discard" | "transcript" }>;
-  /** stdout 和 stderr 各自的 byte 上限，不是两者合计。 */
+  /** stdout/stderr 各自的近似文本 buffer 限额，不是两者合计或严格 UTF-8 字节上限。 */
   readonly outputByteLimit: number;
   readonly timeoutMs: number;
   /** `null` 使用 invocation project root；相对路径从该 root 解析，绝对路径保持原目标。 */

@@ -64,6 +64,18 @@ material walkers 共同消费，集中定义仓库扫描时忽略的目录集合
 
 candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 
+#### 工作区依赖兼容
+
+根 manifest、lockfile 与 `pnpm-workspace.yaml` 保存下列兼容措施；candidate fingerprint 和 compiler cache 均绑定这些配置及精确补丁的 bytes。
+
+| 措施 | 用途与边界 |
+| --- | --- |
+| `patches/execa@10.2.0.patch` | pnpm 登记的本地声明补丁：约束内部 combined-output 泛型，并将缺省 buffer 类型归一为实际默认值。runtime、公开 Options 与 declaration checking policy 保持。 |
+
+Execa 补丁由 `scripts/package/execa-type-compatibility.type-test.ts` 的 TS6/TS7 正向输出推断与拒绝矩阵约束。
+上游版本在无补丁时通过同一矩阵后，才移除对应登记与材料；该补丁不代表官方修复。
+隔离 consumer 不继承 repository patch，须通过公开声明验收。
+
 ### 共享能力与治理责任方
 
 | Owner | 责任与入口 |

@@ -5,6 +5,12 @@ export function toProcessResult(result: ExecaResultLike, label: string): Process
   const error = processErrorFor(result, label, cause);
   return {
     ...(error === undefined ? {} : { error }),
+    isComplete:
+      typeof result.exitCode === "number" &&
+      result.isCanceled !== true &&
+      result.timedOut !== true &&
+      result.isMaxBuffer !== true &&
+      result.signal === undefined,
     ...(cause === "cancellation" ? { isCanceled: true as const } : {}),
     ...(cause === "max-buffer" ? { isMaxBuffer: true as const } : {}),
     signal: result.signal ?? null,

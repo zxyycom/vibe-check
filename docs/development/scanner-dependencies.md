@@ -24,6 +24,21 @@ shared tokenizer 对独立 addition 分支采用私有尾部成本防护：普�
 采用取舍见[局部决策](../decisions/bound-unclosable-tokenizer-tail-cost.md)，精确资格、来源同步与持续测试由
 [当前偏差说明](../../src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/source-alignment-deviations.md#私有-tokenizer-的不可闭合尾部成本防护)拥有。
 
+## Product-private process capability
+
+`src/package-checks/host-environment/process/**` 拥有 Product 内部的异步/同步进程执行与统一 `ProcessResult`；
+Check adapter 仍拥有工具协议及 Check 结算，repository automation 使用独立的 `scripts/process-execution/**`。
+
+- `status` 保留数值退出码，`signal` 保留终止信号，缺失时分别为 `null`。默认原因只依据原始结构化标记选择，
+  不从 native error text 猜测；精确优先级由 [commandCheck 默认终态](../guides/command-check.md#默认终态与失败边界)拥有。
+  `isCanceled`、`timedOut` 与 `isMaxBuffer` 是互斥的默认原因投影，而非全部原始标记的副本。
+- `isComplete` 直接依据原始结果独立判断：具有数值退出码且没有取消、超时、超限或 signal 标记才为真。
+  因此完整零/非零退出均可供调用方解释；非零退出即使赢得默认原因，也不能覆盖原始不完整事实。
+- 异步 runner 传递 caller cancellation、timeout 与 `maxBuffer`；同步 runner 保留已有数值退出与文本捕获能力。
+  两者共用结果规范化，`stdout` / `stderr` 均为字符串，已捕获文本保留末尾换行；同步选项限定在文本 encoding 分支。
+- 任一输出流超限后由 Execa 主动终止直接 child，异步调用在 child 退出后交付结果；POSIX child 忽略软终止时沿用底层默认强杀升级。
+  文本计量及直接 child 之外的回收边界见 [commandCheck 输出](../guides/command-check.md#输出)，不将该机制扩张为任意后代进程树回收保证。
+
 ## Check-owned command options
 
 [随包 Check 指南](../navigation.md#随包-check-指南)拥有初始 options；[Configuration](project-definition.md#package-provided-check-composition)

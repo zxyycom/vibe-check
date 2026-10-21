@@ -2859,6 +2859,27 @@
         "typescript"
       ],
       "title": "TypeScript 7.0.2 升级的 compiler API 阻断"
+    },
+    "261021-verify-upgraded-command-result-integrity": {
+      "formedAt": "2026-10-21T07:37:37Z",
+      "name": "verify-upgraded-command-result-integrity",
+      "question": "升级并修复原始完整性投影后，超限能否独立回收且不发布完成回调的派生成功结果？",
+      "relations": [
+        {
+          "summary": "在新版执行器与完整性修复下复查旧版超限缺口",
+          "target": "261020-verify-command-output-limit-lifecycle",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "verify-upgraded-command-result-integrity.md",
+      "tags": [
+        "command-check",
+        "execa",
+        "output-limit",
+        "process-boundaries"
+      ],
+      "title": "验证 Execa 10.2 的超限回收与命令结果完整性修复"
     }
   },
   "metadata": {},
@@ -2976,7 +2997,8 @@
       "261021-assess-typebox-upgrade": "sha256:a57214ec30a60204e33a3185ddf6e2c8a5e90a02ddcb4078579993226342df87",
       "261021-assess-types-node-upgrade": "sha256:4aa5f26b50b9f2dc75630c6fe74559aa2420af763ce7916493fdcd72cf796cd0",
       "261021-assess-typescript-native-preview-upgrade": "sha256:c9952ad48f2da8dadd4207808e11f409d672f328642fc55b717dad311c513e36",
-      "261021-assess-typescript-upgrade": "sha256:783598bf7a31c9ef8bcf33712383d5613ceb7bec2a4fba3ab4e4d857e7e59051"
+      "261021-assess-typescript-upgrade": "sha256:783598bf7a31c9ef8bcf33712383d5613ceb7bec2a4fba3ab4e4d857e7e59051",
+      "261021-verify-upgraded-command-result-integrity": "sha256:4d6eef0e21ad37c8dccdd0b208884f3901b0b576290bb1756ea0f8d22f740698"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

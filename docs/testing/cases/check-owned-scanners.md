@@ -2,15 +2,18 @@
 
 ## Case AUX-HOST-ENVIRONMENT-PROCESS-LIFECYCLE-001: Product process capability retains closed lifecycle causes
 
-Owner: `docs/development/architecture.md#source-module-boundaries`
+Owner: `docs/development/scanner-dependencies.md#product-private-process-capability`
 Entities:
 
 - `bun|src/package-checks/host-environment/process/result.test.ts|Product process result normalization > uses closed terminal-cause priority without reading native error text`
+- `bun|src/package-checks/host-environment/process/result.test.ts|Product process result normalization > preserves completion eligibility independently of terminal-cause priority`
 - `bun|src/package-checks/host-environment/process/runner.test.ts|Product process runner > forwards cancellation and preserves async terminal discriminants`
+- `bun|src/package-checks/host-environment/process/runner.test.ts|Product process runner > terminates output-limited children before execution timeout`
 - `bun|src/package-checks/host-environment/process/runner.test.ts|Product process runner > retains synchronous numeric exits and captured output`
   Proves:
 
-- The Product-private host-environment process capability resolves competing terminal markers, without reading native error text, in this closed order: nonzero numeric exit, cancellation, timeout, output-limit, signal, startup failure, then zero exit. Async execution forwards its caller-owned cancellation signal and exposes only the closed cancellation, timeout and output-limit discriminants alongside existing status, signal and captured output; an Execa output-limit result can retain status `0`, so its discriminant remains observable before success mapping. The synchronous runner retains numeric exit and output behavior for existing Git, jscpd and SCC consumers.
+- The Product-private host-environment process capability resolves competing terminal markers without reading native error text, preserving the existing exclusive cause discriminants and numeric exits. Its independent completion eligibility rejects raw cancellation, timeout, output-limit and signal markers even when a numeric nonzero exit wins the default cause; complete zero and nonzero exits remain eligible.
+- Async execution forwards caller cancellation and terminates stdout/stderr overflow children that keep running after either a single burst or continuous output. The owned child PID is no longer alive when execution resolves, including a POSIX child that acknowledges but ignores SIGTERM and requires Execa's bounded SIGKILL escalation. The synchronous runner retains numeric exit and captured output for existing consumers.
 
 ## Case WB-SCANNER-EXACT-RESULT-SCOPE-001: Scanner exact input scope
 

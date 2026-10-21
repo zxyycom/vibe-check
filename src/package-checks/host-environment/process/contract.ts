@@ -12,6 +12,8 @@ export interface ProcessFailure extends Error {
 
 export type ProcessResult = {
   readonly error?: Error;
+  /** Complete numeric exit and capture, independent of the selected default terminal cause. */
+  readonly isComplete: boolean;
   readonly isCanceled?: true;
   readonly isMaxBuffer?: true;
   readonly signal: NodeJS.Signals | null;
@@ -21,14 +23,17 @@ export type ProcessResult = {
   readonly stdout: string;
 };
 
+// Product consumers capture text; Execa 10 correlates stdio transforms with the encoding branch.
+type TextSyncOptions = Extract<SyncOptions, { readonly encoding?: "utf8" | "utf16le" | undefined }>;
+
 export type RunProcessSyncOptions = {
   readonly args: readonly string[];
   readonly command: string;
   readonly cwd?: string | URL;
-  readonly encoding?: SyncOptions["encoding"];
+  readonly encoding?: TextSyncOptions["encoding"];
   readonly env?: NodeJS.ProcessEnv;
   readonly maxBuffer?: number;
-  readonly stdio?: SyncOptions["stdio"];
+  readonly stdio?: TextSyncOptions["stdio"];
   readonly timeout?: number;
   readonly windowsHide?: boolean;
 };

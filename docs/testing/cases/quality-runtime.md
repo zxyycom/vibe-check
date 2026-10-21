@@ -352,8 +352,10 @@ Owner: `docs/guides/command-check.md#调用方完成阶段`
 Entities:
 
 - `bun|src/package-checks/command-check/command-check.terminal.test.ts|commandCheck terminal settlement > does not invoke afterCommand for incomplete process results and delegates callback settlement to Core`
+- `bun|src/package-checks/command-check/command-check.terminal.test.ts|commandCheck terminal settlement > never publishes callback-derived data or Records from output-limited children`
+- `bun|src/package-checks/command-check/command-check.environment.test.ts|commandCheck environment > resolves a closed invocation environment and lets afterCommand own complete numeric-exit settlement`
   Proves:
-- Only a complete numeric-exit child result reaches `afterCommand`; timeout and other incomplete process results retain Product-owned terminal mapping. Once called, ordinary callback containment owns thrown settlement rather than leaking the callback error.
+- Only a complete numeric-exit child result reaches `afterCommand`; complete nonzero exits can be interpreted as passed by the caller. Stdout/stderr overflow with a planned zero or nonzero exit never invokes completion or publishes callback-derived data/Records; a racing nonzero exit retains its default failed mapping. Timeout and other incomplete results remain Product-owned. Once called, ordinary callback containment owns thrown settlement rather than leaking the callback error.
 
 ## Case QUALITY-RUNTIME-MARKDOWN-LINT: 有界 Markdown lint 结果发布
 
