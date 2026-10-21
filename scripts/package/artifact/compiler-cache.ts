@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
 import { fileMatchesSha256, sha256File } from "../pack.ts";
+import { typeScriptToolchainFingerprint } from "../compiler-toolchain.ts";
 import {
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_SOURCE_DIRECTORY,
@@ -28,10 +29,12 @@ const CACHE_OUTPUT_DIRECTORIES = [PACKAGE_RUNTIME_DIRECTORY, PACKAGE_TYPES_DIREC
 const COMPILER_INPUT_SOURCES = Object.freeze([
   "scripts/package/artifact/build.ts",
   "scripts/package/artifact/compiler-cache.ts",
+  "scripts/package/compiler-toolchain.ts",
   "scripts/package/file-inventory.ts",
   "scripts/package/pack.ts",
   "scripts/package/package-contract.ts",
   "scripts/package/public-api-inventory.ts",
+  "scripts/repository-files/paths.ts",
   "scripts/value-guards.ts"
 ]);
 
@@ -45,8 +48,8 @@ type CompilerCacheRecord = Readonly<{
 }>;
 
 /**
- * Retains only raw tsgo emit, never a second package staging or tarball. A changed
- * source graph may use tsgo's incremental state; a changed document skips tsgo.
+ * Retains only raw compiler emit, never a second package staging or tarball. A changed
+ * source graph may use incremental state; a changed document skips compilation.
  * Both paths rebuild and audit the published staging independently.
  */
 export function prepareCompilerEmit(input: {
@@ -125,7 +128,7 @@ function fingerprintCompilerInputs(repositoryRoot: string): Readonly<{
     (path) =>
       path.endsWith(".ts") && !path.endsWith(".test.ts") && !path.endsWith(".test-support.ts")
   );
-  const compilerPackages = ["@typescript/native-preview", "typescript", "@types/node"].map((name) =>
+  const compilerPackages = ["@types/node"].map((name) =>
     fileURLToPath(import.meta.resolve(`${name}/package.json`))
   );
   return Object.freeze({
@@ -140,7 +143,7 @@ function fingerprintCompilerInputs(repositoryRoot: string): Readonly<{
         join(repositoryRoot, "pnpm-workspace.yaml"),
         join(repositoryRoot, "patches/execa@10.2.0.patch")
       ],
-      `${COMPILER_OPTIONS_VERSION}\0bun=${process.versions.bun ?? "unknown"}`
+      `${COMPILER_OPTIONS_VERSION}\0bun=${process.versions.bun ?? "unknown"}\0toolchain=${typeScriptToolchainFingerprint()}`
     ),
     sourceFingerprint: digestFiles(repositoryRoot, sourceFiles, "runtime-source-v1"),
     sourcePaths: Object.freeze(sourcePaths)

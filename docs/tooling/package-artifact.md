@@ -12,7 +12,17 @@ Worker、Product adapter 与 Lizard port façade都不是 package export 或 con
 
 package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；`package.json` 的 `exports` 只开放根路径 `"."`。因此物理存在的 `dist`、`types` 与 `src` 目录不是 consumer subpath API。
 
-emit 使用显式 `tsgo --ignoreConfig`，所以 artifact owner 必须在 CLI 中镜像 source compiler 的 `strict`、`noUncheckedIndexedAccess`、`exactOptionalPropertyTypes`、`noImplicitOverride`、`noImplicitReturns` 与 `allowUnreachableCode: false`。这不是另一条 typecheck 或 profile；它确保真实 runtime/declaration emit 不因忽略根 config 而放宽实现验收。
+emit 通过[统一 compiler resolver](workspace.md#typescript-工具链)调用稳定 TS7 的已安装 `tsc` bin，并使用显式 `--ignoreConfig`。
+artifact owner 因此必须在 CLI 中镜像 source compiler 的 `strict`、`noUncheckedIndexedAccess`、`exactOptionalPropertyTypes`、`noImplicitOverride`、`noImplicitReturns` 与 `allowUnreachableCode: false`，确保真实 runtime/declaration emit 遵守同一实现验收。
+ESM specifier 与 Worker URL parser 使用上述工具链的 TS6 compatibility API。
+
+toolchain fingerprint 绑定以下实际材料，而非仅记录包名或 wrapper 版本：
+
+- 稳定 compiler manifest、声明的 bin、launcher 与 platform resolver；
+- 本机选中的平台 package manifest 与 executable；
+- compatibility wrapper 及其实际重导出的 TS6 API implementation 与 declarations。
+
+candidate identity 另绑定根 manifest、lockfile、workspace 配置、精确依赖补丁与 resolver 使用的路径 containment 校验实现。必需材料缺失或 package identity 不符时拒绝构建。
 
 worker 不是额外 export：normalization 只在 emitted `function-metrics/analyzer-worker-port.js` 中恰好一次将 `new URL("./analyzer-worker.ts", import.meta.url)` 改为 `analyzer-worker.mjs`，任何数量或 compiler-shape drift 都拒绝产物，绝不 broad-rewrite ordinary URL strings。
 

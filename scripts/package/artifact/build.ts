@@ -25,6 +25,7 @@ import {
 import { writeCandidateManifest } from "./manifest.ts";
 import { runBun, sha256File } from "../pack.ts";
 import { normalizeRuntimeSourceMap } from "./runtime-source-maps.ts";
+import { nativeTypeScriptBinPath } from "../compiler-toolchain.ts";
 import {
   TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH,
   TRANSLATED_ANALYZER_LEGAL_MATERIALS,
@@ -87,9 +88,7 @@ export async function buildCandidateArtifact(input: {
     compile: ({ declarationDirectory, runtimeDirectory }) =>
       runBun({
         args: [
-          "x",
-          "--no-install",
-          "tsgo",
+          nativeTypeScriptBinPath(),
           "--ignoreConfig",
           "--allowImportingTsExtensions",
           "--erasableSyntaxOnly",

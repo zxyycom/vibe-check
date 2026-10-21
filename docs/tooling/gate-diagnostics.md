@@ -44,7 +44,7 @@ Gate 的结构化 nonzero projection 只适用于明确选择该 projector 的 e
 | `lint-scripts` | oxlint `--format=json`；只接受 `scripts/**` 内诊断 | `{ kind: "oxlint-diagnostic", path, location, rule, severity, occurrence }` |
 | `format-check` | oxfmt `--list-different`；只接受 `workspaceFormatTargets` 中路径 | `{ kind: "oxfmt-difference", path }` |
 
-projector 必须先构造、排序和验证完整候选 Record 集合。unknown field、JSON/path-list 形状错误、scope/target escape、重复 identity 或 parser exception 会拒绝整组候选；entry 保持 failed，并只发布一个 generic `command-failure` Record。generic Record 与 terminal message 只引用 `checks/<encoded-check-id>/process.log`，且只使用 basename command label。Bun test、tsgo 与 Git whitespace 没有 stable owner protocol，保留 Product commandCheck 的 generic command result；ast-grep rule-test 使用其 workflow 专有失败事实。
+projector 必须先构造、排序和验证完整候选 Record 集合。unknown field、JSON/path-list 形状错误、scope/target escape、重复 identity 或 parser exception 会拒绝整组候选；entry 保持 failed，并只发布一个 generic `command-failure` Record。generic Record 与 terminal message 只引用 `checks/<encoded-check-id>/process.log`，且只使用 basename command label。Bun test、TypeScript typecheck 与 Git whitespace 没有 stable owner protocol，保留 Product commandCheck 的 generic command result；ast-grep rule-test 使用其 workflow 专有失败事实。
 
 oxlint projector（`lint-scripts` 及下文的 `lint-product`）只接受 scope 内 canonical relative path、正 line/column、`error`/`warning` severity 和安全 `code` grammar；label 不进入 Record。oxfmt projector 只接受完整、非空、无重复的已授权 target path。两者只发布由 ASCII 字母、数字、`.`、`_`、`-`、`/` 组成的 relative path；child output、tool help/snippet、absolute root、arguments、credential URL 与 digest 不进入 Record 或 terminal message。Core 拥有 structured Record preview。
 

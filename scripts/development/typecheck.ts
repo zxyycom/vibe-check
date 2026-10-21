@@ -1,10 +1,13 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import {
-  bunPackageInvocation,
   reportProcessOutput,
   runProcessInvocationSync,
   runMain,
   type ProcessInvocation
 } from "../process-execution/command.ts";
+import { nativeTypeScriptBinPath } from "../package/compiler-toolchain.ts";
 
 export type TypecheckScope = "product" | "scripts";
 
@@ -14,7 +17,11 @@ const tsconfigPath: Readonly<Record<TypecheckScope, string>> = {
 };
 
 export function typecheckInvocation(scope: TypecheckScope): ProcessInvocation {
-  return bunPackageInvocation("tsgo", ["-p", tsconfigPath[scope]]);
+  return {
+    command: process.execPath,
+    args: [nativeTypeScriptBinPath(), "-p", tsconfigPath[scope]],
+    cwd: resolve(dirname(fileURLToPath(import.meta.url)), "../..")
+  };
 }
 
 function isTypecheckScope(value: string): value is TypecheckScope {

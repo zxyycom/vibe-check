@@ -1,9 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import { fileURLToPath } from "node:url";
-
-import { isNonArrayRecord } from "../../value-guards.ts";
+import { typeScriptToolchainFingerprint } from "../compiler-toolchain.ts";
 import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "../../docs/package-api/example-projections.ts";
 import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
 import {
@@ -32,7 +30,6 @@ const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/machine-artifacts/package-materials.ts"
 ]);
 const DOCUMENTATION_EXAMPLES_DIRECTORY = "docs/examples/package-api";
-const ARTIFACT_TOOLCHAIN_PACKAGES = Object.freeze(["@typescript/native-preview", "typescript"]);
 
 /**
  * Returns the deterministic source fingerprint that binds one local candidate version.
@@ -44,13 +41,17 @@ const ARTIFACT_TOOLCHAIN_PACKAGES = Object.freeze(["@typescript/native-preview",
 export function createArtifactFingerprint(repositoryRoot: string): string {
   const hash = createHash("sha256");
   hash.update(`bun=${bunVersion()}\0`);
-  hash.update(`artifact-toolchain=${JSON.stringify(artifactToolchainVersions())}\0`);
+  hash.update(`artifact-toolchain=${typeScriptToolchainFingerprint()}\0`);
   hash.update(`runtime-compiler-roots=${JSON.stringify(PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS)}\0`);
 
   const inputFiles = [
-    ...["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "patches/execa@10.2.0.patch"].map(
-      (path) => join(repositoryRoot, path)
-    ),
+    ...[
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "patches/execa@10.2.0.patch",
+      "scripts/repository-files/paths.ts"
+    ].map((path) => join(repositoryRoot, path)),
     ...collectRuntimeSourceFilePaths(join(repositoryRoot, "src")),
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),
@@ -107,38 +108,4 @@ function bunVersion(): string {
     throw new Error("candidate preparation requires a Bun runtime with a reported version");
   }
   return version;
-}
-
-function artifactToolchainVersions(): Readonly<Record<string, string>> {
-  return Object.freeze(
-    Object.fromEntries(
-      ARTIFACT_TOOLCHAIN_PACKAGES.map((packageName) => [
-        packageName,
-        installedPackageVersion(packageName)
-      ])
-    )
-  );
-}
-
-function installedPackageVersion(packageName: string): string {
-  let manifestPath: string;
-  try {
-    manifestPath = fileURLToPath(import.meta.resolve(`${packageName}/package.json`));
-  } catch (error: unknown) {
-    throw new Error(`could not resolve artifact toolchain package ${packageName}`, {
-      cause: error
-    });
-  }
-  let manifest: unknown;
-  try {
-    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  } catch (error: unknown) {
-    throw new Error(`could not read artifact toolchain package manifest: ${manifestPath}`, {
-      cause: error
-    });
-  }
-  if (!isNonArrayRecord(manifest) || typeof manifest.version !== "string") {
-    throw new Error(`artifact toolchain package manifest has no version: ${manifestPath}`);
-  }
-  return manifest.version;
 }

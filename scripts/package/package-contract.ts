@@ -35,7 +35,7 @@ export const PACKAGE_THIRD_PARTY_NOTICES_PATH = "licenses/analyzer-translations-
 export const PACKAGE_TYPES_DIRECTORY = "types";
 export const PACKAGE_TYPES_PATH = `${PACKAGE_TYPES_DIRECTORY}/index.d.ts`;
 export const PACKAGE_ENTRY_SOURCE = `export * from "./${PACKAGE_RUNTIME_ENTRY_PATH}";\n`;
-/** Explicit tsgo roots; Worker code is not reachable through a static import from `src/index.ts`. */
+/** Explicit compiler roots; Worker code is not reachable through a static import from `src/index.ts`. */
 export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([
   "src/index.ts",
   PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH

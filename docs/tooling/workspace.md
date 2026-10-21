@@ -64,6 +64,20 @@ material walkers 共同消费，集中定义仓库扫描时忽略的目录集合
 
 candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 
+#### TypeScript 工具链
+
+编译执行与程序化解析使用两个明确的依赖角色，精确接线由根 manifest 与 lockfile 保存：
+
+| 角色 | 依赖与使用入口 |
+| --- | --- |
+| typecheck / emit | `@typescript/native` 是官方 `typescript` 稳定 TS7 的 alias。`scripts/package/compiler-toolchain.ts` 从其 manifest 解析声明的 `tsc` bin，供 development typecheck、artifact emit 与 isolated consumer typecheck 共用。 |
+| compiler API | 根 `typescript` 是官方 `@typescript/typescript6` compatibility alias，保留 `import ts from "typescript"` 的 TS6 程序化 API；其 `tsc6` 与稳定 compiler 的 `tsc` 名称不同。 |
+
+当前锁图中，稳定 compiler 为 `7.0.2`，compatibility wrapper 为 `6.0.2`，wrapper 实际重导出的 TS6 API 为 `6.0.3`。
+维护时分别核对 wrapper 与 API implementation，不能只据 wrapper 版本判断解析器身份。
+编译命令只使用 resolver 返回的路径；官方 launcher 按 OS/architecture 选择平台包，缺失本平台 optional package 时明确失败，不从 PATH、preview 或远端安装补足。
+工具链的完整指纹范围由[产物契约](package-artifact.md#构建输入与包接口边界)定义。
+
 #### 工作区依赖兼容
 
 根 manifest、lockfile 与 `pnpm-workspace.yaml` 保存下列兼容措施；candidate fingerprint 和 compiler cache 均绑定这些配置及精确补丁的 bytes。

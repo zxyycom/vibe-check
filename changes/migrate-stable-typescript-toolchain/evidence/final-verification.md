@@ -17,7 +17,7 @@
 
 ## 完整 Gate
 
-两次均使用公开入口 `bun run check -- --all`，入口自行绑定 mise Bun 1.3.14 / Node 24.18.0。
+实施阶段两轮均使用公开入口 `bun run check -- --all`，入口自行绑定 mise Bun 1.3.14 / Node 24.18.0。
 
 - 首轮：42/43，通过所有 installed acceptance；仅新语言计量回归使原 scanner 测试文件达到 320 code lines，超过 300。
   按证明职责移入 `scanner.measurement.test.ts`，原协议测试恢复至 HEAD 内容；全部输入、断言、阈值、Case ID 保持。
@@ -57,6 +57,23 @@ consumer preparation 约 22.7 秒。未调整 deadline，不从两次耗时推�
 `f6238c5bb82fc7d9195b99d289b0baa35e6f6ee2f009992b1e6332e2f144d7f9`。
 日志为 `.log/project-gate/2026-10-21T08-33-30.250Z-2241977-b9906be4-a49f-418c-8d97-62841010f813/`；
 artifact 和 installed types/docs/Node runtime 验收全部通过。耗时 mean/p95 warning 仍非阻断，没有修改其预算。
+
+## 提交快照复核
+
+四个实施提交各从实际 index 导出隔离快照，以对应 manifest、workspace 与 lockfile 完成 frozen install，
+再运行完整 Gate；未借用最终工作区的 `node_modules` 证明中间依赖图。
+
+| 提交组 | 快照 candidate | Gate |
+| --- | --- | --- |
+| Execa | `0.0.0-local.6b365971f08f` | 43/43 passed |
+| 检测依赖 | `0.0.0-local.ffb8d9a14f58` | 43/43 passed |
+| Lint | `0.0.0-local.1313f60111d4` | 43/43 passed |
+| Compiler | `0.0.0-local.6e7aabe24039` | 43/43 passed |
+
+提交检查将 Execa patch 改为零上下文格式，以通过 Git whitespace 校验；fresh pnpm install 证明实际应用的声明 bytes 不变。
+Compiler 快照 tarball SHA-256 为 `8234f36cc1b205630c9c4325f258c6b8d04c4f8082dd87fe0a20771791060ad1`。
+快照准备中缺包或缺本地基线的尝试不计为通过；补齐前置条件后重新执行，没有修改锁定版本或 Gate 预算。
+快照目录与日志为本次提交复核的临时材料，复核完成后清理；本节保留实际结果，Git 保存可恢复的源码与计划。
 
 ## 未覆盖与交付边界
 

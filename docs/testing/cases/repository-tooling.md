@@ -49,7 +49,17 @@ Entities:
 - `bun|scripts/package/artifact/compiler-cache.test.ts|candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs`
   Proves:
 
-- Unchanged Product compiler inputs reuse verified local raw emit when only documentation changes. A changed source graph may retain incremental compiler state, but corrupt cached output/build info, a changed source-file set, dependency lock or dependency patch bytes forces a cold emit. This cache is not the package staging, tarball, installed candidate or a replacement for their full audits.
+- Unchanged Product compiler inputs reuse verified local raw emit when only documentation changes. A changed source graph may retain incremental compiler state, but corrupt cached output/build info, a changed source-file set, dependency lock, compiler resolver or dependency patch bytes forces a cold emit. This cache is not the package staging, tarball, installed candidate or a replacement for their full audits.
+
+## Case AUX-TYPESCRIPT-TOOLCHAIN-001: Stable native compiler coexists with the retained TS6 API
+
+Owner: `docs/tooling/workspace.md#typescript-工具链`
+Entities:
+
+- `bun|scripts/package/compiler-toolchain.test.ts|stable native compiler and compatibility API retain distinct installed entrypoints`
+  Proves:
+
+- The official compatibility alias preserves actual TS6 AST API behavior and `tsc6` version while the explicitly resolved native bin executes stable TS7. Both development scopes invoke that native bin directly rather than relying on PATH, a preview command or a competing `.bin` entry; malformed package identities and missing, directory or escaping bin declarations fail explicitly. The installed native platform and real API inputs form a deterministic toolchain fingerprint.
 
 ## Case AUX-TRANSLATED-SOURCE-MAPPING-001: Source mapping maintenance updates only selected derived material
 

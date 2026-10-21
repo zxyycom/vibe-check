@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { cpSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,9 +12,10 @@ import {
 } from "./typecheck-fixture.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { PACKAGE_TYPES_DIRECTORY } from "../../package-contract.ts";
+import { nativeTypeScriptBinPath } from "../../compiler-toolchain.ts";
+import { plainTextProcessEnv } from "../../../process-execution/execution.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
-const tsgoPath = resolve(repositoryRoot, "node_modules/@typescript/native-preview/bin/tsgo.js");
 const defineCheckDeclarationPath = `${PACKAGE_TYPES_DIRECTORY}/check/check.d.ts`;
 const runDeclarationPath = `${PACKAGE_TYPES_DIRECTORY}/project-run/run.d.ts`;
 
@@ -49,11 +50,15 @@ export function assertExternalConsumerTypes(consumerDirectory: string): void {
 }
 
 function typecheckPublicImports(consumerDirectory: string): void {
-  assert.equal(existsSync(tsgoPath), true, `repository-pinned tsgo is missing at ${tsgoPath}`);
-  const result = spawnSync(process.execPath, [tsgoPath, "--project", "tsconfig.json"], {
-    cwd: consumerDirectory,
-    encoding: "utf8"
-  });
+  const result = spawnSync(
+    process.execPath,
+    [nativeTypeScriptBinPath(), "--project", "tsconfig.json"],
+    {
+      cwd: consumerDirectory,
+      encoding: "utf8",
+      env: plainTextProcessEnv()
+    }
+  );
   assertExternalConsumerCommandSucceeded(result, "isolated public-import typecheck");
 }
 

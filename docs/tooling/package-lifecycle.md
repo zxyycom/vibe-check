@@ -35,7 +35,7 @@ Preparation 先作不修改文件系统的状态判断，再执行对应动作�
 
 `scripts/package/build-contract.ts` 拥有默认路径：`build/package/` 是唯一完整 unpacked build evidence，`build/artifacts/` 保存 versioned `.tgz`。`.cache/vibe-check/package-candidate/` 保存 preparation receipt、`candidate.tsbuildinfo` 和带摘要的原始 compiler emit；它们都是可丢弃的中间状态，不构成第二份 staging 或 tarball。
 
-compiler cache 按 emit 调用及其输入/runner 源码、Product 源码与输出摘要校验；candidate fingerprint 则继续覆盖完整 package lifecycle。文档或非编译相关的 candidate 脚本变化可复用 raw emit；同一源码文件集合的内容变化可使用 tsgo 增量状态；文件集合、emit 输入、工具链变化或缓存损坏则冷 emit。每次 candidate rebuild 都重新组装唯一 staging，并完成审计、pack、tarball 审计与 exact candidate 安装。
+compiler cache 按 emit 调用及其输入/runner 源码、Product 源码与输出摘要校验；candidate fingerprint 则继续覆盖完整 package lifecycle。文档或非编译相关的 candidate 脚本变化可复用 raw emit；同一源码文件集合的内容变化可使用稳定 TS7 增量状态；文件集合、emit 输入、依赖 lock、compiler resolver、[实际工具链](package-artifact.md#构建输入与包接口边界)变化或缓存损坏则冷 emit。每次 candidate rebuild 都重新组装唯一 staging，并完成审计、pack、tarball 审计与 exact candidate 安装。
 
 fixture 的 `buildDirectory` 与 `stateDirectory` 必须 test-local 隔离，contract 拒绝重叠。cold rebuild 只清理精确拥有的 build paths 与 cache-owned receipt；compiler state 仅由其输入和输出摘要校验决定保留或清理。
 
@@ -65,7 +65,7 @@ Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 
 Runtime 从 installed root import 调用 `functionMetrics`，用 Rust match fixture 验收 CCN `3`、第 4/5 行真实 `=>` contributors 的 non-blocking finding。
 同一 consumer 另以 TypeScript 显式返回类型加尾随控制流和四项 `??`，验收 CCN `5`、四项第 2 行完整贡献，
 并以 NLOC 上限 `3` 证明函数边界未污染；ND 保留默认上限。两组共同证明 emitted Worker URL 指向安装包内 worker 且执行成功，不扩大 public exports。
-Types 用一次真实 `tsgo` consumer typecheck 覆盖 public imports、examples 与 Definition，直接核对 installed declaration owner 的相邻 JSDoc。
+Types 通过[统一 compiler resolver](workspace.md#typescript-工具链)用一次真实稳定 TS7 consumer typecheck 覆盖 public imports、examples 与 Definition，直接核对 installed declaration owner 的相邻 JSDoc。
 Documentation 验收见[随包材料验收](repository-material-validation.md#随包材料验收)。
 
 ### 实际安装的依赖

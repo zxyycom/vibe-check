@@ -21,10 +21,12 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
     for (const path of [
       "scripts/package/artifact/build.ts",
       "scripts/package/artifact/compiler-cache.ts",
+      "scripts/package/compiler-toolchain.ts",
       "scripts/package/file-inventory.ts",
       "scripts/package/pack.ts",
       "scripts/package/package-contract.ts",
       "scripts/package/public-api-inventory.ts",
+      "scripts/repository-files/paths.ts",
       "scripts/value-guards.ts",
       "pnpm-workspace.yaml",
       "patches/execa@10.2.0.patch"
@@ -119,6 +121,7 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
       [false, false, true, false, false, false],
       "changed source set must force a cold emit"
     );
+
     writeFileSync(
       join(repositoryRoot, "pnpm-lock.yaml"),
       "lockfileVersion: '9.0'\n# toolchain changed\n"
@@ -128,12 +131,20 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
     assert.equal(compileHadBuildInfo[6], false, "dependency lock changes must force a cold emit");
 
     writeFileSync(
+      join(repositoryRoot, "scripts/package/compiler-toolchain.ts"),
+      "runner changed\n"
+    );
+    prepare();
+    assert.equal(compileHadBuildInfo.length, 8);
+    assert.equal(compileHadBuildInfo[7], false, "compiler resolver changes must force a cold emit");
+
+    writeFileSync(
       join(repositoryRoot, "patches/execa@10.2.0.patch"),
       "declaration patch changed\n"
     );
     prepare();
-    assert.equal(compileHadBuildInfo.length, 8);
-    assert.equal(compileHadBuildInfo[7], false, "dependency patch bytes must force a cold emit");
+    assert.equal(compileHadBuildInfo.length, 9);
+    assert.equal(compileHadBuildInfo[8], false, "dependency patch bytes must force a cold emit");
   } finally {
     rmSync(root, { force: true, recursive: true });
   }
