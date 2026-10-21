@@ -2577,6 +2577,288 @@
         "process-boundaries"
       ],
       "title": "核实 commandCheck 输出超限的回收与完成回调边界"
+    },
+    "261021-assess-ast-grep-cli-upgrade": {
+      "formedAt": "2026-10-21T03:30:43Z",
+      "name": "assess-ast-grep-cli-upgrade",
+      "question": "ast-grep 0.45.0 至 0.51.0 对测试证据静态发现是否值得升级？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-ast-grep-cli-upgrade.md",
+      "tags": [
+        "ast-grep",
+        "dependency-upgrades",
+        "test-evidence"
+      ],
+      "title": "@ast-grep/cli 0.51.0 升级价值"
+    },
+    "261021-assess-csv-parse-upgrade": {
+      "formedAt": "2026-10-21T03:30:06Z",
+      "name": "assess-csv-parse-upgrade",
+      "question": "csv-parse 的新增修复对本项目 SCC CSV 数组解析是否值得采用？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-csv-parse-upgrade.md",
+      "tags": [
+        "csv-parse",
+        "dependency-upgrades",
+        "file-metrics"
+      ],
+      "title": "csv-parse 7.0.1 至 7.0.3 升级价值"
+    },
+    "261021-assess-execa-upgrade": {
+      "formedAt": "2026-10-21T03:24:10Z",
+      "name": "assess-execa-upgrade",
+      "question": "Execa 10.2.0 是否值得替换本项目 9.6.1，以及它能解决哪些输出超限缺口？",
+      "relations": [
+        {
+          "summary": "补充上游超限回收修复候选与升级验证边界",
+          "target": "261020-verify-command-output-limit-lifecycle",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "assess-execa-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "execa",
+        "process-boundaries"
+      ],
+      "title": "Execa 9.6.1 至 10.2.0 升级价值与边界"
+    },
+    "261021-assess-jscpd-upgrade": {
+      "formedAt": "2026-10-21T03:30:36Z",
+      "name": "assess-jscpd-upgrade",
+      "question": "jscpd 新版是否值得作为 duplicateDetection baseline，以及哪些检测与计量变化必须验收？",
+      "relations": [
+        {
+          "summary": "在5.1.1基线下复查后续5.x检测与计量升级",
+          "target": "260901-assess-scc-and-jscpd-upgrade-readiness",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "assess-jscpd-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "duplicate-detection",
+        "jscpd"
+      ],
+      "title": "jscpd 5.1.1 至 5.4.2 升级价值与计量风险"
+    },
+    "261021-assess-markdownlint-upgrade": {
+      "formedAt": "2026-10-21T03:30:12Z",
+      "name": "assess-markdownlint-upgrade",
+      "question": "markdownlint 0.42.0 的修复是否值得采用，哪些 Findings 与 cache 边界需要验证？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-markdownlint-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "markdown-lint",
+        "markdownlint"
+      ],
+      "title": "markdownlint 0.41.1 至 0.42.0 升级价值"
+    },
+    "261021-assess-mdast-util-from-markdown-upgrade": {
+      "formedAt": "2026-10-21T03:30:18Z",
+      "name": "assess-mdast-util-from-markdown-upgrade",
+      "question": "Markdown parser 2.0.3 至 2.1.0 的性能与扩展更新是否值得本项目升级？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-mdast-util-from-markdown-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "markdown-link-validation",
+        "mdast-util-from-markdown"
+      ],
+      "title": "mdast-util-from-markdown 2.1.0 升级价值"
+    },
+    "261021-assess-minimatch-upgrade": {
+      "formedAt": "2026-10-21T03:30:49Z",
+      "name": "assess-minimatch-upgrade",
+      "question": "minimatch 10.2.5 至 10.2.6 是否为本项目 glob 匹配带来值得采用的修复？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-minimatch-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "glob",
+        "minimatch"
+      ],
+      "title": "minimatch 10.2.6 升级价值"
+    },
+    "261021-assess-mnemonist-upgrade": {
+      "formedAt": "2026-10-21T03:30:55Z",
+      "name": "assess-mnemonist-upgrade",
+      "question": "mnemonist 新补丁的 LRU 修复是否值得仅消费 Heap 的本项目升级？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-mnemonist-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "mnemonist",
+        "scheduler"
+      ],
+      "title": "mnemonist 0.40.6 升级价值"
+    },
+    "261021-assess-oxfmt-upgrade": {
+      "formedAt": "2026-10-21T03:31:13Z",
+      "name": "assess-oxfmt-upgrade",
+      "question": "Oxfmt 0.63.0 至 0.74.0 是否值得升级，哪些改动会实际影响当前显式格式目标？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-oxfmt-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "formatting",
+        "oxfmt"
+      ],
+      "title": "Oxfmt 0.74.0 升级价值与格式漂移"
+    },
+    "261021-assess-oxlint-tsgolint-upgrade": {
+      "formedAt": "2026-10-21T03:31:07Z",
+      "name": "assess-oxlint-tsgolint-upgrade",
+      "question": "type-aware engine 7.0.2001 至 7.0.2004 是否改善本项目已启用规则，怎样与 Oxlint 配套？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-oxlint-tsgolint-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "lint",
+        "oxlint-tsgolint",
+        "type-aware-lint"
+      ],
+      "title": "oxlint-tsgolint 7.0.2004 升级价值"
+    },
+    "261021-assess-oxlint-upgrade": {
+      "formedAt": "2026-10-21T03:31:01Z",
+      "name": "assess-oxlint-upgrade",
+      "question": "Oxlint 1.78.0 至 1.89.0 是否值得升级，怎样维持当前阻断规则和 type-aware 配套？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-oxlint-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "lint",
+        "oxlint"
+      ],
+      "title": "Oxlint 1.89.0 升级价值与配套边界"
+    },
+    "261021-assess-remeda-upgrade": {
+      "formedAt": "2026-10-21T03:31:42Z",
+      "name": "assess-remeda-upgrade",
+      "question": "Remeda 2.39.0 至 2.52.0 是否值得当前未发现活跃调用的项目升级？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-remeda-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "remeda",
+        "utility-libraries"
+      ],
+      "title": "Remeda 2.52.0 升级价值与实际消费缺口"
+    },
+    "261021-assess-secretlint-core-upgrade": {
+      "formedAt": "2026-10-21T03:30:24Z",
+      "name": "assess-secretlint-core-upgrade",
+      "question": "Secretlint core 13.0.5 至 13.0.7 是否为本项目固定内存检测路径带来实质收益？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-secretlint-core-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "secret-detection",
+        "secretlint"
+      ],
+      "title": "@secretlint/core 13.0.7 升级价值"
+    },
+    "261021-assess-secretlint-privatekey-upgrade": {
+      "formedAt": "2026-10-21T03:30:30Z",
+      "name": "assess-secretlint-privatekey-upgrade",
+      "question": "Privatekey rule 13.0.5 至 13.0.7 是否增加检测能力，是否值得配套升级？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-secretlint-privatekey-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "privatekey",
+        "secret-detection",
+        "secretlint"
+      ],
+      "title": "@secretlint/secretlint-rule-privatekey 13.0.7 升级价值"
+    },
+    "261021-assess-ts-pattern-upgrade": {
+      "formedAt": "2026-10-21T03:31:48Z",
+      "name": "assess-ts-pattern-upgrade",
+      "question": "ts-pattern 5.9.0 至 5.9.2 的类型性能修复是否值得本项目现在升级？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-ts-pattern-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "ts-pattern",
+        "utility-libraries"
+      ],
+      "title": "ts-pattern 5.9.2 升级价值与实际消费缺口"
+    },
+    "261021-assess-typebox-upgrade": {
+      "formedAt": "2026-10-21T03:31:36Z",
+      "name": "assess-typebox-upgrade",
+      "question": "TypeBox 1.3.9 至 1.4.2 的 schema 构造/验证变更是否适合当前 machine v4 输出？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-typebox-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "json-validation",
+        "typebox"
+      ],
+      "title": "TypeBox 1.4.2 升级价值与共享引用风险"
+    },
+    "261021-assess-types-node-upgrade": {
+      "formedAt": "2026-10-21T03:31:19Z",
+      "name": "assess-types-node-upgrade",
+      "question": "在 Node 24 支持范围内，@types/node 24.13.2 应否升级至 24.19.2，而不是 latest 26.x？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-types-node-upgrade.md",
+      "tags": [
+        "dependency-upgrades",
+        "node",
+        "runtime-compatibility",
+        "types-node"
+      ],
+      "title": "@types/node 的 Node 24 分支升级价值"
+    },
+    "261021-assess-typescript-native-preview-upgrade": {
+      "formedAt": "2026-10-21T03:31:30Z",
+      "name": "assess-typescript-native-preview-upgrade",
+      "question": "native-preview 的 20260621.1 应否升到 20260707.2，稳定 TS7 发布后怎样判断更有价值的路径？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-typescript-native-preview-upgrade.md",
+      "tags": [
+        "compiler",
+        "dependency-upgrades",
+        "native-preview",
+        "typescript"
+      ],
+      "title": "@typescript/native-preview 后续版本与渠道迁移"
+    },
+    "261021-assess-typescript-upgrade": {
+      "formedAt": "2026-10-21T03:31:24Z",
+      "name": "assess-typescript-upgrade",
+      "question": "TypeScript 6.0.3 能否直接升级到 7.0.2，原生编译器是否仍提供本项目需要的程序化 API？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-typescript-upgrade.md",
+      "tags": [
+        "compiler-api",
+        "dependency-upgrades",
+        "typescript"
+      ],
+      "title": "TypeScript 7.0.2 升级的 compiler API 阻断"
     }
   },
   "metadata": {},
@@ -2675,7 +2957,26 @@
       "261019-evaluate-validation-cli-optimization": "sha256:89b53a68b7789e3c65ce45fed3ea0dae74679c4a35ebe498d1c46cf449a04926",
       "261019-investigate-validation-cli-timeout": "sha256:fecbf3d50684ecb153ed7c74ed64bb1c24b84909955c715b141c6806df015bb7",
       "261019-reassess-validation-test-boundaries": "sha256:73e06f158765d761309571e3ed00e2017b41debcfb1f0b307584bbe7e98f4871",
-      "261020-verify-command-output-limit-lifecycle": "sha256:812cd5933a2f7ca44868beaf96af0a0c1ab560ac061cde5955c13a01f9fd5854"
+      "261020-verify-command-output-limit-lifecycle": "sha256:812cd5933a2f7ca44868beaf96af0a0c1ab560ac061cde5955c13a01f9fd5854",
+      "261021-assess-ast-grep-cli-upgrade": "sha256:008817d50b881158b4498c9df38968d7e34c0b070c3e9785202617cebef0a530",
+      "261021-assess-csv-parse-upgrade": "sha256:491e031ea05f18369346af1c52a53061f15ac276091ee7596fce4c71e6d77142",
+      "261021-assess-execa-upgrade": "sha256:baf63e238d76786e8aa2837ae2b7c91233c9ac893131ba4ccfd6f1182047dcd4",
+      "261021-assess-jscpd-upgrade": "sha256:75caae01f17a66da07733a69a31bdc622d0199c20f71c6e90196152f99ddd879",
+      "261021-assess-markdownlint-upgrade": "sha256:fe7011e91ca02b92b16bb1d902660b09d8c8866778992fd3cceb633470967dfb",
+      "261021-assess-mdast-util-from-markdown-upgrade": "sha256:4ed6618f173af4ad27b605c77cd46452e2dbfd6772f2e64b77565550f41fe67f",
+      "261021-assess-minimatch-upgrade": "sha256:4783e5393e4a5d07f37a6698c632ccd339a873135b76ad142b0954b1d2f9c4c3",
+      "261021-assess-mnemonist-upgrade": "sha256:796821e6db8104f022c1d9053d5a8df8b1adadc0396bc52fa6821b09e8e20fad",
+      "261021-assess-oxfmt-upgrade": "sha256:0ffcb13020469db09bc247c6aab16434f3f1120971b84a3e6eb54f9e5b9e0689",
+      "261021-assess-oxlint-tsgolint-upgrade": "sha256:53bf76e2c12664adef9cdd8f82d6ceb9031dd26b5afc5ec8c2238aa6568f61ec",
+      "261021-assess-oxlint-upgrade": "sha256:23d0b1a0450cab8e5cb548dec15ffca0ac54842a8d1e32a218680dbe99925b68",
+      "261021-assess-remeda-upgrade": "sha256:7564a3402e592e2b810f63bdbb0cdcd48ac56f1d323575898f6674fe066ed5b0",
+      "261021-assess-secretlint-core-upgrade": "sha256:f8090acf79be40e43d6581a5471084a5ead3eefddff248585547dc625440c2a8",
+      "261021-assess-secretlint-privatekey-upgrade": "sha256:a32f7ac681f19367637a49972df3bdd07fe46240083e9578708702f6074f51b7",
+      "261021-assess-ts-pattern-upgrade": "sha256:e398b856af417e593aa37b8dc0868db7ccc4ce236a4b728f150cbb9431670a4b",
+      "261021-assess-typebox-upgrade": "sha256:a57214ec30a60204e33a3185ddf6e2c8a5e90a02ddcb4078579993226342df87",
+      "261021-assess-types-node-upgrade": "sha256:4aa5f26b50b9f2dc75630c6fe74559aa2420af763ce7916493fdcd72cf796cd0",
+      "261021-assess-typescript-native-preview-upgrade": "sha256:c9952ad48f2da8dadd4207808e11f409d672f328642fc55b717dad311c513e36",
+      "261021-assess-typescript-upgrade": "sha256:783598bf7a31c9ef8bcf33712383d5613ceb7bec2a4fba3ab4e4d857e7e59051"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

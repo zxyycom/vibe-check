@@ -27,7 +27,14 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
+| P0 | [`repair-command-result-integrity`](../../changes/repair-command-result-integrity/proposal.md) | 已获准升级 Execa 并修复不完整结果进入完成回调；真实子进程回收、失败隔离与 installed consumer 通过后交付。 |
+| P0 | [`upgrade-detection-dependencies`](../../changes/upgrade-detection-dependencies/proposal.md) | 已获准升级 CSV、Markdown 与重复检测依赖；先冻结旧版语料，再解释新版 Findings、计量与缓存差异。 |
+| P0 | [`upgrade-lint-toolchain`](../../changes/upgrade-lint-toolchain/proposal.md) | 已获准配套升级 Oxlint 与类型引擎；以原规则和两个 scope 的诊断对照验收，不放宽阻断政策。 |
+| P0 | [`migrate-stable-typescript-toolchain`](../../changes/migrate-stable-typescript-toolchain/proposal.md) | 已获准采用官方 TS7/TS6 API 并存方案；保留 soundness profile，以真实构建及 exact installed consumer 验收。 |
 | P1 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
+
+四组升级已共用同次稳定源码验收，并按本轮授权保存完成态后正常结项。
+这不激活其它候选或恢复暂停的队列。
 
 ### 并行与提交边界
 
@@ -36,6 +43,7 @@ owner 时，实施与提交必须串行。
 
 | 轨道 | 可并行工作 | 实施前置与共享边界 |
 | --- | --- | --- |
+| 四组依赖升级 | process 完整性、检测适配与 compiler 接线的独立源码 owner | 根依赖、lockfile、安装、release manifest 与精确发布年龄例外由单一依赖 owner 串行写入；检测旧版 baseline 完成后才安装。共享 Case 文件依次交接，四组稳定后共享同次完整 Gate；尚未授权提交或计划删除。 |
 | Config packages | scheduler 证据、公开 API 使用调查 | 需要真实组合成本证据，且会改变 package authoring/Definition owner。 |
 | Scheduler evidence queue | 文档和独立 corpus 调查 | 若改 scheduler/runtime，按以下证据队列内部顺序串行。 |
 

@@ -1,0 +1,133 @@
+bun test v1.4.2 (744846f84)
+
+src/package-checks/file-metrics/constructor.test.ts:
+(pass) fileMetrics constructor and direct callback > materializes closed defaults and rejects malformed authored or resolved policy [211.50ms]
+(pass) fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy [171.39ms]
+
+src/package-checks/file-metrics/constructor.region-identity.test.ts:
+(pass) fileMetrics region identity > preserves nonempty NUL area identities for empty selection and finding policy [80.73ms]
+
+src/package-checks/file-metrics/finding-waivers.test.ts:
+(pass) fileMetrics finding waivers > validates declared waiver authoring and resolved options [1.67ms]
+(pass) fileMetrics finding waivers > reconciles declared waivers after SCC forms findings without settling them as actionable [80.97ms]
+(pass) fileMetrics finding waivers > audits unused waivers even when no eligible file reaches SCC [3.27ms]
+(pass) fileMetrics finding waivers > uses a waiver-audit Record identity outside the normal normalized-path domain [89.93ms]
+
+src/package-checks/markdown-lint/constructor.test.ts:
+(pass) Markdown lint Check > materializes the closed recommended policy and rejects malformed authoring [1.70ms]
+(pass) Markdown lint Check > publishes Product-owned findings only after a complete bounded traversal [35.73ms]
+(pass) Markdown lint Check > settles zero input, rejected input, limits, and cancellation without partial lint publication [10.59ms]
+(pass) Markdown lint Check > reports MD052 reference forms through the public single-rule Check [8.54ms]
+
+src/package-checks/markdown-lint/adapter.test.ts:
+(pass) Markdown lint adapter > maps each Product rule through its fixed backend configuration [6.87ms]
+(pass) Markdown lint adapter > uses fixed front matter and ignores inline configuration [0.93ms]
+(pass) Markdown lint adapter > warms MD052 parsing without leaking its helper rule [1.39ms]
+
+src/package-checks/markdown-lint/finding-waiver-authoring.test.ts:
+(pass) Markdown lint waiver authoring > snapshots closed full-range identities and keeps resolved waivers deeply frozen [1.42ms]
+(pass) Markdown lint waiver authoring > rejects malformed ranges, noncanonical paths, duplicate identities and hostile authoring [3.29ms]
+
+src/package-checks/markdown-lint/finding-waiver-boundaries.test.ts:
+(pass) Markdown lint finding waivers > audits only complete candidate sets and never waives rejected or unavailable inputs [26.24ms]
+
+src/package-checks/markdown-lint/findings-cache.test.ts:
+(pass) Markdown lint findings cache > preserves complete Check results on cold and warm traversal [30.43ms]
+(pass) Markdown lint findings cache > keys per-file findings by source content and selected rules [10.12ms]
+(pass) Markdown lint findings cache > reconciles current waiver changes and raw finding limits after cache hits [51.98ms]
+(pass) Markdown lint findings cache > recomputes invalid or unwritable cache entries and respects cancellation [10.03ms]
+
+src/package-checks/markdown-lint/finding-waivers.test.ts:
+(pass) Markdown lint finding waivers > retains exact finding evidence and counts while only unwaived findings block [19.23ms]
+(pass) Markdown lint finding waivers > matches full ranges and leaves repeated identities actionable with a stable audit [1.45ms]
+
+src/package-checks/duplicate-detection/constructor.test.ts:
+(pass) default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options [1113.61ms]
+ 97 |       );
+ 98 |       assert.equal(result.kind, "completed");
+ 99 |       if (result.kind !== "completed") return;
+100 |       assert.equal(result.aggregate, "failed");
+101 |       assert.equal(result.snapshot.checks.length, 1);
+102 |       assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+                   ^
+AssertionError: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
++   data: [Object: null prototype] {
+-   data: {
+      blockingFindingCount: 1,
+      findingCount: 1
+    },
+    status: 'failed'
+  }
+
+ generatedMessage: true,
+     actual: {
+  status: "failed",
+  data: [Object ...],
+},
+   expected: {
+  data: [Object ...],
+  status: "failed",
+},
+   operator: "deepStrictEqual",
+       diff: "simple",
+       code: "ERR_ASSERTION"
+
+      at detectsProjectRelativeDuplicatesThroughPublicCheck (/workspace/vibe-check/src/package-checks/duplicate-detection/constructor.test.ts:102:14)
+      at node:test:1445:26
+      at executeTestNode (node:test:1448:63)
+      at processTicksAndRejections (native:7:39)
+(fail) default Check direct callbacks > detects project-relative duplicates through the public Check and fails the default strict aggregate [105.26ms]
+(pass) default Check direct callbacks > scans the exact-input union once and compares fragments only within common areas [250.02ms]
+
+src/package-checks/duplicate-detection/finding-waivers.test.ts:
+(pass) duplicateDetection finding waivers > validates sorted closed identity authoring without invoking hostile accessors [0.68ms]
+(pass) duplicateDetection finding waivers > audits unused waivers only after forming a complete empty candidate set [73.74ms]
+(pass) duplicateDetection finding waivers > preserves applied and stale waiver evidence while removing only exact duplicates from settlement [73.35ms]
+(pass) duplicateDetection finding waivers > keeps repeated duplicate identities actionable when a waiver overmatches [76.36ms]
+
+src/package-checks/file-metrics/scc/availability.test.ts:
+(pass) SCC availability > accepts only the SCC 4.0.0 executable contract [83.30ms]
+
+src/package-checks/file-metrics/scc/scanner.test.ts:
+(pass) quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty [0.15ms]
+(pass) quality scc exact input projection > sends --no-config and rejects a successful scc invocation that produces no CSV header [40.41ms]
+(pass) quality scc exact input projection > plans a conservative UTF-16 argv partition without reordering or overlap [0.33ms]
+(pass) quality scc exact input projection > rejects one infeasible path before starting a measurement process [1.33ms]
+(pass) quality scc exact input projection > uses one compatible process for small input and merges ordered batch-local measurements [46.68ms]
+(pass) quality scc exact input projection > merges successful oversized batches into one stable exact result [84.17ms]
+(pass) quality scc exact input projection > covers oversized exact input in sequential batches and rejects a batch-local out-of-scope row [41.66ms]
+(pass) quality scc exact input projection > rejects duplicate rows only after all batch-local validation has completed [81.43ms]
+(pass) quality scc exact input projection > fails the complete logical scan when a later process fails [76.51ms]
+(pass) quality scc exact input projection > does not start a later batch after the shared monotonic deadline expires [38.64ms]
+(pass) quality scc exact input projection > accounts stdout and stderr cumulatively before a later batch can start [0.14ms]
+
+src/package-checks/file-metrics/scc/parser.test.ts:
+(pass) quality scanner output parsing > parses scc 4.0 Provider paths and rejects unknown CSV headers [0.79ms]
+(pass) quality scanner output parsing > rejects malformed scc rows without losing valid zero-file output [1.78ms]
+
+src/package-checks/duplicate-detection/cache/store.test.ts:
+(pass) quality measurement cache > keys duplicate-code cache by scanner and exact input identity [4.90ms]
+(pass) quality measurement cache > treats cache read I/O errors as a Check-local miss [0.61ms]
+
+src/package-checks/duplicate-detection/jscpd/scanner.test.ts:
+(pass) quality jscpd wrapper failure projection > does not treat a successful jscpd run without JSON as a successful empty scan [38.38ms]
+(pass) quality jscpd wrapper failure projection > classifies empty jscpd JSON reports as report failures [37.13ms]
+(pass) quality jscpd wrapper failure projection > classifies commands missing after preparation as execution failures [1.80ms]
+(pass) quality jscpd wrapper failure projection > classifies unavailable jscpd dependency binaries in tool availability [0.17ms]
+(pass) quality jscpd wrapper failure projection > uses identifiable jscpd versions as provenance without exact locking [78.17ms]
+(pass) quality jscpd wrapper failure projection > keeps real duplicate findings non-fatal and normalizes jscpd JSON [71.69ms]
+(pass) quality jscpd wrapper failure projection > classifies non-zero jscpd exits as execution failures [36.09ms]
+
+src/package-checks/duplicate-detection/jscpd/parser.test.ts:
+(pass) quality scanner output parsing > parses jscpd version and JSON output [0.65ms]
+(pass) quality scanner output parsing > classifies invalid jscpd JSON and duplicate items as parse failures [0.22ms]
+
+1 tests failed:
+(fail) default Check direct callbacks > detects project-relative duplicates through the public Check and fails the default strict aggregate [105.26ms]
+
+ 54 pass
+ 1 fail
+Ran 55 tests across 17 files. [3.54s]
