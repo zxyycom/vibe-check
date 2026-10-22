@@ -449,25 +449,25 @@ Entities:
 - Hook context 不因当前性能用例退化成 elapsed 参数集合，也不暴露 loader、clock、console writer 或 candidate preparer 等执行依赖；invalid 或 non-monotonic phase timing 不能被归一化为 0ms 后进入 threshold comparison，初步 passed 时必须阻断。
 - Hook 抛错或返回无效结果形成带受控诊断的 unavailable 最终结果，不静默放行，也不对外暴露 base/acceptances/final 并行结果集合。
 
-## Case AUX-PROJECT-GATE-PERFORMANCE-001: Project Gate 预算告警与无效测量阻断
+## Case AUX-PROJECT-GATE-PERFORMANCE-001: Project Gate 三项预算阻断与失败现场
 
 Owner: `docs/tooling/project-gate.md#性能预算与-check-耗时分布`
 Entities:
 
-- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > warns on exceeded budgets but blocks missing policy or invalid measurements`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > blocks exceeded budgets, missing policy or invalid measurements and retains failure context`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > summarizes current Check costs and evaluates mean and nearest-rank p95 independently`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > rejects malformed, duplicate, or overflowing Check duration facts without emitting statistics`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > loads only an explicit regular local JSON file with fixed, unique limits`
-- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > warns on total and Check budgets without revising Product facts or successful exit`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > blocks total and Check budgets with failure evidence without revising Product facts or retrying`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > leaves focused selections outside the total-time budget`
   Proves:
 
 - required / all 的本机 JSON 缺失、无效或没有当前 profile/runtime 时，在 candidate preparation 前失败；相同 profile/runtime 的不同指纹仍是重复预算。旧记录省略 Check 预算时规范化为均值 2000ms、P95 5000ms，显式覆盖分别生效，非法值不回退；读取不改写文件或学习运行结果。
-- `elapsed-to-initial-result` 包括三个连续阶段；等于总预算为 info，超标为 warning，均不改变成功退出。声明指纹不影响预算选择；缺失 policy、无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 不评估性能预算。
+- `elapsed-to-initial-result` 包括三个连续阶段；等于预算为 info，总耗时、均值或 P95 任一独立超标即 error / blocks。声明指纹不影响预算选择；缺失 policy、无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 不评估性能预算。
 - Check 分布不计 null，但计入真实零值；输出执行数量、累计执行耗时和独立判断的均值/P95，累计值明确不等于墙钟。nearest-rank 对小集合、20 项和 34 项具有确定结果，空集合显示 n/a，最慢三项按耗时及 ID 确定排序。重复 ID、非法耗时和累计溢出不产生伪统计。
-- 默认 contributor 的总耗时或分布超标 warning 在终端和 transcript 可见；未超标的 timing 与分布留在 transcript，最终仍为 passed / exit 0，Product Check durations 与 aggregate 不改写。无效测量仍按原失败边界处理，loader seam 不构成配置入口。
+- required / all 的总耗时、均值、P95 独立及组合超标均使默认 contributor 退出 1；error、唯一 failed / exit 1 与安全现场实际落入 gate.log，终端只显示超标和日志入口。准备、load、Run 各执行一次，预算对象与 Product facts 不改写；现场保留完整 duration facts、实际测量、candidate 身份/准备动作及 runtime，未超标时无失败现场。现场只投影授权字段，控制字符转义后仍通过 contribution 校验，JSON 读回保留原值。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 

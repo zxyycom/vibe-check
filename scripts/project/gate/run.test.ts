@@ -47,9 +47,10 @@ import { PROJECT_GATE_RUN_CONFIG, createProjectGateEntries } from "./definition.
 const defaultResultContributor = PROJECT_GATE_RUN_CONFIG.resultContributor;
 const passThroughResultContributor = () => ({ blocks: false, messages: [] });
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
-import type {
-  ProjectGateTranscript,
-  ProjectGateTranscriptCompletion
+import {
+  startProjectGateTranscript,
+  type ProjectGateTranscript,
+  type ProjectGateTranscriptCompletion
 } from "./runtime/transcript.ts";
 
 const prepared = Object.freeze({
@@ -697,7 +698,7 @@ describe("Project Gate adapter closure", () => {
     }
   });
 
-  it("warns on total and Check budgets without revising Product facts or successful exit", async () => {
+  it("blocks total and Check budgets with failure evidence without revising Product facts or retrying", async () => {
     const runResult = completedResult("passed", {
       checkDurations: [
         { checkId: "lint-product", durationMs: 70 },
@@ -723,7 +724,7 @@ describe("Project Gate adapter closure", () => {
         })
       });
       assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
-      assert.match(withinTranscript.join("\n"), /within warning budget 135\.0ms/);
+      assert.match(withinTranscript.join("\n"), /within budget 135\.0ms/);
       assert.match(
         withinTranscript.join("\n"),
         /executed Checks=2; cumulative execution 130\.0ms \(not wall time\); mean 65\.0ms/
@@ -733,69 +734,131 @@ describe("Project Gate adapter closure", () => {
       withinOutput.restore();
     }
 
-    const exceededOutput = captureConsole();
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-gate-performance-failure-"));
+    const originalRunResult = JSON.stringify(runResult);
     try {
-      const status = await runProjectGateWithoutTranscript([], {
-        clock: scriptedClock([100, 120, 150, 236]),
-        createInvocationLogDirectory: () => "/tmp/project-gate-exceeded-performance",
-        loadRunModule: async () => ({
-          resolvedEntryPath: prepared.resolvedEntryPath,
-          resultContributor: defaultResultContributor,
-          run: async () => runResult
-        }),
-        prepareCandidate: async () => prepared
-      });
-      assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
-      assert.match(
-        exceededOutput.warnings.join("\n"),
-        /elapsed-to-initial-result 136\.0ms .* exceeded warning budget 135\.0ms/
-      );
-      assert.equal(exceededOutput.errors.length, 0);
-      assert.match(exceededOutput.logs.join("\n"), /project gate result: passed/);
+      for (const profile of ["required", "all"] as const) {
+        for (const scenario of [
+          {
+            name: "elapsed",
+            elapsedMs: 136,
+            maxMeanCheckMs: 2000,
+            maxP95CheckMs: 5000,
+            exceeded: []
+          },
+          {
+            name: "mean",
+            elapsedMs: 45,
+            maxMeanCheckMs: 50,
+            maxP95CheckMs: 5000,
+            exceeded: ["mean"]
+          },
+          {
+            name: "p95",
+            elapsedMs: 45,
+            maxMeanCheckMs: 2000,
+            maxP95CheckMs: 65,
+            exceeded: ["p95"]
+          },
+          {
+            name: "all",
+            elapsedMs: 136,
+            maxMeanCheckMs: 50,
+            maxP95CheckMs: 65,
+            exceeded: ["mean", "p95"]
+          }
+        ]) {
+          const directory = join(root, `${profile}-${scenario.name}`);
+          mkdirSync(directory);
+          const budgets = Object.freeze([
+            Object.freeze({
+              ...performanceBaseline,
+              profile,
+              maxMeanCheckMs: scenario.maxMeanCheckMs,
+              maxP95CheckMs: scenario.maxP95CheckMs
+            })
+          ]);
+          const originalBudgets = JSON.stringify(budgets);
+          const calls = { prepare: 0, load: 0, run: 0 };
+          const output = captureConsole();
+          try {
+            const status = await runProjectGateWithoutTranscript(
+              profile === "all" ? ["--all"] : [],
+              {
+                clock: scriptedClock([100, 110, 125, 100 + scenario.elapsedMs]),
+                createInvocationLogDirectory: () => directory,
+                loadPerformanceBaselines: () => ({ kind: "loaded", baselines: budgets }),
+                loadRunModule: async () => {
+                  calls.load += 1;
+                  return {
+                    resolvedEntryPath: prepared.resolvedEntryPath,
+                    resultContributor: defaultResultContributor,
+                    run: async () => {
+                      calls.run += 1;
+                      return runResult;
+                    }
+                  };
+                },
+                prepareCandidate: async () => {
+                  calls.prepare += 1;
+                  return prepared;
+                },
+                startTranscript: startProjectGateTranscript
+              }
+            );
+            assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+            assert.deepEqual(calls, { prepare: 1, load: 1, run: 1 });
+            assert.equal(JSON.stringify(budgets), originalBudgets);
+            assert.equal(JSON.stringify(runResult), originalRunResult);
+            assert.equal(output.warnings.length, 0);
+            assert.match(output.logs.join("\n"), /project gate result: failed/);
+            if (scenario.elapsedMs > performanceBaseline.maxElapsedMs) {
+              assert.match(
+                output.errors.join("\n"),
+                /elapsed-to-initial-result 136\.0ms .* exceeded budget 135\.0ms/
+              );
+            }
+            if (scenario.exceeded.length > 0) {
+              assert.ok(
+                output.errors
+                  .join("\n")
+                  .includes(`exceeded Check budgets: ${scenario.exceeded.join(", ")}`)
+              );
+              assert.match(
+                output.errors.join("\n"),
+                /slowest Checks: lint-product=70\.0ms, typecheck-scripts=60\.0ms/
+              );
+            }
+            const transcript = readFileSync(join(directory, "gate.log"), "utf8");
+            const prefix =
+              "[GATE] [INFO] project gate info [project-gate-performance-failure-context]: ";
+            const contextLine = transcript.split("\n").find((line) => line.startsWith(prefix));
+            const evidence: unknown = JSON.parse(contextLine?.slice(prefix.length) ?? "");
+            assert.ok(isNonArrayRecord(evidence));
+            assert.equal(evidence.profile, profile);
+            assert.deepEqual(evidence.checkDurations, runResult.checkDurations);
+            assert.deepEqual(evidence.measurements, { meanCheckMs: 65, p95CheckMs: 70 });
+            assert.deepEqual(evidence.runtime, currentProjectGatePerformanceRuntime());
+            assert.deepEqual(evidence.candidate, {
+              version: prepared.candidateVersion,
+              sha256: prepared.sha256,
+              inputFingerprint: prepared.inputFingerprint,
+              preparationAction: prepared.preparationAction,
+              preparationReason: prepared.preparationReason
+            });
+            assert.match(transcript, /\[RESULT:FAILED\]/);
+            assert.match(transcript, /\[EXIT:1\]/);
+            assert.doesNotMatch(
+              [...output.logs, ...output.errors].join("\n"),
+              /performance-failure-context/
+            );
+          } finally {
+            output.restore();
+          }
+        }
+      }
     } finally {
-      exceededOutput.restore();
-    }
-
-    const distributionOutput = captureConsole();
-    const distributionTranscript: string[] = [];
-    try {
-      const status = await runProjectGateWithoutTranscript([], {
-        clock: scriptedClock([100, 110, 125, 145]),
-        createInvocationLogDirectory: () => "/tmp/project-gate-check-budgets",
-        loadPerformanceBaselines: () => ({
-          kind: "loaded",
-          baselines: [{ ...performanceBaseline, maxMeanCheckMs: 50, maxP95CheckMs: 65 }]
-        }),
-        loadRunModule: async () => ({
-          resolvedEntryPath: prepared.resolvedEntryPath,
-          resultContributor: defaultResultContributor,
-          run: async () => runResult
-        }),
-        prepareCandidate: async () => prepared,
-        startTranscript: () => ({
-          complete: () => "succeeded" as const,
-          writeGateMessage: (message) =>
-            distributionTranscript.push(`${message.level}: ${message.text}`)
-        })
-      });
-      assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
-      assert.equal(distributionOutput.errors.length, 0);
-      assert.match(
-        distributionOutput.warnings.join("\n"),
-        /exceeded Check warning budgets: mean, p95/
-      );
-      assert.match(
-        distributionTranscript.join("\n"),
-        /warning: .*slowest Checks: lint-product=70\.0ms, typecheck-scripts=60\.0ms/
-      );
-      assert.match(distributionOutput.logs.join("\n"), /project gate result: passed/);
-      assert.deepEqual(runResult.checkDurations, [
-        { checkId: "lint-product", durationMs: 70 },
-        { checkId: "typecheck-scripts", durationMs: 60 }
-      ]);
-      assert.equal(runResult.aggregate, "passed");
-    } finally {
-      distributionOutput.restore();
+      rmSync(root, { force: true, recursive: true });
     }
 
     const mismatchOutput = captureConsole();

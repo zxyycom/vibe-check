@@ -41,6 +41,20 @@ export function parseProjectGateMessageContribution(
   return Object.freeze(value.map((message) => Object.freeze({ ...message })));
 }
 
+/** Preserves JSON readback while satisfying the same terminal-text boundary as message validation. */
+export function stringifyProjectGateMessageContext(
+  context: Readonly<Record<string, unknown>>
+): string {
+  let encoded = "";
+  for (const character of JSON.stringify(context)) {
+    const codePoint = character.codePointAt(0) ?? 0;
+    encoded += isUnsafeTerminalCodePoint(codePoint)
+      ? `\\u${codePoint.toString(16).padStart(4, "0")}`
+      : character;
+  }
+  return encoded;
+}
+
 /** Accepts only an explicit downgrade decision and a closed message list. */
 export function parseProjectGateResultContribution(
   value: unknown

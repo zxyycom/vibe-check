@@ -4,10 +4,11 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 
+import { isNonArrayRecord } from "../../../value-guards.ts";
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
 import type { ProjectGateContext } from "./result-contributor.ts";
-import { createProjectGateResult } from "./result.ts";
+import { createProjectGateResult, parseProjectGateResultContribution } from "./result.ts";
 import {
   loadLocalPerformanceBaselines,
   LOCAL_PERFORMANCE_BASELINE_PATH,
@@ -26,7 +27,7 @@ const baseline = Object.freeze({
 } satisfies ProjectGatePerformanceBaseline);
 
 describe("Project Gate performance budgets", () => {
-  it("warns on exceeded budgets but blocks missing policy or invalid measurements", () => {
+  it("blocks exceeded budgets, missing policy or invalid measurements and retains failure context", () => {
     const initialResult = createProjectGateResult("passed", [
       { code: "existing", level: "info", message: "kept" }
     ]);
@@ -35,7 +36,7 @@ describe("Project Gate performance budgets", () => {
       runtime
     );
     assert.equal(within.blocks, false);
-    assert.match(within.messages[0]?.message ?? "", /within warning budget 135\.0ms/);
+    assert.match(within.messages[0]?.message ?? "", /within budget 135\.0ms/);
     assert.equal(initialResult.status, "passed");
     assert.equal(initialResult.messages.length, 1);
 
@@ -43,13 +44,76 @@ describe("Project Gate performance budgets", () => {
       Object.freeze({ ...context(136), initialResult }),
       runtime
     );
-    assert.equal(exceeded.blocks, false);
+    assert.equal(exceeded.blocks, true);
     assert.equal(exceeded.messages[0]?.code, "project-gate-performance-limit-exceeded");
-    assert.equal(exceeded.messages[0]?.level, "warning");
+    assert.equal(exceeded.messages[0]?.level, "error");
+    const detail = exceeded.messages[2];
+    assert.equal(detail?.code, "project-gate-performance-failure-context");
+    assert.equal(detail?.level, "info");
+    assert.deepEqual(JSON.parse(detail?.message ?? ""), {
+      profile: "required",
+      runtime,
+      budgets: { maxElapsedMs: 135, maxMeanCheckMs: 2000, maxP95CheckMs: 5000 },
+      timing: context(136).timing,
+      measurements: { meanCheckMs: null, p95CheckMs: null },
+      candidate: {
+        version: preparedCandidate.candidateVersion,
+        sha256: preparedCandidate.sha256,
+        inputFingerprint: preparedCandidate.inputFingerprint,
+        preparationAction: "reuse",
+        preparationReason: "installation-current"
+      },
+      declarativeFingerprint: "a".repeat(64),
+      checkDurations: [],
+      logs: {
+        directory: "/tmp/project-gate-observation",
+        gate: "gate.log",
+        progress: "progress.log",
+        machine: "machine/run.json",
+        commandCheck: "checks/<check-id>/process.log"
+      }
+    });
     assert.deepEqual(initialResult, {
       status: "passed",
       messages: [{ code: "existing", level: "info", message: "kept" }]
     });
+
+    const logDirectory = "/tmp/gate\n\u001b[31m\u007f\u0085\u009f\u2028\u2029";
+    const escaped = evaluateProjectGatePerformance(
+      {
+        ...context(136),
+        initialResult,
+        invocationLogDirectory: logDirectory,
+        preparedCandidate: { ...preparedCandidate, artifactPath: "candidate-path-not-for-report" },
+        runResult: {
+          kind: "completed",
+          declarativeFingerprint: "a".repeat(64),
+          checkDurations: [{ checkId: "fixture", durationMs: 0, unowned: "not-for-report" }],
+          unowned: "not-for-report"
+        }
+      },
+      runtime
+    );
+    const encoded = escaped.messages[2]?.message ?? "";
+    for (const excluded of [
+      "\n",
+      "\r",
+      "\u001b",
+      "\u007f",
+      "\u0085",
+      "\u009f",
+      "\u2028",
+      "\u2029",
+      "not-for-report"
+    ]) {
+      assert.equal(encoded.includes(excluded), false);
+    }
+    assert.deepEqual(parseProjectGateResultContribution(escaped), escaped);
+    const decoded: unknown = JSON.parse(encoded);
+    assert.ok(isNonArrayRecord(decoded));
+    assert.deepEqual(decoded.checkDurations, [{ checkId: "fixture", durationMs: 0 }]);
+    assert.ok(isNonArrayRecord(decoded.logs));
+    assert.equal(decoded.logs.directory, logDirectory);
 
     for (const performanceBaselines of [
       [],
@@ -128,22 +192,22 @@ describe("Project Gate performance budgets", () => {
             }),
             runtime
           );
-          assert.equal(result.blocks, false);
-          assert.equal(result.messages.length, 2);
+          assert.equal(result.blocks, exceeded);
+          assert.equal(result.messages.length, exceeded ? 3 : 2);
           assert.equal(
             result.messages[0]?.code,
             exceeded
               ? "project-gate-performance-limit-exceeded"
               : "project-gate-performance-within-limit"
           );
-          assert.equal(result.messages[0]?.level, exceeded ? "warning" : "info");
+          assert.equal(result.messages[0]?.level, exceeded ? "error" : "info");
           const message = result.messages[0]?.message ?? "";
           for (const detail of [
             `elapsed-to-initial-result ${elapsedMs}.0ms`,
             "candidate preparation 20.0ms",
             "adapter/setup 30.0ms",
             `Product Run ${productMs}.0ms`,
-            "warning budget 135.0ms"
+            "budget 135.0ms"
           ]) {
             assert.ok(message.includes(detail), detail);
           }
@@ -238,10 +302,24 @@ describe("Project Gate performance budgets", () => {
         }),
         runtime
       );
-      assert.equal(result.blocks, false);
+      assert.equal(result.blocks, scenario.exceeded.length > 0);
+      const details = result.messages.find(
+        (message) => message.code === "project-gate-performance-failure-context"
+      );
+      if (scenario.exceeded.length === 0) {
+        assert.equal(details, undefined);
+      } else {
+        const evidence: unknown = JSON.parse(details?.message ?? "");
+        assert.ok(isNonArrayRecord(evidence));
+        assert.deepEqual(evidence.measurements, {
+          meanCheckMs: scenario.mean,
+          p95CheckMs: scenario.p95
+        });
+        assert.deepEqual(evidence.checkDurations, checkDurations);
+      }
       const message = result.messages[1];
       assert.equal(message?.code, "project-gate-performance-check-durations");
-      assert.equal(message?.level, scenario.exceeded.length === 0 ? "info" : "warning");
+      assert.equal(message?.level, scenario.exceeded.length === 0 ? "info" : "error");
       const text = message?.message ?? "";
       assert.ok(text.includes(`executed Checks=${scenario.count};`), text);
       assert.ok(
@@ -259,8 +337,8 @@ describe("Project Gate performance budgets", () => {
         assert.ok(
           text.includes(
             scenario.exceeded.length === 0
-              ? "within Check warning budgets"
-              : `exceeded Check warning budgets: ${scenario.exceeded.join(", ")}`
+              ? "within Check budgets"
+              : `exceeded Check budgets: ${scenario.exceeded.join(", ")}`
           ),
           text
         );

@@ -9,13 +9,17 @@ import type {
   ProjectGateResultContribution,
   ProjectGateResultContributionContext
 } from "./result-contributor.ts";
-import type { ProjectGateMessage } from "./result.ts";
+import { stringifyProjectGateMessageContext, type ProjectGateMessage } from "./result.ts";
 
 const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
 const CHECK_DURATION_PERCENTILE = 0.95;
 const SLOWEST_CHECK_COUNT = 3;
 
 type CheckDuration = Readonly<{ readonly checkId: string; readonly durationMs: number | null }>;
+interface CompletedPerformanceFacts {
+  readonly checkDurations: readonly CheckDuration[];
+  readonly declarativeFingerprint: string;
+}
 type MeasuredCheckDuration = CheckDuration & Readonly<{ readonly durationMs: number }>;
 type CheckDurationSummary =
   | Readonly<{ readonly kind: "empty" }>
@@ -28,7 +32,7 @@ type CheckDurationSummary =
       readonly slowest: readonly MeasuredCheckDuration[];
     }>;
 
-/** Warns on explicit budgets while rejecting invalid measurements and configuration. */
+/** Blocks exceeded explicit budgets and rejects invalid measurements and configuration. */
 export function evaluateProjectGatePerformance(
   context: ProjectGateResultContributionContext,
   runtime: ProjectGatePerformanceRuntime = currentProjectGatePerformanceRuntime()
@@ -63,9 +67,9 @@ export function evaluateProjectGatePerformance(
         "elapsed-to-initial-result timing was invalid; performance budgets could not be evaluated"
     });
   }
-  const durations = readCompletedCheckDurations(context.runResult);
-  const summary = durations === undefined ? undefined : summarizeCheckDurations(durations);
-  if (summary === undefined) {
+  const facts = readCompletedPerformanceFacts(context.runResult);
+  const summary = facts === undefined ? undefined : summarizeCheckDurations(facts.checkDurations);
+  if (facts === undefined || summary === undefined) {
     return contribution({
       blocks: true,
       level: "error",
@@ -87,16 +91,69 @@ export function evaluateProjectGatePerformance(
   }
 
   const exceeded = context.timing.elapsedToInitialResultMs > baseline.maxElapsedMs;
+  const exceededCheckBudgets = exceededCheckBudgetNames(summary, baseline);
+  const blocks = exceeded || exceededCheckBudgets.length > 0;
   const totalMessage: ProjectGateMessage = Object.freeze({
-    level: exceeded ? "warning" : "info",
+    level: exceeded ? "error" : "info",
     code: exceeded
       ? "project-gate-performance-limit-exceeded"
       : "project-gate-performance-within-limit",
-    message: `${description} ${exceeded ? "exceeded" : "was within"} warning budget ${formatDuration(baseline.maxElapsedMs)}`
+    message: `${description} ${exceeded ? "exceeded" : "was within"} budget ${formatDuration(baseline.maxElapsedMs)}`
   });
   return Object.freeze({
-    blocks: false,
-    messages: Object.freeze([totalMessage, checkDurationMessage(summary, baseline)])
+    blocks,
+    messages: Object.freeze([
+      totalMessage,
+      checkDurationMessage(summary, baseline, exceededCheckBudgets),
+      ...(blocks
+        ? [performanceFailureContext({ context, runtime, budget: baseline, facts, summary })]
+        : [])
+    ])
+  });
+}
+
+function performanceFailureContext(input: {
+  readonly context: ProjectGateResultContributionContext;
+  readonly runtime: ProjectGatePerformanceRuntime;
+  readonly budget: ProjectGatePerformanceBaseline;
+  readonly facts: CompletedPerformanceFacts;
+  readonly summary: CheckDurationSummary;
+}): ProjectGateMessage {
+  const { context, runtime, budget, facts, summary } = input;
+  const candidate = context.preparedCandidate;
+  return Object.freeze({
+    code: "project-gate-performance-failure-context",
+    level: "info",
+    message: stringifyProjectGateMessageContext({
+      profile: context.selection.kind,
+      runtime,
+      budgets: {
+        maxElapsedMs: budget.maxElapsedMs,
+        maxMeanCheckMs: budget.maxMeanCheckMs,
+        maxP95CheckMs: budget.maxP95CheckMs
+      },
+      timing: context.timing,
+      measurements: {
+        meanCheckMs: summary.kind === "measured" ? summary.meanMs : null,
+        p95CheckMs: summary.kind === "measured" ? summary.p95Ms : null
+      },
+      candidate: {
+        version: candidate.candidateVersion,
+        sha256: candidate.sha256,
+        inputFingerprint: candidate.inputFingerprint,
+        preparationAction: candidate.preparationAction,
+        preparationReason: candidate.preparationReason
+      },
+      declarativeFingerprint: facts.declarativeFingerprint,
+      checkDurations: facts.checkDurations,
+      logs: {
+        directory: context.invocationLogDirectory,
+        gate: "gate.log",
+        progress: "progress.log",
+        machine: "machine/run.json",
+        commandCheck: "checks/<check-id>/process.log"
+      }
+    })
   });
 }
 
@@ -125,7 +182,8 @@ function summarizeCheckDurations(
 
 function checkDurationMessage(
   summary: CheckDurationSummary,
-  budget: ProjectGatePerformanceBaseline
+  budget: ProjectGatePerformanceBaseline,
+  exceeded: readonly string[]
 ): ProjectGateMessage {
   const code = "project-gate-performance-check-durations";
   if (summary.kind === "empty") {
@@ -136,21 +194,29 @@ function checkDurationMessage(
         "executed Checks=0; cumulative execution 0.0ms (not wall time); mean=n/a; p95=n/a; Check budgets not evaluated"
     });
   }
-  const exceeded: string[] = [];
-  if (summary.meanMs > budget.maxMeanCheckMs) exceeded.push("mean");
-  if (summary.p95Ms > budget.maxP95CheckMs) exceeded.push("p95");
   const assessment =
     exceeded.length === 0
-      ? "within Check warning budgets"
-      : `exceeded Check warning budgets: ${exceeded.join(", ")}`;
+      ? "within Check budgets"
+      : `exceeded Check budgets: ${exceeded.join(", ")}`;
   const slowest = summary.slowest
     .map(({ checkId, durationMs }) => `${checkId}=${formatDuration(durationMs)}`)
     .join(", ");
   return Object.freeze({
     code,
-    level: exceeded.length === 0 ? "info" : "warning",
+    level: exceeded.length === 0 ? "info" : "error",
     message: `executed Checks=${summary.count}; cumulative execution ${formatDuration(summary.totalMs)} (not wall time); mean ${formatDuration(summary.meanMs)} (budget ${formatDuration(budget.maxMeanCheckMs)}); p95 ${formatDuration(summary.p95Ms)} (nearest-rank; budget ${formatDuration(budget.maxP95CheckMs)}); ${assessment}; slowest Checks: ${slowest}`
   });
+}
+
+function exceededCheckBudgetNames(
+  summary: CheckDurationSummary,
+  budget: ProjectGatePerformanceBaseline
+): readonly string[] {
+  if (summary.kind === "empty") return Object.freeze([]);
+  const exceeded: string[] = [];
+  if (summary.meanMs > budget.maxMeanCheckMs) exceeded.push("mean");
+  if (summary.p95Ms > budget.maxP95CheckMs) exceeded.push("p95");
+  return Object.freeze(exceeded);
 }
 
 function contribution(input: {
@@ -166,7 +232,7 @@ function contribution(input: {
   });
 }
 
-function readCompletedCheckDurations(value: unknown): readonly CheckDuration[] | undefined {
+function readCompletedPerformanceFacts(value: unknown): CompletedPerformanceFacts | undefined {
   if (
     !isNonArrayRecord(value) ||
     value.kind !== "completed" ||
@@ -184,7 +250,10 @@ function readCompletedCheckDurations(value: unknown): readonly CheckDuration[] |
     checkIds.add(parsed.checkId);
     parsedDurations.push(parsed);
   }
-  return Object.freeze(parsedDurations);
+  return Object.freeze({
+    checkDurations: Object.freeze(parsedDurations),
+    declarativeFingerprint: value.declarativeFingerprint
+  });
 }
 
 function parseCheckDuration(value: unknown): CheckDuration | undefined {

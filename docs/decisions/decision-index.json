@@ -357,7 +357,7 @@
       "260923-select-project-gate-required-checks-by-change": "sha256:6001aadac6d9f63f4e0a64ce0c733886d0c624eb8f84cdcfd87947627ccb09d2",
       "260924-select-gate-check-specific-change-regions": "sha256:62ac1e06b90033244193afde8422bca29f9e649e9df674c21d31ee8d7dccac9a",
       "260926-apply-gate-time-budgets-without-fingerprint-gating": "sha256:a1b8378d6dde2a34bed4b25f720e55d3082dd85b5f508a3a97bbc92d6198ed27",
-      "260926-warn-on-gate-and-check-duration-budgets": "sha256:f5986cabb08daade172ab5cd63fb95def34ad1b4cd04c9f7f5585734b944d98b",
+      "260926-warn-on-gate-and-check-duration-budgets": "sha256:7b9ba63c0964d096214cc62fa3474449acfa467436c1815603d3f29a1a0033e8",
       "261010-collect-project-files-only-from-filesystem": "sha256:09535a541cccc4047c51f307b7d2cd15802eb4166b19fdad3ef6c5d722d56a26",
       "261010-provide-readonly-file-region-index": "sha256:2376fadd31010db1a71bf32463fbc343c32af553510457c8948cae08d33127f0",
       "261010-unify-file-selection-with-default-excludes": "sha256:b864debed85b047c249b2ef3867c41a99b648526a8c8c8d222015d8509b3b6e2",
@@ -376,7 +376,8 @@
       "261017-observe-markdown-reference-graph": "sha256:9b36861435c3b4d7093f084afcd9329a576e11a590db6af0cf065724975d3854",
       "261017-validate-complete-gate-markdown-graph": "sha256:6e052716c66ef6375f850f6b1af78e786d599eeaf9c8d400e62631b77e604262",
       "261019-bind-gate-pinned-tools-at-check-owned-boundaries": "sha256:a239178c818aa4091199f3bd39bb078b945655087a7ef357525096b3e78497f8",
-      "261019-require-consumer-oriented-package-documentation-review": "sha256:99f9cc0cc0b37c8e7664dab27b04a390d5a1402d22a7bc0e8f75a1310e21e8d6"
+      "261019-require-consumer-oriented-package-documentation-review": "sha256:99f9cc0cc0b37c8e7664dab27b04a390d5a1402d22a7bc0e8f75a1310e21e8d6",
+      "261022-enforce-gate-performance-budgets": "sha256:45fd18dfc93c4dd694ff365955f6e29323ab5dc410a56c4aa7bfce85d9db1c58"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7416,9 +7417,9 @@
     },
     "260926-warn-on-gate-and-check-duration-budgets": {
       "name": "warn-on-gate-and-check-duration-budgets",
-      "sourcePath": "warn-on-gate-and-check-duration-budgets.md",
+      "sourcePath": "archive/warn-on-gate-and-check-duration-budgets.md",
       "title": "以留有余量的 Gate 与 Check 分布预算告警",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-26T10:43:41Z",
       "purpose": "保持多数 Check 轻量并观察总反馈时间，不让环境波动阻断正确性验收",
@@ -7816,6 +7817,29 @@
         "workflow-policy"
       ],
       "relations": []
+    },
+    "261022-enforce-gate-performance-budgets": {
+      "name": "enforce-gate-performance-budgets",
+      "sourcePath": "enforce-gate-performance-budgets.md",
+      "title": "以现有性能预算阻断 Gate 并保全同次现场",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-22T07:06:05Z",
+      "purpose": "在现场处理性能退化，避免只留告警导致事后证据不足",
+      "background": "用户重新选择现场阻断，要求三个现有阈值不变且不自动重试",
+      "decision": "总耗时、均值或P95任一超标使Gate失败，沿用统计口径并留存同次安全事实",
+      "tags": [
+        "configuration",
+        "performance",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260926-warn-on-gate-and-check-duration-budgets",
+          "summary": "以现场阻断替代仅告警，保留阈值与测量边界"
+        }
+      ]
     }
   }
 }

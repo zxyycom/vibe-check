@@ -1,7 +1,7 @@
 ---
 title: 以留有余量的 Gate 与 Check 分布预算告警
 id: 260926-warn-on-gate-and-check-duration-budgets
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-26T10:43:41Z
 purpose: 保持多数 Check 轻量并观察总反馈时间，不让环境波动阻断正确性验收
@@ -37,4 +37,4 @@ relations:
 - 采用: 每次有效评估分别报告总耗时及三个准备/运行阶段、执行数量、累计 execution、均值和 P95 的预算对照、最慢三项。Check 预算独立比较；累计 execution 不称作墙钟或 CPU 时间。分布合格而总耗时超标时，可继续调查数量、编排和准备成本，不能只凭单个指标自动判定原因。
 - 采用: Check 粒度继续由行为 owner 和独立验收责任决定，不通过拆分、合并、跳过或把工作移到 preparation 改善指标。只在 Gate 私有评估层投影预算，不新增 Product API、Check outcome、Record 或 machine schema，也不改变调度、测试选择和取消语义。
 - 采用: `definition.ts` 仍配置唯一 resultContributor；它消费 frozen 初步结果和 context，只追加闭合的 `{blocks,messages}`。性能超标返回非阻断贡献，adapter 的受限 passed→failed、异常 fail-closed 和唯一最终退出映射不变，不改写 Product facts 或 aggregate。info 保留在 Gate transcript，warning 同时在终端可见。
-- 采用: 保留 exact candidate 入口、candidate preparation 前的配置预检、help 无准备/日志副作用、receipt exact artifact 及只执行一次 preparation/load/Run 的边界。初步结果仍依据 Product default aggregate，adapter 不遍历 snapshot 重建它。当前精确字段、计时口径和运维说明由 [Gate owner](../tooling/project-gate.md#性能预算与-check-耗时分布) 拥有。
+- 采用: 保留 exact candidate 入口、candidate preparation 前的配置预检、help 无准备/日志副作用、receipt exact artifact 及只执行一次 preparation/load/Run 的边界。初步结果仍依据 Product default aggregate，adapter 不遍历 snapshot 重建它。当前精确字段、计时口径和运维说明由 [Gate owner](../../tooling/project-gate.md#性能预算与-check-耗时分布) 拥有。

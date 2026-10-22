@@ -27,6 +27,7 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
+| P1 | [`enforce-gate-performance-budgets`](../../changes/enforce-gate-performance-budgets/proposal.md) | 三项现有预算升级阻断并保全同次现场；不重试、不改阈值、不清理测试。Gate/Case/决策 owner 与完整验收窗口串行。 |
 | P1 | [`reduce-gate-preparation-cost`](../../changes/reduce-gate-preparation-cost/proposal.md) | 完整输入独立复制与 Validation layout 按需加载；保留原覆盖并 before/after、完整 Gate，Project 不动，共享 owner 串行。 |
 | P1 | [`refine-script-test-regions`](../../changes/refine-script-test-regions/proposal.md) | 先证明脚本 required 输入后窄化，再分解跨组加载与准备；Gate/Case/owner 与前序改动串行，完整验收不变。 |
 | P1 | [`reduce-gate-hotspot-work`](../../changes/reduce-gate-hotspot-work/proposal.md) | 承接前序测试减重，分解 function-metrics、Markdown tests 与 consumer preparation；源码/Case/owner 写入串行，保持完整验收并复测。 |

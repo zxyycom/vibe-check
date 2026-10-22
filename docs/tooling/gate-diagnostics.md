@@ -65,9 +65,15 @@ Product diagnostic channel、Gate transcript、progress transcript 与 Product `
 
 | Channel        | 它包含的事实                                                                                                                           | 它不包含的事实                                                       |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `gate.log`     | Gate 的 candidate/selection/aggregation/execution messages、`resultContributor` final messages，以及唯一 final directory/result/exit。 | Product progress、Check presentation 与 child output。               |
+| `gate.log`     | Gate 的 candidate/selection/aggregation/execution messages、`resultContributor` final messages（含预算超标现场），以及唯一 final directory/result/exit。 | Product progress、Check presentation 与 child output。               |
 | terminal       | 一条 candidate/source/selection 启动摘要、Product progress、Gate warning/error、logs path 与最终 result。                              | candidate、aggregation 或 post-processing 的完整 Gate 内部执行信息。 |
 | `progress.log` | Product progress owner 生成并与 terminal 双投递的 progress text。                                                                      | Gate Check transcript 或 child transcript。                          |
 
 Gate 不 patch `console`、`process.stdout` 或 `process.stderr`，也不解析 Product log、machine files、`progress.log` 或 child transcript 来重建结果。
+性能超标现场由[性能 contributor](project-gate.md#性能预算与-check-耗时分布)直接投影受信 invocation context 与已验证 Run duration facts，
+只写明确选择的 runtime、预算、timing、candidate 身份/准备动作、声明指纹、Check ID/耗时与 invocation 日志定位。
+JSON 编码保留原值，并按 Gate message 的终端文本边界转义 C0、DEL/C1 与 Unicode 行/段分隔符；
+不复制整个 candidate、Run result、environment、源正文或原始异常。
+这是本地 Gate transcript，不是 Product machine schema；命令型 Check 的 `process.log` 引用是路径约定，native Check 无该文件。
+现场写入沿用 transcript 的失败结算，不另设可静默丢失的写入通道。
 日志关闭与 process exit 由[Gate 结算](project-gate.md#gate-terminal-and-transcript)拥有。

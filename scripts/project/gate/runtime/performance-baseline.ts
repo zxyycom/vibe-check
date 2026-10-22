@@ -9,7 +9,7 @@ export const LOCAL_PERFORMANCE_BASELINE_PATH =
 
 const DEFAULT_CHECK_BUDGETS = Object.freeze({ maxMeanCheckMs: 2000, maxP95CheckMs: 5000 });
 
-/** Normalized, machine-local warning budgets for one Gate profile and runtime. */
+/** Normalized, machine-local blocking budgets for one Gate profile and runtime. */
 export interface ProjectGatePerformanceBaseline {
   /** Optional legacy metadata: validated when present, never used to select the budgets. */
   readonly declarativeFingerprint?: string;
