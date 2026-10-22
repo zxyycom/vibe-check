@@ -10,6 +10,7 @@ import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import { run } from "../run.ts";
 import { admissionSelectionPolicyFor } from "./custom-admission-policy.ts";
 import { runTaskGraph } from "./scheduler.ts";
+import { runOverlappingPolicyConsumers } from "./overlapping-policy-runs.test-support.ts";
 import { createDeferred, recordingLogger, waitFor } from "./task-engine.test-support.ts";
 import {
   malformedWaitProposal,
@@ -18,8 +19,8 @@ import {
 } from "./task-engine.admission-policy.test-support.ts";
 
 describe("task engine admission policy", () => {
-  it("preserves the caller closure across overlapping custom Runs without a Scheduler callback lock", async () => {
-    let callbackCalls = 0;
+  it("consumes the same caller closure independently across overlapping custom Runs", async () => {
+    const callbackTaskIds: string[] = [];
     const policy = admissionSelectionPolicyFor(
       defineContextCallback("scheduler.decide", {
         contextNeeds: [
@@ -35,8 +36,8 @@ describe("task engine admission policy", () => {
           "settledTaskIds"
         ],
         callback: (context) => {
-          callbackCalls += 1;
           const candidate = context.candidates.find((item) => item.canAdmit);
+          callbackTaskIds.push(candidate?.taskId ?? "wait");
           return candidate === undefined
             ? { kind: "wait" }
             : { kind: "select", taskId: candidate.taskId };
@@ -44,22 +45,20 @@ describe("task engine admission policy", () => {
       })
     );
 
-    await Promise.all([
-      runTaskGraph({
-        admissionPolicy: policy,
-        execute: async () => undefined,
-        graph: { tasks: [{ id: "first" }] },
-        maxParallel: 1
-      }),
-      runTaskGraph({
-        admissionPolicy: policy,
-        execute: async () => undefined,
-        graph: { tasks: [{ id: "second" }] },
-        maxParallel: 1
-      })
-    ]);
-
-    assert.equal(callbackCalls, 2);
+    const evidence = await runOverlappingPolicyConsumers(policy);
+    assert.equal(evidence.firstFinishedAtOverlap, false);
+    assert.deepEqual(evidence.executionsAtOverlap, ["first", "second"]);
+    for (const [index, taskId] of ["first", "second"].entries()) {
+      const graphRun = evidence.runs[index];
+      assert.ok(graphRun !== undefined);
+      assert.equal(graphRun.admissionPolicyFault, undefined);
+      assert.equal(graphRun.cancelled, false);
+      assert.deepEqual(
+        graphRun.settlements.map(({ task, settlement }) => ({ taskId: task.id, settlement })),
+        [{ taskId, settlement: { kind: "completed", value: taskId } }]
+      );
+    }
+    assert.deepEqual(callbackTaskIds, ["first", "second"]);
   });
 
   it("fails custom policy faults without fallback, cancels pending work, and drains admitted work", async () => {

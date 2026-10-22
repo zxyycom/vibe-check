@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import { run } from "../../project-run/run.ts";
+import { runIsolatedTestChild } from "../isolated-child.test-support.ts";
 import { secretDetection } from "./constructor.ts";
 import { parseSecretDetectionData } from "./final-data.ts";
 import { adaptSecretlintMessages } from "./secretlint/adapter.ts";
@@ -127,7 +128,7 @@ describe("secretDetection", () => {
       writeFileSync(join(root, "secret.pem"), syntheticPrivateKey(), "utf8");
       const result = await run(
         defineConfig({
-          checks: [secretDetection({ files: EXPLICIT_FILES })],
+          checks: [secretDetection({ files: { patterns: ["secret.pem"] } })],
           outputs: {
             diagnosticLogging: { directory: "published", enabled: true },
             machinePublication: { directory: "published", enabled: true },
@@ -138,15 +139,47 @@ describe("secretDetection", () => {
       );
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
+      const secretOutcome = result.snapshot.checks.find(
+        ({ checkId }) => checkId === "secret-detection"
+      )?.outcome;
+      const outcomeSurface: unknown = JSON.parse(JSON.stringify(secretOutcome));
+      assert.deepEqual(outcomeSurface, {
+        status: "failed",
+        data: {
+          coverageGapCount: 0,
+          findingCount: 1,
+          scannedFileCount: 1,
+          selectedFileCount: 1,
+          waivedFindingCount: 0
+        }
+      });
+      const recordSurface: unknown = JSON.parse(JSON.stringify(result.snapshot.records));
+      assert.deepEqual(recordSurface, [
+        {
+          checkId: "secret-detection",
+          id: "/secret-finding/secret.pem/1",
+          data: {
+            blocking: true,
+            kind: "secret-finding",
+            location: { endColumn: 26, endLine: 3, startColumn: 1, startLine: 1 },
+            ordinal: 1,
+            path: "secret.pem",
+            ruleId: "@secretlint/secretlint-rule-privatekey",
+            structuralClass: "text-document"
+          }
+        }
+      ]);
       assert.equal(result.outputs.machinePublication.status, "succeeded");
       assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
       const diagnosticFile = result.outputs.diagnosticLogging.channels.core.file;
+      assert.notEqual(diagnosticFile, null);
+      if (diagnosticFile === null) throw new Error("expected the enabled core diagnostic file");
       assertNoCanaryMaterial(
         [
           JSON.stringify(result),
           readFileSync(join(root, "published", "run.json"), "utf8"),
           readFileSync(join(root, "published", "records.ndjson"), "utf8"),
-          diagnosticFile === null ? "" : readFileSync(join(root, diagnosticFile), "utf8")
+          readFileSync(join(root, diagnosticFile), "utf8")
         ].join("\n")
       );
     } finally {
@@ -463,6 +496,10 @@ describe("secretDetection", () => {
       );
       assert.deepEqual(unsafeResult, { kind: "protocol-failed" });
       assert.doesNotMatch(JSON.stringify(unsafeResult), new RegExp(CANARY, "u"));
+      const completion = runIsolatedTestChild(
+        new URL("./protocol-failure.test-support.ts", import.meta.url)
+      );
+      assert.deepEqual(completion, { checkedFiles: 2, status: "unavailable" });
     } finally {
       rmSync(root, { force: true, recursive: true });
     }

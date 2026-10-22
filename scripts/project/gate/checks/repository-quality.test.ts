@@ -316,7 +316,28 @@ describe("repository quality Checks", () => {
         "markdown-link-validation": "failed"
       });
       assert.equal(normalFindings.aggregate, "failed");
-      assert.ok(normalFindings.snapshot.records.length >= 4);
+      assert.deepEqual(
+        normalFindings.snapshot.records
+          .filter(({ checkId }) => checkId === "markdown-lint")
+          .map(({ data }) => data),
+        [
+          {
+            kind: "lint-finding",
+            path: "docs/guide.md",
+            rule: "no-missing-space-atx",
+            range: { start: { line: 1, column: 1 }, end: { line: 1, column: 3 } }
+          }
+        ]
+      );
+      const lintOutcome = normalFindings.snapshot.checks.find(
+        ({ checkId }) => checkId === "markdown-lint"
+      )?.outcome;
+      assert.ok(lintOutcome?.status === "passed");
+      assert.deepEqual(lintOutcome.data, {
+        sourceFileCount: 2,
+        findingCount: 1,
+        rejectedInputCount: 0
+      });
     } finally {
       rmSync(cleanRoot, { force: true, recursive: true });
       rmSync(findingRoot, { force: true, recursive: true });

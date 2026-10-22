@@ -92,9 +92,13 @@ describe("Scheduler performance diagnostics", () => {
   });
 
   it("contains terminal writer failures", async () => {
+    let summaryAttempts = 0;
+    let otherWriterAttempts = 0;
     const failedWriter = Object.freeze({
       close: () => "failed" as const,
-      observe: () => {
+      observe: (observation: DiagnosticObservation) => {
+        if (observation.event === "scheduler.summary") summaryAttempts++;
+        else otherWriterAttempts++;
         throw new Error("writer failure");
       }
     });
@@ -109,6 +113,8 @@ describe("Scheduler performance diagnostics", () => {
         logger: failedWriter
       })
     });
+    assert.equal(summaryAttempts, 1);
+    assert.ok(otherWriterAttempts > 0);
     assert.equal(run.settlements[0]?.settlement.kind, "completed");
   });
 });

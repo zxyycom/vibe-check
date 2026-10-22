@@ -84,7 +84,6 @@ describe("Package Run diagnostic logging output", () => {
 
 describe("Package Run diagnostic logging output", () => {
   it("does not sample Scheduler diagnostics when diagnostic logging is disabled", async () => {
-    const observations: DiagnosticObservation[] = [];
     let clockReads = 0;
     const result = await executeValidatedRun(
       defineConfig({
@@ -113,10 +112,6 @@ describe("Package Run diagnostic logging output", () => {
 
     assert.equal(result.kind, "completed");
     assert.equal(clockReads, 2);
-    assert.equal(
-      observations.some((observation) => observation.event === "scheduler.summary"),
-      false
-    );
   });
 });
 

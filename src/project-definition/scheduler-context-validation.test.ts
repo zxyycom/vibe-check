@@ -87,10 +87,13 @@ describe("Scheduler context declaration validation", () => {
       scheduler: { ...valid.scheduler, terminalEffects: [{ contextNeeds: ["runtime"], callback }] }
     };
     assert.equal(validateProjectDefinition(invalid).ok, false);
-    const full = defineConfig({ scheduler: { terminalEffects: [callback] } });
+    const withGraph = defineConfig({
+      ...valid,
+      scheduler: { ...valid.scheduler, terminalEffects: [{ contextNeeds: ["graph"], callback }] }
+    });
     assert.equal(
       createDeclarativeFingerprint(normalizeProjectDefinition(valid).declarative),
-      createDeclarativeFingerprint(normalizeProjectDefinition(full).declarative)
+      createDeclarativeFingerprint(normalizeProjectDefinition(withGraph).declarative)
     );
     assert.equal(calls, 0);
   });

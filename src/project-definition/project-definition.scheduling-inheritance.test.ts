@@ -168,6 +168,18 @@ describe("Project Definition", () => {
         ]
       })
     );
+    const differentPriority = normalizeProjectDefinition(
+      defineConfig({
+        checks: [
+          defineCheck({
+            admissionPriority: -1,
+            checkId: "default-priority",
+            displayName: "Default priority",
+            execute: passed
+          })
+        ]
+      })
+    );
     const normalized = normalizeProjectDefinition(defineConfig({ checks: [parent] }));
 
     assert.deepEqual(
@@ -188,7 +200,7 @@ describe("Project Definition", () => {
     );
     assert.notEqual(
       createDeclarativeFingerprint(defaultPriority.declarative),
-      createDeclarativeFingerprint(normalized.declarative)
+      createDeclarativeFingerprint(differentPriority.declarative)
     );
 
     for (const admissionPriority of [Number.NaN, 0.5, Number.MAX_SAFE_INTEGER + 1]) {

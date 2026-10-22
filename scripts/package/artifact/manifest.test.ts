@@ -38,24 +38,43 @@ test("checked-in release manifest projects only version and rejects static-sourc
     const projected = mutableManifest(source);
     assert.equal(projected.version, "0.0.1");
 
-    for (const mutation of [
-      (manifest: MutableManifest) => {
-        manifest.license = "UNLICENSED";
+    const approvedStaticSource = readFileSync(sourcePath, "utf8");
+    for (const { mutation, reason } of [
+      {
+        mutation: (manifest: MutableManifest) => {
+          manifest.license = "UNLICENSED";
+        },
+        reason: /identity/u
       },
-      (manifest: MutableManifest) => {
-        manifest.private = false;
+      {
+        mutation: (manifest: MutableManifest) => {
+          manifest.private = false;
+        },
+        reason: /manifest fields/u
       },
-      (manifest: MutableManifest) => {
-        manifest.bin = { "vibe-check": "cli.mjs" };
+      {
+        mutation: (manifest: MutableManifest) => {
+          manifest.bin = { "vibe-check": "cli.mjs" };
+        },
+        reason: /manifest fields/u
       },
-      (manifest: MutableManifest) => {
-        manifest.scripts = { prepublishOnly: "bun build.ts" };
+      {
+        mutation: (manifest: MutableManifest) => {
+          manifest.scripts = { prepublishOnly: "bun build.ts" };
+        },
+        reason: /manifest fields/u
       },
-      (manifest: MutableManifest) => {
-        manifest.dependencies = { "../private": "1.0.0" };
+      {
+        mutation: (manifest: MutableManifest) => {
+          manifest.dependencies = { "../private": "1.0.0" };
+        },
+        reason: /production dependencies/u
       },
-      (manifest: MutableManifest) => {
-        manifest.exports = { ".": { import: "./internal.mjs", types: "./types/index.d.ts" } };
+      {
+        mutation: (manifest: MutableManifest) => {
+          manifest.exports = { ".": { import: "./internal.mjs", types: "./types/index.d.ts" } };
+        },
+        reason: /approved import and declarations entries/u
       }
     ]) {
       const manifest = mutableManifest(source);
@@ -66,8 +85,30 @@ test("checked-in release manifest projects only version and rejects static-sourc
           repositoryRoot: root,
           source: JSON.stringify(manifest)
         });
-      });
+      }, reason);
+      // A matching unsafe source/projection must still fail independently of equality.
+      const staticManifest = mutableManifest(approvedStaticSource);
+      mutation(staticManifest);
+      writeFileSync(sourcePath, JSON.stringify(staticManifest), "utf8");
+      assert.throws(() => {
+        writeCandidateManifest({ manifestPath, repositoryRoot: root, version: "0.0.1" });
+      }, reason);
+      assert.throws(() => {
+        auditCandidateManifest({
+          candidateVersion: "0.0.1",
+          repositoryRoot: root,
+          source: JSON.stringify(manifest)
+        });
+      }, reason);
+      writeFileSync(sourcePath, approvedStaticSource, "utf8");
     }
+    assert.throws(() => {
+      auditCandidateManifest({
+        candidateVersion: "0.0.1",
+        repositoryRoot: root,
+        source: JSON.stringify({ ...projected, description: "valid but unapproved projection" })
+      });
+    }, /exact release-manifest version projection/u);
     assert.throws(() => {
       auditCandidateManifest({ candidateVersion: "0.0.2", repositoryRoot: root, source });
     }, /identity/u);

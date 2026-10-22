@@ -42,11 +42,10 @@ import {
 } from "./runtime/result.ts";
 import type { ProjectGatePerformanceBaseline } from "./runtime/performance-baseline.ts";
 import { currentProjectGatePerformanceRuntime } from "./runtime/performance-baseline.ts";
-import { PROJECT_GATE_RUN_CONFIG, createProjectGateEntries } from "./definition.ts";
+import { PROJECT_GATE_RUN_CONFIG } from "./definition.ts";
 
 const defaultResultContributor = PROJECT_GATE_RUN_CONFIG.resultContributor;
 const passThroughResultContributor = () => ({ blocks: false, messages: [] });
-import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
 import {
   startProjectGateTranscript,
   type ProjectGateTranscript,
@@ -86,60 +85,6 @@ const performanceBaseline = Object.freeze({
   runtime: performanceRuntime
 } satisfies ProjectGatePerformanceBaseline);
 
-const expectedCheckIds = [
-  "typecheck-product",
-  "lint-product",
-  "typecheck-scripts",
-  "lint-scripts",
-  "format-check",
-  "prepared-package-candidate",
-  "prepared-external-package-consumer",
-  "tests-package-supporting",
-  "tests-package-artifact",
-  "tests-package-consumer-types",
-  "tests-package-consumer-docs",
-  "tests-package-consumer-runtime",
-  "tests-product-duplicate-detection",
-  "tests-product-file-metrics",
-  "tests-product-function-metrics",
-  "tests-product-json",
-  "tests-product-markdown-links",
-  "tests-product-secret-detection",
-  "tests-product-supporting-checks",
-  "tests-product-runtime",
-  "tests-scripts-admission-workbench",
-  "tests-scripts-project",
-  "tests-scripts-project-selection",
-  "tests-scripts-test-evidence",
-  "tests-scripts-layout",
-  "tests-scripts-machine-artifacts",
-  "tests-scripts-package-tools-boundary",
-  "tests-scripts-validation",
-  "tests-scripts-tooling",
-  "duplicate-detection",
-  "file-metrics",
-  "function-metrics",
-  "markdown-lint",
-  "markdown-link-validation",
-  "materials-json-validator",
-  "materials-schema-validator",
-  "materials-schema-publication-validator",
-  "materials-examples-validator",
-  "materials-links-validator",
-  "decision-records",
-  "test-evidence",
-  "test-evidence-rule-tests",
-  "git-diff-whitespace"
-] as const;
-
-const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
-  "prepared-external-package-consumer",
-  "tests-package-artifact",
-  "tests-package-consumer-types",
-  "tests-package-consumer-docs",
-  "tests-package-consumer-runtime"
-]);
-
 const rootPackageManifestSource = readFileSync(
   fileURLToPath(new URL("../../../package.json", import.meta.url)),
   "utf8"
@@ -157,23 +102,6 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.equal(rootScripts["verify:vibe-check-workspace"], undefined);
     assert.equal(rootScripts["verify:vibe-check-workspace:full"], undefined);
     assert.equal(rootScripts["verify:vibe-check-workspace:required"], undefined);
-  });
-
-  it("keeps the explicit assurance identities and current selection metadata closed", () => {
-    const entries = createProjectGateEntries({
-      externalConsumerLease: createExternalConsumerMaterialLease(),
-      preparedCandidate: prepared
-    });
-    const expectedIds = new Set(expectedCheckIds);
-    const checkIds = new Set(entries.map(({ check }) => check.checkId));
-
-    assert.deepEqual(checkIds, expectedIds);
-    assert.deepEqual(
-      new Set(entries.filter(({ required }) => required).map(({ check }) => check.checkId)),
-      new Set(expectedCheckIds.filter((checkId) => !packageAcceptanceCheckIds.has(checkId)))
-    );
-    for (const entry of entries)
-      assert.deepEqual(Object.keys(entry).sort(), ["check", "presets", "required"]);
   });
 
   it("defaults to required and normalizes combinable focused presets into opaque flags", () => {
@@ -304,22 +232,28 @@ describe("Project Gate adapter closure", () => {
   });
 
   it("does not load or run a candidate consumer after preparation failure", async () => {
-    let loaded = false;
+    let preparationCalls = 0;
+    let logDirectoryCalls = 0;
+    let moduleLoadCalls = 0;
     const status = await runProjectGateWithoutTranscript([], {
       createInvocationLogDirectory: (): string => {
+        logDirectoryCalls += 1;
         throw new Error("logs must not be created");
       },
       loadRunModule: async () => {
-        loaded = true;
+        moduleLoadCalls += 1;
         throw new Error("must not load");
       },
       prepareCandidate: async () => {
+        preparationCalls += 1;
         throw new Error("fixture preparation failure");
       }
     });
 
     assert.equal(status, PROJECT_GATE_EXIT_STATUS.unavailable);
-    assert.equal(loaded, false);
+    assert.equal(preparationCalls, 1);
+    assert.equal(logDirectoryCalls, 0);
+    assert.equal(moduleLoadCalls, 0);
   });
 
   it("loads no Definition or package runtime before candidate preparation", () => {

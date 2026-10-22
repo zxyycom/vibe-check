@@ -5,6 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { runIsolatedTestChild } from "../../isolated-child.test-support.ts";
 import { estimateSccCommandLineCodeUnits, planSccBatches } from "./batch-planner.ts";
 import {
   beginSccLogicalScanResources,
@@ -251,6 +252,19 @@ if (paths[0]?.startsWith('later-')) {
     assert.equal(consumeSccProcessOutput(resources, "abcd", ""), true);
     assert.equal(remainingSccBatchMaxBuffer(resources), null);
     assert.equal(remainingSccBatchTimeoutMs(resources, 300_000_000n), null);
+    const stderrResources = beginSccLogicalScanResources(0n, 300, 8);
+    assert.equal(consumeSccProcessOutput(stderrResources, "x", "éé"), true);
+    assert.equal(remainingSccBatchMaxBuffer(stderrResources), 4);
+    assert.equal(consumeSccProcessOutput(stderrResources, "", "abcde"), false);
+    assert.equal(consumeSccProcessOutput(stderrResources, "", "abcd"), true);
+    assert.equal(remainingSccBatchMaxBuffer(stderrResources), null);
+    const stdoutResources = beginSccLogicalScanResources(0n, 300, 8);
+    assert.equal(consumeSccProcessOutput(stdoutResources, "ééééx", ""), false);
+
+    const entrypoint = new URL("./output-budget.test-support.ts", import.meta.url);
+    for (const stream of ["stdout", "stderr"]) {
+      assert.deepEqual(runIsolatedTestChild(entrypoint, [stream]), { completedBatches: 2, stream });
+    }
   });
 });
 

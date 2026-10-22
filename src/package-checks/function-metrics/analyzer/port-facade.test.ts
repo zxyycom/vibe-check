@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, extname, relative, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -103,8 +103,53 @@ describe("Lizard port façade", () => {
     );
     assertSelectedExtensionObservations(observations);
 
-    assert.equal(observations.fixtureCount, 110);
-    assert.equal(observations.semanticCaseCount, 10);
+    const expectedFixturePaths = readdirSync(fixtureRoot, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .flatMap((directory) =>
+        readdirSync(resolve(fixtureRoot, directory.name))
+          .filter((filename) => /^(normal|edge|malformed)\./u.test(filename))
+          .map((filename) =>
+            relative(workspaceRoot, resolve(fixtureRoot, directory.name, filename)).replaceAll(
+              "\\",
+              "/"
+            )
+          )
+      );
+    const observedFixturePaths = observations.fixtures.map((observation) => {
+      assert.ok(typeof observation.fixture === "string");
+      assert.equal(observation.source, undefined);
+      assert.equal(
+        observation.canonicalExtension,
+        extname(observation.fixture).slice(1).toLowerCase()
+      );
+      return observation.fixture;
+    });
+    assert.equal(expectedFixturePaths.length, 110);
+    assert.equal(observedFixturePaths.length, 110);
+    assert.equal(observations.fixtureCount, observedFixturePaths.length);
+    assert.equal(new Set(observedFixturePaths).size, observedFixturePaths.length);
+    assert.deepEqual([...observedFixturePaths].sort(), expectedFixturePaths.sort());
+
+    const expectedSemanticIdentities = [
+      "no-nesting.c",
+      "single-if.c",
+      "else-if-chain.c",
+      "ternary.c",
+      "condition-first-and-subsequent-logical-operators.c",
+      "logical-operator-outside-condition.c",
+      "bracket-and-unbracketed-closure.c",
+      "function-reset.c",
+      "complex-tags-source-order-and-lines.c",
+      "indent-closure.st"
+    ];
+    const semanticIdentities = observations.semanticCases.map((observation) => {
+      assert.equal(typeof observation.source, "string");
+      return `${observation.id}.${observation.canonicalExtension}`;
+    });
+    assert.equal(semanticIdentities.length, 10);
+    assert.equal(observations.semanticCaseCount, semanticIdentities.length);
+    assert.equal(new Set(semanticIdentities).size, semanticIdentities.length);
+    assert.deepEqual(semanticIdentities.sort(), expectedSemanticIdentities.sort());
     for (const observation of [...observations.fixtures, ...observations.semanticCases]) {
       const sourceCode =
         observation.source ??

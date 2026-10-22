@@ -15,7 +15,6 @@ import {
 } from "../../project-definition/project-definition.ts";
 import { executeMarkdownLinkValidation } from "./execution.ts";
 import { markdownLinkValidation } from "./constructor.ts";
-import { parseMarkdownLinkValidationData } from "./final-data.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 import { execute, MARKDOWN_FILES, MARKDOWN_LINK_OPTIONS } from "./constructor.test-support.ts";
 
@@ -137,7 +136,6 @@ describe("default Check direct callbacks", () => {
         );
       }
     }
-    assert.equal(defaultCheck.parseData, parseMarkdownLinkValidationData);
     assert.deepEqual(
       defaultCheck.parseData({
         sourceFileCount: 1,

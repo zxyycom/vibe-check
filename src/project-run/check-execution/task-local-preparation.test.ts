@@ -6,7 +6,7 @@ import { describe, it } from "node:test";
 import type { CheckResult, DependencyReadResult } from "../../check/check.ts";
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import type { CheckSettledFact, CheckStartedFact } from "./lifecycle.ts";
-import { executeResolvedChecks } from "./resolved-checks.ts";
+import { executeResolvedChecks, type ResolvedCheckExecutionInput } from "./resolved-checks.ts";
 import {
   PROJECT,
   deferred,
@@ -23,7 +23,7 @@ describe("Package Run direct Check execution", () => {
       readonly preparedOptions: object;
     }>();
     const events: string[] = [];
-    const execution = executeResolvedChecks({
+    const execution = executeTaskLocalChecks({
       checks: [
         normalized(
           () => {
@@ -54,10 +54,7 @@ describe("Package Run direct Check execution", () => {
           }
         )
       ],
-      invocationLifecycle: { selectionSettled: () => undefined },
-      maxParallel: 2,
-      project: createProjectContextSource(PROJECT),
-      signal: undefined
+      maxParallel: 2
     });
     await Promise.resolve();
     assert.deepEqual(events, ["first-preparation", "second-preparation"]);
@@ -73,10 +70,11 @@ describe("Package Run direct Check execution", () => {
   });
 
   it("blocks success dependents before their preparation and lets observers read the terminal result", async () => {
+    let observed: DependencyReadResult | undefined;
     const started: CheckStartedFact[] = [];
     const settled: CheckSettledFact[] = [];
     const observations: DiagnosticObservation[] = [];
-    const result = await executeResolvedChecks({
+    const result = await executeTaskLocalChecks({
       checks: [
         normalized(
           () => {
@@ -110,14 +108,7 @@ describe("Package Run direct Check execution", () => {
           defineContextCallback("check.execute", {
             contextNeeds: ["dependencies"],
             callback: (options, context) => {
-              assert.deepEqual(context.dependencies.get("blocked"), {
-                ok: false,
-                error: {
-                  code: "upstream-data-unavailable",
-                  checkId: "blocked",
-                  status: "unavailable"
-                }
-              });
+              observed = context.dependencies.get("blocked");
               return { status: "passed", data: {} };
             }
           }),
@@ -129,12 +120,18 @@ describe("Package Run direct Check execution", () => {
         started: (fact) => started.push(fact),
         settled: (fact) => settled.push(fact)
       },
-      invocationLifecycle: { selectionSettled: () => undefined },
-      maxParallel: 1,
-      project: createProjectContextSource(PROJECT),
-      signal: undefined
+      maxParallel: 1
     });
     assert.equal(result.kind, "completed");
+    assert.deepEqual(observed, {
+      ok: false,
+      error: {
+        code: "upstream-data-unavailable",
+        checkId: "blocked",
+        status: "unavailable"
+      }
+    });
+    assert.deepEqual(outcomeFor(result, "observer"), { status: "passed", data: {} });
     assert.deepEqual(
       started.map((fact) => fact.checkId),
       ["observer"]
@@ -201,7 +198,7 @@ describe("Package Run direct Check execution", () => {
     for (const terminalResult of nonPassedResults()) {
       let dependentPreparationCalls = 0;
       let dependentExecutionCalls = 0;
-      const result = await executeResolvedChecks({
+      const result = await executeTaskLocalChecks({
         checks: [
           normalized(() => terminalResult, { checkId: "source", displayName: "Source" }),
           normalized(
@@ -219,10 +216,7 @@ describe("Package Run direct Check execution", () => {
             }
           )
         ],
-        invocationLifecycle: { selectionSettled: () => undefined },
-        maxParallel: 1,
-        project: createProjectContextSource(PROJECT),
-        signal: undefined
+        maxParallel: 1
       });
 
       assert.equal(result.kind, "completed");
@@ -241,7 +235,7 @@ describe("Package Run direct Check execution", () => {
 
   it("makes a scheduler-blocked outcome available to its terminal observer", async () => {
     let observed: DependencyReadResult | undefined;
-    const result = await executeResolvedChecks({
+    const result = await executeTaskLocalChecks({
       checks: [
         normalized(() => ({ status: "failed", data: {} }), { checkId: "source" }),
         normalized(() => ({ status: "passed", data: {} }), {
@@ -259,10 +253,7 @@ describe("Package Run direct Check execution", () => {
           { checkId: "observer", observes: ["blocked"] }
         )
       ],
-      invocationLifecycle: { selectionSettled: () => undefined },
-      maxParallel: 1,
-      project: createProjectContextSource(PROJECT),
-      signal: undefined
+      maxParallel: 1
     });
 
     assert.equal(result.kind, "completed");
@@ -280,6 +271,21 @@ describe("Package Run direct Check execution", () => {
     });
   });
 });
+
+/** Gives each task-local fixture a fresh project, selection barrier, and noncancelled Run. */
+function executeTaskLocalChecks(
+  input: Pick<
+    ResolvedCheckExecutionInput,
+    "checks" | "maxParallel" | "diagnosticLogger" | "checkLifecycle"
+  >
+) {
+  return executeResolvedChecks({
+    ...input,
+    invocationLifecycle: { selectionSettled: () => undefined },
+    project: createProjectContextSource(PROJECT),
+    signal: undefined
+  });
+}
 
 function nonPassedResults(): readonly CheckResult[] {
   return [

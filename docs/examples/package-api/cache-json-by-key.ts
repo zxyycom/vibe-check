@@ -1,3 +1,12 @@
+import { rmSync } from "node:fs";
+
+// 验收拥有本例的独占目录；模块成功或抛错时都回收，不进入教学投影。
+using _fixtureCleanup = {
+  [Symbol.dispose]() {
+    rmSync(directory, { force: true, recursive: true });
+  }
+};
+
 // #region package-api-example:cache-json-by-key
 import { cacheJsonByKey } from "@zxyycom/vibe-check";
 

@@ -186,6 +186,13 @@ describe("Project Gate Definition", () => {
     const definition = createProjectGateDefinition(entries);
 
     assert.deepEqual(
+      new Set(entries.filter(({ required }) => required).map(({ check }) => check.checkId)),
+      new Set(expectedRequiredCheckIds)
+    );
+    for (const entry of entries) {
+      assert.deepEqual(Object.keys(entry).sort(), ["check", "presets", "required"]);
+    }
+    assert.deepEqual(
       definition.checks.map(({ checkId }) => checkId),
       expectedCheckIds
     );

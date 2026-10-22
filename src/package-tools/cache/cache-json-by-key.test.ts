@@ -341,20 +341,23 @@ describe("caller-keyed JSON cache", () => {
       const barrier = new Promise<void>((resolve) => {
         release = resolve;
       });
+      let notifyBothComputationsEntered!: () => void;
+      const bothComputationsEntered = new Promise<void>((resolve) => {
+        notifyBothComputationsEntered = resolve;
+      });
       let calls = 0;
       const run = () =>
         cacheJsonByKey(
           options(directory, async () => {
             calls += 1;
+            if (calls === 2) notifyBothComputationsEntered();
             await barrier;
             return { count: 8 };
           })
         );
       const left = run();
       const right = run();
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, 10);
-      });
+      await bothComputationsEntered;
       release();
       const [first, second] = await Promise.all([left, right]);
       assert.equal(calls, 2);

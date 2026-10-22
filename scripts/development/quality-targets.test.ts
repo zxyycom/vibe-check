@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import {
-  GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES,
-  workspaceFormatTargets
-} from "./format-targets.ts";
+import micromatch from "micromatch";
 import { lintInvocation } from "./lint.ts";
 import { workspaceFormatInvocation } from "./format.ts";
 
@@ -15,7 +12,7 @@ describe("development quality target boundaries", () => {
       "--no-install",
       "oxlint",
       "--deny-warnings",
-      `--ignore-pattern=${GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES}`,
+      "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
       "src"
     ]);
     assert.deepEqual(lintInvocation("scripts", "json").args, [
@@ -26,16 +23,36 @@ describe("development quality target boundaries", () => {
       "--format=json",
       "scripts"
     ]);
-    assert.deepEqual(workspaceFormatInvocation("list-different").args, [
+    const invocation = workspaceFormatInvocation("list-different");
+    assert.deepEqual(invocation.args.slice(0, 4), [
       "x",
       "--no-install",
       "oxfmt",
-      "--list-different",
-      ...workspaceFormatTargets
+      "--list-different"
     ]);
+    const targets = invocation.args.slice(4);
     assert.deepEqual(
-      workspaceFormatTargets.filter((target) => target.startsWith("!")),
-      [`!${GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES}`]
+      targets.filter((target) => target.startsWith("!")),
+      ["!src/package-checks/function-metrics/analyzer/fixtures/**"]
     );
+    assert.deepEqual(
+      micromatch(
+        [
+          "src/index.ts",
+          "src/package-checks/function-metrics/constructor.ts",
+          "src/package-checks/function-metrics/analyzer/readers/golike.ts",
+          "src/package-checks/function-metrics/analyzer/fixtures/golang/normal.ts",
+          "scripts/development/format.ts"
+        ],
+        targets
+      ),
+      [
+        "src/index.ts",
+        "src/package-checks/function-metrics/constructor.ts",
+        "src/package-checks/function-metrics/analyzer/readers/golike.ts",
+        "scripts/development/format.ts"
+      ]
+    );
+    assert.equal(workspaceFormatInvocation("check").args[3], "--check");
   });
 });

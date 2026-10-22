@@ -113,7 +113,6 @@ describe("Project Definition", () => {
       propagateDependsOn: true
     });
     assert.equal(Object.isFrozen(control?.when.conditions), true);
-    assert.equal(Object.isFrozen(control?.when.conditions[0]), true);
     assert.notEqual(
       createDeclarativeFingerprint(normalized.declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(reordered).declarative)

@@ -90,11 +90,10 @@ async function assertMalformedMessageAttachments(): Promise<void> {
       },
       { diagnosticLogger: recordingLogger(malformedObservations) }
     );
-    assert.ok(
-      ["passed", "unavailable"].includes(
-        invalidMessageResult.snapshot.checks[0]?.outcome.status ?? ""
-      )
-    );
+    assert.deepEqual(invalidMessageResult.snapshot.checks[0]?.outcome, {
+      status: "unavailable",
+      reason: { code: "invalid-execution-result" }
+    });
     assert.deepEqual(invalidMessageResult.checkMessages, []);
     assert.equal(
       malformedObservations.some((observation) => observation.event === "callback.malformed"),

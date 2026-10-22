@@ -7,13 +7,16 @@ import { validateCoreSnapshot } from "./fact-validation.ts";
 describe("check-record foundation runtime validation", () => {
   it("rejects Check definition accessors without executing them", () => {
     const definition = { checkId: "custom", displayName: "Custom" };
+    let getterCalls = 0;
     Object.defineProperty(definition, "displayName", {
       enumerable: true,
       get: () => {
-        throw new Error("must not execute");
+        getterCalls += 1;
+        return "Custom";
       }
     });
     assert.equal(validateCheckDescriptor(definition).ok, false);
+    assert.equal(getterCalls, 0);
   });
 
   it("creates detached frozen final and Record facts from canonical input", () => {

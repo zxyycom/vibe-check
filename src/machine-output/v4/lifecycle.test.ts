@@ -105,7 +105,10 @@ describe("machine publication v4 lifecycle", () => {
       assert.equal(existsSync(join(directory, "run.json")), false);
       assert.equal(existsSync(join(directory, "records.ndjson")), false);
       assertPreservedLegacyAndUnrelatedFiles(directory);
-      assert.equal(existsSync(join(directory, ".vibe-check-publication-prior.tmp")), false);
+      assert.deepEqual(
+        readdirSync(directory).filter((name) => name.startsWith(".vibe-check-publication-")),
+        []
+      );
       assert.equal(existsSync(join(directory, "raw")), false);
     } finally {
       rmSync(directory, { force: true, recursive: true });

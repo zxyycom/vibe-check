@@ -67,28 +67,38 @@ export function capturedProgressWriter(
 }
 
 export function capturedRefreshScheduler(): Readonly<{
+  readonly activeHandles: () => number;
   readonly cancellations: () => number;
   readonly intervalMs: () => number | undefined;
   readonly refresh: () => void;
+  readonly schedules: () => number;
   readonly scheduler: ProgressRefreshScheduler;
 }> {
-  let scheduledRefresh: (() => void) | undefined;
+  const activeRefreshes = new Map<number, () => void>();
   let scheduledIntervalMs: number | undefined;
   let cancellationCount = 0;
+  let scheduleCount = 0;
   return Object.freeze({
+    activeHandles: () => activeRefreshes.size,
     cancellations: () => cancellationCount,
     intervalMs: () => scheduledIntervalMs,
     refresh: () => {
-      assert.ok(scheduledRefresh, "TTY progress must schedule a heartbeat while work is running");
-      scheduledRefresh();
+      assert.ok(
+        activeRefreshes.size > 0,
+        "TTY progress must schedule a heartbeat while work is running"
+      );
+      for (const refresh of [...activeRefreshes.values()]) refresh();
     },
+    schedules: () => scheduleCount,
     scheduler: Object.freeze({
       schedule: (refresh: () => void, intervalMs: number) => {
-        scheduledRefresh = refresh;
+        const handle = ++scheduleCount;
+        activeRefreshes.set(handle, refresh);
         scheduledIntervalMs = intervalMs;
         return Object.freeze({
           cancel: () => {
             cancellationCount += 1;
+            activeRefreshes.delete(handle);
           }
         });
       }

@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 import {
   offlineOptions,
   runJsonSchemaValidation,
+  SINGLE_BLOCKED_SCHEMA_ASSESSMENT,
   strictSchema,
   temporaryRoot,
   withFetch,
@@ -16,20 +17,6 @@ describe("JSON Schema validation default Check", () => {
     const root = temporaryRoot();
     let calls = 0;
     try {
-      const schemaId = "https://schemas.example.test/root";
-      const credentialSchemaId = "https://schemas.example.test/second";
-      const asyncSchemaId = "https://schemas.example.test/third";
-      const recursiveSchemaId = "https://schemas.example.test/fourth";
-      writeJson(root, "schema.json", strictSchema(schemaId, { $dynamicRef: "#node" }));
-      writeJson(
-        root,
-        "untrusted.json",
-        strictSchema(credentialSchemaId, {
-          $ref: "https://user:credential@schemas.example.test/catalog/common.json"
-        })
-      );
-      writeJson(root, "async.json", strictSchema(asyncSchemaId, { $async: true, type: "string" }));
-      writeJson(root, "recursive.json", strictSchema(recursiveSchemaId, { $recursiveRef: "#" }));
       writeJson(root, "instance.json", {});
       await withFetch(
         async () => {
@@ -37,85 +24,33 @@ describe("JSON Schema validation default Check", () => {
           throw new Error("unexpected fetch");
         },
         async () => {
-          const dynamicObserved = await runJsonSchemaValidation({
-            options: offlineOptions({
-              bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
-              schemas: [{ id: schemaId, path: "schema.json" }]
-            }),
-            root
-          });
-          assert.deepEqual(
-            dynamicObserved.records.map((record) => record.data),
-            [
-              {
-                kind: "schema-compile",
-                path: "schema.json",
-                reason: "unsupported-reference",
-                schemaId
-              }
-            ]
-          );
-          const credentialObserved = await runJsonSchemaValidation({
-            options: offlineOptions({
-              bindings: [
-                { id: "instance", instancePath: "instance.json", schemaId: credentialSchemaId }
-              ],
-              schemas: [{ id: credentialSchemaId, path: "untrusted.json" }]
-            }),
-            root
-          });
-          assert.deepEqual(
-            credentialObserved.records.map((record) => record.data),
-            [
-              {
-                kind: "schema-compile",
-                path: "untrusted.json",
-                reason: "unsupported-reference",
-                schemaId: credentialSchemaId
-              }
-            ]
-          );
-          assert.equal(JSON.stringify(credentialObserved).includes("credential"), false);
-          const recursiveObserved = await runJsonSchemaValidation({
-            options: offlineOptions({
-              bindings: [
-                { id: "instance", instancePath: "instance.json", schemaId: recursiveSchemaId }
-              ],
-              schemas: [{ id: recursiveSchemaId, path: "recursive.json" }]
-            }),
-            root
-          });
-          assert.deepEqual(
-            recursiveObserved.records.map((record) => record.data),
-            [
-              {
-                kind: "schema-compile",
-                path: "recursive.json",
-                reason: "unsupported-reference",
-                schemaId: recursiveSchemaId
-              }
-            ]
-          );
-          const asyncObserved = await runJsonSchemaValidation({
-            options: offlineOptions({
-              bindings: [
-                { id: "instance", instancePath: "instance.json", schemaId: asyncSchemaId }
-              ],
-              schemas: [{ id: asyncSchemaId, path: "async.json" }]
-            }),
-            root
-          });
-          assert.deepEqual(
-            asyncObserved.records.map((record) => record.data),
-            [
-              {
-                kind: "schema-compile",
-                path: "async.json",
-                reason: "invalid-schema",
-                schemaId: asyncSchemaId
-              }
-            ]
-          );
+          for (const scenario of [
+            { id: "dynamic", schema: { $dynamicRef: "#node" }, reason: "unsupported-reference" },
+            {
+              id: "credential",
+              schema: { $ref: "https://user:credential@schemas.example.test/catalog/common.json" },
+              reason: "unsupported-reference"
+            },
+            { id: "recursive", schema: { $recursiveRef: "#" }, reason: "unsupported-reference" },
+            { id: "async", schema: { $async: true, type: "string" }, reason: "invalid-schema" }
+          ]) {
+            const schemaId = "https://schemas.example.test/root";
+            writeJson(root, "schema.json", strictSchema(schemaId, scenario.schema));
+            const observed = await runJsonSchemaValidation({
+              options: offlineOptions({
+                bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
+                schemas: [{ id: schemaId, path: "schema.json" }]
+              }),
+              root
+            });
+            assert.deepEqual(observed.result, SINGLE_BLOCKED_SCHEMA_ASSESSMENT, scenario.id);
+            assert.deepEqual(
+              observed.records.map((record) => record.data),
+              [{ kind: "schema-compile", path: "schema.json", reason: scenario.reason, schemaId }],
+              scenario.id
+            );
+            assert.equal(JSON.stringify(observed).includes("credential"), false, scenario.id);
+          }
         }
       );
       assert.equal(calls, 0);

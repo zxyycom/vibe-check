@@ -110,14 +110,13 @@ it("produces Check capabilities only on demand and keeps cancellation independen
 it("keeps preparation and execution views exact while reusing the Run project and signal", async () => {
   const project = createProjectContextSource(PROJECT);
   const signal = new AbortController().signal;
-  let preparedProject: CheckExecutionContext["project"] | undefined;
+  const preparationContexts: Readonly<Pick<CheckExecutionContext, "project">>[] = [];
+  const executionContexts: Readonly<Pick<CheckExecutionContext, "project" | "signal">>[] = [];
   const check = normalized(
     defineContextCallback("check.execute", {
       contextNeeds: ["project", "signal"],
       callback(_options, context) {
-        assert.deepEqual(Object.keys(context), ["project", "signal"]);
-        assert.equal(context.project, preparedProject);
-        assert.equal(context.signal, signal);
+        executionContexts.push(context);
         return { status: "passed", data: {} };
       }
     }),
@@ -125,9 +124,7 @@ it("keeps preparation and execution views exact while reusing the Run project an
       prepare: defineContextCallback("check.prepare", {
         contextNeeds: ["project"],
         callback(_options, context) {
-          assert.deepEqual(Object.keys(context), ["project"]);
-          assert.equal(Object.isFrozen(context), true);
-          preparedProject = context.project;
+          preparationContexts.push(context);
           return { status: "success", preparedOptions: {} };
         }
       })
@@ -135,9 +132,10 @@ it("keeps preparation and execution views exact while reusing the Run project an
   );
   const prepared = await prepareCheck({ check, project, signal, diagnosticLogger: undefined });
   assert.equal(prepared.kind, "ready");
+  if (prepared.kind !== "ready") assert.fail("expected ready preparation");
   const session = createCoreCheckSession([{ definition: check.definition }]);
-  await executeCheckCallback({
-    check,
+  const execution = await executeCheckCallback({
+    check: prepared.check,
     project,
     signal,
     scope: session.openCheckScope(check.definition.checkId),
@@ -145,5 +143,19 @@ it("keeps preparation and execution views exact while reusing the Run project an
     artifactDirectory: null,
     dependencies: NO_DEPENDENCIES
   });
-  assert.equal(Object.isFrozen(preparedProject), true);
+  assert.equal(execution.source, "author");
+  assert.deepEqual(execution.result, { status: "passed", data: {} });
+  assert.equal(preparationContexts.length, 1);
+  assert.equal(executionContexts.length, 1);
+  const preparationContext = preparationContexts[0];
+  const executionContext = executionContexts[0];
+  assert.ok(preparationContext !== undefined);
+  assert.ok(executionContext !== undefined);
+  assert.deepEqual(Object.keys(preparationContext), ["project"]);
+  assert.deepEqual(Object.keys(executionContext), ["project", "signal"]);
+  assert.equal(Object.isFrozen(preparationContext), true);
+  assert.equal(Object.isFrozen(executionContext), true);
+  assert.equal(Object.isFrozen(preparationContext.project), true);
+  assert.equal(executionContext.project, preparationContext.project);
+  assert.equal(executionContext.signal, signal);
 });

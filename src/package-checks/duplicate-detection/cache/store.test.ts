@@ -129,10 +129,6 @@ function assertDefaultJscpdIdentity(tempDir: string): void {
   const publicDefaultCommand = JSON.stringify(DEFAULT_JSCPD_COMMAND);
   assert.equal(publicDefaultCommand.includes(firstInstalledBin), false);
   assert.equal(publicDefaultCommand.includes(secondInstalledBin), false);
-  assert.deepEqual(
-    jscpdCacheConfiguration({ dependency: defaultScanner, minimumLines: 3, minimumTokens: 75 }),
-    jscpdCacheConfiguration({ dependency: defaultScanner, minimumLines: 3, minimumTokens: 75 })
-  );
   assert.notDeepEqual(defaultConfiguration, explicitCustomJscpdCacheConfiguration());
   assert.deepEqual(repositoryLocalJscpdCacheConfiguration().backend, {
     executable: "/workspace/consumer/node_modules/.bin/jscpd",

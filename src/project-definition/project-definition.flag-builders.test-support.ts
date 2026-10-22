@@ -104,6 +104,7 @@ export function assertFlagBuilderAuthoringAndCanonicalization(): void {
     assert.equal(Object.isFrozen(changes?.flags["product-runtime"]?.patterns), true);
   }
   const differentComparison = defineConfig({
+    ...configuredChanges,
     changes: {
       source: { compareWith: "origin/release" },
       flags: { "product-runtime": { patterns: ["src/**"] } }

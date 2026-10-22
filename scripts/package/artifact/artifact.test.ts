@@ -25,6 +25,7 @@ import { buildCandidateArtifact } from "./build.ts";
 import { createArtifactFingerprint } from "./fingerprint.ts";
 import { readTranslatedAnalyzerAttributionNotice } from "../legal-materials.ts";
 import { auditStagingRuntime } from "./staging-audit.ts";
+import { publicRootExportNames } from "../public-exports.test-support.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -156,9 +157,13 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       workerParent.split('new URL("./analyzer-worker.mjs", import.meta.url)').length - 1,
       1
     );
-    assert.equal(
-      declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
-      JSON.stringify(RUNTIME_EXPORTS)
+    assert.deepEqual(
+      publicRootExportNames(join(artifact.stagingDirectory, "index.mjs")).runtime,
+      RUNTIME_EXPORTS
+    );
+    assert.deepEqual(
+      publicRootExportNames(join(artifact.stagingDirectory, "types", "index.d.ts")).types,
+      Object.values(CURRENT_PUBLIC_CONTRACT.types).sort()
     );
   });
 
@@ -323,7 +328,6 @@ function assertReadableRuntimeLayout(stagingDirectory: string): void {
   ) {
     throw new TypeError("runtime source map must identify and embed its TypeScript entry source");
   }
-  assert.equal(sourceMap.file, "index.mjs");
   assert.equal(
     sourceMap.sourcesContent[0],
     readFileSync(join(stagingDirectory, "src", "index.ts"), "utf8")
@@ -388,22 +392,4 @@ function candidateManifest(stagingDirectory: string): Readonly<Record<string, un
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function declaredRuntimeExports(entryPath: string): string {
-  const source = readFileSync(entryPath, "utf8");
-  const exports = [...source.matchAll(/export\s*\{([^}]+)\}\s*from\s*["']\.\//g)]
-    .flatMap((match) => {
-      const exportedNames = match[1];
-      if (exportedNames === undefined) throw new Error("runtime export declaration lacks names");
-      return exportedNames.split(",").map((name) =>
-        name
-          .trim()
-          .split(/\s+as\s+/)
-          .at(-1)
-      );
-    })
-    .filter((name): name is string => name !== undefined)
-    .sort();
-  return JSON.stringify(exports);
 }

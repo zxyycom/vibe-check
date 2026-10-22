@@ -85,7 +85,9 @@ export async function assertCancellationRetainsPriorMessages(): Promise<void> {
   const controller = new AbortController();
   const result = await run(cancellationDefinition(controller), { signal: controller.signal });
   assert.equal(result.kind, "cancelled");
-  if (result.kind !== "cancelled" || result.phase !== "execution") return;
+  if (result.kind !== "cancelled") return;
+  assert.equal(result.phase, "execution");
+  if (result.phase !== "execution") return;
   assert.deepEqual(result.checkMessages, [
     { checkId: "accepted", level: "info", code: "settled", message: "Accepted before stop" }
   ]);

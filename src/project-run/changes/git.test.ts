@@ -289,6 +289,7 @@ function repositoryFixture(): string {
   write(repository, "src/renamed-old.ts", "export const renamed = true;\n");
   write(repository, "src/generated/ignored.ts", "export const ignored = 1;\n");
   write(repository, "docs/initial.md", "# initial\n");
+  write(repository, "docs/unstaged.md", "# baseline\n");
   commit(repository, "baseline");
   return repository;
 }
@@ -301,6 +302,7 @@ function nestedRepositoryFixture(): string {
   write(repository, "packages/app/src/committed.ts", "export const committed = 1;\n");
   write(repository, "packages/app/src/deleted.ts", "export const deleted = true;\n");
   write(repository, "packages/app/src/renamed-out.ts", "export const renamed = true;\n");
+  write(repository, "packages/app/config/unstaged.md", "# baseline\n");
   write(repository, "docs/moved-in.ts", "export const moved = true;\n");
   write(repository, "docs/unchanged.md", "# unchanged\n");
   commit(repository, "nested baseline");

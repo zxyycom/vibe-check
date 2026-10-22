@@ -18,6 +18,8 @@ import {
   pairedBlockRatios,
   summarize
 } from "./statistics.ts";
+import { abba, compareSamples } from "./sampling.ts";
+import type { RawSample } from "./contract.ts";
 
 describe("Lizard TypeScript developer performance evidence", () => {
   it("requires an explicit bounded developer invocation", () => {
@@ -120,18 +122,72 @@ describe("Lizard TypeScript developer performance evidence", () => {
   });
 
   it("uses every ABBA block in deterministic bootstrap classification and only marks IQR outliers", () => {
-    const ratios = pairedBlockRatios([2, 2.1, 2, 2.05], [1, 1, 1, 1]);
-    const ci95 = bootstrapMedianRatio95(ratios, 123, 500);
-    assert.deepEqual(ci95, bootstrapMedianRatio95(ratios, 123, 500));
-    assert.equal(
-      classifyComparison({ ci95, comparable: true, pythonP90: 2.1, typescriptP90: 1 }),
-      "typescript-faster"
+    assert.deepEqual(abba(1, "python-lizard-1.24", "typescript-port"), [
+      "python-lizard-1.24",
+      "typescript-port",
+      "typescript-port",
+      "python-lizard-1.24"
+    ]);
+    assert.deepEqual(abba(2, "python-lizard-1.24", "typescript-port"), [
+      "typescript-port",
+      "python-lizard-1.24",
+      "python-lizard-1.24",
+      "typescript-port"
+    ]);
+    const samples = [
+      performanceSample("python-lizard-1.24", 1, 1, 2),
+      performanceSample("typescript-port", 1, 2, 1),
+      performanceSample("typescript-port", 1, 3, 1),
+      performanceSample("python-lizard-1.24", 1, 4, 8),
+      performanceSample("typescript-port", 2, 1, 2),
+      performanceSample("python-lizard-1.24", 2, 2, 4),
+      performanceSample("python-lizard-1.24", 2, 3, 16),
+      performanceSample("typescript-port", 2, 4, 8),
+      performanceSample("python-lizard-1.24", 3, 1, 1),
+      performanceSample("typescript-port", 3, 2, 1),
+      performanceSample("typescript-port", 3, 3, 9),
+      performanceSample("python-lizard-1.24", 3, 4, 9)
+    ];
+    const comparison = compareSamples(samples, "python-lizard-1.24", "typescript-port", "cold");
+    // Geometric block means are (4, 8, 3) and (1, 4, 3), not raw sample pairs.
+    assert.deepEqual(comparison.pairedRatio.ratios, [4, 2, 1]);
+    assert.deepEqual(comparison.pairedRatio.ci95, [1, 4]);
+    assert.throws(
+      () => compareSamples(samples.slice(0, -1), "python-lizard-1.24", "typescript-port", "cold"),
+      /incomplete block/u
     );
+    const ratios = pairedBlockRatios([4, 8, 3], [1, 4, 3]);
+    assert.deepEqual(ratios, [4, 2, 1]);
+    const ci95 = bootstrapMedianRatio95(ratios, 123, 500);
+    assert.deepEqual(ci95, [1, 4]);
+    assert.deepEqual(ci95, bootstrapMedianRatio95(ratios, 123, 500));
+    assert.deepEqual(bootstrapMedianRatio95([2, 2, 2], 123, 500), [2, 2]);
+    for (const [interval, pythonP90, typescriptP90, expected] of [
+      [[1.06, 1.2], 2, 1, "typescript-faster"],
+      [[0.8, 0.94], 1, 2, "python-faster"],
+      [[0.95, 1.05], 1, 1, "no-material-stable-difference"],
+      [[1.05, 1.06], 2, 1, "inconclusive"],
+      [[0.94, 0.95], 1, 2, "inconclusive"],
+      [[1.06, 1.2], 1, 2, "inconclusive"]
+    ] as const) {
+      assert.equal(
+        classifyComparison({ ci95: interval, comparable: true, pythonP90, typescriptP90 }),
+        expected
+      );
+    }
     assert.equal(
       classifyComparison({ ci95, comparable: false, pythonP90: 2.1, typescriptP90: 1 }),
       "not-comparable"
     );
     assert.deepEqual(summarize([1, 1, 1, 1, 10]).outliers, [10]);
+    assert.deepEqual(summarize([4, 1, 3, 2]), {
+      iqr: 1.5,
+      max: 4,
+      median: 2.5,
+      min: 1,
+      outliers: [],
+      p90: 3.7
+    });
   });
 
   it("selects counted-operation wall only for warmed statistics and gives both B sides one warmup flag", () => {
@@ -154,6 +210,34 @@ describe("Lizard TypeScript developer performance evidence", () => {
     assert.equal(isSupportedSupervisorPlatform("darwin"), false);
   });
 });
+
+function performanceSample(
+  condition: RawSample["condition"],
+  block: number,
+  ordinal: number,
+  observedWallMs: number
+): RawSample {
+  return {
+    condition,
+    block,
+    ordinal,
+    observedWallMs,
+    operationWallMs: observedWallMs,
+    outputDigest: "fixture",
+    status: "complete",
+    stderr: "",
+    sessionDiagnostics: {
+      resource: {
+        cpuScope: "fixture",
+        peakRssBytes: null,
+        peakRssScope: "fixture",
+        systemCpuMs: null,
+        unit: "bytes",
+        userCpuMs: null
+      }
+    }
+  };
+}
 
 it("labels Linux wait4 resource scope without relabeling max RSS as tree aggregate", () => {
   const result = runProcessSync({

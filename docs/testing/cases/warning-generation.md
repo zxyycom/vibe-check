@@ -102,7 +102,7 @@ Owner: `docs/checks/json-schema-validation.md#效果与结果`
 Entities:
 
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.default-contract.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.result-reporting.test.ts|JSON Schema validation default Check > accepts standard conditional keywords and format annotations without extra plugins`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.result-reporting.test.ts|JSON Schema validation default Check > accepts format annotations without extra plugins`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.result-reporting.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
 
 Proves:

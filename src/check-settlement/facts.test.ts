@@ -94,15 +94,6 @@ describe("check-record foundation model", () => {
     assert.equal(Object.isFrozen(canonical), true);
     assert.equal(Object.isFrozen(canonical?.a), true);
 
-    const accessor: Record<string, unknown> = {};
-    Object.setPrototypeOf(accessor, null);
-    Object.defineProperty(accessor, "value", {
-      enumerable: true,
-      get: () => {
-        throw new Error("must not run");
-      }
-    });
-    assert.equal(canonicalizeJsonObject(accessor), undefined);
     const sparse: unknown[] = [];
     sparse.length = 2;
     sparse[1] = 1;

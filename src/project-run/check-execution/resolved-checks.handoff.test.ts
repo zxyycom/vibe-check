@@ -39,19 +39,11 @@ describe("Package Run direct Check execution", () => {
       }
     });
     let retainedDependencies: CheckDependencies | undefined;
-    const firstRead = await executeHandoffRun(
-      provider,
-      foreignProvider,
-      firstHandoff,
-      (dependencies) => {
-        retainedDependencies = dependencies;
-      }
-    );
-    const secondRead = await executeHandoffRun(provider, foreignProvider, secondHandoff);
+    await executeHandoffRun(provider, foreignProvider, firstHandoff, (dependencies) => {
+      retainedDependencies = dependencies;
+    });
+    await executeHandoffRun(provider, foreignProvider, secondHandoff);
 
-    assert.equal(firstRead, firstHandoff);
-    assert.equal(secondRead, secondHandoff);
-    assert.notEqual(firstRead, secondRead);
     assert.notEqual(retainedDependencies, undefined);
     if (retainedDependencies === undefined)
       throw new Error("dependent Check did not retain dependencies");
@@ -66,7 +58,7 @@ describe("Package Run direct Check execution", () => {
     foreignProvider: HandoffProvider,
     expectedHandoff: Map<string, Uint8Array>,
     observeDependencies?: (dependencies: CheckDependencies) => void
-  ): Promise<Map<string, Uint8Array>> {
+  ): Promise<void> {
     let firstConsumerHandoff: Map<string, Uint8Array> | undefined;
     let secondConsumerHandoff: Map<string, Uint8Array> | undefined;
     let observedProviderRead: unknown;
@@ -179,6 +171,5 @@ describe("Package Run direct Check execution", () => {
       ok: false,
       error: { code: "dependency-not-declared", checkId: "handoff-provider" }
     });
-    return expectedHandoff;
   }
 });

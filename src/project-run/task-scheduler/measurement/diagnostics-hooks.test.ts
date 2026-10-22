@@ -83,6 +83,7 @@ describe("Scheduler terminal effects", () => {
   });
 
   it("contains summary writer failure while preserving caller terminal effect failure delivery", async () => {
+    let summaryAttempts = 0;
     let callerFailureCount = 0;
     const calls: string[] = [];
     const run = await runTaskGraph({
@@ -94,8 +95,11 @@ describe("Scheduler terminal effects", () => {
         declarativeFingerprint: DECLARATIVE_FINGERPRINT,
         logger: {
           close: () => "succeeded" as const,
-          observe: () => {
-            throw new Error("summary writer failure");
+          observe: (observation: DiagnosticObservation) => {
+            if (observation.event === "scheduler.summary") {
+              summaryAttempts++;
+              throw new Error("summary writer failure");
+            }
           }
         }
       }),
@@ -113,6 +117,8 @@ describe("Scheduler terminal effects", () => {
       }
     });
     assert.equal(run.admissionPolicyFault, undefined);
+    assert.equal(run.settlements[0]?.settlement.kind, "completed");
+    assert.equal(summaryAttempts, 1);
     assert.deepEqual(calls, ["caller"]);
     assert.equal(callerFailureCount, 1);
   });

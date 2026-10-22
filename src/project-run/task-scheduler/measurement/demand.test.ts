@@ -1,6 +1,7 @@
 import type {
   SchedulerActionHistory,
-  SchedulerDecisionMeasurementCumulative
+  SchedulerDecisionMeasurementCumulative,
+  SchedulerMeasurementContext
 } from "../../../project-definition/scheduler-policy.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
@@ -195,7 +196,8 @@ describe("Scheduler grouped measurement validity", () => {
     let now = 0;
     const oldCumulative: SchedulerDecisionMeasurementCumulative[] = [];
     const oldHistory: SchedulerActionHistory[] = [];
-    let terminalCalls = 0;
+    const terminalContexts: Pick<SchedulerMeasurementContext, "runMeasurement" | "taskTimings">[] =
+      [];
     const result = await runPreparedTaskGraph(
       prepareExecutableTaskGraph({ tasks: [{ id: "a" }, { id: "b" }] }, 1),
       {
@@ -222,23 +224,26 @@ describe("Scheduler grouped measurement validity", () => {
         terminalEffects: [
           defineContextCallback("scheduler.terminal", {
             contextNeeds: ["runMeasurement", "taskTimings"],
-            callback({ runMeasurement, taskTimings }) {
-              terminalCalls++;
-              assert.deepEqual(runMeasurement.timing, {
-                availability: "unavailable",
-                reason: "clock-non-finite"
-              });
-              assert.equal(runMeasurement.timing, taskTimings.timing);
-              assert.equal("timingFacts" in runMeasurement, false);
-              assert.equal("admissions" in taskTimings, false);
-              assert.equal(runMeasurement.discrete.admittedCount, 2);
+            callback(context) {
+              terminalContexts.push(context);
             }
           })
         ]
       }
     );
     assert.equal(result.admissionPolicyFault, undefined);
-    assert.equal(terminalCalls, 1);
+    assert.equal(terminalContexts.length, 1);
+    const terminalContext = terminalContexts[0];
+    assert.ok(terminalContext !== undefined);
+    const { runMeasurement, taskTimings } = terminalContext;
+    assert.deepEqual(runMeasurement.timing, {
+      availability: "unavailable",
+      reason: "clock-non-finite"
+    });
+    assert.equal(runMeasurement.timing, taskTimings.timing);
+    assert.equal("timingFacts" in runMeasurement, false);
+    assert.equal("admissions" in taskTimings, false);
+    assert.equal(runMeasurement.discrete.admittedCount, 2);
     assert.deepEqual(oldCumulative[0]?.timing, { availability: "available" });
     assert.equal(oldHistory[0]?.measurementCount, 0);
     assert.equal(oldHistory[0]?.measurementAt(0), undefined);

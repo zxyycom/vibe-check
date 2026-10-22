@@ -223,6 +223,7 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "generated", "invalid.json"), "{", "utf8");
       writeFileSync(join(root, "vendor", "invalid.json"), "{", "utf8");
       const files: ProjectFileSelection = Object.freeze({
+        useDefaultExcludes: false,
         patterns: [
           ...Object.freeze(["**/*"]),
           ...Object.freeze(["**/vendor/**", "generated/**"]).map((pattern) => `!${pattern}`)
@@ -241,6 +242,18 @@ describe("JSON validation default Check", () => {
             rejectedInputCount: 0
           }
         }
+      });
+      const withoutExclusions = await runJsonValidation({
+        fileConfiguration: { patterns: ["**/*"], useDefaultExcludes: false },
+        root
+      });
+      assert.equal(withoutExclusions.result.status, "failed");
+      assert.deepEqual(withoutExclusions.result.data, {
+        scannedFileCount: 3,
+        validFileCount: 1,
+        invalidFileCount: 2,
+        issueCount: 2,
+        rejectedInputCount: 0
       });
     } finally {
       rmSync(root, { force: true, recursive: true });

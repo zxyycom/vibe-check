@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
-import { copyFile, mkdtemp, readdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { copyFile, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { test } from "node:test";
 
 import { execa } from "execa";
 
 import { requiredFixture } from "./fixture-registry.ts";
+import { walkFiles } from "../../repository-files/files.ts";
+import { assertWorkbenchPublicImports } from "./public-imports.test-support.ts";
 
 const command = "scripts/project/admission-workbench/command.ts";
 
@@ -50,70 +52,106 @@ test("command writes identified virtual stdout for static and isolated learned r
 
 test("command exclusively creates an explicit output after complete serialization", async () => {
   const root = await mkdtemp(join(tmpdir(), "admission-command-out-"));
-  const output = join(root, "evidence.json");
-  const result = await execa("bun", [command, "chain", "--out", output]);
-  assert.equal(result.stdout, "");
-  assert.equal(result.stderr, "");
-  assert.equal(parseEvidence(await readFile(output, "utf8")).status, "success");
+  try {
+    const output = join(root, "evidence.json");
+    const result = await execa("bun", [command, "chain", "--out", output]);
+    assert.equal(result.stdout, "");
+    assert.equal(result.stderr, "");
+    assert.equal(parseEvidence(await readFile(output, "utf8")).status, "success");
 
-  const second = await execa("bun", [command, "chain", "--out", output], { reject: false });
-  assert.equal(second.exitCode, 64);
-  assert.equal(parsedRecord(second.stderr).status, "error");
+    const second = await execa("bun", [command, "chain", "--out", output], { reject: false });
+    assert.equal(second.exitCode, 64);
+    assert.equal(parsedRecord(second.stderr).status, "error");
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
 });
 
 test("command rejects malformed arguments inputs and unsafe output targets", async () => {
   const root = await mkdtemp(join(tmpdir(), "admission-command-invalid-"));
-  const existing = join(root, "exists.json");
-  const malformed = join(root, "malformed.json");
-  await writeFile(existing, "x");
-  await writeFile(malformed, "{");
-  const link = join(root, "link.json");
-  await symlink(existing, link);
-  for (const args of [
-    ["chain", "--seed", "-1"],
-    ["chain", "--unknown", "x"],
-    [malformed],
-    ["chain", "--out", existing],
-    ["chain", "--out", link]
-  ]) {
-    const result = await execa("bun", [command, ...args], { reject: false });
-    assert.equal(result.exitCode, 64);
-    const error = parsedRecord(result.stderr);
-    assert.equal(error.status, "error");
-    assert.equal(requiredRecord(error.error).code, "invalid-input");
+  try {
+    const existing = join(root, "exists.json");
+    const malformed = join(root, "malformed.json");
+    await writeFile(existing, "x");
+    await writeFile(malformed, "{");
+    const link = join(root, "link.json");
+    await symlink(existing, link);
+    for (const args of [
+      ["chain", "--seed", "-1"],
+      ["chain", "--unknown", "x"],
+      [malformed],
+      ["chain", "--out", existing],
+      ["chain", "--out", link]
+    ]) {
+      const result = await execa("bun", [command, ...args], { reject: false });
+      assert.equal(result.exitCode, 64);
+      const error = parsedRecord(result.stderr);
+      assert.equal(error.status, "error");
+      assert.equal(requiredRecord(error.error).code, "invalid-input");
+    }
+    await assertInputBeforeExecutionLoad();
+  } finally {
+    await rm(root, { force: true, recursive: true });
   }
-  await assertInputBeforeExecutionLoad();
 });
 
 test("command returns nonzero error evidence with parsed identity for a public graph rejection", async () => {
   const root = await mkdtemp(join(tmpdir(), "admission-command-graph-"));
-  const path = join(root, "rejected.json");
-  await writeFile(
-    path,
-    JSON.stringify({
-      ...structuredClone(requiredFixture("chain")),
-      graph: { ...structuredClone(requiredFixture("chain").graph), maxParallel: 0 }
-    })
-  );
-  const result = await execa("bun", [command, path], { reject: false });
-  assert.equal(result.exitCode, 1);
-  assert.equal(result.stdout, "");
-  const evidence = parseEvidence(result.stderr);
-  assert.equal(evidence.status, "error");
-  assert.equal(evidence.results[0]?.status, "error");
-  assert.equal(evidence.results[0]?.error?.code, "graph-rejected");
-  assert.equal(evidence.results[0]?.scenarioIdentity?.scenarioId, "chain");
+  try {
+    const path = join(root, "rejected.json");
+    await writeFile(
+      path,
+      JSON.stringify({
+        ...structuredClone(requiredFixture("chain")),
+        graph: { ...structuredClone(requiredFixture("chain").graph), maxParallel: 0 }
+      })
+    );
+    const result = await execa("bun", [command, path], { reject: false });
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.stdout, "");
+    const evidence = parseEvidence(result.stderr);
+    assert.equal(evidence.status, "error");
+    assert.equal(evidence.results[0]?.status, "error");
+    assert.equal(evidence.results[0]?.error?.code, "graph-rejected");
+    assert.equal(evidence.results[0]?.scenarioIdentity?.scenarioId, "chain");
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
 });
 
 test("workbench source consumes only the installed public package and never the Gate entry", async () => {
-  const sourceFiles = (await readdir("scripts/project/admission-workbench"))
-    .filter((file) => file.endsWith(".ts") && !file.endsWith(".test.ts"))
-    .sort();
+  const root = resolve("scripts/project/admission-workbench");
+  const sourceFiles = walkFiles({ rootDir: root }).filter(
+    (file) =>
+      file.endsWith(".ts") && !file.endsWith(".test.ts") && !file.endsWith(".test-support.ts")
+  );
+  assert.ok(sourceFiles.some((file) => file.startsWith("learned-heuristic-evaluation/")));
+  let publicPackageImports = 0;
   for (const file of sourceFiles) {
-    const source = await readFile(join("scripts/project/admission-workbench", file), "utf8");
-    assert.equal(source.includes('from "../../../src/'), false);
-    assert.equal(source.includes('from "../../gate/'), false);
-    assert.equal(source.includes("scripts/project/gate/run.ts"), false);
+    const sourcePath = join(root, file);
+    publicPackageImports += assertWorkbenchPublicImports(
+      sourcePath,
+      await readFile(sourcePath, "utf8")
+    );
+  }
+  assert.ok(
+    publicPackageImports > 0,
+    "the recursive corpus must actually consume the public package"
+  );
+  for (const [file, source] of [
+    ["probe.ts", "import '../gate/run.ts';"],
+    ["probe.ts", 'export * from "../gate/definition.ts";'],
+    ["learned-heuristic-evaluation/probe.ts", "void import('../../gate/run.ts');"],
+    ["probe.ts", "import '@gate/run.ts';"],
+    ["probe.ts", "import '../../../src/index.ts';"]
+  ] as const) {
+    assert.throws(
+      () =>
+        assertWorkbenchPublicImports(join(root, file), source, {
+          paths: { "@gate/*": [resolve("scripts/project/gate/*")] }
+        }),
+      /forbidden workbench import/u
+    );
   }
 });
 

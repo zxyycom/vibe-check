@@ -32,8 +32,12 @@ describe("commandCheck transcripts", () => {
       const transcript = createCommandCheckFixture({
         arguments: [
           "--eval",
-          `process.stdout.write(${JSON.stringify(CANARY_OUTPUT)}); process.stderr.write('stderr')`
+          `if (process.argv.at(-1) !== ${JSON.stringify(CANARY_ARGUMENT)} ||
+               process.env.TRANSCRIPT_INPUT !== ${JSON.stringify(CANARY_ENVIRONMENT)}) process.exit(7);
+           process.stdout.write(${JSON.stringify(CANARY_OUTPUT)}); process.stderr.write('stderr')`,
+          CANARY_ARGUMENT
         ],
+        environment: { mode: "exact", variables: { TRANSCRIPT_INPUT: CANARY_ENVIRONMENT } },
         output: { mode: "transcript" }
       });
       assert.deepEqual(await executeCommandCheckFixture(transcript.options, root), {

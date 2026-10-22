@@ -326,12 +326,43 @@ describe("admission workbench", () => {
   });
 
   it("freezes exact profile vectors and the claimed-only Gate resource shape", () => {
-    assert.deepEqual(
-      INVESTIGATION_PROFILES.map(({ id }) => id),
-      ["typecheck-product-like", "typecheck-scripts-like", "lint-product-like", "lint-scripts-like"]
-    );
+    assert.deepEqual(INVESTIGATION_PROFILES, [
+      {
+        id: "typecheck-product-like",
+        nominalWorkMs: 356.19944599999997,
+        multiplierSamples: [
+          1, 1.0796332878069668, 1.0580729005401093, 0.9596890024360117, 0.9759981210077459
+        ],
+        resourceClaims: []
+      },
+      {
+        id: "typecheck-scripts-like",
+        nominalWorkMs: 357.39817600000003,
+        multiplierSamples: [
+          0.9921561071425277, 1.1083471114301378, 1, 1.1743827758091299, 0.9904026650656436
+        ],
+        resourceClaims: []
+      },
+      {
+        id: "lint-product-like",
+        nominalWorkMs: 1158.922142,
+        multiplierSamples: [
+          0.9859457219689569, 0.9550093374607387, 1.4119588993062833, 1.1495091971415627, 1
+        ],
+        resourceClaims: []
+      },
+      {
+        id: "lint-scripts-like",
+        nominalWorkMs: 830.415966,
+        multiplierSamples: [
+          0.9641929668775179, 0.8821034854717618, 1.3393843152577343, 1, 1.129553002838098
+        ],
+        resourceClaims: []
+      }
+    ]);
     const gate = requiredFixture("gate-shape-v1");
-    assert.equal(gate.mappingIdentity, GATE_MAPPING.identity);
+    assert.equal(gate.mappingIdentity, "project-gate-named-resources@b30477b6");
+    assert.equal(GATE_MAPPING.identity, "project-gate-named-resources@b30477b6");
     assert.equal(gate.graph.maxParallel, 3);
     assert.equal(
       gate.graph.graph.tasks.filter(
@@ -347,7 +378,7 @@ describe("admission workbench", () => {
     );
     const result = simulate(gate);
     assert.equal(result.assumptions.virtualTimeIsGateTiming, false);
-    assert.equal(result.scenarioIdentity.mappingIdentity, GATE_MAPPING.identity);
+    assert.equal(result.scenarioIdentity.mappingIdentity, "project-gate-named-resources@b30477b6");
   });
 
   it("rejects wait without running work and illegal proposals without fallback", () => {

@@ -15,6 +15,28 @@ export const DEFAULT_FILES = Object.freeze({
   patterns: [...Object.freeze(["**/*"])]
 });
 
+// Fixed domain oracle: one declared schema and binding, blocked by one compile issue.
+export const SINGLE_BLOCKED_SCHEMA_ASSESSMENT = {
+  status: "failed",
+  data: {
+    bindingCount: 1,
+    blockedBindingCount: 1,
+    invalidBindingCount: 0,
+    issueCount: 1,
+    issuesTruncated: false,
+    reportedIssueCount: 1,
+    schemaCount: 1,
+    validBindingCount: 0
+  },
+  messages: [
+    {
+      code: "schema-validation-issues",
+      level: "error",
+      message: "1 schema validation issue(s) were found; inspect this Check's Records."
+    }
+  ]
+} as const;
+
 interface RunInput {
   readonly fileConfiguration?: ProjectFileSelection;
   readonly options: DeepReadonly<ResolvedJsonSchemaValidationOptions>;

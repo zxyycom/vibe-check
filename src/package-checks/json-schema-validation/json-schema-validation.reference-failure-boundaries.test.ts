@@ -4,7 +4,9 @@ import { describe, it } from "node:test";
 
 import {
   allowlistedOptions,
+  requestUrl,
   runJsonSchemaValidation,
+  SINGLE_BLOCKED_SCHEMA_ASSESSMENT,
   strictSchema,
   temporaryRoot,
   withFetch,
@@ -55,17 +57,25 @@ describe("JSON Schema validation default Check", () => {
       const remoteId = "https://schemas.example.test/catalog/common.json";
       writeJson(root, "schema.json", strictSchema(schemaId, { $ref: remoteId }));
       writeJson(root, "instance.json", {});
+      const requests: string[] = [];
       await withFetch(
-        async () =>
-          new Response(null, {
-            headers: { location: "https://private.example.test/secret" },
-            status: 302
-          }),
+        async (input) => {
+          const url = requestUrl(input);
+          requests.push(url);
+          return url === remoteId
+            ? new Response(null, {
+                headers: { location: "https://private.example.test/secret" },
+                status: 302
+              })
+            : new Response(JSON.stringify(strictSchema(url, { type: "object" })));
+        },
         async () => {
           const observed = await runJsonSchemaValidation({
             options: allowlistedOptions(schemaId),
             root
           });
+          assert.deepEqual(requests, [remoteId]);
+          assert.deepEqual(observed.result, SINGLE_BLOCKED_SCHEMA_ASSESSMENT);
           assert.deepEqual(
             observed.records.map((record) => record.data),
             [

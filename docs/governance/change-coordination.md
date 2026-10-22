@@ -27,6 +27,7 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
+| P1 | [`improve-test-evidence-quality`](../../changes/improve-test-evidence-quality/proposal.md) | 落实普查确认的 56 目标：子代理先删无价值/重复内容，再调整实际有价值的低质量证据；Case 串行维护，最后完整 Gate，不改阻断策略或预算。 |
 | P1 | [`audit-test-evidence-quality`](../../changes/audit-test-evidence-quality/proposal.md) | 子代理普查全部当前测试及明确委托验收，逐项闭合全部 766 实体，不以抽样或部分批次交付；只读审计，不按耗时删测、不改阻断策略。 |
 | P1 | [`enforce-gate-performance-budgets`](../../changes/enforce-gate-performance-budgets/proposal.md) | 三项现有预算升级阻断并保全同次现场；不重试、不改阈值、不清理测试。Gate/Case/决策 owner 与完整验收窗口串行。 |
 | P1 | [`reduce-gate-preparation-cost`](../../changes/reduce-gate-preparation-cost/proposal.md) | 完整输入独立复制与 Validation layout 按需加载；保留原覆盖并 before/after、完整 Gate，Project 不动，共享 owner 串行。 |

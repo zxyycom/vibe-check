@@ -30,23 +30,24 @@ describe("Markdown lint adapter", () => {
   });
 
   it("uses fixed front matter and ignores inline configuration", async () => {
-    const findings = await lintMarkdownString(
-      "dialect.md",
-      "---\ntitle: Document\n---\n<!-- markdownlint-disable MD018 -->\n#missing\n",
-      ["heading-increment", "no-missing-space-atx"]
-    );
-    assert.notEqual(typeof findings, "string");
-    if (typeof findings === "string") return;
-    assert.equal(
-      findings.some((finding) => finding.rule === "no-missing-space-atx"),
-      true
-    );
+    for (const frontMatter of [
+      "---\nlink: '[empty]()'\n---\n",
+      '+++\nlink = "[empty]()"\n+++\n',
+      '{\n  "link": "[empty]()"\n}\n'
+    ]) {
+      const findings = await lintMarkdownString(
+        "dialect.md",
+        `${frontMatter}<!-- markdownlint-disable MD018 -->\n#missing\n`,
+        ["no-empty-links", "no-missing-space-atx"]
+      );
+      assert.deepEqual(findings, [{ lineNumber: 5, range: [1, 2], rule: "no-missing-space-atx" }]);
+    }
   });
 
   it("warms MD052 parsing without leaking its helper rule", async () => {
     const findings = await lintMarkdownString(
       "references.md",
-      "### Warmup heading\n[full][missing-full]\n[collapsed][]\n![image][missing-image]\n[x][x]\n[shortcut]\n",
+      "# Title\n### Warmup heading\n[full][missing-full]\n[collapsed][]\n![image][missing-image]\n[x][x]\n[shortcut]\n",
       ["reference-links-images"]
     );
     assert.notEqual(typeof findings, "string");

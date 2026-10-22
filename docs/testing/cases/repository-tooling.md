@@ -292,7 +292,6 @@ Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > binds the sole project check command to the mise-backed Gate root`
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current selection metadata closed`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects the central composition manifest into an ordinary Project Definition`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > uses the strict repository policy and binds only the mise-provided SCC command`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > settles four blocking Checks while retaining advisory Markdown lint Findings`
@@ -369,7 +368,7 @@ Entities:
 Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/checks/process/native-operation.test.ts|Project Gate native operation > keeps native Check outcomes transcript-free`
+- `bun|scripts/project/gate/checks/process/native-operation.test.ts|Project Gate native operation > preserves native outcomes, diagnostic Records, and cancellation`
 - `bun|scripts/project/gate/checks/materials-validation.test.ts|Project Gate repository material native diagnostics > publishes complete material native diagnostic Records while terminal progress stays bounded`
 - `bun|scripts/project/gate/checks/native-projections.test.ts|Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > preserves two-step ast-grep process evidence and failures`
@@ -493,7 +492,7 @@ Entities:
 - `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > recomputes static select or wait from each frozen scheduler snapshot without reservation state`
 - `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > adapts custom select from a detached frozen full-graph context`
 - `bun|src/project-run/task-scheduler/scheduler-context-needs.test.ts|Scheduler context demand > provides detached candidates/runtime without implicit historical or measurement fields`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts|task engine admission policy > preserves the caller closure across overlapping custom Runs without a Scheduler callback lock`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts|task engine admission policy > consumes the same caller closure independently across overlapping custom Runs`
 - `bun|src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts|task engine admission policy > shares one frozen graph while exposing only decision-boundary measurement scalars`
 - `bun|src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts|task engine admission policy > commits a settled running-cohort interval before the next custom policy callback`
 - `bun|src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts|task engine admission policy > retains custom action effects while unavailable clocks omit interval contributions`

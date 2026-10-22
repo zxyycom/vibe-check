@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
+import { publicRootExportNames } from "./public-exports.test-support.ts";
 import {
   all,
   any,
@@ -61,71 +63,23 @@ describe("public API inventory", () => {
     assert.equal(defaultProjectFileSelection.useDefaultExcludes, true);
     assert.equal(Object.isFrozen(defaultProjectFileSelection), true);
     assert.equal(Object.isFrozen(defaultProjectFileSelection.patterns), true);
-    assert.equal(
-      {
-        ...defaultProjectFileSelection,
-        patterns: [...defaultProjectFileSelection.patterns, "!**/fixtures/**"]
-      }.patterns.at(-1),
-      "!**/fixtures/**"
-    );
-    assert.equal(all.name, CURRENT_PUBLIC_CONTRACT.operations.all);
-    assert.equal(any.name, CURRENT_PUBLIC_CONTRACT.operations.any);
-    assert.equal(cacheJsonByKey.name, CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey);
-    assert.equal(
-      canonicalizeJsonObject.name,
-      CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonObject
-    );
-    assert.equal(
-      canonicalizeJsonValue.name,
-      CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonValue
-    );
-    assert.equal(canonicalJsonBytes.name, CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonBytes);
-    assert.equal(canonicalJsonText.name, CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonText);
-    assert.equal(changeFlag.name, CURRENT_PUBLIC_CONTRACT.operations.changeFlag);
-    assert.equal(commandCheck.name, CURRENT_PUBLIC_CONTRACT.operations.commandCheck);
-    assert.equal(collectProjectFiles.name, CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles);
-    assert.equal(
-      createProjectFileRegionIndex.name,
-      CURRENT_PUBLIC_CONTRACT.operations.createProjectFileRegionIndex
-    );
-    assert.equal(
-      createAdmissionGraph.name,
-      CURRENT_PUBLIC_CONTRACT.operations.createAdmissionGraph
-    );
-    assert.equal(
-      defineAdmissionPolicy.name,
-      CURRENT_PUBLIC_CONTRACT.operations.defineAdmissionPolicy
-    );
-    assert.equal(
-      defineContextCallback.name,
-      CURRENT_PUBLIC_CONTRACT.operations.defineContextCallback
-    );
-    assert.equal(defineCheck.name, CURRENT_PUBLIC_CONTRACT.operations.defineCheck);
-    assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.defineConfig);
-    assert.equal(exactlyOne.name, CURRENT_PUBLIC_CONTRACT.operations.exactlyOne);
-    assert.equal(duplicateDetection.name, CURRENT_PUBLIC_CONTRACT.checks.duplicateDetection);
-    assert.equal(fileMetrics.name, CURRENT_PUBLIC_CONTRACT.checks.fileMetrics);
-    assert.equal(functionMetrics.name, CURRENT_PUBLIC_CONTRACT.checks.functionMetrics);
-    assert.equal(jsonSchemaValidation.name, CURRENT_PUBLIC_CONTRACT.checks.jsonSchemaValidation);
-    assert.equal(jsonValidation.name, CURRENT_PUBLIC_CONTRACT.checks.jsonValidation);
-    assert.equal(inherit.name, CURRENT_PUBLIC_CONTRACT.operations.inherit);
-    assert.equal(none.name, CURRENT_PUBLIC_CONTRACT.operations.none);
-    assert.equal(not.name, CURRENT_PUBLIC_CONTRACT.operations.not);
-    assert.equal(notAll.name, CURRENT_PUBLIC_CONTRACT.operations.notAll);
-    assert.equal(maintenanceReminders.name, CURRENT_PUBLIC_CONTRACT.checks.maintenanceReminders);
-    assert.equal(
-      markdownLinkValidation.name,
-      CURRENT_PUBLIC_CONTRACT.checks.markdownLinkValidation
-    );
-    assert.equal(
-      presentCheckFindings.name,
-      CURRENT_PUBLIC_CONTRACT.operations.presentCheckFindings
-    );
-    assert.equal(
-      reconcileFindingWaivers.name,
-      CURRENT_PUBLIC_CONTRACT.operations.reconcileFindingWaivers
-    );
-    assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.run);
+    for (const callable of [
+      defineCheck,
+      defineConfig,
+      inherit,
+      maintenanceReminders,
+      run,
+      parseDuplicateDetectionData,
+      parseFileMetricsData,
+      parseFunctionMetricsData,
+      parseJsonSchemaValidationData,
+      parseJsonValidationData,
+      parseMaintenanceRemindersData,
+      parseMarkdownLintData,
+      parseMarkdownLinkValidationData
+    ]) {
+      assert.equal(typeof callable, "function");
+    }
     assert.equal(typeof all, "function");
     assert.equal(typeof any, "function");
     assert.equal(typeof cacheJsonByKey, "function");
@@ -155,32 +109,6 @@ describe("public API inventory", () => {
     assert.equal(typeof reconcileFindingWaivers, "function");
     assert.equal(typeof snapshotClosedArray, "function");
     assert.equal(typeof snapshotExactClosedRecord, "function");
-    assert.equal(
-      parseDuplicateDetectionData.name,
-      CURRENT_PUBLIC_CONTRACT.parsers.parseDuplicateDetectionData
-    );
-    assert.equal(parseFileMetricsData.name, CURRENT_PUBLIC_CONTRACT.parsers.parseFileMetricsData);
-    assert.equal(
-      parseFunctionMetricsData.name,
-      CURRENT_PUBLIC_CONTRACT.parsers.parseFunctionMetricsData
-    );
-    assert.equal(
-      parseJsonSchemaValidationData.name,
-      CURRENT_PUBLIC_CONTRACT.parsers.parseJsonSchemaValidationData
-    );
-    assert.equal(
-      parseJsonValidationData.name,
-      CURRENT_PUBLIC_CONTRACT.parsers.parseJsonValidationData
-    );
-    assert.equal(
-      parseMaintenanceRemindersData.name,
-      CURRENT_PUBLIC_CONTRACT.parsers.parseMaintenanceRemindersData
-    );
-    assert.equal(parseMarkdownLintData.name, CURRENT_PUBLIC_CONTRACT.parsers.parseMarkdownLintData);
-    assert.equal(
-      parseMarkdownLinkValidationData.name,
-      CURRENT_PUBLIC_CONTRACT.parsers.parseMarkdownLinkValidationData
-    );
     for (const packageCheck of [
       duplicateDetection(),
       fileMetrics(),
@@ -200,17 +128,13 @@ describe("public API inventory", () => {
       { enabled: true, directory: "/tmp/vibe-check-markdown-link-cache" }
     );
 
-    const packageEntrySource = readFileSync(
-      fileURLToPath(new URL("../../src/index.ts", import.meta.url)),
-      "utf8"
-    );
+    const entryPath = fileURLToPath(new URL("../../src/index.ts", import.meta.url));
+    const packageEntrySource = readFileSync(entryPath, "utf8");
+    const exports = publicRootExportNames(entryPath);
     assert.match(packageEntrySource, /^\/\*[\s\S]*?@packageDocumentation[\s\S]*?\*\//);
+    assert.deepEqual(exports.types, Object.values(CURRENT_PUBLIC_CONTRACT.types).sort());
     assert.deepEqual(
-      packageTypeExportNames(packageEntrySource),
-      Object.values(CURRENT_PUBLIC_CONTRACT.types).sort()
-    );
-    assert.deepEqual(
-      packageValueExportNames(packageEntrySource),
+      exports.runtime,
       [
         ...Object.values(CURRENT_PUBLIC_CONTRACT.defaults),
         ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
@@ -218,12 +142,7 @@ describe("public API inventory", () => {
         ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers)
       ].sort()
     );
-    const ownerSource = readFileSync(
-      fileURLToPath(new URL("./public-api-inventory.ts", import.meta.url)),
-      "utf8"
-    );
-    assert.doesNotMatch(ownerSource, /scripts\/quality|project-definition\.ts|project-run\.ts/);
-    assert.doesNotMatch(ownerSource, /\b(?:host|legal|license|manifest|version)\b/i);
+    assertExportObserverRecognizesDeclarationsAndReexports();
     assertPublicRootsHaveChineseJSDoc(CURRENT_PUBLIC_CONTRACT);
   });
 });
@@ -288,41 +207,44 @@ function productTypeScriptSources(): readonly ProductTypeScriptSource[] {
       Object.freeze({ path, source: readFileSync(join(productDirectory, path), "utf8") })
     );
 }
-function packageTypeExportNames(source: string): string[] {
-  return packageExportNames(source, /export type\s*\{([\s\S]*?)\}\s*from\s*"[^"]+";/g);
+function assertExportObserverRecognizesDeclarationsAndReexports(): void {
+  const root = mkdtempSync(join(tmpdir(), "vibe-check-root-export-observer-"));
+  try {
+    const entry = join(root, "index.ts");
+    writeFileSync(join(root, "package.json"), '{"type":"module"}');
+    writeFileSync(
+      join(root, "provider.ts"),
+      "export const StarValue = 1; export type StarType = string;"
+    );
+    writeFileSync(
+      join(root, "type-only.ts"),
+      "export const TypeOnlyValue = 1; export type TypeOnlyType = boolean;"
+    );
+    writeFileSync(
+      entry,
+      `
+export const DirectValue = 1;
+export type DirectType = number;
+export interface DirectInterface {}
+type InternalType = boolean;
+const internalValue = 2;
+export { InternalType as AliasType, internalValue as AliasValue };
+export * from "./provider.ts";
+export type * from "./type-only.ts";
+`
+    );
+    assert.deepEqual(publicRootExportNames(entry), {
+      runtime: ["AliasValue", "DirectValue", "StarValue"],
+      types: [
+        "AliasType",
+        "DirectInterface",
+        "DirectType",
+        "StarType",
+        "TypeOnlyType",
+        "TypeOnlyValue"
+      ]
+    });
+  } finally {
+    rmSync(root, { force: true, recursive: true });
+  }
 }
-function packageValueExportNames(source: string): string[] {
-  return packageExportNames(source, /export\s*\{([\s\S]*?)\}\s*from\s*"[^"]+";/g);
-}
-function packageExportNames(source: string, pattern: RegExp): string[] {
-  return [...source.matchAll(pattern)]
-    .flatMap((match) => {
-      const exportedNames = match[1];
-      if (exportedNames === undefined) throw new Error("package export declaration lacks names");
-      return exportedNames
-        .split(",")
-        .map((name) => name.trim())
-        .filter((name) => name.length > 0);
-    })
-    .sort();
-}
-// Supporting implementation types must not become future package-entry roots.
-type ProjectModule = typeof import("../../src/project-definition/project-definition.ts");
-// @ts-expect-error CheckReason is not a named public type root.
-type _UnsupportedCheckReason = ProjectModule["CheckReason"];
-// @ts-expect-error CheckNotApplicableReason is not a named public type root.
-type _UnsupportedNotApplicableReason = ProjectModule["CheckNotApplicableReason"];
-// @ts-expect-error CheckDeclaredUnavailableReason is not a named public type root.
-type _UnsupportedDeclaredUnavailableReason = ProjectModule["CheckDeclaredUnavailableReason"];
-// @ts-expect-error ProductCheckUnavailableReason is not a named public type root.
-type _UnsupportedProductUnavailableReason = ProjectModule["ProductCheckUnavailableReason"];
-// @ts-expect-error DeepReadonly is not a named public type root.
-type _UnsupportedDeepReadonly = ProjectModule["DeepReadonly"];
-// @ts-expect-error CheckDescriptor is not a named public type root.
-type _UnsupportedCheckDescriptor = ProjectModule["CheckDescriptor"];
-// @ts-expect-error CheckDataParser is supporting syntax, not a named public type root.
-type _UnsupportedCheckDataParser = ProjectModule["CheckDataParser"];
-// @ts-expect-error DependencyReadResult is supporting syntax, not a named public type root.
-type _UnsupportedDependencyReadResult = ProjectModule["DependencyReadResult"];
-// @ts-expect-error DependencyObservation is supporting syntax, not a named public type root.
-type _UnsupportedDependencyObservation = ProjectModule["DependencyObservation"];

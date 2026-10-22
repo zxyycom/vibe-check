@@ -205,7 +205,7 @@ describe("Markdown lint Check", () => {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(
         join(root, "docs", "references.md"),
-        "### Warmup heading\n[full][missing-full]\n[collapsed][]\n![image][missing-image]\n[x][x]\n[shortcut]\n",
+        "# Title\n### Warmup heading\n[full][missing-full]\n[collapsed][]\n![image][missing-image]\n[x][x]\n[shortcut]\n",
         "utf8"
       );
       const options = markdownLint({

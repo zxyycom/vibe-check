@@ -29,12 +29,6 @@ describe("immutable admission graph", () => {
     );
 
     const input = schedulerGraph();
-    const secondInput = schedulerGraph();
-    assert.notEqual(input, secondInput);
-    assert.equal(Object.isFrozen(input), true);
-    assert.equal(Object.isFrozen(input.tasks), true);
-    assert.equal(Object.isFrozen(input.tasks[0]), true);
-
     const graph = createAdmissionGraph({ graph: input, maxParallel: 2 });
     const initial = graph.initialState();
     const selected = initial.select("source");

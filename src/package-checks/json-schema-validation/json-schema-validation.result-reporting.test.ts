@@ -11,7 +11,7 @@ import {
 } from "./json-schema-validation.test-support.ts";
 
 describe("JSON Schema validation default Check", () => {
-  it("accepts standard conditional keywords and format annotations without extra plugins", async () => {
+  it("accepts format annotations without extra plugins", async () => {
     const root = temporaryRoot();
     try {
       const schemaId = "https://schemas.example.test/annotation";

@@ -7,6 +7,7 @@ import { describe, it } from "node:test";
 
 import { parseMarkdownLinkFacts } from "../markdown-parser.ts";
 import { MarkdownLinkParseFactsSession } from "./session.ts";
+import { assertPendingAppendCancellation } from "./publication.test-support.ts";
 import {
   MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION,
   parseMarkdownLinkParseFactsPayload,
@@ -161,30 +162,8 @@ describe("Markdown Link parse-facts cache", () => {
 
   it("awaits the append once publication has started despite later cancellation", async () => {
     const directory = await mkdtemp(path.join(tmpdir(), "vibe-check-markdown-link-cache-cancel-"));
-    const controller = new AbortController();
-    let abortedChecks = 0;
-    const signal = new Proxy(controller.signal, {
-      get(target, property): unknown {
-        if (property !== "aborted") return Reflect.get(target, property, target);
-        abortedChecks += 1;
-        const aborted = target.aborted;
-        // The second check is after mkdir and immediately before appendFile starts.
-        if (abortedChecks === 2) controller.abort();
-        return aborted;
-      }
-    });
     try {
-      const session = new MarkdownLinkParseFactsSession(
-        Object.freeze({ enabled: true as const, directory })
-      );
-      assertFactsHeadings(
-        await session.parse(new TextEncoder().encode("# Current\n"), controller.signal),
-        ["current"]
-      );
-      await session.finalize(signal);
-      await session.finalize(new AbortController().signal);
-
-      assert.equal(controller.signal.aborted, true);
+      assertPendingAppendCancellation(directory);
       assert.equal(
         completeLines(await readFile(path.join(directory, CACHE_FILE), "utf8")).length,
         1
@@ -198,7 +177,8 @@ describe("Markdown Link parse-facts cache", () => {
     const directory = await mkdtemp(path.join(tmpdir(), "vibe-check-markdown-link-cache-lines-"));
     const bytes = new TextEncoder().encode("# Current\n");
     const identityDigest = digest(bytes);
-    const partialTail = envelope(identityDigest, parserFacts("# Tail ignored\n")).slice(0, -1);
+    const partialTail = envelope(identityDigest, parserFacts("# Tail ignored\n"));
+    const freshBytes = new TextEncoder().encode("# Fresh publication\n");
     try {
       await writeFile(
         path.join(directory, CACHE_FILE),
@@ -222,20 +202,21 @@ describe("Markdown Link parse-facts cache", () => {
       assertFactsHeadings(parsed, ["last"]);
       await writeFile(
         path.join(directory, CACHE_FILE),
-        `\n${envelope(digest(new TextEncoder().encode("# Fresh publication\n")), parserFacts("# Disk stale\n"))}`,
-        { flag: "a" }
+        `${envelope(digest(freshBytes), parserFacts("# Disk stale\n"))}\n${partialTail}`
       );
-      assertFactsHeadings(
-        await session.parse(
-          new TextEncoder().encode("# Fresh publication\n"),
-          new AbortController().signal
-        ),
-        ["fresh-publication"]
-      );
+      assertFactsHeadings(await session.parse(freshBytes, new AbortController().signal), [
+        "fresh-publication"
+      ]);
       await session.finalize(new AbortController().signal);
 
       const contents = await readFile(path.join(directory, CACHE_FILE), "utf8");
-      assert.equal(contents.includes(`${partialTail}\n{`), true);
+      const lines = completeLines(contents);
+      assert.equal(lines.length, 3);
+      for (const line of lines) assert.doesNotThrow(() => JSON.parse(line));
+      const restored = new MarkdownLinkParseFactsSession({ enabled: true, directory });
+      assertFactsHeadings(await restored.parse(freshBytes, new AbortController().signal), [
+        "fresh-publication"
+      ]);
       assert.equal(contents.endsWith("\n"), true);
       assert.equal(contents.endsWith("\n\n"), false);
     } finally {

@@ -519,13 +519,6 @@ const upstreamCases: readonly UpstreamCase[] = [
   {
     Reader: SwiftReader,
     extension: "swift",
-    sourceCode:
-      "\n            protocol p {\n                func f1() -> Double\n                var area: Double { get }\n            }\n            class c { }\n                ",
-    expected: []
-  },
-  {
-    Reader: SwiftReader,
-    extension: "swift",
     sourceCode: "\n            init() {}\n                ",
     expected: [{ ccn: 1, endLine: 2, name: "init", nloc: 1, parameterCount: 0, startLine: 2 }]
   },

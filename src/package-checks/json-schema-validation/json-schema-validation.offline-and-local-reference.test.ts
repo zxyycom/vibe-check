@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 import {
   offlineOptions,
   runJsonSchemaValidation,
+  SINGLE_BLOCKED_SCHEMA_ASSESSMENT,
   strictSchema,
   temporaryRoot,
   withFetch,
@@ -36,26 +37,7 @@ describe("JSON Schema validation default Check", () => {
             }),
             root
           });
-          assert.deepEqual(observed.result, {
-            status: "failed",
-            data: {
-              bindingCount: 1,
-              blockedBindingCount: 1,
-              invalidBindingCount: 0,
-              issueCount: 1,
-              issuesTruncated: false,
-              reportedIssueCount: 1,
-              schemaCount: 1,
-              validBindingCount: 0
-            },
-            messages: [
-              {
-                code: "schema-validation-issues",
-                level: "error",
-                message: "1 schema validation issue(s) were found; inspect this Check's Records."
-              }
-            ]
-          });
+          assert.deepEqual(observed.result, SINGLE_BLOCKED_SCHEMA_ASSESSMENT);
           assert.deepEqual(
             observed.records.map((record) => record.data),
             [
