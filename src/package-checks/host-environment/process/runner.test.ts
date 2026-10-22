@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { runProcess, runProcessSync } from "./runner.ts";
+import { isOwnedChildAlive, killOwnedChild } from "./force-kill.test-support.ts";
 
 const forceKillBudget = { timeout: 12_000 };
 
@@ -68,16 +70,24 @@ describe("Product process runner", () => {
     try {
       for (const fd of [1, 2] as const) {
         for (const continuous of [false, true]) {
-          await assertOutputLimitedChildExit(root, { continuous, fd, ignoreTermination: false });
+          await assertOutputLimitedChildExit(root, { continuous, fd });
         }
       }
       // Windows does not provide POSIX signal handlers or SIGKILL escalation semantics.
       if (process.platform !== "win32") {
-        await assertOutputLimitedChildExit(root, {
-          continuous: false,
-          fd: 1,
-          ignoreTermination: true
-        });
+        const pidPath = join(root, "force-kill.pid");
+        try {
+          // Isolate the dependency clock mock from every other Bun test in this runner.
+          const result = await runProcess({
+            args: [fileURLToPath(new URL("./force-kill.test-support.ts", import.meta.url)), root],
+            command: process.execPath,
+            timeout: 4_000
+          });
+          assert.equal(result.status, 0, result.stderr);
+          assert.equal(result.isComplete, true);
+        } finally {
+          killOwnedChild(pidPath);
+        }
       }
     } finally {
       rmSync(root, { force: true, recursive: true });
@@ -101,18 +111,12 @@ describe("Product process runner", () => {
 
 async function assertOutputLimitedChildExit(
   root: string,
-  options: Readonly<{ continuous: boolean; fd: 1 | 2; ignoreTermination: boolean }>
+  options: Readonly<{ continuous: boolean; fd: 1 | 2 }>
 ): Promise<void> {
-  const name = `${options.fd}-${options.continuous}-${options.ignoreTermination}`;
+  const name = `${options.fd}-${options.continuous}`;
   const pidPath = join(root, `${name}.pid`);
-  const softTerminationPath = join(root, `${name}.sigterm`);
   const source = [
     "const fs = require('node:fs');",
-    ...(options.ignoreTermination
-      ? [
-          `process.on('SIGTERM', () => fs.writeFileSync(${JSON.stringify(softTerminationPath)}, 'ignored'));`
-        ]
-      : []),
     `fs.writeFileSync(${JSON.stringify(pidPath)}, String(process.pid));`,
     // A closed capture pipe must not end this child before the executor terminates it.
     `const write = () => {
@@ -146,47 +150,12 @@ async function assertOutputLimitedChildExit(
     assert.equal(result.isMaxBuffer, true);
     assert.equal(result.timedOut, undefined);
     assert.equal(isOwnedChildAlive(pidPath), false, "resolved process still owns a live child PID");
-    if (options.ignoreTermination) {
-      assert.equal(existsSync(softTerminationPath), true, "child did not observe soft termination");
-      assert.equal(result.signal, "SIGKILL");
-    }
   } finally {
     clearTimeout(watchdog);
     controller.abort();
     killOwnedChild(pidPath);
     await running;
   }
-}
-
-function isOwnedChildAlive(pidPath: string): boolean {
-  const pid = readOwnedChildPid(pidPath);
-  if (pid === undefined) return false;
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ESRCH") return false;
-    throw error;
-  }
-}
-
-function killOwnedChild(pidPath: string): void {
-  const pid = readOwnedChildPid(pidPath);
-  if (pid === undefined) return;
-  try {
-    process.kill(pid, "SIGKILL");
-  } catch (error) {
-    // The child may exit between PID publication and cleanup; a liveness preflight cannot avoid it.
-    if (error instanceof Error && "code" in error && error.code === "ESRCH") return;
-    throw error;
-  }
-}
-
-function readOwnedChildPid(pidPath: string): number | undefined {
-  if (!existsSync(pidPath)) return undefined;
-  const pid = Number(readFileSync(pidPath, "utf8"));
-  assert.equal(Number.isSafeInteger(pid) && pid > 0, true, `invalid fixture PID: ${pidPath}`);
-  return pid;
 }
 
 /** Writes more bytes than the configured buffer through synchronous fd output before the child exits. */

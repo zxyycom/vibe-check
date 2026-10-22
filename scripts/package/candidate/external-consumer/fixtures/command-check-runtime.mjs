@@ -1,8 +1,17 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import { syncBuiltinESMExports } from "node:module";
+import { mock } from "node:test";
+import timers from "node:timers/promises";
 
-import { commandCheck, defineCheck, defineConfig, defineContextCallback, run } from "@zxyycom/vibe-check";
+import {
+  commandCheck,
+  defineCheck,
+  defineConfig,
+  defineContextCallback,
+  run
+} from "@zxyycom/vibe-check";
 
 const projectRoot = process.argv[2];
 if (process.argv.length !== 3 || projectRoot === undefined || !isAbsolute(projectRoot)) {
@@ -272,7 +281,8 @@ async function waitForFile(path) {
 
 async function declaredContextEvidence(root) {
   let environmentFields, completionFields, emptyFields;
-  let frozen = true, businessInputs = true;
+  let frozen = true,
+    businessInputs = true;
   const needs = ["project"];
   const environment = {
     contextNeeds: needs,
@@ -284,10 +294,15 @@ async function declaredContextEvidence(root) {
     }
   };
   const checked = commandCheck({
-    checkId: "declared-command", displayName: "Declared command",
+    checkId: "declared-command",
+    displayName: "Declared command",
     executable: process.execPath,
-    arguments: ["--eval", "if (!process.env.DECLARED_PROJECT_ROOT) process.exit(11); process.exitCode = 13"],
-    outputByteLimit: 256, timeoutMs: 5_000,
+    arguments: [
+      "--eval",
+      "if (!process.env.DECLARED_PROJECT_ROOT) process.exit(11); process.exitCode = 13"
+    ],
+    outputByteLimit: 256,
+    timeoutMs: 5_000,
     resolveEnvironment: environment,
     afterCommand: {
       execute: defineContextCallback("command.complete", {
@@ -303,26 +318,46 @@ async function declaredContextEvidence(root) {
     }
   });
   needs.splice(0);
-  environment.callback = () => { throw new Error("constructor failed to fix callback"); };
+  environment.callback = () => {
+    throw new Error("constructor failed to fix callback");
+  };
   const empty = commandCheck({
-    checkId: "empty-command", displayName: "Empty command",
-    executable: process.execPath, arguments: ["--eval", "process.stdout.write('中'.repeat(32))"],
-    outputByteLimit: 64, timeoutMs: 5_000,
+    checkId: "empty-command",
+    displayName: "Empty command",
+    executable: process.execPath,
+    arguments: ["--eval", "process.stdout.write('中'.repeat(32))"],
+    outputByteLimit: 64,
+    timeoutMs: 5_000,
     resolveEnvironment(_options, context) {
       emptyFields = Object.keys(context);
       frozen &&= Object.isFrozen(context);
       return { mode: "exact" };
     }
   });
-  const result = await run(defineConfig({ checks: [checked, empty], outputs: {
-    diagnosticLogging: { enabled: false }, machinePublication: { enabled: false }, progressRendering: { enabled: false }
-  } }), { projectRoot: root });
+  const result = await run(
+    defineConfig({
+      checks: [checked, empty],
+      outputs: {
+        diagnosticLogging: { enabled: false },
+        machinePublication: { enabled: false },
+        progressRendering: { enabled: false }
+      }
+    }),
+    { projectRoot: root }
+  );
   return {
-    businessInputs, completionFields, emptyFields, environmentFields, frozen,
-    passed: result.kind === "completed" && result.snapshot.checks.every(({ outcome }) => outcome.status === "passed") && result.snapshot.records.length === 1
+    businessInputs,
+    completionFields,
+    emptyFields,
+    environmentFields,
+    frozen,
+    passed:
+      result.kind === "completed" &&
+      result.snapshot.checks.every(({ outcome }) => outcome.status === "passed") &&
+      result.snapshot.records.length === 1
   };
 }
-/** Uses the installed Node package, real child PIDs, and a bounded independent cleanup deadline. */
+/** Uses real child PIDs and signals; only the escalation clock is virtual, not the cleanup deadline. */
 async function assertIncompleteCommandBoundaries(root) {
   const ownedPaths = [];
   let callbackCalls = 0;
@@ -356,7 +391,9 @@ async function assertIncompleteCommandBoundaries(root) {
     const source = [
       "const fs = require('node:fs');",
       ...(mode === "ignore-sigterm"
-        ? [`process.on('SIGTERM', () => fs.writeFileSync(${JSON.stringify(terminationPath)}, 'ignored'));`]
+        ? [
+            `process.on('SIGTERM', () => fs.writeFileSync(${JSON.stringify(terminationPath)}, 'ignored'));`
+          ]
         : []),
       `fs.writeFileSync(${JSON.stringify(pidPath)}, String(process.pid));`,
       // Keep the child alive after expected pipe closure, but expose any other fixture I/O failure.
@@ -387,21 +424,35 @@ async function assertIncompleteCommandBoundaries(root) {
       }
     });
   });
+  const forceKillClock = controlledForceKillClock();
   const controller = new AbortController();
-  const running = run(defineConfig({
-    checks,
-    outputs: {
-      diagnosticLogging: { enabled: false },
-      machinePublication: { enabled: false },
-      progressRendering: { enabled: false }
-    }
-  }), { projectRoot: root, signal: controller.signal });
+  const running = run(
+    defineConfig({
+      checks,
+      outputs: {
+        diagnosticLogging: { enabled: false },
+        machinePublication: { enabled: false },
+        progressRendering: { enabled: false }
+      }
+    }),
+    { projectRoot: root, signal: controller.signal }
+  );
   const watchdog = setTimeout(() => {
     cleanupDeadlineExpired = true;
     controller.abort();
     for (const { pidPath } of ownedPaths) killOwnedChild(pidPath);
   }, 9_000);
   try {
+    if (process.platform !== "win32") {
+      const ignored = ownedPaths.at(-1);
+      await waitForFile(ignored.terminationPath);
+      assert.equal(
+        ownedChildAlive(ignored.pidPath),
+        true,
+        "ignored SIGTERM child exited before escalation"
+      );
+      forceKillClock.advance();
+    }
     const result = await running;
     assert.equal(cleanupDeadlineExpired, false, "overflow waited for the fixture cleanup deadline");
     assert.equal(result.kind, "completed");
@@ -421,14 +472,44 @@ async function assertIncompleteCommandBoundaries(root) {
     }
   } finally {
     clearTimeout(watchdog);
-    controller.abort();
-    for (const { pidPath } of ownedPaths) killOwnedChild(pidPath);
-    await running;
-    for (const { pidPath, terminationPath } of ownedPaths) {
-      rmSync(pidPath, { force: true });
-      rmSync(terminationPath, { force: true });
+    try {
+      // Release pending logical waits before awaiting a possibly failed Run.
+      forceKillClock.restore();
+      controller.abort();
+      for (const { pidPath } of ownedPaths) killOwnedChild(pidPath);
+      await running;
+    } finally {
+      for (const { pidPath, terminationPath } of ownedPaths) {
+        rmSync(pidPath, { force: true });
+        rmSync(terminationPath, { force: true });
+      }
     }
   }
+}
+
+function controlledForceKillClock() {
+  const originalTimeout = timers.setTimeout;
+  const pending = [];
+  const timerMock = mock.method(timers, "setTimeout", (delay, value, options) => {
+    if (delay !== 5_000) return originalTimeout(delay, value, options);
+    return new Promise((resolve) => pending.push(() => resolve(value)));
+  });
+  // Execa imports the built-in's named export; update that binding in this isolated Node fixture.
+  syncBuiltinESMExports();
+  return {
+    advance() {
+      assert.ok(
+        pending.length > 0 || process.platform === "win32",
+        "missing 5-second escalation timer"
+      );
+      for (const resolve of pending) resolve();
+    },
+    restore() {
+      for (const resolve of pending) resolve();
+      timerMock.mock.restore();
+      syncBuiltinESMExports();
+    }
+  };
 }
 
 function ownedChildAlive(pidPath) {

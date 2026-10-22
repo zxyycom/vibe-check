@@ -55,9 +55,18 @@ describe("commandCheck transcripts", () => {
       assert.equal(log.includes(CANARY_ENVIRONMENT), false);
 
       const finalFailureArtifact = join(root, "final-replacement-failure");
+      const releaseChildPath = join(root, "release-final-replacement-child");
       let finalCallbackCalls = 0;
       const finalFailure = createCommandCheckFixture({
-        arguments: ["--eval", "setTimeout(() => process.stdout.write('closed'), 500)"],
+        arguments: [
+          "--eval",
+          `const fs = require('node:fs');
+           const waiting = setInterval(() => {
+             if (!fs.existsSync(${JSON.stringify(releaseChildPath)})) return;
+             clearInterval(waiting);
+             process.stdout.write('closed');
+           }, 5);`
+        ],
         afterCommand: {
           execute: () => {
             finalCallbackCalls += 1;
@@ -71,9 +80,14 @@ describe("commandCheck transcripts", () => {
         createCommandCheckExecutionContext(finalFailure.options, root, finalFailureArtifact)
       );
       const finalTranscriptPath = join(finalFailureArtifact, "process.log");
-      await waitForFile(finalTranscriptPath);
-      rmSync(finalTranscriptPath);
-      mkdirSync(finalTranscriptPath);
+      try {
+        await waitForFile(finalTranscriptPath);
+        rmSync(finalTranscriptPath);
+        mkdirSync(finalTranscriptPath);
+      } finally {
+        writeFileSync(releaseChildPath, "release");
+        await finalFailureExecution;
+      }
       assert.deepEqual(await finalFailureExecution, {
         status: "unavailable",
         reason: { code: "command-transcript-unavailable" }
