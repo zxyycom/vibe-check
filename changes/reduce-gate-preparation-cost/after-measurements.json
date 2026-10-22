@@ -1,0 +1,588 @@
+{
+  "stage": "after",
+  "formedAt": "2026-10-22T03:21:40.536Z",
+  "environment": {
+    "bun": "1.3.14",
+    "platform": "linux",
+    "cpus": 6
+  },
+  "logs": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8",
+  "frozen": {
+    "formedAt": "2026-10-22T03:17:42.270Z",
+    "snapshot": "/tmp/gate-preparation-frozen-WACHBg/repository",
+    "fingerprint": "7425d37042dbefc705b1fe559ce726d1783e60675aaa471e09e2728f07e9f64a",
+    "projectSourceDigests": {
+      "scripts/project/package.json": "bb5973968077202e1eb1453aea02658004cec3e5618c688b46356ce11ee94e88",
+      "scripts/project/admission-workbench/simulation-types.ts": "b85c50943dcd1b8f11b907138648007fb55642e762c7d4810bb5de3651792056",
+      "scripts/project/admission-workbench/fixture-model.ts": "d765ad93e08bce19a60c7859b99bd16d9981829c9f5bd90c6db010adf8745414",
+      "scripts/project/admission-workbench/learned-heuristic-weighted-shared-dependency-regression.json": "0e3e95407fb31451ddb93c7b08266ae7312c14425c738c2de92a0d00d01fb19b",
+      "scripts/project/admission-workbench/simulation-evidence.ts": "9f8c2689517b5297e42857186770f04ba80ed2dc6103830c8501634b54556e3c",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/evaluation.ts": "e6e6088b34e8af964521a4fc9c145e15c690c6d460eb5d69f984a1768090773c",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/input.test.ts": "29f550fdb861160208fadaf7aa633ad96028e61c0cc18bb87362cd4d3d6d728e",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/protocol.json": "58a9a365fb1f5ad9a040d974e02f5de2c3d02cbc070e4d907bb37a31c1849b93",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/learned-heuristic-dual-artifact-invalid-cost.evidence.json": "7bfd696e1c040cc57c3f42082df300a35850666603aa41e2e3952c6e07cfe5df",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/comparison.ts": "6853a03f2903ee2d6a7f62544b65b1574d129d6c03043d8c5a062f1ca87ad6f9",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/types.ts": "a6035180fa1057a78959540cc2c85353531f626d132e326e169f8284ef967c61",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/input.ts": "8d7d03833b02a4ac7f2c73074b9ead4a7c44ed6952112aad6de1b98e24808cfa",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/evaluation.test.ts": "0ce8b499a7a9b04fdf1fdc0b9a2f496e2d588ccaeb2e1470f92569addf7cd9e7",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/learned-heuristic-baseline.evidence.json": "3150ba1036c612a2c2bdf7a194a8d51eb1b93f0b2df284f0d94d659d02179583",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/learned-heuristic-candidate-2.evidence.json": "be25b91daea4ff3f5817ab3aa864e0255a567aa7adbdac2c6ff1b3820ea4ba52",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/learned-heuristic-candidate-1.evidence.json": "12a79fbf26e642ff0dd1f2acaac01fa57a7f9c7559b2d6b04a2512077caa4768",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/learned-heuristic-comparable-cost.evidence.json": "61317b2cbd89fc2342cee7a5db2bd760e1ec7f5fbbaa221021e963602e02e3d2",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/learned-heuristic-dual-artifact.evidence.json": "25650bfd655ef5fb5aef8f37b017c224c4281d1274218826388c7b427d72cd6d",
+      "scripts/project/admission-workbench/learned-heuristic-evaluation/cost.ts": "8f15332f6ef130443930109b352f85f4911394e9344e94186e1a3696830078d5",
+      "scripts/project/admission-workbench/shared-closure.test.ts": "d8dda170b5b0f19dd615ae098510f642c3c73f9f518e8a523d5359529fc8a086",
+      "scripts/project/admission-workbench/command.test.ts": "9cd676f5cf41de12bc42954df25b9fc11e70db5f21b6bbff4815b8b9d7573bc2",
+      "scripts/project/admission-workbench/policy.ts": "0561e3b28f5f60d7c2e373b0a3cc2508f9f589226c14ad842eeb9eb19c25aefc",
+      "scripts/project/admission-workbench/simulation-clock.ts": "8925f3226a2e490be763f845919fc8378bace849215cd36bd500c55fb17ca011",
+      "scripts/project/admission-workbench/simulation-control.ts": "ddd466f6f95745fa0cf224a4bb3423afafea190531a2a9cda3f188cd08f017dd",
+      "scripts/project/admission-workbench/evidence.ts": "3c17e3977ce0b2c94cf4622766fc9b63b10d0df9c0ae71697c84dc0d45c7d203",
+      "scripts/project/admission-workbench/command.ts": "62e28a619d429ce66cae7113de31f5d6e31e520be251b73d0096524e12afc852",
+      "scripts/project/admission-workbench/simulate.ts": "66690eeeef791b2c3a863b247dca3aba0de2517aacefbae662d4af5dac340edd",
+      "scripts/project/admission-workbench/learned-heuristic-policy-state.ts": "61aa81380eb29642d0ab67b834f046b4cede3548faa8871f6d0e0be49677dddd",
+      "scripts/project/admission-workbench/scenario.ts": "4a25daa926288b623504b2e3755b5bd52fdb5791b35e502ad4e192478be203fe",
+      "scripts/project/admission-workbench/scenario-fixtures.ts": "3f1a6d4f4a703161ca9705655ecc299a851e43efe3f7790fa4bd120872b62f3f",
+      "scripts/project/admission-workbench/simulation-observations.ts": "3f77f4bb46231535e9a92113d49e0b8ea63be9413401600f0198b11374985709",
+      "scripts/project/admission-workbench/policy.test.ts": "c26a90c5af96ac3fb69c24eef35cc02b2b81eb639e05cf83f54e482237fd5a5c",
+      "scripts/project/admission-workbench/command-execution.ts": "34dc813564fb7daf502a3bd0f15f81da5212346c641ec5505965c4612ac8d72a",
+      "scripts/project/admission-workbench/simulate.test.ts": "d411ffd9f2aee0474b14fab6ec6350779630c2cee740565fb4eb8513ee9b796c",
+      "scripts/project/admission-workbench/gate-shape-fixture.ts": "cab91c27f6cc56e39ba9f09f195a12b6d3b1c3ec8f87e18569f4dd49c9a59187",
+      "scripts/project/admission-workbench/command-output.ts": "6d000c7d8411aa67d1f041cc04f120192e279142aa799a2371578d04ca409d79",
+      "scripts/project/admission-workbench/fixture-registry.ts": "d35908e24370d051ae4d2d51372094106e74bd90592a7f0305b6133ca8fbf42c",
+      "scripts/project/gate/run.ts": "7ce0cb33cb05a4b8b0c1325c42ea6d88b20121f9f3c772d4ea1d1c825151e02b",
+      "scripts/project/gate/definition.test.ts": "bf0ee588b522a4f29f13cc84106647cabab6d1f824cf0364978e310ca3102702",
+      "scripts/project/gate/run.test.ts": "e6c2f2e47c9de384fc1b9686b432aed04a1d39767f86d28e262e025d7fc21b80",
+      "scripts/project/gate/runtime/performance-observation.ts": "cb79021aa7b5ec8b2d0017c21bfe8c2130f8b428a680335103eccd12d48d5756",
+      "scripts/project/gate/runtime/catalog.ts": "eae6409d1d4ca494bd2d297fb9fb41e21e5003bd6bca2138f2219607791cfe10",
+      "scripts/project/gate/runtime/bound-run.ts": "ff0d0b94ff8538aff033f0b266ee84fd1a2d8c73785228b618af00685de87ca8",
+      "scripts/project/gate/runtime/invocation.ts": "69924628d26847380c74974d3c8570e31e0701578657c32a6c5d1cdcf5ecfcce",
+      "scripts/project/gate/runtime/entries.ts": "b0a43a28ae714e5ebb8531d5c1c6bfa009fd1de41a3607d8a6387cf51d724915",
+      "scripts/project/gate/runtime/performance-baseline.ts": "ea0e63c2ddb1ba5b24e7fecd609f648268ee13a1573808a30dfc4d4af8dc6c58",
+      "scripts/project/gate/runtime/root-import-boundary.test-support.ts": "c9402ca5cf3cd41a3fb08c1bfcace1aff6ca18810da7c83180fc1a687211fbf2",
+      "scripts/project/gate/runtime/transcript.test.ts": "2d5b1feaa8079ec0932238004bfb29a3f7724c9ae206b3c39391979c0749032f",
+      "scripts/project/gate/runtime/result.ts": "cfc40d49797994cee81579323636eb0b23b79c24412077438195d2acf029eb82",
+      "scripts/project/gate/runtime/performance-observation.test.ts": "1aa2f0ff45aa50008058a0b438a9d22a0bdb7cbe40f1cebbf965e00d6cfea443",
+      "scripts/project/gate/runtime/result-contributor.ts": "fb50e1c65156be20818804daef2e49e0e8761d7afa38469363e9dc23c8401915",
+      "scripts/project/gate/runtime/bound-run.test.ts": "95d017ed814caf302ec1b89e440c3e4afc0e2315ec0b1e9a3b14e233f6a16028",
+      "scripts/project/gate/runtime/reporting.ts": "5fc9404f3245d3b2ff1696b856025fa13bd19aac0044299bd142a09d698093f5",
+      "scripts/project/gate/runtime/transcript.ts": "e96184e5bb020133b8e851f16ac75a98ad9b43af98836666fd82aa19c1bd5448",
+      "scripts/project/gate/runtime/eligibility.ts": "fdb65fd794ced2f21d63bc80ed72029f83ac75cc265452b9961792ed644a6a95",
+      "scripts/project/gate/runtime/controls.ts": "39401343e2657dc175f335ee4b646c825229fa443484fce7bba8e17ac436a3de",
+      "scripts/project/gate/runtime/eligibility.test.ts": "891139c4a17bd89cd8f5db9e9ef3d42a855c059e6a03225538b04b5d1e25514a",
+      "scripts/project/gate/runtime/product-test-regions.ts": "49f341479300469f908e086598267f1052a48737ec9cf1ec41070f23c5c57cfe",
+      "scripts/project/gate/definition.ts": "70992e6c4f11f8d096de38436278408a210d96ee6aafee551ada78d59907032e",
+      "scripts/project/gate/checks/materials-validation.ts": "e5850dbf73e75c4d8af77317f2e260199a8621b1fd835ae82bcf39db81c9c271",
+      "scripts/project/gate/checks/decision-records.ts": "5f0f9635e7ef01c68b4ba414b8ea44a713f6605d92a28ddb3027e71ca943af53",
+      "scripts/project/gate/checks/test-evidence/semantic-case-diagnostic-policy.ts": "c9071bf3fa99507e0b63c4e6acbc84112689c456ca7bc5805225debc9906c759",
+      "scripts/project/gate/checks/test-evidence/semantic-case-projection.ts": "02b6fa67710098e77da37d23d96627f0a4033f33e1d6c968faca910d8b5f1a68",
+      "scripts/project/gate/checks/test-evidence/ast-grep-rule-tests-check.ts": "30ada16e790a6829ada9e4cf1016cae607ffaf0121d6adefd94c962bcc59dc75",
+      "scripts/project/gate/checks/test-evidence/semantic-case-check.ts": "9dd51e43b634a400a57305210897600482124d490256a9f531d69abdbdb89004",
+      "scripts/project/gate/checks/prepared-candidate-fact.ts": "5bce2f0d90a732c3a5c0dbd7199ac684f47cfb020c04b92e760bc3fbbbdc7358",
+      "scripts/project/gate/checks/oxlint-failure-records.ts": "87e52bfb3b47a2df5c126bb64b36a1c7e200d83d9386b170dd9e3860d1cbdf2b",
+      "scripts/project/gate/checks/test-execution/entries.ts": "93f88fc8cfe2b31fbb5018ff8942df044d3c692ad2bd77b11909f9c72b353126",
+      "scripts/project/gate/checks/test-execution/checks.ts": "3ab45bd7536a92ed909f21ac2585d190f83ddce394bcfaac13842df1ebda48c5",
+      "scripts/project/gate/checks/test-execution/lanes.ts": "9eb88b7bcec49de3093f9b0cc20878ad271295971d7b383acf156230a89d79a3",
+      "scripts/project/gate/checks/native-projections.test.ts": "de47932b1a24aed71396ab38503744e72426593229be8169facc21982a35d17e",
+      "scripts/project/gate/checks/external-consumer-material.test.ts": "3bf92d711807f88f3e7819ab393b0d2bb9415bcca20ad4cea9b2b1129600d0e9",
+      "scripts/project/gate/checks/materials-validation.test.ts": "3f1ad60ddd5ade9310e27497a36f19f632e010d8eab01d82240647ab41eefedc",
+      "scripts/project/gate/checks/repository-quality.ts": "170f68ec71f4fd600a0b6e06f2068051257af6ba851b10d3f62b6364165b2bae",
+      "scripts/project/gate/checks/repository-quality.test.ts": "195c319dbb7c9c063bfecf6598c65578e6d9359fefc4ee0d091d52e3f9f7d734",
+      "scripts/project/gate/checks/prepared-candidate.test.ts": "9ed6646b4334732e632d7a96b349ee991e1be02f5e768fb0a4cac6c60a21d5b2",
+      "scripts/project/gate/checks/entry-factories.ts": "304e2ea2a8ab339bb2002c6f6d1d3d2a5be9dc952e1a01bc6cd65d025f16be61",
+      "scripts/project/gate/checks/entry-factories.test.ts": "03f31119601efdd59b4908214d712d9f66174ea6804c5612c6d082fff0d33e36",
+      "scripts/project/gate/checks/oxlint-failure-records.test.ts": "82647e58a8e0a192b7667e89428ac61259682e28508c1d780940cccc07e9e64a",
+      "scripts/project/gate/checks/external-consumer-material.ts": "8b658d7141abc7af8ede717340334734d7ff57a6043a8aa6457e6cd7d6a62a2d",
+      "scripts/project/gate/checks/process/native-operation.ts": "b7302caaf8bffc037e18d4540fa6d07678113b93d0d0917bf3e3a5b0da013d25",
+      "scripts/project/gate/checks/process/native-operation-protocol.ts": "2ff8400cef037881f5b368a9c4b2832f8feb7549f9a85a123bdfce3da13e4ab1",
+      "scripts/project/gate/checks/process/safe-workspace-path.ts": "35c578d3faf45b169fc1e4ab9fff1a3d50705f33b3aaad66643258862f2e2cd2",
+      "scripts/project/gate/checks/process/native-operation.test.ts": "2ac2290e43ee4f876ac72383b06135ff478e1c9fe0ff3d50229908f0185a8a22",
+      "scripts/project/gate/checks/process/failure-projection.ts": "77856822d704c637601c3660657982ea743e444e4888280e386cf9a0813047ec",
+      "scripts/project/gate/checks/process/transcript.ts": "7045bcb727ea460e57e87c55659da5318b239d13c668da7d4c6d29f7b192e3d1",
+      "scripts/project/gate/checks/oxfmt-failure-records.test.ts": "c9be32004f90cd93640d337fec2a44dba4c80362eaa709b4ee85ad143609223d",
+      "scripts/project/gate/checks/prepared-candidate.ts": "59db29da6418c2bfdb8dcc8a3305c0a394c6f247e90ae2dae555cd1865c2a484",
+      "scripts/project/gate/checks/check-execution.test-support.ts": "9cf0239b313bb59fe77140f093a0f5e3de8962b1c60dced802d0ce73ca56394d",
+      "scripts/project/gate/checks/oxfmt-failure-records.ts": "8fb8b760c982bd4ef10f215c7b7d75da27d8e6ff5e27ac9e2866ca71c0be6e03",
+      "scripts/project/gate/checks/command-result.ts": "2a6476f516db2e06fff2b6815fe251fb58c5ba3c08d85ba78c900ae2ea837202"
+    }
+  },
+  "sourceDigests": {
+    "scripts/package/artifact/fingerprint.ts": "01aafa9faa4580250fe2b290e9a17fde9b72e6442e6aafa7652b7c6c2c2aa95f",
+    "scripts/package/artifact/fingerprint.test-support.ts": "6ceb8b1ed2b39df7315af7a3f791f42cc0d4ad4da9362cc7afdaccf4cd6200a8",
+    "scripts/package/artifact/manifest.test.ts": "72917b687f38aace7fb30a7e49244a51b9b3680ac15f9bbae916ba61e982abf2",
+    "scripts/validation/workspace.ts": "8111aa0e94838692ef59e5d8afb7112af5f6bbad30f530920d723da21133c8bc",
+    "scripts/validation/workspace.test.ts": "4519a18fb895646c71fec7403eb2544d1c123fa94bf8a55e367f906388d88162"
+  },
+  "note": "Frozen-source helper comparison is identical before/after. Full-test timings use same files/lanes but after includes added regression assertions; warm OS cache, 1 warmup + 5 measured, sequential. No mocks; full Gate is separate.",
+  "copy": [
+    {
+      "round": 0,
+      "warmup": true,
+      "copyMs": 74.558885,
+      "cleanupMs": 7.670095000000003,
+      "files": 532,
+      "bytes": 2815725,
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ]
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "copyMs": 71.18397599999997,
+      "cleanupMs": 8.27006,
+      "files": 532,
+      "bytes": 2815725,
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ]
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "copyMs": 77.18216900000004,
+      "cleanupMs": 7.850734000000045,
+      "files": 532,
+      "bytes": 2815725,
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ]
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "copyMs": 81.11181300000004,
+      "cleanupMs": 7.338478000000009,
+      "files": 532,
+      "bytes": 2815725,
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ]
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "copyMs": 70.822631,
+      "cleanupMs": 8.10567900000001,
+      "files": 532,
+      "bytes": 2815725,
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ]
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "copyMs": 72.16640799999993,
+      "cleanupMs": 8.528676000000019,
+      "files": 532,
+      "bytes": 2815725,
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "round": 0,
+      "warmup": true,
+      "name": "fingerprintTests",
+      "files": [
+        "scripts/package/artifact/manifest.test.ts",
+        "scripts/docs/package-documents.test.ts"
+      ],
+      "wallMs": 839.0974890000001,
+      "loadBefore": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "passed": [
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [40.31ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [18.81ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [272.08ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [4.76ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [368.94ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.32ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/0-fingerprintTests.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "name": "validationLane",
+      "files": [
+        "scripts/validation/repository-material/links.test.ts",
+        "scripts/validation/repository-material/schema/strict-json.test.ts",
+        "scripts/validation/repository-material/workflow.test.ts",
+        "scripts/validation/workspace.test.ts"
+      ],
+      "wallMs": 737.0142749999998,
+      "loadBefore": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "passed": [
+        "(pass) root validation adapter forwards default and focused material selections [71.22ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [4.03ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [5.10ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [0.26ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.16ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [0.93ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.48ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.27ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.55ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [2.14ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [32.24ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/0-validationLane.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "name": "fingerprintTests",
+      "files": [
+        "scripts/package/artifact/manifest.test.ts",
+        "scripts/docs/package-documents.test.ts"
+      ],
+      "wallMs": 811.928543,
+      "loadBefore": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "passed": [
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [39.19ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [18.57ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [252.62ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [4.63ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [361.62ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.15ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/1-fingerprintTests.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "name": "validationLane",
+      "files": [
+        "scripts/validation/repository-material/links.test.ts",
+        "scripts/validation/repository-material/schema/strict-json.test.ts",
+        "scripts/validation/repository-material/workflow.test.ts",
+        "scripts/validation/workspace.test.ts"
+      ],
+      "wallMs": 701.0213830000002,
+      "loadBefore": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "loadAfter": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "passed": [
+        "(pass) root validation adapter forwards default and focused material selections [70.06ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [4.95ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [5.09ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [0.22ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.20ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [0.91ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.53ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.38ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.63ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [2.10ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [30.63ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/1-validationLane.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "name": "fingerprintTests",
+      "files": [
+        "scripts/package/artifact/manifest.test.ts",
+        "scripts/docs/package-documents.test.ts"
+      ],
+      "wallMs": 782.6339530000005,
+      "loadBefore": [
+        1.83,
+        1.74,
+        1.31
+      ],
+      "loadAfter": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "passed": [
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [40.60ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [17.83ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [245.51ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [5.04ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [364.03ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.08ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/2-fingerprintTests.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "name": "validationLane",
+      "files": [
+        "scripts/validation/repository-material/links.test.ts",
+        "scripts/validation/repository-material/schema/strict-json.test.ts",
+        "scripts/validation/repository-material/workflow.test.ts",
+        "scripts/validation/workspace.test.ts"
+      ],
+      "wallMs": 713.3191099999995,
+      "loadBefore": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "loadAfter": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "passed": [
+        "(pass) root validation adapter forwards default and focused material selections [68.35ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [4.29ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [3.48ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [4.02ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.39ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [1.40ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.64ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [2.12ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.65ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [3.83ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [32.14ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/2-validationLane.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "name": "fingerprintTests",
+      "files": [
+        "scripts/package/artifact/manifest.test.ts",
+        "scripts/docs/package-documents.test.ts"
+      ],
+      "wallMs": 792.2489029999997,
+      "loadBefore": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "loadAfter": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "passed": [
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [38.25ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [17.58ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [245.45ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [4.49ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [365.09ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.10ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/3-fingerprintTests.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "name": "validationLane",
+      "files": [
+        "scripts/validation/repository-material/links.test.ts",
+        "scripts/validation/repository-material/schema/strict-json.test.ts",
+        "scripts/validation/repository-material/workflow.test.ts",
+        "scripts/validation/workspace.test.ts"
+      ],
+      "wallMs": 772.6421609999998,
+      "loadBefore": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "loadAfter": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "passed": [
+        "(pass) root validation adapter forwards default and focused material selections [86.30ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [4.34ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [1.88ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [0.23ms]",
+        "(pass) material validation library reports success only through an explicit reporter [4.02ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [1.49ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.53ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.33ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.69ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [2.06ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [38.65ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/3-validationLane.log"
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "name": "fingerprintTests",
+      "files": [
+        "scripts/package/artifact/manifest.test.ts",
+        "scripts/docs/package-documents.test.ts"
+      ],
+      "wallMs": 807.7441930000005,
+      "loadBefore": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "loadAfter": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "passed": [
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [38.69ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [18.61ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [251.50ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [5.17ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [363.60ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.02ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/4-fingerprintTests.log"
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "name": "validationLane",
+      "files": [
+        "scripts/validation/repository-material/links.test.ts",
+        "scripts/validation/repository-material/schema/strict-json.test.ts",
+        "scripts/validation/repository-material/workflow.test.ts",
+        "scripts/validation/workspace.test.ts"
+      ],
+      "wallMs": 690.5560509999996,
+      "loadBefore": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "loadAfter": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "passed": [
+        "(pass) root validation adapter forwards default and focused material selections [65.36ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [4.60ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [4.98ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [0.20ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.14ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [0.84ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.47ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.47ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.58ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [2.02ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [32.36ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/4-validationLane.log"
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "name": "fingerprintTests",
+      "files": [
+        "scripts/package/artifact/manifest.test.ts",
+        "scripts/docs/package-documents.test.ts"
+      ],
+      "wallMs": 775.6513770000001,
+      "loadBefore": [
+        1.85,
+        1.75,
+        1.31
+      ],
+      "loadAfter": [
+        1.86,
+        1.75,
+        1.31
+      ],
+      "passed": [
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [45.10ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [19.46ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [246.33ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [4.60ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [351.47ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.49ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/5-fingerprintTests.log"
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "name": "validationLane",
+      "files": [
+        "scripts/validation/repository-material/links.test.ts",
+        "scripts/validation/repository-material/schema/strict-json.test.ts",
+        "scripts/validation/repository-material/workflow.test.ts",
+        "scripts/validation/workspace.test.ts"
+      ],
+      "wallMs": 699.1187849999988,
+      "loadBefore": [
+        1.86,
+        1.75,
+        1.31
+      ],
+      "loadAfter": [
+        1.86,
+        1.75,
+        1.31
+      ],
+      "passed": [
+        "(pass) root validation adapter forwards default and focused material selections [62.63ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [4.33ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [5.17ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [0.16ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.13ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [0.79ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.42ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.27ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.62ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [2.05ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [35.80ms]"
+      ],
+      "log": "/workspace/vibe-check/.log/gate-preparation-implementation/495f86ba-b1a3-4804-a7b8-dc70c58d87d8/5-validationLane.log"
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "formedAt": "2026-10-22T02:42:44.224Z",
+  "bun": "1.3.14",
+  "note": "In-process diagnostic after imports; 1 warmup + 5 repeats; fixture measurements include cleanup, not test bodies. Toolchain fingerprint is a nested part of artifact fingerprint: do not add them.",
+  "samples": [
+    {
+      "round": 0,
+      "warmup": true,
+      "name": "lane-discovery",
+      "wallMs": 92.383203
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "name": "toolchain-fingerprint",
+      "wallMs": 34.099051
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "name": "artifact-fingerprint",
+      "wallMs": 36.163212000000016
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "name": "artifact-fixture-copy",
+      "wallMs": 579.3044130000001
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "name": "docs-fixture-copy",
+      "wallMs": 15.829461000000038
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "name": "lane-discovery",
+      "wallMs": 59.43996400000003
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "name": "toolchain-fingerprint",
+      "wallMs": 21.26744999999994
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "name": "artifact-fingerprint",
+      "wallMs": 32.137428
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "name": "artifact-fixture-copy",
+      "wallMs": 532.052216
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "name": "docs-fixture-copy",
+      "wallMs": 17.04468399999996
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "name": "lane-discovery",
+      "wallMs": 51.02759999999989
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "name": "toolchain-fingerprint",
+      "wallMs": 24.886222999999973
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "name": "artifact-fingerprint",
+      "wallMs": 31.63174499999991
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "name": "artifact-fixture-copy",
+      "wallMs": 467.12168900000006
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "name": "docs-fixture-copy",
+      "wallMs": 15.35554900000011
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "name": "lane-discovery",
+      "wallMs": 54.19373199999973
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "name": "toolchain-fingerprint",
+      "wallMs": 18.34569999999985
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "name": "artifact-fingerprint",
+      "wallMs": 27.90413899999976
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "name": "artifact-fixture-copy",
+      "wallMs": 493.53941099999975
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "name": "docs-fixture-copy",
+      "wallMs": 15.095686999999998
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "name": "lane-discovery",
+      "wallMs": 53.59734500000013
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "name": "toolchain-fingerprint",
+      "wallMs": 22.980039999999917
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "name": "artifact-fingerprint",
+      "wallMs": 32.45948199999975
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "name": "artifact-fixture-copy",
+      "wallMs": 469.42123300000003
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "name": "docs-fixture-copy",
+      "wallMs": 14.793284000000313
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "name": "lane-discovery",
+      "wallMs": 54.91180699999995
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "name": "toolchain-fingerprint",
+      "wallMs": 18.01366300000018
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "name": "artifact-fingerprint",
+      "wallMs": 28.746733999999833
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "name": "artifact-fixture-copy",
+      "wallMs": 465.16609800000015
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "name": "docs-fixture-copy",
+      "wallMs": 16.10575400000016
+    }
+  ]
+}

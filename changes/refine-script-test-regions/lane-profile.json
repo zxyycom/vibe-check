@@ -1,0 +1,2522 @@
+{
+  "formedAt": "2026-10-22T02:39:27.538Z",
+  "environment": {
+    "bun": "1.3.14",
+    "cpus": 6,
+    "platform": "linux"
+  },
+  "note": "Sequential warm OS cache. No candidate/consumer groups. Full runs are real test bodies; registration-only uses an impossible test-name pattern. Their difference is approximate body/hooks/reporting cost, not an exact additive phase decomposition. Import closures include conservative lazy/type-only branches and exclude bare dependencies.",
+  "logRoot": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35",
+  "lanes": {
+    "packageSupporting": [
+      {
+        "path": "scripts/package/artifact/acceptance-input.test.ts",
+        "sha256": "0fa83e7bb3b38178b7b26bc5415449e4ff1f3b908fb0dd8d7c4307aeba810b52"
+      },
+      {
+        "path": "scripts/package/artifact/compiler-cache.test.ts",
+        "sha256": "3af696e0db402491367341f6ba7a8f919cf3e2a064f83c506d3818c1b48a5aa6"
+      },
+      {
+        "path": "scripts/package/artifact/esm-module-specifiers.test.ts",
+        "sha256": "3438b6eb743408f556acc3107e7519c0f229a517db641f0c224370daa89b275a"
+      },
+      {
+        "path": "scripts/package/artifact/manifest.test.ts",
+        "sha256": "9265d71d84bb7e240a377f90ad90d2363a12724cf5ad4ea9b616148293e90d8e"
+      },
+      {
+        "path": "scripts/package/artifact/runtime-source-maps.test.ts",
+        "sha256": "d36541710c60bd3f9a23bd42cd2a7f512d41508426f5eae1e64fb5ae9d5e6732"
+      },
+      {
+        "path": "scripts/package/candidate/acceptance-input.test.ts",
+        "sha256": "13589fe22d4e9c7c9973c12bf9ec4837055f5f436ba30688abdaffc7ec3beb23"
+      },
+      {
+        "path": "scripts/package/candidate/candidate.test.ts",
+        "sha256": "64bb699a74339545f09e419caa0af4d98b199409164c2fa2a7fe43f2ee6663ff"
+      },
+      {
+        "path": "scripts/package/candidate/dependency-license-audit.test.ts",
+        "sha256": "22d5b365fbc7657952e7ba419e1c70339b71329c71fbc22f18413cabd7740416"
+      },
+      {
+        "path": "scripts/package/candidate/external-consumer/input.test.ts",
+        "sha256": "1fc6f82191e1da873555d22ebf4209543a74575a4ac474c918c6dac09c0d1c75"
+      },
+      {
+        "path": "scripts/package/candidate/receipt.test.ts",
+        "sha256": "819dbaa9ee5344be7e9964052c059f63345f57734f1966290030c0464b436bae"
+      },
+      {
+        "path": "scripts/package/command.test.ts",
+        "sha256": "c7b8edca8a4722c6ec47c29dc71df601c8077f23b645adf50de0b3fb60d0a978"
+      },
+      {
+        "path": "scripts/package/compiler-toolchain.test.ts",
+        "sha256": "1a182542eb01e888ab37c9dbfbc1f8b36fd54c32a0a09ca65847d736c2cb385d"
+      },
+      {
+        "path": "scripts/package/dependency-version.test.ts",
+        "sha256": "3ee051acfd79e8c287154a4d683c3ecfe4fcab6c159b8ae9b7921e23fb3d35c5"
+      },
+      {
+        "path": "scripts/package/legal-materials.test.ts",
+        "sha256": "2d98d5a19596738e177875497d7e9bb5fce37d9d3bb60f8e724fd7abd4f15653"
+      },
+      {
+        "path": "scripts/package/legal-materials/source-mapping.test.ts",
+        "sha256": "97d55af9e99dc5b4b5dcff58faabd8524c12170406ee387bb890d1d2ba15b16f"
+      },
+      {
+        "path": "scripts/package/public-api-inventory.test.ts",
+        "sha256": "180980f0ced06f275afe9fd024e25c3ca7b9b17ca4d13ac01923b829832bde29"
+      },
+      {
+        "path": "scripts/package/release/command.test.ts",
+        "sha256": "c87bae64d77585a3cc7e2b7d1c5b9c0c00a4defeb7cdac1b68856aaf63c2ca8e"
+      },
+      {
+        "path": "scripts/package/release/release.test.ts",
+        "sha256": "197ad627bc037005ceb516b70a18ca45ec4923e16ba91c3b5234bf18ef58ea43"
+      }
+    ],
+    "scriptsAdmissionWorkbench": [
+      {
+        "path": "scripts/project/admission-workbench/command.test.ts",
+        "sha256": "9cd676f5cf41de12bc42954df25b9fc11e70db5f21b6bbff4815b8b9d7573bc2"
+      },
+      {
+        "path": "scripts/project/admission-workbench/learned-heuristic-evaluation/evaluation.test.ts",
+        "sha256": "0ce8b499a7a9b04fdf1fdc0b9a2f496e2d588ccaeb2e1470f92569addf7cd9e7"
+      },
+      {
+        "path": "scripts/project/admission-workbench/learned-heuristic-evaluation/input.test.ts",
+        "sha256": "29f550fdb861160208fadaf7aa633ad96028e61c0cc18bb87362cd4d3d6d728e"
+      },
+      {
+        "path": "scripts/project/admission-workbench/policy.test.ts",
+        "sha256": "c26a90c5af96ac3fb69c24eef35cc02b2b81eb639e05cf83f54e482237fd5a5c"
+      },
+      {
+        "path": "scripts/project/admission-workbench/shared-closure.test.ts",
+        "sha256": "d8dda170b5b0f19dd615ae098510f642c3c73f9f518e8a523d5359529fc8a086"
+      },
+      {
+        "path": "scripts/project/admission-workbench/simulate.test.ts",
+        "sha256": "d411ffd9f2aee0474b14fab6ec6350779630c2cee740565fb4eb8513ee9b796c"
+      }
+    ],
+    "scriptsLayout": [
+      {
+        "path": "scripts/validation/repository-layout.test.ts",
+        "sha256": "0849013c142e83fe76be47fff4a5a49e42347d11a02d7d3d0e6adec9b067dce8"
+      }
+    ],
+    "scriptsMachineArtifacts": [
+      {
+        "path": "scripts/validation/repository-material/machine-artifacts/validation.test.ts",
+        "sha256": "98697424bf392cdcc84b17fb96770b0639d4c010cbaefabde5360bb21603d4f3"
+      }
+    ],
+    "scriptsPackageToolsBoundary": [
+      {
+        "path": "scripts/validation/package-tools-core-closure.test.ts",
+        "sha256": "4f4f50699cd9f2673a6b659d166f6b7405e9895783b8d020991387d61846992b"
+      }
+    ],
+    "scriptsProject": [
+      {
+        "path": "scripts/project/gate/checks/entry-factories.test.ts",
+        "sha256": "03f31119601efdd59b4908214d712d9f66174ea6804c5612c6d082fff0d33e36"
+      },
+      {
+        "path": "scripts/project/gate/checks/external-consumer-material.test.ts",
+        "sha256": "3bf92d711807f88f3e7819ab393b0d2bb9415bcca20ad4cea9b2b1129600d0e9"
+      },
+      {
+        "path": "scripts/project/gate/checks/materials-validation.test.ts",
+        "sha256": "3f1ad60ddd5ade9310e27497a36f19f632e010d8eab01d82240647ab41eefedc"
+      },
+      {
+        "path": "scripts/project/gate/checks/native-projections.test.ts",
+        "sha256": "de47932b1a24aed71396ab38503744e72426593229be8169facc21982a35d17e"
+      },
+      {
+        "path": "scripts/project/gate/checks/oxfmt-failure-records.test.ts",
+        "sha256": "c9be32004f90cd93640d337fec2a44dba4c80362eaa709b4ee85ad143609223d"
+      },
+      {
+        "path": "scripts/project/gate/checks/oxlint-failure-records.test.ts",
+        "sha256": "82647e58a8e0a192b7667e89428ac61259682e28508c1d780940cccc07e9e64a"
+      },
+      {
+        "path": "scripts/project/gate/checks/prepared-candidate.test.ts",
+        "sha256": "9ed6646b4334732e632d7a96b349ee991e1be02f5e768fb0a4cac6c60a21d5b2"
+      },
+      {
+        "path": "scripts/project/gate/checks/process/native-operation.test.ts",
+        "sha256": "2ac2290e43ee4f876ac72383b06135ff478e1c9fe0ff3d50229908f0185a8a22"
+      },
+      {
+        "path": "scripts/project/gate/checks/repository-quality.test.ts",
+        "sha256": "195c319dbb7c9c063bfecf6598c65578e6d9359fefc4ee0d091d52e3f9f7d734"
+      },
+      {
+        "path": "scripts/project/gate/definition.test.ts",
+        "sha256": "bf0ee588b522a4f29f13cc84106647cabab6d1f824cf0364978e310ca3102702"
+      },
+      {
+        "path": "scripts/project/gate/run.test.ts",
+        "sha256": "e6c2f2e47c9de384fc1b9686b432aed04a1d39767f86d28e262e025d7fc21b80"
+      },
+      {
+        "path": "scripts/project/gate/runtime/bound-run.test.ts",
+        "sha256": "95d017ed814caf302ec1b89e440c3e4afc0e2315ec0b1e9a3b14e233f6a16028"
+      },
+      {
+        "path": "scripts/project/gate/runtime/performance-observation.test.ts",
+        "sha256": "1aa2f0ff45aa50008058a0b438a9d22a0bdb7cbe40f1cebbf965e00d6cfea443"
+      },
+      {
+        "path": "scripts/project/gate/runtime/transcript.test.ts",
+        "sha256": "2d5b1feaa8079ec0932238004bfb29a3f7724c9ae206b3c39391979c0749032f"
+      }
+    ],
+    "scriptsProjectSelection": [
+      {
+        "path": "scripts/project/gate/runtime/eligibility.test.ts",
+        "sha256": "891139c4a17bd89cd8f5db9e9ef3d42a855c059e6a03225538b04b5d1e25514a"
+      }
+    ],
+    "scriptsTestEvidence": [
+      {
+        "path": "scripts/test-evidence/ast-grep/scan.test.ts",
+        "sha256": "3122471a19116377761155b30d195a1f3440db41a02387b02da04d44a2adee39"
+      },
+      {
+        "path": "scripts/test-evidence/catalog.test.ts",
+        "sha256": "bed8aa70c8e9a3c87f6da312081a656a58c4bd13d50c25484212b1afe1ad0338"
+      },
+      {
+        "path": "scripts/test-evidence/closure.test.ts",
+        "sha256": "926d63f603c2f163fb2e80bd9fd7740a37d020ed7e7c81fe69e053171e9847a7"
+      },
+      {
+        "path": "scripts/test-evidence/discovery/bun-files.test.ts",
+        "sha256": "d677e88a1abf407d433fcfe830ddf3ed25f4945fb7905c811cb2e14de984a184"
+      },
+      {
+        "path": "scripts/test-evidence/discovery/profile.test.ts",
+        "sha256": "86781b968877930543367379816f89b45bf7d7532bdca052cb728683cc2dd9ee"
+      },
+      {
+        "path": "scripts/test-evidence/discovery/runner-process.test.ts",
+        "sha256": "f0d3b69f007ca52d3ca00213e2e55f3271feead456d582cde5f3be47fb5b552b"
+      }
+    ],
+    "scriptsTooling": [
+      {
+        "path": "scripts/development/lizard-performance/command.test.ts",
+        "sha256": "9930617b32dcf063583c62014068456c65792632b9809e0e49be32f890e6d458"
+      },
+      {
+        "path": "scripts/development/quality-targets.test.ts",
+        "sha256": "4c059a27203ca0c6bff8da806a2d25b4b1f153c188cf56775a5aab7aa065df19"
+      },
+      {
+        "path": "scripts/docs/package-api/command.test.ts",
+        "sha256": "607d7829b57529aee2863777781b10888f5fefd2ca1de6f30ce0667912470afe"
+      },
+      {
+        "path": "scripts/docs/package-api/render.test.ts",
+        "sha256": "ec4ea517a5f0995612a50294f56526a97e3a6662d0971a067e1b49b4024e62f6"
+      },
+      {
+        "path": "scripts/docs/package-documents.test.ts",
+        "sha256": "d0879148c50eff38634b7dce627ef3a9a6ef2e14d481d9dd34c352b5315ef9b7"
+      },
+      {
+        "path": "scripts/docs/package-markdown.test.ts",
+        "sha256": "25bffcd758ee14ff9291b4e52d5c2ce7c4adf0bf70deb506e6bf61ddf0a05d03"
+      },
+      {
+        "path": "scripts/maintenance/lizard-upstream-advisory.test.ts",
+        "sha256": "0537d434a15f3a1c52ee45402f4dbf67c11a348118f7f1532efcf2c76af05450"
+      },
+      {
+        "path": "scripts/process-execution/process.test.ts",
+        "sha256": "223044a47a11effcd69f18402ab6bd51b123ad1cd8a9383e6e3d2e23fb5bf809"
+      },
+      {
+        "path": "scripts/repository-files/files.test.ts",
+        "sha256": "f7ea854abfdcafc534b8d272ac83ef90224ad3d5ad69773693bda344f600d0b2"
+      },
+      {
+        "path": "scripts/repository-files/paths.test.ts",
+        "sha256": "2ccae7ecefe945cbb252e8068801497cb61200a7e107c24bddee2352024e3fda"
+      }
+    ],
+    "scriptsValidation": [
+      {
+        "path": "scripts/validation/repository-material/links.test.ts",
+        "sha256": "3c6f9f6195c2a5b51c7ff1c595f66c81aa0d3e0596db008199c8d69e318aadc6"
+      },
+      {
+        "path": "scripts/validation/repository-material/schema/strict-json.test.ts",
+        "sha256": "aa3f36a8c77c922741e77c1c683aaa422bb808e919689a61bb00db34768211ac"
+      },
+      {
+        "path": "scripts/validation/repository-material/workflow.test.ts",
+        "sha256": "af8eec09a6e67278a6ced1b292fb277aced063ca696f621cdc13930ad0367bbf"
+      },
+      {
+        "path": "scripts/validation/workspace.test.ts",
+        "sha256": "23fec8eac26817442ed4e2e1622d5ea6ae43046090c523d5fdd02e4ea3c25d47"
+      }
+    ]
+  },
+  "samples": [
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "packageSupporting",
+      "mode": "registration",
+      "wallMs": 595.820012,
+      "loadBefore": [
+        2.19,
+        2.22,
+        1.05
+      ],
+      "loadAfter": [
+        2.19,
+        2.22,
+        1.05
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-packageSupporting-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "packageSupporting",
+      "mode": "full",
+      "wallMs": 2578.548827,
+      "loadBefore": [
+        2.19,
+        2.22,
+        1.05
+      ],
+      "loadAfter": [
+        2.19,
+        2.22,
+        1.05
+      ],
+      "tests": [
+        "(pass) public API inventory > publishes only the approved runtime and type roots [332.65ms]",
+        "(pass) package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance [0.83ms]",
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [298.83ms]",
+        "(pass) package legal materials > fails closed in the translated-analyzer audit phase order [23.23ms]",
+        "(pass) package dependency versions satisfy only their declared requirement [0.16ms]",
+        "(pass) formal release root commands require closed inputs and bind verification to one complete --all Gate receipt [2.38ms]",
+        "(pass) formal package release > accepts only explicit canonical prestable versions and conservative tags [1.89ms]",
+        "(pass) formal package release > writes a portable sanitized receipt and rejects identity or artifact drift [5.39ms]",
+        "(pass) formal package release > isolates formal staging and receipt state from the default local candidate [0.16ms]",
+        "(pass) formal package release > requires one exact clean Git worktree revision before formal preparation [45.65ms]",
+        "(pass) installed dependency license audit > covers every package directory and fails closed on unsupported declarations and layouts [14.88ms]",
+        "(pass) package candidate preparation contracts > rejects overlapping package build and cache roots [63.36ms]",
+        "(pass) package candidate preparation contracts > rejects invalid private consumer manifests [1.63ms]",
+        "(pass) package candidate preparation contracts > keeps the explicit cold integration target outside routine discovery with hard timeout [0.08ms]",
+        "(pass) rejects malformed and stale receipts before artifact reuse [7.77ms]",
+        "(pass) accepts an exact Gate candidate artifact input [71.64ms]",
+        "(pass) rejects incomplete or mismatched Gate candidate artifact input [1.02ms]",
+        "(pass) source mapping sync derives only the package provenance pin after reviewing curated mappings [10.41ms]",
+        "(pass) source mapping sync leaves curated files untouched when validation rejects a mapping [11.32ms]",
+        "(pass) source mapping sync restores a prior file when a later write fails [4.94ms]",
+        "(pass) runtime source maps > normalizes and verifies one map against its packaged TypeScript source [4.58ms]",
+        "(pass) candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs [281.06ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [10.58ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [795.64ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.10ms]",
+        "(pass) emitted ESM module specifiers > rewrites relative module references without changing ordinary path strings [31.85ms]",
+        "(pass) emitted ESM module specifiers > rejects malformed emitted JavaScript before artifact normalization [7.39ms]",
+        "(pass) accepts provider-owned artifact staging material [2.47ms]",
+        "(pass) rejects incomplete or unrelated artifact staging material [2.83ms]",
+        "(pass) external consumer provider input is closed and fail-closed [3.23ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-packageSupporting-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsAdmissionWorkbench",
+      "mode": "registration",
+      "wallMs": 331.022884,
+      "loadBefore": [
+        2.19,
+        2.22,
+        1.05
+      ],
+      "loadAfter": [
+        2.19,
+        2.22,
+        1.05
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsAdmissionWorkbench-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsAdmissionWorkbench",
+      "mode": "full",
+      "wallMs": 2501.1248160000005,
+      "loadBefore": [
+        2.19,
+        2.22,
+        1.05
+      ],
+      "loadAfter": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "tests": [
+        "(pass) admission workbench shared closure > drains an admitted real Check while cancellation closes pending work before it starts [17.18ms]",
+        "(pass) admission workbench shared closure > keeps virtual unsatisfied settlement separate from real cancellation [1.94ms]",
+        "(pass) command writes identified virtual stdout for static and isolated learned replicates [549.73ms]",
+        "(pass) command exclusively creates an explicit output after complete serialization [529.15ms]",
+        "(pass) command rejects malformed arguments inputs and unsafe output targets [731.71ms]",
+        "(pass) command returns nonzero error evidence with parsed identity for a public graph rejection [251.86ms]",
+        "(pass) workbench source consumes only the installed public package and never the Gate entry [2.34ms]",
+        "(pass) prepared learned policy copies fixed history into isolated absolute state and keeps identity stable [9.67ms]",
+        "(pass) prepared learned policy invalidates identity and setup fallback instead of scoring it [2.67ms]",
+        "(pass) formal simple and prepared adapters prepare once and never complete virtual observations [6.36ms]",
+        "(pass) admission workbench > matches shared-resource and serial hand-calculated oracles [4.49ms]",
+        "(pass) admission workbench > matches empty single and chain boundaries without invoking policy for an empty graph [4.50ms]",
+        "(pass) admission workbench > shares sampled external work across policies while deriving replicates deterministically [8.48ms]",
+        "(pass) admission workbench > provides only formal context and a real captured action-observation prefix [2.94ms]",
+        "(pass) admission workbench > preserves non-empty trace, time, boundary, and identities after a later policy failure [1.36ms]",
+        "(pass) admission workbench > separates scenario schema rejection from public graph rejection [1.07ms]",
+        "(pass) admission workbench > backfills past a capacity-blocked head and enforces scoped capacity [5.37ms]",
+        "(pass) admission workbench > recomputes weak multi-resource rates after weighted and mutex occupancy changes [2.10ms]",
+        "(pass) admission workbench > settles ties canonically and distinguishes unsatisfied dependencies from observers [1.84ms]",
+        "(pass) admission workbench > freezes exact profile vectors and the claimed-only Gate resource shape [13.40ms]",
+        "(pass) admission workbench > rejects wait without running work and illegal proposals without fallback [1.29ms]",
+        "(pass) learned heuristic protocol validates consumed fields before replay without rewriting frozen bytes [2.03ms]",
+        "(pass) learned heuristic replay rejects a 204 to 300 makespan regression even when its cost guard passes [1.91ms]",
+        "(pass) learned heuristic replay keeps a sticky fallback failure outside direct prepared decide replay [3.35ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsAdmissionWorkbench-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsLayout",
+      "mode": "registration",
+      "wallMs": 234.724878,
+      "loadBefore": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "loadAfter": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsLayout-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsLayout",
+      "mode": "full",
+      "wallMs": 2204.1127659999993,
+      "loadBefore": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "loadAfter": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "tests": [
+        "(pass) validates repository layout and dependency boundaries [1953.07ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsLayout-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsMachineArtifacts",
+      "mode": "registration",
+      "wallMs": 377.11321900000075,
+      "loadBefore": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "loadAfter": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsMachineArtifacts-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsMachineArtifacts",
+      "mode": "full",
+      "wallMs": 761.8650230000003,
+      "loadBefore": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "loadAfter": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "tests": [
+        "(pass) independent repository material machine artifact validation > accepts exactly the current v4 example and positive JSON grammar variants [77.64ms]",
+        "(pass) independent repository material machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set [139.71ms]",
+        "(pass) independent repository material machine artifact validation > detects generated schema and example drift [190.14ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsMachineArtifacts-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsPackageToolsBoundary",
+      "mode": "registration",
+      "wallMs": 242.9604619999991,
+      "loadBefore": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "loadAfter": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsPackageToolsBoundary-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsPackageToolsBoundary",
+      "mode": "full",
+      "wallMs": 882.1125360000005,
+      "loadBefore": [
+        2.25,
+        2.23,
+        1.06
+      ],
+      "loadAfter": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "tests": [
+        "(pass) enforces package-tool public contracts and Core closure [661.15ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsPackageToolsBoundary-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsProject",
+      "mode": "registration",
+      "wallMs": 744.3532759999998,
+      "loadBefore": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "loadAfter": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsProject-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsProject",
+      "mode": "full",
+      "wallMs": 2436.671957999999,
+      "loadBefore": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "loadAfter": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "tests": [
+        "(pass) Project Gate Definition > projects the central composition manifest into an ordinary Project Definition [175.84ms]",
+        "(pass) Project Gate Definition > settles lint-product with structured oxlint Records or exactly one generic fallback [73.13ms]",
+        "(pass) Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection [63.61ms]",
+        "(pass) Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities [91.43ms]",
+        "(pass) Project Gate Definition > settles a blocking normal quality Finding through its owning Check and effective aggregate [102.40ms]",
+        "(pass) Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection [45.80ms]",
+        "(pass) Project Gate Definition > preserves two-step ast-grep process evidence and failures [3.20ms]",
+        "(pass) Project Gate entries, root binding, and controls > binds the sole project check command to the mise-backed Gate root [0.16ms]",
+        "(pass) Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current selection metadata closed [68.51ms]",
+        "(pass) Project Gate entries, root binding, and controls > defaults to required and normalizes combinable focused presets into opaque flags [0.56ms]",
+        "(pass) Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt [0.21ms]",
+        "(pass) Project Gate adapter closure > returns help before candidate or log work [0.55ms]",
+        "(pass) Project Gate adapter closure > does not load or run a candidate consumer after preparation failure [0.35ms]",
+        "(pass) Project Gate adapter closure > loads no Definition or package runtime before candidate preparation [219.90ms]",
+        "(pass) Project Gate adapter closure > uses explicit formal receipt preparation without invoking local candidate preparation [0.92ms]",
+        "(pass) Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before run or resultContributor [0.17ms]",
+        "(pass) Project Gate adapter closure > reports the invocation directory when Gate transcript setup fails [0.17ms]",
+        "(pass) Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot [1.15ms]",
+        "(pass) Project Gate adapter closure > maps a rejected bound Run to the existing unavailable adapter boundary [0.25ms]",
+        "(pass) Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit [0.69ms]",
+        "(pass) Project Gate adapter closure > fails closed when the Gate transcript cannot be completed [0.28ms]",
+        "(pass) Project Gate adapter closure > warns on total and Check budgets without revising Product facts or successful exit [2.14ms]",
+        "(pass) Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline [0.26ms]",
+        "(pass) Project Gate adapter closure > leaves focused selections outside the total-time budget [0.86ms]",
+        "(pass) Project Gate adapter closure > fails closed when resultContributor throws [0.31ms]",
+        "(pass) Project Gate adapter closure > fails closed when resultContributor returns an invalid result [0.33ms]",
+        "(pass) Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits [0.09ms]",
+        "(pass) Project Gate transcript > records only Gate-owned messages and final facts without patching terminal writers [2.98ms]",
+        "(pass) Project Gate performance budgets > warns on exceeded budgets but blocks missing policy or invalid measurements [0.43ms]",
+        "(pass) Project Gate performance budgets > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them [0.37ms]",
+        "(pass) Project Gate performance budgets > summarizes current Check costs and evaluates mean and nearest-rank p95 independently [1.05ms]",
+        "(pass) Project Gate performance budgets > rejects malformed, duplicate, or overflowing Check duration facts without emitting statistics [0.28ms]",
+        "(pass) Project Gate performance budgets > loads only an explicit regular local JSON file with fixed, unique limits [3.71ms]",
+        "(pass) projects the central resultContributor configuration with candidate-bound run [0.10ms]",
+        "(pass) binds owner-specific Product outputs and Check artifacts to the Gate invocation directory [12.83ms]",
+        "(pass) Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics [19.93ms]",
+        "(pass) external consumer provider binds typed output to invocation provenance [25.38ms]",
+        "(pass) external consumer provider keeps nonzero output unavailable with generic evidence [0.22ms]",
+        "(pass) Project Gate repository material native diagnostics > publishes complete material native diagnostic Records while terminal progress stays bounded [287.88ms]",
+        "(pass) repository quality Checks > uses the strict repository policy and binds only the mise-provided SCC command [8.86ms]",
+        "(pass) repository quality Checks > substitutes an unavailable absolute SCC command without a function-metrics command [1.10ms]",
+        "(pass) repository quality Checks > settles four blocking Checks while retaining advisory Markdown lint Findings [327.32ms]",
+        "(pass) repository quality Checks > preserves Product-owned empty and unavailable Markdown lint outcomes [5.80ms]",
+        "(pass) prepared package candidate Check > publishes versioned typed candidate data and rejects malformed dependency facts [8.07ms]",
+        "(pass) prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest [3.72ms]",
+        "(pass) wires one plain command through Product execution and Gate failure evidence [28.27ms]",
+        "(pass) resolves a direct dependency environment and rejects unavailable providers before spawn [15.69ms]",
+        "(pass) projects a complete nonzero command through the Gate-owned failure projector [48.20ms]",
+        "(pass) rejects mixed dependency and failure projection adapters at runtime [0.21ms]",
+        "(pass) Project Gate oxlint failure Records > projects every complete scoped JSON diagnostic with installed-protocol label spans [0.40ms]",
+        "(pass) Project Gate oxlint failure Records > declines malformed, out-of-scope, and incomplete diagnostic protocols as one whole [0.32ms]",
+        "(pass) Project Gate oxfmt failure Records > projects every authorized list-different path as a relative Record [3.02ms]",
+        "(pass) Project Gate oxfmt failure Records > declines non-path text, duplicate paths, and paths outside the owned target set [0.86ms]",
+        "(pass) Project Gate native operation > keeps native Check outcomes transcript-free [2.95ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsProject-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsProjectSelection",
+      "mode": "registration",
+      "wallMs": 321.9540589999997,
+      "loadBefore": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "loadAfter": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsProjectSelection-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsProjectSelection",
+      "mode": "full",
+      "wallMs": 708.4026549999999,
+      "loadBefore": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "loadAfter": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "tests": [
+        "(pass) Project Gate change regions > selects Product Check test lanes without losing shared or cross-owner inputs [75.48ms]",
+        "(pass) Project Gate change regions > covers every Product Check lane test file with its own change region [94.93ms]",
+        "(pass) Project Gate change regions > selects independent script test lanes from their changed inputs [104.37ms]",
+        "(pass) Project Gate change regions > keeps quality and material regions specific to their inputs [3.81ms]",
+        "(pass) Project Gate change regions > keeps the product-runtime region complete for the lane resolver [63.09ms]",
+        "(pass) Project Gate change regions > selects package and Case checks only for their documented source boundaries [0.97ms]",
+        "(pass) Project Gate change regions > covers every registered package source and current Case owner [9.16ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsProjectSelection-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsTestEvidence",
+      "mode": "registration",
+      "wallMs": 145.09964600000058,
+      "loadBefore": [
+        2.31,
+        2.24,
+        1.07
+      ],
+      "loadAfter": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsTestEvidence-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsTestEvidence",
+      "mode": "full",
+      "wallMs": 975.0321290000011,
+      "loadBefore": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "loadAfter": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "tests": [
+        "(pass) parses and queries topic-grouped semantic Cases [623.43ms]",
+        "(pass) diagnoses malformed Case structure and stable identity conflicts [14.38ms]",
+        "(pass) closes one static and runtime entity into a stable Bun entity key [0.27ms]",
+        "(pass) reports static-only, runtime-only, and duplicate entity identities [0.22ms]",
+        "(pass) forwards cancellation to ast-grep scans [2.28ms]",
+        "(pass) parses stable Bun runner reports without inferring missing fields [1.04ms]",
+        "(pass) forwards cancellation through the top-level discovery operation [0.69ms]",
+        "(pass) loads one versioned and sorted supported runner profile [108.42ms]",
+        "(pass) expands Bun test roots with include, ignore and supplemental files [4.40ms]",
+        "(pass) rejects invalid, empty and redundant Bun test surfaces [3.84ms]",
+        "(pass) forwards cancellation to the Bun test discovery child [27.97ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsTestEvidence-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsTooling",
+      "mode": "registration",
+      "wallMs": 147.19145899999967,
+      "loadBefore": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "loadAfter": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsTooling-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsTooling",
+      "mode": "full",
+      "wallMs": 2517.6848990000017,
+      "loadBefore": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "loadAfter": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "tests": [
+        "(pass) Lizard upstream advisory reports the pinned 1.24 baseline as current without ambient credentials [4.21ms]",
+        "(pass) Lizard upstream advisory reports a stable newer release without changing anything [0.31ms]",
+        "(pass) Lizard upstream advisory keeps HTTP, malformed, and oversized responses advisory [0.67ms]",
+        "(pass) Lizard upstream advisory maps timeout and network failures to stable advisory results [1.55ms]",
+        "(pass) detects failed process results [2.12ms]",
+        "(pass) runs child processes with plain text output environment [50.49ms]",
+        "(pass) cancels an already-started child process [30.34ms]",
+        "(pass) times out an already-started child process [25.89ms]",
+        "(pass) development quality target boundaries > excludes only generated function-analyzer oracle fixtures from product lint and format [0.19ms]",
+        "(pass) normalizes slash paths and identifies contained paths [0.31ms]",
+        "(pass) walks repository files deterministically and reports unreadable roots [3.08ms]",
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [43.84ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [20.49ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [1448.76ms]",
+        "(pass) package Markdown > requires one README-linked guide for every package-provided Check function [18.95ms]",
+        "(pass) package Markdown > rejects a missing direct README link and an extra Check guide page [29.66ms]",
+        "(pass) package Markdown > rejects package documentation without exactly one trailing LF [21.99ms]",
+        "(pass) package Markdown > rejects package example projection markers in hand-written and machine Markdown [98.74ms]",
+        "(pass) Lizard TypeScript developer performance evidence > requires an explicit bounded developer invocation [0.70ms]",
+        "(pass) Lizard TypeScript developer performance evidence > locates invalid child and manifest fields at the evidence boundary [0.61ms]",
+        "(pass) Lizard TypeScript developer performance evidence > canonicalizes metric ordering before output equality [0.30ms]",
+        "(pass) Lizard TypeScript developer performance evidence > uses every ABBA block in deterministic bootstrap classification and only marks IQR outliers [1.50ms]",
+        "(pass) Lizard TypeScript developer performance evidence > selects counted-operation wall only for warmed statistics and gives both B sides one warmup flag [0.07ms]",
+        "(pass) Lizard TypeScript developer performance evidence > blocks statistical sampling on counted output drift and refuses non-Linux supervisor semantics [0.15ms]",
+        "(pass) labels Linux wait4 resource scope without relabeling max RSS as tree aggregate [80.43ms]",
+        "(pass) package API documentation renderer > projects every registry source region to its declared Markdown fence and JSDoc target without changing payload bytes [38.26ms]",
+        "(pass) package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown example targets [348.46ms]",
+        "(pass) package API documentation CLI > writes expected projections and detects stale output through --check [83.05ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsTooling-full.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsValidation",
+      "mode": "registration",
+      "wallMs": 721.251277000003,
+      "loadBefore": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "loadAfter": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsValidation-registration.log"
+    },
+    {
+      "round": 0,
+      "warmup": true,
+      "lane": "scriptsValidation",
+      "mode": "full",
+      "wallMs": 775.4647929999992,
+      "loadBefore": [
+        2.29,
+        2.24,
+        1.08
+      ],
+      "loadAfter": [
+        2.19,
+        2.22,
+        1.08
+      ],
+      "tests": [
+        "(pass) root validation adapter forwards default and focused material selections [2.04ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [8.35ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [4.77ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [0.19ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.16ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [0.83ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.51ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.35ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.58ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [2.23ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [34.37ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/0-scriptsValidation-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "packageSupporting",
+      "mode": "registration",
+      "wallMs": 539.993144,
+      "loadBefore": [
+        2.19,
+        2.22,
+        1.08
+      ],
+      "loadAfter": [
+        2.19,
+        2.22,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-packageSupporting-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "packageSupporting",
+      "mode": "full",
+      "wallMs": 2573.9257599999983,
+      "loadBefore": [
+        2.19,
+        2.22,
+        1.08
+      ],
+      "loadAfter": [
+        2.19,
+        2.22,
+        1.08
+      ],
+      "tests": [
+        "(pass) public API inventory > publishes only the approved runtime and type roots [346.00ms]",
+        "(pass) package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance [0.91ms]",
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [233.74ms]",
+        "(pass) package legal materials > fails closed in the translated-analyzer audit phase order [16.80ms]",
+        "(pass) package dependency versions satisfy only their declared requirement [0.14ms]",
+        "(pass) formal release root commands require closed inputs and bind verification to one complete --all Gate receipt [2.38ms]",
+        "(pass) formal package release > accepts only explicit canonical prestable versions and conservative tags [1.56ms]",
+        "(pass) formal package release > writes a portable sanitized receipt and rejects identity or artifact drift [5.73ms]",
+        "(pass) formal package release > isolates formal staging and receipt state from the default local candidate [0.18ms]",
+        "(pass) formal package release > requires one exact clean Git worktree revision before formal preparation [58.05ms]",
+        "(pass) installed dependency license audit > covers every package directory and fails closed on unsupported declarations and layouts [18.31ms]",
+        "(pass) package candidate preparation contracts > rejects overlapping package build and cache roots [70.38ms]",
+        "(pass) package candidate preparation contracts > rejects invalid private consumer manifests [1.66ms]",
+        "(pass) package candidate preparation contracts > keeps the explicit cold integration target outside routine discovery with hard timeout [0.10ms]",
+        "(pass) rejects malformed and stale receipts before artifact reuse [3.75ms]",
+        "(pass) accepts an exact Gate candidate artifact input [98.68ms]",
+        "(pass) rejects incomplete or mismatched Gate candidate artifact input [1.41ms]",
+        "(pass) source mapping sync derives only the package provenance pin after reviewing curated mappings [12.47ms]",
+        "(pass) source mapping sync leaves curated files untouched when validation rejects a mapping [11.64ms]",
+        "(pass) source mapping sync restores a prior file when a later write fails [4.84ms]",
+        "(pass) runtime source maps > normalizes and verifies one map against its packaged TypeScript source [4.21ms]",
+        "(pass) candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs [285.28ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [9.24ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [769.80ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.15ms]",
+        "(pass) emitted ESM module specifiers > rewrites relative module references without changing ordinary path strings [34.78ms]",
+        "(pass) emitted ESM module specifiers > rejects malformed emitted JavaScript before artifact normalization [7.58ms]",
+        "(pass) accepts provider-owned artifact staging material [2.68ms]",
+        "(pass) rejects incomplete or unrelated artifact staging material [2.99ms]",
+        "(pass) external consumer provider input is closed and fail-closed [3.40ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-packageSupporting-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsAdmissionWorkbench",
+      "mode": "registration",
+      "wallMs": 391.8442329999998,
+      "loadBefore": [
+        2.19,
+        2.22,
+        1.08
+      ],
+      "loadAfter": [
+        2.19,
+        2.22,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsAdmissionWorkbench-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsAdmissionWorkbench",
+      "mode": "full",
+      "wallMs": 2513.9048629999998,
+      "loadBefore": [
+        2.19,
+        2.22,
+        1.08
+      ],
+      "loadAfter": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "tests": [
+        "(pass) admission workbench shared closure > drains an admitted real Check while cancellation closes pending work before it starts [18.92ms]",
+        "(pass) admission workbench shared closure > keeps virtual unsatisfied settlement separate from real cancellation [2.42ms]",
+        "(pass) command writes identified virtual stdout for static and isolated learned replicates [550.84ms]",
+        "(pass) command exclusively creates an explicit output after complete serialization [523.80ms]",
+        "(pass) command rejects malformed arguments inputs and unsafe output targets [733.19ms]",
+        "(pass) command returns nonzero error evidence with parsed identity for a public graph rejection [253.18ms]",
+        "(pass) workbench source consumes only the installed public package and never the Gate entry [2.35ms]",
+        "(pass) prepared learned policy copies fixed history into isolated absolute state and keeps identity stable [10.42ms]",
+        "(pass) prepared learned policy invalidates identity and setup fallback instead of scoring it [2.98ms]",
+        "(pass) formal simple and prepared adapters prepare once and never complete virtual observations [6.60ms]",
+        "(pass) admission workbench > matches shared-resource and serial hand-calculated oracles [6.45ms]",
+        "(pass) admission workbench > matches empty single and chain boundaries without invoking policy for an empty graph [5.14ms]",
+        "(pass) admission workbench > shares sampled external work across policies while deriving replicates deterministically [10.12ms]",
+        "(pass) admission workbench > provides only formal context and a real captured action-observation prefix [3.58ms]",
+        "(pass) admission workbench > preserves non-empty trace, time, boundary, and identities after a later policy failure [1.61ms]",
+        "(pass) admission workbench > separates scenario schema rejection from public graph rejection [1.12ms]",
+        "(pass) admission workbench > backfills past a capacity-blocked head and enforces scoped capacity [5.29ms]",
+        "(pass) admission workbench > recomputes weak multi-resource rates after weighted and mutex occupancy changes [3.01ms]",
+        "(pass) admission workbench > settles ties canonically and distinguishes unsatisfied dependencies from observers [2.44ms]",
+        "(pass) admission workbench > freezes exact profile vectors and the claimed-only Gate resource shape [13.69ms]",
+        "(pass) admission workbench > rejects wait without running work and illegal proposals without fallback [1.74ms]",
+        "(pass) learned heuristic protocol validates consumed fields before replay without rewriting frozen bytes [1.83ms]",
+        "(pass) learned heuristic replay rejects a 204 to 300 makespan regression even when its cost guard passes [1.79ms]",
+        "(pass) learned heuristic replay keeps a sticky fallback failure outside direct prepared decide replay [3.24ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsAdmissionWorkbench-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsLayout",
+      "mode": "registration",
+      "wallMs": 237.68257699999958,
+      "loadBefore": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "loadAfter": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsLayout-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsLayout",
+      "mode": "full",
+      "wallMs": 2114.404616,
+      "loadBefore": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "loadAfter": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "tests": [
+        "(pass) validates repository layout and dependency boundaries [1835.79ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsLayout-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsMachineArtifacts",
+      "mode": "registration",
+      "wallMs": 368.6670329999979,
+      "loadBefore": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "loadAfter": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsMachineArtifacts-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsMachineArtifacts",
+      "mode": "full",
+      "wallMs": 788.9190589999998,
+      "loadBefore": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "loadAfter": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "tests": [
+        "(pass) independent repository material machine artifact validation > accepts exactly the current v4 example and positive JSON grammar variants [75.11ms]",
+        "(pass) independent repository material machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set [140.43ms]",
+        "(pass) independent repository material machine artifact validation > detects generated schema and example drift [206.29ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsMachineArtifacts-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsPackageToolsBoundary",
+      "mode": "registration",
+      "wallMs": 246.75084100000095,
+      "loadBefore": [
+        2.09,
+        2.2,
+        1.08
+      ],
+      "loadAfter": [
+        2,
+        2.18,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsPackageToolsBoundary-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsPackageToolsBoundary",
+      "mode": "full",
+      "wallMs": 954.3334560000003,
+      "loadBefore": [
+        2,
+        2.18,
+        1.08
+      ],
+      "loadAfter": [
+        2,
+        2.18,
+        1.08
+      ],
+      "tests": [
+        "(pass) enforces package-tool public contracts and Core closure [704.75ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsPackageToolsBoundary-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsProject",
+      "mode": "registration",
+      "wallMs": 804.4561359999971,
+      "loadBefore": [
+        2,
+        2.18,
+        1.08
+      ],
+      "loadAfter": [
+        2,
+        2.18,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsProject-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsProject",
+      "mode": "full",
+      "wallMs": 2749.466138,
+      "loadBefore": [
+        2,
+        2.18,
+        1.08
+      ],
+      "loadAfter": [
+        2,
+        2.18,
+        1.08
+      ],
+      "tests": [
+        "(pass) Project Gate Definition > projects the central composition manifest into an ordinary Project Definition [222.26ms]",
+        "(pass) Project Gate Definition > settles lint-product with structured oxlint Records or exactly one generic fallback [86.65ms]",
+        "(pass) Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection [66.70ms]",
+        "(pass) Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities [105.10ms]",
+        "(pass) Project Gate Definition > settles a blocking normal quality Finding through its owning Check and effective aggregate [118.70ms]",
+        "(pass) Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection [38.15ms]",
+        "(pass) Project Gate Definition > preserves two-step ast-grep process evidence and failures [3.61ms]",
+        "(pass) Project Gate entries, root binding, and controls > binds the sole project check command to the mise-backed Gate root [0.30ms]",
+        "(pass) Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current selection metadata closed [66.44ms]",
+        "(pass) Project Gate entries, root binding, and controls > defaults to required and normalizes combinable focused presets into opaque flags [0.57ms]",
+        "(pass) Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt [0.31ms]",
+        "(pass) Project Gate adapter closure > returns help before candidate or log work [0.59ms]",
+        "(pass) Project Gate adapter closure > does not load or run a candidate consumer after preparation failure [0.40ms]",
+        "(pass) Project Gate adapter closure > loads no Definition or package runtime before candidate preparation [227.46ms]",
+        "(pass) Project Gate adapter closure > uses explicit formal receipt preparation without invoking local candidate preparation [1.02ms]",
+        "(pass) Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before run or resultContributor [0.15ms]",
+        "(pass) Project Gate adapter closure > reports the invocation directory when Gate transcript setup fails [0.19ms]",
+        "(pass) Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot [1.17ms]",
+        "(pass) Project Gate adapter closure > maps a rejected bound Run to the existing unavailable adapter boundary [0.30ms]",
+        "(pass) Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit [0.87ms]",
+        "(pass) Project Gate adapter closure > fails closed when the Gate transcript cannot be completed [0.46ms]",
+        "(pass) Project Gate adapter closure > warns on total and Check budgets without revising Product facts or successful exit [2.31ms]",
+        "(pass) Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline [0.28ms]",
+        "(pass) Project Gate adapter closure > leaves focused selections outside the total-time budget [0.88ms]",
+        "(pass) Project Gate adapter closure > fails closed when resultContributor throws [0.33ms]",
+        "(pass) Project Gate adapter closure > fails closed when resultContributor returns an invalid result [0.35ms]",
+        "(pass) Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits [0.11ms]",
+        "(pass) Project Gate transcript > records only Gate-owned messages and final facts without patching terminal writers [2.93ms]",
+        "(pass) Project Gate performance budgets > warns on exceeded budgets but blocks missing policy or invalid measurements [0.43ms]",
+        "(pass) Project Gate performance budgets > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them [0.41ms]",
+        "(pass) Project Gate performance budgets > summarizes current Check costs and evaluates mean and nearest-rank p95 independently [1.21ms]",
+        "(pass) Project Gate performance budgets > rejects malformed, duplicate, or overflowing Check duration facts without emitting statistics [0.28ms]",
+        "(pass) Project Gate performance budgets > loads only an explicit regular local JSON file with fixed, unique limits [4.16ms]",
+        "(pass) projects the central resultContributor configuration with candidate-bound run [1.77ms]",
+        "(pass) binds owner-specific Product outputs and Check artifacts to the Gate invocation directory [14.80ms]",
+        "(pass) Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics [21.55ms]",
+        "(pass) external consumer provider binds typed output to invocation provenance [26.51ms]",
+        "(pass) external consumer provider keeps nonzero output unavailable with generic evidence [0.24ms]",
+        "(pass) Project Gate repository material native diagnostics > publishes complete material native diagnostic Records while terminal progress stays bounded [315.22ms]",
+        "(pass) repository quality Checks > uses the strict repository policy and binds only the mise-provided SCC command [9.68ms]",
+        "(pass) repository quality Checks > substitutes an unavailable absolute SCC command without a function-metrics command [1.37ms]",
+        "(pass) repository quality Checks > settles four blocking Checks while retaining advisory Markdown lint Findings [352.70ms]",
+        "(pass) repository quality Checks > preserves Product-owned empty and unavailable Markdown lint outcomes [7.07ms]",
+        "(pass) prepared package candidate Check > publishes versioned typed candidate data and rejects malformed dependency facts [8.30ms]",
+        "(pass) prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest [3.71ms]",
+        "(pass) wires one plain command through Product execution and Gate failure evidence [23.71ms]",
+        "(pass) resolves a direct dependency environment and rejects unavailable providers before spawn [17.07ms]",
+        "(pass) projects a complete nonzero command through the Gate-owned failure projector [45.12ms]",
+        "(pass) rejects mixed dependency and failure projection adapters at runtime [0.28ms]",
+        "(pass) Project Gate oxlint failure Records > projects every complete scoped JSON diagnostic with installed-protocol label spans [0.41ms]",
+        "(pass) Project Gate oxlint failure Records > declines malformed, out-of-scope, and incomplete diagnostic protocols as one whole [0.31ms]",
+        "(pass) Project Gate oxfmt failure Records > projects every authorized list-different path as a relative Record [1.17ms]",
+        "(pass) Project Gate oxfmt failure Records > declines non-path text, duplicate paths, and paths outside the owned target set [0.99ms]",
+        "(pass) Project Gate native operation > keeps native Check outcomes transcript-free [4.63ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsProject-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsProjectSelection",
+      "mode": "registration",
+      "wallMs": 381.6075920000003,
+      "loadBefore": [
+        2,
+        2.18,
+        1.08
+      ],
+      "loadAfter": [
+        2,
+        2.18,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsProjectSelection-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsProjectSelection",
+      "mode": "full",
+      "wallMs": 864.1500020000021,
+      "loadBefore": [
+        2,
+        2.18,
+        1.08
+      ],
+      "loadAfter": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "tests": [
+        "(pass) Project Gate change regions > selects Product Check test lanes without losing shared or cross-owner inputs [78.96ms]",
+        "(pass) Project Gate change regions > covers every Product Check lane test file with its own change region [137.77ms]",
+        "(pass) Project Gate change regions > selects independent script test lanes from their changed inputs [173.25ms]",
+        "(pass) Project Gate change regions > keeps quality and material regions specific to their inputs [5.67ms]",
+        "(pass) Project Gate change regions > keeps the product-runtime region complete for the lane resolver [92.49ms]",
+        "(pass) Project Gate change regions > selects package and Case checks only for their documented source boundaries [1.37ms]",
+        "(pass) Project Gate change regions > covers every registered package source and current Case owner [17.66ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsProjectSelection-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsTestEvidence",
+      "mode": "registration",
+      "wallMs": 204.0229990000007,
+      "loadBefore": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "loadAfter": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsTestEvidence-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsTestEvidence",
+      "mode": "full",
+      "wallMs": 1364.5422289999988,
+      "loadBefore": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "loadAfter": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "tests": [
+        "(pass) parses and queries topic-grouped semantic Cases [935.54ms]",
+        "(pass) diagnoses malformed Case structure and stable identity conflicts [19.31ms]",
+        "(pass) closes one static and runtime entity into a stable Bun entity key [0.49ms]",
+        "(pass) reports static-only, runtime-only, and duplicate entity identities [0.20ms]",
+        "(pass) forwards cancellation to ast-grep scans [2.97ms]",
+        "(pass) parses stable Bun runner reports without inferring missing fields [1.85ms]",
+        "(pass) forwards cancellation through the top-level discovery operation [0.99ms]",
+        "(pass) loads one versioned and sorted supported runner profile [142.20ms]",
+        "(pass) expands Bun test roots with include, ignore and supplemental files [5.15ms]",
+        "(pass) rejects invalid, empty and redundant Bun test surfaces [5.43ms]",
+        "(pass) forwards cancellation to the Bun test discovery child [47.73ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsTestEvidence-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsTooling",
+      "mode": "registration",
+      "wallMs": 194.83557799999835,
+      "loadBefore": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "loadAfter": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsTooling-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsTooling",
+      "mode": "full",
+      "wallMs": 2087.5614389999973,
+      "loadBefore": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "loadAfter": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "tests": [
+        "(pass) Lizard upstream advisory reports the pinned 1.24 baseline as current without ambient credentials [6.71ms]",
+        "(pass) Lizard upstream advisory reports a stable newer release without changing anything [0.74ms]",
+        "(pass) Lizard upstream advisory keeps HTTP, malformed, and oversized responses advisory [1.20ms]",
+        "(pass) Lizard upstream advisory maps timeout and network failures to stable advisory results [2.19ms]",
+        "(pass) detects failed process results [0.07ms]",
+        "(pass) runs child processes with plain text output environment [71.06ms]",
+        "(pass) cancels an already-started child process [32.55ms]",
+        "(pass) times out an already-started child process [27.01ms]",
+        "(pass) development quality target boundaries > excludes only generated function-analyzer oracle fixtures from product lint and format [0.18ms]",
+        "(pass) normalizes slash paths and identifies contained paths [0.37ms]",
+        "(pass) walks repository files deterministically and reports unreadable roots [3.75ms]",
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [55.43ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [36.99ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [927.47ms]",
+        "(pass) package Markdown > requires one README-linked guide for every package-provided Check function [15.55ms]",
+        "(pass) package Markdown > rejects a missing direct README link and an extra Check guide page [27.23ms]",
+        "(pass) package Markdown > rejects package documentation without exactly one trailing LF [21.88ms]",
+        "(pass) package Markdown > rejects package example projection markers in hand-written and machine Markdown [94.71ms]",
+        "(pass) Lizard TypeScript developer performance evidence > requires an explicit bounded developer invocation [0.63ms]",
+        "(pass) Lizard TypeScript developer performance evidence > locates invalid child and manifest fields at the evidence boundary [0.70ms]",
+        "(pass) Lizard TypeScript developer performance evidence > canonicalizes metric ordering before output equality [0.35ms]",
+        "(pass) Lizard TypeScript developer performance evidence > uses every ABBA block in deterministic bootstrap classification and only marks IQR outliers [1.37ms]",
+        "(pass) Lizard TypeScript developer performance evidence > selects counted-operation wall only for warmed statistics and gives both B sides one warmup flag [0.07ms]",
+        "(pass) Lizard TypeScript developer performance evidence > blocks statistical sampling on counted output drift and refuses non-Linux supervisor semantics [0.19ms]",
+        "(pass) labels Linux wait4 resource scope without relabeling max RSS as tree aggregate [75.80ms]",
+        "(pass) package API documentation renderer > projects every registry source region to its declared Markdown fence and JSDoc target without changing payload bytes [29.54ms]",
+        "(pass) package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown example targets [351.64ms]",
+        "(pass) package API documentation CLI > writes expected projections and detects stale output through --check [100.16ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsTooling-full.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsValidation",
+      "mode": "registration",
+      "wallMs": 769.828677999998,
+      "loadBefore": [
+        1.92,
+        2.16,
+        1.08
+      ],
+      "loadAfter": [
+        1.85,
+        2.14,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsValidation-registration.log"
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "lane": "scriptsValidation",
+      "mode": "full",
+      "wallMs": 811.5344140000016,
+      "loadBefore": [
+        1.85,
+        2.14,
+        1.08
+      ],
+      "loadAfter": [
+        1.85,
+        2.14,
+        1.08
+      ],
+      "tests": [
+        "(pass) root validation adapter forwards default and focused material selections [1.96ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [9.67ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [1.95ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [4.42ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.42ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [1.01ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.55ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.49ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.56ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [1.83ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [32.09ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/1-scriptsValidation-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "packageSupporting",
+      "mode": "registration",
+      "wallMs": 569.4534609999973,
+      "loadBefore": [
+        1.85,
+        2.14,
+        1.08
+      ],
+      "loadAfter": [
+        1.85,
+        2.14,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-packageSupporting-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "packageSupporting",
+      "mode": "full",
+      "wallMs": 2935.45708,
+      "loadBefore": [
+        1.85,
+        2.14,
+        1.08
+      ],
+      "loadAfter": [
+        1.85,
+        2.14,
+        1.08
+      ],
+      "tests": [
+        "(pass) public API inventory > publishes only the approved runtime and type roots [340.38ms]",
+        "(pass) package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance [0.78ms]",
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [231.23ms]",
+        "(pass) package legal materials > fails closed in the translated-analyzer audit phase order [15.91ms]",
+        "(pass) package dependency versions satisfy only their declared requirement [0.15ms]",
+        "(pass) formal release root commands require closed inputs and bind verification to one complete --all Gate receipt [2.53ms]",
+        "(pass) formal package release > accepts only explicit canonical prestable versions and conservative tags [1.96ms]",
+        "(pass) formal package release > writes a portable sanitized receipt and rejects identity or artifact drift [6.39ms]",
+        "(pass) formal package release > isolates formal staging and receipt state from the default local candidate [0.20ms]",
+        "(pass) formal package release > requires one exact clean Git worktree revision before formal preparation [47.97ms]",
+        "(pass) installed dependency license audit > covers every package directory and fails closed on unsupported declarations and layouts [15.73ms]",
+        "(pass) package candidate preparation contracts > rejects overlapping package build and cache roots [55.74ms]",
+        "(pass) package candidate preparation contracts > rejects invalid private consumer manifests [1.52ms]",
+        "(pass) package candidate preparation contracts > keeps the explicit cold integration target outside routine discovery with hard timeout [0.08ms]",
+        "(pass) rejects malformed and stale receipts before artifact reuse [3.09ms]",
+        "(pass) accepts an exact Gate candidate artifact input [77.43ms]",
+        "(pass) rejects incomplete or mismatched Gate candidate artifact input [1.50ms]",
+        "(pass) source mapping sync derives only the package provenance pin after reviewing curated mappings [8.34ms]",
+        "(pass) source mapping sync leaves curated files untouched when validation rejects a mapping [8.12ms]",
+        "(pass) source mapping sync restores a prior file when a later write fails [3.83ms]",
+        "(pass) runtime source maps > normalizes and verifies one map against its packaged TypeScript source [4.71ms]",
+        "(pass) candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs [274.08ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [9.79ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [961.37ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.65ms]",
+        "(pass) emitted ESM module specifiers > rewrites relative module references without changing ordinary path strings [104.82ms]",
+        "(pass) emitted ESM module specifiers > rejects malformed emitted JavaScript before artifact normalization [55.45ms]",
+        "(pass) accepts provider-owned artifact staging material [17.88ms]",
+        "(pass) rejects incomplete or unrelated artifact staging material [14.97ms]",
+        "(pass) external consumer provider input is closed and fail-closed [20.10ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-packageSupporting-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsAdmissionWorkbench",
+      "mode": "registration",
+      "wallMs": 839.9472610000012,
+      "loadBefore": [
+        1.85,
+        2.14,
+        1.08
+      ],
+      "loadAfter": [
+        1.78,
+        2.12,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsAdmissionWorkbench-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsAdmissionWorkbench",
+      "mode": "full",
+      "wallMs": 3114.270776000005,
+      "loadBefore": [
+        1.78,
+        2.12,
+        1.08
+      ],
+      "loadAfter": [
+        1.78,
+        2.12,
+        1.08
+      ],
+      "tests": [
+        "(pass) admission workbench shared closure > drains an admitted real Check while cancellation closes pending work before it starts [30.38ms]",
+        "(pass) admission workbench shared closure > keeps virtual unsatisfied settlement separate from real cancellation [3.08ms]",
+        "(pass) command writes identified virtual stdout for static and isolated learned replicates [678.65ms]",
+        "(pass) command exclusively creates an explicit output after complete serialization [625.54ms]",
+        "(pass) command rejects malformed arguments inputs and unsafe output targets [815.69ms]",
+        "(pass) command returns nonzero error evidence with parsed identity for a public graph rejection [370.31ms]",
+        "(pass) workbench source consumes only the installed public package and never the Gate entry [2.81ms]",
+        "(pass) prepared learned policy copies fixed history into isolated absolute state and keeps identity stable [11.15ms]",
+        "(pass) prepared learned policy invalidates identity and setup fallback instead of scoring it [5.90ms]",
+        "(pass) formal simple and prepared adapters prepare once and never complete virtual observations [10.30ms]",
+        "(pass) admission workbench > matches shared-resource and serial hand-calculated oracles [10.18ms]",
+        "(pass) admission workbench > matches empty single and chain boundaries without invoking policy for an empty graph [8.18ms]",
+        "(pass) admission workbench > shares sampled external work across policies while deriving replicates deterministically [18.17ms]",
+        "(pass) admission workbench > provides only formal context and a real captured action-observation prefix [6.47ms]",
+        "(pass) admission workbench > preserves non-empty trace, time, boundary, and identities after a later policy failure [3.46ms]",
+        "(pass) admission workbench > separates scenario schema rejection from public graph rejection [1.72ms]",
+        "(pass) admission workbench > backfills past a capacity-blocked head and enforces scoped capacity [7.70ms]",
+        "(pass) admission workbench > recomputes weak multi-resource rates after weighted and mutex occupancy changes [3.78ms]",
+        "(pass) admission workbench > settles ties canonically and distinguishes unsatisfied dependencies from observers [4.28ms]",
+        "(pass) admission workbench > freezes exact profile vectors and the claimed-only Gate resource shape [20.07ms]",
+        "(pass) admission workbench > rejects wait without running work and illegal proposals without fallback [1.93ms]",
+        "(pass) learned heuristic protocol validates consumed fields before replay without rewriting frozen bytes [2.61ms]",
+        "(pass) learned heuristic replay rejects a 204 to 300 makespan regression even when its cost guard passes [2.41ms]",
+        "(pass) learned heuristic replay keeps a sticky fallback failure outside direct prepared decide replay [3.96ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsAdmissionWorkbench-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsLayout",
+      "mode": "registration",
+      "wallMs": 272.6545699999988,
+      "loadBefore": [
+        1.78,
+        2.12,
+        1.08
+      ],
+      "loadAfter": [
+        1.78,
+        2.12,
+        1.08
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsLayout-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsLayout",
+      "mode": "full",
+      "wallMs": 2704.8776339999968,
+      "loadBefore": [
+        1.78,
+        2.12,
+        1.08
+      ],
+      "loadAfter": [
+        1.96,
+        2.15,
+        1.09
+      ],
+      "tests": [
+        "(pass) validates repository layout and dependency boundaries [2407.92ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsLayout-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsMachineArtifacts",
+      "mode": "registration",
+      "wallMs": 444.66217999999935,
+      "loadBefore": [
+        1.96,
+        2.15,
+        1.09
+      ],
+      "loadAfter": [
+        1.96,
+        2.15,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsMachineArtifacts-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsMachineArtifacts",
+      "mode": "full",
+      "wallMs": 2096.275806000005,
+      "loadBefore": [
+        1.96,
+        2.15,
+        1.09
+      ],
+      "loadAfter": [
+        1.96,
+        2.15,
+        1.09
+      ],
+      "tests": [
+        "(pass) independent repository material machine artifact validation > accepts exactly the current v4 example and positive JSON grammar variants [145.19ms]",
+        "(pass) independent repository material machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set [671.94ms]",
+        "(pass) independent repository material machine artifact validation > detects generated schema and example drift [613.48ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsMachineArtifacts-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsPackageToolsBoundary",
+      "mode": "registration",
+      "wallMs": 481.59097000000475,
+      "loadBefore": [
+        1.96,
+        2.15,
+        1.09
+      ],
+      "loadAfter": [
+        1.96,
+        2.15,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsPackageToolsBoundary-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsPackageToolsBoundary",
+      "mode": "full",
+      "wallMs": 2203.679774000004,
+      "loadBefore": [
+        1.96,
+        2.15,
+        1.09
+      ],
+      "loadAfter": [
+        1.88,
+        2.13,
+        1.09
+      ],
+      "tests": [
+        "(pass) enforces package-tool public contracts and Core closure [1770.68ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsPackageToolsBoundary-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsProject",
+      "mode": "registration",
+      "wallMs": 1316.266045999997,
+      "loadBefore": [
+        1.88,
+        2.13,
+        1.09
+      ],
+      "loadAfter": [
+        1.88,
+        2.13,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsProject-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsProject",
+      "mode": "full",
+      "wallMs": 3438.180465000005,
+      "loadBefore": [
+        1.88,
+        2.13,
+        1.09
+      ],
+      "loadAfter": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "tests": [
+        "(pass) Project Gate Definition > projects the central composition manifest into an ordinary Project Definition [262.45ms]",
+        "(pass) Project Gate Definition > settles lint-product with structured oxlint Records or exactly one generic fallback [129.18ms]",
+        "(pass) Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection [137.68ms]",
+        "(pass) Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities [152.37ms]",
+        "(pass) Project Gate Definition > settles a blocking normal quality Finding through its owning Check and effective aggregate [172.27ms]",
+        "(pass) Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection [55.63ms]",
+        "(pass) Project Gate Definition > preserves two-step ast-grep process evidence and failures [3.65ms]",
+        "(pass) Project Gate entries, root binding, and controls > binds the sole project check command to the mise-backed Gate root [1.14ms]",
+        "(pass) Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current selection metadata closed [98.59ms]",
+        "(pass) Project Gate entries, root binding, and controls > defaults to required and normalizes combinable focused presets into opaque flags [0.71ms]",
+        "(pass) Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt [0.26ms]",
+        "(pass) Project Gate adapter closure > returns help before candidate or log work [0.76ms]",
+        "(pass) Project Gate adapter closure > does not load or run a candidate consumer after preparation failure [0.42ms]",
+        "(pass) Project Gate adapter closure > loads no Definition or package runtime before candidate preparation [273.94ms]",
+        "(pass) Project Gate adapter closure > uses explicit formal receipt preparation without invoking local candidate preparation [1.81ms]",
+        "(pass) Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before run or resultContributor [0.30ms]",
+        "(pass) Project Gate adapter closure > reports the invocation directory when Gate transcript setup fails [0.47ms]",
+        "(pass) Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot [1.91ms]",
+        "(pass) Project Gate adapter closure > maps a rejected bound Run to the existing unavailable adapter boundary [0.60ms]",
+        "(pass) Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit [1.27ms]",
+        "(pass) Project Gate adapter closure > fails closed when the Gate transcript cannot be completed [0.42ms]",
+        "(pass) Project Gate adapter closure > warns on total and Check budgets without revising Product facts or successful exit [3.09ms]",
+        "(pass) Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline [0.43ms]",
+        "(pass) Project Gate adapter closure > leaves focused selections outside the total-time budget [1.29ms]",
+        "(pass) Project Gate adapter closure > fails closed when resultContributor throws [0.51ms]",
+        "(pass) Project Gate adapter closure > fails closed when resultContributor returns an invalid result [0.44ms]",
+        "(pass) Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits [0.12ms]",
+        "(pass) Project Gate transcript > records only Gate-owned messages and final facts without patching terminal writers [4.24ms]",
+        "(pass) Project Gate performance budgets > warns on exceeded budgets but blocks missing policy or invalid measurements [0.64ms]",
+        "(pass) Project Gate performance budgets > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them [0.44ms]",
+        "(pass) Project Gate performance budgets > summarizes current Check costs and evaluates mean and nearest-rank p95 independently [1.26ms]",
+        "(pass) Project Gate performance budgets > rejects malformed, duplicate, or overflowing Check duration facts without emitting statistics [0.29ms]",
+        "(pass) Project Gate performance budgets > loads only an explicit regular local JSON file with fixed, unique limits [4.40ms]",
+        "(pass) projects the central resultContributor configuration with candidate-bound run [0.12ms]",
+        "(pass) binds owner-specific Product outputs and Check artifacts to the Gate invocation directory [17.19ms]",
+        "(pass) Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics [25.33ms]",
+        "(pass) external consumer provider binds typed output to invocation provenance [38.02ms]",
+        "(pass) external consumer provider keeps nonzero output unavailable with generic evidence [0.46ms]",
+        "(pass) Project Gate repository material native diagnostics > publishes complete material native diagnostic Records while terminal progress stays bounded [374.63ms]",
+        "(pass) repository quality Checks > uses the strict repository policy and binds only the mise-provided SCC command [10.87ms]",
+        "(pass) repository quality Checks > substitutes an unavailable absolute SCC command without a function-metrics command [1.55ms]",
+        "(pass) repository quality Checks > settles four blocking Checks while retaining advisory Markdown lint Findings [405.71ms]",
+        "(pass) repository quality Checks > preserves Product-owned empty and unavailable Markdown lint outcomes [6.25ms]",
+        "(pass) prepared package candidate Check > publishes versioned typed candidate data and rejects malformed dependency facts [11.01ms]",
+        "(pass) prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest [5.00ms]",
+        "(pass) wires one plain command through Product execution and Gate failure evidence [26.78ms]",
+        "(pass) resolves a direct dependency environment and rejects unavailable providers before spawn [17.80ms]",
+        "(pass) projects a complete nonzero command through the Gate-owned failure projector [49.52ms]",
+        "(pass) rejects mixed dependency and failure projection adapters at runtime [0.22ms]",
+        "(pass) Project Gate oxlint failure Records > projects every complete scoped JSON diagnostic with installed-protocol label spans [3.46ms]",
+        "(pass) Project Gate oxlint failure Records > declines malformed, out-of-scope, and incomplete diagnostic protocols as one whole [0.34ms]",
+        "(pass) Project Gate oxfmt failure Records > projects every authorized list-different path as a relative Record [1.28ms]",
+        "(pass) Project Gate oxfmt failure Records > declines non-path text, duplicate paths, and paths outside the owned target set [1.04ms]",
+        "(pass) Project Gate native operation > keeps native Check outcomes transcript-free [3.13ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsProject-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsProjectSelection",
+      "mode": "registration",
+      "wallMs": 362.68487599999935,
+      "loadBefore": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "loadAfter": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsProjectSelection-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsProjectSelection",
+      "mode": "full",
+      "wallMs": 726.7405859999999,
+      "loadBefore": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "loadAfter": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "tests": [
+        "(pass) Project Gate change regions > selects Product Check test lanes without losing shared or cross-owner inputs [82.84ms]",
+        "(pass) Project Gate change regions > covers every Product Check lane test file with its own change region [97.05ms]",
+        "(pass) Project Gate change regions > selects independent script test lanes from their changed inputs [99.62ms]",
+        "(pass) Project Gate change regions > keeps quality and material regions specific to their inputs [4.30ms]",
+        "(pass) Project Gate change regions > keeps the product-runtime region complete for the lane resolver [64.90ms]",
+        "(pass) Project Gate change regions > selects package and Case checks only for their documented source boundaries [1.13ms]",
+        "(pass) Project Gate change regions > covers every registered package source and current Case owner [8.64ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsProjectSelection-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsTestEvidence",
+      "mode": "registration",
+      "wallMs": 141.07658799999626,
+      "loadBefore": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "loadAfter": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsTestEvidence-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsTestEvidence",
+      "mode": "full",
+      "wallMs": 1034.790807999998,
+      "loadBefore": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "loadAfter": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "tests": [
+        "(pass) parses and queries topic-grouped semantic Cases [682.45ms]",
+        "(pass) diagnoses malformed Case structure and stable identity conflicts [16.61ms]",
+        "(pass) closes one static and runtime entity into a stable Bun entity key [0.49ms]",
+        "(pass) reports static-only, runtime-only, and duplicate entity identities [0.18ms]",
+        "(pass) forwards cancellation to ast-grep scans [2.88ms]",
+        "(pass) parses stable Bun runner reports without inferring missing fields [1.04ms]",
+        "(pass) forwards cancellation through the top-level discovery operation [1.15ms]",
+        "(pass) loads one versioned and sorted supported runner profile [102.30ms]",
+        "(pass) expands Bun test roots with include, ignore and supplemental files [5.51ms]",
+        "(pass) rejects invalid, empty and redundant Bun test surfaces [3.44ms]",
+        "(pass) forwards cancellation to the Bun test discovery child [39.39ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsTestEvidence-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsTooling",
+      "mode": "registration",
+      "wallMs": 147.8527050000048,
+      "loadBefore": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "loadAfter": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsTooling-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsTooling",
+      "mode": "full",
+      "wallMs": 1786.4844369999992,
+      "loadBefore": [
+        1.81,
+        2.11,
+        1.09
+      ],
+      "loadAfter": [
+        1.75,
+        2.1,
+        1.09
+      ],
+      "tests": [
+        "(pass) Lizard upstream advisory reports the pinned 1.24 baseline as current without ambient credentials [4.16ms]",
+        "(pass) Lizard upstream advisory reports a stable newer release without changing anything [0.38ms]",
+        "(pass) Lizard upstream advisory keeps HTTP, malformed, and oversized responses advisory [0.85ms]",
+        "(pass) Lizard upstream advisory maps timeout and network failures to stable advisory results [1.76ms]",
+        "(pass) detects failed process results [0.04ms]",
+        "(pass) runs child processes with plain text output environment [49.70ms]",
+        "(pass) cancels an already-started child process [18.72ms]",
+        "(pass) times out an already-started child process [25.57ms]",
+        "(pass) development quality target boundaries > excludes only generated function-analyzer oracle fixtures from product lint and format [0.15ms]",
+        "(pass) normalizes slash paths and identifies contained paths [0.20ms]",
+        "(pass) walks repository files deterministically and reports unreadable roots [2.33ms]",
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [36.09ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [19.29ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [806.65ms]",
+        "(pass) package Markdown > requires one README-linked guide for every package-provided Check function [14.13ms]",
+        "(pass) package Markdown > rejects a missing direct README link and an extra Check guide page [27.72ms]",
+        "(pass) package Markdown > rejects package documentation without exactly one trailing LF [21.15ms]",
+        "(pass) package Markdown > rejects package example projection markers in hand-written and machine Markdown [96.53ms]",
+        "(pass) Lizard TypeScript developer performance evidence > requires an explicit bounded developer invocation [0.49ms]",
+        "(pass) Lizard TypeScript developer performance evidence > locates invalid child and manifest fields at the evidence boundary [0.55ms]",
+        "(pass) Lizard TypeScript developer performance evidence > canonicalizes metric ordering before output equality [0.31ms]",
+        "(pass) Lizard TypeScript developer performance evidence > uses every ABBA block in deterministic bootstrap classification and only marks IQR outliers [1.31ms]",
+        "(pass) Lizard TypeScript developer performance evidence > selects counted-operation wall only for warmed statistics and gives both B sides one warmup flag [0.07ms]",
+        "(pass) Lizard TypeScript developer performance evidence > blocks statistical sampling on counted output drift and refuses non-Linux supervisor semantics [0.19ms]",
+        "(pass) labels Linux wait4 resource scope without relabeling max RSS as tree aggregate [70.20ms]",
+        "(pass) package API documentation renderer > projects every registry source region to its declared Markdown fence and JSDoc target without changing payload bytes [31.89ms]",
+        "(pass) package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown example targets [314.84ms]",
+        "(pass) package API documentation CLI > writes expected projections and detects stale output through --check [75.69ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsTooling-full.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsValidation",
+      "mode": "registration",
+      "wallMs": 712.7235599999985,
+      "loadBefore": [
+        1.75,
+        2.1,
+        1.09
+      ],
+      "loadAfter": [
+        1.75,
+        2.1,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsValidation-registration.log"
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "lane": "scriptsValidation",
+      "mode": "full",
+      "wallMs": 752.2419400000072,
+      "loadBefore": [
+        1.75,
+        2.1,
+        1.09
+      ],
+      "loadAfter": [
+        1.75,
+        2.1,
+        1.09
+      ],
+      "tests": [
+        "(pass) root validation adapter forwards default and focused material selections [1.91ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [7.71ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [5.10ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [0.17ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.14ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [0.76ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.41ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.30ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.60ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [1.94ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [32.10ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/2-scriptsValidation-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "packageSupporting",
+      "mode": "registration",
+      "wallMs": 531.9362410000031,
+      "loadBefore": [
+        1.75,
+        2.1,
+        1.09
+      ],
+      "loadAfter": [
+        1.75,
+        2.1,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-packageSupporting-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "packageSupporting",
+      "mode": "full",
+      "wallMs": 2399.873185999997,
+      "loadBefore": [
+        1.75,
+        2.1,
+        1.09
+      ],
+      "loadAfter": [
+        1.69,
+        2.08,
+        1.09
+      ],
+      "tests": [
+        "(pass) public API inventory > publishes only the approved runtime and type roots [336.52ms]",
+        "(pass) package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance [0.76ms]",
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [221.97ms]",
+        "(pass) package legal materials > fails closed in the translated-analyzer audit phase order [15.60ms]",
+        "(pass) package dependency versions satisfy only their declared requirement [0.15ms]",
+        "(pass) formal release root commands require closed inputs and bind verification to one complete --all Gate receipt [2.18ms]",
+        "(pass) formal package release > accepts only explicit canonical prestable versions and conservative tags [1.52ms]",
+        "(pass) formal package release > writes a portable sanitized receipt and rejects identity or artifact drift [5.42ms]",
+        "(pass) formal package release > isolates formal staging and receipt state from the default local candidate [0.16ms]",
+        "(pass) formal package release > requires one exact clean Git worktree revision before formal preparation [43.34ms]",
+        "(pass) installed dependency license audit > covers every package directory and fails closed on unsupported declarations and layouts [15.25ms]",
+        "(pass) package candidate preparation contracts > rejects overlapping package build and cache roots [60.32ms]",
+        "(pass) package candidate preparation contracts > rejects invalid private consumer manifests [1.46ms]",
+        "(pass) package candidate preparation contracts > keeps the explicit cold integration target outside routine discovery with hard timeout [0.07ms]",
+        "(pass) rejects malformed and stale receipts before artifact reuse [2.53ms]",
+        "(pass) accepts an exact Gate candidate artifact input [78.18ms]",
+        "(pass) rejects incomplete or mismatched Gate candidate artifact input [1.17ms]",
+        "(pass) source mapping sync derives only the package provenance pin after reviewing curated mappings [8.07ms]",
+        "(pass) source mapping sync leaves curated files untouched when validation rejects a mapping [8.37ms]",
+        "(pass) source mapping sync restores a prior file when a later write fails [3.65ms]",
+        "(pass) runtime source maps > normalizes and verifies one map against its packaged TypeScript source [4.76ms]",
+        "(pass) candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs [278.69ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [3.89ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [705.16ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [2.21ms]",
+        "(pass) emitted ESM module specifiers > rewrites relative module references without changing ordinary path strings [34.26ms]",
+        "(pass) emitted ESM module specifiers > rejects malformed emitted JavaScript before artifact normalization [7.93ms]",
+        "(pass) accepts provider-owned artifact staging material [2.70ms]",
+        "(pass) rejects incomplete or unrelated artifact staging material [2.91ms]",
+        "(pass) external consumer provider input is closed and fail-closed [3.44ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-packageSupporting-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsAdmissionWorkbench",
+      "mode": "registration",
+      "wallMs": 353.89211799998884,
+      "loadBefore": [
+        1.69,
+        2.08,
+        1.09
+      ],
+      "loadAfter": [
+        1.69,
+        2.08,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsAdmissionWorkbench-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsAdmissionWorkbench",
+      "mode": "full",
+      "wallMs": 2703.3684930000018,
+      "loadBefore": [
+        1.69,
+        2.08,
+        1.09
+      ],
+      "loadAfter": [
+        1.69,
+        2.08,
+        1.09
+      ],
+      "tests": [
+        "(pass) admission workbench shared closure > drains an admitted real Check while cancellation closes pending work before it starts [18.94ms]",
+        "(pass) admission workbench shared closure > keeps virtual unsatisfied settlement separate from real cancellation [1.98ms]",
+        "(pass) command writes identified virtual stdout for static and isolated learned replicates [646.55ms]",
+        "(pass) command exclusively creates an explicit output after complete serialization [527.62ms]",
+        "(pass) command rejects malformed arguments inputs and unsafe output targets [724.71ms]",
+        "(pass) command returns nonzero error evidence with parsed identity for a public graph rejection [314.08ms]",
+        "(pass) workbench source consumes only the installed public package and never the Gate entry [3.32ms]",
+        "(pass) prepared learned policy copies fixed history into isolated absolute state and keeps identity stable [9.92ms]",
+        "(pass) prepared learned policy invalidates identity and setup fallback instead of scoring it [3.94ms]",
+        "(pass) formal simple and prepared adapters prepare once and never complete virtual observations [7.15ms]",
+        "(pass) admission workbench > matches shared-resource and serial hand-calculated oracles [4.89ms]",
+        "(pass) admission workbench > matches empty single and chain boundaries without invoking policy for an empty graph [5.43ms]",
+        "(pass) admission workbench > shares sampled external work across policies while deriving replicates deterministically [8.77ms]",
+        "(pass) admission workbench > provides only formal context and a real captured action-observation prefix [3.49ms]",
+        "(pass) admission workbench > preserves non-empty trace, time, boundary, and identities after a later policy failure [1.65ms]",
+        "(pass) admission workbench > separates scenario schema rejection from public graph rejection [1.09ms]",
+        "(pass) admission workbench > backfills past a capacity-blocked head and enforces scoped capacity [4.97ms]",
+        "(pass) admission workbench > recomputes weak multi-resource rates after weighted and mutex occupancy changes [2.51ms]",
+        "(pass) admission workbench > settles ties canonically and distinguishes unsatisfied dependencies from observers [2.14ms]",
+        "(pass) admission workbench > freezes exact profile vectors and the claimed-only Gate resource shape [13.48ms]",
+        "(pass) admission workbench > rejects wait without running work and illegal proposals without fallback [1.43ms]",
+        "(pass) learned heuristic protocol validates consumed fields before replay without rewriting frozen bytes [2.02ms]",
+        "(pass) learned heuristic replay rejects a 204 to 300 makespan regression even when its cost guard passes [1.90ms]",
+        "(pass) learned heuristic replay keeps a sticky fallback failure outside direct prepared decide replay [2.99ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsAdmissionWorkbench-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsLayout",
+      "mode": "registration",
+      "wallMs": 232.31335399999807,
+      "loadBefore": [
+        1.69,
+        2.08,
+        1.09
+      ],
+      "loadAfter": [
+        1.69,
+        2.08,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsLayout-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsLayout",
+      "mode": "full",
+      "wallMs": 2135.1891929999983,
+      "loadBefore": [
+        1.69,
+        2.08,
+        1.09
+      ],
+      "loadAfter": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "tests": [
+        "(pass) validates repository layout and dependency boundaries [1855.62ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsLayout-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsMachineArtifacts",
+      "mode": "registration",
+      "wallMs": 392.07420900001307,
+      "loadBefore": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "loadAfter": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsMachineArtifacts-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsMachineArtifacts",
+      "mode": "full",
+      "wallMs": 900.7975129999977,
+      "loadBefore": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "loadAfter": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "tests": [
+        "(pass) independent repository material machine artifact validation > accepts exactly the current v4 example and positive JSON grammar variants [80.64ms]",
+        "(pass) independent repository material machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set [169.44ms]",
+        "(pass) independent repository material machine artifact validation > detects generated schema and example drift [235.90ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsMachineArtifacts-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsPackageToolsBoundary",
+      "mode": "registration",
+      "wallMs": 254.02313899999717,
+      "loadBefore": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "loadAfter": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsPackageToolsBoundary-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsPackageToolsBoundary",
+      "mode": "full",
+      "wallMs": 979.7897539999976,
+      "loadBefore": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "loadAfter": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "tests": [
+        "(pass) enforces package-tool public contracts and Core closure [725.88ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsPackageToolsBoundary-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsProject",
+      "mode": "registration",
+      "wallMs": 813.8419889999932,
+      "loadBefore": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "loadAfter": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsProject-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsProject",
+      "mode": "full",
+      "wallMs": 2513.1056220000028,
+      "loadBefore": [
+        1.63,
+        2.06,
+        1.09
+      ],
+      "loadAfter": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "tests": [
+        "(pass) Project Gate Definition > projects the central composition manifest into an ordinary Project Definition [169.17ms]",
+        "(pass) Project Gate Definition > settles lint-product with structured oxlint Records or exactly one generic fallback [82.38ms]",
+        "(pass) Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection [63.37ms]",
+        "(pass) Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities [97.17ms]",
+        "(pass) Project Gate Definition > settles a blocking normal quality Finding through its owning Check and effective aggregate [119.26ms]",
+        "(pass) Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection [39.01ms]",
+        "(pass) Project Gate Definition > preserves two-step ast-grep process evidence and failures [3.81ms]",
+        "(pass) Project Gate entries, root binding, and controls > binds the sole project check command to the mise-backed Gate root [0.98ms]",
+        "(pass) Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current selection metadata closed [70.50ms]",
+        "(pass) Project Gate entries, root binding, and controls > defaults to required and normalizes combinable focused presets into opaque flags [0.49ms]",
+        "(pass) Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt [0.23ms]",
+        "(pass) Project Gate adapter closure > returns help before candidate or log work [0.55ms]",
+        "(pass) Project Gate adapter closure > does not load or run a candidate consumer after preparation failure [0.31ms]",
+        "(pass) Project Gate adapter closure > loads no Definition or package runtime before candidate preparation [209.32ms]",
+        "(pass) Project Gate adapter closure > uses explicit formal receipt preparation without invoking local candidate preparation [0.97ms]",
+        "(pass) Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before run or resultContributor [0.16ms]",
+        "(pass) Project Gate adapter closure > reports the invocation directory when Gate transcript setup fails [0.17ms]",
+        "(pass) Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot [1.13ms]",
+        "(pass) Project Gate adapter closure > maps a rejected bound Run to the existing unavailable adapter boundary [0.25ms]",
+        "(pass) Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit [0.71ms]",
+        "(pass) Project Gate adapter closure > fails closed when the Gate transcript cannot be completed [0.24ms]",
+        "(pass) Project Gate adapter closure > warns on total and Check budgets without revising Product facts or successful exit [2.05ms]",
+        "(pass) Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline [0.28ms]",
+        "(pass) Project Gate adapter closure > leaves focused selections outside the total-time budget [0.83ms]",
+        "(pass) Project Gate adapter closure > fails closed when resultContributor throws [0.34ms]",
+        "(pass) Project Gate adapter closure > fails closed when resultContributor returns an invalid result [0.28ms]",
+        "(pass) Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits [0.10ms]",
+        "(pass) Project Gate transcript > records only Gate-owned messages and final facts without patching terminal writers [3.66ms]",
+        "(pass) Project Gate performance budgets > warns on exceeded budgets but blocks missing policy or invalid measurements [0.44ms]",
+        "(pass) Project Gate performance budgets > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them [0.40ms]",
+        "(pass) Project Gate performance budgets > summarizes current Check costs and evaluates mean and nearest-rank p95 independently [1.05ms]",
+        "(pass) Project Gate performance budgets > rejects malformed, duplicate, or overflowing Check duration facts without emitting statistics [0.23ms]",
+        "(pass) Project Gate performance budgets > loads only an explicit regular local JSON file with fixed, unique limits [3.78ms]",
+        "(pass) projects the central resultContributor configuration with candidate-bound run [1.66ms]",
+        "(pass) binds owner-specific Product outputs and Check artifacts to the Gate invocation directory [12.67ms]",
+        "(pass) Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics [19.75ms]",
+        "(pass) external consumer provider binds typed output to invocation provenance [27.75ms]",
+        "(pass) external consumer provider keeps nonzero output unavailable with generic evidence [0.24ms]",
+        "(pass) Project Gate repository material native diagnostics > publishes complete material native diagnostic Records while terminal progress stays bounded [304.33ms]",
+        "(pass) repository quality Checks > uses the strict repository policy and binds only the mise-provided SCC command [9.41ms]",
+        "(pass) repository quality Checks > substitutes an unavailable absolute SCC command without a function-metrics command [1.32ms]",
+        "(pass) repository quality Checks > settles four blocking Checks while retaining advisory Markdown lint Findings [327.88ms]",
+        "(pass) repository quality Checks > preserves Product-owned empty and unavailable Markdown lint outcomes [6.54ms]",
+        "(pass) prepared package candidate Check > publishes versioned typed candidate data and rejects malformed dependency facts [8.25ms]",
+        "(pass) prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest [3.47ms]",
+        "(pass) wires one plain command through Product execution and Gate failure evidence [23.78ms]",
+        "(pass) resolves a direct dependency environment and rejects unavailable providers before spawn [15.90ms]",
+        "(pass) projects a complete nonzero command through the Gate-owned failure projector [45.28ms]",
+        "(pass) rejects mixed dependency and failure projection adapters at runtime [0.23ms]",
+        "(pass) Project Gate oxlint failure Records > projects every complete scoped JSON diagnostic with installed-protocol label spans [0.46ms]",
+        "(pass) Project Gate oxlint failure Records > declines malformed, out-of-scope, and incomplete diagnostic protocols as one whole [0.32ms]",
+        "(pass) Project Gate oxfmt failure Records > projects every authorized list-different path as a relative Record [3.00ms]",
+        "(pass) Project Gate oxfmt failure Records > declines non-path text, duplicate paths, and paths outside the owned target set [0.87ms]",
+        "(pass) Project Gate native operation > keeps native Check outcomes transcript-free [2.80ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsProject-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsProjectSelection",
+      "mode": "registration",
+      "wallMs": 324.46125700000266,
+      "loadBefore": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "loadAfter": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsProjectSelection-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsProjectSelection",
+      "mode": "full",
+      "wallMs": 680.1704320000135,
+      "loadBefore": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "loadAfter": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "tests": [
+        "(pass) Project Gate change regions > selects Product Check test lanes without losing shared or cross-owner inputs [73.36ms]",
+        "(pass) Project Gate change regions > covers every Product Check lane test file with its own change region [90.77ms]",
+        "(pass) Project Gate change regions > selects independent script test lanes from their changed inputs [101.34ms]",
+        "(pass) Project Gate change regions > keeps quality and material regions specific to their inputs [3.78ms]",
+        "(pass) Project Gate change regions > keeps the product-runtime region complete for the lane resolver [60.69ms]",
+        "(pass) Project Gate change regions > selects package and Case checks only for their documented source boundaries [1.19ms]",
+        "(pass) Project Gate change regions > covers every registered package source and current Case owner [8.58ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsProjectSelection-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsTestEvidence",
+      "mode": "registration",
+      "wallMs": 132.89218899999105,
+      "loadBefore": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "loadAfter": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsTestEvidence-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsTestEvidence",
+      "mode": "full",
+      "wallMs": 881.7487819999951,
+      "loadBefore": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "loadAfter": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "tests": [
+        "(pass) parses and queries topic-grouped semantic Cases [571.55ms]",
+        "(pass) diagnoses malformed Case structure and stable identity conflicts [14.36ms]",
+        "(pass) closes one static and runtime entity into a stable Bun entity key [0.27ms]",
+        "(pass) reports static-only, runtime-only, and duplicate entity identities [0.14ms]",
+        "(pass) forwards cancellation to ast-grep scans [2.71ms]",
+        "(pass) parses stable Bun runner reports without inferring missing fields [0.98ms]",
+        "(pass) forwards cancellation through the top-level discovery operation [0.65ms]",
+        "(pass) loads one versioned and sorted supported runner profile [99.63ms]",
+        "(pass) expands Bun test roots with include, ignore and supplemental files [4.03ms]",
+        "(pass) rejects invalid, empty and redundant Bun test surfaces [3.01ms]",
+        "(pass) forwards cancellation to the Bun test discovery child [26.55ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsTestEvidence-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsTooling",
+      "mode": "registration",
+      "wallMs": 144.1222240000061,
+      "loadBefore": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "loadAfter": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsTooling-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsTooling",
+      "mode": "full",
+      "wallMs": 1734.6303960000077,
+      "loadBefore": [
+        1.58,
+        2.04,
+        1.09
+      ],
+      "loadAfter": [
+        1.62,
+        2.04,
+        1.1
+      ],
+      "tests": [
+        "(pass) Lizard upstream advisory reports the pinned 1.24 baseline as current without ambient credentials [3.79ms]",
+        "(pass) Lizard upstream advisory reports a stable newer release without changing anything [0.37ms]",
+        "(pass) Lizard upstream advisory keeps HTTP, malformed, and oversized responses advisory [0.72ms]",
+        "(pass) Lizard upstream advisory maps timeout and network failures to stable advisory results [1.62ms]",
+        "(pass) detects failed process results [1.06ms]",
+        "(pass) runs child processes with plain text output environment [47.07ms]",
+        "(pass) cancels an already-started child process [17.98ms]",
+        "(pass) times out an already-started child process [26.81ms]",
+        "(pass) development quality target boundaries > excludes only generated function-analyzer oracle fixtures from product lint and format [0.14ms]",
+        "(pass) normalizes slash paths and identifies contained paths [0.27ms]",
+        "(pass) walks repository files deterministically and reports unreadable roots [2.32ms]",
+        "(pass) package document mappings > reads the calling repository mapping and applies distinct source and package paths [33.27ms]",
+        "(pass) package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets [17.72ms]",
+        "(pass) package document mappings > includes raw mapping bytes in the artifact fingerprint [772.06ms]",
+        "(pass) package Markdown > requires one README-linked guide for every package-provided Check function [13.72ms]",
+        "(pass) package Markdown > rejects a missing direct README link and an extra Check guide page [25.32ms]",
+        "(pass) package Markdown > rejects package documentation without exactly one trailing LF [20.55ms]",
+        "(pass) package Markdown > rejects package example projection markers in hand-written and machine Markdown [88.09ms]",
+        "(pass) Lizard TypeScript developer performance evidence > requires an explicit bounded developer invocation [0.65ms]",
+        "(pass) Lizard TypeScript developer performance evidence > locates invalid child and manifest fields at the evidence boundary [0.53ms]",
+        "(pass) Lizard TypeScript developer performance evidence > canonicalizes metric ordering before output equality [0.28ms]",
+        "(pass) Lizard TypeScript developer performance evidence > uses every ABBA block in deterministic bootstrap classification and only marks IQR outliers [1.32ms]",
+        "(pass) Lizard TypeScript developer performance evidence > selects counted-operation wall only for warmed statistics and gives both B sides one warmup flag [0.06ms]",
+        "(pass) Lizard TypeScript developer performance evidence > blocks statistical sampling on counted output drift and refuses non-Linux supervisor semantics [0.11ms]",
+        "(pass) labels Linux wait4 resource scope without relabeling max RSS as tree aggregate [66.65ms]",
+        "(pass) package API documentation renderer > projects every registry source region to its declared Markdown fence and JSDoc target without changing payload bytes [29.66ms]",
+        "(pass) package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown example targets [329.11ms]",
+        "(pass) package API documentation CLI > writes expected projections and detects stale output through --check [69.20ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsTooling-full.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsValidation",
+      "mode": "registration",
+      "wallMs": 678.393516000011,
+      "loadBefore": [
+        1.62,
+        2.04,
+        1.1
+      ],
+      "loadAfter": [
+        1.62,
+        2.04,
+        1.1
+      ],
+      "tests": [],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsValidation-registration.log"
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "lane": "scriptsValidation",
+      "mode": "full",
+      "wallMs": 737.9447110000037,
+      "loadBefore": [
+        1.62,
+        2.04,
+        1.1
+      ],
+      "loadAfter": [
+        1.62,
+        2.04,
+        1.1
+      ],
+      "tests": [
+        "(pass) root validation adapter forwards default and focused material selections [1.82ms]",
+        "(pass) material CLI reports real link failures through stderr and a nonzero return [9.04ms]",
+        "(pass) material workflow dispatches all default tasks and awaits asynchronous validators [1.72ms]",
+        "(pass) material workflow deduplicates focused selections without broadening them [3.63ms]",
+        "(pass) material validation library reports success only through an explicit reporter [0.39ms]",
+        "(pass) material workflow aggregates expected failures and continues selected tasks [0.94ms]",
+        "(pass) material workflow propagates unexpected failures instead of returning success [0.49ms]",
+        "(pass) material validation returns typed expected failures and keeps the Gate path console-silent [1.39ms]",
+        "(pass) material direct validation fails closed while the Gate adapter projects its safe Record subset [0.57ms]",
+        "(pass) documentation link validation retains every missing local-link occurrence in stable order [1.93ms]",
+        "(pass) workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures [31.87ms]"
+      ],
+      "logPath": "/workspace/vibe-check/.log/script-lane-profile/56cd06b2-835a-4ad6-80d5-5a222ec50f35/3-scriptsValidation-full.log"
+    }
+  ]
+}

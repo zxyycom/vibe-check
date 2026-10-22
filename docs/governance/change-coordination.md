@@ -27,6 +27,10 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
+| P1 | [`reduce-gate-preparation-cost`](../../changes/reduce-gate-preparation-cost/proposal.md) | 完整输入独立复制与 Validation layout 按需加载；保留原覆盖并 before/after、完整 Gate，Project 不动，共享 owner 串行。 |
+| P1 | [`refine-script-test-regions`](../../changes/refine-script-test-regions/proposal.md) | 先证明脚本 required 输入后窄化，再分解跨组加载与准备；Gate/Case/owner 与前序改动串行，完整验收不变。 |
+| P1 | [`reduce-gate-hotspot-work`](../../changes/reduce-gate-hotspot-work/proposal.md) | 承接前序测试减重，分解 function-metrics、Markdown tests 与 consumer preparation；源码/Case/owner 写入串行，保持完整验收并复测。 |
+| P1 | [`reduce-gate-test-work`](../../changes/reduce-gate-test-work/proposal.md) | 先移除包测试重复工作，再审计 required 的测试正文选择；与其它 Gate / Case owner 写入串行，保留完整验收并比较前后证据。 |
 | P1 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
 
 ### 并行与提交边界

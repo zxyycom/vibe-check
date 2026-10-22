@@ -1,0 +1,1076 @@
+{
+  "stage": "before",
+  "formedAt": "2026-10-21T10:18:05.040Z",
+  "environment": {
+    "bun": "1.3.14",
+    "platform": "linux",
+    "arch": "x64",
+    "cpus": 6
+  },
+  "candidate": "0.0.0-local.7de95ed6b493",
+  "note": "Selection samples execute existing Gate Checks through the exact candidate public API. Fixed changed paths, default static admission, maxParallel=3 and unchanged named budgets; no Git acquisition, preparation, adapter or contributor timing.",
+  "package": [
+    {
+      "round": 0,
+      "warmup": true,
+      "wallMs": 2249.128377,
+      "tests": [
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [837.38ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [5.72ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [1013.03ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.25ms]"
+      ]
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "wallMs": 1789.4152059999997,
+      "tests": [
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [674.94ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [5.46ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [814.20ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.31ms]"
+      ]
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "wallMs": 1984.0100739999998,
+      "tests": [
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [773.71ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [6.75ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [884.38ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.32ms]"
+      ]
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "wallMs": 2009.9298110000009,
+      "tests": [
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [778.78ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [5.90ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [905.87ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [2.99ms]"
+      ]
+    },
+    {
+      "round": 4,
+      "warmup": false,
+      "wallMs": 2019.9947069999998,
+      "tests": [
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [749.45ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [6.58ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [891.11ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.22ms]"
+      ]
+    },
+    {
+      "round": 5,
+      "warmup": false,
+      "wallMs": 1938.2096239999992,
+      "tests": [
+        "(pass) stable native compiler and compatibility API retain distinct installed entrypoints [733.92ms]",
+        "(pass) checked-in release manifest projects only version and rejects static-source or safety drift [6.86ms]",
+        "(pass) release manifest bytes invalidate the candidate fingerprint [875.48ms]",
+        "(pass) release manifest reader does not leak the caller's repository root [1.25ms]"
+      ]
+    }
+  ],
+  "selection": [
+    {
+      "round": 0,
+      "warmup": true,
+      "paths": [
+        "src/package-checks/host-environment/process/runner.test.ts"
+      ],
+      "selected": [
+        "typecheck-product",
+        "lint-product",
+        "typecheck-scripts",
+        "lint-scripts",
+        "format-check",
+        "prepared-package-candidate",
+        "tests-package-supporting",
+        "tests-product-duplicate-detection",
+        "tests-product-file-metrics",
+        "tests-product-function-metrics",
+        "tests-product-json",
+        "tests-product-markdown-links",
+        "tests-product-secret-detection",
+        "tests-product-supporting-checks",
+        "tests-product-runtime",
+        "tests-scripts-admission-workbench",
+        "tests-scripts-project",
+        "tests-scripts-layout",
+        "tests-scripts-tooling",
+        "duplicate-detection",
+        "file-metrics",
+        "markdown-link-validation",
+        "materials-links-validator",
+        "test-evidence",
+        "git-diff-whitespace"
+      ],
+      "baselineSelected": [
+        "typecheck-product",
+        "lint-product",
+        "typecheck-scripts",
+        "lint-scripts",
+        "format-check",
+        "prepared-package-candidate",
+        "tests-package-supporting",
+        "tests-product-duplicate-detection",
+        "tests-product-file-metrics",
+        "tests-product-function-metrics",
+        "tests-product-json",
+        "tests-product-markdown-links",
+        "tests-product-secret-detection",
+        "tests-product-supporting-checks",
+        "tests-product-runtime",
+        "tests-scripts-admission-workbench",
+        "tests-scripts-project",
+        "tests-scripts-layout",
+        "tests-scripts-tooling",
+        "duplicate-detection",
+        "file-metrics",
+        "markdown-link-validation",
+        "materials-links-validator",
+        "test-evidence",
+        "git-diff-whitespace"
+      ],
+      "wallMs": 36818.627951,
+      "loadBefore": [
+        1.37,
+        1.8,
+        1.89
+      ],
+      "loadAfter": [
+        4.5,
+        2.55,
+        2.14
+      ],
+      "directory": "/workspace/vibe-check/.log/gate-test-work/8d4468c7-8a86-489e-9eda-6b3238607ae1/0",
+      "checkDurations": [
+        {
+          "checkId": "decision-records",
+          "durationMs": null
+        },
+        {
+          "checkId": "duplicate-detection",
+          "durationMs": 486.1334889999998
+        },
+        {
+          "checkId": "file-metrics",
+          "durationMs": 723.8860170000007
+        },
+        {
+          "checkId": "format-check",
+          "durationMs": 518.2543880000012
+        },
+        {
+          "checkId": "function-metrics",
+          "durationMs": null
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "durationMs": 38.25453500000003
+        },
+        {
+          "checkId": "lint-product",
+          "durationMs": 10161.043431
+        },
+        {
+          "checkId": "lint-scripts",
+          "durationMs": 8366.370316999999
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "durationMs": 1773.9314290000002
+        },
+        {
+          "checkId": "markdown-lint",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-json-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-links-validator",
+          "durationMs": 31.68587900000057
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "durationMs": null
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "durationMs": 23.647844000000987
+        },
+        {
+          "checkId": "test-evidence",
+          "durationMs": 3997.3226099999993
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "durationMs": 10740.671623999999
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "durationMs": 5904.716374
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "durationMs": 3150.737224999997
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "durationMs": 3816.269666
+        },
+        {
+          "checkId": "tests-product-json",
+          "durationMs": 1101.2890179999995
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "durationMs": 7545.380620999997
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "durationMs": 5181.929608000006
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "durationMs": 676.4520150000026
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "durationMs": 4472.330881000002
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "durationMs": 4394.648110000002
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "durationMs": 4859.403245000001
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "durationMs": 5767.479168999998
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "durationMs": 1927.326344000001
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "durationMs": null
+        },
+        {
+          "checkId": "typecheck-product",
+          "durationMs": 1581.2628130000012
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "durationMs": 1645.2324270000008
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "warmup": false,
+      "paths": [
+        "src/package-checks/host-environment/process/runner.test.ts"
+      ],
+      "selected": [
+        "typecheck-product",
+        "lint-product",
+        "typecheck-scripts",
+        "lint-scripts",
+        "format-check",
+        "prepared-package-candidate",
+        "tests-package-supporting",
+        "tests-product-duplicate-detection",
+        "tests-product-file-metrics",
+        "tests-product-function-metrics",
+        "tests-product-json",
+        "tests-product-markdown-links",
+        "tests-product-secret-detection",
+        "tests-product-supporting-checks",
+        "tests-product-runtime",
+        "tests-scripts-admission-workbench",
+        "tests-scripts-project",
+        "tests-scripts-layout",
+        "tests-scripts-tooling",
+        "duplicate-detection",
+        "file-metrics",
+        "markdown-link-validation",
+        "materials-links-validator",
+        "test-evidence",
+        "git-diff-whitespace"
+      ],
+      "baselineSelected": [
+        "typecheck-product",
+        "lint-product",
+        "typecheck-scripts",
+        "lint-scripts",
+        "format-check",
+        "prepared-package-candidate",
+        "tests-package-supporting",
+        "tests-product-duplicate-detection",
+        "tests-product-file-metrics",
+        "tests-product-function-metrics",
+        "tests-product-json",
+        "tests-product-markdown-links",
+        "tests-product-secret-detection",
+        "tests-product-supporting-checks",
+        "tests-product-runtime",
+        "tests-scripts-admission-workbench",
+        "tests-scripts-project",
+        "tests-scripts-layout",
+        "tests-scripts-tooling",
+        "duplicate-detection",
+        "file-metrics",
+        "markdown-link-validation",
+        "materials-links-validator",
+        "test-evidence",
+        "git-diff-whitespace"
+      ],
+      "wallMs": 22754.551532999998,
+      "loadBefore": [
+        4.5,
+        2.55,
+        2.14
+      ],
+      "loadAfter": [
+        4.98,
+        2.85,
+        2.25
+      ],
+      "directory": "/workspace/vibe-check/.log/gate-test-work/8d4468c7-8a86-489e-9eda-6b3238607ae1/1",
+      "checkDurations": [
+        {
+          "checkId": "decision-records",
+          "durationMs": null
+        },
+        {
+          "checkId": "duplicate-detection",
+          "durationMs": 191.08788800000184
+        },
+        {
+          "checkId": "file-metrics",
+          "durationMs": 393.2446970000019
+        },
+        {
+          "checkId": "format-check",
+          "durationMs": 391.71594399999594
+        },
+        {
+          "checkId": "function-metrics",
+          "durationMs": null
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "durationMs": 30.320299999999406
+        },
+        {
+          "checkId": "lint-product",
+          "durationMs": 3979.464369000001
+        },
+        {
+          "checkId": "lint-scripts",
+          "durationMs": 3429.421774000002
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "durationMs": 1337.5056120000008
+        },
+        {
+          "checkId": "markdown-lint",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-json-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-links-validator",
+          "durationMs": 35.354380999997375
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "durationMs": null
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "durationMs": 6.154958999999508
+        },
+        {
+          "checkId": "test-evidence",
+          "durationMs": 2368.462284000001
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "durationMs": 4787.082058
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "durationMs": 3595.802966000003
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "durationMs": 2065.203024000002
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "durationMs": 2811.134481000001
+        },
+        {
+          "checkId": "tests-product-json",
+          "durationMs": 700.5331959999967
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "durationMs": 5872.758240000003
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "durationMs": 3388.874592
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "durationMs": 423.23682499999995
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "durationMs": 3679.622525999999
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "durationMs": 2946.7987289999946
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "durationMs": 2979.761820999993
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "durationMs": 3706.9548090000026
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "durationMs": 1843.2408350000042
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "durationMs": null
+        },
+        {
+          "checkId": "typecheck-product",
+          "durationMs": 662.5322049999959
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "durationMs": 665.5705420000013
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "warmup": false,
+      "paths": [
+        "src/package-checks/host-environment/process/runner.test.ts"
+      ],
+      "selected": [
+        "typecheck-product",
+        "lint-product",
+        "typecheck-scripts",
+        "lint-scripts",
+        "format-check",
+        "prepared-package-candidate",
+        "tests-package-supporting",
+        "tests-product-duplicate-detection",
+        "tests-product-file-metrics",
+        "tests-product-function-metrics",
+        "tests-product-json",
+        "tests-product-markdown-links",
+        "tests-product-secret-detection",
+        "tests-product-supporting-checks",
+        "tests-product-runtime",
+        "tests-scripts-admission-workbench",
+        "tests-scripts-project",
+        "tests-scripts-layout",
+        "tests-scripts-tooling",
+        "duplicate-detection",
+        "file-metrics",
+        "markdown-link-validation",
+        "materials-links-validator",
+        "test-evidence",
+        "git-diff-whitespace"
+      ],
+      "baselineSelected": [
+        "typecheck-product",
+        "lint-product",
+        "typecheck-scripts",
+        "lint-scripts",
+        "format-check",
+        "prepared-package-candidate",
+        "tests-package-supporting",
+        "tests-product-duplicate-detection",
+        "tests-product-file-metrics",
+        "tests-product-function-metrics",
+        "tests-product-json",
+        "tests-product-markdown-links",
+        "tests-product-secret-detection",
+        "tests-product-supporting-checks",
+        "tests-product-runtime",
+        "tests-scripts-admission-workbench",
+        "tests-scripts-project",
+        "tests-scripts-layout",
+        "tests-scripts-tooling",
+        "duplicate-detection",
+        "file-metrics",
+        "markdown-link-validation",
+        "materials-links-validator",
+        "test-evidence",
+        "git-diff-whitespace"
+      ],
+      "wallMs": 22971.754182000004,
+      "loadBefore": [
+        4.98,
+        2.85,
+        2.25
+      ],
+      "loadAfter": [
+        4.59,
+        2.91,
+        2.28
+      ],
+      "directory": "/workspace/vibe-check/.log/gate-test-work/8d4468c7-8a86-489e-9eda-6b3238607ae1/2",
+      "checkDurations": [
+        {
+          "checkId": "decision-records",
+          "durationMs": null
+        },
+        {
+          "checkId": "duplicate-detection",
+          "durationMs": 205.32942799999728
+        },
+        {
+          "checkId": "file-metrics",
+          "durationMs": 523.5534320000006
+        },
+        {
+          "checkId": "format-check",
+          "durationMs": 428.235480000003
+        },
+        {
+          "checkId": "function-metrics",
+          "durationMs": null
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "durationMs": 30.385722999999416
+        },
+        {
+          "checkId": "lint-product",
+          "durationMs": 4089.4024250000075
+        },
+        {
+          "checkId": "lint-scripts",
+          "durationMs": 3582.0057420000085
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "durationMs": 1451.3942989999923
+        },
+        {
+          "checkId": "markdown-lint",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-json-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-links-validator",
+          "durationMs": 23.627227000004495
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "durationMs": null
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "durationMs": 41.301103999998304
+        },
+        {
+          "checkId": "test-evidence",
+          "durationMs": 2398.394907000009
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "durationMs": 4797.695250999997
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "durationMs": 3674.288532999999
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "durationMs": 2028.8580749999965
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "durationMs": 2955.0769500000024
+        },
+        {
+          "checkId": "tests-product-json",
+          "durationMs": 774.5841010000004
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "durationMs": 5730.988498999999
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "durationMs": 3455.6676350000052
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "durationMs": 433.08825500000967
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "durationMs": 3361.112076000005
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "durationMs": 2945.0704419999965
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "durationMs": 3077.169345999995
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "durationMs": 3937.6401639999967
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "durationMs": 1882.5942040000082
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "durationMs": null
+        },
+        {
+          "checkId": "typecheck-product",
+          "durationMs": 647.1882869999972
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "durationMs": 714.9709100000036
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "warmup": false,
+      "paths": [
+        "src/package-checks/host-environment/process/runner.test.ts"
+      ],
+      "selected": [
+        "typecheck-product",
+        "lint-product",
+        "typecheck-scripts",
+        "lint-scripts",
+        "format-check",
+        "prepared-package-candidate",
+        "tests-package-supporting",
+        "tests-product-duplicate-detection",
+        "tests-product-file-metrics",
+        "tests-product-function-metrics",
+        "tests-product-json",
+        "tests-product-markdown-links",
+        "tests-product-secret-detection",
+        "tests-product-supporting-checks",
+        "tests-product-runtime",
+        "tests-scripts-admission-workbench",
+        "tests-scripts-project",
+        "tests-scripts-layout",
+        "tests-scripts-tooling",
+        "duplicate-detection",
+        "file-metrics",
+        "markdown-link-validation",
+        "materials-links-validator",
+        "test-evidence",
+        "git-diff-whitespace"
+      ],
+      "baselineSelected": [
+        "typecheck-product",
+        "lint-product",
+        "typecheck-scripts",
+        "lint-scripts",
+        "format-check",
+        "prepared-package-candidate",
+        "tests-package-supporting",
+        "tests-product-duplicate-detection",
+        "tests-product-file-metrics",
+        "tests-product-function-metrics",
+        "tests-product-json",
+        "tests-product-markdown-links",
+        "tests-product-secret-detection",
+        "tests-product-supporting-checks",
+        "tests-product-runtime",
+        "tests-scripts-admission-workbench",
+        "tests-scripts-project",
+        "tests-scripts-layout",
+        "tests-scripts-tooling",
+        "duplicate-detection",
+        "file-metrics",
+        "markdown-link-validation",
+        "materials-links-validator",
+        "test-evidence",
+        "git-diff-whitespace"
+      ],
+      "wallMs": 22795.403974999994,
+      "loadBefore": [
+        4.59,
+        2.91,
+        2.28
+      ],
+      "loadAfter": [
+        4.19,
+        2.94,
+        2.31
+      ],
+      "directory": "/workspace/vibe-check/.log/gate-test-work/8d4468c7-8a86-489e-9eda-6b3238607ae1/3",
+      "checkDurations": [
+        {
+          "checkId": "decision-records",
+          "durationMs": null
+        },
+        {
+          "checkId": "duplicate-detection",
+          "durationMs": 208.85535399999935
+        },
+        {
+          "checkId": "file-metrics",
+          "durationMs": 415.11946199998783
+        },
+        {
+          "checkId": "format-check",
+          "durationMs": 401.84158300000126
+        },
+        {
+          "checkId": "function-metrics",
+          "durationMs": null
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "durationMs": 41.95120399999723
+        },
+        {
+          "checkId": "lint-product",
+          "durationMs": 4486.539374
+        },
+        {
+          "checkId": "lint-scripts",
+          "durationMs": 3712.820750999992
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "durationMs": 1337.5168850000045
+        },
+        {
+          "checkId": "markdown-lint",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-json-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-links-validator",
+          "durationMs": 28.829933999993955
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "durationMs": null
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "durationMs": null
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "durationMs": 10.436705000000075
+        },
+        {
+          "checkId": "test-evidence",
+          "durationMs": 2507.3977809999924
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "durationMs": 5170.808313000001
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "durationMs": 3719.341314999998
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "durationMs": 2141.2916619999887
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "durationMs": 3045.604609999995
+        },
+        {
+          "checkId": "tests-product-json",
+          "durationMs": 848.2106789999962
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "durationMs": 5715.365684000004
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "durationMs": 3270.9016459999984
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "durationMs": 419.9008109999995
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "durationMs": 3281.2129609999974
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "durationMs": 2782.6499189999886
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "durationMs": 2799.8719220000057
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "durationMs": 3571.2390809999924
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "durationMs": null
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "durationMs": 1756.4676379999873
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "durationMs": null
+        },
+        {
+          "checkId": "typecheck-product",
+          "durationMs": 738.1240839999955
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "durationMs": 741.0815810000058
+        }
+      ]
+    }
+  ],
+  "sourceDigests": {
+    "scripts/package/artifact/manifest.test.ts": "644780ad3cb628a89efb7dbc26f7de476616a54457b79ee91ddefb2d3c864edc",
+    "scripts/package/compiler-toolchain.test.ts": "9911135f06ff0a5e6b2c5b507998d3a7375008bdf3041c1db5289753c89c5d96",
+    "scripts/project/gate/runtime/product-test-regions.ts": "7ad2f9ea88e52b6cf0fdfabe6b2135e11d70de3b9e0aff249e2896d97943d2f5",
+    "scripts/project/gate/runtime/eligibility.ts": "e5bb495c3896bcb45c88bdc0d35d4af195aba3d81e9308adef9b2b021c5db8ee"
+  }
+}
