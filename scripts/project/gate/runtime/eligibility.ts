@@ -6,7 +6,16 @@ import {
   projectGatePresetFlag
 } from "./controls.ts";
 import type { ProjectGateEntry } from "./entries.ts";
-import { PROJECT_GATE_PRODUCT_TEST_REGIONS } from "./product-test-regions.ts";
+import {
+  PROJECT_GATE_KNOWN_PRODUCT_TEST_DIRECTORIES,
+  PROJECT_GATE_PRODUCT_TEST_REGIONS
+} from "./product-test-regions.ts";
+
+// These script lanes consume Product implementation, not known owners' test bodies.
+// Keep helpers, fixtures and unclassified paths as conservative shared inputs.
+const unrelatedProductTestBodies = PROJECT_GATE_KNOWN_PRODUCT_TEST_DIRECTORIES.map(
+  (directory) => `!${directory}/**/*.test.ts`
+);
 
 const PROJECT_GATE_PRODUCT_RUNTIME_TEST_CHECK_ID = "tests-product-runtime";
 /** Shared implementation that can change the selected package Checks' input or settlement. */
@@ -75,6 +84,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/project/admission-workbench/**",
       "scripts/value-guards.ts",
       "src/**",
+      ...unrelatedProductTestBodies,
       "package.json",
       "pnpm-lock.yaml"
     ]
@@ -122,6 +132,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/package/**",
       "scripts/docs/**",
       "src/**",
+      ...unrelatedProductTestBodies,
       "README.md",
       "LICENSE",
       "licenses/**",
@@ -164,6 +175,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/repository-files/**",
       "scripts/value-guards.ts",
       "src/**",
+      ...unrelatedProductTestBodies,
       "tsconfig*.json",
       ".oxlintrc.json",
       ".oxfmtrc.json",
@@ -304,6 +316,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
     patterns: [
       "scripts/**",
       "src/**",
+      ...unrelatedProductTestBodies,
       "tsconfig*.json",
       ".oxlintrc.json",
       ".oxfmtrc.json",
@@ -418,8 +431,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "!scripts/**/*.test.ts",
       "!scripts/**/*.test-support.ts"
     ]
-  },
-  "product-runtime": { patterns: ["src/**"] }
+  }
 });
 /**
  * Adds the Gate-owned native flag condition without mutating the owning Check

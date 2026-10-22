@@ -51,12 +51,38 @@ describe("Project Gate change regions", () => {
     for (const [directory, selected] of privateInputs) {
       for (const file of [
         "default-check.ts",
-        "regression.test.ts",
+        "fixture.test-support.ts",
         "fixtures/removed/input.json"
       ]) {
         const path = `src/package-checks/${directory}/${file}`;
         assert.deepEqual(matchingRegions(path, regions), selected, path);
       }
+      const path = `src/package-checks/${directory}/removed/regression.test.ts`;
+      const selectedForTest =
+        directory === "json-document" || directory === "json-validation"
+          ? selected.filter((region) => region !== "product-file-metrics-tests")
+          : selected;
+      assert.deepEqual(matchingRegions(path, regions), selectedForTest, path);
+    }
+    for (const directory of ["host-environment", "project-files"]) {
+      const path = `src/package-checks/${directory}/removed/regression.test.ts`;
+      assert.deepEqual(
+        matchingRegions(path, regions),
+        [functionRegion, "product-supporting-check-tests"],
+        path
+      );
+    }
+    for (const directory of [
+      "check",
+      "check-settlement",
+      "data-boundary",
+      "machine-output",
+      "package-tools",
+      "project-definition",
+      "project-run"
+    ]) {
+      const path = `src/${directory}/removed/regression.test.ts`;
+      assert.deepEqual(matchingRegions(path, regions), [functionRegion], path);
     }
 
     const sharedInputs = [
@@ -73,10 +99,15 @@ describe("Project Gate change regions", () => {
       "src/package-checks/check-execution.test-support.ts",
       "src/package-checks/code-quality-findings/findings.ts",
       "src/package-checks/host-environment/environment.ts",
+      "src/package-checks/host-environment/process/fixture.test-support.ts",
       "src/package-checks/project-files/selection.ts",
+      "src/package-checks/project-files/fixture.test-support.ts",
       "src/package-checks/new-check/default-check.ts",
+      "src/package-checks/new-check/regression.test.ts",
       "src/package-checks/file-metrics-extra/input.ts",
+      "src/package-checks/file-metrics-extra/regression.test.ts",
       "src/new-runtime-owner/implementation.ts",
+      "src/new-runtime-owner/regression.test.ts",
       "scripts/project/gate/checks/test-execution/lanes.ts",
       "scripts/test-evidence/discovery/bun-files.ts",
       "scripts/test-evidence/profile.ts",
@@ -111,7 +142,8 @@ describe("Project Gate change regions", () => {
       ["productJsonChecks", "product-json-tests"],
       ["productMarkdownLinks", "product-markdown-tests"],
       ["productSecretDetection", "product-secret-detection-tests"],
-      ["productSupportingChecks", "product-supporting-check-tests"]
+      ["productSupportingChecks", "product-supporting-check-tests"],
+      ["productRuntime", "product-runtime"]
     ] as const;
     for (const [lane, region] of laneRegions) {
       assert.ok(lanes[lane].length > 0, lane);
@@ -197,11 +229,90 @@ describe("Project Gate change regions", () => {
           "product-runtime"
         ]
       },
+      {
+        path: "src/package-checks/host-environment/process/runner.test.ts",
+        selected: ["layout-tests"]
+      },
+      {
+        path: "src/package-checks/new-check/regression.test.ts",
+        selected: [
+          "admission-workbench-tests",
+          "project-tests",
+          "layout-tests",
+          "script-tooling-tests",
+          "product-runtime"
+        ]
+      },
       { path: "docs/tooling/project-gate.md", selected: [] },
       { path: ".github/workflows/check.yml", selected: [] }
     ] as const;
     for (const { path, selected } of scenarios) {
       assert.deepEqual(matchingRegions(path, lanes), selected, path);
+    }
+
+    const independentRegions = [
+      "package-tests",
+      "project-tests",
+      "admission-workbench-tests",
+      "script-tooling-tests"
+    ] as const;
+    // Independent expected owners; do not derive exclusions from the policy under test.
+    const knownOwners = [
+      "package-checks/command-check",
+      "package-checks/duplicate-detection",
+      "package-checks/file-metrics",
+      "package-checks/function-metrics",
+      "package-checks/json-document",
+      "package-checks/json-schema-validation",
+      "package-checks/json-validation",
+      "package-checks/maintenance-reminders",
+      "package-checks/markdown-link-validation",
+      "package-checks/markdown-lint",
+      "package-checks/secret-detection",
+      "package-checks/host-environment",
+      "package-checks/project-files",
+      "check",
+      "check-settlement",
+      "data-boundary",
+      "machine-output",
+      "package-tools",
+      "project-definition",
+      "project-run"
+    ];
+    for (const owner of knownOwners) {
+      const test = `src/${owner}/removed/regression.test.ts`;
+      assert.deepEqual(matchingRegions(test, independentRegions), [], test);
+      for (const file of ["implementation.ts", "fixture.test-support.ts", "fixtures/input.json"]) {
+        const path = `src/${owner}/${file}`;
+        assert.deepEqual(matchingRegions(path, independentRegions), independentRegions, path);
+      }
+    }
+    for (const path of [
+      "src/index.ts",
+      "src/new-owner/regression.test.ts",
+      "src/package-checks/new-check/regression.test.ts",
+      "src/package-checks/file-metrics-extra/regression.test.ts"
+    ]) {
+      assert.deepEqual(matchingRegions(path, independentRegions), independentRegions, path);
+    }
+    const testLanes = resolveProjectGateTestLanes(process.cwd());
+    const scriptLaneRegions = [
+      ["packageSupporting", "package-tests"],
+      ["scriptsAdmissionWorkbench", "admission-workbench-tests"],
+      ["scriptsProject", "project-tests"],
+      ["scriptsProjectSelection", "project-selection-tests"],
+      ["scriptsLayout", "layout-tests"],
+      ["scriptsMachineArtifacts", "machine-artifact-tests"],
+      ["scriptsPackageToolsBoundary", "package-tools-boundary-tests"],
+      ["scriptsTestEvidence", "test-evidence-tests"],
+      ["scriptsTooling", "script-tooling-tests"],
+      ["scriptsValidation", "validation-tests"]
+    ] as const;
+    for (const [lane, region] of scriptLaneRegions) {
+      assert.ok(testLanes[lane].length > 0, lane);
+      for (const path of testLanes[lane]) {
+        assert.deepEqual(matchingRegions(path, [region]), [region], path);
+      }
     }
   });
 
