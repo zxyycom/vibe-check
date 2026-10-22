@@ -29,7 +29,11 @@ private `collectProjectFileSets(root, selections)` 在一个 Check 本次操作�
 fs adapter 在 task base、静态路径及目录下沉前检查本次全部 selections：全部无需求才剪枝，空 selection 不制造需求，无法证明时继续访问。安全用户子树剪枝限末段负规则的整子树排除；不重建递归引擎，不把用户负规则永久下发为 fast-glob ignore。混合开关保持各自候选与输出。
 
 祖先检查按 slash offset 构造前缀并供全部 policies 共用，不反复 split、slice、join 增长的 segment 数组。
-每个 policy 可以由不同祖先证明排除，仍须全部 policy 无需求才能剪枝；prefix 字符总长度与 matcher 工作仍按实际输入承担。
+每个 policy 可以由不同祖先证明排除，仍须全部 policy 无需求才能剪枝。
+单次 collection 内，每个固定 policy 按 prefix 记忆纯排除布尔值，同一完整路径的纯 no-demand 判断也可复用；
+matcher 仍按原顺序编译，policy/祖先仍按原顺序短路，最终完整列表匹配不变。
+这些 memo 不是 filesystem 状态缓存，不跨 policy、root 或 collection 调用保留；必要 inspection/read 与错误时点不变。
+额外内存随本次不同 policy/prefix 数增长；祖先遍历、prefix 字符构造和未命中的 matcher 成本仍按实际输入承担。
 
 root 即使空 patterns 也必须是真实可读目录。glob 起点在父目录枚举中不存在时是无匹配；已观察到的必要路径 inspection/read 失败（含消失的 ENOENT）翻译为带绝对目标与 cause 的普通 Error，防止库吞掉真实错误。policy 跳过才允许 synthetic ENOENT。task 起点与静态后代验证路径分量，不能绕过目录链接的 no-follow。共享状态 operation-local，不承诺文件内容/原子快照或恶意并发替换隔离。
 

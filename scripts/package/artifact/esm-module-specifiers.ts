@@ -31,10 +31,32 @@ export function rewriteFunctionMetricsWorkerUrl(input: {
   readonly fileName: string;
   readonly source: string;
 }): string {
+  return rewriteKnownWorkerUrl(
+    input,
+    "function-metrics",
+    "./analyzer-worker.ts",
+    "./analyzer-worker.mjs"
+  );
+}
+
+/** Rewrites only the Markdown Link session's separately emitted private I/O Worker URL. */
+export function rewriteMarkdownLinkWorkerUrl(input: {
+  readonly fileName: string;
+  readonly source: string;
+}): string {
+  return rewriteKnownWorkerUrl(input, "markdown-link", "./io-worker.ts", "./io-worker.mjs");
+}
+
+function rewriteKnownWorkerUrl(
+  input: { readonly fileName: string; readonly source: string },
+  owner: "function-metrics" | "markdown-link",
+  sourceSpecifier: string,
+  runtimeSpecifier: string
+): string {
   const sourceFile = parseEmittedJavaScript(input);
   const matches: ModuleSpecifierRange[] = [];
   const visit = (node: ts.Node): void => {
-    if (isFunctionMetricsWorkerUrl(node)) {
+    if (isKnownWorkerUrl(node, sourceSpecifier)) {
       const specifier = node.arguments?.[0];
       if (specifier === undefined || !ts.isStringLiteral(specifier)) {
         throw new Error(`emitted Worker URL has no string specifier: ${input.fileName}`);
@@ -52,12 +74,12 @@ export function rewriteFunctionMetricsWorkerUrl(input: {
   visit(sourceFile);
   if (matches.length !== 1) {
     throw new Error(
-      `emitted function-metrics Worker URL must occur exactly once: ${input.fileName}; received ${matches.length}`
+      `emitted ${owner} Worker URL must occur exactly once: ${input.fileName}; received ${matches.length}`
     );
   }
   const match = matches[0];
-  if (match === undefined) throw new Error("function-metrics Worker URL match is missing");
-  return replaceModuleSpecifierToken(input.source, match, "./analyzer-worker.mjs");
+  if (match === undefined) throw new Error(`${owner} Worker URL match is missing`);
+  return replaceModuleSpecifierToken(input.source, match, runtimeSpecifier);
 }
 
 function relativeJavaScriptSpecifierRanges(input: {
@@ -185,10 +207,12 @@ function moduleSpecifierFromDynamicImport(node: ts.Node): ts.StringLiteral | und
     : undefined;
 }
 
-function isFunctionMetricsWorkerUrl(node: ts.Node): node is ts.NewExpression {
+function isKnownWorkerUrl(node: ts.Node, sourceSpecifier: string): node is ts.NewExpression {
   if (!isTwoArgumentUrlConstruction(node)) return false;
   const [specifier, base] = node.arguments;
-  return isAnalyzerWorkerSpecifier(specifier) && isImportMetaUrl(base);
+  return (
+    ts.isStringLiteral(specifier) && specifier.text === sourceSpecifier && isImportMetaUrl(base)
+  );
 }
 
 function isTwoArgumentUrlConstruction(node: ts.Node): node is ts.NewExpression & {
@@ -200,10 +224,6 @@ function isTwoArgumentUrlConstruction(node: ts.Node): node is ts.NewExpression &
     node.expression.text === "URL" &&
     node.arguments?.length === 2
   );
-}
-
-function isAnalyzerWorkerSpecifier(value: ts.Expression): value is ts.StringLiteral {
-  return ts.isStringLiteral(value) && value.text === "./analyzer-worker.ts";
 }
 
 function isImportMetaUrl(value: ts.Expression): boolean {

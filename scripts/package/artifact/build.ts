@@ -7,6 +7,7 @@ import { auditCandidateArtifact } from "./packed-tar-audit.ts";
 import type { ArtifactDocumentation } from "./documentation-audit.ts";
 import {
   rewriteFunctionMetricsWorkerUrl,
+  rewriteMarkdownLinkWorkerUrl,
   rewriteRelativeEsmModuleExtensions
 } from "./esm-module-specifiers.ts";
 import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
@@ -14,6 +15,7 @@ import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
   PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SOURCE_PATH,
   PACKAGE_README_PATH,
@@ -237,12 +239,25 @@ function normalizeEmittedModule(input: {
     fileName: input.javascriptPath,
     source: readFileSync(input.javascriptPath, "utf8")
   });
-  const moduleSource = isEmittedFunctionMetricsWorkerParent(input)
-    ? rewriteFunctionMetricsWorkerUrl({
-        fileName: input.javascriptPath,
-        source: staticModuleSource
-      })
-    : staticModuleSource;
+  const emittedPath = relative(input.stagingDirectory, input.javascriptPath).split(sep).join("/");
+  let moduleSource = staticModuleSource;
+  if (
+    emittedPath ===
+    `${PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH.slice(0, -".mjs".length)}.js`
+  ) {
+    moduleSource = rewriteFunctionMetricsWorkerUrl({
+      fileName: input.javascriptPath,
+      source: staticModuleSource
+    });
+  } else if (
+    emittedPath ===
+    `${PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH.slice(0, -".mjs".length)}.js`
+  ) {
+    moduleSource = rewriteMarkdownLinkWorkerUrl({
+      fileName: input.javascriptPath,
+      source: staticModuleSource
+    });
+  }
   const normalizedModuleSource = rewriteLinkedSourceMapComment({
     javascriptPath: input.javascriptPath,
     modulePath,
@@ -258,16 +273,6 @@ function normalizeEmittedModule(input: {
   writeFileSync(`${modulePath}.map`, normalizedSourceMap, "utf8");
   rmSync(input.javascriptPath);
   rmSync(sourceMapPath);
-}
-
-function isEmittedFunctionMetricsWorkerParent(input: {
-  readonly javascriptPath: string;
-  readonly stagingDirectory: string;
-}): boolean {
-  return (
-    relative(input.stagingDirectory, input.javascriptPath).split(sep).join("/") ===
-    `${PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH.slice(0, -".mjs".length)}.js`
-  );
 }
 
 function rewriteLinkedSourceMapComment(input: {

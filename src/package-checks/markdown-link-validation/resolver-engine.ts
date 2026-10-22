@@ -2,7 +2,7 @@ import { setImmediate } from "node:timers/promises";
 import path from "node:path";
 
 import { MarkdownLinkParseFactsSession } from "./parse-facts-cache/session.ts";
-import { probeEndpoint } from "./filesystem-probes.ts";
+import { LinkIoSession } from "./io-session.ts";
 import { readRootContainedMarkdownSource } from "./source-reader.ts";
 import {
   unavailable,
@@ -31,6 +31,8 @@ interface RegisteredReferences {
 /** Per-invocation graph session: source facts, logical charging, observation scheduling and parse cache. */
 export class LinkLocalResolver implements MarkdownLocalResolver {
   #targetReadCount = 0;
+  readonly #io: LinkIoSession;
+  #finalization: Promise<void> | undefined;
   readonly #canonicalProjectRoot: string;
   readonly #parseFactsCache: MarkdownLinkParseFactsSession;
   readonly #maxTargetReads: number | false;
@@ -48,6 +50,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     this.#maxTargetReads = maxTargetReads;
     this.#parseFactsCache = new MarkdownLinkParseFactsSession(cache);
     this.#signal = signal;
+    this.#io = new LinkIoSession(canonicalProjectRoot, signal);
   }
   get targetReadCount(): number {
     return this.#targetReadCount;
@@ -55,12 +58,24 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
   get cacheMessages() {
     return this.#parseFactsCache.messages;
   }
+  get finalizationFailed(): boolean {
+    return this.#io.failed;
+  }
   finalize(): Promise<void> {
-    return this.#parseFactsCache.finalize(this.#signal);
+    this.#finalization ??= this.#finalize();
+    return this.#finalization;
+  }
+  async #finalize(): Promise<void> {
+    try {
+      await this.#parseFactsCache.finalize(this.#signal);
+    } finally {
+      await this.#io.finalize();
+    }
   }
 
   async readSource(rootRelativePath: string, maxMarkdownBytes: number) {
     const read = await readRootContainedMarkdownSource({
+      io: this.#io,
       canonicalProjectRoot: this.#canonicalProjectRoot,
       maxMarkdownBytes,
       parseMarkdownBytes: (bytes) => this.#parseFactsCache.parse(bytes, this.#signal),
@@ -170,7 +185,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     node: TargetNode,
     batch: readonly TargetEdge[]
   ): Promise<TargetUnavailable | undefined> {
-    const authorized = await authorizeTargetNode(node, this.#canonicalProjectRoot);
+    const authorized = await authorizeTargetNode(node, this.#io);
     if ("reason" in authorized) {
       return authorized;
     }
@@ -188,13 +203,14 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
         return undefined;
       }
       // Containment stopped before the external referent. Only the charged validate edges authorize it.
-      const endpoint = await probeEndpoint(node.path);
+      const endpoint = await this.#io.probeEndpoint(node.path);
       if (endpoint.kind === "unavailable") {
         return unavailable("target-unavailable");
       }
       existing = { kind: "endpoint", endpoint };
     }
     const observed = await observeTargetDemand({
+      io: this.#io,
       targetPath: node.endpointPath ?? node.path,
       edges: chargedEdges,
       existing,

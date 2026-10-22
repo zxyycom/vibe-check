@@ -1,10 +1,13 @@
 import { strict as assert } from "node:assert";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
 import { createMarkdownLocalResolver } from "./local-resolver.ts";
 import type { MarkdownLinkSource, MarkdownLocalResolutionRequest } from "./local-resolver.ts";
+
+const fixtureResolvers = new AsyncLocalStorage<Awaited<ReturnType<typeof createdResolver>>[]>();
 
 export async function createdResolver(
   root: string,
@@ -17,6 +20,7 @@ export async function createdResolver(
   if (!creation.ok) {
     assert.fail("expected resolver");
   }
+  fixtureResolvers.getStore()?.push(creation.resolver);
   return creation.resolver;
 }
 
@@ -88,7 +92,14 @@ export async function withFixture(action: (fixture: Fixture) => Promise<void>): 
   try {
     await mkdir(fixture.root);
     await mkdir(fixture.outside);
-    await action(fixture);
+    const resolvers: Awaited<ReturnType<typeof createdResolver>>[] = [];
+    await fixtureResolvers.run(resolvers, async () => {
+      try {
+        await action(fixture);
+      } finally {
+        for (const resolver of resolvers) await resolver.finalize();
+      }
+    });
   } finally {
     await rm(workspace, { recursive: true, force: true });
   }

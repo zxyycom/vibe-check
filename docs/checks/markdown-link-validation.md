@@ -4,6 +4,9 @@
 
 `markdownLinkValidation(options?)` 构造普通 Check，离线验证所选 Markdown 中的本机链接、图片目标与标题锚点。
 
+运行宿主须允许创建 `node:worker_threads` Worker。Check 在首次需要本地路径或正文 I/O 时惰性启动一个私有 Worker，
+并在本次调用结束前关闭它；禁止 Worker 的宿主不受支持，创建失败不会回退到主线程 I/O。
+
 ## 构造器项目声明
 
 `markdownLinkValidation` 有三类 overload：
@@ -192,8 +195,11 @@ Check 先验证 options，按本页 suffix 规则完整分类 selected paths，�
 ### 协作取消与完整发布
 
 阶段边界、每个源/目标节点完成后、每 256 条边处理后，以真实事件循环让步检查 timer / I/O 触发的协作取消。
-节点 I/O 串行；同步单文档解析仍受单文件 bytes 边界保护，不提供抢占式实时取消保证。
-普通链接 Records 的完整发布区间不插入让步；最后取消检查完成前，不发布部分普通链接 Records 或 final data。
+节点 I/O 串行；Worker 在 native filesystem 操作前后检查共享取消标记，已进入的系统调用须等待返回。
+同步单文档解析仍受单文件 bytes 边界保护，不提供抢占式实时取消或固定取消延迟保证。
+取消时等待在途工作尝试关闭文件并退出 Worker，不强杀在途读取。
+普通链接 Records 的完整发布区间不插入让步；Worker 与 cache 收束、最后取消检查完成前，不发布普通链接 Records 或 final data。
+已有 traversal unavailable 保留首错；只有收束失败时返回 `target-unavailable`，不发布原本的普通成功或 Finding 结果。
 
 ### 识别的引用
 
@@ -281,11 +287,11 @@ selected path 数量为零时结算为 `not-applicable / no-eligible-input`。se
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `invalid-options`            | constructor 返回后形成的 replacement options 不是完整 closed resolved shape；重新调用 `markdownLinkValidation(options)` 或恢复完整字段。 |
 | `project-root-unavailable`   | project root 无法 canonicalize；检查路径存在性与访问权限。                                                                               |
-| `source-unavailable`         | source collection、读取、decode 或 containment 失败；检查 source 与 file-selection 来源。                                                |
+| `source-unavailable`         | source collection、读取、decode 或 containment 失败（含该阶段 Worker 不可用）；检查 source、file-selection 来源及 Worker 权限。                                                |
 | `source-too-large`           | 某个 selected Markdown source 超过 `maxMarkdownBytes`。                                                                                  |
 | `markdown-parse-failed`      | selected source 无法形成完整 parser facts。                                                                                              |
 | `invalid-local-destination`  | local destination 无法按受支持的 path/URI grammar 安全解析。                                                                             |
-| `target-unavailable`         | target containment probe、I/O、decode、parse 或 directory read 失败；Markdown anchor target 超过 `maxMarkdownBytes` 也属于此分支。       |
+| `target-unavailable`         | target containment probe、I/O、decode、parse、directory read 或 Worker 收束失败；Markdown anchor target 超过 `maxMarkdownBytes` 也属于此分支。       |
 | `occurrence-limit-exceeded`  | semantic occurrence 总数超过 `maxOccurrences`。                                                                                          |
 | `target-read-limit-exceeded` | direct endpoint validation work 超过 `maxTargetReads`。                                                                                  |
 | `cancelled`                  | invocation signal 取消本 Check；不要把结果解释为 clean validation。                                                                      |

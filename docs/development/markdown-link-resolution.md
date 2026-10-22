@@ -56,6 +56,8 @@ target I/O 前进入 Check 的 `rootExternalTargetMode`。`ignore` 不产生 fin
 lexically root-in candidate 只能使用 component containment probe。若某个 symlink hop 越出 root，除 `validate` mode 外，
 该 probe 不授权触碰 root 外 referent。
 
+source 与 regular Markdown target 的读取共用[有界容量与真实 EOF 规则](#私有-io-会话与收束)；更换同步或异步驱动不改变此授权边界。
+
 component probe 以 segment cursor 消费当前路径；普通目录推进复用同一 segments 数组，symlink hop 则将
 link destination 与尚未消费的后缀重组，并从 root 重置 cursor。每个 component 的状态检查、symlink hop 上限
 与越界判定仍逐次在授权边界执行；数组复用不跨不同逻辑节点缓存 filesystem 状态；同节点固定观察由上文图 owner 承接。
@@ -68,6 +70,39 @@ OS-level sandbox。
 HTTP(S)、`mailto:`、protocol-relative URL、UNC path、带 authority 或不受支持的 `file:` form 以及其它不受支持的 target
 form 只分类后停止。它们不产生 Product-owned DNS、HTTP、TLS、redirect、subprocess 或 filesystem I/O，也不产生
 external reachability verdict。本 Check 没有 target discovery、crawler、shared resolver 或 general file-policy surface。
+
+## 私有 I/O 会话与收束
+
+`io-session.ts` 为每个 resolver 维护一个惰性 `node:worker_threads` Worker，绑定 canonical root 与本次 signal，
+最多一个在途 job。containment probe、endpoint probe 与 bounded regular-file read 各为一个完整 job；
+`io-worker.ts` 在 Worker 内用同步 filesystem 操作驱动，不逐路径分量往返父线程。
+root canonicalization、目录单 entry 读取、解析/摘要、图授权与逻辑计费仍由原 owner 负责。
+文件 Worker 默认继承父进程参数；仅当存在 string-input-only 的 `--input-type`（含 `--input_type` 别名、split/等号形式）时，
+剔除该选项及其值，其余参数原样保留，以支持 Node eval/stdin 宿主且保留 preload 上下文。
+这不保证任意 Node flags 组合均适用于 Worker，构建失败仍按下述 unavailable 边界处理。
+
+`filesystem-policy.ts` 共享纯路径游标、symlink 转移、endpoint 分类与读缓冲规则；同步和异步驱动各自执行 I/O。
+未注入会话的共用读链（包括 Markdown lint）继续使用 async 后端，不创建 Worker。
+mdlink 的 Worker 创建、发送、协议、error 或意外 exit 故障使会话失败，不重试观察或回退到 async 后端；
+父线程按失败发生的 source/target 阶段映射既有 unavailable reason。
+
+regular-file read 保留 no-follow open、fstat regular-file/字节上限检查和真实 EOF；fstat size 只作为容量提示。
+初始容量为 `max(1, min(maxBytes + 1, size + 1))`，读满后有界倍增至 `maxBytes + 1`，实际读到该上限即 too-large。
+fstat 已超限或不是 regular file 时不分配正文缓冲、不开始 read；短读、增长与缩小仍按实际读取判断。
+最终返回精确 bytes 副本，已打开 descriptor 在可捕获失败与协作取消时仍经 `finally` 尝试 close。
+
+取消由父线程 abort listener 写共享原子标记，Worker 在 native 操作前后检查；已进入的 syscall 等待返回，
+不承诺抢占或固定取消延迟。正常取消不 terminate 在途工作。突发 Worker 退出只能证明 pending 结算与退出被观察，
+不能宣称用户态 `finally close` 已执行。
+
+幂等 finalize 禁止新 job，drain 当前工作，发送关闭请求并 await Worker exit，最后移除 listeners。
+私有请求身份和响应 union 的验证使 pending 恰一次结算；会话失败后不再接收新工作。
+resolver 用 `try/finally` 确保 Worker 与 cache 两类 finalize 都执行。`execution.ts` 在普通链接 Records/final data 发布前按以下顺序结算：
+
+1. 最终 checkpoint 取消：保留 `cancelled` 语义。
+2. traversal 已 unavailable：保留原 reason，关闭失败不覆盖首错。
+3. 其余情况下 Worker 关闭失败：返回 `target-unavailable`，即使原 traversal 已形成 blocking Finding，也不发布普通结果。
+4. 否则发布完整 traversal 结果。cache publication 失败始终只影响未来复用。
 
 ## Markdown Link parse-facts cache
 
@@ -100,6 +135,19 @@ fresh parse 成功后将 facts 放入 dirty Map；terminal boundary 调用幂等
 此 session 是 best-effort 单次调用状态，不建立跨进程锁、原子事务或持久性保证。并发 append 的损坏或重复 lines
 依照相同恢复规则退化为 miss；目录容量与清理由调用方管理。修改 storage 时同步核查相邻 lifecycle 与 payload tests。
 
+## 性能采用证据
+
+2026-10-23（Asia/Shanghai）的真实安装包同窗口比较支持采用私有 Worker、自适应缓冲与本次收集纯 memo 组合。
+Node 24.18.0 的 1824 源合成语料 D30/D60，wall 中位数分别从 7.111/12.806 秒降至 0.997/1.385 秒，
+配对节省中位数 85.98%/89.14%，各 8/8 更快；Bun 1.3.14 三个深度均为 4/4 更快。
+接受 Node 1/8 文档分别增加约 24.0/22.8 ms 的配对常数代价，不声称每个规模或 RSS 均改善。
+必要 I/O 计数不变，正常语料工作缓冲累计申请由 1,946,158,912 降为 3,322,656 bytes；memo 的两次独立控制仅 1/2 更快，
+只承接纯计算增长改善，不宣称独立 wall 收益。
+
+[形成时方法、产物身份与完整计时](_resources/markdown-link-native-io/evidence.md)保留全部 152 个样本、节流与 smoke 边界。
+这些是 Linux、warm parse cache、特定负载的采用依据，不是跨平台/冷盘保证或 timing 硬 Gate；
+[前期调查](../investigations/profile-markdown-link-consumer-workload.md)仍只保存原型认识。
+
 ## 验证
 
-修改 parser/probe/cache 时运行相邻单元与 Check integration tests，分别核对 immutable occurrence/range、no-follow 与 root-external 授权、当前 bytes 校验、恢复/终态写入和取消。cache 命中不能跳过授权或改变 Findings/settlement；共享收集测试不能代替这些 resolver 证据。
+修改 parser/probe/cache 或 I/O 会话时运行相邻单元与 Check integration tests，分别核对 immutable occurrence/range、两种驱动的 no-follow/containment/真实 EOF、当前 bytes 校验、恢复/终态写入、取消与 drain/exit。Worker 的实际包内加载还须通过[installed consumer 验收](../tooling/package-artifact.md#pack-前后验收)。cache 命中不能跳过授权或改变 Findings/settlement；共享收集测试不能代替这些 resolver 证据。

@@ -105,7 +105,10 @@ Execa 补丁由 `scripts/package/execa-type-compatibility.type-test.ts` 的 TS6/
 
 ### 公开入口与私有使用方边界
 
-`src/index.ts` 是唯一 public 产品入口及 package artifact build/declaration entry。`scripts/project/package.json` 从 exact installed `@zxyycom/vibe-check` candidate 消费该入口。
+`src/index.ts` 是唯一 public 产品入口及 package artifact build/declaration entry。
+repository layout 同时要求 package compiler roots 精确为它与两个私有 Worker：
+`src/package-checks/function-metrics/analyzer-worker.ts`、`src/package-checks/markdown-link-validation/io-worker.ts`。
+私有 root 不增加 public entry；额外或缺失 root 均拒绝。包内 URL 与材料审计见[产物契约](package-artifact.md#构建输入与包接口边界)。`scripts/project/package.json` 从 exact installed `@zxyycom/vibe-check` candidate 消费该入口。
 
 `scripts/package/**` 只负责准备该 candidate，不能 import 或启动 project consumer。artifact/package-API documentation build 与 audit 可以读取各自显式 allowlisted 的 Product source 或 contract material，但不成为 Package Run consumer。产品 runtime、Definition 和 Check 不得依赖 scripts helper、环境状态或 process adapter。
 

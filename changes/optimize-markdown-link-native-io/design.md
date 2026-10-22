@@ -8,12 +8,12 @@
 调查已证明执行后端/任务粒度与纯 prefix memo 的收益，并观察到自适应缓冲在 Node 上明显改善 CPU/次缺页；历史 Bun 慢尾原因仍未知。
 Plan 的 Git 基线见 metadata；产品收益以实施时冻结的源码、产物与同窗口负载重新取得。
 
-当前入口与约束：
+实施起点（`3693317e`）的入口与约束：
 
 - `resolver-engine.ts` 持有图、批次计费和 cache；`execution.ts` 在 `finally` 调用 resolver finalize，随后才发布普通链接 Records。
-- `filesystem-probes.ts` 目前为 async 路径；Markdown lint 也直接使用它，不能全局替换成同步或自动创建 Worker。
+- `filesystem-probes.ts` 为 async 路径；Markdown lint 也直接使用它，不能全局替换成同步或自动创建 Worker。
 - `filesystem-collection.ts#createSubtreePruner` 重复计算多个路径共有祖先的纯排除结果，已存在的目录/entry 复用继续保留。
-- package 目前显式编译 index 与 function-metrics Worker 两个 root；URL normalization、runtime audit 和 repository-layout 检查均有对应约束。
+- package 显式编译 index 与 function-metrics Worker 两个 root；URL normalization、runtime audit 和 repository-layout 检查均有对应约束。
 - 遵守[按需收集](../../docs/decisions/retain-on-demand-project-file-collection.md)、[Node 可读 ESM 交付](../../docs/decisions/publish-node-readable-esm-package-layout.md)及[规模收益权衡](../../docs/decisions/weigh-performance-costs-against-scaling-benefits.md)，不增加 Run-wide 输入机制或每规模必快的要求。
 
 ## Goals / Non-Goals
@@ -94,3 +94,14 @@ filesystem 获取、路径身份、必要失败、最终原生列表匹配和排
 4. Node 深度 30/60 的正配对中位数与多数更快样本是本 Change 的采用证据；小规模有限回退按绝对成本和规模价值审查。未得到该证据则修订方案，不直接套用旧原型比例；不新增机器秒数硬 Gate。
 5. 语料沿用调查的[生成规则与计数口径](../../docs/investigations/_resources/261021-profile-markdown-link-consumer-workload/measurement-method.md)：1824 源、3,320,000 bytes、1193 引用、296 目标/136 重叠和 32 个纯 Markdown 标题读取；默认不查目录非空、非 Markdown 不读正文、HTTP 零网络。无 symlink、等深正常语料的 containment lstat 为 `1984×深度`，正文 open/fstat/close 各 1856 次、read 3712 次、返回 3,320,800 bytes；工作 job 3840，控制消息另计。自适应工作缓冲累计申请 3,322,656 bytes、零扩容。额外标题密集与 near-limit/growing 文档用于退化验证。
 6. 长 raw、bundle、CPU profile 留独占临时目录并核对后清理；交接只保留简要方法、计时必要列、关键计数和反例，短证据可原样保留。调查引用已有形成时结果，本次新数据明确另标来源和窗口。
+
+## Implementation Observations
+
+三项优化及真实安装包接线已实现；协议校验按 envelope/job/payload 职责组织，纯 memo 的独立测试归 `subtree-pruning.test.ts`，质量门禁保持原策略。
+安装后文档验收发现 Node string-input 参数继承到 URL Worker 的故障，已补定点处理与真实 Node preload/V8 回归；没有该参数时维持默认继承。
+
+原生 baseline 来源为 `3693317e`，最终采用证据对应 `0.0.0-local.5e80d3c05c27`；两份 exact tarball、源码摘要、152 个新窗口样本及必要计数见[稳定 owner 的性能采用证据](../../docs/development/markdown-link-resolution.md#性能采用证据)。
+Node 深度 30/60 满足采用标准；接受单/少文档约 23–24 ms 的常数代价，不据两次 stage 控制宣称纯 memo 独立提速。
+
+最终完整 Gate 为 43/43 passed，且总耗时、均值与 P95 预算均通过；Test Evidence 闭合 775 个实体、191 个 Case。
+独立正确性审阅、ai-ready 文档优化与编码规范优化已完成；独占实验目录已清理，正式资源仅保留 22,027 bytes 的方法与计时列。

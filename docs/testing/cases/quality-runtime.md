@@ -484,3 +484,21 @@ Entities:
 - 全部源错误先于目标内容错误；节点全部逻辑边的预算超限先于额外内容读取和解码，不能先读首条边再逐边耗尽。不可用不发布部分普通 Records。
 - 10,001 条计费引用在 false 和显式更大正整数预算下完整成功，计数不因节点命中缩小；显式有限 10,000 预算仍阻断。
 - 边批次向真实事件循环让步，可观察 timer 与 I/O 触发的取消；取消结算无普通 Records 或 final data，不解释为 clean validation。
+
+## Case AUX-MARKDOWN-LINK-IO-LIFECYCLE-001: Markdown Link 私有 I/O 在发布前完成收束
+
+Owner: `docs/development/markdown-link-resolution.md#私有-io-会话与收束`
+Entities:
+
+- `bun|src/package-checks/markdown-link-validation/io-session.test.ts|Markdown Link private I/O session > preserves parent preload context for file-backed Workers under Node string-input hosts`
+- `bun|src/package-checks/markdown-link-validation/io-session.test.ts|Markdown Link private I/O session > starts lazily, drains one pending job, and finalizes once without terminating active work`
+- `bun|src/package-checks/markdown-link-validation/io-session.test.ts|Markdown Link private I/O session > settles construction, send, protocol, error and exit faults once and removes subscriptions`
+- `bun|src/package-checks/markdown-link-validation/io-session.test.ts|Markdown Link private I/O session > keeps simultaneous resolver cancellation isolated and awaits real Worker exit`
+- `bun|src/package-checks/markdown-link-validation/io-session.test.ts|Markdown Link private I/O session > observes atomic cancellation during a real Worker read and drains its descriptor before exit`
+- `bun|src/package-checks/markdown-link-validation/execution-lifecycle.test.ts|Markdown Link terminal I/O lifecycle > awaits Worker exit and prioritizes cancellation, original failure and close failure before publication`
+  Proves:
+- 文件 Worker 仅剔除父进程 string-input-only 的 `--input-type` / `--input_type` split/等号形式，其余参数原样保留；无此 flag 时沿用默认继承。真实 Node 24.18 验证四种形式及普通 V8 flag 路径均可读取、执行 Worker preload 并正常收束；这不是任意 Node flags 组合的兼容性证明。
+- 空输入和提前取消不启动 Worker；正常 finalize 幂等，停止新请求并等待在途 job、关闭确认和退出后移除订阅，不 terminate 活跃工作。
+- 创建、发送、关闭发送、请求身份/响应形状、超长 bytes、error、意外 exit、重复响应和重入请求故障恰一次结算 pending，随后拒绝新工作，不静默切换后端。
+- 两个真实 resolver 的取消互相隔离。真实 Worker 已进入受控 native read 后，原子取消等待该操作返回、恰一次关闭 descriptor、阻止第二次 read，并在退出及监听器移除后完成 finalize。
+- execution 在退出后才结算；最终取消优先于 traversal 首错，已有 unavailable 不被关闭失败覆盖，仅关闭失败则 target-unavailable 且无普通 Records/final data。best-effort cache 写入失败不抑制完整成功或 Finding 结果。

@@ -1,9 +1,14 @@
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 
 import { errorMessage } from "../../error-message.ts";
 import {
   PACKAGE_ENTRY_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_TYPES_PATH
@@ -27,6 +32,29 @@ import { auditCandidateManifest } from "./manifest.ts";
 interface TarEntry {
   readonly content: Buffer;
   readonly path: string;
+}
+
+/** Binds both installed private Worker roots and their parents to the accepted tarball's exact bytes. */
+export function assertInstalledPrivateWorkerMaterials(input: {
+  readonly artifactPath: string;
+  readonly packageDirectory: string;
+}): void {
+  const entries = readTarEntries(input.artifactPath);
+  for (const runtimePath of [
+    PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
+    PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
+    PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH,
+    PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH
+  ]) {
+    for (const packagePath of [runtimePath, `${runtimePath}.map`]) {
+      const packed = requiredTarEntry(entries, `package/${packagePath}`);
+      if (!readFileSync(join(input.packageDirectory, packagePath)).equals(packed.content)) {
+        throw new Error(
+          `installed private Worker material differs from the exact artifact: ${packagePath}`
+        );
+      }
+    }
+  }
 }
 
 export function auditCandidateArtifact(input: {

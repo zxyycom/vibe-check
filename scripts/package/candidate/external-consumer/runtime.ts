@@ -7,6 +7,14 @@ const ISOLATED_JSON_SCHEMA_ID = "https://schemas.vibe-check.example/person";
 export function writeExternalConsumerRuntimeFixture(consumerDirectory: string): void {
   writeFileSync(join(consumerDirectory, "run-fixture.mjs"), runFixture(), "utf8");
   writeFileSync(
+    join(consumerDirectory, "markdown-link-worker-fixture.mjs"),
+    readFileSync(
+      fileURLToPath(new URL("./fixtures/markdown-link-worker-runtime.mjs", import.meta.url)),
+      "utf8"
+    ),
+    "utf8"
+  );
+  writeFileSync(
     join(consumerDirectory, "command-check-fixture.mjs"),
     commandCheckFixture(),
     "utf8"

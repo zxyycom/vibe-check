@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import {
   relativeEsmModuleSpecifiers,
   rewriteFunctionMetricsWorkerUrl,
+  rewriteMarkdownLinkWorkerUrl,
   rewriteRelativeEsmModuleExtensions
 } from "./esm-module-specifiers.ts";
 
@@ -87,13 +88,39 @@ describe("emitted ESM module specifiers", () => {
       for (const normalize of [
         relativeEsmModuleSpecifiers,
         rewriteRelativeEsmModuleExtensions,
-        rewriteFunctionMetricsWorkerUrl
+        rewriteFunctionMetricsWorkerUrl,
+        rewriteMarkdownLinkWorkerUrl
       ]) {
         assert.throws(
           () => normalize({ fileName: "malformed.mjs", source }),
           /could not parse emitted ESM module malformed\.mjs/
         );
       }
+    }
+  });
+
+  it("normalizes only the exact private Markdown Link Worker URL and rejects shape drift", () => {
+    const source = [
+      'const worker = new URL("./io-worker.ts", import.meta.url);',
+      'const ordinary = "./io-worker.ts";',
+      'const other = new URL("./analyzer-worker.ts", import.meta.url);'
+    ].join("\n");
+    assert.equal(
+      rewriteMarkdownLinkWorkerUrl({ fileName: "io-session.js", source }),
+      source.replace('new URL("./io-worker.ts",', 'new URL("./io-worker.mjs",')
+    );
+    for (const drift of [
+      "export {};",
+      `${source}\n${source}`,
+      'new URL("../io-worker.ts", import.meta.url);',
+      'new URL("./io-worker.ts", other.url);',
+      "new URL(`./io-worker.ts`, import.meta.url);",
+      'new URL("./io-worker.ts", import.meta.url, "extra");'
+    ]) {
+      assert.throws(
+        () => rewriteMarkdownLinkWorkerUrl({ fileName: "io-session.js", source: drift }),
+        /markdown-link Worker URL must occur exactly once/u
+      );
     }
   });
 });

@@ -1,6 +1,6 @@
 import { opendir } from "node:fs/promises";
 
-import { probeEndpoint, probeRootContainedPath, readRegularFile } from "./filesystem-probes.ts";
+import type { LinkIoSession } from "./io-session.ts";
 import { isMarkdownPath, unavailable, type MarkdownLocalResolution } from "./local-resolution.ts";
 import type { ParsedMarkdownLinkFacts } from "./markdown-parser.ts";
 import type { MarkdownLinkParseFactsSession } from "./parse-facts-cache/session.ts";
@@ -12,7 +12,7 @@ type EndpointObservation = Extract<TargetObservation, { kind: "endpoint" }>;
 /** Reuse authorized source facts, otherwise acquire the node's first containment/type observation. */
 export async function authorizeTargetNode(
   node: TargetNode,
-  root: string
+  io: LinkIoSession
 ): Promise<TargetObservation | TargetUnavailable> {
   if (node.observation !== undefined) {
     return node.observation;
@@ -21,19 +21,19 @@ export async function authorizeTargetNode(
     return { kind: "endpoint", endpoint: { kind: "file" }, facts: node.source.facts };
   }
   if (node.isExternalDomain) {
-    const endpoint = await probeEndpoint(node.path);
+    const endpoint = await io.probeEndpoint(node.path);
     return endpoint.kind === "unavailable"
       ? unavailable("target-unavailable")
       : { kind: "endpoint", endpoint };
   }
-  return observeContainedEndpoint(node, root);
+  return observeContainedEndpoint(node, io);
 }
 
 async function observeContainedEndpoint(
   node: TargetNode,
-  root: string
+  io: LinkIoSession
 ): Promise<TargetObservation | TargetUnavailable> {
-  const probe = await probeRootContainedPath(root, node.path);
+  const probe = await io.probeRootContainedPath(node.path);
   switch (probe.kind) {
     case "unavailable":
       return unavailable("target-unavailable");
@@ -44,7 +44,7 @@ async function observeContainedEndpoint(
       return { kind: "endpoint", endpoint: { kind: "missing" } };
     case "contained": {
       node.endpointPath = probe.absolutePath;
-      const endpoint = probe.endpoint ?? (await probeEndpoint(probe.absolutePath));
+      const endpoint = probe.endpoint ?? (await io.probeEndpoint(probe.absolutePath));
       return endpoint.kind === "unavailable"
         ? unavailable("target-unavailable")
         : { kind: "endpoint", endpoint };
@@ -53,6 +53,7 @@ async function observeContainedEndpoint(
 }
 
 interface TargetDemand {
+  readonly io: LinkIoSession;
   readonly targetPath: string;
   readonly edges: readonly TargetEdge[];
   readonly existing: EndpointObservation;
@@ -97,7 +98,7 @@ async function readTargetFacts(
   demand: TargetDemand,
   maxBytes: number
 ): Promise<ParsedMarkdownLinkFacts | undefined> {
-  const bytes = await readRegularFile(demand.targetPath, maxBytes);
+  const bytes = await demand.io.readRegularFile(demand.targetPath, maxBytes);
   if (!bytes.ok || demand.signal.aborted) {
     return undefined;
   }

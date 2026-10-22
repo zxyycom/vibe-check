@@ -80,9 +80,11 @@ export function createTargetLayout(): string {
     "scripts/package/package-contract.ts",
     [
       'export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH = "src/package-checks/function-metrics/analyzer-worker.ts";',
+      'export const PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH = "src/package-checks/markdown-link-validation/io-worker.ts";',
       "export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([",
       '  "src/index.ts",',
-      "  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH",
+      "  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH,",
+      "  PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH",
       "]);"
     ].join("\n")
   );

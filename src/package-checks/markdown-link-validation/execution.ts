@@ -103,6 +103,12 @@ async function prepareMarkdownTraversal(
     await created.resolver.finalize();
   }
   if (context.signal.aborted) prepared = result(unavailable("cancelled"));
+  else if (
+    created.resolver.finalizationFailed &&
+    !(prepared.kind === "result" && prepared.result.status === "unavailable")
+  ) {
+    prepared = result(unavailable("target-unavailable"));
+  }
   return prepared.kind === "result"
     ? result(appendCheckMessages(prepared.result, created.resolver.cacheMessages))
     : prepared;

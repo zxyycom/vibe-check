@@ -225,7 +225,8 @@ function abortWhenCacheDirectoryIsPublished(
   return new Proxy(controller.signal, {
     get(target, property): unknown {
       if (property === "aborted" && existsSync(cacheDirectory)) controller.abort();
-      return Reflect.get(target, property, target) as unknown;
+      const member: unknown = Reflect.get(target, property, target);
+      return typeof member === "function" ? member.bind(target) : member;
     }
   });
 }

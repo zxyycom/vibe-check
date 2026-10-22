@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { it } from "node:test";
 
@@ -293,7 +293,7 @@ it("validates repository layout and dependency boundaries", { timeout: 60_000 },
     },
     {
       expected:
-        "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots",
+        "package-artifact-entry: expected exactly src/index.ts, src/package-checks/function-metrics/analyzer-worker.ts and src/package-checks/markdown-link-validation/io-worker.ts compiler roots",
       mutate: (root) => {
         writeSource(
           root,
@@ -304,7 +304,7 @@ it("validates repository layout and dependency boundaries", { timeout: 60_000 },
     },
     {
       expected:
-        "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots",
+        "package-artifact-entry: expected exactly src/index.ts, src/package-checks/function-metrics/analyzer-worker.ts and src/package-checks/markdown-link-validation/io-worker.ts compiler roots",
       mutate: (root) => {
         writeSource(
           root,
@@ -320,6 +320,21 @@ it("validates repository layout and dependency boundaries", { timeout: 60_000 },
         );
       }
     },
+    ...[
+      ["  PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH", ""],
+      ["src/package-checks/markdown-link-validation/io-worker.ts", "../outside/io-worker.ts"],
+      [
+        "  PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH",
+        '  PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH, "src/check/extra.ts"'
+      ]
+    ].map(([before, after]) => ({
+      expected: "package-artifact-entry:",
+      mutate: (root: string) => {
+        assert.ok(before !== undefined && after !== undefined);
+        const path = "scripts/package/package-contract.ts";
+        writeSource(root, path, readFileSync(join(root, path), "utf8").replace(before, after));
+      }
+    })),
     {
       expected: "product-owner-directories:",
       mutate: (root) => {

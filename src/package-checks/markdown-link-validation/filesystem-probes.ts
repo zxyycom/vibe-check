@@ -2,187 +2,83 @@ import { constants } from "node:fs";
 import { lstat, open, readlink } from "node:fs/promises";
 import path from "node:path";
 
+import { isNotFound, type EndpointProbe, type RootProbe } from "./local-resolution.ts";
 import {
-  isNotFound,
-  isWithinRoot,
-  relativeSegments,
-  type ExistingEndpointProbe,
-  type EndpointProbe,
-  type RootProbe
-} from "./local-resolution.ts";
+  advanceContainedComponent,
+  advanceContainedSymlink,
+  BoundedReadBuffer,
+  canFollowContainedSymlink,
+  endpointFromStatus,
+  startContainment
+} from "./filesystem-policy.ts";
 
-interface RootContainedPathProbeState {
-  readonly currentPath: string;
-  readonly pathSegments: readonly string[];
-  readonly segmentIndex: number;
-  readonly symlinkHops: number;
-}
+export type RegularFileRead =
+  | Readonly<{ readonly ok: true; readonly bytes: Uint8Array }>
+  | Readonly<{ readonly ok: false; readonly reason: "too-large" | "unavailable" }>;
 
-type RootContainedPathProbeAdvance = RootProbe | RootContainedPathProbeState;
-type RootContainedPathStatus =
-  | RootProbe
-  | Readonly<{ readonly kind: "status"; readonly status: Awaited<ReturnType<typeof lstat>> }>;
-
-export async function probeRootContainedPath(
-  canonicalProjectRoot: string,
-  candidatePath: string
-): Promise<RootProbe> {
-  if (!isWithinRoot(canonicalProjectRoot, candidatePath)) {
-    return Object.freeze({ kind: "outside" as const });
-  }
-  let state: RootContainedPathProbeState = {
-    currentPath: canonicalProjectRoot,
-    pathSegments: relativeSegments(canonicalProjectRoot, candidatePath),
-    segmentIndex: 0,
-    symlinkHops: 0
-  };
-
-  while (state.segmentIndex < state.pathSegments.length) {
-    const advance = await advanceRootContainedPathProbe(canonicalProjectRoot, state);
-    if (!isRootContainedPathProbeState(advance)) return advance;
-    state = advance;
-  }
-
-  return Object.freeze({ kind: "contained" as const, absolutePath: state.currentPath });
-}
-
-function isRootContainedPathProbeState(
-  value: RootContainedPathProbeAdvance
-): value is RootContainedPathProbeState {
-  return "currentPath" in value;
-}
-
-async function advanceRootContainedPathProbe(
-  canonicalProjectRoot: string,
-  state: RootContainedPathProbeState
-): Promise<RootContainedPathProbeAdvance> {
-  const segment = state.pathSegments[state.segmentIndex];
-  if (segment === undefined) return Object.freeze({ kind: "unavailable" as const });
-  const nextPath = path.join(state.currentPath, segment);
-  const pathStatus = await rootContainedPathStatus(nextPath);
-  if (pathStatus.kind !== "status") return pathStatus;
-  if (!pathStatus.status.isSymbolicLink()) {
-    return state.segmentIndex + 1 === state.pathSegments.length
-      ? Object.freeze({
-          kind: "contained" as const,
-          absolutePath: nextPath,
-          endpoint: endpointFromStatus(pathStatus.status)
-        })
-      : Object.freeze({
-          currentPath: nextPath,
-          pathSegments: state.pathSegments,
-          segmentIndex: state.segmentIndex + 1,
-          symlinkHops: state.symlinkHops
-        });
-  }
-  return advanceThroughContainedSymlink(
-    canonicalProjectRoot,
-    nextPath,
-    state.pathSegments.slice(state.segmentIndex + 1),
-    state.symlinkHops
-  );
-}
-
-async function rootContainedPathStatus(nextPath: string): Promise<RootContainedPathStatus> {
+/** Asynchronous backend retained for Markdown lint; it never creates a Worker. */
+export async function probeRootContainedPath(root: string, candidate: string): Promise<RootProbe> {
+  let state = startContainment(root, candidate);
   try {
-    return Object.freeze({ kind: "status" as const, status: await lstat(nextPath) });
-  } catch (error: unknown) {
-    return isNotFound(error)
-      ? Object.freeze({ kind: "missing" as const, absolutePath: nextPath })
-      : Object.freeze({ kind: "unavailable" as const });
-  }
-}
-
-async function advanceThroughContainedSymlink(
-  canonicalProjectRoot: string,
-  linkPath: string,
-  remainingSegments: readonly string[],
-  symlinkHops: number
-): Promise<RootContainedPathProbeAdvance> {
-  if (symlinkHops >= 40) return Object.freeze({ kind: "unavailable" as const });
-  let linkDestination: string;
-  try {
-    linkDestination = path.resolve(path.dirname(linkPath), await readlink(linkPath));
+    while (!("kind" in state)) {
+      const segment = state.pathSegments[state.segmentIndex];
+      if (segment === undefined) return { kind: "contained", absolutePath: state.currentPath };
+      const nextPath = path.join(state.currentPath, segment);
+      let status;
+      try {
+        status = await lstat(nextPath);
+      } catch (error: unknown) {
+        return isNotFound(error)
+          ? { kind: "missing", absolutePath: nextPath }
+          : { kind: "unavailable" };
+      }
+      if (!status.isSymbolicLink()) {
+        state = advanceContainedComponent(state, nextPath, status);
+      } else {
+        if (!canFollowContainedSymlink(state)) return { kind: "unavailable" };
+        state = advanceContainedSymlink(root, state, nextPath, await readlink(nextPath));
+      }
+    }
+    return state;
   } catch {
-    return Object.freeze({ kind: "unavailable" as const });
+    return { kind: "unavailable" };
   }
-  if (!isWithinRoot(canonicalProjectRoot, linkDestination)) {
-    return Object.freeze({ kind: "outside" as const });
-  }
-  return Object.freeze({
-    currentPath: canonicalProjectRoot,
-    pathSegments: [
-      ...relativeSegments(canonicalProjectRoot, linkDestination),
-      ...remainingSegments
-    ],
-    segmentIndex: 0,
-    symlinkHops: symlinkHops + 1
-  });
 }
 
 export async function probeEndpoint(targetPath: string): Promise<EndpointProbe> {
-  let status: Awaited<ReturnType<typeof lstat>>;
   try {
-    status = await lstat(targetPath);
+    return endpointFromStatus(await lstat(targetPath));
   } catch (error: unknown) {
-    return isNotFound(error)
-      ? Object.freeze({ kind: "missing" as const })
-      : Object.freeze({ kind: "unavailable" as const });
+    return isNotFound(error) ? { kind: "missing" } : { kind: "unavailable" };
   }
-  return endpointFromStatus(status);
 }
 
 export async function readRegularFile(
   filePath: string,
   maxBytes: number
-): Promise<
-  | Readonly<{ readonly ok: true; readonly bytes: Uint8Array }>
-  | Readonly<{ readonly ok: false; readonly reason: "too-large" | "unavailable" }>
-> {
+): Promise<RegularFileRead> {
   let handle: Awaited<ReturnType<typeof open>> | undefined;
   try {
     handle = await open(filePath, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
     const status = await handle.stat();
-    if (!status.isFile()) {
-      return Object.freeze({ ok: false as const, reason: "unavailable" as const });
+    if (!status.isFile()) return { ok: false, reason: "unavailable" };
+    if (status.size > maxBytes) return { ok: false, reason: "too-large" };
+    const buffer = new BoundedReadBuffer(status.size, maxBytes);
+    while (!buffer.isTooLarge) {
+      buffer.prepareRead();
+      const { bytesRead } = await handle.read(
+        buffer.bytes,
+        buffer.offset,
+        buffer.bytes.length - buffer.offset,
+        buffer.offset
+      );
+      if (bytesRead === 0) return { ok: true, bytes: buffer.exactBytes() };
+      buffer.offset += bytesRead;
     }
-    if (status.size > maxBytes) {
-      return Object.freeze({ ok: false as const, reason: "too-large" as const });
-    }
-    const bytes = await readBoundedBytes(handle, maxBytes);
-    return bytes === null
-      ? Object.freeze({ ok: false as const, reason: "too-large" as const })
-      : Object.freeze({ ok: true as const, bytes });
+    return { ok: false, reason: "too-large" };
   } catch {
-    return Object.freeze({ ok: false as const, reason: "unavailable" as const });
+    return { ok: false, reason: "unavailable" };
   } finally {
     await handle?.close().catch(() => undefined);
   }
-}
-
-async function readBoundedBytes(
-  handle: Awaited<ReturnType<typeof open>>,
-  maxBytes: number
-): Promise<Uint8Array | null> {
-  const bytes = new Uint8Array(maxBytes + 1);
-  let offset = 0;
-  while (offset < bytes.byteLength) {
-    const result = await handle.read(bytes, offset, bytes.byteLength - offset, offset);
-    if (result.bytesRead === 0) break;
-    offset += result.bytesRead;
-  }
-  return offset > maxBytes ? null : bytes.slice(0, offset);
-}
-
-function endpointFromStatus(status: Awaited<ReturnType<typeof lstat>>): ExistingEndpointProbe {
-  if (status.isSymbolicLink()) {
-    return Object.freeze({ kind: "unavailable" as const });
-  }
-  if (status.isDirectory()) {
-    return Object.freeze({ kind: "directory" as const });
-  }
-  if (status.isFile()) {
-    return Object.freeze({ kind: "file" as const });
-  }
-  return Object.freeze({ kind: "unsupported" as const });
 }

@@ -5,12 +5,14 @@ import { collectFilePaths } from "../file-inventory.ts";
 import {
   PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH,
   PACKAGE_RUNTIME_DIRECTORY
 } from "../package-contract.ts";
 import { relativeEsmModuleSpecifiers } from "./esm-module-specifiers.ts";
 import { assertRuntimeSourceMapMatchesSource } from "./runtime-source-maps.ts";
 
-/** Audits the emitted ESM tree and the function-metrics Worker runtime dependency. */
+/** Audits the emitted ESM tree and its two explicit private Worker runtime dependencies. */
 export function assertReadableStagingRuntimeLayout(stagingDirectory: string): void {
   const runtimeFiles = collectFilePaths(
     join(stagingDirectory, PACKAGE_RUNTIME_DIRECTORY),
@@ -23,6 +25,23 @@ export function assertReadableStagingRuntimeLayout(stagingDirectory: string): vo
     assertReadableRuntimeModule({ modulePath, stagingDirectory });
   }
   assertFunctionMetricsWorkerRuntime(stagingDirectory);
+  assertMarkdownLinkWorkerRuntime(stagingDirectory);
+}
+
+function assertMarkdownLinkWorkerRuntime(stagingDirectory: string): void {
+  const workerPath = join(stagingDirectory, PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH);
+  const workerParentPath = join(stagingDirectory, PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH);
+  if (!existsSync(workerPath) || !existsSync(workerParentPath)) {
+    throw new Error("candidate runtime is missing the emitted markdown-link Worker entry");
+  }
+  const workerParent = readFileSync(workerParentPath, "utf8");
+  const workerUrl = 'new URL("./io-worker.mjs", import.meta.url)';
+  const occurrenceCount = workerParent.split(workerUrl).length - 1;
+  if (occurrenceCount !== 1) {
+    throw new Error(
+      `candidate markdown-link runtime must resolve exactly one emitted Worker URL; received ${occurrenceCount}`
+    );
+  }
 }
 
 function assertFunctionMetricsWorkerRuntime(stagingDirectory: string): void {

@@ -6,7 +6,9 @@
 
 ### 构建输入与包接口边界
 
-`scripts/package/artifact/**` 从 public Product 入口 `src/index.ts` 与显式 internal Worker root `src/package-checks/function-metrics/analyzer-worker.ts` 构造 local candidate。artifact fingerprint 同时绑定这两个 compiler root、Bun、锁定的 TypeScript emit/parser toolchain、Product source、package scripts 与文档输入。
+`scripts/package/artifact/**` 从精确三个 compiler roots 构造 local candidate：public Product 入口 `src/index.ts`，以及私有
+`src/package-checks/function-metrics/analyzer-worker.ts`、`src/package-checks/markdown-link-validation/io-worker.ts`。
+artifact fingerprint 同时绑定三个 roots、Bun、锁定的 TypeScript emit/parser toolchain、Product source、package scripts 与文档输入。
 
 Worker、Product adapter 与 Lizard port façade都不是 package export 或 consumer subpath；它们仅作为内部 runtime material 保持所需的 Worker execution shape。构建过程逐模块生成 `dist/esm/**.mjs`，同时生成 `types/**.d.ts`、对应的源码映射，并复制 package 所属的非 test/fixture `src/**.ts` Product 源码。
 
@@ -28,7 +30,15 @@ candidate identity 另绑定根 manifest、lockfile、workspace 配置、精确�
 
 指纹测试 fixture 按这份当次清单复制普通独立文件，调用方负责副本的修改与清理。测试分别核对完整性、各类输入的字节敏感性、新增输入的发现与副本写入隔离。
 
-worker 不是额外 export：normalization 只在 emitted `function-metrics/analyzer-worker-port.js` 中恰好一次将 `new URL("./analyzer-worker.ts", import.meta.url)` 改为 `analyzer-worker.mjs`，任何数量或 compiler-shape drift 都拒绝产物，绝不 broad-rewrite ordinary URL strings。
+Worker URL normalization 仅处理两个已知 owner，各自要求恰好一次精确 `new URL(<source>, import.meta.url)`：
+
+| emitted parent（`dist/esm/package-checks/` 下） | source URL → runtime URL |
+| --- | --- |
+| `function-metrics/analyzer-worker-port.mjs` | `./analyzer-worker.ts` → `./analyzer-worker.mjs` |
+| `markdown-link-validation/io-session.mjs` | `./io-worker.ts` → `./io-worker.mjs` |
+
+normalization 发生在对应 `.js` emit 转为 `.mjs` 的构造阶段。目标须为独立编译的包内 Worker material；
+缺失、越界、重复或 compiler-shape drift 拒绝产物，不改写普通 URL 字符串，也不增加 package export。
 
 ### 依赖与发布清单
 
@@ -60,5 +70,9 @@ artifact audit 在 pack 前验证根入口、公开运行时导出、可解析�
 
 每次 ESM 范围提取或 Worker URL 处理只解析当前原文一次，语法诊断与结构遍历复用该 AST；诊断阶段只检查语法。
 公开声明验收按文件收集相邻中文 JSDoc，再完整核验公开清单；语言要求由[编码规范](../development/coding-style.md#64-package-对外说明含显式随包用户-markdown-与任务专题以中文叙述为主)拥有。
+
+真实安装验收从 exact tarball 在 ancestry-external consumer 中运行受支持 Node，观察 Markdown Link 实际 `.mjs` Worker
+加载、成功与协作取消后的退出，并保留 function-metrics Worker 的分析验收。源码/Bun 测试、路径模拟或 staging audit
+不能替代这项安装证据；未执行的平台或 Node 版本不因路径检查通过而成为已验证环境。
 
 文档内容与随包范围由[文档材料 registries](documentation.md#documentation-validation-and-package-material)拥有，不由 artifact audit 另建清单。修改 artifact 后先运行相邻测试，再用 `bun run check -- --all` 验证同一产物及 installed consumer。

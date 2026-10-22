@@ -9,14 +9,18 @@ import { isPathWithin } from "../../../../repository-files/paths.ts";
 import { isAcceptedPackageDependencyVersion } from "../../../dependency-version.ts";
 import {
   PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
-  PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH
+  PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH
 } from "../../../package-contract.ts";
 import { readReleaseManifestDependency } from "../../../artifact/manifest.ts";
+import { assertInstalledPrivateWorkerMaterials } from "../../../artifact/packed-tar-audit.ts";
 import { assertExternalConsumerCommandSucceeded } from "../command-result.ts";
 import { externalConsumerNodeCommand } from "../node-command.ts";
 import type { ExternalConsumerMaterial } from "../material.ts";
 import { assertCandidateRunEvidence, type CandidateFixtureEvidence } from "./assertions.ts";
 import { assertCommandCheckRuntimeEvidence } from "./command-check.ts";
+import { assertNodeRuntime } from "./runtime-host.ts";
 import {
   isRecord,
   optionalOutcome,
@@ -29,9 +33,17 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../.
 
 /** Verifies runtime dependency containment and package Run behavior. */
 export function assertExternalConsumerRuntime(
-  material: Pick<ExternalConsumerMaterial, "consumerDirectory" | "resolvedEntryPath">
+  material: Pick<
+    ExternalConsumerMaterial,
+    "artifactPath" | "consumerDirectory" | "resolvedEntryPath"
+  >
 ): void {
+  assertInstalledPrivateWorkerMaterials({
+    artifactPath: material.artifactPath,
+    packageDirectory: dirname(material.resolvedEntryPath)
+  });
   assertInstalledFunctionMetricsWorker(material.resolvedEntryPath);
+  assertInstalledMarkdownLinkWorker(material.resolvedEntryPath);
   const jscpd = resolveCandidateJscpd(material.resolvedEntryPath);
   assert.equal(isPathWithin(material.consumerDirectory, jscpd.manifestPath), true);
   assert.equal(isPathWithin(repositoryRoot, jscpd.manifestPath), false);
@@ -47,6 +59,40 @@ export function assertExternalConsumerRuntime(
   );
   assertCandidateRunEvidence(runCandidateFixture(material.consumerDirectory));
   assertCommandCheckRuntimeEvidence(runCommandCheckFixture(material.consumerDirectory));
+  assertMarkdownLinkWorkerFixture(material.consumerDirectory);
+}
+
+function assertInstalledMarkdownLinkWorker(resolvedEntryPath: string): void {
+  const packageDirectory = dirname(resolvedEntryPath);
+  const workerPath = resolve(packageDirectory, PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH);
+  const parentPath = resolve(packageDirectory, PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH);
+  assert.equal(existsSync(workerPath), true, "installed Markdown Link Worker entry is missing");
+  assert.equal(existsSync(parentPath), true, "installed Markdown Link Worker parent is missing");
+  assert.equal(
+    readFileSync(parentPath, "utf8").split('new URL("./io-worker.mjs", import.meta.url)').length -
+      1,
+    1,
+    "installed Markdown Link session must resolve exactly one shipped Worker URL"
+  );
+}
+
+function assertMarkdownLinkWorkerFixture(consumerDirectory: string): void {
+  const result = spawnSync(externalConsumerNodeCommand(), ["markdown-link-worker-fixture.mjs"], {
+    cwd: consumerDirectory,
+    encoding: "utf8",
+    timeout: 10_000
+  });
+  assertExternalConsumerCommandSucceeded(result, "isolated Markdown Link Worker lifecycle");
+  const marker = "__VIBE_CHECK_MARKDOWN_LINK_WORKER__";
+  const markerIndex = result.stdout.lastIndexOf(marker);
+  assert.notEqual(markerIndex, -1, "isolated Markdown Link Worker did not emit evidence");
+  const evidence = parseJsonRecord(
+    result.stdout.slice(markerIndex + marker.length),
+    "Markdown Link Worker lifecycle"
+  );
+  assertNodeRuntime(evidence);
+  assert.equal(evidence.successful, true);
+  assert.equal(evidence.cancelled, true);
 }
 
 function resolveCandidateJscpd(candidateEntryPath: string): Readonly<{

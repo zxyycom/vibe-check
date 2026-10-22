@@ -35,11 +35,15 @@ const RETIRED_SOURCE_DIRECTORIES = Object.freeze([
   "scripts/project-gate"
 ]);
 const PACKAGE_ARTIFACT_COMPILER_ROOTS_SOURCE = new RegExp(
-  "export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS\\s*=\\s*Object\\.freeze\\(\\s*\\[\\s*[\"']src/index\\.ts[\"']\\s*,\\s*PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH\\s*\\]\\s*\\)",
+  "export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS\\s*=\\s*Object\\.freeze\\(\\s*\\[\\s*[\"']src/index\\.ts[\"']\\s*,\\s*PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH\\s*,\\s*PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH\\s*\\]\\s*\\)",
   "u"
 );
 const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH_SOURCE = new RegExp(
   "export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH\\s*=\\s*[\"']src/package-checks/function-metrics/analyzer-worker\\.ts[\"']",
+  "u"
+);
+const PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH_SOURCE = new RegExp(
+  "export const PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH\\s*=\\s*[\"']src/package-checks/markdown-link-validation/io-worker\\.ts[\"']",
   "u"
 );
 const PACKAGE_ARTIFACT_COMPILER_ROOTS_USE = new RegExp(
@@ -137,10 +141,11 @@ function validatePackageArtifactEntry(root: string, violations: string[]): void 
   if (
     !PACKAGE_ARTIFACT_COMPILER_ROOTS_USE.test(buildSource) ||
     !PACKAGE_ARTIFACT_COMPILER_ROOTS_SOURCE.test(packageContractSource) ||
-    !PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH_SOURCE.test(packageContractSource)
+    !PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH_SOURCE.test(packageContractSource) ||
+    !PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH_SOURCE.test(packageContractSource)
   ) {
     violations.push(
-      "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots"
+      "package-artifact-entry: expected exactly src/index.ts, src/package-checks/function-metrics/analyzer-worker.ts and src/package-checks/markdown-link-validation/io-worker.ts compiler roots"
     );
   }
 }

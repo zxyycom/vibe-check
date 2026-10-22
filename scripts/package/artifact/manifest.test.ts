@@ -131,6 +131,12 @@ test("release manifest bytes invalidate the candidate fingerprint", () => {
     copyArtifactFingerprintFixture({ repositoryRoot, fixtureRoot: root });
     const before = createArtifactFingerprint(root);
     assert.equal(before, createArtifactFingerprint(repositoryRoot));
+    const workerPath = join(root, "src/package-checks/markdown-link-validation/io-worker.ts");
+    const workerSource = readFileSync(workerPath, "utf8");
+    writeFileSync(workerPath, `${workerSource}\n// fingerprint boundary\n`);
+    assert.notEqual(createArtifactFingerprint(root), before);
+    writeFileSync(workerPath, workerSource);
+    assert.equal(createArtifactFingerprint(root), before);
     const sourcePath = join(root, RELEASE_MANIFEST_SOURCE_PATH);
     writeFileSync(sourcePath, `${readFileSync(sourcePath, "utf8").trimEnd()}\n\n`, "utf8");
     const manifestChanged = createArtifactFingerprint(root);

@@ -62,7 +62,7 @@ Run change regions 只使用 `{ patterns }`，对 Git changed-path facts 使用�
 
 Check 的一次操作包含多份 selections 时，读取前只在能证明全部 selections 均无需求时剪枝；无法证明时继续访问。混合开关下仍需要默认排除目录的 selection 不会被其它 selection 剪掉。这种共享只限一个 Check 的本次操作。
 
-公开工具 `collectProjectFiles` 每次同步处理一份 selection；各次调用及各 Check 之间没有 hidden cache 或全局候选上下文。
+公开工具 `collectProjectFiles` 每次同步处理一份 selection。本次操作可复用纯排除判断与必要目录观察；操作结束即释放，各次调用及各 Check 之间不复用 filesystem 状态或候选上下文。
 
 ## 结果与路径身份
 

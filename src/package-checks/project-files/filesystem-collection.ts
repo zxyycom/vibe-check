@@ -234,15 +234,19 @@ function createSubtreePruner(selections: readonly ProjectFileSelection[]): Subtr
     // These are proven positive subtree predicates, not a second selection language.
     excludes: subtreeExclusions(selection).map((pattern) =>
       micromatch.matcher(pattern, CONFIG_GLOB_OPTIONS)
-    )
+    ),
+    excludedPrefixes: new Map<string, boolean>()
   }));
+  const noDemandPaths = new Map<string, boolean>();
   return (path) => {
     if (path === "") return false;
+    const cached = noDemandPaths.get(path);
+    if (cached !== undefined) return cached;
     // Share lazily constructed ancestors while retaining policy/matcher order
     // and short-circuiting. Different policies may exclude different ancestors.
     const prefixes: string[] = [];
     let nextEnd = path.indexOf("/");
-    return policies.every(({ isEmpty, excludes }) => {
+    const noDemand = policies.every(({ isEmpty, excludes, excludedPrefixes }) => {
       if (isEmpty) return true;
       if (excludes.length === 0) return false;
       for (let index = 0; ; index += 1) {
@@ -252,10 +256,17 @@ function createSubtreePruner(selections: readonly ProjectFileSelection[]): Subtr
           prefixes.push(prefix);
           if (nextEnd !== -1) nextEnd = path.indexOf("/", nextEnd + 1);
         }
-        if (excludes.some((matches) => matches(prefix))) return true;
+        let excluded = excludedPrefixes.get(prefix);
+        if (excluded === undefined) {
+          excluded = excludes.some((matches) => matches(prefix));
+          excludedPrefixes.set(prefix, excluded);
+        }
+        if (excluded) return true;
         if (prefix === path) return false;
       }
     });
+    noDemandPaths.set(path, noDemand);
+    return noDemand;
   };
 }
 

@@ -40,6 +40,7 @@ interface MarkdownLocalResolver {
     readonly MarkdownLocalResolution[] | Extract<MarkdownLocalResolution, { kind: "unavailable" }>
   >;
   finalize(): Promise<void>;
+  readonly finalizationFailed: boolean;
   readonly targetReadCount: number;
   readonly cacheMessages: readonly CheckMessage[];
 }

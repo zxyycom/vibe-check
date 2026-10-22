@@ -26,6 +26,12 @@ export const PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH =
   "dist/esm/package-checks/function-metrics/analyzer-worker.mjs";
 export const PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH =
   "dist/esm/package-checks/function-metrics/analyzer-worker-port.mjs";
+export const PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH =
+  "src/package-checks/markdown-link-validation/io-worker.ts";
+export const PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH =
+  "dist/esm/package-checks/markdown-link-validation/io-worker.mjs";
+export const PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH =
+  "dist/esm/package-checks/markdown-link-validation/io-session.mjs";
 export const PACKAGE_README_PATH = "README.md";
 export const PACKAGE_RUNTIME_DIRECTORY = `${PACKAGE_DISTRIBUTION_DIRECTORY}/esm`;
 export const PACKAGE_RUNTIME_ENTRY_PATH = `${PACKAGE_RUNTIME_DIRECTORY}/index.mjs`;
@@ -38,7 +44,8 @@ export const PACKAGE_ENTRY_SOURCE = `export * from "./${PACKAGE_RUNTIME_ENTRY_PA
 /** Explicit compiler roots; Worker code is not reachable through a static import from `src/index.ts`. */
 export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([
   "src/index.ts",
-  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH
+  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH
 ]);
 
 export const PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH = "licenses/lizard-1.24.1-provenance.json";

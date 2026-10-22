@@ -114,11 +114,13 @@ Entities:
 
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > prunes excluded task bases and static paths before inspection`
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > shares deep ancestor pruning without copying segment prefixes`
+- `bun|src/package-checks/project-files/subtree-pruning.test.ts|quality input file collection > reuses pure subtree decisions only within one collection operation`
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > distinguishes necessary access failures and disappearing directories from no-match`
   Proves:
 - 已证明无需求的 task base、静态路径和默认排除子树在 inspection/read 之前跳过，空 selection 不阻挡剪枝。
 - 范围外真实不可读目录不导致失败；范围内 EACCES 和已观察目录消失的 ENOENT 抛带路径 Error，不返回 partial 或成功空集合。
 - 多份 policy 可分别由不同祖先的排除规则证明无需求，只有全部 policy 均无需求才剪枝；深路径操作量检查证明前缀构造不再 slice/join 增长的 segment 数组。
+- 同一 collection 内每个 policy/prefix 的纯判断只计算一次；下一操作重新计算并可观察新目录项，不将纯 memo 扩展为跨调用 filesystem 缓存。
 
 ## Case COLLECTION-NO-FOLLOW-001: 链接不成为普通候选
 
@@ -212,10 +214,14 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > allows explicit validate mode and enforces the per-invocation direct target limit`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > fixes successful logical-node observations without changing target limits`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > stops target observation at the first unavailable node`
+- `bun|src/package-checks/markdown-link-validation/filesystem-probes.test.ts|Markdown bounded filesystem drivers > uses adaptive bounded capacity through real EOF and closes after failures or cancellation`
+- `bun|src/package-checks/markdown-link-validation/filesystem-probes.test.ts|Markdown bounded filesystem drivers > shares containment hop limits and stops at the first external symlink destination`
   Proves:
 - Link reads only a contained source and then evaluates its direct file, directory, and anchor endpoint without recursively discovering target links.
 - Root-external lexical paths, escaping symlinks, and accepted host-native `file:///` targets honor `ignore`, `report`, and explicit bounded `validate`; unsupported remote/path forms and malformed local components do not become external work.
 - Same-document anchor facts do not consume target work. A per-invocation logical-node observation retains the first successful cross-document snapshot even after replacement, while every occurrence still independently consumes target work and limit exhaustion remains a controlled failure; an unavailable node stops later target observation.
+- 共用 async 与 Worker 同步读链都按 fstat 提示分配、有界增长并读到真实 EOF，覆盖空/短读、增长/缩小、max/max+1、1 MiB 与公开 16 MiB 上限；非 regular 或 fstat 已超限不分配正文、不 read，打开后的可捕获失败尝试 close，原子取消阻止后续 native work。
+- 两种 containment 驱动均接受 40 hops、拒绝 41 hops，并在首个 root-external symlink 目的地停止；最终叶子 symlink 不可直接读取，probe 后普通文件替换仍读取当前 bytes。
 
 ## Case ADD-SECRET-DETECTION-SCOPE-001: Secret detection retains only exact bounded text coverage
 

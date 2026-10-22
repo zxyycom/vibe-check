@@ -1,5 +1,13 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+  renameSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,6 +17,8 @@ import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
 import {
   PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH,
+  PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH,
   PACKAGE_LIZARD_APACHE_LICENSE_PATH,
   PACKAGE_LIZARD_MIT_LICENSE_PATH,
   PACKAGE_PYGMENTS_LICENSE_PATH,
@@ -26,6 +36,8 @@ import { createArtifactFingerprint } from "./fingerprint.ts";
 import { readTranslatedAnalyzerAttributionNotice } from "../legal-materials.ts";
 import { auditStagingRuntime } from "./staging-audit.ts";
 import { publicRootExportNames } from "../public-exports.test-support.ts";
+import { assertReadableStagingRuntimeLayout } from "./staging-runtime-layout.ts";
+import { assertInstalledPrivateWorkerMaterials } from "./packed-tar-audit.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -157,6 +169,18 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       workerParent.split('new URL("./analyzer-worker.mjs", import.meta.url)').length - 1,
       1
     );
+    assert.equal(
+      artifact.files.includes(`package/${PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH}`),
+      true
+    );
+    const linkWorkerParent = readFileSync(
+      join(artifact.stagingDirectory, PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH),
+      "utf8"
+    );
+    assert.equal(
+      linkWorkerParent.split('new URL("./io-worker.mjs", import.meta.url)').length - 1,
+      1
+    );
     assert.deepEqual(
       publicRootExportNames(join(artifact.stagingDirectory, "index.mjs")).runtime,
       RUNTIME_EXPORTS
@@ -165,6 +189,47 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       publicRootExportNames(join(artifact.stagingDirectory, "types", "index.d.ts")).types,
       Object.values(CURRENT_PUBLIC_CONTRACT.types).sort()
     );
+  });
+
+  it("rejects missing or malformed private Markdown Link Worker material", async () => {
+    const { artifact } = await fixture();
+    const workerPath = join(artifact.stagingDirectory, PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH);
+    const parentPath = join(
+      artifact.stagingDirectory,
+      PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH
+    );
+    const parentSource = readFileSync(parentPath, "utf8");
+    assertInstalledPrivateWorkerMaterials({
+      artifactPath: artifact.artifactPath,
+      packageDirectory: artifact.stagingDirectory
+    });
+    renameSync(workerPath, `${workerPath}.missing`);
+    try {
+      assert.throws(() => {
+        assertReadableStagingRuntimeLayout(artifact.stagingDirectory);
+      }, /missing the emitted markdown-link Worker entry/u);
+    } finally {
+      renameSync(`${workerPath}.missing`, workerPath);
+    }
+    for (const malformed of [
+      parentSource.replace("./io-worker.mjs", "../../../outside-worker.mjs"),
+      `${parentSource}\nnew URL("./io-worker.mjs", import.meta.url);\n`
+    ]) {
+      try {
+        writeFileSync(parentPath, malformed);
+        assert.throws(() => {
+          assertInstalledPrivateWorkerMaterials({
+            artifactPath: artifact.artifactPath,
+            packageDirectory: artifact.stagingDirectory
+          });
+        }, /installed private Worker material differs from the exact artifact/u);
+        assert.throws(() => {
+          assertReadableStagingRuntimeLayout(artifact.stagingDirectory);
+        }, /must resolve exactly one emitted Worker URL/u);
+      } finally {
+        writeFileSync(parentPath, parentSource);
+      }
+    }
   });
 
   it("declares the audited production dependency set", { timeout: 20_000 }, async () => {
