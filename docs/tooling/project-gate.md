@@ -15,10 +15,77 @@ scripts/project/gate/
 └── runtime/             # bound Run、selection、result 与 transcript mechanics
 ```
 
+### Selection presets and scheduling
+
+#### 选择参数
+
+selection 参数包含 `--changed`、`--all`，以及 focused presets：`--typecheck`、`--lint`、`--test`、`--materials`、`--quality`。
+`-h` / `--help` 必须单独使用。多个 focused preset 取并集并替换默认选择，重复项被规范化；
+`--changed` 与 `--all` 各自独占选择，不能与彼此或 focused preset 组合。`--release-receipt <path>` 是 selection 之外的 formal candidate input，只能与
+`--all` 组合。help 在 candidate preparation、package import 和 log directory creation 前退出。
+
+| 调用 | 用途与选择 |
+| --- | --- |
+| `bun run check` | 默认 fast：快速工程反馈，仅选择有 fast 资格且受输入变化影响的 Check，加上固定 provider/whitespace。 |
+| `bun run check -- --changed` | 交付前的受影响验收：按完整输入 region 选择全部相关行为、质量、材料与 package acceptance。 |
+| `bun run check -- --all` | 发布或大范围变更的完整验收：不依赖变更命中，强制选择全部 Checks，保留独立兜底。 |
+
+fast 资格固定为 Product/scripts 两 scope 的 typecheck 与 lint、format、prepared candidate、Project Gate selection 与 package-tools/Core 闭包两条现有测试 lane，以及 Git diff whitespace。其中 candidate 与 whitespace 固定选择，其余按各自输入 region；资格来自明确工程职责，不从单次运行快慢自动推断。全仓指标扫描、完整 Markdown 引用图、Case 审计、其余行为测试与安装后 consumer 由 changed/all 承接。
+
+**fast 通过仅表示快速反馈通过。** 需要 Gate 交付验收时运行 changed，发布与大范围变更运行 all；局部改动的最低验证由[交付验证](../navigation.md#交付验证)路由。启动摘要区分反馈档位和验收范围。focused preset 只选择相应闭合集；`--test` 不包含 package acceptance。
+
+#### 依赖选择与关系闭合
+
+entry manifest 为每项 Gate Check 投影 Product 的 `{ when, propagateDependsOn? }` enablement。Gate 的 `when` 使用公开的
+string-leaf AST，且对每个投影写入 literal `propagateDependsOn: true`，因此命中的 downstream Check 可启动其
+`dependsOn` prerequisite；Product 保留未选 Check 的 `not-applicable / flag-condition-not-matched` fact，并按普通 lifecycle
+运行被带入的 prerequisite。公开 grammar 与默认 selection 由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
+Gate 只拥有 manifest projection 与其验证。
+
+fast 与 changed 使用同一保守输入 region，fast 另外要求资格；changed 覆盖完整 manifest。映射由 `runtime/eligibility.ts` 维护，manifest 声明各条目的 region。Git snapshot 取本地 `HEAD~1...HEAD` 的最近一次提交（merge commit 的第一父链），并合并 staged、unstaged 与 untracked 变化；它不依赖远端分支同步状态。缺少可信 Git 证据时，changed 保守选择全部 Checks，不当作零变更；未分类根路径同样选择全部。已知目录家族下的新模块由其保守 owner region 承接，例如 project 新子 owner 归 ordinary scripts，validation 新实现/helper/测试归 validation lane。
+
+共享 material source 可选择多个实际消费者。package supporting lane 由已登记随包材料及其生成/构建输入选择，包含受管示例的 `docs/examples/package-api-support/**` 验收支持源，不由调查或决策文档选择。Test Evidence 对 Case 账本及当前行为 owner 所在的文档目录保守选择，同目录内的非 owner 文档仍可能唤起它；新增 owner 路径须由 selection 测试闭合。调查和决策文档不是行为 owner。
+
+`prepared-package-candidate`、Git diff whitespace 在 fast/changed 固定选择；repository material links 在 changed 任意文件变更时选择。changed 的 package artifact、external-consumer provider 与三个 consumer 共用完整 package 输入 region，包含 Product、注册随包材料、构建脚本与依赖配置；不以“只改正文”漏掉真实发布输入。Markdown link validation 在 changed 任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。focused preset 和 `--all` 是不依赖 change flag 的强制路径。
+
+Markdown lint 保持完整 corpus 与现有 non-blocking policy；Gate 显式启用 Product 的逐文件 findings 缓存，目录为本地可删除的 `.cache/vibe-check/markdown-lint-findings/`。当前 bytes、选择与终态每次重新核对；冷态可能增加缓存写入成本，缓存命中不是跳过 Check 的依据。
+
+Markdown Link 显式启用[parse-facts cache](../checks/markdown-link-validation.md#parse-facts-cache)，目录为
+`.cache/vibe-check/markdown-link-parse-facts/`。每次仍读取当前源文件、核对内容 identity 并验证链接目标；
+命中只省去重复解析。缓存可能保存链接地址、标题 slug 和位置，由本地维护者管理或删除，默认 16 MiB 容量提醒沿用 Product 配置。
+
+材料 JSON、Schema、Schema publication 与 machine example Checks 各自按 changed 与其输入 region 选择，或由 materials/all 强制执行。`markdown-lint` 使用自己的 docs/changes Markdown input，并额外由 `quality` focused path 强制执行。schema-publication 的输入包含发布 schema 与 v4 schema source；machine example 的生成读取完整 Product 执行与输出模型，因此它保守覆盖 Product 非测试 `src/**`，但普通 scripts 或无关 docs 不会启动它。具体 region 由 `runtime/eligibility.ts` 声明；可信零匹配时 Check 保留 not-applicable，Git unavailable 时 Product 注入 flag 并保守执行。
+
+Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 fast 资格、change region 与
+每个 preset 的选择闭合，以保证观察输入可用。`observes` 不传播选择。任一 owner 自带 `enabledByFlags` 时 Gate 拒绝组合，
+避免覆盖 owner 的 condition。
+
+#### 聚合结果
+
+bound Run 不传入 aggregation policy，而使用 Product 的默认 strict-all aggregate。它复用同次 flag-and-dependency effective selection（不是 `--all` selection），要求每项均为 `passed`；任何其它终态或空 selection 都使 aggregate failed。findings、messages、Records 与 final data 不直接参与 aggregate。
+
+#### 并发与优先级
+
+scheduler 的 root `maxParallel`、named-resource budget 与跨 owner mutex 名称在 `definition.ts` 声明；Check 固有 timeout/mutex 可由其 owner 对象声明，Gate manifest 保证本地 relation 输入与 `observes` 可读性，Product 则拥有已选 `dependsOn` closure。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in repository material 的 validation Checks 共享 repository-material mutex。
+
+Gate 保留 root `maxParallel: 3`，并使用两个**逻辑** named-resource budget；unit 既不是 CPU core、内存量，也不是实测竞争系数：
+
+| Resource ID                     | Capacity / unit              | Claiming Checks                                                                                                      | 静态分类理由                                                                                                                             |
+| ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `project-gate-bun-test-runners` | 2 个并发 `bun test` runner   | 所有 `tests-*` test-lane Check，各 claim `1`                                                                         | 每个 lane 都启动一个 Bun test child runner。预算限制这一同类 runner 最多占用两个 root slot，而不保证某一异类 Check 一定获准入。          |
+| `project-gate-repository-scans` | 2 个并发递归 repository scan | `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-lint`、`markdown-link-validation`，各 claim `1` | 五项都会递归收集或读取 repository inputs；前三项还会运行 scanner 或 worker。预算避免让三项以上同类全树读取重叠，同时不把五项全部串行化。 |
+
+typecheck、lint、format、candidate provider、external-consumer provider 与 native repository-material/governance Checks 不声明 named-resource claim：它们不属于以上同类工作预算；已有 package-lifecycle/repository-material mutex 仍单独表达各自的独占关系。新声明必须先有同样可从 owner 恢复的共享工作特征和逻辑单位；不得因单次时长、高方差或“所有 Check 都用 CPU”扩大这些 budget。Product 继续验证 capacity/claim 合法性并原子持有/释放 units；模拟器可读取版本化映射，但必须自行定义竞争减速，不得从该表推断物理竞争或性能收益。
+
+静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：此前成对测量没有同时改善当时日常与完整 workload 的 median，因此所有 Check 的 effective priority 都是 `0`。
+
+完整 preset 集合和可执行例子由 `--help` 输出；root `check` script 经 `mise exec` 调用同一个 `run.ts`，
+Gate 只为 file metrics 读取 mise-bound SCC command。
+
 ### 组合配置与 candidate 绑定
 
 `definition.ts` 是阅读完整 Gate 组合的入口：从稳定顺序的 entry manifest 可以恢复全部 Check identity、
-required/preset membership、Gate 自有的 `observes` 闭合，以及 run-level outputs、scheduler、Product 默认聚合的使用和唯一
+fast 资格、change region、preset membership、Gate 自有的 `observes` 闭合，以及 run-level outputs、scheduler、Product 默认聚合的使用和唯一
 project-owned `resultContributor`。组合入口可以引用 `checks/**` owner 已定义的普通 Check 对象或闭合对象组；领域
 options、scanner protocol、test file partition 和 execution mechanics 留在对应 owner，不为追求物理单文件而
 复制。`runtime/**` 不另行拥有 Check membership、领域 policy、`dependsOn` 传播或第二个 result-contributor 配置面。
@@ -77,14 +144,14 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 
 测试按证明责任分别结算：package supporting/artifact/external-consumer、各 Product Check owner 与 runtime、Project Gate selection 与其余 tooling、admission workbench、Test Evidence、repository layout、package-tools/Core 闭包、machine artifacts、其余 material validation，以及 ordinary scripts。拆分依据是各 lane 的输入和证明义务，不是增加并行度。
 
-几项容易混淆的默认 required test lane 各有自己的输入和证明边界：
+几项容易混淆的 test lane 各有自己的输入和证明边界：
 
 - **Project Gate selection：** 对 Gate region 数据运行轻量路径矩阵，使用与 Product config-glob 相同的 `micromatch` 完整列表选项；选择规则、Definition、lane registry 或 Product 变更选择机制变化时运行。真实 Git changed-path、rename 和 unavailable fallback 由 Product tests 证明。
 - **Repository layout：** 扫描当前 `src/**` / `scripts/**` 源文件的结构、import 与 package-tools 边界；任何源码变化均选择它。
 - **Package-tools/Core 闭包：** 使用独立 fixture；验证器、共享 fixture、依赖或运行配置变化时选择。
 - **Machine artifacts：** 实际材料、生成器、validator、Product Definition 输入或该 lane 测试文件变化时选择；其测试文件变化不启动其余 material tests。
 
-Product test lanes 的 required 输入由 `runtime/product-test-regions.ts` 声明，从完整 Product source 与 runner/工具链输入出发，按实际消费者收窄已知私有输入：
+Product test lanes 的 changed 输入由 `runtime/product-test-regions.ts` 声明，从完整 Product source 与 runner/工具链输入出发，按实际消费者收窄已知私有输入：
 
 | 输入 | 选择边界 |
 | --- | --- |
@@ -101,68 +168,6 @@ function metrics 的 source-identity 审计与行为测试仍在同一 lane。�
 
 显式 `--test` 强制选择 routine test lanes；`--all` 另包含 package artifact 与 external-consumer 验收。缺少可信 Git evidence 时保守选择。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package supporting；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
 
-### Selection presets and scheduling
-
-#### 选择参数
-
-selection 参数只包含 `--typecheck`、`--lint`、`--test`、`--materials`、`--quality`、`--all`，以及必须单独使用的
-`-h` / `--help`。无 selection 参数时使用 required；多个 focused preset 取并集并替换 required，重复项被规范化；
-`--all` 不能与 focused preset 组合。`--release-receipt <path>` 是 selection 之外的 formal candidate input，只能与
-`--all` 组合。help 在 candidate preparation、package import 和 log directory creation 前退出。
-
-- required 是按 Git 变更 region 选择的日常增量检查；`--all` 强制选择完整 Gate（含 package acceptance）。没有可信 Git 变更证据时，changeFlag 按保守路径选择相应 Checks，而不是当作零变更。
-- focused preset 只选择相应闭合集：`typecheck`、`lint`、routine `test`、repository `materials` 或 `quality`。`--test` 不隐式加入 package acceptance。
-
-#### 依赖选择与关系闭合
-
-entry manifest 为每项 Gate Check 投影 Product 的 `{ when, propagateDependsOn? }` enablement。Gate 的 `when` 使用公开的
-string-leaf AST，且对每个投影写入 literal `propagateDependsOn: true`，因此命中的 downstream Check 可启动其
-`dependsOn` prerequisite；Product 保留未选 Check 的 `not-applicable / flag-condition-not-matched` fact，并按普通 lifecycle
-运行被带入的 prerequisite。公开 grammar 与默认 selection 由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
-Gate 只拥有 manifest projection 与其验证。
-
-默认 required 的 typecheck、lint、format、test lanes、质量扫描、Decision 与 Test Evidence 各按自己的保守输入 region 选择，映射由 `runtime/eligibility.ts` 维护。Git snapshot 取本地 `HEAD~1...HEAD` 的最近一次提交（merge commit 的第一父链），并合并 staged、unstaged 与 untracked 变化；它不依赖远端分支同步状态。缺少可解析的本地父提交或其它 Git 证据时，走保守选择。
-
-共享 material source 可选择多个实际消费者。package supporting lane 由已登记随包材料及其生成/构建输入选择，包含受管示例的 `docs/examples/package-api-support/**` 验收支持源，不由调查或决策文档选择。Test Evidence 对 Case 账本及当前行为 owner 所在的文档目录保守选择，同目录内的非 owner 文档仍可能唤起它；新增 owner 路径须由 selection 测试闭合。调查和决策文档不是行为 owner。
-
-`prepared-package-candidate`、repository material links 与 Git diff whitespace 始终属于 required。Markdown link validation 在任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。focused preset 和 `--all` 是不依赖 change flag 的强制路径；发布前运行 `--all`。
-
-Markdown lint 保持完整 corpus 与现有 non-blocking policy；Gate 显式启用 Product 的逐文件 findings 缓存，目录为本地可删除的 `.cache/vibe-check/markdown-lint-findings/`。当前 bytes、选择与终态每次重新核对；冷态可能增加缓存写入成本，缓存命中不是跳过 Check 的依据。
-
-Markdown Link 显式启用[parse-facts cache](../checks/markdown-link-validation.md#parse-facts-cache)，目录为
-`.cache/vibe-check/markdown-link-parse-facts/`。每次仍读取当前源文件、核对内容 identity 并验证链接目标；
-命中只省去重复解析。缓存可能保存链接地址、标题 slug 和位置，由本地维护者管理或删除，默认 16 MiB 容量提醒沿用 Product 配置。
-
-材料 JSON、Schema、Schema publication 与 machine example Checks 各自使用 `(required AND changeFlag(<own-input>)) OR materials OR all`。`markdown-lint` 使用自己的 docs/changes Markdown input，并额外由 `quality` focused path 强制执行。schema-publication 的输入包含发布 schema 与 v4 schema source；machine example 的生成读取完整 Product 执行与输出模型，因此它保守覆盖 Product 非测试 `src/**`，但普通 scripts 或无关 docs 不会启动它。具体 region 由 `runtime/eligibility.ts` 声明；可信零匹配时 Check 保留 not-applicable，Git unavailable 时 Product 注入 flag 并保守执行。
-
-`materials-links-validator` 始终属于 required，因为 Markdown 链接可引用任意 region 外 target。Markdown link validation 也可由 focused `materials` / `quality` 与 `--all` 强制运行。
-
-Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 required 与
-每个 preset 的选择闭合，以保证观察输入可用。`observes` 不传播选择。任一 owner 自带 `enabledByFlags` 时 Gate 拒绝组合，
-避免覆盖 owner 的 condition。
-
-#### 聚合结果
-
-bound Run 不传入 aggregation policy，而使用 Product 的默认 strict-all aggregate。它复用同次 flag-and-dependency effective selection（不是 `--all` selection），要求每项均为 `passed`；任何其它终态或空 selection 都使 aggregate failed。findings、messages、Records 与 final data 不直接参与 aggregate。
-
-#### 并发与优先级
-
-scheduler 的 root `maxParallel`、named-resource budget 与跨 owner mutex 名称在 `definition.ts` 声明；Check 固有 timeout/mutex 可由其 owner 对象声明，Gate manifest 保证本地 relation 输入与 `observes` 可读性，Product 则拥有已选 `dependsOn` closure。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in repository material 的 validation Checks 共享 repository-material mutex。
-
-Gate 保留 root `maxParallel: 3`，并使用两个**逻辑** named-resource budget；unit 既不是 CPU core、内存量，也不是实测竞争系数：
-
-| Resource ID                     | Capacity / unit              | Claiming Checks                                                                                                      | 静态分类理由                                                                                                                             |
-| ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `project-gate-bun-test-runners` | 2 个并发 `bun test` runner   | 所有 `tests-*` test-lane Check，各 claim `1`                                                                         | 每个 lane 都启动一个 Bun test child runner。预算限制这一同类 runner 最多占用两个 root slot，而不保证某一异类 Check 一定获准入。          |
-| `project-gate-repository-scans` | 2 个并发递归 repository scan | `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-lint`、`markdown-link-validation`，各 claim `1` | 五项都会递归收集或读取 repository inputs；前三项还会运行 scanner 或 worker。预算避免让三项以上同类全树读取重叠，同时不把五项全部串行化。 |
-
-typecheck、lint、format、candidate provider、external-consumer provider 与 native repository-material/governance Checks 不声明 named-resource claim：它们不属于以上同类工作预算；已有 package-lifecycle/repository-material mutex 仍单独表达各自的独占关系。新声明必须先有同样可从 owner 恢复的共享工作特征和逻辑单位；不得因单次时长、高方差或“所有 Check 都用 CPU”扩大这些 budget。Product 继续验证 capacity/claim 合法性并原子持有/释放 units；模拟器可读取版本化映射，但必须自行定义竞争减速，不得从该表推断物理竞争或性能收益。
-
-静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 与 complete workload 的 median，因此所有 Check 的 effective priority 都是 `0`。
-
-完整 preset 集合和可执行例子由 `--help` 输出；root `check` script 经 `mise exec` 调用同一个 `run.ts`，
-Gate 只为 file metrics 读取 mise-bound SCC command。
-
 ### Direct repository-quality Checks
 
 `checks/repository-quality.ts` 拥有 `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-lint` 与
@@ -178,13 +183,13 @@ Gate 对 duplicate/file/function/Markdown Link 四项显式使用 `blocking` fin
 
 安全摘要由 owning Check 有上限地输出，超过摘要上限时只追加精确 omitted count。完整 Finding facts 以 machine Records 为准。
 
-这四项都是 required 与 `quality` preset 的成员，故其未豁免 normal Finding 会由 owning Check 结算为 failed，并通过默认 strict-all aggregate 阻断 required、`--quality` 与 `--all` invocation；`markdown-link-validation` 还是 `materials` preset 成员，因此同样阻断 `--materials`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private blocking policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
+这四项按 changed 输入选择，也属于 `quality` preset，故其未豁免 normal Finding 会由 owning Check 结算为 failed，并通过默认 strict-all aggregate 阻断已选择它们的 invocation；`markdown-link-validation` 还是 `materials` preset 成员，因此同样阻断 `--materials`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private blocking policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
 
-`markdown-lint` 是第五个、独立的 docs/changes Check，属于 required、`materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：lint Finding 以 owning Check 的 Records、消息和 final data 输出，不使 owning Check 或 aggregate failed。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算。
+`markdown-lint` 是第五个、独立的 docs/changes Check，按 changed 输入选择，并属于 `materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：lint Finding 以 owning Check 的 Records、消息和 final data 输出，不使 owning Check 或 aggregate failed。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算。
 
 将 `markdown-lint` 改为 blocking 前，须按届时的仓库 Markdown corpus 审查其 Finding 与 rejected input；当前配置保持 non-blocking。
 
-同一 `blocking` policy 适用于 required、`--all` 和正式 release receipt 验证；它不新增 release-only reducer 或 waiver，既有 waiver/exclusion 仍只由 owning Check 解释。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自 owner 阻断。
+同一 `blocking` policy 适用于 changed、`--all` 和正式 release receipt 验证；它不新增 release-only reducer 或 waiver，既有 waiver/exclusion 仍只由 owning Check 解释。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自 owner 阻断。
 
 #### Gate manifest 的函数行数 Finding
 
@@ -236,8 +241,7 @@ typed safe Records。
 Gate command 的进程边界固定为：
 
 - environment 使用继承宿主环境并叠加 Product plain-text/no-color variables；依赖数据只能作为显式 overrides 进入 child。
-- stdout/stderr 的文本 buffer 限额各为 `64 * 1024 * 1024`，计量与回收边界沿用
-  [commandCheck 输出策略](../guides/command-check.md#输出)；当前 Gate command entry 不向各 invocation 暴露另一套 output limit 配置。
+- 普通 command entry 的 stdout/stderr 文本缓冲限额各为 64 MiB；`lint-product` 各为 1 MiB，external-consumer provider 各为 64 KiB。各值都是近似文本缓冲限额，计量与回收边界沿用[commandCheck 输出策略](../guides/command-check.md#输出)。
 - 未单独配置 timeout 的 Gate 单命令使用 `120_000 ms`；package acceptance 与 `lint-product` 保持 `30_000 ms`。
 - Product 在最终 transcript 写入成功后，才调用 Gate completion callback；resolver、取消、timeout、output limit、signal
   和 transcript failure 使用 Product reason code，不由 Gate 复制一套 process reason code。
@@ -257,49 +261,25 @@ Gate command 的进程边界固定为：
 
 #### 性能预算与 Check 耗时分布
 
-默认 performance contributor 对 required / `--all` 使用三项**阻断预算**：总反馈时间、Check 平均执行时间和
+默认 performance contributor 对 fast / changed / all 使用三项**阻断预算**：总反馈时间、Check 平均执行时间和
 Check P95 执行时间。它们表达先验架构要求，不是从历史样本学习的性能基线；多数 Check 应保持轻量，
 少数重项可以存在，预算需为进程启动、I/O 和并发竞争留余量。任一项严格超标都追加 `error`，
 把初步 passed 的 Gate 降为 failed / exit 1；等于预算视为达标。Product Checks 全部通过与最终 Gate
 通过是不同事实。Gate 只执行同次 preparation/load/Run，不自动重试超标运行。
 
-Gate 启动前必须存在普通本机文件 `.cache/vibe-check/project-gate/performance-baseline.json`，其中每个
-required / all 与 `platform` / `architecture` / Bun version 组合只能有一条记录。缺失、不可读、无效或没有
-当前组合时，在 candidate preparation 前失败。文件被 Git 忽略，只能由维护者在授权范围内显式维护；
-Gate 不创建、回写或根据运行结果调整它。focused preset 不评估这三项预算。
+版本控制内的 `runtime/performance-policy.ts` 是预算唯一来源，所有机器使用相同策略：
 
-schemaVersion 1 的每条记录包含 `profile`、`runtime` 和以下字段：
+| 档位 | `maxElapsedMs` | `maxMeanCheckMs` | `maxP95CheckMs` |
+| --- | ---: | ---: | ---: |
+| fast | 30000 | 2000 | 5000 |
+| changed | 30000 | 2000 | 5000 |
+| all | 90000 | 2000 | 5000 |
 
-| 字段 | 含义与省略规则 |
-| --- | --- |
-| `maxElapsedMs` | 必填；从 Gate 启动到初步结果的总预算，包含 candidate preparation、adapter/setup 和 Product Run，不包含 contributor 自身耗时。 |
-| `maxMeanCheckMs` | 可选；单次 Run 内实际执行 Check 的均值预算，省略时使用显式架构默认值 `2000` ms。 |
-| `maxP95CheckMs` | 可选；同一集合的 P95 预算，省略时使用显式架构默认值 `5000` ms。 |
+三个字段均为正 safe integer 毫秒数。标准调用在 candidate preparation 前校验完整三档策略，缺失、非法或读取 seam 抛错均返回 failed / exit 1，不按省略猜默认值。`maxElapsedMs` 包含启动至初步结果的 candidate preparation、adapter/setup 与 Product Run，不包含 contributor 自身耗时。
 
-三个预算都必须是正 safe integer 毫秒数；显式 `null` 或非法值失败，不按省略处理。
-省略 Check 预算即使用上述默认值参与阻断，维护者可分别显式覆盖；总耗时没有隐式默认值。
-例如，可为 required / all 分别选择 `30000` / `90000` ms，并显式配置均值 `2000` ms、P95 `5000` ms。
-这表达半分钟级日常反馈、分钟级完整验收和秒级单项成本的留余量目标，不代表当前本机配置、实测成绩或其它机器的必填阈值。
-首次建立 required 记录可参考下例，实际填写本机 runtime；all 记录须独立配置：
+策略不接受本机缓存文件、环境或命令参数覆盖；runtime 只进入诊断，不参与预算选择。`run.ts` 的同步 loader 仅为 adapter 测试 seam，不是配置入口。预算变更按普通源码审查和验证，不按运行结果自动调整。focused preset 不评估这些预算，只能用于定向检查；help 在策略预检、candidate 与日志之前退出。
 
-```json
-{
-  "schemaVersion": 1,
-  "baselines": [
-    {
-      "profile": "required",
-      "runtime": { "platform": "linux", "architecture": "x64", "bunVersion": "1.3.14" },
-      "maxElapsedMs": 30000,
-      "maxMeanCheckMs": 2000,
-      "maxP95CheckMs": 5000
-    }
-  ]
-}
-```
-
-已有记录可保留合法的可选 `declarativeFingerprint`（64 个小写十六进制字符），它只作旧配置元数据，
-不参与匹配；相同 profile/runtime 即使指纹不同仍是重复预算。Definition 或实际负载变化不自动改预算，
-runtime 改变而没有对应记录时仍需明确配置。声明指纹相等也不能证明前后性能实验可比。
+各档分别报告自己的选择和预算结果。fast 选择更少的工作不是 all 的性能优化证明；不能以快检达标消除完整验收的性能失败。
 
 Check 分布直接读取同次 `RunResult.checkDurations`：
 
@@ -319,7 +299,7 @@ Check 分布直接读取同次 `RunResult.checkDurations`：
 
 - 本次 profile/runtime、三个实际预算、分阶段原始 timing，以及未舍入的均值/P95（空集合为 null）。
 - candidate version、artifact SHA-256、candidate inputFingerprint、实际 preparationAction/reason 与 Definition declarativeFingerprint。
-- 同次已验证的全部 `checkDurations`：非 null 为实际执行项，null 为未执行项；不把它们反推为 required 的文件选择理由。
+- 同次已验证的全部 `checkDurations`：非 null 为实际执行项，null 为未执行项；不把它们反推为变更选择理由。
 - 同一 invocation 的目录及 Gate/progress/machine、命令型 Check transcript 路径约定；具体可用证据由各输出 owner 决定。
 
 终端保留超标对照、最慢三项（分布超标时）及日志目录，完整现场仅在 Gate transcript，安全边界见
@@ -345,7 +325,7 @@ context、RunResult、Check facts 或 Product aggregate。抛错、reject、非�
 | `failed`      | `1`          |
 | `unavailable` | `2`          |
 
-参数、candidate、import、entry identity、log setup 或 execution boundary 在形成初步结果前失败时，也映射为 `2`。
+性能策略预检失败按前述规则返回 `1`。其它参数、candidate、import、entry identity、log setup 或 execution boundary 在形成初步结果前失败时映射为 `2`。
 
 #### Gate terminal and transcript
 

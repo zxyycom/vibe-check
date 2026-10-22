@@ -54,7 +54,7 @@ aggregation 是 invocation-derived result，不是 Check-facts status 或隐式�
 
 默认折叠只在有效列表非空且全部为 `passed` 时返回 `passed`，其余情况返回 `failed`。提供的 caller-local 同步函数可返回任一四态；它读取完整的 selected `CoreCheck`（包括 passed/failed final data），却不能复制或改写 final data、Records、messages、definition warnings、output statuses、progress presentation 或任何原始 facts。函数错误或非法返回拒绝整个 `run` Promise，而不伪造有 aggregate 的 RunResult。
 
-repository Gate 负责绑定 flags，并从 Product 默认严格 `RunResult.aggregate` 映射 process result。Product 因而从同一次私有选择获得已选 `dependsOn` prerequisite 与 aggregate membership；Gate 只保留 `observes` 的本地 selection-closure 校验。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写 Product Check outcomes。当前 required/preset/all selection、`resultContributor` hook、transcript 与 exit mapping 只见[脚本工具的 Project Gate](../tooling/project-gate.md)。
+repository Gate 负责绑定 flags，并从 Product 默认严格 `RunResult.aggregate` 映射 process result。Product 因而从同一次私有选择获得已选 `dependsOn` prerequisite 与 aggregate membership；Gate 只保留 `observes` 的本地 selection-closure 校验。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写 Product Check outcomes。当前 fast/changed/all/focused selection、`resultContributor` hook、transcript 与 exit mapping 只见[脚本工具的 Project Gate](../tooling/project-gate.md)。
 
 ## Verification
 

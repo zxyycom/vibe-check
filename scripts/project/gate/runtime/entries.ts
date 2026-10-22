@@ -12,7 +12,9 @@ type ProjectGateRelation = (typeof PROJECT_GATE_RELATIONS)[number];
 export interface ProjectGateEntry {
   readonly check: Check;
   readonly presets: readonly ProjectGatePreset[];
-  readonly required: boolean;
+  readonly fast: boolean;
+  /** Omitted only for Checks that always participate in the incremental selections. */
+  readonly changeRegion?: string;
 }
 
 /** Gate-owned scheduling metadata supplied before manifest normalization. */
@@ -29,7 +31,7 @@ export function defineProjectGateEntries(
   for (const entry of entries) validateProjectGateEntryMetadata(entry, entriesByCheckId);
   for (const entry of entries) validateProjectGateEntryRelations(entry, entriesByCheckId);
   return Object.freeze(
-    entries.map(({ check, mutex, presets, required, resourceClaims }) =>
+    entries.map(({ check, changeRegion, fast, mutex, presets, resourceClaims }) =>
       Object.freeze({
         check:
           mutex === undefined && resourceClaims === undefined
@@ -42,7 +44,8 @@ export function defineProjectGateEntries(
                   : { resourceClaims: Object.freeze({ ...resourceClaims }) })
               }),
         presets: Object.freeze([...presets]),
-        required
+        fast,
+        ...(changeRegion === undefined ? {} : { changeRegion })
       })
     )
   );
@@ -89,9 +92,17 @@ function validateProjectGateObservationSelection(
   entry: ProjectGateEntry,
   observedEntry: ProjectGateEntry
 ): void {
-  if (entry.required && !observedEntry.required) {
+  if (entry.fast && !observedEntry.fast) {
     throw new TypeError(
-      `Project Gate observes relation is not required-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
+      `Project Gate observes relation is not fast-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
+    );
+  }
+  if (
+    observedEntry.changeRegion !== undefined &&
+    entry.changeRegion !== observedEntry.changeRegion
+  ) {
+    throw new TypeError(
+      `Project Gate observes relation is not changed-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
     );
   }
   if (entry.presets.some((preset) => !observedEntry.presets.includes(preset))) {
@@ -105,20 +116,36 @@ function validateProjectGateEntryMetadata(
   entry: ProjectGateEntry,
   entriesByCheckId: Map<string, ProjectGateEntry>
 ): void {
-  const { check, presets, required } = entry;
+  validateProjectGateEntryIdentity(entry.check, entriesByCheckId);
+  validateProjectGateEntrySelection(entry);
+  entriesByCheckId.set(entry.check.checkId, entry);
+}
+
+function validateProjectGateEntryIdentity(
+  check: Check,
+  entriesByCheckId: ReadonlyMap<string, ProjectGateEntry>
+): void {
   if (!CHECK_ID_PATTERN.test(check.checkId))
     throw new TypeError(`Project Gate Check ID is invalid: ${check.checkId}`);
   if (entriesByCheckId.has(check.checkId))
     throw new TypeError(`Project Gate Check ID is duplicated: ${check.checkId}`);
   if (check.enabledByFlags !== undefined)
     throw new TypeError(`Project Gate Check already owns enabledByFlags: ${check.checkId}`);
-  if (typeof required !== "boolean")
-    throw new TypeError(`Project Gate entry required marker is invalid: ${check.checkId}`);
+}
+
+function validateProjectGateEntrySelection(entry: ProjectGateEntry): void {
+  const { check, changeRegion, fast, presets } = entry;
+  if (typeof fast !== "boolean")
+    throw new TypeError(`Project Gate entry fast marker is invalid: ${check.checkId}`);
+  if (
+    changeRegion !== undefined &&
+    (typeof changeRegion !== "string" || !CHECK_ID_PATTERN.test(changeRegion))
+  )
+    throw new TypeError(`Project Gate entry change region is invalid: ${check.checkId}`);
   if (!isStringArray(presets))
     throw new TypeError(`Project Gate entry presets are not an exact collection: ${check.checkId}`);
   if (presets.some((preset) => !PROJECT_GATE_PRESETS.includes(preset)))
     throw new TypeError(`Project Gate entry has an unknown preset: ${check.checkId}`);
   if (new Set(presets).size !== presets.length)
     throw new TypeError(`Project Gate entry has duplicated presets: ${check.checkId}`);
-  entriesByCheckId.set(check.checkId, entry);
 }

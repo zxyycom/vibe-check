@@ -137,7 +137,7 @@ Execa 补丁由 `scripts/package/execa-type-compatibility.type-test.ts` 的 TS6/
 | governance | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations`；`bun run test-evidence -- <command>` |
 | maintenance advisory | `bun run maintenance:lizard-upstream` |
 | virtual admission workbench | `bun run admission:simulate <fixture-id-or-scenario.json> [--policy static\|learned] [--seed N] [--replicates N] [--out new-file]`；仅仓库维护者使用，不是 Product CLI 或 Gate selector |
-| Project Gate | `bun run check [-- --typecheck \| --lint \| --test \| --materials \| --quality \| --all]`；formal receipt：`bun run check -- --all --release-receipt <path>` |
+| Project Gate | `bun run check [-- --changed \| --all \| --typecheck \| --lint \| --test \| --materials \| --quality]`；formal receipt：`bun run check -- --all --release-receipt <path>` |
 
 ### Virtual admission workbench
 
@@ -155,7 +155,7 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 
 来源映射维护使用 `bun run source-mapping [-- check | sync]`，由 `scripts/package/legal-materials/source-mapping.ts` 拥有；默认只读检查，写入边界见[来源映射维护](source-mapping.md#检查与同步)。
 
-`bun run check` 选择日常 required 集；focused preset 可组合并替换默认选择，`--all` 独占其它 preset。`.codex/environments/*.toml` 也直接调用该正式名称。scope、action 和子命令作为同一 workflow 的参数传入，不为内部 owner 建立同义 root alias。
+`bun run check` 默认 fast，提供快速工程反馈。需要 Gate 交付验收时执行 `bun run check -- --changed`，发布或大范围变更执行 `--all`；局部改动按[交付验证](../navigation.md#交付验证)选择入口。focused preset 可组合并替换默认选择；`--changed`、`--all` 各自独占选择。精确清单、保守回退与性能阻断由 [Project Gate](project-gate.md#selection-presets-and-scheduling) 拥有。`.codex/environments/*.toml` 也直接调用正式名称。scope、action 和子命令作为同一 workflow 的参数传入，不为内部 owner 建立同义 root alias。
 
 ## Development tooling
 
@@ -262,10 +262,11 @@ bun run validate -- materials
 bun run test-evidence -- check --root .
 ```
 
-涉及 Gate 或多个 owner 时运行默认 required；涉及 package artifact、candidate 或外部 consumer 时运行 complete Gate：
+日常用默认 fast 获取快速反馈；涉及 Gate 或多个 owner 的交付至少运行 changed，涉及 package artifact、candidate、外部 consumer 或大范围变更时运行完整 all：
 
 ```bash
 bun run check
+bun run check -- --changed
 bun run check -- --all
 ```
 

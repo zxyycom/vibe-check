@@ -220,19 +220,22 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       checkId: "typecheck-product",
       displayName: "TypeScript product typecheck and import boundary",
       presets: ["typecheck"],
-      required: true
+      fast: true,
+      changeRegion: "product-source"
     }),
     {
       check: createLintProductCheck(),
       presets: ["lint"],
-      required: true
+      fast: true,
+      changeRegion: "product-source"
     },
     createProjectGateCommandEntry({
       invocation: typecheckInvocation("scripts"),
       checkId: "typecheck-scripts",
       displayName: "TypeScript script typecheck",
       presets: ["typecheck"],
-      required: true
+      fast: true,
+      changeRegion: "script-source"
     }),
     createProjectGateCommandEntry({
       failureProjection: createOxlintFailureProjection({
@@ -243,7 +246,8 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       checkId: "lint-scripts",
       displayName: "TypeScript script lint",
       presets: ["lint"],
-      required: true
+      fast: true,
+      changeRegion: "script-source"
     }),
     createProjectGateCommandEntry({
       failureProjection: createOxfmtFailureProjection({
@@ -254,14 +258,16 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       checkId: "format-check",
       displayName: "Source format",
       presets: [],
-      required: true
+      fast: true,
+      changeRegion: "format-input"
     }),
-    { check: preparedCandidate, presets: [], required: true },
+    { check: preparedCandidate, presets: [], fast: true },
     {
       check: externalConsumer,
       mutex: packageLifecycleMutex,
       presets: [],
-      required: false
+      fast: false,
+      changeRegion: "package-tests"
     },
     ...createProjectGateTestEntries({
       definitions: projectGateTestChecks,
@@ -274,43 +280,50 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     {
       check: repositoryQuality.duplicateDetection,
       presets: ["quality"],
-      required: true,
+      fast: false,
+      changeRegion: "duplicate-input",
       resourceClaims: projectGateRepositoryScanResourceClaims
     },
     {
       check: repositoryQuality.fileMetrics,
       presets: ["quality"],
-      required: true,
+      fast: false,
+      changeRegion: "file-metrics-input",
       resourceClaims: projectGateRepositoryScanResourceClaims
     },
     {
       check: repositoryQuality.functionMetrics,
       presets: ["quality"],
-      required: true,
+      fast: false,
+      changeRegion: "function-input",
       resourceClaims: projectGateRepositoryScanResourceClaims
     },
     {
       check: repositoryQuality.markdownLint,
       presets: ["materials", "quality"],
-      required: true,
+      fast: false,
+      changeRegion: "markdown-lint-input",
       resourceClaims: projectGateRepositoryScanResourceClaims
     },
     {
       check: repositoryQuality.markdownLinkValidation,
       presets: ["materials", "quality"],
-      required: true,
+      fast: false,
+      changeRegion: "any-change",
       resourceClaims: projectGateRepositoryScanResourceClaims
     },
     {
       check: createRepositoryJsonMaterialCheck(),
       presets: ["materials"],
-      required: true
+      fast: false,
+      changeRegion: "material-json-input"
     },
     {
       check: createRepositorySchemaMaterialCheck(),
       mutex: repositoryMaterialsMutex,
       presets: ["materials"],
-      required: true
+      fast: false,
+      changeRegion: "material-schema-input"
     },
     {
       check: createMaterialValidationCheck({
@@ -321,7 +334,8 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       }),
       mutex: repositoryMaterialsMutex,
       presets: ["materials"],
-      required: true
+      fast: false,
+      changeRegion: "material-schema-publication-input"
     },
     {
       check: createMaterialValidationCheck({
@@ -332,7 +346,8 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       }),
       mutex: repositoryMaterialsMutex,
       presets: ["materials"],
-      required: true
+      fast: false,
+      changeRegion: "material-examples-input"
     },
     {
       check: createMaterialValidationCheck({
@@ -342,22 +357,26 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
         validate: validateRepositoryMaterialLinks
       }),
       presets: ["materials"],
-      required: true
+      fast: false,
+      changeRegion: "any-change"
     },
     {
       check: createDecisionRecordsCheck(),
       presets: [],
-      required: true
+      fast: false,
+      changeRegion: "decision-input"
     },
     {
       check: createTestEvidenceCheck(),
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "test-surface"
     },
     {
       check: createTestEvidenceRuleTestsCheck(),
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "test-evidence-rule-input"
     },
     createProjectGateCommandEntry({
       invocation: {
@@ -368,7 +387,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       checkId: "git-diff-whitespace",
       displayName: "Git diff whitespace",
       presets: [],
-      required: true
+      fast: true
     })
   ]);
 }
@@ -377,6 +396,16 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
 export function createProjectGateDefinition(
   entries: readonly ProjectGateEntry[]
 ): ProjectDefinition {
+  for (const entry of entries) {
+    if (
+      entry.changeRegion !== undefined &&
+      !Object.hasOwn(PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS, entry.changeRegion)
+    ) {
+      throw new TypeError(
+        `Project Gate entry has an unknown change region: ${entry.check.checkId}`
+      );
+    }
+  }
   return defineConfig({
     checks: entries.map(projectGateFlagControlledCheck),
     changes: {

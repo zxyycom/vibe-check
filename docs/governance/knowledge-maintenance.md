@@ -157,4 +157,4 @@ owner 或删除。
 | Investigation Report 正文、资源、关系或索引 | `bun run investigations`                                                   |
 | Decision Markdown、生命周期、关系或索引     | `bun run decisions -- check`                                               |
 | Change Plan                                 | `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证 |
-| 同时改变多个工作流边界                      | `bun run check`                                                            |
+| 同时改变多个工作流边界                      | `bun run check -- --changed`                                               |

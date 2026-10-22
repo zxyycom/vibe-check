@@ -1,7 +1,7 @@
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
 import type { ProjectGateSelection } from "./controls.ts";
-import type { ProjectGatePerformanceBaseline } from "./performance-baseline.ts";
+import type { ProjectGatePerformancePolicy } from "./performance-policy.ts";
 import type { ProjectGateMessage, ProjectGateResult } from "./result.ts";
 
 /** Immutable timing facts from one candidate-backed Gate invocation. */
@@ -18,7 +18,7 @@ export interface ProjectGateTiming {
 export interface ProjectGateContext {
   readonly invocationLogDirectory: string;
   readonly preparedCandidate: PreparedPackageCandidate;
-  readonly performanceBaselines: readonly ProjectGatePerformanceBaseline[];
+  readonly performancePolicy: ProjectGatePerformancePolicy;
   readonly repositoryRoot: string;
   readonly runResult: unknown;
   readonly selection: ProjectGateSelection;

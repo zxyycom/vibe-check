@@ -111,25 +111,27 @@ const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "tests-package-consumer-docs",
   "tests-package-consumer-runtime"
 ]);
-const materialChangeFlagByCheckId = {
-  "markdown-lint": "markdown-lint-input",
-  "materials-json-validator": "material-json-input",
-  "materials-schema-validator": "material-schema-input",
-  "materials-schema-publication-validator": "material-schema-publication-input",
-  "materials-examples-validator": "material-examples-input"
-} as const;
-const expectedRequiredCheckIds = expectedCheckIds.filter(
-  (checkId) => !packageAcceptanceCheckIds.has(checkId)
-);
+const expectedFastCheckIds = [
+  "typecheck-product",
+  "lint-product",
+  "typecheck-scripts",
+  "lint-scripts",
+  "format-check",
+  "prepared-package-candidate",
+  "tests-scripts-project-selection",
+  "tests-scripts-package-tools-boundary",
+  "git-diff-whitespace"
+];
 
 const expectedCheckIdsBySelection: readonly Readonly<{
   readonly checkIds: readonly string[];
   readonly selection: ProjectGateSelection;
 }>[] = [
   {
-    checkIds: expectedRequiredCheckIds,
-    selection: { kind: "required" }
+    checkIds: expectedFastCheckIds,
+    selection: { kind: "fast" }
   },
+  { checkIds: expectedCheckIds, selection: { kind: "changed" } },
   { checkIds: expectedCheckIds, selection: { kind: "all" } },
   {
     checkIds: ["typecheck-product", "typecheck-scripts"],
@@ -186,11 +188,19 @@ describe("Project Gate Definition", () => {
     const definition = createProjectGateDefinition(entries);
 
     assert.deepEqual(
-      new Set(entries.filter(({ required }) => required).map(({ check }) => check.checkId)),
-      new Set(expectedRequiredCheckIds)
+      new Set(entries.filter(({ fast }) => fast).map(({ check }) => check.checkId)),
+      new Set(expectedFastCheckIds)
     );
     for (const entry of entries) {
-      assert.deepEqual(Object.keys(entry).sort(), ["check", "presets", "required"]);
+      assert.deepEqual(
+        Object.keys(entry).sort(),
+        [
+          "check",
+          ...(entry.changeRegion === undefined ? [] : ["changeRegion"]),
+          "fast",
+          "presets"
+        ].sort()
+      );
     }
     assert.deepEqual(
       definition.checks.map(({ checkId }) => checkId),
@@ -233,7 +243,8 @@ describe("Project Gate Definition", () => {
     }
     assert.deepEqual(PROJECT_GATE_RUN_CONFIG.selection, {
       complete: "all",
-      default: "required",
+      changed: "changed",
+      default: "fast",
       presets: ["materials", "lint", "quality", "test", "typecheck"]
     });
     assert.equal(Object.hasOwn(definition, "policies"), false);
@@ -286,25 +297,26 @@ describe("Project Gate Definition", () => {
     for (const checkId of qualityCheckIds) {
       const entry = entries.find(({ check }) => check.checkId === checkId);
       assert.equal(Object.hasOwn(entry ?? {}, "contributesToAggregate"), false);
-      assert.equal(entry?.required, true);
+      assert.equal(entry?.fast, false);
       assert.equal(entry?.presets.includes("quality"), true);
     }
     const qualityEntry = entries.find(({ check }) => check.checkId === "duplicate-detection");
     assert.ok(qualityEntry);
-    assert.deepEqual(projectGateFlagControlledCheck(qualityEntry).enabledByFlags, {
-      when: {
-        kind: "any",
-        conditions: [
-          {
-            kind: "all",
-            conditions: ["project-gate:required", "vibe-check:change:duplicate-input"]
-          },
-          "project-gate:preset=quality",
-          "project-gate:all"
-        ]
-      },
-      propagateDependsOn: true
-    });
+    assert.equal(qualityEntry.changeRegion, "duplicate-input");
+    assert.equal(
+      matchesFlagEnablement(
+        projectGateFlagControlledCheck(qualityEntry).enabledByFlags,
+        new Set(["project-gate:changed", "vibe-check:change:duplicate-input"])
+      ),
+      true
+    );
+    assert.equal(
+      matchesFlagEnablement(
+        projectGateFlagControlledCheck(qualityEntry).enabledByFlags,
+        new Set(["project-gate:fast", "vibe-check:change:duplicate-input"])
+      ),
+      false
+    );
 
     const expectedTestLanes = resolveProjectGateTestLanes(process.cwd());
     for (const [checkId, files] of [
@@ -401,8 +413,8 @@ describe("Project Gate Definition", () => {
     });
     assert.doesNotThrow(() =>
       defineProjectGateEntries([
-        { check: prerequisite, presets: [], required: false },
-        { check: dependent, presets: [], required: true }
+        { check: prerequisite, presets: [], fast: false },
+        { check: dependent, presets: [], fast: true }
       ])
     );
     const observer = defineCheck({
@@ -413,15 +425,15 @@ describe("Project Gate Definition", () => {
     assert.throws(
       () =>
         defineProjectGateEntries([
-          { check: prerequisite, presets: [], required: true },
-          { check: observer, presets: ["materials"], required: true }
+          { check: prerequisite, presets: [], fast: true },
+          { check: observer, presets: ["materials"], fast: true }
         ]),
       /observes relation is not preset-selection closed: fixture-observer -> fixture-prerequisite/
     );
     assert.doesNotThrow(() =>
       defineProjectGateEntries([
-        { check: prerequisite, presets: [], required: true },
-        { check: dependent, presets: ["test"], required: true }
+        { check: prerequisite, presets: [], fast: true },
+        { check: dependent, presets: ["test"], fast: true }
       ])
     );
     const selfDependent = defineCheck({
@@ -430,7 +442,7 @@ describe("Project Gate Definition", () => {
       displayName: "Fixture self-dependent"
     });
     assert.throws(
-      () => defineProjectGateEntries([{ check: selfDependent, presets: [], required: true }]),
+      () => defineProjectGateEntries([{ check: selfDependent, presets: [], fast: true }]),
       /cannot depend on itself: fixture-self-dependent/
     );
     const selfObserver = defineCheck({
@@ -439,7 +451,7 @@ describe("Project Gate Definition", () => {
       observes: ["fixture-self-observer"]
     });
     assert.throws(
-      () => defineProjectGateEntries([{ check: selfObserver, presets: [], required: true }]),
+      () => defineProjectGateEntries([{ check: selfObserver, presets: [], fast: true }]),
       /cannot observe itself: fixture-self-observer/
     );
     const existingFlagControl = defineCheck({
@@ -448,28 +460,56 @@ describe("Project Gate Definition", () => {
       enabledByFlags: { when: "fixture" }
     });
     assert.throws(
-      () => defineProjectGateEntries([{ check: existingFlagControl, presets: [], required: true }]),
+      () => defineProjectGateEntries([{ check: existingFlagControl, presets: [], fast: true }]),
       /already owns enabledByFlags: fixture-existing-flag-control/
     );
-    const invalidRequired: ProjectGateEntry = {
+    const invalidFast: ProjectGateEntry = {
       check: prerequisite,
       presets: [],
-      required: true
+      fast: true
     };
-    Object.defineProperty(invalidRequired, "required", { value: "true" });
+    Object.defineProperty(invalidFast, "fast", { value: "true" });
     assert.throws(
-      () => defineProjectGateEntries([invalidRequired]),
-      /required marker is invalid: fixture-prerequisite/
+      () => defineProjectGateEntries([invalidFast]),
+      /fast marker is invalid: fixture-prerequisite/
     );
     const invalidPresets: ProjectGateEntry = {
       check: prerequisite,
       presets: [],
-      required: true
+      fast: true
     };
     Object.defineProperty(invalidPresets, "presets", { value: "test" });
     assert.throws(
       () => defineProjectGateEntries([invalidPresets]),
       /presets are not an exact collection: fixture-prerequisite/
+    );
+    for (const changeRegion of [123, null, "", { toString: () => "product-source" }]) {
+      const invalidRegion: ProjectGateEntry = { check: prerequisite, presets: [], fast: true };
+      Object.defineProperty(invalidRegion, "changeRegion", { value: changeRegion });
+      assert.throws(() => defineProjectGateEntries([invalidRegion]), /change region is invalid/);
+    }
+    assert.throws(
+      () =>
+        defineProjectGateEntries([
+          { check: prerequisite, presets: [], fast: false },
+          { check: observer, presets: [], fast: true }
+        ]),
+      /observes relation is not fast-selection closed/
+    );
+    assert.throws(
+      () =>
+        defineProjectGateEntries([
+          { check: prerequisite, presets: [], fast: true, changeRegion: "product-source" },
+          { check: observer, presets: [], fast: true, changeRegion: "script-source" }
+        ]),
+      /observes relation is not changed-selection closed/
+    );
+    assert.throws(
+      () =>
+        createProjectGateDefinition([
+          { check: prerequisite, presets: [], fast: true, changeRegion: "missing-region" }
+        ]),
+      /unknown change region/
     );
     const missingDependency = defineCheck({
       checkId: "fixture-missing-dependency",
@@ -477,7 +517,7 @@ describe("Project Gate Definition", () => {
       displayName: "Fixture missing dependency"
     });
     assert.throws(
-      () => defineProjectGateEntries([{ check: missingDependency, presets: [], required: true }]),
+      () => defineProjectGateEntries([{ check: missingDependency, presets: [], fast: true }]),
       /dependsOn relation is missing: fixture-missing-dependency -> fixture-absent/
     );
     const missingObservation = defineCheck({
@@ -486,7 +526,7 @@ describe("Project Gate Definition", () => {
       observes: ["fixture-absent"]
     });
     assert.throws(
-      () => defineProjectGateEntries([{ check: missingObservation, presets: [], required: true }]),
+      () => defineProjectGateEntries([{ check: missingObservation, presets: [], fast: true }]),
       /observes relation is missing: fixture-missing-observation -> fixture-absent/
     );
   });
@@ -580,133 +620,97 @@ describe("Project Gate Definition", () => {
     }
   });
 
-  it("keeps required, all, and focused membership golden while aggregation uses Product selection", () => {
+  it("keeps fast, changed, all, and focused membership golden while aggregation uses Product selection", async () => {
     const entries = createProjectGateEntries({
       externalConsumerLease: createExternalConsumerMaterialLease(),
       preparedCandidate
     });
     const definition = createProjectGateDefinition(entries);
     assert.equal("aggregation" in PROJECT_GATE_RUN_CONFIG, false);
-
+    const allChangeFlags = Object.keys(PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS).map(
+      (flag) => `vibe-check:change:${flag}`
+    );
     for (const expectation of expectedCheckIdsBySelection) {
       const flags = new Set([
         ...selectionFlags(expectation.selection),
-        ...(expectation.selection.kind === "required"
-          ? Object.keys(PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS).map(
-              (flag) => `vibe-check:change:${flag}`
-            )
-          : [])
+        ...(["fast", "changed"].includes(expectation.selection.kind) ? allChangeFlags : [])
       ]);
       assert.deepEqual(
         definition.checks
           .filter((check) => matchesFlagEnablement(check.enabledByFlags, flags))
           .map(({ checkId }) => checkId),
-        expectation.checkIds
+        expectation.checkIds,
+        expectation.selection.kind
       );
     }
+    for (const kind of ["fast", "changed"] as const) {
+      const flags = new Set(selectionFlags({ kind }));
+      assert.deepEqual(
+        definition.checks
+          .filter((check) => matchesFlagEnablement(check.enabledByFlags, flags))
+          .map(({ checkId }) => checkId),
+        ["prepared-package-candidate", "git-diff-whitespace"]
+      );
+    }
+    // Unclassified roots cannot silently skip slow behavior or package acceptance.
     assert.deepEqual(
       definition.checks
         .filter((check) =>
-          matchesFlagEnablement(check.enabledByFlags, new Set(["project-gate:required"]))
+          matchesFlagEnablement(
+            check.enabledByFlags,
+            new Set(["project-gate:changed", "vibe-check:change:unclassified-input"])
+          )
         )
         .map(({ checkId }) => checkId),
-      ["prepared-package-candidate", "materials-links-validator", "git-diff-whitespace"]
+      expectedCheckIds
     );
-
-    for (const check of definition.checks) {
+    for (const check of definition.checks)
       assert.equal(check.enabledByFlags?.propagateDependsOn, true);
-      if (check.checkId === "tests-product-runtime") continue;
-      assert.equal(
-        matchesFlagEnablement(check.enabledByFlags, new Set(["project-gate:all"])),
-        true
-      );
-    }
-    const productTestRegions = {
-      "tests-product-duplicate-detection": "product-duplicate-detection-tests",
-      "tests-product-file-metrics": "product-file-metrics-tests",
-      "tests-product-function-metrics": "product-function-metrics-tests",
-      "tests-product-json": "product-json-tests",
-      "tests-product-markdown-links": "product-markdown-tests",
-      "tests-product-secret-detection": "product-secret-detection-tests",
-      "tests-product-supporting-checks": "product-supporting-check-tests"
-    } as const;
-    for (const [checkId, region] of Object.entries(productTestRegions)) {
-      const check = definition.checks.find((candidate) => candidate.checkId === checkId);
-      assert.ok(check);
-      assert.ok(region in PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS);
-      for (const activeRegion of Object.values(productTestRegions)) {
-        const flags = new Set(["project-gate:required", `vibe-check:change:${activeRegion}`]);
-        assert.equal(matchesFlagEnablement(check.enabledByFlags, flags), activeRegion === region);
-      }
-      assert.equal(
-        matchesFlagEnablement(check.enabledByFlags, new Set(["project-gate:preset=test"])),
-        true
-      );
-    }
-    assert.deepEqual(
-      definition.checks.find(({ checkId }) => checkId === "tests-product-runtime")?.enabledByFlags,
-      {
-        when: {
-          kind: "any",
-          conditions: [
-            {
-              kind: "all",
-              conditions: ["project-gate:required", "vibe-check:change:product-runtime"]
-            },
-            "project-gate:preset=test",
-            "project-gate:all"
-          ]
-        },
-        propagateDependsOn: true
-      }
-    );
-    for (const [checkId, changeFlag] of Object.entries(materialChangeFlagByCheckId)) {
-      if (checkId === "markdown-lint") continue;
-      assert.deepEqual(
-        definition.checks.find((check) => check.checkId === checkId)?.enabledByFlags,
-        {
-          when: {
-            kind: "any",
-            conditions: [
-              {
-                kind: "all",
-                conditions: ["project-gate:required", `vibe-check:change:${changeFlag}`]
-              },
-              "project-gate:preset=materials",
-              "project-gate:all"
-            ]
-          },
-          propagateDependsOn: true
-        }
-      );
-    }
-    assert.deepEqual(
-      definition.checks.find((check) => check.checkId === "markdown-lint")?.enabledByFlags,
-      {
-        when: {
-          kind: "any",
-          conditions: [
-            {
-              kind: "all",
-              conditions: ["project-gate:required", "vibe-check:change:markdown-lint-input"]
-            },
-            "project-gate:preset=materials",
-            "project-gate:preset=quality",
-            "project-gate:all"
-          ]
-        },
-        propagateDependsOn: true
-      }
-    );
-    for (const packageCheckId of packageAcceptanceCheckIds) {
-      const entry = entries.find(({ check }) => check.checkId === packageCheckId);
-      assert.ok(entry, `${packageCheckId} must exist`);
-      assert.equal(entry.required, false);
+    for (const checkId of packageAcceptanceCheckIds) {
+      const entry = entries.find(({ check }) => check.checkId === checkId);
+      assert.ok(entry);
+      assert.equal(entry.fast, false);
+      assert.equal(entry.changeRegion, "package-tests");
       assert.deepEqual(entry.presets, []);
-      assert.deepEqual(projectGateFlagControlledCheck(entry).enabledByFlags, {
-        when: { kind: "any", conditions: ["project-gate:all"] },
-        propagateDependsOn: true
+      assert.equal(
+        matchesFlagEnablement(
+          projectGateFlagControlledCheck(entry).enabledByFlags,
+          new Set(["project-gate:changed", "vibe-check:change:package-tests"])
+        ),
+        true
+      );
+    }
+    // Real Product fallback injects every declared region when Git evidence is unavailable.
+    // Keep the exact manifest identities/selection metadata, replacing only execution work.
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-no-git-"));
+    try {
+      const calls: string[] = [];
+      const fixtureEntries = entries.map((entry) => ({
+        ...entry,
+        check: defineCheck({
+          checkId: entry.check.checkId,
+          displayName: entry.check.displayName,
+          execute: () => {
+            calls.push(entry.check.checkId);
+            return { status: "passed", data: {} };
+          }
+        })
+      }));
+      const result = await packageRun(createProjectGateDefinition(fixtureEntries), {
+        flags: selectionFlags({ kind: "changed" }),
+        projectRoot,
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        }
       });
+      assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
+      assert.equal(result.aggregate, "passed");
+      assert.deepEqual([...calls].sort(), [...expectedCheckIds].sort());
+    } finally {
+      rmSync(projectRoot, { force: true, recursive: true });
     }
   });
 
@@ -725,7 +729,7 @@ describe("Project Gate Definition", () => {
             }
           }),
           presets: [],
-          required: true
+          fast: true
         },
         {
           check: defineCheck({
@@ -737,7 +741,7 @@ describe("Project Gate Definition", () => {
             }
           }),
           presets: ["quality"],
-          required: false
+          fast: false
         }
       ]);
 
@@ -745,7 +749,7 @@ describe("Project Gate Definition", () => {
         {
           disabledCheckId: "fixture-quality",
           selectedCheckId: "fixture-required",
-          selection: { kind: "required" as const }
+          selection: { kind: "fast" as const }
         },
         {
           disabledCheckId: "fixture-required",
@@ -803,7 +807,7 @@ describe("Project Gate Definition", () => {
             findingPolicy: "blocking"
           }),
           presets: ["quality"],
-          required: false
+          fast: false
         }
       ]);
       const definition = createProjectGateDefinition(entries);
@@ -854,7 +858,7 @@ describe("Project Gate Definition", () => {
             }
           }),
           presets: [],
-          required: false
+          fast: false
         },
         {
           check: defineCheck({
@@ -867,7 +871,7 @@ describe("Project Gate Definition", () => {
             }
           }),
           presets: ["quality"],
-          required: false
+          fast: false
         },
         {
           check: defineCheck({
@@ -879,7 +883,7 @@ describe("Project Gate Definition", () => {
             }
           }),
           presets: ["materials"],
-          required: false
+          fast: false
         }
       ]);
 

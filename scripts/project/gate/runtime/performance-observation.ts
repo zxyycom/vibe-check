@@ -1,10 +1,5 @@
 import { isNonArrayRecord } from "../../../value-guards.ts";
-import {
-  currentProjectGatePerformanceRuntime,
-  LOCAL_PERFORMANCE_BASELINE_PATH,
-  type ProjectGatePerformanceBaseline,
-  type ProjectGatePerformanceRuntime
-} from "./performance-baseline.ts";
+import type { ProjectGatePerformanceBudget } from "./performance-policy.ts";
 import type {
   ProjectGateResultContribution,
   ProjectGateResultContributionContext
@@ -14,6 +9,21 @@ import { stringifyProjectGateMessageContext, type ProjectGateMessage } from "./r
 const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
 const CHECK_DURATION_PERCENTILE = 0.95;
 const SLOWEST_CHECK_COUNT = 3;
+
+export interface ProjectGatePerformanceRuntime {
+  readonly architecture: string;
+  readonly bunVersion: string;
+  readonly platform: string;
+}
+
+/** Diagnostic facts only: runtime never selects or changes the shared budgets. */
+export function currentProjectGatePerformanceRuntime(): ProjectGatePerformanceRuntime {
+  return Object.freeze({
+    architecture: process.arch,
+    bunVersion: process.versions.bun ?? "unavailable",
+    platform: process.platform
+  });
+}
 
 type CheckDuration = Readonly<{ readonly checkId: string; readonly durationMs: number | null }>;
 interface CompletedPerformanceFacts {
@@ -78,36 +88,24 @@ export function evaluateProjectGatePerformance(
     });
   }
   const description = timingDescription(context.timing);
-  const baseline = context.performanceBaselines.find(
-    (candidate) => candidate.profile === profile && runtimeMatches(candidate.runtime, runtime)
-  );
-  if (baseline === undefined) {
-    return contribution({
-      blocks: true,
-      level: "error",
-      code: "project-gate-performance-baseline-missing",
-      message: `no matching local performance baseline for ${profile} (${runtime.platform}/${runtime.architecture}; Bun ${runtime.bunVersion}); ${description}; manually update ${LOCAL_PERFORMANCE_BASELINE_PATH}`
-    });
-  }
+  const budget = context.performancePolicy[profile];
 
-  const exceeded = context.timing.elapsedToInitialResultMs > baseline.maxElapsedMs;
-  const exceededCheckBudgets = exceededCheckBudgetNames(summary, baseline);
+  const exceeded = context.timing.elapsedToInitialResultMs > budget.maxElapsedMs;
+  const exceededCheckBudgets = exceededCheckBudgetNames(summary, budget);
   const blocks = exceeded || exceededCheckBudgets.length > 0;
   const totalMessage: ProjectGateMessage = Object.freeze({
     level: exceeded ? "error" : "info",
     code: exceeded
       ? "project-gate-performance-limit-exceeded"
       : "project-gate-performance-within-limit",
-    message: `${description} ${exceeded ? "exceeded" : "was within"} budget ${formatDuration(baseline.maxElapsedMs)}`
+    message: `${description} ${exceeded ? "exceeded" : "was within"} budget ${formatDuration(budget.maxElapsedMs)}`
   });
   return Object.freeze({
     blocks,
     messages: Object.freeze([
       totalMessage,
-      checkDurationMessage(summary, baseline, exceededCheckBudgets),
-      ...(blocks
-        ? [performanceFailureContext({ context, runtime, budget: baseline, facts, summary })]
-        : [])
+      checkDurationMessage(summary, budget, exceededCheckBudgets),
+      ...(blocks ? [performanceFailureContext({ context, runtime, budget, facts, summary })] : [])
     ])
   });
 }
@@ -115,7 +113,7 @@ export function evaluateProjectGatePerformance(
 function performanceFailureContext(input: {
   readonly context: ProjectGateResultContributionContext;
   readonly runtime: ProjectGatePerformanceRuntime;
-  readonly budget: ProjectGatePerformanceBaseline;
+  readonly budget: ProjectGatePerformanceBudget;
   readonly facts: CompletedPerformanceFacts;
   readonly summary: CheckDurationSummary;
 }): ProjectGateMessage {
@@ -182,7 +180,7 @@ function summarizeCheckDurations(
 
 function checkDurationMessage(
   summary: CheckDurationSummary,
-  budget: ProjectGatePerformanceBaseline,
+  budget: ProjectGatePerformanceBudget,
   exceeded: readonly string[]
 ): ProjectGateMessage {
   const code = "project-gate-performance-check-durations";
@@ -210,7 +208,7 @@ function checkDurationMessage(
 
 function exceededCheckBudgetNames(
   summary: CheckDurationSummary,
-  budget: ProjectGatePerformanceBaseline
+  budget: ProjectGatePerformanceBudget
 ): readonly string[] {
   if (summary.kind === "empty") return Object.freeze([]);
   const exceeded: string[] = [];
@@ -290,17 +288,6 @@ function hasValidPhaseTiming(timing: ProjectGateResultContributionContext["timin
 
 function timingDescription(timing: ProjectGateResultContributionContext["timing"]): string {
   return `elapsed-to-initial-result ${formatDuration(timing.elapsedToInitialResultMs)} (candidate preparation ${formatDuration(timing.candidatePreparationMs)}; adapter/setup ${formatDuration(timing.adapterSetupMs)}; Product Run ${formatDuration(timing.productRunMs)})`;
-}
-
-function runtimeMatches(
-  expected: ProjectGatePerformanceRuntime,
-  actual: ProjectGatePerformanceRuntime
-): boolean {
-  return (
-    expected.platform === actual.platform &&
-    expected.architecture === actual.architecture &&
-    expected.bunVersion === actual.bunVersion
-  );
 }
 
 function isDuration(value: unknown): value is number {

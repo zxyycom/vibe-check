@@ -1,13 +1,14 @@
 import { PROJECT_GATE_PRESETS, PROJECT_GATE_SELECTION, type ProjectGatePreset } from "./catalog.ts";
 
 export const PROJECT_GATE_ALL_FLAG = "project-gate:all";
-export const PROJECT_GATE_REQUIRED_FLAG = "project-gate:required";
+export const PROJECT_GATE_FAST_FLAG = "project-gate:fast";
+export const PROJECT_GATE_CHANGED_FLAG = "project-gate:changed";
 const PROJECT_GATE_PRESET_FLAG_PREFIX = "project-gate:preset=";
 
 export type ProjectGateSelection =
   | Readonly<{ readonly kind: "all" }>
   | Readonly<{ readonly kind: "focused"; readonly presets: readonly ProjectGatePreset[] }>
-  | Readonly<{ readonly kind: "required" }>;
+  | Readonly<{ readonly kind: "fast" | "changed" }>;
 
 export type ProjectGateArgumentParseResult =
   | Readonly<{ readonly ok: true; readonly action: "help" }>
@@ -31,10 +32,11 @@ export function parseProjectGateArguments(
   }
   if (arguments_.length === 0)
     return runSelection(Object.freeze({ kind: PROJECT_GATE_SELECTION.default }));
-  if (arguments_.includes(`--${PROJECT_GATE_SELECTION.complete}`)) {
+  for (const exclusive of [PROJECT_GATE_SELECTION.complete, PROJECT_GATE_SELECTION.changed]) {
+    if (!arguments_.includes(`--${exclusive}`)) continue;
     return arguments_.length === 1
-      ? runSelection(Object.freeze({ kind: PROJECT_GATE_SELECTION.complete }))
-      : parseFailure("--all cannot be combined with focused Project Gate presets");
+      ? runSelection(Object.freeze({ kind: exclusive }))
+      : parseFailure(`--${exclusive} must be used without other selection arguments`);
   }
 
   const presets: ProjectGatePreset[] = [];
@@ -55,19 +57,22 @@ export function projectGateHelp(): string {
     "  --typecheck               Run product and script typechecks.",
     "  --lint                    Run product and script lint.",
     "  --test                    Run routine tests without package acceptance.",
-    "  --materials                    Run repository material validation.",
+    "  --materials               Run repository material validation.",
     "  --quality                 Run repository quality Checks.",
+    "  --changed                 Run all affected Checks, including package acceptance.",
     "  --all                     Run the complete Gate; cannot be combined with presets.",
     "  --release-receipt <path>  Consume one closed formal receipt; requires --all.",
     "  -h, --help                Show this help without preparing or running a candidate.",
     "",
-    "No selection option runs the incremental required Gate. Focused presets can be combined",
-    "and replace the default required selection.",
+    "No selection option runs fast affected engineering checks and qualified quick tests.",
+    "Focused presets can be combined and replace the default fast selection; only --all",
+    "is complete acceptance independent of changed-path evidence.",
     "",
     "Examples:",
     "  bun run check -- --typecheck --lint",
     "  bun run check -- --test",
     "  bun run check -- --materials --quality",
+    "  bun run check -- --changed",
     "  bun run check -- --all",
     "  bun run check -- --all --release-receipt build/releases/zxyycom-vibe-check-0.0.1.release.json"
   ].join("\n");
@@ -76,20 +81,24 @@ export function projectGateHelp(): string {
 /** Summarizes the effective selection before Check output begins. */
 export function projectGateSelectionSummary(selection: ProjectGateSelection): string {
   switch (selection.kind) {
-    case "required":
-      return "selection=required; package-acceptance=not-selected";
+    case "fast":
+      return "selection=fast; acceptance=partial; package-acceptance=not-selected";
+    case "changed":
+      return "selection=changed; acceptance=affected; package-acceptance=affected";
     case "all":
-      return "selection=all; package-acceptance=selected";
+      return "selection=all; acceptance=complete; package-acceptance=selected";
     case "focused":
-      return `selection=focused; presets=${selection.presets.join(",")}; package-acceptance=not-selected`;
+      return `selection=focused; presets=${selection.presets.join(",")}; acceptance=partial; package-acceptance=not-selected`;
   }
 }
 
 /** Encodes one normalized project selection as Product Run flag tokens. */
 export function selectionFlags(selection: ProjectGateSelection): readonly string[] {
   switch (selection.kind) {
-    case "required":
-      return Object.freeze([PROJECT_GATE_REQUIRED_FLAG]);
+    case "fast":
+      return Object.freeze([PROJECT_GATE_FAST_FLAG]);
+    case "changed":
+      return Object.freeze([PROJECT_GATE_CHANGED_FLAG]);
     case "all":
       return Object.freeze([PROJECT_GATE_ALL_FLAG]);
     case "focused":
@@ -108,7 +117,8 @@ export function selectionFromFlags(flags: readonly string[]): ProjectGateSelecti
 
 function selectionForExclusiveFlag(flags: readonly string[]): ProjectGateSelection | undefined {
   if (flags.length !== 1) return undefined;
-  if (flags[0] === PROJECT_GATE_REQUIRED_FLAG) return Object.freeze({ kind: "required" });
+  if (flags[0] === PROJECT_GATE_FAST_FLAG) return Object.freeze({ kind: "fast" });
+  if (flags[0] === PROJECT_GATE_CHANGED_FLAG) return Object.freeze({ kind: "changed" });
   if (flags[0] === PROJECT_GATE_ALL_FLAG) return Object.freeze({ kind: "all" });
   return undefined;
 }
@@ -144,10 +154,8 @@ export function isCompleteProjectGateSelection(selection: ProjectGateSelection):
 
 export function projectGateStandardProfile(
   selection: ProjectGateSelection
-): "full" | "required" | undefined {
-  if (selection.kind === "required") return "required";
-  if (selection.kind === "all") return "full";
-  return undefined;
+): "all" | "fast" | "changed" | undefined {
+  return selection.kind === "focused" ? undefined : selection.kind;
 }
 
 function presetForArgument(argument: string): ProjectGatePreset | undefined {

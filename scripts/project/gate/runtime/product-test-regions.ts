@@ -51,7 +51,7 @@ const productTestInputs = [
   "mise.lock"
 ] as const;
 
-/** Required-only regions; execution lanes and their complete test lists are unchanged. */
+/** Affected-input regions; execution lanes and their complete test lists are unchanged. */
 export const PROJECT_GATE_PRODUCT_TEST_REGIONS = Object.freeze({
   "product-duplicate-detection-tests": productCheckTestRegion(["duplicate-detection"]),
   // The constructor consumes JSON implementation/helpers, not the JSON test bodies.

@@ -91,11 +91,14 @@ describe("repository quality Checks", () => {
       ["docs/**/*.md", "changes/**/*.md"]
     );
     assert.equal(markdownLinkValidation.options.files.useDefaultExcludes, true);
-    assert.deepEqual(markdownLinkValidation.options.limits, {
-      maxMarkdownBytes: 1_048_576,
-      maxOccurrences: false,
-      maxTargetReads: false
-    });
+    assert.deepEqual(
+      { ...markdownLinkValidation.options.limits },
+      {
+        maxMarkdownBytes: 1_048_576,
+        maxOccurrences: false,
+        maxTargetReads: false
+      }
+    );
     assert.equal(markdownLinkValidation.options.rootExternalTargetMode, "report");
     assert.equal(fileMetrics.options.scanner.executable, "/tools/scc");
     assert.equal(Object.hasOwn(functionMetrics.options, "scanner"), false);
@@ -317,9 +320,13 @@ describe("repository quality Checks", () => {
       });
       assert.equal(normalFindings.aggregate, "failed");
       assert.deepEqual(
-        normalFindings.snapshot.records
-          .filter(({ checkId }) => checkId === "markdown-lint")
-          .map(({ data }) => data),
+        JSON.parse(
+          JSON.stringify(
+            normalFindings.snapshot.records
+              .filter(({ checkId }) => checkId === "markdown-lint")
+              .map(({ data }) => data)
+          )
+        ),
         [
           {
             kind: "lint-finding",
@@ -333,11 +340,14 @@ describe("repository quality Checks", () => {
         ({ checkId }) => checkId === "markdown-lint"
       )?.outcome;
       assert.ok(lintOutcome?.status === "passed");
-      assert.deepEqual(lintOutcome.data, {
-        sourceFileCount: 2,
-        findingCount: 1,
-        rejectedInputCount: 0
-      });
+      assert.deepEqual(
+        { ...lintOutcome.data },
+        {
+          sourceFileCount: 2,
+          findingCount: 1,
+          rejectedInputCount: 0
+        }
+      );
     } finally {
       rmSync(cleanRoot, { force: true, recursive: true });
       rmSync(findingRoot, { force: true, recursive: true });
@@ -436,11 +446,11 @@ async function runRepositoryQualityFixture(projectRoot: string) {
     { scc: join(projectRoot, "scc.mjs") }
   );
   const entries = defineProjectGateEntries([
-    { check: checks.duplicateDetection, presets: ["quality"], required: false },
-    { check: checks.fileMetrics, presets: ["quality"], required: false },
-    { check: checks.functionMetrics, presets: ["quality"], required: false },
-    { check: checks.markdownLint, presets: ["quality"], required: false },
-    { check: checks.markdownLinkValidation, presets: ["quality"], required: false }
+    { check: checks.duplicateDetection, presets: ["quality"], fast: false },
+    { check: checks.fileMetrics, presets: ["quality"], fast: false },
+    { check: checks.functionMetrics, presets: ["quality"], fast: false },
+    { check: checks.markdownLint, presets: ["quality"], fast: false },
+    { check: checks.markdownLinkValidation, presets: ["quality"], fast: false }
   ]);
 
   return packageRun(createProjectGateDefinition(entries), {

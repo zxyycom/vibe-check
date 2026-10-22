@@ -133,9 +133,23 @@ describe("Project Gate change regions", () => {
     }
   });
 
-  it("covers every Product Check lane test file with its own change region", () => {
+  it("covers every execution lane test file with its owning change region", () => {
     const lanes = resolveProjectGateTestLanes(process.cwd());
     const laneRegions = [
+      ["packageArtifact", "package-tests"],
+      ["packageConsumerDocs", "package-tests"],
+      ["packageConsumerRuntime", "package-tests"],
+      ["packageConsumerTypes", "package-tests"],
+      ["packageSupporting", "package-tests"],
+      ["scriptsAdmissionWorkbench", "admission-workbench-tests"],
+      ["scriptsLayout", "layout-tests"],
+      ["scriptsMachineArtifacts", "machine-artifact-tests"],
+      ["scriptsPackageToolsBoundary", "package-tools-boundary-tests"],
+      ["scriptsProject", "project-tests"],
+      ["scriptsProjectSelection", "project-selection-tests"],
+      ["scriptsTestEvidence", "test-evidence-tests"],
+      ["scriptsTooling", "script-tooling-tests"],
+      ["scriptsValidation", "validation-tests"],
       ["productDuplicateDetection", "product-duplicate-detection-tests"],
       ["productFileMetrics", "product-file-metrics-tests"],
       ["productFunctionMetrics", "product-function-metrics-tests"],
@@ -178,6 +192,18 @@ describe("Project Gate change regions", () => {
         path: "scripts/project/gate/runtime/product-test-regions.ts",
         selected: ["project-tests", "project-selection-tests", "layout-tests"]
       },
+      {
+        path: "scripts/project/gate/runtime/performance-policy.ts",
+        selected: ["project-tests", "project-selection-tests", "layout-tests"]
+      },
+      {
+        path: "scripts/project/new-owner/regression.test.ts",
+        selected: ["layout-tests", "script-tooling-tests"]
+      },
+      {
+        path: "scripts/project/gate-extra/regression.test.ts",
+        selected: ["layout-tests", "script-tooling-tests"]
+      },
       { path: "docs/package-documents.json", selected: ["project-selection-tests"] },
       { path: "docs/testing/cases/repository-tooling.md", selected: ["project-selection-tests"] },
       {
@@ -211,6 +237,26 @@ describe("Project Gate change regions", () => {
       },
       {
         path: "scripts/validation/package-tools-boundary.ts",
+        selected: ["layout-tests", "package-tools-boundary-tests", "validation-tests"]
+      },
+      {
+        path: "scripts/validation/new-owner/regression.test.ts",
+        selected: ["layout-tests", "validation-tests"]
+      },
+      {
+        path: "scripts/validation/new-owner/implementation.ts",
+        selected: ["layout-tests", "validation-tests"]
+      },
+      {
+        path: "scripts/validation/new-owner/fixture.test-support.ts",
+        selected: ["layout-tests", "validation-tests"]
+      },
+      {
+        path: "scripts/validation/repository-layout.test.ts",
+        selected: ["layout-tests"]
+      },
+      {
+        path: "scripts/validation/package-tools-core-closure.test.ts",
         selected: ["layout-tests", "package-tools-boundary-tests"]
       },
       {
@@ -317,6 +363,33 @@ describe("Project Gate change regions", () => {
   });
 
   it("keeps quality and material regions specific to their inputs", () => {
+    assert.deepEqual(
+      matchingRegions("scripts/project/gate/runtime/performance-policy.ts", [
+        "script-source",
+        "format-input",
+        "project-selection-tests"
+      ]),
+      ["script-source", "format-input", "project-selection-tests"]
+    );
+    for (const path of [
+      "unknown-root.txt",
+      ".github/workflows/new-gate.yml",
+      "new-owner/removed.test.ts",
+      ".codex/config.toml",
+      "tsconfig.new-owner.json",
+      ".oxnew-owner.json"
+    ]) {
+      assert.deepEqual(matchingRegions(path, ["unclassified-input"]), ["unclassified-input"], path);
+    }
+    for (const path of [
+      "src/index.ts",
+      "scripts/project/gate/definition.ts",
+      "docs/tooling/project-gate.md",
+      "package.json",
+      "tsconfig.product.json"
+    ]) {
+      assert.deepEqual(matchingRegions(path, ["unclassified-input"]), [], path);
+    }
     const regions = [
       "duplicate-input",
       "file-metrics-input",
@@ -424,6 +497,11 @@ describe("Project Gate change regions", () => {
       { path: "docs/tooling/project-gate.md", selected: ["test-surface"] },
       { path: "docs/checks/markdown-lint.md", selected: [...regions] },
       { path: "docs/package-documents.json", selected: ["package-tests"] },
+      { path: "scripts/development/typecheck.ts", selected: [...regions] },
+      { path: "scripts/error-message.ts", selected: [...regions] },
+      { path: "scripts/process-execution/runner.ts", selected: [...regions] },
+      { path: "scripts/repository-files/paths.ts", selected: [...regions] },
+      { path: "scripts/value-guards.ts", selected: [...regions] },
       { path: "docs/examples/package-api/basic.ts", selected: ["package-tests"] },
       {
         path: "docs/examples/package-api-support/gate-example-acceptance.ts",

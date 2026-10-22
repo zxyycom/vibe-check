@@ -40,7 +40,8 @@ export interface ProjectGateTestCheckDefinition {
   readonly lane: ProjectGateTestLaneName;
   readonly mutex?: readonly string[];
   readonly presets: readonly ProjectGatePreset[];
-  readonly required: boolean;
+  readonly fast: boolean;
+  readonly changeRegion: string;
   readonly testTimeoutMs?: number;
   readonly timeoutMs?: number;
 }
@@ -108,7 +109,8 @@ function createProjectGateTestEntry(input: {
     invocation: bunTestInvocation(files, repositoryRoot, definition.testTimeoutMs),
     ...(definition.mutex === undefined ? {} : { mutex: definition.mutex }),
     presets: definition.presets,
-    required: definition.required,
+    fast: definition.fast,
+    changeRegion: definition.changeRegion,
     resourceClaims,
     ...(definition.timeoutMs === undefined ? {} : { timeoutMs: definition.timeoutMs })
   };

@@ -40,8 +40,8 @@ import {
   type ProjectGateMessage,
   type ProjectGateResult
 } from "./runtime/result.ts";
-import type { ProjectGatePerformanceBaseline } from "./runtime/performance-baseline.ts";
-import { currentProjectGatePerformanceRuntime } from "./runtime/performance-baseline.ts";
+import type { ProjectGatePerformancePolicy } from "./runtime/performance-policy.ts";
+import { currentProjectGatePerformanceRuntime } from "./runtime/performance-observation.ts";
 import { PROJECT_GATE_RUN_CONFIG } from "./definition.ts";
 
 const defaultResultContributor = PROJECT_GATE_RUN_CONFIG.resultContributor;
@@ -75,15 +75,16 @@ const preparedRelease = Object.freeze({
   reused: false
 });
 
-const performanceRuntime = currentProjectGatePerformanceRuntime();
-const performanceBaseline = Object.freeze({
-  declarativeFingerprint: "a".repeat(64),
+const performanceBudget = Object.freeze({
   maxElapsedMs: 135,
   maxMeanCheckMs: 2000,
-  maxP95CheckMs: 5000,
-  profile: "required" as const,
-  runtime: performanceRuntime
-} satisfies ProjectGatePerformanceBaseline);
+  maxP95CheckMs: 5000
+});
+const performancePolicy: ProjectGatePerformancePolicy = Object.freeze({
+  fast: performanceBudget,
+  changed: performanceBudget,
+  all: performanceBudget
+});
 
 const rootPackageManifestSource = readFileSync(
   fileURLToPath(new URL("../../../package.json", import.meta.url)),
@@ -104,11 +105,11 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.equal(rootScripts["verify:vibe-check-workspace:required"], undefined);
   });
 
-  it("defaults to required and normalizes combinable focused presets into opaque flags", () => {
+  it("defaults to fast and normalizes combinable focused presets into opaque flags", () => {
     assert.deepEqual(parseProjectGateArguments([]), {
       ok: true,
       action: "run",
-      value: { kind: "required" }
+      value: { kind: "fast" }
     });
     const parsed = parseProjectGateArguments(["--quality", "--materials", "--materials"]);
 
@@ -128,6 +129,21 @@ describe("Project Gate entries, root binding, and controls", () => {
       action: "run",
       value: { kind: "all" }
     });
+    assert.deepEqual(parseProjectGateArguments(["--changed"]), {
+      ok: true,
+      action: "run",
+      value: { kind: "changed" }
+    });
+    for (const kind of ["fast", "changed", "all"] as const) {
+      assert.deepEqual(selectionFromFlags(selectionFlags({ kind })), { kind });
+    }
+    for (const arguments_ of [
+      ["--changed", "--all"],
+      ["--changed", "--test"],
+      ["--changed", "--changed"]
+    ]) {
+      assert.equal(parseProjectGateArguments(arguments_).ok, false);
+    }
     assert.deepEqual(parseProjectGateArguments(["--help"]), { ok: true, action: "help" });
     assert.deepEqual(parseProjectGateArguments(["-h"]), { ok: true, action: "help" });
     assert.equal(parseProjectGateArguments(["--help", "--all"]).ok, false);
@@ -138,15 +154,24 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.match(help, /--materials/);
     assert.match(help, /--quality/);
     assert.match(help, /--all/);
+    assert.match(help, /--changed/);
     assert.match(help, /Focused presets can be combined/);
     assert.match(help, /--release-receipt <path>/);
     assert.equal(
-      projectGateSelectionSummary({ kind: "required" }),
-      "selection=required; package-acceptance=not-selected"
+      projectGateSelectionSummary({ kind: "fast" }),
+      "selection=fast; acceptance=partial; package-acceptance=not-selected"
     );
     assert.equal(
       projectGateSelectionSummary({ kind: "focused", presets: ["materials", "quality"] }),
-      "selection=focused; presets=materials,quality; package-acceptance=not-selected"
+      "selection=focused; presets=materials,quality; acceptance=partial; package-acceptance=not-selected"
+    );
+    assert.equal(
+      projectGateSelectionSummary({ kind: "changed" }),
+      "selection=changed; acceptance=affected; package-acceptance=affected"
+    );
+    assert.equal(
+      projectGateSelectionSummary({ kind: "all" }),
+      "selection=all; acceptance=complete; package-acceptance=selected"
     );
     assert.equal(parseProjectGateArguments(["unexpected"]).ok, false);
     assert.equal(parseProjectGateArguments(["--profile", "full"]).ok, false);
@@ -156,7 +181,17 @@ describe("Project Gate entries, root binding, and controls", () => {
       selectionFromFlags(["project-gate:preset=quality", "project-gate:preset=materials"]),
       undefined
     );
-    assert.equal(selectionFromFlags(["project-gate:all", "project-gate:required"]), undefined);
+    for (const flags of [
+      ["project-gate:all", "project-gate:fast"],
+      ["project-gate:changed", "project-gate:preset=test"],
+      ["project-gate:required"]
+    ]) {
+      assert.equal(selectionFromFlags(flags), undefined);
+    }
+    assert.equal(
+      parseProjectGateInvocationArguments(["--changed", "--release-receipt", "receipt.json"]).ok,
+      false
+    );
   });
 
   it("requires the complete all selection for one explicit formal release receipt", () => {
@@ -554,10 +589,10 @@ describe("Project Gate adapter closure", () => {
       assert.deepEqual(observedContext, {
         invocationLogDirectory: "/tmp/project-gate-result-contributor",
         preparedCandidate: prepared,
-        performanceBaselines: [performanceBaseline, { ...performanceBaseline, profile: "all" }],
+        performancePolicy,
         repositoryRoot,
         runResult,
-        selection: { kind: "required" },
+        selection: { kind: "fast" },
         initialResult: { messages: [], status: "passed" },
         timing: {
           adapterSetupMs: 15,
@@ -578,7 +613,7 @@ describe("Project Gate adapter closure", () => {
       );
       assert.match(
         output.logs.join("\n"),
-        /project gate start: candidate=0\.0\.0-local\.fixture; source=local; selection=required/
+        /project gate start: candidate=0\.0\.0-local\.fixture; source=local; selection=fast/
       );
       assert.doesNotMatch(output.logs.join("\n"), /project gate aggregation:/);
       assert.match(output.logs.join("\n"), /project gate result: passed/);
@@ -671,7 +706,7 @@ describe("Project Gate adapter closure", () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-gate-performance-failure-"));
     const originalRunResult = JSON.stringify(runResult);
     try {
-      for (const profile of ["required", "all"] as const) {
+      for (const profile of ["fast", "changed", "all"] as const) {
         for (const scenario of [
           {
             name: "elapsed",
@@ -704,24 +739,24 @@ describe("Project Gate adapter closure", () => {
         ]) {
           const directory = join(root, `${profile}-${scenario.name}`);
           mkdirSync(directory);
-          const budgets = Object.freeze([
-            Object.freeze({
-              ...performanceBaseline,
-              profile,
+          const budgets = Object.freeze({
+            ...performancePolicy,
+            [profile]: Object.freeze({
+              ...performanceBudget,
               maxMeanCheckMs: scenario.maxMeanCheckMs,
               maxP95CheckMs: scenario.maxP95CheckMs
             })
-          ]);
+          });
           const originalBudgets = JSON.stringify(budgets);
           const calls = { prepare: 0, load: 0, run: 0 };
           const output = captureConsole();
           try {
             const status = await runProjectGateWithoutTranscript(
-              profile === "all" ? ["--all"] : [],
+              profile === "fast" ? [] : [`--${profile}`],
               {
                 clock: scriptedClock([100, 110, 125, 100 + scenario.elapsedMs]),
                 createInvocationLogDirectory: () => directory,
-                loadPerformanceBaselines: () => ({ kind: "loaded", baselines: budgets }),
+                loadPerformancePolicy: () => budgets,
                 loadRunModule: async () => {
                   calls.load += 1;
                   return {
@@ -746,7 +781,7 @@ describe("Project Gate adapter closure", () => {
             assert.equal(JSON.stringify(runResult), originalRunResult);
             assert.equal(output.warnings.length, 0);
             assert.match(output.logs.join("\n"), /project gate result: failed/);
-            if (scenario.elapsedMs > performanceBaseline.maxElapsedMs) {
+            if (scenario.elapsedMs > performanceBudget.maxElapsedMs) {
               assert.match(
                 output.errors.join("\n"),
                 /elapsed-to-initial-result 136\.0ms .* exceeded budget 135\.0ms/
@@ -843,40 +878,57 @@ describe("Project Gate adapter closure", () => {
     }
   });
 
-  it("fails before candidate preparation without a local standard-workload baseline", async () => {
-    for (const arguments_ of [[], ["--all"]]) {
-      let preparedCandidate = false;
-      const output = captureConsole();
-      try {
-        const status = await runProjectGateWithoutTranscript(arguments_, {
-          loadPerformanceBaselines: () => ({ kind: "missing" }),
-          prepareCandidate: async () => {
-            preparedCandidate = true;
-            return prepared;
-          }
-        });
-        assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
-        assert.equal(preparedCandidate, false);
-        assert.match(output.errors.join("\n"), /performance baseline missing/);
-      } finally {
-        output.restore();
-      }
-    }
-    let preparedCandidate = false;
-    const output = captureConsole();
-    try {
-      const status = await runProjectGateWithoutTranscript(["--all"], {
-        loadPerformanceBaselines: () => ({ kind: "loaded", baselines: [performanceBaseline] }),
-        prepareCandidate: async () => {
-          preparedCandidate = true;
-          return prepared;
+  it("fails before candidate preparation when the version-controlled performance policy is invalid", async () => {
+    const invalidBudgets: unknown[] = [
+      null,
+      {},
+      { ...performancePolicy, changed: undefined },
+      { ...performancePolicy, runtime: currentProjectGatePerformanceRuntime() },
+      {
+        ...performancePolicy,
+        fast: { ...performanceBudget, declarativeFingerprint: "a".repeat(64) }
+      },
+      { ...performancePolicy, all: { maxElapsedMs: 135, maxMeanCheckMs: 2000 } },
+      ...[0, -1, 0.1, "135", Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1].map(
+        (limit) => ({
+          ...performancePolicy,
+          fast: { ...performanceBudget, maxElapsedMs: limit }
+        })
+      )
+    ];
+    for (const arguments_ of [[], ["--changed"], ["--all"]]) {
+      for (const policy of [...invalidBudgets, "throw"]) {
+        const calls = { prepare: 0, load: 0, log: 0 };
+        const output = captureConsole();
+        try {
+          const status = await runProjectGateWithoutTranscript(arguments_, {
+            loadPerformancePolicy: () => {
+              if (policy === "throw") throw new Error("fixture policy unavailable");
+              return policy;
+            },
+            loadRunModule: async () => {
+              calls.load += 1;
+              throw new Error("must not load");
+            },
+            createInvocationLogDirectory: () => {
+              calls.log += 1;
+              throw new Error("must not create logs");
+            },
+            prepareCandidate: async () => {
+              calls.prepare += 1;
+              return prepared;
+            }
+          });
+          assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+          assert.deepEqual(calls, { prepare: 0, load: 0, log: 0 });
+          assert.match(
+            output.errors.join("\n"),
+            /performance policy (?:is invalid|could not be loaded)/
+          );
+        } finally {
+          output.restore();
         }
-      });
-      assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
-      assert.equal(preparedCandidate, false);
-      assert.match(output.errors.join("\n"), /performance baseline missing for all/);
-    } finally {
-      output.restore();
+      }
     }
   });
 
@@ -884,7 +936,9 @@ describe("Project Gate adapter closure", () => {
     const output = captureConsole();
     try {
       const status = await runProjectGateWithoutTranscript(["--typecheck"], {
-        loadPerformanceBaselines: () => ({ kind: "missing" }),
+        loadPerformancePolicy: () => {
+          throw new Error("focused must not load policy");
+        },
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
           resultContributor: defaultResultContributor,
@@ -997,10 +1051,7 @@ function runProjectGateWithoutTranscript(
   stepOverrides: Parameters<typeof runProjectGate>[1] = {}
 ): Promise<ProjectGateExitStatus> {
   return runProjectGate(arguments_, {
-    loadPerformanceBaselines: () => ({
-      kind: "loaded",
-      baselines: [performanceBaseline, { ...performanceBaseline, profile: "all" }]
-    }),
+    loadPerformancePolicy: () => performancePolicy,
     startTranscript: () =>
       Object.freeze({
         complete: () => "succeeded" as const,

@@ -51,7 +51,8 @@ it("wires one plain command through Product execution and Gate failure evidence"
       },
       mutex: ["fixture-resource"],
       presets: ["test"],
-      required: true
+      fast: true,
+      changeRegion: "project-tests"
     });
     const execution = await invokeCheckWithRecords(entry.check, undefined, root);
     assert.ok(isNonArrayRecord(entry.check.options));
@@ -79,7 +80,8 @@ it("wires one plain command through Product execution and Gate failure evidence"
     assert.deepEqual(entry.check.dependsOn ?? [], []);
     assert.deepEqual(entry.mutex, ["fixture-resource"]);
     assert.deepEqual(entry.presets, ["test"]);
-    assert.equal(entry.required, true);
+    assert.equal(entry.fast, true);
+    assert.equal(entry.changeRegion, "project-tests");
   } finally {
     rmSync(root, { force: true, recursive: true });
   }
@@ -108,7 +110,7 @@ it("resolves a direct dependency environment and rejects unavailable providers b
       },
       dataDependency: dependency,
       presets: ["test"],
-      required: true
+      fast: true
     });
     assert.deepEqual(entry.check.dependsOn, ["fixture-provider"]);
 
@@ -153,7 +155,7 @@ it("projects a complete nonzero command through the Gate-owned failure projector
         ]
       },
       presets: [],
-      required: true
+      fast: true
     });
     const execution = await invokeCheckWithRecords(entry.check, undefined, root);
     assert.equal(execution.result.status, "failed");
@@ -175,7 +177,7 @@ it("projects a complete nonzero command through the Gate-owned failure projector
         ]
       },
       presets: [],
-      required: true
+      fast: true
     });
     const fallback = await invokeCheckWithRecords(
       fallbackEntry.check,
@@ -203,7 +205,7 @@ it("rejects mixed dependency and failure projection adapters at runtime", () => 
         },
         failureProjection: { recordsFromStdout: () => [] },
         presets: [],
-        required: false
+        fast: false
       }),
     {
       name: "TypeError",

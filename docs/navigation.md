@@ -125,7 +125,7 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | Investigation | `bun run investigations` |
 | 测试或 Case | 最窄目标测试，再运行 `bun run test-evidence -- check --root .`；Case 文档同时适用文档行 |
 | 产品或脚本 | owner 的 test、typecheck、lint、dependency 与入口检查 |
-| 跨产品行为、Change、schema、示例、输出或多个包 | `bun run check` |
+| 跨产品行为、Change、schema、示例、输出或多个包 | `bun run check -- --changed`；默认 `bun run check` 仅提供快速反馈，不代替交付验收 |
 | 发布前或大范围重构 | `bun run check -- --all`，包含 package artifact / external consumer 验收 |
 
 报告实际执行、未执行项及影响；工具细分命令见[Workspace verification](tooling/workspace.md#verification)。

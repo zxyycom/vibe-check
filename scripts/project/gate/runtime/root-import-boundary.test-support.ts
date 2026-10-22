@@ -25,21 +25,6 @@ const preparedCandidate = Object.freeze({
 
 const status: unknown = await invokeProjectGateRoot([], {
   createInvocationLogDirectory: () => "/tmp/project-gate-import-boundary",
-  loadPerformanceBaselines: () => ({
-    kind: "loaded",
-    baselines: [
-      {
-        declarativeFingerprint: "a".repeat(64),
-        maxElapsedMs: 1000,
-        profile: "required",
-        runtime: {
-          architecture: process.arch,
-          bunVersion: process.versions.bun,
-          platform: process.platform
-        }
-      }
-    ]
-  }),
   loadRunModule: async () => {
     if (!candidatePrepared) throw new Error("bound module loaded before candidate preparation");
     return {

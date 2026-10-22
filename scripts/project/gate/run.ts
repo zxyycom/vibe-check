@@ -13,11 +13,10 @@ import { errorMessage } from "../../error-message.ts";
 
 import { projectGateHelp, selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts";
 import {
-  loadLocalPerformanceBaselines,
-  preflightPerformanceBaselines,
-  type LocalPerformanceBaselines,
-  type ProjectGatePerformanceBaseline
-} from "./runtime/performance-baseline.ts";
+  PROJECT_GATE_PERFORMANCE_POLICY,
+  preflightPerformancePolicy,
+  type ProjectGatePerformancePolicy
+} from "./runtime/performance-policy.ts";
 import {
   parseProjectGateInvocationArguments,
   type ProjectGateCandidateInput
@@ -53,7 +52,7 @@ interface ProjectGateSteps {
   readonly clock: ProjectGateClock;
   readonly createInvocationLogDirectory: () => string;
   readonly loadRunModule: () => Promise<GateRunModule>;
-  readonly loadPerformanceBaselines: () => LocalPerformanceBaselines;
+  readonly loadPerformancePolicy: () => unknown;
   readonly prepareCandidate: () => Promise<PreparedPackageCandidate>;
   readonly prepareReleaseCandidate: (receiptPath: string) => Promise<PreparedPackageCandidate>;
   readonly startTranscript: typeof startProjectGateTranscript;
@@ -78,7 +77,7 @@ const defaultSteps: ProjectGateSteps = Object.freeze({
   clock: SYSTEM_PROJECT_GATE_CLOCK,
   createInvocationLogDirectory,
   loadRunModule: async (): Promise<GateRunModule> => import("./runtime/bound-run.ts"),
-  loadPerformanceBaselines: () => loadLocalPerformanceBaselines(PROJECT_GATE_REPOSITORY_ROOT),
+  loadPerformancePolicy: () => PROJECT_GATE_PERFORMANCE_POLICY,
   prepareCandidate: preparePackageCandidate,
   prepareReleaseCandidate: (receiptPath: string) =>
     prepareReleaseCandidateFromReceipt({ receiptPath }),
@@ -112,11 +111,11 @@ export async function runProjectGate(
     console.log(projectGateHelp());
     return PROJECT_GATE_EXIT_STATUS.passed;
   }
-  const performanceBaselines = preflightPerformanceBaselines(
+  const performancePolicy = preflightPerformancePolicy(
     parsed.selection,
-    steps.loadPerformanceBaselines
+    steps.loadPerformancePolicy
   );
-  if (performanceBaselines === undefined) return PROJECT_GATE_EXIT_STATUS.failed;
+  if (performancePolicy === undefined) return PROJECT_GATE_EXIT_STATUS.failed;
   const gateStartedAtMs = steps.clock.now();
 
   let prepared: PreparedPackageCandidate;
@@ -179,7 +178,7 @@ export async function runProjectGate(
       initialResultAtMs,
       invocationLogDirectory,
       preparedCandidate: prepared,
-      performanceBaselines,
+      performancePolicy,
       runResult,
       selection: parsed.selection,
       startedAtMs: gateStartedAtMs,
@@ -297,7 +296,7 @@ function createProjectGateContext(
     readonly initialResultAtMs: number;
     readonly invocationLogDirectory: string;
     readonly preparedCandidate: PreparedPackageCandidate;
-    readonly performanceBaselines: readonly ProjectGatePerformanceBaseline[];
+    readonly performancePolicy: ProjectGatePerformancePolicy;
     readonly runResult: unknown;
     readonly selection: ProjectGateSelection;
     readonly startedAtMs: number;
@@ -307,7 +306,7 @@ function createProjectGateContext(
   return Object.freeze({
     invocationLogDirectory: input.invocationLogDirectory,
     preparedCandidate: input.preparedCandidate,
-    performanceBaselines: input.performanceBaselines,
+    performancePolicy: input.performancePolicy,
     repositoryRoot: PROJECT_GATE_REPOSITORY_ROOT,
     runResult: input.runResult,
     selection: input.selection,

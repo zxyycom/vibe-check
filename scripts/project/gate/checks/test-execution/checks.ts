@@ -13,7 +13,8 @@ export function createProjectGateTestCheckDefinitions(
       displayName: "Bun package calculation and material tests",
       lane: "packageSupporting",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "package-tests"
     },
     {
       candidateInput: "artifact",
@@ -21,7 +22,8 @@ export function createProjectGateTestCheckDefinitions(
       displayName: "Bun package artifact acceptance",
       lane: "packageArtifact",
       presets: [],
-      required: false,
+      fast: false,
+      changeRegion: "package-tests",
       timeoutMs: input.packageAcceptanceTimeoutMs
     },
     {
@@ -30,7 +32,8 @@ export function createProjectGateTestCheckDefinitions(
       displayName: "Bun external package consumer type acceptance",
       lane: "packageConsumerTypes",
       presets: [],
-      required: false,
+      fast: false,
+      changeRegion: "package-tests",
       timeoutMs: input.packageAcceptanceTimeoutMs
     },
     {
@@ -39,7 +42,8 @@ export function createProjectGateTestCheckDefinitions(
       displayName: "Bun external package consumer documentation acceptance",
       lane: "packageConsumerDocs",
       presets: [],
-      required: false,
+      fast: false,
+      changeRegion: "package-tests",
       timeoutMs: input.packageAcceptanceTimeoutMs
     },
     {
@@ -48,7 +52,8 @@ export function createProjectGateTestCheckDefinitions(
       displayName: "Bun external package consumer runtime acceptance",
       lane: "packageConsumerRuntime",
       presets: [],
-      required: false,
+      fast: false,
+      changeRegion: "package-tests",
       timeoutMs: input.packageAcceptanceTimeoutMs
     },
     {
@@ -56,56 +61,64 @@ export function createProjectGateTestCheckDefinitions(
       displayName: "Bun Product duplicate detection tests",
       lane: "productDuplicateDetection",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "product-duplicate-detection-tests"
     },
     {
       checkId: "tests-product-file-metrics",
       displayName: "Bun Product file metrics tests",
       lane: "productFileMetrics",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "product-file-metrics-tests"
     },
     {
       checkId: "tests-product-function-metrics",
       displayName: "Bun Product function metrics tests",
       lane: "productFunctionMetrics",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "product-function-metrics-tests"
     },
     {
       checkId: "tests-product-json",
       displayName: "Bun Product JSON tests",
       lane: "productJsonChecks",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "product-json-tests"
     },
     {
       checkId: "tests-product-markdown-links",
       displayName: "Bun Product Markdown link tests",
       lane: "productMarkdownLinks",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "product-markdown-tests"
     },
     {
       checkId: "tests-product-secret-detection",
       displayName: "Bun Product secret detection tests",
       lane: "productSecretDetection",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "product-secret-detection-tests"
     },
     {
       checkId: "tests-product-supporting-checks",
       displayName: "Bun Product supporting Check tests",
       lane: "productSupportingChecks",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "product-supporting-check-tests"
     },
     {
       checkId: "tests-product-runtime",
       displayName: "Bun Product runtime tests",
       lane: "productRuntime",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "product-runtime"
     },
     ...scriptTestChecks(input.repositoryMaterialsMutex)
   ]);
@@ -120,14 +133,16 @@ function scriptTestChecks(
       displayName: "Bun admission workbench tests",
       lane: "scriptsAdmissionWorkbench",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "admission-workbench-tests"
     },
     {
       checkId: "tests-scripts-project",
       displayName: "Bun Project Gate tooling tests",
       lane: "scriptsProject",
       presets: ["test"],
-      required: true,
+      fast: false,
+      changeRegion: "project-tests",
       testTimeoutMs: 15_000
     },
     {
@@ -135,7 +150,8 @@ function scriptTestChecks(
       displayName: "Bun Project Gate change selection tests",
       lane: "scriptsProjectSelection",
       presets: ["test"],
-      required: true,
+      fast: true,
+      changeRegion: "project-selection-tests",
       testTimeoutMs: 15_000
     },
     {
@@ -143,14 +159,16 @@ function scriptTestChecks(
       displayName: "Bun Test Evidence tooling tests",
       lane: "scriptsTestEvidence",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "test-evidence-tests"
     },
     {
       checkId: "tests-scripts-layout",
       displayName: "Bun repository layout tests",
       lane: "scriptsLayout",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "layout-tests"
     },
     {
       checkId: "tests-scripts-machine-artifacts",
@@ -158,14 +176,16 @@ function scriptTestChecks(
       lane: "scriptsMachineArtifacts",
       mutex: repositoryMaterialsMutex,
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "machine-artifact-tests"
     },
     {
       checkId: "tests-scripts-package-tools-boundary",
       displayName: "Bun package-tools boundary tests",
       lane: "scriptsPackageToolsBoundary",
       presets: ["test"],
-      required: true
+      fast: true,
+      changeRegion: "package-tools-boundary-tests"
     },
     {
       checkId: "tests-scripts-validation",
@@ -173,14 +193,16 @@ function scriptTestChecks(
       lane: "scriptsValidation",
       mutex: repositoryMaterialsMutex,
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "validation-tests"
     },
     {
       checkId: "tests-scripts-tooling",
       displayName: "Bun ordinary script tooling tests",
       lane: "scriptsTooling",
       presets: ["test"],
-      required: true
+      fast: false,
+      changeRegion: "script-tooling-tests"
     }
   ];
 }

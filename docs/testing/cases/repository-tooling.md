@@ -301,13 +301,13 @@ Entities:
   Proves:
 
 - `bun run check` 通过 mise 使用仓库锁定的环境；`scripts/project/gate/run.ts` 是唯一 root process entry。
-- `definition.ts` 用一份稳定顺序的 manifest 组合普通 Check；test lane descriptor 和 repository-quality options 分别由 `checks/test-execution/checks.ts` 与 `checks/repository-quality.ts` 拥有。entry validation 校验 `dependsOn` / `observes` 的 exact collection、self 与 missing target；`observes` 还保持 required/preset selection closure。
+- `definition.ts` 用一份稳定顺序的 manifest 组合普通 Check；test lane descriptor 和 repository-quality options 分别由 `checks/test-execution/checks.ts` 与 `checks/repository-quality.ts` 拥有。entry validation 校验 `dependsOn` / `observes` 的 exact collection、self 与 missing target；`observes` 还保持 fast/change-region/preset selection closure。
 - Prepared candidate、external-consumer provider、test lanes 和质量 Check 保持独立 identity。Artifact 使用 prepared candidate；external provider 独占 package-lifecycle mutex，三个 consumer 只读 provider material。Project Gate change selection 与其余 tooling、admission workbench、repository layout、package-tools/Core fixture、machine-artifact acceptance 与其余 material validation 分别为独立 test lanes；两组 material tests 与 schema/example validators 共享 repository-materials mutex，JSON grammar 和 Markdown path validators 不持有它。
 - Scheduler 的 `maxParallel` 为 `3`，两个逻辑资源的 capacity 均为 `2`：所有 `tests-*` lane 各 claim 一个 Bun runner unit，五项直接仓库质量 Check 各 claim 一个 repository-scan unit。其它 typecheck、lint、format、provider 和 native Check 不声明这两个 claim；mutex 仍独立表达独占关系。
 - Markdown Link 显式使用绝对路径的本地 parse-facts cache 与默认容量提醒；完整 corpus、target work limits 和 blocking policy 保持。
 - Duplicate、file、function metrics 与 Markdown Link 的 normal Finding 使用 blocking policy，未豁免 Finding 经 owning Check 和默认 aggregate 阻断 Gate。Function metrics 保留 `50 + 150/below 5 + CC 10 + parameters 5` 限值，只对 `createProjectGateEntries` 当前起始行的 `function-code-density` 使用一项精确 waiver；其它函数与指标继续阻断。
 - File metrics 保持全仓 `300 + 500/decision tokens ≤ 10` 行数策略；仅对 `docs/guides/building-project-gate.md` 的 `code-lines` 配置用户确认的单页教程 waiver，该文件仍在扫描范围内，其它路径不继承豁免。
-- Markdown Link 保持完整文档输入和 blocking policy，只在 Gate 配置有限的 `maxTargetReads: 3_000`，不改变 Product 默认值、其它资源限制或 root-external 授权。
+- Markdown Link 保持完整文档输入和 blocking policy；Gate 将 `maxOccurrences` 与 `maxTargetReads` 设为 `false`，其它资源限制及 root-external 授权边界保持。
 - `markdown-lint` 独立使用八项固定规则、`docs/**/*.md` / `changes/**/*.md` 范围和 non-blocking policy；Gate 显式启用可删除的逐文件 findings 缓存，不缩小检查范围。Finding 仍进入 Records 与 final data，空输入及不可用仍由 Product 结算。
 - 三项 metrics 的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；function metrics 额外排除 Product test/test-support，duplicate/file 仍选择这些测试文件。Duplicate detection 不选择 Markdown；duplicate/file metrics 不选择 historical Schemas，但继续选择 current Schemas。两个 Markdown Check 的范围均限于 `docs/**/*.md` 与 `changes/**/*.md`。
 - Artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共五个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。显式 `package:candidate:integration` 另有 30 秒进程硬限制，但不属于 routine `--test` preset。
@@ -317,12 +317,12 @@ Entities:
 Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes combinable focused presets into opaque flags`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to fast and normalizes combinable focused presets into opaque flags`
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection`
+- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps fast, changed, all, and focused membership golden while aggregation uses Product selection`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects independent script test lanes from their changed inputs`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects Product Check test lanes without losing shared or cross-owner inputs`
-- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > covers every Product Check lane test file with its own change region`
+- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > covers every execution lane test file with its owning change region`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps quality and material regions specific to their inputs`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps the product-runtime region complete for the lane resolver`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects package and Case checks only for their documented source boundaries`
@@ -331,13 +331,13 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection`
   Proves:
 
-- 无 selection 参数时采用 required；focused preset 可重复、组合并替换默认选择，`--all` 独占并选择完整 Gate。显式 release receipt 只与 `--all` 同用；启动摘要反映实际选择。
-- required 通过 Gate 的 region 数据与 Product 所用的 `micromatch` 完整列表选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；Gate 不重复构造 Git/Run 矩阵。Product runtime lane 的 region 覆盖其完整 test 分区及相关源码。
+- 无 selection 参数时采用 fast 快速反馈，只运行有资格且命中输入的工程基础与两条快速测试 lane，加上固定 candidate/whitespace；不能替代验收。`--changed` 选择全部受影响验收，`--all` 不依赖变更命中选择完整 manifest；二者各自独占。focused preset 可重复、组合并替换默认选择，receipt 只与 all 同用，摘要反映实际范围。
+- changed 通过 Gate 的 region 数据与 Product 所用的 `micromatch` 完整列表选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；未分类根路径也保守扩大至全部验收，已知家族下的新脚本模块则由所属保守 region 承接。Product runtime lane 的 region 覆盖其完整 test 分区及相关源码。
 - 已登记的 `docs/examples/package-api-support/**` 验收支持源变化会选择 package supporting lane，避免只修改共享验收逻辑时漏掉复制与 fingerprint 回归；支持源仍不是发布材料。
 - 七个 Product Check test lane 分别绑定自己的 change flag：私有实现与 fixture 触发所属组，已知 owner 的测试正文触发自身 Product lane 及扫描其正文的组。host-environment/project-files 测试属于 supporting Checks。file metrics 另消费 JSON validation/document 的实现、helper 和 fixture；function metrics 的 source-identity 审计覆盖全部 Product source。
 - 根导出、共享实现/helper、未知新模块（含测试正文）、近似目录名和测试工具链保持保守选择。包支持、Gate 本体、admission workbench 与普通 tooling 四个脚本组消费 Product 实现、helper 与 fixture，已知测试正文由 owning Product lane 承接；layout、质量扫描及全树 Test Evidence 保留各自正文输入。实际 Product/runtime 和 routine 脚本 lane 的完整文件清单均能触发自身，启动分区校验与显式 test/all 保持完整覆盖。
 - JSON、Schema、publication、machine example、Markdown、质量扫描和规则测试保持各自的输入边界；schema source 变化会选择 publication validator，独立材料测试证明发布漂移被拒绝。Markdown links 因反向目标依赖仍检查完整 corpus，focused preset 与 `--all` 提供不依赖变更的强制路径。
-- Product effective selection 决定 Check 执行、prerequisite 和 aggregate；未选中 Check 保留 not-applicable fact。required 保留 prepared candidate provider，但高成本 package acceptance 只由 `--all` 选择。
+- Product effective selection 决定 Check 执行、prerequisite 和 aggregate；未选中 Check 保留 not-applicable fact。fast/changed 保留 prepared candidate；changed 的相关 package 输入同时选择 artifact、external provider 与三个 consumer，all 始终包含它们。发布输入或验收测试变化不会仅因 acceptance 原来不属默认选择而漏验。
 
 ## Case AUX-PROJECT-GATE-DIAGNOSTIC-LOGGING-001: Project Gate 将 Product owner outputs 放入 invocation namespaces
 
@@ -398,7 +398,7 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > settles lint-product with structured oxlint Records or exactly one generic fallback`
   Proves:
 
-- **Migrated Product command Checks：**所有单一无 shell Gate command（包括 development checks、test lanes、`lint-product` 与 `prepared-external-package-consumer`）使用 `commandCheck` 的 Product `process.log` format 和 `command-transcript-unavailable` boundary。Gate 只绑定 explicit inherit/plain-text environment、120 秒默认 timeout（package acceptance 与 lint-product 保留 30 秒）、64 MiB output limit、direct dependency resolver 和安全完成投影；Product 必须在 `afterCommand` 前写完 transcript。
+- **单命令 Checks：**所有单一无 shell Gate command（包括 development checks、test lanes、`lint-product` 与 `prepared-external-package-consumer`）使用 `commandCheck` 的 Product `process.log` format 和 `command-transcript-unavailable` boundary。Gate 绑定 environment、timeout、direct dependency resolver 和安全完成投影；普通 entry 两条流各限 64 MiB、`lint-product` 各限 1 MiB、external provider 各限 64 KiB，计量与回收沿用 Product 规则。Product 必须在 `afterCommand` 前写完 transcript。
 - **保留的多步骤 workflow：**`test-evidence-rule-tests` 仍由 owner-specific Check 运行 ast-grep version 与 rule-tests 两步，并复用 Gate multi-step transcript/failure helper；它不是单一 command，不能压缩为一个 `commandCheck`。
 - **Consumer-owned settlement：**`lint-product` 以 Gate oxlint projector 形成 safe Records，或回退一个 generic failure。external consumer 从 prepared-candidate dependency 派生 environment；仅 zero exit 解析并验证 stdout、physical material 和 provenance 后发布 typed data。nonzero exit 为 `unavailable / external-consumer-provider-failed`；解析或验证失败为 `unavailable / process-output-invalid`，不发布 typed data。这些 reason 与 projection 不属于 Product `commandCheck` contract。
 - command entry 的 direct-execute evidence 覆盖 Product transcript、generic failure Record/message、dependency environment 成功与 provider fail-closed；`lint-product` 及 oxlint/oxfmt projector tests 覆盖 owner-specific structured Records 与 generic fallback。Product commandCheck 自身的 timeout、output limit、signal、取消和 transcript capability tests 是这些边界的唯一生命周期证据，Gate 不复制一套 runner。
@@ -412,7 +412,7 @@ Entities:
 - `bun|scripts/project/gate/checks/prepared-candidate.test.ts|prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest`
   Proves:
 
-- Required provider Check 只发布 closed、versioned、绝对路径且 containment 合法的 candidate data，并保留 artifact digest、文件 inventory、installed entry、preparation action/reason 与 reuse fact；schema 明确区分 local rebuild/reinstall/reuse 与 formal `release / release-receipt`。
+- prepared-candidate provider 只发布 closed、versioned、绝对路径且 containment 合法的 candidate data，并保留 artifact digest、文件 inventory、installed entry、preparation action/reason 与 reuse fact；schema 明确区分 local rebuild/reinstall/reuse 与 formal `release / release-receipt`。
 - Provider 在 artifact、staging 或 resolved entry 缺失以及 artifact digest 漂移时 fail closed；artifact acceptance 与 external-consumer provider 只能按各自需要解析同一次 typed Gate candidate，不能把未验证路径当作 dependency input。
 
 ## Case AUX-PROJECT-GATE-ADAPTER-001: Project Gate 只闭合已准备的完整 invocation
@@ -453,20 +453,19 @@ Entities:
 Owner: `docs/tooling/project-gate.md#性能预算与-check-耗时分布`
 Entities:
 
-- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > blocks exceeded budgets, missing policy or invalid measurements and retains failure context`
-- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > blocks exceeded budgets or invalid measurements and retains failure context`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > enforces each standard profile's versioned budgets independently of runtime and declaration identity`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > summarizes current Check costs and evaluates mean and nearest-rank p95 independently`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > rejects malformed, duplicate, or overflowing Check duration facts without emitting statistics`
-- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > loads only an explicit regular local JSON file with fixed, unique limits`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > blocks total and Check budgets with failure evidence without revising Product facts or retrying`
-- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails before candidate preparation when the version-controlled performance policy is invalid`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > leaves focused selections outside the total-time budget`
   Proves:
 
-- required / all 的本机 JSON 缺失、无效或没有当前 profile/runtime 时，在 candidate preparation 前失败；相同 profile/runtime 的不同指纹仍是重复预算。旧记录省略 Check 预算时规范化为均值 2000ms、P95 5000ms，显式覆盖分别生效，非法值不回退；读取不改写文件或学习运行结果。
-- `elapsed-to-initial-result` 包括三个连续阶段；等于预算为 info，总耗时、均值或 P95 任一独立超标即 error / blocks。声明指纹不影响预算选择；缺失 policy、无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 不评估性能预算。
+- fast/changed/all 使用同一版本化策略：总预算为 30000/30000/90000ms，均值 2000ms、P95 5000ms。完整三档策略在 candidate preparation 前校验；非法或 loader 抛错失败，不读取本机配置或按 runtime/指纹改变门限。
+- `elapsed-to-initial-result` 包括三个连续阶段；等于预算为 info，总耗时、均值或 P95 任一独立超标即 error / blocks。无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 不加载策略或评估正式预算。
 - Check 分布不计 null，但计入真实零值；输出执行数量、累计执行耗时和独立判断的均值/P95，累计值明确不等于墙钟。nearest-rank 对小集合、20 项和 34 项具有确定结果，空集合显示 n/a，最慢三项按耗时及 ID 确定排序。重复 ID、非法耗时和累计溢出不产生伪统计。
-- required / all 的总耗时、均值、P95 独立及组合超标均使默认 contributor 退出 1；error、唯一 failed / exit 1 与安全现场实际落入 gate.log，终端只显示超标和日志入口。准备、load、Run 各执行一次，预算对象与 Product facts 不改写；现场保留完整 duration facts、实际测量、candidate 身份/准备动作及 runtime，未超标时无失败现场。现场只投影授权字段，控制字符转义后仍通过 contribution 校验，JSON 读回保留原值。
+- 三档的总耗时、均值、P95 独立及组合超标均使默认 contributor 退出 1；error、唯一 failed / exit 1 与安全现场实际落入 gate.log，终端只显示超标和日志入口。准备、load、Run 各执行一次，预算对象与 Product facts 不改写；现场保留完整 duration facts、实际测量、candidate 身份/准备动作及 runtime，未超标时无失败现场。现场只投影授权字段，控制字符转义后仍通过 contribution 校验，JSON 读回保留原值。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 

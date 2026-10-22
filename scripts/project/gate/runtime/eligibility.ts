@@ -1,8 +1,9 @@
-import { all, any, changeFlag, type Check, type CheckFlagEnablement } from "@zxyycom/vibe-check";
+import { all, any, changeFlag, type Check, type CheckFlagCondition } from "@zxyycom/vibe-check";
 
 import {
   PROJECT_GATE_ALL_FLAG,
-  PROJECT_GATE_REQUIRED_FLAG,
+  PROJECT_GATE_CHANGED_FLAG,
+  PROJECT_GATE_FAST_FLAG,
   projectGatePresetFlag
 } from "./controls.ts";
 import type { ProjectGateEntry } from "./entries.ts";
@@ -17,7 +18,6 @@ const unrelatedProductTestBodies = PROJECT_GATE_KNOWN_PRODUCT_TEST_DIRECTORIES.m
   (directory) => `!${directory}/**/*.test.ts`
 );
 
-const PROJECT_GATE_PRODUCT_RUNTIME_TEST_CHECK_ID = "tests-product-runtime";
 /** Shared implementation that can change the selected package Checks' input or settlement. */
 const sharedPackageCheckInputs = [
   "src/check/**",
@@ -40,45 +40,36 @@ const sharedMaterialProviderInputs = [
   "scripts/validation/repository-scan-policy.ts",
   "scripts/value-guards.ts"
 ] as const;
-const REQUIRED_CHANGE_FLAGS_BY_CHECK_ID: Readonly<Record<string, string>> = Object.freeze({
-  "typecheck-product": "product-source",
-  "lint-product": "product-source",
-  "typecheck-scripts": "script-source",
-  "lint-scripts": "script-source",
-  "format-check": "format-input",
-  "tests-package-supporting": "package-tests",
-  "tests-product-duplicate-detection": "product-duplicate-detection-tests",
-  "tests-product-file-metrics": "product-file-metrics-tests",
-  "tests-product-function-metrics": "product-function-metrics-tests",
-  "tests-product-json": "product-json-tests",
-  "tests-product-markdown-links": "product-markdown-tests",
-  "tests-product-secret-detection": "product-secret-detection-tests",
-  "tests-product-supporting-checks": "product-supporting-check-tests",
-  "tests-scripts-project": "project-tests",
-  "tests-scripts-project-selection": "project-selection-tests",
-  "tests-scripts-admission-workbench": "admission-workbench-tests",
-  "tests-scripts-layout": "layout-tests",
-  "tests-scripts-machine-artifacts": "machine-artifact-tests",
-  "tests-scripts-package-tools-boundary": "package-tools-boundary-tests",
-  "tests-scripts-test-evidence": "test-evidence-tests",
-  "tests-scripts-validation": "validation-tests",
-  "tests-scripts-tooling": "script-tooling-tests",
-  "duplicate-detection": "duplicate-input",
-  "file-metrics": "file-metrics-input",
-  "function-metrics": "function-input",
-  "markdown-lint": "markdown-lint-input",
-  "markdown-link-validation": "any-change",
-  "materials-json-validator": "material-json-input",
-  "materials-schema-validator": "material-schema-input",
-  "materials-schema-publication-validator": "material-schema-publication-input",
-  "materials-examples-validator": "material-examples-input",
-  "decision-records": "decision-input",
-  "test-evidence": "test-surface",
-  "test-evidence-rule-tests": "test-evidence-rule-input"
-});
-
-/** Gate-owned regions used only by required selection; focused and --all force their members. */
+/** Gate-owned affected inputs; focused and --all force their members without this evidence. */
 export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
+  // Only these owned input families have reviewed narrower obligations. Any other
+  // root path conservatively activates every changed Check, including acceptance.
+  "unclassified-input": {
+    patterns: [
+      "**/*",
+      ".*",
+      "**/.*",
+      "**/.*/**",
+      "!src/**",
+      "!scripts/**",
+      "!docs/**",
+      "!changes/**",
+      "!licenses/**",
+      "!README.md",
+      "!LICENSE",
+      "!package.json",
+      "!pnpm-lock.yaml",
+      "!pnpm-workspace.yaml",
+      "!tsconfig.json",
+      "!tsconfig.product.json",
+      "!.oxlintrc.json",
+      "!.oxfmtrc.json",
+      "!bunfig.toml",
+      "!mise.toml",
+      "!mise.lock",
+      "!vibe-check.code-workspace"
+    ]
+  },
   "admission-workbench-tests": {
     patterns: [
       "scripts/project/admission-workbench/**",
@@ -131,6 +122,11 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
     patterns: [
       "scripts/package/**",
       "scripts/docs/**",
+      "scripts/development/typecheck.ts",
+      "scripts/error-message.ts",
+      "scripts/process-execution/**",
+      "scripts/repository-files/**",
+      "scripts/value-guards.ts",
       "src/**",
       ...unrelatedProductTestBodies,
       "README.md",
@@ -193,6 +189,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/project/gate/runtime/product-test-regions.ts",
       "scripts/project/gate/runtime/controls.ts",
       "scripts/project/gate/runtime/catalog.ts",
+      "scripts/project/gate/runtime/performance-policy.ts",
       "scripts/project/gate/runtime/entries.ts",
       "scripts/project/gate/definition.ts",
       "scripts/project/gate/checks/test-execution/lanes.ts",
@@ -322,7 +319,8 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       ".oxfmtrc.json",
       "package.json",
       "pnpm-lock.yaml",
-      "!scripts/project/**",
+      "!scripts/project/gate/**",
+      "!scripts/project/admission-workbench/**",
       "!scripts/package/**",
       "!scripts/test-evidence/**",
       "!scripts/validation/**"
@@ -403,16 +401,15 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   },
   "validation-tests": {
     patterns: [
-      "scripts/validation/repository-material/**",
-      "scripts/validation/repository-scan-policy.ts",
-      "scripts/validation/workspace.ts",
-      "scripts/validation/workspace.test.ts",
+      "scripts/validation/**",
       "scripts/docs/**",
       "scripts/repository-files/**",
       "scripts/value-guards.ts",
       "src/machine-output/**",
       "package.json",
       "pnpm-lock.yaml",
+      "!scripts/validation/repository-layout.test.ts",
+      "!scripts/validation/package-tools-core-closure.test.ts",
       "!scripts/validation/repository-material/machine-artifacts/validation.test.ts"
     ]
   },
@@ -439,45 +436,23 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
  * the Product still excludes `observes` from that propagation.
  */
 export function projectGateFlagControlledCheck(entry: ProjectGateEntry): Check {
-  const requiredChangeFlag = REQUIRED_CHANGE_FLAGS_BY_CHECK_ID[entry.check.checkId];
-  if (requiredChangeFlag !== undefined && entry.required) {
-    return Object.freeze({
-      ...entry.check,
-      enabledByFlags: Object.freeze({
-        when: any(
-          all(PROJECT_GATE_REQUIRED_FLAG, changeFlag(requiredChangeFlag)),
-          ...entry.presets.map(projectGatePresetFlag),
-          PROJECT_GATE_ALL_FLAG
-        ),
-        propagateDependsOn: true as const
-      })
-    });
-  }
-  const flags: [string, ...string[]] = [
+  const affected = entry.changeRegion === undefined ? undefined : changeFlag(entry.changeRegion);
+  const changedCondition =
+    affected === undefined
+      ? PROJECT_GATE_CHANGED_FLAG
+      : all(PROJECT_GATE_CHANGED_FLAG, any(affected, changeFlag("unclassified-input")));
+  const conditions: [CheckFlagCondition, ...CheckFlagCondition[]] = [
     PROJECT_GATE_ALL_FLAG,
-    ...(entry.required ? [PROJECT_GATE_REQUIRED_FLAG] : []),
+    changedCondition,
     ...entry.presets.map(projectGatePresetFlag)
   ];
+  if (entry.fast) {
+    conditions.push(
+      affected === undefined ? PROJECT_GATE_FAST_FLAG : all(PROJECT_GATE_FAST_FLAG, affected)
+    );
+  }
   return Object.freeze({
     ...entry.check,
-    enabledByFlags:
-      entry.check.checkId === PROJECT_GATE_PRODUCT_RUNTIME_TEST_CHECK_ID
-        ? productRuntimeTestEnablement()
-        : Object.freeze({
-            when: any(...flags),
-            propagateDependsOn: true
-          })
-  });
-}
-
-/** Keeps the incremental runtime lane explicit while focused and complete Gate selections remain force paths. */
-function productRuntimeTestEnablement(): CheckFlagEnablement {
-  return Object.freeze({
-    when: any(
-      all(PROJECT_GATE_REQUIRED_FLAG, changeFlag("product-runtime")),
-      projectGatePresetFlag("test"),
-      PROJECT_GATE_ALL_FLAG
-    ),
-    propagateDependsOn: true as const
+    enabledByFlags: Object.freeze({ when: any(...conditions), propagateDependsOn: true as const })
   });
 }

@@ -1,7 +1,4 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 
 import { isNonArrayRecord } from "../../../value-guards.ts";
@@ -10,24 +7,21 @@ import type { PreparedPackageCandidate } from "../../../package/candidate/prepar
 import type { ProjectGateContext } from "./result-contributor.ts";
 import { createProjectGateResult, parseProjectGateResultContribution } from "./result.ts";
 import {
-  loadLocalPerformanceBaselines,
-  LOCAL_PERFORMANCE_BASELINE_PATH,
-  type ProjectGatePerformanceBaseline
-} from "./performance-baseline.ts";
+  PROJECT_GATE_PERFORMANCE_POLICY,
+  type ProjectGatePerformanceBudget
+} from "./performance-policy.ts";
 import { evaluateProjectGatePerformance } from "./performance-observation.ts";
 
 const runtime = Object.freeze({ architecture: "x64", bunVersion: "1.3.14", platform: "linux" });
-const baseline = Object.freeze({
-  declarativeFingerprint: "a".repeat(64),
+const budget = Object.freeze({
   maxElapsedMs: 135,
   maxMeanCheckMs: 2000,
-  maxP95CheckMs: 5000,
-  profile: "required" as const,
-  runtime
-} satisfies ProjectGatePerformanceBaseline);
+  maxP95CheckMs: 5000
+} satisfies ProjectGatePerformanceBudget);
+const performancePolicy = Object.freeze({ fast: budget, changed: budget, all: budget });
 
 describe("Project Gate performance budgets", () => {
-  it("blocks exceeded budgets, missing policy or invalid measurements and retains failure context", () => {
+  it("blocks exceeded budgets or invalid measurements and retains failure context", () => {
     const initialResult = createProjectGateResult("passed", [
       { code: "existing", level: "info", message: "kept" }
     ]);
@@ -51,7 +45,7 @@ describe("Project Gate performance budgets", () => {
     assert.equal(detail?.code, "project-gate-performance-failure-context");
     assert.equal(detail?.level, "info");
     assert.deepEqual(JSON.parse(detail?.message ?? ""), {
-      profile: "required",
+      profile: "fast",
       runtime,
       budgets: { maxElapsedMs: 135, maxMeanCheckMs: 2000, maxP95CheckMs: 5000 },
       timing: context(136).timing,
@@ -115,22 +109,6 @@ describe("Project Gate performance budgets", () => {
     assert.ok(isNonArrayRecord(decoded.logs));
     assert.equal(decoded.logs.directory, logDirectory);
 
-    for (const performanceBaselines of [
-      [],
-      [{ ...baseline, profile: "all" as const }],
-      [{ ...baseline, runtime: { ...runtime, architecture: "arm64" } }],
-      [{ ...baseline, runtime: { ...runtime, bunVersion: "other" } }],
-      [{ ...baseline, runtime: { ...runtime, platform: "darwin" } }]
-    ]) {
-      const missing = evaluateProjectGatePerformance(
-        Object.freeze({ ...context(120), initialResult, performanceBaselines }),
-        runtime
-      );
-      assert.equal(missing.blocks, true);
-      assert.equal(missing.messages[0]?.code, "project-gate-performance-baseline-missing");
-      assert.match(missing.messages[0]?.message ?? "", /elapsed-to-initial-result 120\.0ms/);
-    }
-
     const invalid = evaluateProjectGatePerformance(
       Object.freeze({
         ...context(Number.NaN),
@@ -159,38 +137,36 @@ describe("Project Gate performance budgets", () => {
     assert.equal(alreadyFailed.blocks, false);
   });
 
-  it("enforces profile and runtime budgets independently of fingerprint metadata without rewriting them", () => {
-    const fingerprint = "b".repeat(64);
-    for (const profile of ["required", "all"] as const) {
-      for (const [elapsedMs, productMs, exceeded] of [
-        [120, 70, false],
-        [135, 85, false],
-        [136, 86, true]
-      ] as const) {
-        for (const metadata of [{ declarativeFingerprint: baseline.declarativeFingerprint }, {}]) {
-          const initial = context(elapsedMs);
-          const configured = {
-            ...metadata,
-            maxElapsedMs: 135,
-            maxMeanCheckMs: 2000,
-            maxP95CheckMs: 5000,
-            profile,
-            runtime
-          };
-          const baselines = Object.freeze([Object.freeze(configured)]);
+  it("enforces each standard profile's versioned budgets independently of runtime and declaration identity", () => {
+    assert.deepEqual(PROJECT_GATE_PERFORMANCE_POLICY, {
+      fast: { maxElapsedMs: 30000, maxMeanCheckMs: 2000, maxP95CheckMs: 5000 },
+      changed: { maxElapsedMs: 30000, maxMeanCheckMs: 2000, maxP95CheckMs: 5000 },
+      all: { maxElapsedMs: 90000, maxMeanCheckMs: 2000, maxP95CheckMs: 5000 }
+    });
+    assert.ok(Object.isFrozen(PROJECT_GATE_PERFORMANCE_POLICY));
+    for (const profile of ["fast", "changed", "all"] as const) {
+      const configured = PROJECT_GATE_PERFORMANCE_POLICY[profile];
+      assert.ok(Object.isFrozen(configured));
+      for (const offset of [-1, 0, 1]) {
+        const elapsedMs = configured.maxElapsedMs + offset;
+        const exceeded = offset > 0;
+        for (const diagnosticRuntime of [
+          runtime,
+          { architecture: "arm64", bunVersion: "other", platform: "darwin" }
+        ]) {
           const result = evaluateProjectGatePerformance(
             Object.freeze({
-              ...initial,
+              ...context(elapsedMs),
               initialResult: createProjectGateResult("passed"),
-              performanceBaselines: baselines,
+              performancePolicy: PROJECT_GATE_PERFORMANCE_POLICY,
               runResult: Object.freeze({
                 checkDurations: [],
-                declarativeFingerprint: fingerprint,
+                declarativeFingerprint: "b".repeat(64),
                 kind: "completed"
               }),
               selection: Object.freeze({ kind: profile })
             }),
-            runtime
+            diagnosticRuntime
           );
           assert.equal(result.blocks, exceeded);
           assert.equal(result.messages.length, exceeded ? 3 : 2);
@@ -206,13 +182,12 @@ describe("Project Gate performance budgets", () => {
             `elapsed-to-initial-result ${elapsedMs}.0ms`,
             "candidate preparation 20.0ms",
             "adapter/setup 30.0ms",
-            `Product Run ${productMs}.0ms`,
-            "budget 135.0ms"
+            `Product Run ${elapsedMs - 50}.0ms`,
+            `budget ${configured.maxElapsedMs}.0ms`
           ]) {
             assert.ok(message.includes(detail), detail);
           }
           assert.doesNotMatch(message, /no matching|manually update|fingerprint/);
-          assert.deepEqual(baselines, [configured]);
         }
       }
     }
@@ -293,7 +268,10 @@ describe("Project Gate performance budgets", () => {
         Object.freeze({
           ...initial,
           initialResult: createProjectGateResult("passed"),
-          performanceBaselines: [{ ...baseline, maxMeanCheckMs: 500, maxP95CheckMs: 100 }],
+          performancePolicy: {
+            ...performancePolicy,
+            fast: { ...budget, maxMeanCheckMs: 500, maxP95CheckMs: 100 }
+          },
           runResult: Object.freeze({
             kind: "completed",
             declarativeFingerprint: "a".repeat(64),
@@ -380,93 +358,20 @@ describe("Project Gate performance budgets", () => {
       assert.doesNotMatch(result.messages[0]?.message ?? "", /mean |p95 |cumulative/);
     }
   });
-
-  it("loads only an explicit regular local JSON file with fixed, unique limits", () => {
-    const root = mkdtempSync(join(tmpdir(), "vibe-check-performance-baseline-"));
-    const path = join(root, LOCAL_PERFORMANCE_BASELINE_PATH);
-    try {
-      assert.deepEqual(loadLocalPerformanceBaselines(root), { kind: "missing" });
-      mkdirSync(dirname(path), { recursive: true });
-      const legacySource = JSON.stringify({ schemaVersion: 1, baselines: [baseline] });
-      writeFileSync(path, legacySource);
-      assert.deepEqual(loadLocalPerformanceBaselines(root), {
-        kind: "loaded",
-        baselines: [baseline]
-      });
-      assert.equal(readFileSync(path, "utf8"), legacySource);
-      const withoutFingerprint = { maxElapsedMs: 135, profile: "required", runtime };
-      writeFileSync(path, JSON.stringify({ schemaVersion: 1, baselines: [withoutFingerprint] }));
-      assert.deepEqual(loadLocalPerformanceBaselines(root), {
-        kind: "loaded",
-        baselines: [{ ...withoutFingerprint, maxMeanCheckMs: 2000, maxP95CheckMs: 5000 }]
-      });
-      for (const overrides of [
-        { maxMeanCheckMs: 1500 },
-        { maxP95CheckMs: 4000 },
-        { maxMeanCheckMs: 1500, maxP95CheckMs: 4000 }
-      ]) {
-        const source = JSON.stringify({
-          schemaVersion: 1,
-          baselines: [{ ...withoutFingerprint, ...overrides }]
-        });
-        writeFileSync(path, source);
-        assert.deepEqual(loadLocalPerformanceBaselines(root), {
-          kind: "loaded",
-          baselines: [
-            { ...withoutFingerprint, maxMeanCheckMs: 2000, maxP95CheckMs: 5000, ...overrides }
-          ]
-        });
-        assert.equal(readFileSync(path, "utf8"), source);
-      }
-      writeFileSync(path, JSON.stringify({ schemaVersion: 1, baselines: [baseline, baseline] }));
-      assert.deepEqual(loadLocalPerformanceBaselines(root), { kind: "invalid" });
-      for (const duplicate of [
-        withoutFingerprint,
-        { ...baseline, declarativeFingerprint: "b".repeat(64), maxElapsedMs: 999 }
-      ]) {
-        writeFileSync(path, JSON.stringify({ schemaVersion: 1, baselines: [baseline, duplicate] }));
-        assert.deepEqual(loadLocalPerformanceBaselines(root), { kind: "invalid" });
-      }
-      for (const invalid of [
-        { ...baseline, declarativeFingerprint: null },
-        { ...baseline, declarativeFingerprint: "invalid" },
-        { ...withoutFingerprint, unexpected: true }
-      ]) {
-        writeFileSync(path, JSON.stringify({ schemaVersion: 1, baselines: [invalid] }));
-        assert.deepEqual(loadLocalPerformanceBaselines(root), { kind: "invalid" });
-      }
-      for (const field of ["maxElapsedMs", "maxMeanCheckMs", "maxP95CheckMs"]) {
-        for (const invalid of [null, 0, -1, 1.5, "2000", Number.MAX_SAFE_INTEGER + 1]) {
-          writeFileSync(
-            path,
-            JSON.stringify({ schemaVersion: 1, baselines: [{ ...baseline, [field]: invalid }] })
-          );
-          assert.deepEqual(loadLocalPerformanceBaselines(root), { kind: "invalid" });
-        }
-      }
-      rmSync(path);
-      const target = join(root, "outside.json");
-      writeFileSync(target, JSON.stringify({ schemaVersion: 1, baselines: [baseline] }));
-      symlinkSync(target, path);
-      assert.deepEqual(loadLocalPerformanceBaselines(root), { kind: "invalid" });
-    } finally {
-      rmSync(root, { force: true, recursive: true });
-    }
-  });
 });
 
 function context(elapsedToInitialResultMs: number): ProjectGateContext {
   return Object.freeze({
     invocationLogDirectory: "/tmp/project-gate-observation",
     preparedCandidate,
-    performanceBaselines: [baseline],
+    performancePolicy,
     repositoryRoot: "/workspace/vibe-check",
     runResult: Object.freeze({
       checkDurations: [],
       declarativeFingerprint: "a".repeat(64),
       kind: "completed"
     }),
-    selection: Object.freeze({ kind: "required" as const }),
+    selection: Object.freeze({ kind: "fast" as const }),
     timing: Object.freeze({
       adapterSetupMs: 30,
       candidatePreparationMs: 20,

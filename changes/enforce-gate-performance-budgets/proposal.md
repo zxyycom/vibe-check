@@ -34,4 +34,4 @@ required / all 任一预算超标时 Gate 退出 1；同次日志可定位实际
 - [Project Gate](../../docs/tooling/project-gate.md#性能预算与-check-耗时分布)
 - [Gate diagnostics](../../docs/tooling/gate-diagnostics.md#gate-terminal-and-transcript)
 - [Repository tooling Cases](../../docs/testing/cases/repository-tooling.md)
-- [Gate 预算阻断决策](../../docs/decisions/enforce-gate-performance-budgets.md)
+- [Gate 预算阻断决策](../../docs/decisions/archive/enforce-gate-performance-budgets.md)

@@ -45,7 +45,8 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     readonly displayName: string;
     readonly mutex?: readonly string[];
     readonly presets: readonly ProjectGatePreset[];
-    readonly required: boolean;
+    readonly fast: boolean;
+    readonly changeRegion?: string;
     readonly resourceClaims?: Readonly<Record<string, number>>;
     readonly timeoutMs?: number;
   }> &
@@ -59,7 +60,8 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     invocation,
     mutex,
     presets,
-    required,
+    fast,
+    changeRegion,
     resourceClaims,
     timeoutMs
   } = input;
@@ -121,7 +123,8 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     check,
     ...(mutex === undefined ? {} : { mutex }),
     presets,
-    required,
+    fast,
+    ...(changeRegion === undefined ? {} : { changeRegion }),
     ...(resourceClaims === undefined ? {} : { resourceClaims })
   };
 }
