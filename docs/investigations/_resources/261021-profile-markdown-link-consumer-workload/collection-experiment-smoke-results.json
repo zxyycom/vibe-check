@@ -1,0 +1,2246 @@
+{
+  "formedAt": "2026-10-22T03:06:02.781Z",
+  "bun": "1.3.14",
+  "node": "v24.18.0",
+  "methods": {
+    "collection-experiment.ts": "845be591d50817112d957cb2bd6d58ff9ad2bab36daf13fcc522552928e1ba9e",
+    "collection-experiment-smoke.ts": "6fcf936a895369eae503b5222d895ec9ed761fe1dcb7b9f632056eb71a11bb1b"
+  },
+  "inputs": {
+    "src/package-checks/markdown-link-validation/measurement.test-support.ts": "77a7f60e9173573145cfdbe8ec7c3b82f9591e81841bd22557ff74601058be9c",
+    "src/package-checks/project-files/collection-path-identity.test.ts": "00e1c9510251d4ea6afae32901ed6b3e5e6d7cda6225abd45150e3d1b5849f7e",
+    "src/package-checks/project-files/public-collection.test.ts": "f8f54bc41eb8cc87d2c8ed743b1a7fc0849e909ea643d13cab3f0557552b5505",
+    "src/package-checks/project-files/collection.test.ts": "b3fac13df4a72f2725635078f070ef4a8951b4418bd5e143cbfd8dcc545b1d56",
+    "src/package-checks/project-files/public-collection.ts": "a20d750cad14bb68acad049bb4b5aed63de46df71fcaf4ddcdce682f845cb636",
+    "src/package-checks/project-files/configuration.ts": "61485ca296296b793c7871755dfca8c96488bc87188da16032c72de7b6dcf87c",
+    "src/package-checks/project-files/collection.ts": "a1c6714b0f3b5dba1628847c679c498416a28ebe1aceef875b972f4517a673a4",
+    "src/data-boundary/closed-values.ts": "262c56c2cf62d46fd4c627a8346e1f8457667789f9021b1c25e60b8c3696f2ff",
+    "src/package-checks/project-files/collection.test-support.ts": "f13754c0e2bb9e85c69a3bf5fc59915c5a4c3eee3f5b0038ebc0b68acdcf855a",
+    "src/data-boundary/config-glob.ts": "a3098219a6f63fb203e35ab65a08f23305a395baf7628c2c69cbf6605fe5231e",
+    "src/data-boundary/project-path.ts": "839fc17a32aeebd36077f2694e06c7e06f5025ed10627d58352f964888a38c9b",
+    "src/package-checks/project-files/filesystem-collection.ts": "9c5782e078978c6c5208a0c152e743932f338b55db58d40540db76d0091f218e",
+    "src/package-checks/host-environment/error-message.ts": "a421703a25ffce7985f7015c675f4c5e1c33bc26c7fafc1d31c320061c3e6d3a"
+  },
+  "results": [
+    {
+      "kind": "regression",
+      "candidate": "baseline",
+      "runtime": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+      "status": 0,
+      "stdout": "bun test v1.3.14 (0d9b296a)\n",
+      "stderr": "\n.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/baseline-regression.test.mjs:\n(pass) quality input file collection > shares deep ancestor pruning without copying segment prefixes [39.55ms]\n(pass) quality input file collection > enumerates the filesystem independently of Git ignore rules [31.30ms]\n(pass) quality input file collection > applies explicit default exclusions while retaining other dot files [21.56ms]\n(pass) quality input file collection > shares necessary directory reads without conflating mixed selections [12.35ms]\n(pass) quality input file collection > matches native complete lists consistently for collection and explicit paths [41.51ms]\n(pass) quality input file collection > prunes excluded task bases and static paths before inspection [12.33ms]\n(pass) quality input file collection > distinguishes necessary access failures and disappearing directories from no-match [7.33ms]\n(pass) quality input file collection > does not follow root base file directory or broken symbolic links [7.79ms]\n(pass) quality input file collection > preserves pathname identity without admitting lossy UTF-8 aliases [24.95ms]\n(pass) public project file collection > collects a frozen detached selection snapshot from an explicit root [9.39ms]\n(pass) public project file collection > retains a successful empty selection as a frozen result [3.54ms]\n(pass) public project file collection > rejects malformed input without invoking accessor hooks [1.96ms]\n(pass) public project file collection > keeps required filesystem failures distinct from invalid invocation [2.59ms]\n\n 13 pass\n 0 fail\nRan 13 tests across 1 file. [324.00ms]\n",
+      "bundleSha256": "b3446247ba0869fd6bce07c77b21bffab69663aa81eec870a39ebaef6b002d7b"
+    },
+    {
+      "kind": "regression",
+      "candidate": "baseline",
+      "runtime": "node",
+      "status": 0,
+      "stdout": "▶ quality input file collection\n  ✔ shares deep ancestor pruning without copying segment prefixes (46.237323ms)\n  ✔ enumerates the filesystem independently of Git ignore rules (29.723707ms)\n  ✔ applies explicit default exclusions while retaining other dot files (25.855235ms)\n  ✔ shares necessary directory reads without conflating mixed selections (16.826599ms)\n  ✔ matches native complete lists consistently for collection and explicit paths (31.160756ms)\n  ✔ prunes excluded task bases and static paths before inspection (10.343314ms)\n  ✔ distinguishes necessary access failures and disappearing directories from no-match (10.238686ms)\n  ✔ does not follow root base file directory or broken symbolic links (5.978633ms)\n✔ quality input file collection (178.031092ms)\n▶ quality input file collection\n  ✔ preserves pathname identity without admitting lossy UTF-8 aliases (22.457761ms)\n✔ quality input file collection (22.750125ms)\n▶ public project file collection\n  ✔ collects a frozen detached selection snapshot from an explicit root (12.17807ms)\n  ✔ retains a successful empty selection as a frozen result (3.794113ms)\n  ✔ rejects malformed input without invoking accessor hooks (2.664377ms)\n  ✔ keeps required filesystem failures distinct from invalid invocation (3.27287ms)\n✔ public project file collection (22.305466ms)\nℹ tests 13\nℹ suites 3\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 351.421345\n",
+      "stderr": "",
+      "bundleSha256": "b3446247ba0869fd6bce07c77b21bffab69663aa81eec870a39ebaef6b002d7b"
+    },
+    {
+      "kind": "regression",
+      "candidate": "local",
+      "runtime": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+      "status": 0,
+      "stdout": "bun test v1.3.14 (0d9b296a)\n",
+      "stderr": "\n.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/local-regression.test.mjs:\n(pass) quality input file collection > shares deep ancestor pruning without copying segment prefixes [34.82ms]\n(pass) quality input file collection > enumerates the filesystem independently of Git ignore rules [27.64ms]\n(pass) quality input file collection > applies explicit default exclusions while retaining other dot files [15.66ms]\n(pass) quality input file collection > shares necessary directory reads without conflating mixed selections [12.52ms]\n(pass) quality input file collection > matches native complete lists consistently for collection and explicit paths [36.48ms]\n(pass) quality input file collection > prunes excluded task bases and static paths before inspection [9.64ms]\n(pass) quality input file collection > distinguishes necessary access failures and disappearing directories from no-match [5.92ms]\n(pass) quality input file collection > does not follow root base file directory or broken symbolic links [9.30ms]\n(pass) quality input file collection > preserves pathname identity without admitting lossy UTF-8 aliases [29.89ms]\n(pass) public project file collection > collects a frozen detached selection snapshot from an explicit root [7.26ms]\n(pass) public project file collection > retains a successful empty selection as a frozen result [3.07ms]\n(pass) public project file collection > rejects malformed input without invoking accessor hooks [1.96ms]\n(pass) public project file collection > keeps required filesystem failures distinct from invalid invocation [3.11ms]\n\n 13 pass\n 0 fail\nRan 13 tests across 1 file. [280.00ms]\n",
+      "bundleSha256": "e4c9122c93963155fce4cc899dcb87f4af142a9b0db0545981f5ea2c3ba70f10"
+    },
+    {
+      "kind": "regression",
+      "candidate": "local",
+      "runtime": "node",
+      "status": 0,
+      "stdout": "▶ quality input file collection\n  ✔ shares deep ancestor pruning without copying segment prefixes (37.083108ms)\n  ✔ enumerates the filesystem independently of Git ignore rules (27.335831ms)\n  ✔ applies explicit default exclusions while retaining other dot files (21.273603ms)\n  ✔ shares necessary directory reads without conflating mixed selections (14.602113ms)\n  ✔ matches native complete lists consistently for collection and explicit paths (26.751787ms)\n  ✔ prunes excluded task bases and static paths before inspection (5.324608ms)\n  ✔ distinguishes necessary access failures and disappearing directories from no-match (7.499166ms)\n  ✔ does not follow root base file directory or broken symbolic links (4.290075ms)\n✔ quality input file collection (145.699762ms)\n▶ quality input file collection\n  ✔ preserves pathname identity without admitting lossy UTF-8 aliases (15.427255ms)\n✔ quality input file collection (15.603042ms)\n▶ public project file collection\n  ✔ collects a frozen detached selection snapshot from an explicit root (8.76976ms)\n  ✔ retains a successful empty selection as a frozen result (2.554939ms)\n  ✔ rejects malformed input without invoking accessor hooks (1.365669ms)\n  ✔ keeps required filesystem failures distinct from invalid invocation (1.493666ms)\n✔ public project file collection (14.530768ms)\nℹ tests 13\nℹ suites 3\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 296.891021\n",
+      "stderr": "",
+      "bundleSha256": "e4c9122c93963155fce4cc899dcb87f4af142a9b0db0545981f5ea2c3ba70f10"
+    },
+    {
+      "kind": "regression",
+      "candidate": "prefix",
+      "runtime": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+      "status": 0,
+      "stdout": "bun test v1.3.14 (0d9b296a)\n",
+      "stderr": "\n.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/prefix-regression.test.mjs:\n(pass) quality input file collection > shares deep ancestor pruning without copying segment prefixes [34.97ms]\n(pass) quality input file collection > enumerates the filesystem independently of Git ignore rules [25.35ms]\n(pass) quality input file collection > applies explicit default exclusions while retaining other dot files [15.84ms]\n(pass) quality input file collection > shares necessary directory reads without conflating mixed selections [13.00ms]\n(pass) quality input file collection > matches native complete lists consistently for collection and explicit paths [31.09ms]\n(pass) quality input file collection > prunes excluded task bases and static paths before inspection [8.21ms]\n(pass) quality input file collection > distinguishes necessary access failures and disappearing directories from no-match [7.11ms]\n(pass) quality input file collection > does not follow root base file directory or broken symbolic links [4.53ms]\n(pass) quality input file collection > preserves pathname identity without admitting lossy UTF-8 aliases [16.89ms]\n(pass) public project file collection > collects a frozen detached selection snapshot from an explicit root [6.54ms]\n(pass) public project file collection > retains a successful empty selection as a frozen result [2.73ms]\n(pass) public project file collection > rejects malformed input without invoking accessor hooks [1.93ms]\n(pass) public project file collection > keeps required filesystem failures distinct from invalid invocation [2.22ms]\n\n 13 pass\n 0 fail\nRan 13 tests across 1 file. [265.00ms]\n",
+      "bundleSha256": "0556550c3b3d62d468350534ca04c7fa2ab35a6594527dbd268c65f2ad4b6f14"
+    },
+    {
+      "kind": "regression",
+      "candidate": "prefix",
+      "runtime": "node",
+      "status": 0,
+      "stdout": "▶ quality input file collection\n  ✔ shares deep ancestor pruning without copying segment prefixes (30.56339ms)\n  ✔ enumerates the filesystem independently of Git ignore rules (21.684858ms)\n  ✔ applies explicit default exclusions while retaining other dot files (15.81632ms)\n  ✔ shares necessary directory reads without conflating mixed selections (11.192024ms)\n  ✔ matches native complete lists consistently for collection and explicit paths (25.082168ms)\n  ✔ prunes excluded task bases and static paths before inspection (6.346082ms)\n  ✔ distinguishes necessary access failures and disappearing directories from no-match (6.854531ms)\n  ✔ does not follow root base file directory or broken symbolic links (4.618058ms)\n✔ quality input file collection (123.713315ms)\n▶ quality input file collection\n  ✔ preserves pathname identity without admitting lossy UTF-8 aliases (20.139392ms)\n✔ quality input file collection (20.921939ms)\n▶ public project file collection\n  ✔ collects a frozen detached selection snapshot from an explicit root (10.967527ms)\n  ✔ retains a successful empty selection as a frozen result (2.625981ms)\n  ✔ rejects malformed input without invoking accessor hooks (1.347641ms)\n  ✔ keeps required filesystem failures distinct from invalid invocation (2.003835ms)\n✔ public project file collection (17.410858ms)\nℹ tests 13\nℹ suites 3\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 279.314327\n",
+      "stderr": "",
+      "bundleSha256": "0556550c3b3d62d468350534ca04c7fa2ab35a6594527dbd268c65f2ad4b6f14"
+    },
+    {
+      "kind": "profile",
+      "candidate": "baseline",
+      "profile": true,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "counters": {
+        "collection.prune.patternsCompiled": 55,
+        "collection.directory.requests": 44,
+        "collection.directory.misses": 7,
+        "collection.physical.lstatSync.calls": 11,
+        "collection.physical.readdirSync.calls": 7,
+        "collection.entry.count": 11,
+        "collection.entry.nameBytes": 56,
+        "collection.noDemand.requests": 25,
+        "collection.noDemand.requestedPathChars": 233,
+        "collection.noDemand.computations": 25,
+        "collection.prune.prefix.requests": 71,
+        "collection.prune.prefix.requestedPathChars": 531,
+        "collection.prune.prefix.computations": 71,
+        "collection.prune.matcherCalls": 1266,
+        "collection.prune.matcherPathChars": 9414,
+        "collection.selectedPath.requests": 3,
+        "collection.selectedPath.requestedPathChars": 36,
+        "collection.selectedPath.computations": 3,
+        "collection.default.matcherCalls": 40,
+        "collection.targetEntry.componentVisits": 36,
+        "collection.directory.hits": 37,
+        "collection.validatedEntry.calls": 36,
+        "collection.validatedEntry.candidates": 36,
+        "collection.entry.statMisses": 10,
+        "collection.entry.statHits": 168,
+        "collection.candidates": 4,
+        "collection.selectedPaths": 9
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 3,
+          "inclusiveMs": 0.1371449999996912
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.21446800000012445
+        },
+        "collection.prune.compile": {
+          "calls": 55,
+          "inclusiveMs": 3.9513640000018313
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 4.70604800000001
+        },
+        "collection.physical.lstatSync": {
+          "calls": 11,
+          "inclusiveMs": 0.3076399999995374
+        },
+        "collection.physical.readdirSync": {
+          "calls": 7,
+          "inclusiveMs": 0.4536539999994602
+        },
+        "collection.createCollectionEntry": {
+          "calls": 11,
+          "inclusiveMs": 0.13648399999965477
+        },
+        "collection.slashRelative": {
+          "calls": 27,
+          "inclusiveMs": 0.11803900000177237
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 71,
+          "inclusiveMs": 1.6137350000008155
+        },
+        "collection.noDemand.compute": {
+          "calls": 25,
+          "inclusiveMs": 2.1351989999998295
+        },
+        "collection.selectedPath.compute": {
+          "calls": 3,
+          "inclusiveMs": 1.808603000000403
+        },
+        "collection.retainEntry": {
+          "calls": 11,
+          "inclusiveMs": 2.402376999999433
+        },
+        "collection.readDirectory": {
+          "calls": 44,
+          "inclusiveMs": 4.339404000002105
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 7.694794000000002
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 7.734176999999818
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.6757359999996879
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.7400649999999587
+        },
+        "collection.demandedPath": {
+          "calls": 14,
+          "inclusiveMs": 0.9789989999990212
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 36,
+          "inclusiveMs": 1.3291159999994306
+        },
+        "collection.targetEntry": {
+          "calls": 14,
+          "inclusiveMs": 2.6655380000006517
+        },
+        "collection.readTarget": {
+          "calls": 7,
+          "inclusiveMs": 2.007575000000088
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 9.672755999999936
+        },
+        "collection.final.userSelection": {
+          "calls": 3,
+          "inclusiveMs": 0.19194699999980003
+        },
+        "collection.final.defaultSelection": {
+          "calls": 3,
+          "inclusiveMs": 0.9566780000000108
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 3,
+          "inclusiveMs": 0.11670700000013312
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 3,
+          "inclusiveMs": 0.20731599999999162
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 19.756069000000025
+        }
+      },
+      "bundleSha256": "3e4c524f1f0143cb6693742f6ef1028217c1f4b890ef1e30a30e010b9d0f0b01"
+    },
+    {
+      "kind": "profile",
+      "candidate": "local",
+      "profile": true,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "counters": {
+        "collection.prune.patternsCompiled": 55,
+        "collection.directory.requests": 44,
+        "collection.directory.misses": 7,
+        "collection.physical.lstatSync.calls": 11,
+        "collection.physical.readdirSync.calls": 7,
+        "collection.entry.count": 11,
+        "collection.entry.nameBytes": 56,
+        "collection.noDemand.requests": 25,
+        "collection.noDemand.requestedPathChars": 233,
+        "collection.noDemand.computations": 11,
+        "collection.prune.prefix.requests": 35,
+        "collection.prune.prefix.requestedPathChars": 294,
+        "collection.prune.prefix.computations": 35,
+        "collection.prune.matcherCalls": 618,
+        "collection.prune.matcherPathChars": 5148,
+        "collection.selectedPath.requests": 3,
+        "collection.selectedPath.requestedPathChars": 36,
+        "collection.selectedPath.computations": 3,
+        "collection.default.matcherCalls": 40,
+        "collection.targetEntry.componentVisits": 36,
+        "collection.directory.hits": 37,
+        "collection.validatedEntry.calls": 36,
+        "collection.validatedEntry.candidates": 36,
+        "collection.entry.statMisses": 10,
+        "collection.entry.statHits": 168,
+        "collection.noDemand.hits": 14,
+        "collection.candidates": 4,
+        "collection.selectedPaths": 9
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 3,
+          "inclusiveMs": 0.2326149999998961
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.34995200000003024
+        },
+        "collection.prune.compile": {
+          "calls": 55,
+          "inclusiveMs": 0.9105950000007397
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 1.8595660000000862
+        },
+        "collection.physical.lstatSync": {
+          "calls": 11,
+          "inclusiveMs": 0.2295750000012049
+        },
+        "collection.physical.readdirSync": {
+          "calls": 7,
+          "inclusiveMs": 0.8379600000007486
+        },
+        "collection.createCollectionEntry": {
+          "calls": 11,
+          "inclusiveMs": 0.2172499999996944
+        },
+        "collection.slashRelative": {
+          "calls": 27,
+          "inclusiveMs": 0.10518399999955363
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 35,
+          "inclusiveMs": 0.48692399999981717
+        },
+        "collection.noDemand.compute": {
+          "calls": 11,
+          "inclusiveMs": 0.8750470000013593
+        },
+        "collection.selectedPath.compute": {
+          "calls": 3,
+          "inclusiveMs": 0.9439649999999347
+        },
+        "collection.retainEntry": {
+          "calls": 11,
+          "inclusiveMs": 1.3751489999999649
+        },
+        "collection.readDirectory": {
+          "calls": 44,
+          "inclusiveMs": 3.368683000000601
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 4.054308000000219
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 4.205558999999994
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.24462499999981446
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.28789499999993495
+        },
+        "collection.demandedPath": {
+          "calls": 14,
+          "inclusiveMs": 0.26828900000009526
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 36,
+          "inclusiveMs": 0.9898020000009637
+        },
+        "collection.targetEntry": {
+          "calls": 14,
+          "inclusiveMs": 1.5094160000003285
+        },
+        "collection.readTarget": {
+          "calls": 7,
+          "inclusiveMs": 2.039193000000523
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 5.421550000000025
+        },
+        "collection.final.userSelection": {
+          "calls": 3,
+          "inclusiveMs": 0.29581899999993766
+        },
+        "collection.final.defaultSelection": {
+          "calls": 3,
+          "inclusiveMs": 0.9424030000004677
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 3,
+          "inclusiveMs": 0.11832000000003973
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 3,
+          "inclusiveMs": 0.28993999999966036
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 11.891713999999865
+        }
+      },
+      "bundleSha256": "da631539424fe130373db82322278bb2ecd4d4fd0a083152a1fa032a429f6443"
+    },
+    {
+      "kind": "profile",
+      "candidate": "prefix",
+      "profile": true,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "counters": {
+        "collection.prune.patternsCompiled": 55,
+        "collection.directory.requests": 44,
+        "collection.directory.misses": 7,
+        "collection.physical.lstatSync.calls": 11,
+        "collection.physical.readdirSync.calls": 7,
+        "collection.entry.count": 11,
+        "collection.entry.nameBytes": 56,
+        "collection.noDemand.requests": 25,
+        "collection.noDemand.requestedPathChars": 233,
+        "collection.noDemand.computations": 11,
+        "collection.prune.prefix.requests": 35,
+        "collection.prune.prefix.requestedPathChars": 294,
+        "collection.prune.prefix.computations": 13,
+        "collection.prune.matcherCalls": 222,
+        "collection.prune.matcherPathChars": 2502,
+        "collection.selectedPath.requests": 3,
+        "collection.selectedPath.requestedPathChars": 36,
+        "collection.selectedPath.computations": 3,
+        "collection.default.matcherCalls": 40,
+        "collection.prune.prefix.hits": 22,
+        "collection.targetEntry.componentVisits": 36,
+        "collection.directory.hits": 37,
+        "collection.validatedEntry.calls": 36,
+        "collection.validatedEntry.candidates": 36,
+        "collection.entry.statMisses": 10,
+        "collection.entry.statHits": 168,
+        "collection.noDemand.hits": 14,
+        "collection.candidates": 4,
+        "collection.selectedPaths": 9
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 3,
+          "inclusiveMs": 0.087753000000248
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.1987890000000334
+        },
+        "collection.prune.compile": {
+          "calls": 55,
+          "inclusiveMs": 0.6766360000005989
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 1.3964649999998073
+        },
+        "collection.physical.lstatSync": {
+          "calls": 11,
+          "inclusiveMs": 0.1901329999996051
+        },
+        "collection.physical.readdirSync": {
+          "calls": 7,
+          "inclusiveMs": 0.39441200000146637
+        },
+        "collection.createCollectionEntry": {
+          "calls": 11,
+          "inclusiveMs": 0.11321799999950599
+        },
+        "collection.slashRelative": {
+          "calls": 27,
+          "inclusiveMs": 0.07574299999987488
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 13,
+          "inclusiveMs": 0.28021400000079666
+        },
+        "collection.noDemand.compute": {
+          "calls": 11,
+          "inclusiveMs": 0.5938340000002427
+        },
+        "collection.selectedPath.compute": {
+          "calls": 3,
+          "inclusiveMs": 0.6739629999997305
+        },
+        "collection.retainEntry": {
+          "calls": 11,
+          "inclusiveMs": 1.0667130000001634
+        },
+        "collection.readDirectory": {
+          "calls": 44,
+          "inclusiveMs": 2.284144000001561
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 3.6639000000000124
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 3.716457999999875
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.1715489999996862
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.21644199999991542
+        },
+        "collection.demandedPath": {
+          "calls": 14,
+          "inclusiveMs": 0.16005599999925835
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 36,
+          "inclusiveMs": 0.5168319999988853
+        },
+        "collection.targetEntry": {
+          "calls": 14,
+          "inclusiveMs": 0.8890530000007857
+        },
+        "collection.readTarget": {
+          "calls": 7,
+          "inclusiveMs": 0.6094029999994746
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 2.8760160000001633
+        },
+        "collection.final.userSelection": {
+          "calls": 3,
+          "inclusiveMs": 0.12296799999967334
+        },
+        "collection.final.defaultSelection": {
+          "calls": 3,
+          "inclusiveMs": 0.547598000000562
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 3,
+          "inclusiveMs": 0.07831599999963146
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 3,
+          "inclusiveMs": 0.13895700000011857
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 7.86392799999976
+        }
+      },
+      "bundleSha256": "03c27f6fa462054ee050883c3c0ec6ee5bd24401c7689faf1f27202d926dc8c9"
+    },
+    {
+      "kind": "safety",
+      "candidate": "baseline",
+      "profile": false,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "synchronousAbortDidNotPreemptCollection": true,
+      "failures": [
+        {
+          "op": "lstat",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "lstat",
+          "stage": "after",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "after",
+          "passed": true
+        }
+      ],
+      "asyncObserverRejected": true,
+      "bundleSha256": "e28e6353f0fcaef8da671acfadc2cbc9fc7a387cee948052b3efbd44f5e6d9de"
+    },
+    {
+      "kind": "safety",
+      "candidate": "baseline",
+      "profile": true,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "synchronousAbortDidNotPreemptCollection": true,
+      "failures": [
+        {
+          "op": "lstat",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "lstat",
+          "stage": "after",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "after",
+          "passed": true
+        }
+      ],
+      "asyncObserverRejected": true,
+      "bundleSha256": "8c5d58c4104e3e7c41ecba4fe9239ec36afc032be9b3bd7753cebd150a8659b6"
+    },
+    {
+      "kind": "safety",
+      "candidate": "local",
+      "profile": false,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "synchronousAbortDidNotPreemptCollection": true,
+      "failures": [
+        {
+          "op": "lstat",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "lstat",
+          "stage": "after",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "after",
+          "passed": true
+        }
+      ],
+      "asyncObserverRejected": true,
+      "bundleSha256": "b4a876ec77ab3366e5b9b8490d8fe25cc99b0c50c629a8a137c0d31d6d381def"
+    },
+    {
+      "kind": "safety",
+      "candidate": "local",
+      "profile": true,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "synchronousAbortDidNotPreemptCollection": true,
+      "failures": [
+        {
+          "op": "lstat",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "lstat",
+          "stage": "after",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "after",
+          "passed": true
+        }
+      ],
+      "asyncObserverRejected": true,
+      "bundleSha256": "9b3fdd0463734b596961399363292ab18cd8673e10be98e7b8d95874bfe3f6b3"
+    },
+    {
+      "kind": "safety",
+      "candidate": "prefix",
+      "profile": false,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "synchronousAbortDidNotPreemptCollection": true,
+      "failures": [
+        {
+          "op": "lstat",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "lstat",
+          "stage": "after",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "after",
+          "passed": true
+        }
+      ],
+      "asyncObserverRejected": true,
+      "bundleSha256": "109a38ebfe451f94698128b64c801e0f6e4e1da7bba281f81ad3baefebede641"
+    },
+    {
+      "kind": "safety",
+      "candidate": "prefix",
+      "profile": true,
+      "selected": [
+        [
+          "literal",
+          [
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "negative",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md",
+            "src/code.ts"
+          ]
+        ],
+        [
+          "source",
+          [
+            "docs/a/b/c/d/source.md",
+            "docs/a/b/c/d/target.md",
+            "docs/other.md"
+          ]
+        ]
+      ],
+      "trace": [
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/src/code.ts"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/other.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "after",
+          "readdir",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/source.md"
+        ],
+        [
+          "before",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ],
+        [
+          "after",
+          "lstat",
+          "/workspace/vibe-check/.cache/vibe-check/performance-investigation/261022-collection-smoke-HaohPE/fixture/docs/a/b/c/d/target.md"
+        ]
+      ],
+      "synchronousAbortDidNotPreemptCollection": true,
+      "failures": [
+        {
+          "op": "lstat",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "lstat",
+          "stage": "after",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "before",
+          "passed": true
+        },
+        {
+          "op": "readdir",
+          "stage": "after",
+          "passed": true
+        }
+      ],
+      "asyncObserverRejected": true,
+      "bundleSha256": "ab86251d8558dc56a4aa0ccd9783fd98389eb0ed695fd737c8aea7a14f32e82b"
+    }
+  ]
+}

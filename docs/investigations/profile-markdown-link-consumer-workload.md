@@ -1,5 +1,5 @@
 ---
-title: "Markdown Link 性能：深度复现与执行粒度实验"
+title: "Markdown Link 性能：路径深度、读取链与文件收集"
 id: "261021-profile-markdown-link-consumer-workload"
 formedAt: "2026-10-21T09:38:24Z"
 question: "同量级数据如何复现 mdlink 的 6–8 秒耗时，实际调用量是否超出理论预期，如何保持安全与取消语义降低成本？"
@@ -19,154 +19,161 @@ relations: []
 
 ## 形成时背景
 
-外部使用者在 1827 份 Markdown、1193 条语义引用上记录了 6.124 / 7.830 秒的链接执行耗时。
-本轮以独立生成的同量级语料调查 mdlink，复现条件与优化取舍如下：
-
-- **复现：**1824 份源、约 3.32 MB、1193 条引用，在本机路径深度 22/26 时稳定出现 6–8 秒。
-- **定位：**主要调用量符合理论；成本随逐组件路径检查增长，正文读取与语法解析未出现次数膨胀。
-- **候选：**深度 26 的 Bun 中位数从异步基线 **7.547 秒**降为主线程同步 **1.892 秒**、按路径同步 worker **2.166 秒**。
-  两者保留安全检查，但分别承担主线程阻塞、worker 固定成本；其它 worker 变体未提速。
-
-本报告记录隔离实验，产品实现与公开契约保持原样；结果用于选择下一步验证方向。
+外部使用者曾在 1827 份 Markdown、1193 条语义引用上记录 6.124 / 7.830 秒的 mdlink 耗时。
+本调查用独立生成的同量级数据寻找复现条件，再以路径检查的快原型定位读取链和文件收集成本。
+已定位的优化入口是路径/读链的执行粒度，以及文件收集中的重复祖先匹配；安全观察次数符合理论模型。
+结论适用于下述隔离实验；外部现场根因仍待现场证据确认，Product 实现与公开契约保持原样。
 
 ## 调查目的
 
-确定足以复现 6–8 秒的条件，对账理论与实际调用量，并比较六种执行方式在性能、路径安全、取消和响应性上的取舍。
+回答三个问题：什么条件能大致复现 6–8 秒；实际工作量是否符合理论；在保持路径安全、取消与资源收束的前提下，哪些开销值得优化。
 
 ## 调查范围与依据
 
-### 固定负载与环境
+### 负载、环境与证据窗口
+
+下表为性能语料；安全矩阵使用受控场景，具体输入见安全附件。
 
 | 维度 | 固定条件 |
 | --- | --- |
-| 源与正文 | 1824 份、3,320,000 bytes；175 份有引用，其余仍读取、验证并可提供被引用标题 |
-| 引用与目标 | 1193 条引用：777 条 direct local、416 条 HTTP；296 个逻辑直接目标，136 个同时为源 |
-| 纯目标 | 130 个文件、30 个目录；其中 32 个 Markdown 需读取标题事实，非 Markdown 目标不读正文 |
-| 策略与预算 | 目录检查存在/类型；HTTP 不发网络请求；单文件默认 1 MiB，两项总量预算关闭，逻辑计费保持 |
+| 源与引用 | 1824 份源、3,320,000 bytes、1193 条引用；175 份源有引用，其余仍读取、校验并可提供被引用标题 |
+| 目标 | 777 条本地直接引用、416 条 HTTP；296 个逻辑直接目标，136 个同时为源；纯目标含 130 个文件、30 个目录，其中 32 个 Markdown 需标题 |
+| 深度 | 相对 canonical root 的组件数，含叶名；源和目标等深，无 symlink，短目录名、共享前缀较多；加深时减少填充，保持正文总量 |
+| 策略 | 目录只查存在/类型，非 Markdown 目标不读正文，HTTP 不发网络请求；单文件 1 MiB，两项总量预算关闭，逻辑计费不变 |
 
-深度为相对根的分量数（含叶名）。所有源和目标等深、无 symlink、目录名较短且共享前缀较多；加深时减少正文填充，保持总字节、引用和目标规模。
-另测 10 个源、9 条引用、深度 4 的未预热小型 Check。两类均为生成语料，目标是找到充分复现条件，而非重建外部现场。
+环境为 Bun 1.3.14、Node 24.18.0、Linux x64 / WSL2、AMD Ryzen AI 7 H 450、6 logical CPUs，语料在 `/tmp` ext4。
+路径实验构建 HEAD 为 `34c58409fde4f63c264762711d99ae918e159b15`，读取/收集实验为 `808cf9ded3e2af947b76afe65224db636abf9610`。
+两者 358 个实际源码/测试输入摘要一致；方法、虚拟转换及 48 个读取/收集 bundle 身份见随附 identities。
 
-环境：Bun 1.3.14、Node 24.18.0、Linux x64 / WSL2、AMD Ryzen AI 7 H 450、6 logical CPUs，语料位于 `/tmp` ext4。
-构建时 HEAD 为 `34c58409fde4f63c264762711d99ae918e159b15`；实际输入、虚拟源码与负载 manifest 摘要随附。
+| 阶段 | 实际窗口（Asia/Shanghai） | 证据用途 |
+| --- | --- | --- |
+| 路径深度与执行粒度 | 2026-10-21 19:55 至 2026-10-22 00:36，各子窗口独立统计 | 异步基线、理论对账、快原型 |
+| 读取/收集安全与回归 | 2026-10-22 11:06–11:08 | Bun/Node × 六变体 × 三深度及相邻回归 |
+| 读取/收集性能与 profile | 2026-10-22 11:08–11:23 / 11:23–11:25 | 126 个无插桩计时样本 / 18 个 Bun profile |
 
-证据窗口（Asia/Shanghai）：深度扩展于 2026-10-21 19:55–20:02，循环 / callback / I/O 重放于当日 22:18–23:01；
-六版本安全与回归于 2026-10-22 00:08–00:09，正式性能于 00:10–00:36。各阶段独立统计。
+### 隔离与测量方法
 
-### 本次隔离版本与测量
+读取/收集实验的 `fast` 沿用路径实验的 worker-sync 后端：每 resolver 一个私有 worker 串行检查完整路径，正文使用原异步 FileHandle 算法。
+它采用该实验的公共接线，绝对耗时只与同窗口六变体比较。授权、目标预算、解析缓存和发布保留原执行顺序，读取 job 在授权/计费之后发出。
 
-六版本的差异见结果表，均由现有 Product-owned measurement entry 临时构建。除 adaptive 外，仅改变路径 probe，正文读取维持异步。
-转换保留逐组件顺序与安全分支；共用接线包含按路径包装，因此 baseline 是原算法在同框架下的基线，而非发布产物。
-worker 每 resolver 懒创建一个，串行处理请求；worker-fine 返回类型状态，其它 worker 返回路径级结果，比较包含 DTO / 控制流差异。
-完整转换、取消及生命周期协议见随附的 `probe-batch-notes.md`，原始方法与数据保真留存。
+指标为只含 mdlink 的公开单 Check Run。每个独立进程先预热一次解析缓存，再计时；当前正文仍重新读取。
+import、生成、解包在区间外，worker 创建、消息、字节克隆及退出等待在区间内；每次独立收束。
+Bun 各深度/版本 6 次，使用平衡版本排列并轮转深度；Node 仅深度 60 各 3 次。宿主未独占，不清 OS cache，全部样本保留。
 
-指标为公开单 Check Run（仅 mdlink），无操作观察插桩。大型语料每个独立进程预热一次解析缓存；小型语料关闭缓存且不预热。
-import、生成、解包在计时外，worker 创建、通信及退出等待在计时内。Bun 每组 6 次，平衡排列版本并轮转负载；Node 深度 26/小型每组 3 次。
-共 180 个计时样本，另取 18 个 Bun profile 对账。宿主未独占、不清 OS cache；小型实验也不代表冷存储或完整进程启动。
+无插桩计时（plain）、分阶段插桩（profile）和安全观察分别构建。profile 仅作归因：timer 包含子区间，异步读取观察 adapter 也有额外成本，各区间及其与 plain 的差值不作耗时分解。
+行为 owner 为[公开指南](../checks/markdown-link-validation.md)、[解析与授权不变量](../development/markdown-link-resolution.md)
+及[文件收集不变量](../development/project-files.md)。
 
-行为 owner 为[公开指南](../checks/markdown-link-validation.md)、[内部不变量](../development/markdown-link-resolution.md)
-及[引用图决策](../decisions/observe-markdown-reference-graph.md)；本报告是实验依据，产品行为以 owner 为准。
+归档保留性能样本及去重后可还原的安全测量结果、轨迹和输出摘要；完整临时输出核对后已清理。
+安全 JSON 为 233,038 bytes，读取/收集实验新增 JSON 均小于 256 KiB；归档细节见安全附件。
 
 ## 调查结果与边界
 
-### 深路径复现与理论对账
+### 复现条件与调用量模型
 
-深度扩展中，4/10/16/22/26 的中位数为 2.000 / 3.371 / 4.781 / 6.231 / 7.185 秒；各 5 次，深度 22/26 均 5/5 落入 6–8 秒。
-仅用深度 4、10 校准线性耗时模型，对 16/22/26 的回顾性推算偏差为 0.8%–2.2%，与逐组件工作量增长相容。
-这是本机的充分条件，尚不能归因为外部使用者的实际根因。
+原异步深度 4/10/16/22/26 中位数为 2.000 / 3.371 / 4.781 / 6.231 / 7.185 秒，各 5 次；22/26 均 5/5 落入 6–8 秒。
+浅层 4、10 校准的线性模型对 16/22/26 的回顾性偏差为 0.8%–2.2%。随后同窗口深度 26 比较为异步 7.547、主线程同步 probe 1.892、按路径同步 worker 2.166 秒。
+worker 内仍异步或逐组件转发均未提速；有效差异来自执行后端与任务粒度的组合。
 
-理论模型：独立路径 `Q=1824+296−136=1984`，无 symlink、成功完成且等深时组件量 `K=Q×D`；正文文件 `R=1824+32=1856`。
-777 为引用逻辑计费数。`work-count-audit.json` 与新 18 个 profile 的操作量对账如下：
+理论模型为独立路径 `Q=1824+296−136=1984`，等深、无 symlink、成功完成时 containment 组件量 `K=Q×D`；
+正文文件数 `R=1824+32=1856`。读取/收集实验的 18 个 profile 均符合：
 
-| 工作量 | 预期及实测 |
+| 工作量 | 深度 10 / 30 / 60 的预期与实测 |
 | --- | --- |
-| 深度 4 / 22 / 26 的路径组件 lstat | 7,936 / 43,648 / 51,584，所有新 profile 一致 |
-| 打开 / fstat / 关闭 | 各 1856 |
-| 正文 read / 实际 bytes | 3712（data + EOF）/ 3,320,800 bytes |
-| fresh parse / 缓存文件恢复 | 0 / 每 invocation 1 次；32 个纯 Markdown 内容相同，1825 个 cache 身份 |
-| source / resolver checkpoint | 1835 / 307，均保持真实事件循环让步 |
-| worker 探查请求 | 按路径 1984 次；逐组件转发为 K 次，另有启动/关闭协议 |
+| containment 组件 lstat | 19,840 / 59,520 / 119,040 |
+| 正文 open / fstat / close | 各 1856；read 为 3712（data + EOF），实际返回 3,320,800 bytes |
+| 解析 / checkpoint | fresh parse 为 0；source / resolver checkpoint 为 1835 / 307，保留真实事件循环让步 |
+| worker 请求 | fast 等为 1984；worker 读取候选为 3840（增加 1856 个整文件 job），每 Run 启动/退出各 1 |
 
-深度 26 的 51,584 次组件观察对应 2106 个不同路径，95.9% 在不同节点间重复共享前缀。
-这类重新观察用于识别节点之间的目录替换；安全前提下应保留。同节点去重与 source/target 共享已经存在。
-fstat、EOF/growth 检测与当前 bytes 核对各有职责，解析缓存只免语法重算。后续可定位路径字符串处理；物理磁盘与内核路径遍历尚待 trace。
+777 是引用逻辑计费数。表中计数仅覆盖 containment 与正文读链，collection、root realpath 和 cache JSONL 另计。
+同节点去重及 source/target facts 共享已经存在；跨新节点重新观察前缀、fstat、增长/EOF 和当前 bytes 校验各有安全职责。
 
-### 完整 Run 的性能结果
+### 成本定位：读取链与重复祖先匹配
 
-下表为六版本正式窗口的中位数（秒）；完整范围、MAD、CPU/RSS 与同轮配对统计见 `probe-batch-summary.json`。
+下表为各版本单次 Bun profile 的累计毫秒，仅用于定位：
 
-| 版本 | probe / 读取变化 | Bun 深度 4 | Bun 深度 22 | Bun 深度 26 | Node 深度 26 |
+| 深度 | fast 读链 | 主线程同步读链 | worker 读链 | fast 文件收集 | prefix 文件收集 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 10 | 1340 | 229 | 481 | 149 | 102 |
+| 30 | 1090 | 189 | 370 | 646 | 140 |
+| 60 | 1005 | 168 | 353 | 1750 | 247 |
+
+**读取链：**1856 个正常文件各执行 open → fstat → 两次 read → close，共 9280 次 API 调用。
+候选保留全部步骤，改变逐项调度，worker 版将整文件读链放入一次请求；差值同时包含分配、复制、接线及通信的变化。
+缓冲策略保持原样，工作缓冲累计申请为 1,946,158,912 bytes；该值反映累计分配量，RSS 另计。
+路径阶段另测的自适应缓冲已显著减少累计申请，耗时收益较小；本次读链对照固定缓冲策略，详见执行粒度材料。
+
+**文件收集：**当前实现已共享目录和 entry 观察，真正大量重复的是不同完整路径共有祖先的纯排除判断：
+
+| 深度 | 物理 readdir / collection lstat | 逻辑祖先组件访问 | 祖先排除 matcher：fast → local → prefix |
+| --- | ---: | ---: | ---: |
+| 10 | 18 / 1842 | 175 | 647,780 → 641,655 → 64,540 |
+| 30 | 58 / 1882 | 1735 | 2,006,480 → 1,945,755 → 65,940 |
+| 60 | 118 / 1942 | 7075 | 4,202,030 → 3,954,405 → 68,040 |
+
+同深度六版的物理操作、逻辑组件访问和最终 selected paths 完全相同。
+local 只复用同完整路径的 policy 结果，收益有限；prefix 再按 policy 复用祖先判断，深度 60 的 prefix 计算从 120,058 降至 1,944。
+深度 60 profile 中，物理 lstat/readdir 包装区间约 13.0/3.2 ms，policy 计算约 1588 ms（包含子区间）。
+
+设排除 matcher 数为 `X`，原匹配量随请求路径的祖先总量增长；prefix 缓存将同 policy / prefix 的计算限制到一次，约为 `O(X×不同前缀数)`。
+缓存只保存本次固定 policy 的纯布尔值；filesystem 授权与状态继续按原路径观察。祖先遍历和字符串处理仍保留，复杂度改善仅针对 matcher 工作。
+
+### 无插桩的端到端比较
+
+单位秒，均为同版本组中位数。Node 样本较少，单独解释。
+
+| 版本 | 与 fast 的差异 | Bun 深度 10 | Bun 深度 30 | Bun 深度 60 | Node 深度 60 |
 | --- | --- | ---: | ---: | ---: | ---: |
-| baseline | 原异步 probe | 2.163 | 6.523 | 7.547 | 6.212 |
-| direct-sync | 主线程同步 lstat/readlink | 1.376 | 1.773 | 1.892 | 1.562 |
-| worker-sync | 整条路径交给 worker，同步检查 | 1.587 | 1.986 | 2.166 | 2.102 |
-| worker-async | 整条路径交给 worker，内部仍异步检查 | 2.501 | 6.816 | 7.910 | 6.849 |
-| worker-fine | 判断留在主线程，逐组件转发同步 metadata | 2.274 | 7.020 | 7.985 | 7.757 |
-| adaptive | 原异步 probe；缓冲按文件大小起步、按需扩容，保持 max+1 bound | 2.079 | 6.494 | 7.126 | 5.844 |
+| fast | 同步 worker probe，原异步正文读取 | 1.784 | 2.620 | 4.180 | 2.296 |
+| reader-direct | 正文读链改为主线程同步 | 0.769 | 1.431 | 3.316 | 1.413 |
+| reader-worker | 同一 worker 内整文件同步读取 | 0.985 | 1.528 | 3.231 | 2.588 |
+| collection-local | 收集内完整路径 policy memo | 1.748 | 2.211 | 3.887 | 2.363 |
+| collection-prefix | local 再加每 policy 的祖先 prefix memo | 1.673 | 1.971 | 2.600 | 2.439 |
+| combined | reader-worker + collection-prefix | 1.167 | 1.137 | 1.567 | 2.327 |
 
-direct-sync / worker-sync 在 Bun 三种深度均各 6/6 对较快，深度 26 配对中位节省 **75.0% / 71.1%**；
-worker-async / worker-fine 同深度分别慢 6.1% / 5.8%，Node 补充样本方向相同。组中位数与配对中位比是不同统计量。
+- **Bun：**combined 相对 fast 的配对节省中位为 42.5% / 54.7% / 58.8%，各 6/6 更快；深度 30/60 相对 reader-worker 也各 6/6 更快。
+  深度 10 相对 reader-worker 仅 1/6 更快、配对中位慢 13.7%，浅层负载宜单独选型。
+- **Node：**reader-direct 为 3/3 更快；reader-worker / combined 虽分别有正的配对节省中位 14.3% / 4.1%，其组中位数却慢于 fast，各仅 2/3 更快。
+  两类统计量应分别保留；Node 的收益与取舍仍待更多样本确认。
+- **离散：**深度 60 第六轮 fast/direct/worker/local/prefix/combined 分别为 4.854 / 5.369 / 6.668 / 9.014 / 5.009 / 3.078 秒，全部保留。
+  combined 的范围仍为 1.527–3.078 秒，低 MAD 与尾部波动并存；串行配对存在窗口变化，离散原因尚未定位。
 
-路径内后续判断依赖前一组件结果。同步版本仍按序等待 I/O，但减少了逐组件异步调度；worker 将一次外层消息摊到整条路径，并保持调用线程可响应。
-这是与结果相容的机制解释，底层各项占比仍待 trace；worker 通信本身并非天然更便宜，worker-async 的结果也表明“搬线程”本身不足以提速。
+范围、MAD、CPU 和逐轮配对保存在 summary / performance 材料。Bun RSS 各组呈同一观测值，内存收益仍属未知。
 
-小型未预热 Check 中位数（毫秒），用于观察固定成本：
+### 路径安全、取消与采用边界
 
-| 版本 | Bun（6 次） | Node（3 次） |
-| --- | ---: | ---: |
-| baseline | 71.6 | 55.0 |
-| direct-sync | 67.0 | 46.5 |
-| worker-sync | 80.5 | 79.0 |
-| worker-async | 86.7 | 85.9 |
-| worker-fine | 88.5 | 84.7 |
-| adaptive | 68.3 | 54.2 |
+Bun/Node × 六版 × 三深度的 **36 组**均通过：每组 24 项路径共同场景、14 项共同读链场景及 19 项取消相关探查；
+各版另测 probe worker 异常退出，worker 读取版再测 read-job 异常退出。12 组 × 29 个相邻回归、6 组 × 13 个收集回归及 6 组 observer smoke 均通过。
 
-自适应方案将工作缓冲累计申请从 **1,946,158,912 降到 3,322,656 bytes**，保持字节上限及正常负载的 read 次数。
-Bun 深度 4/22/26 配对节省 2.7% / 2.1% / 2.6%，小型 Node 未稳定受益。
-累计申请仅指工作缓冲；Bun 深度 26 的进程峰值 RSS 中位数为基线 170.7 → 176.1 MiB，Node 为 310.2 → 273.7 MiB。
-峰值包含预热和 Run，增长时还需扩容/复制，因此这首先是分配量优化，而非已证明的普遍内存或耗时下降。
+共同结果与有序轨迹在同 runtime / 深度下相等，24 项路径结果也与路径实验的 worker-sync 证据一致。
+覆盖逐段越界与再入、external policy、40/41 hops、前缀替换、节点固定观察、final-leaf no-follow、短读至 EOF、fstat 拒绝及增长 max+1。
+错误/取消后句柄余额为零、worker 启停数相等，Check 入口不发布部分普通 Records/final data。
+close 错误在真实关闭后注入，worker 异常退出在 native open 前触发；OS close 失败与在途 read 强杀另待验证。
 
-早期循环整理约 2.9% 收益、callback 未稳定提速，排查由此收敛到组件执行路径；同序列 I/O 重放仅作 API 成本参照。
-完整过程见 candidate / filesystem-cost 材料，整项收益以上述 Run 为依据。
+读链候选观察取消后停止新操作，仍完成 close；原异步读链保留节点级取消。8000 边探查使用真实 timer / I/O 回调，保留事件循环 checkpoint。
+collection 仍是同步、无 signal 的 API：允许完成当前收集，再由 Check 取消收束，未开始后续 probe/body 工作。
 
-### 安全、取消与主线程响应性
+100 ms 受控读操作替身下，主线程同步版的 timer 约在 100.3 / 100.5 ms（Bun/Node）送达，worker 读取版约 5–7 ms，仍等待在途操作结束。
+该替身用于展示主线程可响应性；真实慢盘延迟、同步 collection/parser 的阻塞和 syscall 抢占均在证明范围外。
 
-六版本 × Bun/Node 的每个组合均通过 **24 个共同场景、5 个取消场景、29 个现有回归测试**；worker 另通过异常退出场景。
-共同结果及顺序化访问轨迹一致，覆盖逐段越界、越界再入 root、三种 external policy、40/41 hops、共享前缀替换、同节点固定观察、
-final-leaf no-follow、实际 max+1 读取及增长。EACCES 为注入；adaptive 仅归一化请求容量，仍核对实际 bytes / bound。
-普通 Records/final data 完整发布，取消终态无部分结果，观察到的句柄与正式 worker 会话均收束。
-
-source/target/symlink 三处受控 abort 后，基线及 adaptive 可继续原节点工作，直接同步和 worker 候选均停止新操作。
-8000 边场景通过 timer 和真实 I/O 触发取消，保留事件循环 checkpoint；安全屏障仅用于行为验证。
-
-在 I/O 入口注入 100 ms 宿主操作替身，并在开始时安排 5 ms timer，得到：
-
-- 主线程同步版本：Bun / Node 的 timer 实际送达约 **100.5 / 100.6 ms**。
-- 按路径同步 worker：约 **5.1 / 5.2 ms**，但 probe 在 abort 后仍等约 **95.5 ms** 才返回；没有抢占在途操作。
-
-此处是受控机制演示，实际慢存储延迟仍待测。worker 让取消及时送达，但收束仍等待在途操作；不能抢占同步 I/O。
-原生 AbortSignal 使用共享取消标志；Bun 测试 Proxy receiver 的兼容退化与 worker 退出处理见方法附件，正式 profile 无此退化。
-
-### 当前判断与采用边界
-
-1. **继续比较主线程同步与按路径同步 worker。**前者更简单且本机最快，下一步应测真实存储下的主线程停顿；后者隔离阻塞，但增加生命周期与固定成本。
-   worker-sync 的 Bun / Node 小型配对分别慢 14.6% / 49.2%，Bun 深度 26 峰值 RSS 中位数从 170.7 增至 184.5 MiB。
-2. **独立评估自适应工作缓冲。**已证明减少申请量，耗时收益较小且随 runtime / 负载变化，适合单独验证不同文件大小与增长模式。
-3. **保留其余 worker 变体为对照。**本轮未显示收益；可迁移的研究方向是任务粒度与组件后端的组合，其它 I/O 消费者仍需自己的负载证据。
-
-采用前需补证：安装产物的 worker 加载（原型使用临时绝对路径）、Windows、真实慢存储 / 冷 OS cache、并行 Check 响应分布及 symlink 密集性能。
-这些实验是同框架原型比较，尚非发布验收；若决定实施，再整理生产边界、完成真实包验收与完整 Gate。
+**建议：**Bun 深路径优先验证 worker 读链 + 纯 prefix memo；浅层和 Node 保留独立对照，主线程同步读链须明确接受阻塞代价。
+采用前补充安装产物 worker 加载、Windows、真实慢/冷存储、并行 Check 与更多路径/文件形状，再整理生产实现并运行完整 Gate。
 
 ## 随附资源
 
 - [I/O 观察与同序列 API 重放方法](./_resources/261021-profile-markdown-link-consumer-workload/audit-filesystem-cost.ts)
 - [理论调用量与模型只读复核方法](./_resources/261021-profile-markdown-link-consumer-workload/audit-work-counts.ts)
+- [读取链与枚举隔离构建方法](./_resources/261021-profile-markdown-link-consumer-workload/build-io-experiment.ts)
 - [隔离 bundle 与相邻回归构建方法](./_resources/261021-profile-markdown-link-consumer-workload/build-path-experiment.ts)
 - [执行粒度隔离 bundle 构建方法](./_resources/261021-profile-markdown-link-consumer-workload/build-probe-batch.ts)
 - [隔离源码、方法与 bundle 身份](./_resources/261021-profile-markdown-link-consumer-workload/candidate-identities.json)
 - [候选无插桩计时与 profile 原始结果](./_resources/261021-profile-markdown-link-consumer-workload/candidate-performance.json)
 - [安全轨迹、取消与回归原始结果](./_resources/261021-profile-markdown-link-consumer-workload/candidate-safety.json)
 - [候选配对统计与复核断言](./_resources/261021-profile-markdown-link-consumer-workload/candidate-summary.json)
+- [纯 policy 缓存、计数模型与收集边界](./_resources/261021-profile-markdown-link-consumer-workload/collection-experiment-notes.md)
+- [收集回归、FS 顺序与 observer smoke 结果](./_resources/261021-profile-markdown-link-consumer-workload/collection-experiment-smoke-results.json)
+- [收集候选的独立正确性复跑方法](./_resources/261021-profile-markdown-link-consumer-workload/collection-experiment-smoke.ts)
+- [纯 policy 候选与收集分阶段插桩](./_resources/261021-profile-markdown-link-consumer-workload/collection-experiment.ts)
 - [实现与 bundle 输入摘要](./_resources/261021-profile-markdown-link-consumer-workload/consumer-bundle-identities.json)
 - [容量实验原始结果](./_resources/261021-profile-markdown-link-consumer-workload/consumer-capacity-results.json)
 - [容量实验方法](./_resources/261021-profile-markdown-link-consumer-workload/consumer-capacity.ts)
@@ -177,9 +184,19 @@ source/target/symlink 三处受控 abort 后，基线及 adaptive 可继续原�
 - [深度扩展实现与 bundle 输入摘要](./_resources/261021-profile-markdown-link-consumer-workload/depth-bundle-identities.json)
 - [深度扩展负载、探查、重复计时与 profile 原始结果](./_resources/261021-profile-markdown-link-consumer-workload/depth-results.json)
 - [深度扩展统计与操作量断言](./_resources/261021-profile-markdown-link-consumer-workload/depth-summary.json)
-- [本轮 I/O 耗时、重复路径与 API 重放原始结果](./_resources/261021-profile-markdown-link-consumer-workload/filesystem-cost-results.json)
+- [路径阶段 I/O 耗时、重复路径与 API 重放原始结果](./_resources/261021-profile-markdown-link-consumer-workload/filesystem-cost-results.json)
+- [读取链与枚举实验输入、转换与 bundle 身份](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-identities.json)
+- [六候选完整 Run 无插桩计时](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-performance.json)
+- [读取链与枚举分阶段 profile](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-profiles.json)
+- [受控异步与同步 FileHandle 后端](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-runtime.ts)
+- [读链与收集取消的证明范围](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-safety-notes.md)
+- [去重后可还原的安全结果与有序轨迹](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-safety.json)
+- [路径安全、读链与收集取消场景](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-safety.ts)
+- [读取/收集统计、计数与行为复核汇总](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-summary.json)
+- [虚拟读链转换与私有 worker 接线](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-transform.ts)
 - [隔离安全与性能测量方法](./_resources/261021-profile-markdown-link-consumer-workload/measure-candidates.ts)
 - [负载测量入口](./_resources/261021-profile-markdown-link-consumer-workload/measure-consumer.ts)
+- [六候选串行采样与安全 driver](./_resources/261021-profile-markdown-link-consumer-workload/measure-io-experiment.ts)
 - [路径深度实验方法](./_resources/261021-profile-markdown-link-consumer-workload/measure-path-depth.ts)
 - [六版本安全与性能实验 driver](./_resources/261021-profile-markdown-link-consumer-workload/measure-probe-batch.ts)
 - [两个隔离候选的源码转换](./_resources/261021-profile-markdown-link-consumer-workload/path-candidates.ts)
@@ -193,29 +210,23 @@ source/target/symlink 三处受控 abort 后，基线及 adaptive 可继续原�
 - [六版本配对统计与计数复核](./_resources/261021-profile-markdown-link-consumer-workload/probe-batch-summary.json)
 - [隔离安全与取消场景](./_resources/261021-profile-markdown-link-consumer-workload/probe-safety.ts)
 - [bundle 与异步插桩生成器](./_resources/261021-profile-markdown-link-consumer-workload/profile-links.ts)
+- [安全证据去重、还原与大小约束方法](./_resources/261021-profile-markdown-link-consumer-workload/retain-io-evidence.ts)
 - [候选统计与断言重算](./_resources/261021-profile-markdown-link-consumer-workload/summarize-candidates.ts)
 - [只读统计重算](./_resources/261021-profile-markdown-link-consumer-workload/summarize-consumer.ts)
+- [读取/收集只读统计重算与独立断言](./_resources/261021-profile-markdown-link-consumer-workload/summarize-io-experiment.ts)
 - [深度扩展只读统计重算](./_resources/261021-profile-markdown-link-consumer-workload/summarize-path-depth.ts)
 - [六版本只读统计与独立断言重算](./_resources/261021-profile-markdown-link-consumer-workload/summarize-probe-batch.ts)
 - [理论对账、深度模型与 I/O 统计结果](./_resources/261021-profile-markdown-link-consumer-workload/work-count-audit.json)
 
-## 复核与重跑
+## 复核入口
 
-只读复核全部新统计及计数：
+只读重算，验证保留的性能统计、计数和紧凑安全证据：
 
 ```sh
 res=docs/investigations/_resources/261021-profile-markdown-link-consumer-workload
-mise exec -- bun run "$res/summarize-probe-batch.ts" "$res"
+mise exec -- bun run "$res/summarize-io-experiment.ts" "$res"
 ```
 
-新目录内重跑；消耗同量级本地实验资源，不覆盖历史结果：
-
-```sh
-out=$(mktemp -d .cache/vibe-check/performance-investigation/new-probe-batch-XXXXXX)
-mise exec -- bun run "$res/build-probe-batch.ts" "$out"
-mise exec -- bun run "$res/measure-probe-batch.ts" "$out" safety
-mise exec -- bun run "$res/measure-probe-batch.ts" "$out" performance
-mise exec -- bun run "$res/summarize-probe-batch.ts" "$out"
-```
-
-重跑使用当前源码与依赖；历史身份以保存的摘要为准，原始数据字段的解释由各自 summary 与方法附件承接。
+复跑、轨迹还原与归档步骤见[安全附件](./_resources/261021-profile-markdown-link-consumer-workload/io-experiment-safety-notes.md#归档证据与复跑)，
+收集切面的模型与独立验证见[收集附件](./_resources/261021-profile-markdown-link-consumer-workload/collection-experiment-notes.md)。
+按当前源码/依赖重跑得到新证据；形成时的 bundle 身份和各阶段结果以对应归档摘要为准。

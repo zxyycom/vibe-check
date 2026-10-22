@@ -2883,12 +2883,17 @@
       "resourceIds": [
         "261021-profile-markdown-link-consumer-workload/audit-filesystem-cost.ts",
         "261021-profile-markdown-link-consumer-workload/audit-work-counts.ts",
+        "261021-profile-markdown-link-consumer-workload/build-io-experiment.ts",
         "261021-profile-markdown-link-consumer-workload/build-path-experiment.ts",
         "261021-profile-markdown-link-consumer-workload/build-probe-batch.ts",
         "261021-profile-markdown-link-consumer-workload/candidate-identities.json",
         "261021-profile-markdown-link-consumer-workload/candidate-performance.json",
         "261021-profile-markdown-link-consumer-workload/candidate-safety.json",
         "261021-profile-markdown-link-consumer-workload/candidate-summary.json",
+        "261021-profile-markdown-link-consumer-workload/collection-experiment-notes.md",
+        "261021-profile-markdown-link-consumer-workload/collection-experiment-smoke-results.json",
+        "261021-profile-markdown-link-consumer-workload/collection-experiment-smoke.ts",
+        "261021-profile-markdown-link-consumer-workload/collection-experiment.ts",
         "261021-profile-markdown-link-consumer-workload/consumer-bundle-identities.json",
         "261021-profile-markdown-link-consumer-workload/consumer-capacity-results.json",
         "261021-profile-markdown-link-consumer-workload/consumer-capacity.ts",
@@ -2900,8 +2905,18 @@
         "261021-profile-markdown-link-consumer-workload/depth-results.json",
         "261021-profile-markdown-link-consumer-workload/depth-summary.json",
         "261021-profile-markdown-link-consumer-workload/filesystem-cost-results.json",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-identities.json",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-performance.json",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-profiles.json",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-runtime.ts",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-safety-notes.md",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-safety.json",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-safety.ts",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-summary.json",
+        "261021-profile-markdown-link-consumer-workload/io-experiment-transform.ts",
         "261021-profile-markdown-link-consumer-workload/measure-candidates.ts",
         "261021-profile-markdown-link-consumer-workload/measure-consumer.ts",
+        "261021-profile-markdown-link-consumer-workload/measure-io-experiment.ts",
         "261021-profile-markdown-link-consumer-workload/measure-path-depth.ts",
         "261021-profile-markdown-link-consumer-workload/measure-probe-batch.ts",
         "261021-profile-markdown-link-consumer-workload/path-candidates.ts",
@@ -2915,8 +2930,10 @@
         "261021-profile-markdown-link-consumer-workload/probe-batch-summary.json",
         "261021-profile-markdown-link-consumer-workload/probe-safety.ts",
         "261021-profile-markdown-link-consumer-workload/profile-links.ts",
+        "261021-profile-markdown-link-consumer-workload/retain-io-evidence.ts",
         "261021-profile-markdown-link-consumer-workload/summarize-candidates.ts",
         "261021-profile-markdown-link-consumer-workload/summarize-consumer.ts",
+        "261021-profile-markdown-link-consumer-workload/summarize-io-experiment.ts",
         "261021-profile-markdown-link-consumer-workload/summarize-path-depth.ts",
         "261021-profile-markdown-link-consumer-workload/summarize-probe-batch.ts",
         "261021-profile-markdown-link-consumer-workload/work-count-audit.json"
@@ -2934,7 +2951,7 @@
         "serial-io",
         "worker-threads"
       ],
-      "title": "Markdown Link 性能：深度复现与执行粒度实验"
+      "title": "Markdown Link 性能：路径深度、读取链与文件收集"
     },
     "261021-verify-upgraded-command-result-integrity": {
       "formedAt": "2026-10-21T07:37:37Z",
@@ -3075,7 +3092,7 @@
       "261021-assess-typescript-native-preview-upgrade": "sha256:c9952ad48f2da8dadd4207808e11f409d672f328642fc55b717dad311c513e36",
       "261021-assess-typescript-upgrade": "sha256:783598bf7a31c9ef8bcf33712383d5613ceb7bec2a4fba3ab4e4d857e7e59051",
       "261021-diagnose-markdownlint-core-instance-mismatch": "sha256:e4479a42d88203188c0394fba110e0ba45965f2f4d6f8d6b4376d628919488cf",
-      "261021-profile-markdown-link-consumer-workload": "sha256:4c0cb898738241c137af5816925befda4c6621a2023b3f6266af8da4b8b235bf",
+      "261021-profile-markdown-link-consumer-workload": "sha256:4a39630183a2c1dc77f01015b50c3a0606777057c56bc5df943490f2e6f55c5b",
       "261021-verify-upgraded-command-result-integrity": "sha256:4d6eef0e21ad37c8dccdd0b208884f3901b0b576290bb1756ea0f8d22f740698"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"

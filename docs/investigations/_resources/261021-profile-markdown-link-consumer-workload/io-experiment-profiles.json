@@ -1,0 +1,3996 @@
+{
+  "startedAt": "2026-10-22T03:23:32.061Z",
+  "identitySha256": "9c1cf92142c4b7630f59296be1777bc37518d826c8a04a97f021543ccd346a86",
+  "driverSha256": "dd278cb71fe688fb498f0b5b4ab90f72c709bbedb126691cb1c64b6a0ef16998",
+  "environment": {
+    "bun": "1.3.14",
+    "node": "v24.18.0",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "logicalCpus": 6,
+    "head": "808cf9ded3e2af947b76afe65224db636abf9610"
+  },
+  "baseline": "fast = retained worker-sync contained probe with native async regular-file reader",
+  "scope": "Virtual Product entry replacements; body reads remain after authorization/budget; one serial worker per resolver, creation/exit inside Run; no Product edits",
+  "samples": [
+    {
+      "runtime": "bun",
+      "variant": "fast",
+      "mode": "profile",
+      "depth": 10,
+      "round": 1,
+      "startedAt": "2026-10-22T03:23:32.178Z",
+      "finishedAt": "2026-10-22T03:23:39.640Z",
+      "loadBefore": [
+        1.04,
+        1.55,
+        1.29
+      ],
+      "loadAfter": [
+        1.11,
+        1.55,
+        1.29
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 2205.4820089999994,
+      "cpu": {
+        "user": 1413855,
+        "system": 1376042
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 191,
+        "collection.directory.misses": 18,
+        "collection.physical.lstatSync.calls": 1842,
+        "collection.physical.readdirSync.calls": 18,
+        "collection.entry.count": 1844,
+        "collection.entry.nameBytes": 27427,
+        "collection.noDemand.requests": 1876,
+        "collection.noDemand.requestedPathChars": 81894,
+        "collection.noDemand.computations": 1876,
+        "collection.prune.prefix.requests": 18508,
+        "collection.prune.prefix.requestedPathChars": 398850,
+        "collection.prune.prefix.computations": 18508,
+        "collection.prune.matcherCalls": 647780,
+        "collection.prune.matcherPathChars": 13959750,
+        "collection.targetEntry.componentVisits": 175,
+        "collection.directory.hits": 173,
+        "collection.validatedEntry.calls": 175,
+        "collection.validatedEntry.candidates": 175,
+        "collection.entry.statMisses": 1841,
+        "collection.entry.statHits": 6207,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 14.960363000000143,
+        "lstatCalls": 19840,
+        "openCalls": 1856,
+        "reader.open.ms": 252.64448299999094,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 226.73840999999175,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 447.38109299999996,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 207.24689400001262,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 27264
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.025727999999617168
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.07885599999917758
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.5624259999995047
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.6944100000000617
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1842,
+          "inclusiveMs": 5.530089000009866
+        },
+        "collection.physical.readdirSync": {
+          "calls": 18,
+          "inclusiveMs": 1.3622930000010456
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1844,
+          "inclusiveMs": 2.430430000011256
+        },
+        "collection.slashRelative": {
+          "calls": 1876,
+          "inclusiveMs": 3.5713359999899694
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 18508,
+          "inclusiveMs": 85.46052899995084
+        },
+        "collection.noDemand.compute": {
+          "calls": 1876,
+          "inclusiveMs": 88.12222100000326
+        },
+        "collection.retainEntry": {
+          "calls": 1844,
+          "inclusiveMs": 93.64473400000952
+        },
+        "collection.readDirectory": {
+          "calls": 191,
+          "inclusiveMs": 100.51310000000376
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.2648609999996552
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.2691289999993387
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.26911999999992986
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2781670000003942
+        },
+        "collection.demandedPath": {
+          "calls": 32,
+          "inclusiveMs": 1.0501419999982318
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 175,
+          "inclusiveMs": 0.6480260000053022
+        },
+        "collection.targetEntry": {
+          "calls": 32,
+          "inclusiveMs": 2.0193949999966208
+        },
+        "collection.readTarget": {
+          "calls": 15,
+          "inclusiveMs": 100.90778300000056
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 111.22501899999952
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 15.916124000000309
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 17.069894000000204
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 2.6712449999995442
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 2.701461000000563
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 148.67929100000038
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 148.68529299999955
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 17.06196200000886
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1340.0168379999768
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1957.3133400000006
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.9438159999999698
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 80.55525900000066
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 2194.8944390000006
+        }
+      },
+      "maxRssKiB": 212840,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "reader-direct",
+      "mode": "profile",
+      "depth": 10,
+      "round": 1,
+      "startedAt": "2026-10-22T03:23:39.640Z",
+      "finishedAt": "2026-10-22T03:23:43.601Z",
+      "loadBefore": [
+        1.11,
+        1.55,
+        1.29
+      ],
+      "loadAfter": [
+        1.11,
+        1.55,
+        1.29
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 945.9330100000002,
+      "cpu": {
+        "user": 855674,
+        "system": 414540
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 191,
+        "collection.directory.misses": 18,
+        "collection.physical.lstatSync.calls": 1842,
+        "collection.physical.readdirSync.calls": 18,
+        "collection.entry.count": 1844,
+        "collection.entry.nameBytes": 27427,
+        "collection.noDemand.requests": 1876,
+        "collection.noDemand.requestedPathChars": 81894,
+        "collection.noDemand.computations": 1876,
+        "collection.prune.prefix.requests": 18508,
+        "collection.prune.prefix.requestedPathChars": 398850,
+        "collection.prune.prefix.computations": 18508,
+        "collection.prune.matcherCalls": 647780,
+        "collection.prune.matcherPathChars": 13959750,
+        "collection.targetEntry.componentVisits": 175,
+        "collection.directory.hits": 173,
+        "collection.validatedEntry.calls": 175,
+        "collection.validatedEntry.candidates": 175,
+        "collection.entry.statMisses": 1841,
+        "collection.entry.statHits": 6207,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 14.763698999999633,
+        "lstatCalls": 19840,
+        "openCalls": 1856,
+        "reader.open.ms": 18.94445100000803,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 4.630231999994976,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 11.336413000005905,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 3.7432919999928345,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 27264
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.016149999999925058
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.04104600000027858
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.43795300000101633
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.5554720000000088
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1842,
+          "inclusiveMs": 6.153165000000172
+        },
+        "collection.physical.readdirSync": {
+          "calls": 18,
+          "inclusiveMs": 1.3319479999995565
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1844,
+          "inclusiveMs": 1.9021849999876395
+        },
+        "collection.slashRelative": {
+          "calls": 1876,
+          "inclusiveMs": 3.418463999994856
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 18508,
+          "inclusiveMs": 82.2859330000324
+        },
+        "collection.noDemand.compute": {
+          "calls": 1876,
+          "inclusiveMs": 84.84306600000173
+        },
+        "collection.retainEntry": {
+          "calls": 1844,
+          "inclusiveMs": 89.91296299999613
+        },
+        "collection.readDirectory": {
+          "calls": 191,
+          "inclusiveMs": 95.64886799999977
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.013082999999824
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.0177020000000994
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.21757400000024063
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2225639999996929
+        },
+        "collection.demandedPath": {
+          "calls": 32,
+          "inclusiveMs": 0.8923850000001039
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 175,
+          "inclusiveMs": 0.5206199999988712
+        },
+        "collection.targetEntry": {
+          "calls": 32,
+          "inclusiveMs": 1.7046680000003107
+        },
+        "collection.readTarget": {
+          "calls": 15,
+          "inclusiveMs": 96.00049000000035
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 105.67063300000018
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 17.2456030000003
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.256587999999738
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 2.9485140000001593
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 2.9744619999996758
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 148.66171099999974
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 148.66843300000028
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 10.268582999988212
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 229.01556699999537
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 736.8818069999998
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.6320810000020174
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 51.26424199999974
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 941.712646
+        }
+      },
+      "maxRssKiB": 215408,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "reader-worker",
+      "mode": "profile",
+      "depth": 10,
+      "round": 1,
+      "startedAt": "2026-10-22T03:23:43.601Z",
+      "finishedAt": "2026-10-22T03:23:49.226Z",
+      "loadBefore": [
+        1.11,
+        1.55,
+        1.29
+      ],
+      "loadAfter": [
+        1.26,
+        1.57,
+        1.3
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 1300.6888739999995,
+      "cpu": {
+        "user": 994712,
+        "system": 583770
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 191,
+        "collection.directory.misses": 18,
+        "collection.physical.lstatSync.calls": 1842,
+        "collection.physical.readdirSync.calls": 18,
+        "collection.entry.count": 1844,
+        "collection.entry.nameBytes": 27427,
+        "collection.noDemand.requests": 1876,
+        "collection.noDemand.requestedPathChars": 81894,
+        "collection.noDemand.computations": 1876,
+        "collection.prune.prefix.requests": 18508,
+        "collection.prune.prefix.requestedPathChars": 398850,
+        "collection.prune.prefix.computations": 18508,
+        "collection.prune.matcherCalls": 647780,
+        "collection.prune.matcherPathChars": 13959750,
+        "collection.targetEntry.componentVisits": 175,
+        "collection.directory.hits": 173,
+        "collection.validatedEntry.calls": 175,
+        "collection.validatedEntry.candidates": 175,
+        "collection.entry.statMisses": 1841,
+        "collection.entry.statHits": 6207,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 3840,
+        "workerStartupMs": 14.866774999999507,
+        "lstatCalls": 19840,
+        "openCalls": 1856,
+        "reader.open.ms": 20.851887999999033,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 4.636398999997443,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 12.6516549999996,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 4.505067999998182,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 27264
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.03141899999991438
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.08769299999948998
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.559942999998384
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.7713739999999234
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1842,
+          "inclusiveMs": 6.2573399999864705
+        },
+        "collection.physical.readdirSync": {
+          "calls": 18,
+          "inclusiveMs": 1.5256629999985307
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1844,
+          "inclusiveMs": 2.756369999990966
+        },
+        "collection.slashRelative": {
+          "calls": 1876,
+          "inclusiveMs": 4.335735999993631
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 18508,
+          "inclusiveMs": 109.88542899998993
+        },
+        "collection.noDemand.compute": {
+          "calls": 1876,
+          "inclusiveMs": 113.23367800002143
+        },
+        "collection.retainEntry": {
+          "calls": 1844,
+          "inclusiveMs": 119.96788599997399
+        },
+        "collection.readDirectory": {
+          "calls": 191,
+          "inclusiveMs": 127.67308799999955
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.4750709999998435
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.480330999999751
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2337440000001152
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.23996600000009494
+        },
+        "collection.demandedPath": {
+          "calls": 32,
+          "inclusiveMs": 1.2209020000009332
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 175,
+          "inclusiveMs": 0.7803349999967395
+        },
+        "collection.targetEntry": {
+          "calls": 32,
+          "inclusiveMs": 2.38250899999548
+        },
+        "collection.readTarget": {
+          "calls": 15,
+          "inclusiveMs": 128.08875100000114
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 138.27837799999998
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.223371000000043
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.968096999999943
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 2.822371000000203
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 2.850712999999814
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 192.38228100000015
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 192.3920990000006
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 10.921440000001894
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 480.930175999988
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1021.950355
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.1889129999981378
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 44.316021999999975
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 1297.5717010000008
+        }
+      },
+      "maxRssKiB": 215236,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "collection-local",
+      "mode": "profile",
+      "depth": 10,
+      "round": 1,
+      "startedAt": "2026-10-22T03:23:49.227Z",
+      "finishedAt": "2026-10-22T03:23:57.415Z",
+      "loadBefore": [
+        1.26,
+        1.57,
+        1.3
+      ],
+      "loadAfter": [
+        1.7,
+        1.65,
+        1.33
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 2377.456394,
+      "cpu": {
+        "user": 1436973,
+        "system": 1227351
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 191,
+        "collection.directory.misses": 18,
+        "collection.physical.lstatSync.calls": 1842,
+        "collection.physical.readdirSync.calls": 18,
+        "collection.entry.count": 1844,
+        "collection.entry.nameBytes": 27427,
+        "collection.noDemand.requests": 1876,
+        "collection.noDemand.requestedPathChars": 81894,
+        "collection.noDemand.computations": 1844,
+        "collection.prune.prefix.requests": 18333,
+        "collection.prune.prefix.requestedPathChars": 396182,
+        "collection.prune.prefix.computations": 18333,
+        "collection.prune.matcherCalls": 641655,
+        "collection.prune.matcherPathChars": 13866370,
+        "collection.targetEntry.componentVisits": 175,
+        "collection.directory.hits": 173,
+        "collection.validatedEntry.calls": 175,
+        "collection.validatedEntry.candidates": 175,
+        "collection.entry.statMisses": 1841,
+        "collection.entry.statHits": 6207,
+        "collection.noDemand.hits": 32,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 15.74133399999937,
+        "lstatCalls": 19840,
+        "openCalls": 1856,
+        "reader.open.ms": 247.28868400001738,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 196.24605500002053,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 450.14776400003393,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 195.9253639999879,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 27264
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.0354059999999663
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.09325300000000425
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.6642580000025191
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.8649580000001151
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1842,
+          "inclusiveMs": 6.842235999980403
+        },
+        "collection.physical.readdirSync": {
+          "calls": 18,
+          "inclusiveMs": 17.512472000000344
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1844,
+          "inclusiveMs": 2.3503370000134964
+        },
+        "collection.slashRelative": {
+          "calls": 1876,
+          "inclusiveMs": 6.6102069999797095
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 18333,
+          "inclusiveMs": 175.55470799989962
+        },
+        "collection.noDemand.compute": {
+          "calls": 1844,
+          "inclusiveMs": 186.1164079999844
+        },
+        "collection.retainEntry": {
+          "calls": 1844,
+          "inclusiveMs": 196.6871259999998
+        },
+        "collection.readDirectory": {
+          "calls": 191,
+          "inclusiveMs": 219.80949600000076
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.7716229999996358
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.7924819999998363
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2943279999999504
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.30816300000060437
+        },
+        "collection.demandedPath": {
+          "calls": 32,
+          "inclusiveMs": 0.24728999999751977
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 175,
+          "inclusiveMs": 0.7893429999912769
+        },
+        "collection.targetEntry": {
+          "calls": 32,
+          "inclusiveMs": 1.3962260000025708
+        },
+        "collection.readTarget": {
+          "calls": 15,
+          "inclusiveMs": 219.75031699999818
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 235.4965999999995
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 15.765806999999768
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 24.75729500000034
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.124456000000464
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.167986000000383
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 282.6567079999995
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 282.7198749999998
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 12.68945300001269
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1314.794893999985
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1990.6114850000004
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 3.129921000003378
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 67.19680299999982
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 2348.5636840000006
+        }
+      },
+      "maxRssKiB": 216640,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "collection-prefix",
+      "mode": "profile",
+      "depth": 10,
+      "round": 1,
+      "startedAt": "2026-10-22T03:23:57.416Z",
+      "finishedAt": "2026-10-22T03:24:05.715Z",
+      "loadBefore": [
+        1.7,
+        1.65,
+        1.33
+      ],
+      "loadAfter": [
+        1.83,
+        1.68,
+        1.34
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 2107.832496,
+      "cpu": {
+        "user": 1325907,
+        "system": 1382717
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 191,
+        "collection.directory.misses": 18,
+        "collection.physical.lstatSync.calls": 1842,
+        "collection.physical.readdirSync.calls": 18,
+        "collection.entry.count": 1844,
+        "collection.entry.nameBytes": 27427,
+        "collection.noDemand.requests": 1876,
+        "collection.noDemand.requestedPathChars": 81894,
+        "collection.noDemand.computations": 1844,
+        "collection.prune.prefix.requests": 18333,
+        "collection.prune.prefix.requestedPathChars": 396182,
+        "collection.prune.prefix.computations": 1844,
+        "collection.prune.matcherCalls": 64540,
+        "collection.prune.matcherPathChars": 2843890,
+        "collection.prune.prefix.hits": 16489,
+        "collection.targetEntry.componentVisits": 175,
+        "collection.directory.hits": 173,
+        "collection.validatedEntry.calls": 175,
+        "collection.validatedEntry.candidates": 175,
+        "collection.entry.statMisses": 1841,
+        "collection.entry.statHits": 6207,
+        "collection.noDemand.hits": 32,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 22.192519999999604,
+        "lstatCalls": 19840,
+        "openCalls": 1856,
+        "reader.open.ms": 239.9132419999769,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 217.81032399999822,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 427.7592840000534,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 205.50290800001312,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 27264
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.05025300000033894
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.10332200000084413
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 1.1894870000014635
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 1.4407559999999648
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1842,
+          "inclusiveMs": 5.918831000003593
+        },
+        "collection.physical.readdirSync": {
+          "calls": 18,
+          "inclusiveMs": 1.5586869999970077
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1844,
+          "inclusiveMs": 2.50553200000013
+        },
+        "collection.slashRelative": {
+          "calls": 1876,
+          "inclusiveMs": 3.2044479999967734
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 1844,
+          "inclusiveMs": 24.067364999998063
+        },
+        "collection.noDemand.compute": {
+          "calls": 1844,
+          "inclusiveMs": 32.668615999973554
+        },
+        "collection.retainEntry": {
+          "calls": 1844,
+          "inclusiveMs": 38.61069099999713
+        },
+        "collection.readDirectory": {
+          "calls": 191,
+          "inclusiveMs": 44.94001899999512
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 2.148580999999467
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 2.1600730000000112
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.38471499999923253
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.396827999999914
+        },
+        "collection.demandedPath": {
+          "calls": 32,
+          "inclusiveMs": 0.2675470000012865
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 175,
+          "inclusiveMs": 0.751549999998133
+        },
+        "collection.targetEntry": {
+          "calls": 32,
+          "inclusiveMs": 1.3076300000002448
+        },
+        "collection.readTarget": {
+          "calls": 15,
+          "inclusiveMs": 45.024108999997225
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 55.64639899999929
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 18.25730199999998
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 20.45913500000006
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.2525540000006
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.294230999999854
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 101.53463400000055
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 101.58601799999997
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 15.03885700000319
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1281.180039999993
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1918.4013729999997
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.512790000010682
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 70.94937200000095
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 2101.1626689999994
+        }
+      },
+      "maxRssKiB": 206808,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "combined",
+      "mode": "profile",
+      "depth": 10,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:05.716Z",
+      "finishedAt": "2026-10-22T03:24:10.232Z",
+      "loadBefore": [
+        1.83,
+        1.68,
+        1.34
+      ],
+      "loadAfter": [
+        1.77,
+        1.67,
+        1.34
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 1060.2894720000004,
+      "cpu": {
+        "user": 788426,
+        "system": 573425
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 191,
+        "collection.directory.misses": 18,
+        "collection.physical.lstatSync.calls": 1842,
+        "collection.physical.readdirSync.calls": 18,
+        "collection.entry.count": 1844,
+        "collection.entry.nameBytes": 27427,
+        "collection.noDemand.requests": 1876,
+        "collection.noDemand.requestedPathChars": 81894,
+        "collection.noDemand.computations": 1844,
+        "collection.prune.prefix.requests": 18333,
+        "collection.prune.prefix.requestedPathChars": 396182,
+        "collection.prune.prefix.computations": 1844,
+        "collection.prune.matcherCalls": 64540,
+        "collection.prune.matcherPathChars": 2843890,
+        "collection.prune.prefix.hits": 16489,
+        "collection.targetEntry.componentVisits": 175,
+        "collection.directory.hits": 173,
+        "collection.validatedEntry.calls": 175,
+        "collection.validatedEntry.candidates": 175,
+        "collection.entry.statMisses": 1841,
+        "collection.entry.statHits": 6207,
+        "collection.noDemand.hits": 32,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 3840,
+        "workerStartupMs": 21.72854499999994,
+        "lstatCalls": 19840,
+        "openCalls": 1856,
+        "reader.open.ms": 17.84844900000227,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 6.654976000000495,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 11.273555999999338,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 3.5646399999986436,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 27264
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.018465000000105647
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.04417200000034427
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.4377429999999549
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.5652900000000045
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1842,
+          "inclusiveMs": 6.031812000000173
+        },
+        "collection.physical.readdirSync": {
+          "calls": 18,
+          "inclusiveMs": 1.0906679999993685
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1844,
+          "inclusiveMs": 2.078370999984145
+        },
+        "collection.slashRelative": {
+          "calls": 1876,
+          "inclusiveMs": 2.663731999996344
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 1844,
+          "inclusiveMs": 17.71935600001052
+        },
+        "collection.noDemand.compute": {
+          "calls": 1844,
+          "inclusiveMs": 25.001737999983106
+        },
+        "collection.retainEntry": {
+          "calls": 1844,
+          "inclusiveMs": 30.14071500000273
+        },
+        "collection.readDirectory": {
+          "calls": 191,
+          "inclusiveMs": 35.380085999998755
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.135200000000168
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.1392280000000028
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.23529699999971854
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2404870000000301
+        },
+        "collection.demandedPath": {
+          "calls": 32,
+          "inclusiveMs": 0.21667100000104256
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 175,
+          "inclusiveMs": 0.5517290000002504
+        },
+        "collection.targetEntry": {
+          "calls": 32,
+          "inclusiveMs": 1.0828009999986534
+        },
+        "collection.readTarget": {
+          "calls": 15,
+          "inclusiveMs": 35.3428459999991
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 46.09290699999974
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 21.20468699999992
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 20.316118000000188
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 2.702773999999863
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 2.7295530000001236
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 92.09513000000015
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 92.10136199999988
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 9.652561000002152
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 428.68045299999085
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 900.3001650000001
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 3.8864659999981086
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 56.49297100000058
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 1056.7713430000003
+        }
+      },
+      "maxRssKiB": 210492,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "fast",
+      "mode": "profile",
+      "depth": 30,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:10.232Z",
+      "finishedAt": "2026-10-22T03:24:17.913Z",
+      "loadBefore": [
+        1.77,
+        1.67,
+        1.34
+      ],
+      "loadAfter": [
+        1.71,
+        1.66,
+        1.34
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 2462.382616,
+      "cpu": {
+        "user": 1607642,
+        "system": 1377272
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 1791,
+        "collection.directory.misses": 58,
+        "collection.physical.lstatSync.calls": 1882,
+        "collection.physical.readdirSync.calls": 58,
+        "collection.entry.count": 1884,
+        "collection.entry.nameBytes": 27467,
+        "collection.noDemand.requests": 1996,
+        "collection.noDemand.requestedPathChars": 160674,
+        "collection.noDemand.computations": 1996,
+        "collection.prune.prefix.requests": 57328,
+        "collection.prune.prefix.requestedPathChars": 2345040,
+        "collection.prune.prefix.computations": 57328,
+        "collection.prune.matcherCalls": 2006480,
+        "collection.prune.matcherPathChars": 82076400,
+        "collection.targetEntry.componentVisits": 1735,
+        "collection.directory.hits": 1733,
+        "collection.validatedEntry.calls": 1735,
+        "collection.validatedEntry.candidates": 1735,
+        "collection.entry.statMisses": 1881,
+        "collection.entry.statHits": 12567,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 14.27623500000027,
+        "lstatCalls": 59520,
+        "openCalls": 1856,
+        "reader.open.ms": 215.84712400001263,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 180.21380899999986,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 372.63185299997986,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 178.03595299995322,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 66944
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.03651799999988725
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.07424799999989773
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.6369120000008479
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.8839029999999184
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1882,
+          "inclusiveMs": 9.421034999997573
+        },
+        "collection.physical.readdirSync": {
+          "calls": 58,
+          "inclusiveMs": 2.0278689999986454
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1884,
+          "inclusiveMs": 2.1185920000143597
+        },
+        "collection.slashRelative": {
+          "calls": 1996,
+          "inclusiveMs": 7.087060999990172
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 57328,
+          "inclusiveMs": 521.8700029998126
+        },
+        "collection.noDemand.compute": {
+          "calls": 1996,
+          "inclusiveMs": 538.1636279999875
+        },
+        "collection.retainEntry": {
+          "calls": 1884,
+          "inclusiveMs": 534.157970000002
+        },
+        "collection.readDirectory": {
+          "calls": 1791,
+          "inclusiveMs": 550.7827939999997
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 8.301519999999982
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 8.307730999999876
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.3937110000006214
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.4013059999997495
+        },
+        "collection.demandedPath": {
+          "calls": 112,
+          "inclusiveMs": 15.618456999997761
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 1735,
+          "inclusiveMs": 2.4204599999702623
+        },
+        "collection.targetEntry": {
+          "calls": 112,
+          "inclusiveMs": 19.84009600000809
+        },
+        "collection.readTarget": {
+          "calls": 55,
+          "inclusiveMs": 553.2466900000009
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 569.0210950000001
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 31.21019400000023
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 30.41255700000056
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.9673039999997854
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 6.0186200000007375
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 645.6464229999992
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 645.6532159999997
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 9.772460999988652
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1089.6330290000087
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1728.8513819999998
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.4303040000031615
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 77.097444
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 2457.27171
+        }
+      },
+      "maxRssKiB": 200016,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "reader-direct",
+      "mode": "profile",
+      "depth": 30,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:17.913Z",
+      "finishedAt": "2026-10-22T03:24:23.257Z",
+      "loadBefore": [
+        1.71,
+        1.66,
+        1.34
+      ],
+      "loadAfter": [
+        1.65,
+        1.65,
+        1.33
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 1701.0075049999996,
+      "cpu": {
+        "user": 1449947,
+        "system": 634222
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 1791,
+        "collection.directory.misses": 58,
+        "collection.physical.lstatSync.calls": 1882,
+        "collection.physical.readdirSync.calls": 58,
+        "collection.entry.count": 1884,
+        "collection.entry.nameBytes": 27467,
+        "collection.noDemand.requests": 1996,
+        "collection.noDemand.requestedPathChars": 160674,
+        "collection.noDemand.computations": 1996,
+        "collection.prune.prefix.requests": 57328,
+        "collection.prune.prefix.requestedPathChars": 2345040,
+        "collection.prune.prefix.computations": 57328,
+        "collection.prune.matcherCalls": 2006480,
+        "collection.prune.matcherPathChars": 82076400,
+        "collection.targetEntry.componentVisits": 1735,
+        "collection.directory.hits": 1733,
+        "collection.validatedEntry.calls": 1735,
+        "collection.validatedEntry.candidates": 1735,
+        "collection.entry.statMisses": 1881,
+        "collection.entry.statHits": 12567,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 15.0330840000006,
+        "lstatCalls": 59520,
+        "openCalls": 1856,
+        "reader.open.ms": 23.161065999993298,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 4.741427000009935,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 11.973988000004283,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 3.5729339999843432,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 66944
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.03836100000035003
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.08485800000016752
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.6643769999996039
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.8478860000000168
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1882,
+          "inclusiveMs": 9.447968999980276
+        },
+        "collection.physical.readdirSync": {
+          "calls": 58,
+          "inclusiveMs": 2.3221970000031433
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1884,
+          "inclusiveMs": 1.991714999998294
+        },
+        "collection.slashRelative": {
+          "calls": 1996,
+          "inclusiveMs": 8.77505100000235
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 57328,
+          "inclusiveMs": 591.2754900000637
+        },
+        "collection.noDemand.compute": {
+          "calls": 1996,
+          "inclusiveMs": 609.5897079999941
+        },
+        "collection.retainEntry": {
+          "calls": 1884,
+          "inclusiveMs": 609.2204909999964
+        },
+        "collection.readDirectory": {
+          "calls": 1791,
+          "inclusiveMs": 627.1383870000004
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.8278680000003078
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.8356119999998555
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.24846100000013394
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2572989999998754
+        },
+        "collection.demandedPath": {
+          "calls": 112,
+          "inclusiveMs": 16.789054999998825
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 1735,
+          "inclusiveMs": 2.631191000002218
+        },
+        "collection.targetEntry": {
+          "calls": 112,
+          "inclusiveMs": 21.53518099999974
+        },
+        "collection.readTarget": {
+          "calls": 55,
+          "inclusiveMs": 636.8730970000006
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 653.3468070000004
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 35.830847000000176
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 40.87417100000039
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.338152000000264
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.37089399999968
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 736.8551790000006
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 736.8626329999997
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 10.815500000006978
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 188.71137699997507
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 899.2211510000006
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.355926999998701
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 55.34435400000075
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 1696.50817
+        }
+      },
+      "maxRssKiB": 198896,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "reader-worker",
+      "mode": "profile",
+      "depth": 30,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:23.257Z",
+      "finishedAt": "2026-10-22T03:24:28.741Z",
+      "loadBefore": [
+        1.65,
+        1.65,
+        1.33
+      ],
+      "loadAfter": [
+        1.68,
+        1.65,
+        1.34
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 1626.166177,
+      "cpu": {
+        "user": 1272781,
+        "system": 689612
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 1791,
+        "collection.directory.misses": 58,
+        "collection.physical.lstatSync.calls": 1882,
+        "collection.physical.readdirSync.calls": 58,
+        "collection.entry.count": 1884,
+        "collection.entry.nameBytes": 27467,
+        "collection.noDemand.requests": 1996,
+        "collection.noDemand.requestedPathChars": 160674,
+        "collection.noDemand.computations": 1996,
+        "collection.prune.prefix.requests": 57328,
+        "collection.prune.prefix.requestedPathChars": 2345040,
+        "collection.prune.prefix.computations": 57328,
+        "collection.prune.matcherCalls": 2006480,
+        "collection.prune.matcherPathChars": 82076400,
+        "collection.targetEntry.componentVisits": 1735,
+        "collection.directory.hits": 1733,
+        "collection.validatedEntry.calls": 1735,
+        "collection.validatedEntry.candidates": 1735,
+        "collection.entry.statMisses": 1881,
+        "collection.entry.statHits": 12567,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 3840,
+        "workerStartupMs": 12.078182999999626,
+        "lstatCalls": 59520,
+        "openCalls": 1856,
+        "reader.open.ms": 19.446966999998704,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 3.7309130000022215,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 10.313616999998926,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 3.186858999999659,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 66944
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.019466000000193162
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.053449000000000524
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.47186000000283457
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.5893459999997503
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1882,
+          "inclusiveMs": 8.508545000040158
+        },
+        "collection.physical.readdirSync": {
+          "calls": 58,
+          "inclusiveMs": 1.8919729999961419
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1884,
+          "inclusiveMs": 1.9260210000043116
+        },
+        "collection.slashRelative": {
+          "calls": 1996,
+          "inclusiveMs": 6.43046600000298
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 57328,
+          "inclusiveMs": 506.40102199996636
+        },
+        "collection.noDemand.compute": {
+          "calls": 1996,
+          "inclusiveMs": 522.712260999996
+        },
+        "collection.retainEntry": {
+          "calls": 1884,
+          "inclusiveMs": 517.2010650000097
+        },
+        "collection.readDirectory": {
+          "calls": 1791,
+          "inclusiveMs": 534.6719960000146
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.1429440000001705
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.1511199999999917
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.1362530000001243
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.1407720000001973
+        },
+        "collection.demandedPath": {
+          "calls": 112,
+          "inclusiveMs": 16.36721899999884
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 1735,
+          "inclusiveMs": 2.01244799999904
+        },
+        "collection.targetEntry": {
+          "calls": 112,
+          "inclusiveMs": 20.055830999997397
+        },
+        "collection.readTarget": {
+          "calls": 55,
+          "inclusiveMs": 542.8209160000015
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 556.3334050000003
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 30.053141000000323
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 28.788510999999744
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 3.6375699999998687
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 3.6612650000006397
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 620.4268980000002
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 620.4333000000001
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 8.154430000000502
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 369.86175100003766
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 936.1428660000001
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.2418379999953686
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 57.34806899999967
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 1621.8261499999999
+        }
+      },
+      "maxRssKiB": 199924,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "collection-local",
+      "mode": "profile",
+      "depth": 30,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:28.742Z",
+      "finishedAt": "2026-10-22T03:24:35.667Z",
+      "loadBefore": [
+        1.68,
+        1.65,
+        1.34
+      ],
+      "loadAfter": [
+        1.57,
+        1.63,
+        1.33
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 2463.778416,
+      "cpu": {
+        "user": 1716545,
+        "system": 1254465
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 1791,
+        "collection.directory.misses": 58,
+        "collection.physical.lstatSync.calls": 1882,
+        "collection.physical.readdirSync.calls": 58,
+        "collection.entry.count": 1884,
+        "collection.entry.nameBytes": 27467,
+        "collection.noDemand.requests": 1996,
+        "collection.noDemand.requestedPathChars": 160674,
+        "collection.noDemand.computations": 1884,
+        "collection.prune.prefix.requests": 55593,
+        "collection.prune.prefix.requestedPathChars": 2293672,
+        "collection.prune.prefix.computations": 55593,
+        "collection.prune.matcherCalls": 1945755,
+        "collection.prune.matcherPathChars": 80278520,
+        "collection.targetEntry.componentVisits": 1735,
+        "collection.directory.hits": 1733,
+        "collection.validatedEntry.calls": 1735,
+        "collection.validatedEntry.candidates": 1735,
+        "collection.entry.statMisses": 1881,
+        "collection.entry.statHits": 12567,
+        "collection.noDemand.hits": 112,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 13.348248999999669,
+        "lstatCalls": 59520,
+        "openCalls": 1856,
+        "reader.open.ms": 211.56686599998193,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 185.0727449999995,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 381.32492300001286,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 179.55096600000434,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 66944
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.019997000000330445
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.05625400000008085
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.6095729999979085
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.7752110000001267
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1882,
+          "inclusiveMs": 9.425897000002806
+        },
+        "collection.physical.readdirSync": {
+          "calls": 58,
+          "inclusiveMs": 1.8380090000000564
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1884,
+          "inclusiveMs": 1.9397959999696468
+        },
+        "collection.slashRelative": {
+          "calls": 1996,
+          "inclusiveMs": 7.360451999983525
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 55593,
+          "inclusiveMs": 523.2302999999747
+        },
+        "collection.noDemand.compute": {
+          "calls": 1884,
+          "inclusiveMs": 544.0450730000339
+        },
+        "collection.retainEntry": {
+          "calls": 1884,
+          "inclusiveMs": 557.0595939999876
+        },
+        "collection.readDirectory": {
+          "calls": 1791,
+          "inclusiveMs": 565.2641030000041
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.497693000000254
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.503805000000284
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.31062800000017887
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.31731000000036147
+        },
+        "collection.demandedPath": {
+          "calls": 112,
+          "inclusiveMs": 0.46133000000008906
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 1735,
+          "inclusiveMs": 2.134160000005977
+        },
+        "collection.targetEntry": {
+          "calls": 112,
+          "inclusiveMs": 4.233298000002833
+        },
+        "collection.readTarget": {
+          "calls": 55,
+          "inclusiveMs": 566.5750999999973
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 581.627923
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 28.999187999999776
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 35.29507199999989
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.209783999999672
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.238456999999471
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 652.3167629999998
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 652.3233760000003
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 10.236862999989171
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1106.4982159999727
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1734.284745
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.3257030000113446
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 68.68776700000035
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 2459.56204
+        }
+      },
+      "maxRssKiB": 198992,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "collection-prefix",
+      "mode": "profile",
+      "depth": 30,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:35.668Z",
+      "finishedAt": "2026-10-22T03:24:41.063Z",
+      "loadBefore": [
+        1.57,
+        1.63,
+        1.33
+      ],
+      "loadAfter": [
+        1.45,
+        1.61,
+        1.33
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 1851.2418679999996,
+      "cpu": {
+        "user": 1067801,
+        "system": 1221383
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 1791,
+        "collection.directory.misses": 58,
+        "collection.physical.lstatSync.calls": 1882,
+        "collection.physical.readdirSync.calls": 58,
+        "collection.entry.count": 1884,
+        "collection.entry.nameBytes": 27467,
+        "collection.noDemand.requests": 1996,
+        "collection.noDemand.requestedPathChars": 160674,
+        "collection.noDemand.computations": 1884,
+        "collection.prune.prefix.requests": 55593,
+        "collection.prune.prefix.requestedPathChars": 2293672,
+        "collection.prune.prefix.computations": 1884,
+        "collection.prune.matcherCalls": 65940,
+        "collection.prune.matcherPathChars": 5465390,
+        "collection.prune.prefix.hits": 53709,
+        "collection.targetEntry.componentVisits": 1735,
+        "collection.directory.hits": 1733,
+        "collection.validatedEntry.calls": 1735,
+        "collection.validatedEntry.candidates": 1735,
+        "collection.entry.statMisses": 1881,
+        "collection.entry.statHits": 12567,
+        "collection.noDemand.hits": 112,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 11.902220999999827,
+        "lstatCalls": 59520,
+        "openCalls": 1856,
+        "reader.open.ms": 200.77882799999497,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 180.4453610000146,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 358.2210160000209,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 174.33667699998932,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 66944
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.01856499999985317
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.04458299999987503
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.47048199999971985
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.5935430000004089
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1882,
+          "inclusiveMs": 8.82207500000277
+        },
+        "collection.physical.readdirSync": {
+          "calls": 58,
+          "inclusiveMs": 1.6197009999996226
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1884,
+          "inclusiveMs": 1.9579749999943488
+        },
+        "collection.slashRelative": {
+          "calls": 1996,
+          "inclusiveMs": 3.5276830000138943
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 1884,
+          "inclusiveMs": 33.25051299999495
+        },
+        "collection.noDemand.compute": {
+          "calls": 1884,
+          "inclusiveMs": 46.865780999999515
+        },
+        "collection.retainEntry": {
+          "calls": 1884,
+          "inclusiveMs": 52.8221930000077
+        },
+        "collection.readDirectory": {
+          "calls": 1791,
+          "inclusiveMs": 60.13294600000427
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.0659810000001926
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.070169000000078
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.29489799999964816
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.3007590000001983
+        },
+        "collection.demandedPath": {
+          "calls": 112,
+          "inclusiveMs": 0.34912899999926594
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 1735,
+          "inclusiveMs": 2.122169000010217
+        },
+        "collection.targetEntry": {
+          "calls": 112,
+          "inclusiveMs": 3.8906120000006013
+        },
+        "collection.readTarget": {
+          "calls": 55,
+          "inclusiveMs": 61.330271000001176
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 75.13875800000005
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 29.680237999999918
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 30.235955999999987
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 3.28253100000029
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 3.304512000000159
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 140.00132499999972
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 140.00711499999989
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 9.221958999993603
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1035.1810099999889
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1631.717659
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.3854900000051202
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 71.57199200000014
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 1847.81614
+        }
+      },
+      "maxRssKiB": 194824,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "combined",
+      "mode": "profile",
+      "depth": 30,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:41.064Z",
+      "finishedAt": "2026-10-22T03:24:44.898Z",
+      "loadBefore": [
+        1.45,
+        1.61,
+        1.33
+      ],
+      "loadAfter": [
+        1.41,
+        1.6,
+        1.32
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 1061.0023339999998,
+      "cpu": {
+        "user": 772269,
+        "system": 551570
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 1791,
+        "collection.directory.misses": 58,
+        "collection.physical.lstatSync.calls": 1882,
+        "collection.physical.readdirSync.calls": 58,
+        "collection.entry.count": 1884,
+        "collection.entry.nameBytes": 27467,
+        "collection.noDemand.requests": 1996,
+        "collection.noDemand.requestedPathChars": 160674,
+        "collection.noDemand.computations": 1884,
+        "collection.prune.prefix.requests": 55593,
+        "collection.prune.prefix.requestedPathChars": 2293672,
+        "collection.prune.prefix.computations": 1884,
+        "collection.prune.matcherCalls": 65940,
+        "collection.prune.matcherPathChars": 5465390,
+        "collection.prune.prefix.hits": 53709,
+        "collection.targetEntry.componentVisits": 1735,
+        "collection.directory.hits": 1733,
+        "collection.validatedEntry.calls": 1735,
+        "collection.validatedEntry.candidates": 1735,
+        "collection.entry.statMisses": 1881,
+        "collection.entry.statHits": 12567,
+        "collection.noDemand.hits": 112,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 3840,
+        "workerStartupMs": 10.911360000000059,
+        "lstatCalls": 59520,
+        "openCalls": 1856,
+        "reader.open.ms": 18.357375000000324,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 3.5454529999976145,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 8.838530999995385,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 3.1400559999999906,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 66944
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.0197969999999259
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.040015000000039436
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.3900059999991754
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.4879169999999249
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1882,
+          "inclusiveMs": 8.138048999982857
+        },
+        "collection.physical.readdirSync": {
+          "calls": 58,
+          "inclusiveMs": 1.4425509999996393
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1884,
+          "inclusiveMs": 1.7454900000102498
+        },
+        "collection.slashRelative": {
+          "calls": 1996,
+          "inclusiveMs": 3.356664999995246
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 1884,
+          "inclusiveMs": 33.98388099999602
+        },
+        "collection.noDemand.compute": {
+          "calls": 1884,
+          "inclusiveMs": 46.345164000011664
+        },
+        "collection.retainEntry": {
+          "calls": 1884,
+          "inclusiveMs": 51.87532599999622
+        },
+        "collection.readDirectory": {
+          "calls": 1791,
+          "inclusiveMs": 58.46977000000925
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 0.9324629999996432
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 0.9360000000001492
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.22658099999989645
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.23117000000002008
+        },
+        "collection.demandedPath": {
+          "calls": 112,
+          "inclusiveMs": 0.30067200000121375
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 1735,
+          "inclusiveMs": 1.8430440000011004
+        },
+        "collection.targetEntry": {
+          "calls": 112,
+          "inclusiveMs": 3.384840999997323
+        },
+        "collection.readTarget": {
+          "calls": 55,
+          "inclusiveMs": 59.357012999999824
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 71.70608599999969
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 29.345570999999836
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 29.559388000000126
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.752751999999873
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.822361000000001
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 137.87684099999979
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 137.8821600000001
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 7.346696999994492
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 331.5541129999956
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 861.9828709999997
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 2.450630999999703
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 54.36523299999999
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 1058.1130439999997
+        }
+      },
+      "maxRssKiB": 194400,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "fast",
+      "mode": "profile",
+      "depth": 60,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:44.899Z",
+      "finishedAt": "2026-10-22T03:24:54.247Z",
+      "loadBefore": [
+        1.41,
+        1.6,
+        1.32
+      ],
+      "loadAfter": [
+        1.62,
+        1.64,
+        1.34
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 3750.798903000001,
+      "cpu": {
+        "user": 2774330,
+        "system": 1522678
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 7191,
+        "collection.directory.misses": 118,
+        "collection.physical.lstatSync.calls": 1942,
+        "collection.physical.readdirSync.calls": 118,
+        "collection.entry.count": 1944,
+        "collection.entry.nameBytes": 27527,
+        "collection.noDemand.requests": 2176,
+        "collection.noDemand.requestedPathChars": 287844,
+        "collection.noDemand.computations": 2176,
+        "collection.prune.prefix.requests": 120058,
+        "collection.prune.prefix.requestedPathChars": 8343075,
+        "collection.prune.prefix.computations": 120058,
+        "collection.prune.matcherCalls": 4202030,
+        "collection.prune.matcherPathChars": 292007625,
+        "collection.targetEntry.componentVisits": 7075,
+        "collection.directory.hits": 7073,
+        "collection.validatedEntry.calls": 7075,
+        "collection.validatedEntry.candidates": 7075,
+        "collection.entry.statMisses": 1941,
+        "collection.entry.statHits": 34107,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 10.891451999999845,
+        "lstatCalls": 119040,
+        "openCalls": 1856,
+        "reader.open.ms": 190.3395260000425,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 176.937853000034,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 353.81384499992055,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 164.89207299992995,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 126464
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.013004000000364613
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.03314200000022538
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.38692899999750807
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.49100300000009156
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1942,
+          "inclusiveMs": 12.999943999993775
+        },
+        "collection.physical.readdirSync": {
+          "calls": 118,
+          "inclusiveMs": 3.203829999989466
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1944,
+          "inclusiveMs": 2.3155100000385573
+        },
+        "collection.slashRelative": {
+          "calls": 2176,
+          "inclusiveMs": 10.547234000001481
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 120058,
+          "inclusiveMs": 1562.1917420001346
+        },
+        "collection.noDemand.compute": {
+          "calls": 2176,
+          "inclusiveMs": 1588.0762729999979
+        },
+        "collection.retainEntry": {
+          "calls": 1944,
+          "inclusiveMs": 1525.0352290000155
+        },
+        "collection.readDirectory": {
+          "calls": 7191,
+          "inclusiveMs": 1577.8413220000639
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.0189540000001216
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.022570999999516
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.19989200000054552
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.20469099999991158
+        },
+        "collection.demandedPath": {
+          "calls": 232,
+          "inclusiveMs": 79.39996900000551
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 7075,
+          "inclusiveMs": 6.011652999970465
+        },
+        "collection.targetEntry": {
+          "calls": 232,
+          "inclusiveMs": 92.58718100000533
+        },
+        "collection.readTarget": {
+          "calls": 115,
+          "inclusiveMs": 1625.196388999996
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 1643.3965470000003
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 48.960707000000184
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 50.93941399999949
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.10296500000004
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.1262580000002345
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 1749.907956
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 1749.9137469999996
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 7.328369000013481
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1005.4562960000267
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1892.469862
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.2718540000059875
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 100.37142400000084
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 3747.323284000001
+        }
+      },
+      "maxRssKiB": 200524,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "reader-direct",
+      "mode": "profile",
+      "depth": 60,
+      "round": 1,
+      "startedAt": "2026-10-22T03:24:54.248Z",
+      "finishedAt": "2026-10-22T03:25:01.781Z",
+      "loadBefore": [
+        1.62,
+        1.64,
+        1.34
+      ],
+      "loadAfter": [
+        1.67,
+        1.65,
+        1.35
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 2913.0884779999997,
+      "cpu": {
+        "user": 2397363,
+        "system": 888789
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 7191,
+        "collection.directory.misses": 118,
+        "collection.physical.lstatSync.calls": 1942,
+        "collection.physical.readdirSync.calls": 118,
+        "collection.entry.count": 1944,
+        "collection.entry.nameBytes": 27527,
+        "collection.noDemand.requests": 2176,
+        "collection.noDemand.requestedPathChars": 287844,
+        "collection.noDemand.computations": 2176,
+        "collection.prune.prefix.requests": 120058,
+        "collection.prune.prefix.requestedPathChars": 8343075,
+        "collection.prune.prefix.computations": 120058,
+        "collection.prune.matcherCalls": 4202030,
+        "collection.prune.matcherPathChars": 292007625,
+        "collection.targetEntry.componentVisits": 7075,
+        "collection.directory.hits": 7073,
+        "collection.validatedEntry.calls": 7075,
+        "collection.validatedEntry.candidates": 7075,
+        "collection.entry.statMisses": 1941,
+        "collection.entry.statHits": 34107,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 12.233747000000221,
+        "lstatCalls": 119040,
+        "openCalls": 1856,
+        "reader.open.ms": 24.409960999977557,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 3.873459999995248,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 9.06623700002001,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 3.1307489999599056,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 126464
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.01897499999995489
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.0697600000003149
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.466617000000042
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.586249000000862
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1942,
+          "inclusiveMs": 13.03377700000874
+        },
+        "collection.physical.readdirSync": {
+          "calls": 118,
+          "inclusiveMs": 3.127275999997437
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1944,
+          "inclusiveMs": 2.531947000003129
+        },
+        "collection.slashRelative": {
+          "calls": 2176,
+          "inclusiveMs": 9.123327999979665
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 120058,
+          "inclusiveMs": 1562.9903270002806
+        },
+        "collection.noDemand.compute": {
+          "calls": 2176,
+          "inclusiveMs": 1591.210603000006
+        },
+        "collection.retainEntry": {
+          "calls": 1944,
+          "inclusiveMs": 1525.9216779999924
+        },
+        "collection.readDirectory": {
+          "calls": 7191,
+          "inclusiveMs": 1579.1682179999934
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.1697949999997945
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.1725900000001275
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.15907500000048458
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.16365499999938038
+        },
+        "collection.demandedPath": {
+          "calls": 232,
+          "inclusiveMs": 80.53653900000063
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 7075,
+          "inclusiveMs": 5.74473300000227
+        },
+        "collection.targetEntry": {
+          "calls": 232,
+          "inclusiveMs": 91.97189100000014
+        },
+        "collection.readTarget": {
+          "calls": 115,
+          "inclusiveMs": 1625.6397700000016
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 1644.210935
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 48.57351000000017
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 50.13981700000022
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.686490000000049
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.709131000000525
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 1749.2509600000003
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 1749.2569999999996
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 8.28187699998216
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 168.1982659999967
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1062.4476670000004
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.4845630000045276
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 89.73092599999927
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 2909.9147889999995
+        }
+      },
+      "maxRssKiB": 197732,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "reader-worker",
+      "mode": "profile",
+      "depth": 60,
+      "round": 1,
+      "startedAt": "2026-10-22T03:25:01.781Z",
+      "finishedAt": "2026-10-22T03:25:10.965Z",
+      "loadBefore": [
+        1.67,
+        1.65,
+        1.35
+      ],
+      "loadAfter": [
+        1.72,
+        1.66,
+        1.35
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 3162.8314679999994,
+      "cpu": {
+        "user": 2618598,
+        "system": 959165
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 7191,
+        "collection.directory.misses": 118,
+        "collection.physical.lstatSync.calls": 1942,
+        "collection.physical.readdirSync.calls": 118,
+        "collection.entry.count": 1944,
+        "collection.entry.nameBytes": 27527,
+        "collection.noDemand.requests": 2176,
+        "collection.noDemand.requestedPathChars": 287844,
+        "collection.noDemand.computations": 2176,
+        "collection.prune.prefix.requests": 120058,
+        "collection.prune.prefix.requestedPathChars": 8343075,
+        "collection.prune.prefix.computations": 120058,
+        "collection.prune.matcherCalls": 4202030,
+        "collection.prune.matcherPathChars": 292007625,
+        "collection.targetEntry.componentVisits": 7075,
+        "collection.directory.hits": 7073,
+        "collection.validatedEntry.calls": 7075,
+        "collection.validatedEntry.candidates": 7075,
+        "collection.entry.statMisses": 1941,
+        "collection.entry.statHits": 34107,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 3840,
+        "workerStartupMs": 13.197966000000633,
+        "lstatCalls": 119040,
+        "openCalls": 1856,
+        "reader.open.ms": 25.07647499999568,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 3.888627999996139,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 10.52797399999627,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 3.1955590000018113,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 126464
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.07673299999987648
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.11201799999980722
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.9571919999989404
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 1.1128299999991214
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1942,
+          "inclusiveMs": 13.504842000008466
+        },
+        "collection.physical.readdirSync": {
+          "calls": 118,
+          "inclusiveMs": 8.996289000004253
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1944,
+          "inclusiveMs": 3.0894400000161113
+        },
+        "collection.slashRelative": {
+          "calls": 2176,
+          "inclusiveMs": 10.471965000022465
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 120058,
+          "inclusiveMs": 1567.6989180000073
+        },
+        "collection.noDemand.compute": {
+          "calls": 2176,
+          "inclusiveMs": 1595.0090030000092
+        },
+        "collection.retainEntry": {
+          "calls": 1944,
+          "inclusiveMs": 1533.1275049999986
+        },
+        "collection.readDirectory": {
+          "calls": 7191,
+          "inclusiveMs": 1595.6654970000363
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 6.958321000000069
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 6.965052999999898
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2730380000002697
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2898189999996248
+        },
+        "collection.demandedPath": {
+          "calls": 232,
+          "inclusiveMs": 79.75927999999567
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 7075,
+          "inclusiveMs": 6.783578999966267
+        },
+        "collection.targetEntry": {
+          "calls": 232,
+          "inclusiveMs": 92.9900570000118
+        },
+        "collection.readTarget": {
+          "calls": 115,
+          "inclusiveMs": 1635.7722269999967
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 1655.7234519999993
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 52.65428999999949
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 51.67650800000047
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.004449000000022
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.02934600000026
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 1772.7009199999993
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 1772.7071809999998
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 8.408011999968949
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 353.17246599997907
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1286.8676600000008
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.2781129999930272
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 91.95375699999931
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 3157.425582
+        }
+      },
+      "maxRssKiB": 190548,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "collection-local",
+      "mode": "profile",
+      "depth": 60,
+      "round": 1,
+      "startedAt": "2026-10-22T03:25:10.966Z",
+      "finishedAt": "2026-10-22T03:25:22.207Z",
+      "loadBefore": [
+        1.72,
+        1.66,
+        1.35
+      ],
+      "loadAfter": [
+        1.61,
+        1.64,
+        1.35
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 4525.322764,
+      "cpu": {
+        "user": 3236536,
+        "system": 2018316
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 7191,
+        "collection.directory.misses": 118,
+        "collection.physical.lstatSync.calls": 1942,
+        "collection.physical.readdirSync.calls": 118,
+        "collection.entry.count": 1944,
+        "collection.entry.nameBytes": 27527,
+        "collection.noDemand.requests": 2176,
+        "collection.noDemand.requestedPathChars": 287844,
+        "collection.noDemand.computations": 1944,
+        "collection.prune.prefix.requests": 112983,
+        "collection.prune.prefix.requestedPathChars": 7990157,
+        "collection.prune.prefix.computations": 112983,
+        "collection.prune.matcherCalls": 3954405,
+        "collection.prune.matcherPathChars": 279655495,
+        "collection.targetEntry.componentVisits": 7075,
+        "collection.directory.hits": 7073,
+        "collection.validatedEntry.calls": 7075,
+        "collection.validatedEntry.candidates": 7075,
+        "collection.entry.statMisses": 1941,
+        "collection.entry.statHits": 34107,
+        "collection.noDemand.hits": 232,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 13.587252999999691,
+        "lstatCalls": 119040,
+        "openCalls": 1856,
+        "reader.open.ms": 252.2462089999808,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 214.6424890000435,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 423.5119159999831,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 214.11359399998764,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 126464
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.047567999999955646
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.12449199999991833
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.6173349999990023
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.8045149999998102
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1942,
+          "inclusiveMs": 13.277710999990632
+        },
+        "collection.physical.readdirSync": {
+          "calls": 118,
+          "inclusiveMs": 3.000264000003881
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1944,
+          "inclusiveMs": 2.7620329999990645
+        },
+        "collection.slashRelative": {
+          "calls": 2176,
+          "inclusiveMs": 15.374860999987504
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 112983,
+          "inclusiveMs": 1646.5115759999535
+        },
+        "collection.noDemand.compute": {
+          "calls": 1944,
+          "inclusiveMs": 1677.953725999957
+        },
+        "collection.retainEntry": {
+          "calls": 1944,
+          "inclusiveMs": 1703.6066990000054
+        },
+        "collection.readDirectory": {
+          "calls": 7191,
+          "inclusiveMs": 1721.7370110000538
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.6560779999999795
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 1.674681999999848
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.3990220000005138
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.4118659999994634
+        },
+        "collection.demandedPath": {
+          "calls": 232,
+          "inclusiveMs": 0.8354360000012093
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 7075,
+          "inclusiveMs": 6.394470999984151
+        },
+        "collection.targetEntry": {
+          "calls": 232,
+          "inclusiveMs": 13.104992000009588
+        },
+        "collection.readTarget": {
+          "calls": 115,
+          "inclusiveMs": 1726.455369000002
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 1746.3430120000003
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 54.06828400000086
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 53.375294999999824
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.166338999999425
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 5.202366000001348
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 1861.421158000001
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 1861.486668999999
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 15.823070999978881
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1286.123177000005
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 2523.2294110000003
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.5266849999661645
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 119.25292600000103
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 4512.366897
+        }
+      },
+      "maxRssKiB": 189976,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "collection-prefix",
+      "mode": "profile",
+      "depth": 60,
+      "round": 1,
+      "startedAt": "2026-10-22T03:25:22.207Z",
+      "finishedAt": "2026-10-22T03:25:29.648Z",
+      "loadBefore": [
+        1.61,
+        1.64,
+        1.35
+      ],
+      "loadAfter": [
+        1.56,
+        1.63,
+        1.35
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 3039.5334350000003,
+      "cpu": {
+        "user": 1809593,
+        "system": 1814630
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 7191,
+        "collection.directory.misses": 118,
+        "collection.physical.lstatSync.calls": 1942,
+        "collection.physical.readdirSync.calls": 118,
+        "collection.entry.count": 1944,
+        "collection.entry.nameBytes": 27527,
+        "collection.noDemand.requests": 2176,
+        "collection.noDemand.requestedPathChars": 287844,
+        "collection.noDemand.computations": 1944,
+        "collection.prune.prefix.requests": 112983,
+        "collection.prune.prefix.requestedPathChars": 7990157,
+        "collection.prune.prefix.computations": 1944,
+        "collection.prune.matcherCalls": 68040,
+        "collection.prune.matcherPathChars": 9502640,
+        "collection.prune.prefix.hits": 111039,
+        "collection.targetEntry.componentVisits": 7075,
+        "collection.directory.hits": 7073,
+        "collection.validatedEntry.calls": 7075,
+        "collection.validatedEntry.candidates": 7075,
+        "collection.entry.statMisses": 1941,
+        "collection.entry.statHits": 34107,
+        "collection.noDemand.hits": 232,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 1984,
+        "workerStartupMs": 12.344425999999658,
+        "lstatCalls": 119040,
+        "openCalls": 1856,
+        "reader.open.ms": 267.46699699998044,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 220.55636199996025,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 433.23086299998977,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 209.75491000000147,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 126464
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.022041000000172062
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.04688700000042445
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.6711180000002059
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.7987910000001648
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1942,
+          "inclusiveMs": 12.653917000027832
+        },
+        "collection.physical.readdirSync": {
+          "calls": 118,
+          "inclusiveMs": 2.51301500000136
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1944,
+          "inclusiveMs": 2.7994359999793232
+        },
+        "collection.slashRelative": {
+          "calls": 2176,
+          "inclusiveMs": 5.652338999996573
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 1944,
+          "inclusiveMs": 57.49409700000342
+        },
+        "collection.noDemand.compute": {
+          "calls": 1944,
+          "inclusiveMs": 82.31910200001948
+        },
+        "collection.retainEntry": {
+          "calls": 1944,
+          "inclusiveMs": 90.95678800000223
+        },
+        "collection.readDirectory": {
+          "calls": 7191,
+          "inclusiveMs": 105.14548800005377
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 7.271426999999676
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 7.2762149999998655
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.4158240000006117
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.42176500000005035
+        },
+        "collection.demandedPath": {
+          "calls": 232,
+          "inclusiveMs": 0.6088239999871803
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 7075,
+          "inclusiveMs": 5.60635399999228
+        },
+        "collection.targetEntry": {
+          "calls": 232,
+          "inclusiveMs": 11.095900999997866
+        },
+        "collection.readTarget": {
+          "calls": 115,
+          "inclusiveMs": 102.52055999999538
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 120.33127999999942
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 55.39916699999958
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 56.25654399999985
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 6.527371999999559
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 6.555584000000636
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 246.49445699999978
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 246.5012999999999
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 16.586051000016596
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 1313.6276269999726
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 2603.6961929999998
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 2.9457490000149846
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 177.13403000000017
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 3034.326194
+        }
+      },
+      "maxRssKiB": 198748,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "runtime": "bun",
+      "variant": "combined",
+      "mode": "profile",
+      "depth": 60,
+      "round": 1,
+      "startedAt": "2026-10-22T03:25:29.649Z",
+      "finishedAt": "2026-10-22T03:25:35.251Z",
+      "loadBefore": [
+        1.56,
+        1.63,
+        1.35
+      ],
+      "loadAfter": [
+        1.47,
+        1.61,
+        1.34
+      ],
+      "shape": "real",
+      "count": 1824,
+      "cacheState": "hit",
+      "elapsedMs": 1619.8901019999994,
+      "cpu": {
+        "user": 1039373,
+        "system": 921459
+      },
+      "counters": {
+        "collection.prune.patternsCompiled": 35,
+        "collection.directory.requests": 7191,
+        "collection.directory.misses": 118,
+        "collection.physical.lstatSync.calls": 1942,
+        "collection.physical.readdirSync.calls": 118,
+        "collection.entry.count": 1944,
+        "collection.entry.nameBytes": 27527,
+        "collection.noDemand.requests": 2176,
+        "collection.noDemand.requestedPathChars": 287844,
+        "collection.noDemand.computations": 1944,
+        "collection.prune.prefix.requests": 112983,
+        "collection.prune.prefix.requestedPathChars": 7990157,
+        "collection.prune.prefix.computations": 1944,
+        "collection.prune.matcherCalls": 68040,
+        "collection.prune.matcherPathChars": 9502640,
+        "collection.prune.prefix.hits": 111039,
+        "collection.targetEntry.componentVisits": 7075,
+        "collection.directory.hits": 7073,
+        "collection.validatedEntry.calls": 7075,
+        "collection.validatedEntry.candidates": 7075,
+        "collection.entry.statMisses": 1941,
+        "collection.entry.statHits": 34107,
+        "collection.noDemand.hits": 232,
+        "collection.candidates": 1824,
+        "collection.selectedPaths": 1824,
+        "probeCalls": 1984,
+        "workersStarted": 1,
+        "workerRequests": 3840,
+        "workerStartupMs": 11.517837999999756,
+        "lstatCalls": 119040,
+        "openCalls": 1856,
+        "reader.open.ms": 24.682674000001274,
+        "readerLiveHandles": 0,
+        "fstatCalls": 1856,
+        "reader.fstat.ms": 3.86276200000086,
+        "bufferAllocationBytes": 1946158912,
+        "readCalls": 3712,
+        "reader.read.ms": 10.774065999998065,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800,
+        "closeCalls": 1856,
+        "reader.close.ms": 3.171948000002036,
+        "workersExited": 1,
+        "workerExitCodeSum": 0,
+        "finalWorkerOperations": 126464
+      },
+      "metrics": {
+        "collection.createUserPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.014407000000119297
+        },
+        "collection.createSelectedPathPredicate": {
+          "calls": 1,
+          "inclusiveMs": 0.03813099999979386
+        },
+        "collection.prune.compile": {
+          "calls": 35,
+          "inclusiveMs": 0.4091399999983878
+        },
+        "collection.createSubtreePruner": {
+          "calls": 1,
+          "inclusiveMs": 0.5213889999999992
+        },
+        "collection.physical.lstatSync": {
+          "calls": 1942,
+          "inclusiveMs": 12.790002000008826
+        },
+        "collection.physical.readdirSync": {
+          "calls": 118,
+          "inclusiveMs": 5.426991999999245
+        },
+        "collection.createCollectionEntry": {
+          "calls": 1944,
+          "inclusiveMs": 2.362890000000334
+        },
+        "collection.slashRelative": {
+          "calls": 2176,
+          "inclusiveMs": 5.526504999997542
+        },
+        "collection.prune.prefix.compute": {
+          "calls": 1944,
+          "inclusiveMs": 51.50125400000661
+        },
+        "collection.noDemand.compute": {
+          "calls": 1944,
+          "inclusiveMs": 68.8759710000113
+        },
+        "collection.retainEntry": {
+          "calls": 1944,
+          "inclusiveMs": 77.26360800000293
+        },
+        "collection.readDirectory": {
+          "calls": 7191,
+          "inclusiveMs": 93.36672499999895
+        },
+        "collection.createCollectionFilesystem": {
+          "calls": 1,
+          "inclusiveMs": 0.9270629999996345
+        },
+        "collection.setup.filesystem": {
+          "calls": 1,
+          "inclusiveMs": 0.9307310000003781
+        },
+        "collection.collectionCandidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.26398999999992157
+        },
+        "collection.setup.candidatePatterns": {
+          "calls": 1,
+          "inclusiveMs": 0.2703630000000885
+        },
+        "collection.demandedPath": {
+          "calls": 232,
+          "inclusiveMs": 0.6008739999997488
+        },
+        "collection.validatedDirectoryEntry": {
+          "calls": 7075,
+          "inclusiveMs": 5.298313999982838
+        },
+        "collection.targetEntry": {
+          "calls": 232,
+          "inclusiveMs": 10.503376999998636
+        },
+        "collection.readTarget": {
+          "calls": 115,
+          "inclusiveMs": 96.8984690000002
+        },
+        "collection.backend.fastGlobAndNormalize": {
+          "calls": 1,
+          "inclusiveMs": 114.50478999999996
+        },
+        "collection.final.userSelection": {
+          "calls": 1,
+          "inclusiveMs": 52.21184600000015
+        },
+        "collection.final.defaultSelection": {
+          "calls": 1,
+          "inclusiveMs": 58.089498000000276
+        },
+        "collection.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.598011000000042
+        },
+        "collection.final.freezeProjectPaths": {
+          "calls": 1,
+          "inclusiveMs": 4.623668999999609
+        },
+        "collection.collectProjectFileSets": {
+          "calls": 1,
+          "inclusiveMs": 230.99279699999988
+        },
+        "collection.collectProjectFiles": {
+          "calls": 1,
+          "inclusiveMs": 230.99880900000016
+        },
+        "source-traversal.ts:checkpoint": {
+          "calls": 1835,
+          "inclusiveMs": 8.506571000012627
+        },
+        "filesystem-probes.ts:readRegularFile": {
+          "calls": 1856,
+          "inclusiveMs": 358.1326899999867
+        },
+        "source-traversal.ts:collectSourceReferences": {
+          "calls": 1,
+          "inclusiveMs": 1288.52373
+        },
+        "resolver-engine.ts:#checkpoint": {
+          "calls": 307,
+          "inclusiveMs": 1.3846150000017587
+        },
+        "resolver-engine.ts:resolveAll": {
+          "calls": 1,
+          "inclusiveMs": 91.57632400000057
+        },
+        "execution.ts:executeMarkdownLinkValidation": {
+          "calls": 1,
+          "inclusiveMs": 1616.7894129999995
+        }
+      },
+      "maxRssKiB": 190100,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    }
+  ],
+  "timing": "New process per sample; one untimed cache warmup then public single-Check Run; import/generation/extraction excluded; worker creation, communication, close/exit included. No OS cache flush; host not exclusive.",
+  "fixtures": [
+    {
+      "synthetic": true,
+      "sourceCount": 1824,
+      "sourceBytes": 3320000,
+      "depth": 10,
+      "withLinks": true,
+      "caseSources": 1221,
+      "caseSourcesWithReferences": 6,
+      "sourcesWithReferences": 175,
+      "occurrenceCount": 1193,
+      "logicalDirectCount": 777,
+      "directTargetNodesIntended": 296,
+      "sourceTargetOverlapIntended": 136,
+      "targetOnlyFiles": 130,
+      "targetOnlyDirectories": 30,
+      "assumptions": "Equal-sized unique documents, one heading each, 32 target-only Markdown heading reads, remaining nonlocal links are HTTP, paths have fixed requested depth; not the user's original corpus.",
+      "sourceManifestSha256": "f92db0e0d13ad8abf80cecc9074b55b9f099661a917d3d6becb079f814bb6be1"
+    },
+    {
+      "synthetic": true,
+      "sourceCount": 1824,
+      "sourceBytes": 3320000,
+      "depth": 30,
+      "withLinks": true,
+      "caseSources": 1221,
+      "caseSourcesWithReferences": 6,
+      "sourcesWithReferences": 175,
+      "occurrenceCount": 1193,
+      "logicalDirectCount": 777,
+      "directTargetNodesIntended": 296,
+      "sourceTargetOverlapIntended": 136,
+      "targetOnlyFiles": 130,
+      "targetOnlyDirectories": 30,
+      "assumptions": "Equal-sized unique documents, one heading each, 32 target-only Markdown heading reads, remaining nonlocal links are HTTP, paths have fixed requested depth; not the user's original corpus.",
+      "sourceManifestSha256": "f38c9684c82c273484f2462a7abc9374dcd6b3a40c56c9d301f4f69db90ecb98"
+    },
+    {
+      "synthetic": true,
+      "sourceCount": 1824,
+      "sourceBytes": 3320000,
+      "depth": 60,
+      "withLinks": true,
+      "caseSources": 1221,
+      "caseSourcesWithReferences": 6,
+      "sourcesWithReferences": 175,
+      "occurrenceCount": 1193,
+      "logicalDirectCount": 777,
+      "directTargetNodesIntended": 296,
+      "sourceTargetOverlapIntended": 136,
+      "targetOnlyFiles": 130,
+      "targetOnlyDirectories": 30,
+      "assumptions": "Equal-sized unique documents, one heading each, 32 target-only Markdown heading reads, remaining nonlocal links are HTTP, paths have fixed requested depth; not the user's original corpus.",
+      "sourceManifestSha256": "a806baac0cac6dec3fe20d634ca9b3d28046e84ad072ca702673c5c58f1cebc6"
+    }
+  ],
+  "finishedAt": "2026-10-22T03:25:35.268Z"
+}
