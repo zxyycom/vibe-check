@@ -1,0 +1,154 @@
+{
+  "scope": "Native markdownLinkValidation, fixed N=1824/B=3320000/E=1193/logicalDirect=777/targets=296; depth is the only experimental variable",
+  "startedAt": "2026-10-21T11:55:52.642Z",
+  "finishedAt": "2026-10-21T12:02:31.800Z",
+  "plainSamples": 28,
+  "profileSamples": 3,
+  "allOutcomeAndProfileAssertionsPassed": true,
+  "groups": {
+    "explore/depth-10": {
+      "n": 1,
+      "medianMs": 3309.455565,
+      "minMs": 3309.455565,
+      "maxMs": 3309.455565,
+      "madMs": 0,
+      "inSixToEightSeconds": 0
+    },
+    "explore/depth-16": {
+      "n": 1,
+      "medianMs": 4755.781949,
+      "minMs": 4755.781949,
+      "maxMs": 4755.781949,
+      "madMs": 0,
+      "inSixToEightSeconds": 0
+    },
+    "explore/depth-22": {
+      "n": 1,
+      "medianMs": 6194.322705999999,
+      "minMs": 6194.322705999999,
+      "maxMs": 6194.322705999999,
+      "madMs": 0,
+      "inSixToEightSeconds": 1
+    },
+    "confirm/depth-4": {
+      "n": 5,
+      "medianMs": 1999.5994399999995,
+      "minMs": 1987.3672730000003,
+      "maxMs": 2007.7579329999999,
+      "madMs": 4.365700999999717,
+      "inSixToEightSeconds": 0
+    },
+    "confirm/depth-10": {
+      "n": 5,
+      "medianMs": 3371.359320999999,
+      "minMs": 3349.9863479999995,
+      "maxMs": 3405.1358260000006,
+      "madMs": 16.215252999998484,
+      "inSixToEightSeconds": 0
+    },
+    "confirm/depth-16": {
+      "n": 5,
+      "medianMs": 4780.630121,
+      "minMs": 4748.190974,
+      "maxMs": 4823.064551,
+      "madMs": 4.857767000000422,
+      "inSixToEightSeconds": 0
+    },
+    "confirm/depth-22": {
+      "n": 5,
+      "medianMs": 6231.496871000001,
+      "minMs": 6189.354754999999,
+      "maxMs": 6863.9965,
+      "madMs": 32.997010999999475,
+      "inSixToEightSeconds": 5
+    },
+    "confirm/depth-26": {
+      "n": 5,
+      "medianMs": 7185.4081320000005,
+      "minMs": 7150.405414000001,
+      "maxMs": 7358.940927,
+      "madMs": 35.00271799999973,
+      "inSixToEightSeconds": 5
+    }
+  },
+  "profiles": [
+    {
+      "depth": 4,
+      "publicRunMs": 2096.8769880000004,
+      "nativeMs": 2093.323603,
+      "collectionMs": 61.62447499999962,
+      "sourceMs": 1917.4811450000002,
+      "resolverMs": 112.26546299999973,
+      "sourceFraction": 0.9159984353360393,
+      "probeCalls": 1984,
+      "componentLstatCalls": 7936,
+      "probeMs": 881.1825439999989,
+      "componentLstatMs": 826.7810519999284,
+      "readRegularFileCalls": 1856,
+      "readRegularFileMs": 1018.7503920000163,
+      "cacheRestoreMs": 35.54836800000021,
+      "freshParseCalls": 0,
+      "cpu": {
+        "user": 808284,
+        "system": 1628709
+      },
+      "counters": {
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 22,
+      "publicRunMs": 6450.511424,
+      "nativeMs": 6439.0294030000005,
+      "collectionMs": 353.6105299999999,
+      "sourceMs": 5646.988146,
+      "resolverMs": 435.24919000000045,
+      "sourceFraction": 0.8769936884228263,
+      "probeCalls": 1984,
+      "componentLstatCalls": 43648,
+      "probeMs": 4860.727943000009,
+      "componentLstatMs": 4572.267015999971,
+      "readRegularFileCalls": 1856,
+      "readRegularFileMs": 1057.5840389999903,
+      "cacheRestoreMs": 34.07554100000016,
+      "freshParseCalls": 0,
+      "cpu": {
+        "user": 2264264,
+        "system": 5024780
+      },
+      "counters": {
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 26,
+      "publicRunMs": 7367.282217,
+      "nativeMs": 7362.056263999999,
+      "collectionMs": 463.0217369999991,
+      "sourceMs": 6390.629433,
+      "resolverMs": 506.3531920000023,
+      "sourceFraction": 0.8680495236432495,
+      "probeCalls": 1984,
+      "componentLstatCalls": 51584,
+      "probeMs": 5673.712246000001,
+      "componentLstatMs": 5336.066551000191,
+      "readRegularFileCalls": 1856,
+      "readRegularFileMs": 1055.9019540000481,
+      "cacheRestoreMs": 33.165060999999696,
+      "freshParseCalls": 0,
+      "cpu": {
+        "user": 2588347,
+        "system": 5698719
+      },
+      "counters": {
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    }
+  ]
+}

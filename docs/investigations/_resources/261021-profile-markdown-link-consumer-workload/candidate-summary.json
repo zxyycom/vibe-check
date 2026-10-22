@@ -1,0 +1,1198 @@
+{
+  "scope": "Isolated virtual A/B probe replacements; Product source unchanged; Bun performance, Bun and Node safety/regression",
+  "startedAt": "2026-10-21T14:19:39.714Z",
+  "finishedAt": "2026-10-21T14:33:16.720Z",
+  "plainSamples": 54,
+  "profileSamples": 9,
+  "fixtureDepthProvenance": "Recovered from the retained driver's fixed serial schedule; raw entry depth=0 is its unused real-mode CLI placeholder",
+  "allAssertionsPassed": true,
+  "groups": [
+    {
+      "depth": 4,
+      "variant": "baseline",
+      "elapsedMs": {
+        "n": 6,
+        "median": 2067.9808885,
+        "min": 1995.2712940000006,
+        "max": 3289.6826820000006,
+        "mad": 42.32464200000027
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 2454.469,
+        "min": 2355.922,
+        "max": 4000.059,
+        "mad": 56.299999999999955
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 178426,
+        "min": 173764,
+        "max": 206348,
+        "mad": 2522
+      }
+    },
+    {
+      "depth": 4,
+      "variant": "thin",
+      "elapsedMs": {
+        "n": 6,
+        "median": 2040.2507894999999,
+        "min": 1995.6953780000003,
+        "max": 2206.0978680000003,
+        "mad": 43.18997249999984
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 2432.9125,
+        "min": 2369.536,
+        "max": 2625.067,
+        "mad": 56.98699999999985
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 176196,
+        "min": 168984,
+        "max": 204284,
+        "mad": 2548
+      }
+    },
+    {
+      "depth": 4,
+      "variant": "callback",
+      "elapsedMs": {
+        "n": 6,
+        "median": 2210.219823,
+        "min": 1998.7439389999995,
+        "max": 2411.901661,
+        "mad": 149.30829850000032
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 2620.938,
+        "min": 2365.866,
+        "max": 2898.58,
+        "mad": 232.45100000000002
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 176270,
+        "min": 170940,
+        "max": 208836,
+        "mad": 1616
+      }
+    },
+    {
+      "depth": 22,
+      "variant": "baseline",
+      "elapsedMs": {
+        "n": 6,
+        "median": 6296.2249624999995,
+        "min": 6144.941291000001,
+        "max": 6538.337629,
+        "mad": 118.81970049999927
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 7128.6815,
+        "min": 6936.854,
+        "max": 7430.155,
+        "mad": 145.05499999999938
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 169504,
+        "min": 168048,
+        "max": 174596,
+        "mad": 1254
+      }
+    },
+    {
+      "depth": 22,
+      "variant": "thin",
+      "elapsedMs": {
+        "n": 6,
+        "median": 6354.6067715,
+        "min": 4902.083445999999,
+        "max": 6925.157442999998,
+        "mad": 382.0213039999994
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 7075.785,
+        "min": 4232.797,
+        "max": 7905.592,
+        "mad": 406.5174999999999
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 173102,
+        "min": 168288,
+        "max": 183104,
+        "mad": 1378
+      }
+    },
+    {
+      "depth": 22,
+      "variant": "callback",
+      "elapsedMs": {
+        "n": 6,
+        "median": 6260.329149500001,
+        "min": 6086.064144,
+        "max": 6898.813905999999,
+        "mad": 158.0309070000012
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 7123.346,
+        "min": 6951.366,
+        "max": 7455.666,
+        "mad": 86.68650000000025
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 174074,
+        "min": 165848,
+        "max": 174640,
+        "mad": 348
+      }
+    },
+    {
+      "depth": 26,
+      "variant": "baseline",
+      "elapsedMs": {
+        "n": 6,
+        "median": 7280.2779655,
+        "min": 7139.458742000001,
+        "max": 9046.394007,
+        "mad": 83.68949950000024
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 8233.676,
+        "min": 6647.569,
+        "max": 10336.56,
+        "mad": 307.86299999999983
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 172460,
+        "min": 168592,
+        "max": 176568,
+        "mad": 2528
+      }
+    },
+    {
+      "depth": 26,
+      "variant": "thin",
+      "elapsedMs": {
+        "n": 6,
+        "median": 7054.770967000002,
+        "min": 6969.3234649999995,
+        "max": 7165.397925000001,
+        "mad": 50.41166350000276
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 8021.236,
+        "min": 7900.878,
+        "max": 8158.027,
+        "mad": 70.94250000000011
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 171298,
+        "min": 167700,
+        "max": 177040,
+        "mad": 2726
+      }
+    },
+    {
+      "depth": 26,
+      "variant": "callback",
+      "elapsedMs": {
+        "n": 6,
+        "median": 7409.83336,
+        "min": 7013.8540219999995,
+        "max": 9167.365484,
+        "mad": 343.1158814999999
+      },
+      "cpuMs": {
+        "n": 6,
+        "median": 8439.5895,
+        "min": 7991.83,
+        "max": 10477.535,
+        "mad": 389.8585000000003
+      },
+      "maxRssKiB": {
+        "n": 6,
+        "median": 172052,
+        "min": 167020,
+        "max": 174748,
+        "mad": 2152
+      }
+    }
+  ],
+  "paired": [
+    {
+      "depth": 4,
+      "variant": "thin",
+      "ratios": [
+        0.9844180386852229,
+        0.7795119423923965,
+        0.988753070236638,
+        1.0729832987164771,
+        0.6672904119328067,
+        1.0002125445302976
+      ],
+      "medianRatio": 0.9865855544609305,
+      "medianSavedFraction": 0.013414445539069453,
+      "fasterPairs": 4
+    },
+    {
+      "depth": 4,
+      "variant": "callback",
+      "ratios": [
+        1.0641515312731649,
+        0.779635858744902,
+        1.1635253667810872,
+        1.082204320653791,
+        0.7192999060205406,
+        1.036276045877899
+      ],
+      "medianRatio": 1.0502137885755318,
+      "medianSavedFraction": -0.050213788575531826,
+      "fasterPairs": 2
+    },
+    {
+      "depth": 22,
+      "variant": "thin",
+      "ratios": [
+        0.9955427145143559,
+        0.9914213943626754,
+        1.0486256996870051,
+        1.0709778975723512,
+        1.0375283576427332,
+        0.7779214225311281
+      ],
+      "medianRatio": 1.0165355360785446,
+      "medianSavedFraction": -0.016535536078544633,
+      "fasterPairs": 3
+    },
+    {
+      "depth": 22,
+      "variant": "callback",
+      "ratios": [
+        0.9852916561407407,
+        0.9904185989398737,
+        0.9654265763215759,
+        1.0099482695397315,
+        0.9868760965014525,
+        1.0947865711898876
+      ],
+      "medianRatio": 0.9886473477206631,
+      "medianSavedFraction": 0.011352652279336906,
+      "fasterPairs": 4
+    },
+    {
+      "depth": 26,
+      "variant": "thin",
+      "ratios": [
+        0.9761697233434337,
+        0.9166596072928905,
+        0.9858218098780018,
+        0.781009248384819,
+        0.9654893327758851,
+        0.9878241389192983
+      ],
+      "medianRatio": 0.9708295280596594,
+      "medianSavedFraction": 0.029170471940340614,
+      "fasterPairs": 6
+    },
+    {
+      "depth": 26,
+      "variant": "callback",
+      "ratios": [
+        0.9824069688559031,
+        0.9271012824708187,
+        1.0059801057997713,
+        0.830351071508442,
+        1.1375901200668765,
+        1.2638160518336874
+      ],
+      "medianRatio": 0.9941935373278372,
+      "medianSavedFraction": 0.005806462672162782,
+      "fasterPairs": 3
+    }
+  ],
+  "profiles": [
+    {
+      "depth": 4,
+      "variant": "baseline",
+      "publicRunMs": 2275.29305,
+      "nativeMs": 2270.946737,
+      "sourceMs": 2085.669126,
+      "resolverMs": 117.71272700000009,
+      "probeMs": 934.7470570000023,
+      "readerMs": 1140.258871999994,
+      "checkpointMs": 12.593577000026016,
+      "counters": {
+        "lstatCalls": 7936,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 4,
+      "variant": "thin",
+      "publicRunMs": 2154.323048,
+      "nativeMs": 2149.5541999999996,
+      "sourceMs": 1974.094502,
+      "resolverMs": 88.68722799999978,
+      "probeMs": 801.1086339999856,
+      "readerMs": 1099.7839019999774,
+      "checkpointMs": 13.349282000016501,
+      "counters": {
+        "lstatCalls": 7936,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 4,
+      "variant": "callback",
+      "publicRunMs": 2073.278211,
+      "nativeMs": 2068.755639,
+      "sourceMs": 1882.656363,
+      "resolverMs": 117.2850040000003,
+      "probeMs": 856.0770030000213,
+      "readerMs": 1012.8849170000003,
+      "checkpointMs": 9.445758000008937,
+      "counters": {
+        "lstatCalls": 7936,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 22,
+      "variant": "baseline",
+      "publicRunMs": 6455.234904999999,
+      "nativeMs": 6449.883750000001,
+      "sourceMs": 5655.720510000001,
+      "resolverMs": 425.1199519999991,
+      "probeMs": 4826.737336999968,
+      "readerMs": 1094.1529959999589,
+      "checkpointMs": 14.307124000040858,
+      "counters": {
+        "lstatCalls": 43648,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 22,
+      "variant": "thin",
+      "publicRunMs": 6710.684066,
+      "nativeMs": 6695.166889,
+      "sourceMs": 5857.880406,
+      "resolverMs": 418.7962779999998,
+      "probeMs": 4783.609146000006,
+      "readerMs": 1234.013419000019,
+      "checkpointMs": 20.988093000054505,
+      "counters": {
+        "lstatCalls": 43648,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 22,
+      "variant": "callback",
+      "publicRunMs": 6454.728648,
+      "nativeMs": 6449.625473,
+      "sourceMs": 5665.369503,
+      "resolverMs": 429.10941699999967,
+      "probeMs": 4666.0347299999485,
+      "readerMs": 1241.7184869999874,
+      "checkpointMs": 20.34757299994817,
+      "counters": {
+        "lstatCalls": 43648,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 26,
+      "variant": "baseline",
+      "publicRunMs": 7954.052114000002,
+      "nativeMs": 7944.182169999998,
+      "sourceMs": 6840.402976000001,
+      "resolverMs": 506.6468679999998,
+      "probeMs": 5956.166841999957,
+      "readerMs": 1186.985765000014,
+      "checkpointMs": 20.825853000031202,
+      "counters": {
+        "lstatCalls": 51584,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 26,
+      "variant": "thin",
+      "publicRunMs": 7343.210238,
+      "nativeMs": 7330.341296999999,
+      "sourceMs": 6378.146545,
+      "resolverMs": 490.97626800000035,
+      "probeMs": 5499.41116300011,
+      "readerMs": 1187.017485000024,
+      "checkpointMs": 16.12698500002989,
+      "counters": {
+        "lstatCalls": 51584,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    },
+    {
+      "depth": 26,
+      "variant": "callback",
+      "publicRunMs": 7201.894777000001,
+      "nativeMs": 7189.175347000002,
+      "sourceMs": 6242.658293,
+      "resolverMs": 497.04457600000205,
+      "probeMs": 5378.032794000019,
+      "readerMs": 1196.3985799999882,
+      "checkpointMs": 18.2911680000052,
+      "counters": {
+        "lstatCalls": 51584,
+        "openCalls": 1856,
+        "bufferAllocationBytes": 1946158912,
+        "fileHandleReadCalls": 3712,
+        "fileHandleReturnedBytes": 3320800
+      }
+    }
+  ],
+  "safety": [
+    {
+      "runtime": "bun",
+      "variant": "baseline",
+      "cases": 21,
+      "exactBaselineResultsAndTraces": true,
+      "regressionTestsPassed": 29,
+      "cancellations": [
+        {
+          "phase": "source",
+          "trigger": "timer",
+          "eventDeliveryMs": 3.191174999999987,
+          "settleAfterAbortMs": 3.965896999999984,
+          "newOperationsAfterAbort": 27
+        },
+        {
+          "phase": "source",
+          "trigger": "io",
+          "eventDeliveryMs": 0.6957099999999627,
+          "settleAfterAbortMs": 6.286628000000007,
+          "newOperationsAfterAbort": 27
+        },
+        {
+          "phase": "target",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.155253000000016,
+          "settleAfterAbortMs": 0.8402959999999666,
+          "newOperationsAfterAbort": 1
+        },
+        {
+          "phase": "target",
+          "trigger": "io",
+          "eventDeliveryMs": 0.19022400000000061,
+          "settleAfterAbortMs": 0.20241599999997106,
+          "newOperationsAfterAbort": 1
+        },
+        {
+          "phase": "symlink",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1069520000000352,
+          "settleAfterAbortMs": 0.30663499999997157,
+          "newOperationsAfterAbort": 2
+        },
+        {
+          "phase": "symlink",
+          "trigger": "io",
+          "eventDeliveryMs": 0.18809200000004012,
+          "settleAfterAbortMs": 0.3688489999999547,
+          "newOperationsAfterAbort": 2
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "timer",
+          "eventDeliveryMs": 3.4450029999999856,
+          "settleAfterAbortMs": 0.016861000000005788
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "io",
+          "eventDeliveryMs": 2.160244999999975,
+          "settleAfterAbortMs": 0.018304000000000542
+        }
+      ]
+    },
+    {
+      "runtime": "bun",
+      "variant": "thin",
+      "cases": 21,
+      "exactBaselineResultsAndTraces": true,
+      "regressionTestsPassed": 29,
+      "cancellations": [
+        {
+          "phase": "source",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.2490099999999984,
+          "settleAfterAbortMs": 4.324308000000002,
+          "newOperationsAfterAbort": 27
+        },
+        {
+          "phase": "source",
+          "trigger": "io",
+          "eventDeliveryMs": 0.24440400000000295,
+          "settleAfterAbortMs": 3.5070080000000132,
+          "newOperationsAfterAbort": 27
+        },
+        {
+          "phase": "target",
+          "trigger": "timer",
+          "eventDeliveryMs": 2.8875019999999836,
+          "settleAfterAbortMs": 0.34303800000000706,
+          "newOperationsAfterAbort": 1
+        },
+        {
+          "phase": "target",
+          "trigger": "io",
+          "eventDeliveryMs": 0.13038099999999986,
+          "settleAfterAbortMs": 0.1645860000000141,
+          "newOperationsAfterAbort": 1
+        },
+        {
+          "phase": "symlink",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1263319999999908,
+          "settleAfterAbortMs": 0.26278000000002066,
+          "newOperationsAfterAbort": 2
+        },
+        {
+          "phase": "symlink",
+          "trigger": "io",
+          "eventDeliveryMs": 0.1387770000000046,
+          "settleAfterAbortMs": 0.33044399999999996,
+          "newOperationsAfterAbort": 2
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "timer",
+          "eventDeliveryMs": 2.521587000000011,
+          "settleAfterAbortMs": 2.495082999999994
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "io",
+          "eventDeliveryMs": 1.053089,
+          "settleAfterAbortMs": 0.019284999999996444
+        }
+      ]
+    },
+    {
+      "runtime": "bun",
+      "variant": "callback",
+      "cases": 21,
+      "exactBaselineResultsAndTraces": true,
+      "regressionTestsPassed": 29,
+      "cancellations": [
+        {
+          "phase": "source",
+          "trigger": "timer",
+          "eventDeliveryMs": 2.553595999999999,
+          "settleAfterAbortMs": 0.07967800000000125,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "source",
+          "trigger": "io",
+          "eventDeliveryMs": 0.2300999999999931,
+          "settleAfterAbortMs": 0.04490300000000502,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "target",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1105200000000082,
+          "settleAfterAbortMs": 0.1308830000000114,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "target",
+          "trigger": "io",
+          "eventDeliveryMs": 0.16294999999999504,
+          "settleAfterAbortMs": 0.03896199999999794,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "symlink",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1056389999999965,
+          "settleAfterAbortMs": 0.045583999999990965,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "symlink",
+          "trigger": "io",
+          "eventDeliveryMs": 0.2591189999999983,
+          "settleAfterAbortMs": 0.041566999999986365,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "timer",
+          "eventDeliveryMs": 2.443712000000005,
+          "settleAfterAbortMs": 0.007603999999986399
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "io",
+          "eventDeliveryMs": 1.1387860000000103,
+          "settleAfterAbortMs": 0.019445999999987862
+        }
+      ]
+    },
+    {
+      "runtime": "node",
+      "variant": "baseline",
+      "cases": 21,
+      "exactBaselineResultsAndTraces": true,
+      "regressionTestsPassed": 29,
+      "cancellations": [
+        {
+          "phase": "source",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.4112529999999879,
+          "settleAfterAbortMs": 3.0055690000000084,
+          "newOperationsAfterAbort": 27
+        },
+        {
+          "phase": "source",
+          "trigger": "io",
+          "eventDeliveryMs": 0.5765420000000177,
+          "settleAfterAbortMs": 3.240307999999999,
+          "newOperationsAfterAbort": 27
+        },
+        {
+          "phase": "target",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1752419999999972,
+          "settleAfterAbortMs": 0.22240300000001412,
+          "newOperationsAfterAbort": 1
+        },
+        {
+          "phase": "target",
+          "trigger": "io",
+          "eventDeliveryMs": 0.37136300000000233,
+          "settleAfterAbortMs": 0.1580109999999877,
+          "newOperationsAfterAbort": 1
+        },
+        {
+          "phase": "symlink",
+          "trigger": "timer",
+          "eventDeliveryMs": 0.07099199999998973,
+          "settleAfterAbortMs": 0.2859420000000057,
+          "newOperationsAfterAbort": 2
+        },
+        {
+          "phase": "symlink",
+          "trigger": "io",
+          "eventDeliveryMs": 0.5686829999999929,
+          "settleAfterAbortMs": 0.5153180000000077,
+          "newOperationsAfterAbort": 2
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "timer",
+          "eventDeliveryMs": 4.558504999999997,
+          "settleAfterAbortMs": 0.03304199999999469
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "io",
+          "eventDeliveryMs": 6.110607000000016,
+          "settleAfterAbortMs": 0.01586999999994987
+        }
+      ]
+    },
+    {
+      "runtime": "node",
+      "variant": "thin",
+      "cases": 21,
+      "exactBaselineResultsAndTraces": true,
+      "regressionTestsPassed": 29,
+      "cancellations": [
+        {
+          "phase": "source",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.340141000000017,
+          "settleAfterAbortMs": 3.0009729999999877,
+          "newOperationsAfterAbort": 27
+        },
+        {
+          "phase": "source",
+          "trigger": "io",
+          "eventDeliveryMs": 0.6602369999999951,
+          "settleAfterAbortMs": 2.9196059999999875,
+          "newOperationsAfterAbort": 27
+        },
+        {
+          "phase": "target",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1626949999999852,
+          "settleAfterAbortMs": 0.2003830000000164,
+          "newOperationsAfterAbort": 1
+        },
+        {
+          "phase": "target",
+          "trigger": "io",
+          "eventDeliveryMs": 0.3842339999999922,
+          "settleAfterAbortMs": 0.17128199999999083,
+          "newOperationsAfterAbort": 1
+        },
+        {
+          "phase": "symlink",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1839950000000101,
+          "settleAfterAbortMs": 0.39780999999999267,
+          "newOperationsAfterAbort": 2
+        },
+        {
+          "phase": "symlink",
+          "trigger": "io",
+          "eventDeliveryMs": 0.39175199999999677,
+          "settleAfterAbortMs": 0.2691000000000088,
+          "newOperationsAfterAbort": 2
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "timer",
+          "eventDeliveryMs": 4.573840999999987,
+          "settleAfterAbortMs": 0.03628700000001572
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "io",
+          "eventDeliveryMs": 5.652330999999975,
+          "settleAfterAbortMs": 0.019526000000013255
+        }
+      ]
+    },
+    {
+      "runtime": "node",
+      "variant": "callback",
+      "cases": 21,
+      "exactBaselineResultsAndTraces": true,
+      "regressionTestsPassed": 29,
+      "cancellations": [
+        {
+          "phase": "source",
+          "trigger": "timer",
+          "eventDeliveryMs": 0.21568100000001778,
+          "settleAfterAbortMs": 0.05227700000000368,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "source",
+          "trigger": "io",
+          "eventDeliveryMs": 0.5522770000000037,
+          "settleAfterAbortMs": 0.034063000000003285,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "target",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1483249999999998,
+          "settleAfterAbortMs": 0.08812299999999595,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "target",
+          "trigger": "io",
+          "eventDeliveryMs": 0.42026200000000813,
+          "settleAfterAbortMs": 0.053910999999999376,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "symlink",
+          "trigger": "timer",
+          "eventDeliveryMs": 1.1596349999999802,
+          "settleAfterAbortMs": 0.07727400000001694,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "symlink",
+          "trigger": "io",
+          "eventDeliveryMs": 0.36614000000000146,
+          "settleAfterAbortMs": 0.03141899999999964,
+          "newOperationsAfterAbort": 0
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "timer",
+          "eventDeliveryMs": 4.899055000000004,
+          "settleAfterAbortMs": 0.03013599999999883
+        },
+        {
+          "phase": "unhooked-8000-edges",
+          "trigger": "io",
+          "eventDeliveryMs": 7.236569000000003,
+          "settleAfterAbortMs": 0.023513999999977386
+        }
+      ]
+    }
+  ],
+  "normalizedSampleIndex": [
+    {
+      "rawSampleIndex": 0,
+      "fixtureDepth": 4,
+      "variant": "baseline",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 1,
+      "fixtureDepth": 4,
+      "variant": "thin",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 2,
+      "fixtureDepth": 4,
+      "variant": "callback",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 3,
+      "fixtureDepth": 22,
+      "variant": "baseline",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 4,
+      "fixtureDepth": 22,
+      "variant": "thin",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 5,
+      "fixtureDepth": 22,
+      "variant": "callback",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 6,
+      "fixtureDepth": 26,
+      "variant": "baseline",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 7,
+      "fixtureDepth": 26,
+      "variant": "thin",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 8,
+      "fixtureDepth": 26,
+      "variant": "callback",
+      "round": 1
+    },
+    {
+      "rawSampleIndex": 9,
+      "fixtureDepth": 22,
+      "variant": "thin",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 10,
+      "fixtureDepth": 22,
+      "variant": "callback",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 11,
+      "fixtureDepth": 22,
+      "variant": "baseline",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 12,
+      "fixtureDepth": 26,
+      "variant": "thin",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 13,
+      "fixtureDepth": 26,
+      "variant": "callback",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 14,
+      "fixtureDepth": 26,
+      "variant": "baseline",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 15,
+      "fixtureDepth": 4,
+      "variant": "thin",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 16,
+      "fixtureDepth": 4,
+      "variant": "callback",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 17,
+      "fixtureDepth": 4,
+      "variant": "baseline",
+      "round": 2
+    },
+    {
+      "rawSampleIndex": 18,
+      "fixtureDepth": 26,
+      "variant": "callback",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 19,
+      "fixtureDepth": 26,
+      "variant": "baseline",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 20,
+      "fixtureDepth": 26,
+      "variant": "thin",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 21,
+      "fixtureDepth": 4,
+      "variant": "callback",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 22,
+      "fixtureDepth": 4,
+      "variant": "baseline",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 23,
+      "fixtureDepth": 4,
+      "variant": "thin",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 24,
+      "fixtureDepth": 22,
+      "variant": "callback",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 25,
+      "fixtureDepth": 22,
+      "variant": "baseline",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 26,
+      "fixtureDepth": 22,
+      "variant": "thin",
+      "round": 3
+    },
+    {
+      "rawSampleIndex": 27,
+      "fixtureDepth": 4,
+      "variant": "callback",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 28,
+      "fixtureDepth": 4,
+      "variant": "thin",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 29,
+      "fixtureDepth": 4,
+      "variant": "baseline",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 30,
+      "fixtureDepth": 22,
+      "variant": "callback",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 31,
+      "fixtureDepth": 22,
+      "variant": "thin",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 32,
+      "fixtureDepth": 22,
+      "variant": "baseline",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 33,
+      "fixtureDepth": 26,
+      "variant": "callback",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 34,
+      "fixtureDepth": 26,
+      "variant": "thin",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 35,
+      "fixtureDepth": 26,
+      "variant": "baseline",
+      "round": 4
+    },
+    {
+      "rawSampleIndex": 36,
+      "fixtureDepth": 22,
+      "variant": "thin",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 37,
+      "fixtureDepth": 22,
+      "variant": "baseline",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 38,
+      "fixtureDepth": 22,
+      "variant": "callback",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 39,
+      "fixtureDepth": 26,
+      "variant": "thin",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 40,
+      "fixtureDepth": 26,
+      "variant": "baseline",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 41,
+      "fixtureDepth": 26,
+      "variant": "callback",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 42,
+      "fixtureDepth": 4,
+      "variant": "thin",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 43,
+      "fixtureDepth": 4,
+      "variant": "baseline",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 44,
+      "fixtureDepth": 4,
+      "variant": "callback",
+      "round": 5
+    },
+    {
+      "rawSampleIndex": 45,
+      "fixtureDepth": 26,
+      "variant": "baseline",
+      "round": 6
+    },
+    {
+      "rawSampleIndex": 46,
+      "fixtureDepth": 26,
+      "variant": "callback",
+      "round": 6
+    },
+    {
+      "rawSampleIndex": 47,
+      "fixtureDepth": 26,
+      "variant": "thin",
+      "round": 6
+    },
+    {
+      "rawSampleIndex": 48,
+      "fixtureDepth": 4,
+      "variant": "baseline",
+      "round": 6
+    },
+    {
+      "rawSampleIndex": 49,
+      "fixtureDepth": 4,
+      "variant": "callback",
+      "round": 6
+    },
+    {
+      "rawSampleIndex": 50,
+      "fixtureDepth": 4,
+      "variant": "thin",
+      "round": 6
+    },
+    {
+      "rawSampleIndex": 51,
+      "fixtureDepth": 22,
+      "variant": "baseline",
+      "round": 6
+    },
+    {
+      "rawSampleIndex": 52,
+      "fixtureDepth": 22,
+      "variant": "callback",
+      "round": 6
+    },
+    {
+      "rawSampleIndex": 53,
+      "fixtureDepth": 22,
+      "variant": "thin",
+      "round": 6
+    }
+  ]
+}

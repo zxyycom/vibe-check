@@ -1,0 +1,3042 @@
+{
+  "startedAt": "2026-10-21T14:19:39.714Z",
+  "environment": {
+    "bun": "1.3.14",
+    "node": "v24.18.0",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "logicalCpus": 6,
+    "head": "34c58409fde4f63c264762711d99ae918e159b15"
+  },
+  "identitySha256": "f18522989433e7d852720c1c99fb1f7e5e56286de8f1d2782f3d94102d6912d9",
+  "driverSha256": "98d1a4d237b74c1889eb3bb4c45b5fd1fb1285cabd82fcf2ec6159b2cacef181",
+  "samples": [
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:19:40.546Z",
+      "finishedAt": "2026-10-21T14:19:46.510Z",
+      "loadBefore": [
+        0.28,
+        0.17,
+        0.09
+      ],
+      "loadAfter": [
+        0.34,
+        0.18,
+        0.09
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2063.0360550000005,
+      "cpu": {
+        "user": 880325,
+        "system": 1578481
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 206348,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:19:46.511Z",
+      "finishedAt": "2026-10-21T14:19:52.346Z",
+      "loadBefore": [
+        0.34,
+        0.18,
+        0.09
+      ],
+      "loadAfter": [
+        0.44,
+        0.21,
+        0.1
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2030.8899070000002,
+      "cpu": {
+        "user": 820432,
+        "system": 1581309
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 204284,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:19:52.347Z",
+      "finishedAt": "2026-10-21T14:19:58.226Z",
+      "loadBefore": [
+        0.44,
+        0.21,
+        0.1
+      ],
+      "loadAfter": [
+        0.49,
+        0.22,
+        0.11
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2195.3829769999998,
+      "cpu": {
+        "user": 982138,
+        "system": 1638161
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 208836,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:19:58.226Z",
+      "finishedAt": "2026-10-21T14:20:13.104Z",
+      "loadBefore": [
+        0.49,
+        0.22,
+        0.11
+      ],
+      "loadAfter": [
+        0.66,
+        0.28,
+        0.13
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6209.869232999999,
+      "cpu": {
+        "user": 1895754,
+        "system": 5134645
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 168048,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:20:13.105Z",
+      "finishedAt": "2026-10-21T14:20:27.375Z",
+      "loadBefore": [
+        0.66,
+        0.28,
+        0.13
+      ],
+      "loadAfter": [
+        0.88,
+        0.35,
+        0.15
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6182.190073000001,
+      "cpu": {
+        "user": 1928328,
+        "system": 5100470
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 175056,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:20:27.375Z",
+      "finishedAt": "2026-10-21T14:20:41.533Z",
+      "loadBefore": [
+        0.88,
+        0.35,
+        0.15
+      ],
+      "loadAfter": [
+        0.98,
+        0.38,
+        0.17
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6118.532341,
+      "cpu": {
+        "user": 2061100,
+        "system": 4943822
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 172728,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:20:41.533Z",
+      "finishedAt": "2026-10-21T14:20:57.937Z",
+      "loadBefore": [
+        0.98,
+        0.38,
+        0.17
+      ],
+      "loadAfter": [
+        1.08,
+        0.44,
+        0.19
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7139.458742000001,
+      "cpu": {
+        "user": 2056675,
+        "system": 6013973
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 168592,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:20:57.937Z",
+      "finishedAt": "2026-10-21T14:21:13.922Z",
+      "loadBefore": [
+        1.08,
+        0.44,
+        0.19
+      ],
+      "loadAfter": [
+        1.14,
+        0.49,
+        0.21
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6969.3234649999995,
+      "cpu": {
+        "user": 2260257,
+        "system": 5640621
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 173204,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:21:13.922Z",
+      "finishedAt": "2026-10-21T14:21:29.974Z",
+      "loadBefore": [
+        1.14,
+        0.49,
+        0.21
+      ],
+      "loadAfter": [
+        1.26,
+        0.55,
+        0.23
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7013.8540219999995,
+      "cpu": {
+        "user": 2220433,
+        "system": 5771397
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 171072,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:21:29.975Z",
+      "finishedAt": "2026-10-21T14:21:44.186Z",
+      "loadBefore": [
+        1.26,
+        0.55,
+        0.23
+      ],
+      "loadAfter": [
+        1.5,
+        0.63,
+        0.27
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6092.226263,
+      "cpu": {
+        "user": 2079847,
+        "system": 4861159
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 168288,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:21:44.186Z",
+      "finishedAt": "2026-10-21T14:21:58.290Z",
+      "loadBefore": [
+        1.5,
+        0.63,
+        0.27
+      ],
+      "loadAfter": [
+        1.68,
+        0.72,
+        0.3
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6086.064144,
+      "cpu": {
+        "user": 1888388,
+        "system": 5062978
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 174164,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:21:58.291Z",
+      "finishedAt": "2026-10-21T14:22:12.564Z",
+      "loadBefore": [
+        1.68,
+        0.72,
+        0.3
+      ],
+      "loadAfter": [
+        1.53,
+        0.73,
+        0.31
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6144.941291000001,
+      "cpu": {
+        "user": 1999059,
+        "system": 4937795
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 174596,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:22:12.565Z",
+      "finishedAt": "2026-10-21T14:22:28.772Z",
+      "loadBefore": [
+        1.53,
+        0.73,
+        0.31
+      ],
+      "loadAfter": [
+        1.49,
+        0.76,
+        0.33
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7039.395141999999,
+      "cpu": {
+        "user": 2136707,
+        "system": 5859359
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 169392,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:22:28.773Z",
+      "finishedAt": "2026-10-21T14:22:45.513Z",
+      "loadBefore": [
+        1.49,
+        0.76,
+        0.33
+      ],
+      "loadAfter": [
+        1.39,
+        0.78,
+        0.34
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7119.580935,
+      "cpu": {
+        "user": 2311485,
+        "system": 5796147
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 174748,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:22:45.514Z",
+      "finishedAt": "2026-10-21T14:23:02.852Z",
+      "loadBefore": [
+        1.39,
+        0.78,
+        0.34
+      ],
+      "loadAfter": [
+        1.44,
+        0.83,
+        0.37
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7679.399294999999,
+      "cpu": {
+        "user": 2718286,
+        "system": 5968088
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 176568,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:23:02.853Z",
+      "finishedAt": "2026-10-21T14:23:08.839Z",
+      "loadBefore": [
+        1.44,
+        0.83,
+        0.37
+      ],
+      "loadAfter": [
+        1.4,
+        0.83,
+        0.37
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 1998.4262559999997,
+      "cpu": {
+        "user": 718342,
+        "system": 1663973
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 176784,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:23:08.839Z",
+      "finishedAt": "2026-10-21T14:23:14.625Z",
+      "loadBefore": [
+        1.4,
+        0.83,
+        0.37
+      ],
+      "loadAfter": [
+        1.37,
+        0.83,
+        0.38
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 1998.7439389999995,
+      "cpu": {
+        "user": 718305,
+        "system": 1647561
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 178128,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 2,
+      "startedAt": "2026-10-21T14:23:14.626Z",
+      "finishedAt": "2026-10-21T14:23:21.030Z",
+      "loadBefore": [
+        1.37,
+        0.83,
+        0.38
+      ],
+      "loadAfter": [
+        1.42,
+        0.85,
+        0.38
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2563.689082,
+      "cpu": {
+        "user": 1231762,
+        "system": 1896778
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 176344,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:23:21.030Z",
+      "finishedAt": "2026-10-21T14:23:37.756Z",
+      "loadBefore": [
+        1.42,
+        0.85,
+        0.38
+      ],
+      "loadAfter": [
+        1.3,
+        0.86,
+        0.4
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7307.983763,
+      "cpu": {
+        "user": 2337196,
+        "system": 5963480
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 168136,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:23:37.756Z",
+      "finishedAt": "2026-10-21T14:23:54.234Z",
+      "loadBefore": [
+        1.3,
+        0.86,
+        0.4
+      ],
+      "loadAfter": [
+        1.65,
+        0.97,
+        0.44
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7264.541039,
+      "cpu": {
+        "user": 2421526,
+        "system": 5797464
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 169976,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:23:54.234Z",
+      "finishedAt": "2026-10-21T14:24:10.488Z",
+      "loadBefore": [
+        1.65,
+        0.97,
+        0.44
+      ],
+      "loadAfter": [
+        1.8,
+        1.03,
+        0.47
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7161.542995,
+      "cpu": {
+        "user": 2215999,
+        "system": 5910595
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 173848,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:24:10.488Z",
+      "finishedAt": "2026-10-21T14:24:17.391Z",
+      "loadBefore": [
+        1.8,
+        1.03,
+        0.47
+      ],
+      "loadAfter": [
+        1.84,
+        1.07,
+        0.49
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2411.901661,
+      "cpu": {
+        "user": 1019224,
+        "system": 1879356
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 174896,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:24:17.391Z",
+      "finishedAt": "2026-10-21T14:24:23.587Z",
+      "loadBefore": [
+        1.84,
+        1.07,
+        0.49
+      ],
+      "loadAfter": [
+        1.77,
+        1.07,
+        0.49
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2072.925722,
+      "cpu": {
+        "user": 865139,
+        "system": 1575277
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 179784,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:24:23.588Z",
+      "finishedAt": "2026-10-21T14:24:29.391Z",
+      "loadBefore": [
+        1.77,
+        1.07,
+        0.49
+      ],
+      "loadAfter": [
+        1.79,
+        1.08,
+        0.5
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2049.6116719999995,
+      "cpu": {
+        "user": 811995,
+        "system": 1652089
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 179444,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:24:29.391Z",
+      "finishedAt": "2026-10-21T14:24:43.875Z",
+      "loadBefore": [
+        1.79,
+        1.08,
+        0.5
+      ],
+      "loadAfter": [
+        1.77,
+        1.11,
+        0.52
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6312.284912,
+      "cpu": {
+        "user": 1953969,
+        "system": 5224326
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 174204,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:24:43.875Z",
+      "finishedAt": "2026-10-21T14:24:59.460Z",
+      "loadBefore": [
+        1.77,
+        1.11,
+        0.52
+      ],
+      "loadAfter": [
+        1.68,
+        1.12,
+        0.53
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6538.337629,
+      "cpu": {
+        "user": 2239294,
+        "system": 5190861
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 168912,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 3,
+      "startedAt": "2026-10-21T14:24:59.460Z",
+      "finishedAt": "2026-10-21T14:25:15.843Z",
+      "loadBefore": [
+        1.68,
+        1.12,
+        0.53
+      ],
+      "loadAfter": [
+        1.69,
+        1.15,
+        0.55
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6856.268870999998,
+      "cpu": {
+        "user": 2425824,
+        "system": 5328217
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 173440,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:25:15.844Z",
+      "finishedAt": "2026-10-21T14:25:22.093Z",
+      "loadBefore": [
+        1.69,
+        1.15,
+        0.55
+      ],
+      "loadAfter": [
+        1.63,
+        1.15,
+        0.55
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2225.056669,
+      "cpu": {
+        "user": 926592,
+        "system": 1694985
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 177204,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:25:22.093Z",
+      "finishedAt": "2026-10-21T14:25:28.272Z",
+      "loadBefore": [
+        1.63,
+        1.15,
+        0.55
+      ],
+      "loadAfter": [
+        1.62,
+        1.16,
+        0.56
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2206.0978680000003,
+      "cpu": {
+        "user": 872065,
+        "system": 1753002
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 174348,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:25:28.273Z",
+      "finishedAt": "2026-10-21T14:25:34.545Z",
+      "loadBefore": [
+        1.62,
+        1.16,
+        0.56
+      ],
+      "loadAfter": [
+        1.81,
+        1.21,
+        0.58
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2056.0411989999993,
+      "cpu": {
+        "user": 843070,
+        "system": 1607062
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 177068,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:25:34.546Z",
+      "finishedAt": "2026-10-21T14:25:49.666Z",
+      "loadBefore": [
+        1.81,
+        1.21,
+        0.58
+      ],
+      "loadAfter": [
+        2.01,
+        1.28,
+        0.62
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6530.527652999999,
+      "cpu": {
+        "user": 2152945,
+        "system": 5302721
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 174640,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:25:49.667Z",
+      "finishedAt": "2026-10-21T14:26:06.563Z",
+      "loadBefore": [
+        2.01,
+        1.28,
+        0.62
+      ],
+      "loadAfter": [
+        2.19,
+        1.35,
+        0.65
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6925.157442999998,
+      "cpu": {
+        "user": 2484545,
+        "system": 5421047
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 172764,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:26:06.563Z",
+      "finishedAt": "2026-10-21T14:26:21.942Z",
+      "loadBefore": [
+        2.19,
+        1.35,
+        0.65
+      ],
+      "loadAfter": [
+        1.93,
+        1.33,
+        0.66
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6466.200150999999,
+      "cpu": {
+        "user": 2255513,
+        "system": 5091208
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 168452,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:26:21.943Z",
+      "finishedAt": "2026-10-21T14:26:39.130Z",
+      "loadBefore": [
+        1.93,
+        1.33,
+        0.66
+      ],
+      "loadAfter": [
+        1.81,
+        1.34,
+        0.68
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7511.682956999999,
+      "cpu": {
+        "user": 2538357,
+        "system": 6040146
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 173032,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:26:39.130Z",
+      "finishedAt": "2026-10-21T14:26:55.629Z",
+      "loadBefore": [
+        1.81,
+        1.34,
+        0.68
+      ],
+      "loadAfter": [
+        1.69,
+        1.34,
+        0.69
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7065.317384000002,
+      "cpu": {
+        "user": 2301934,
+        "system": 5744472
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 168396,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 4,
+      "startedAt": "2026-10-21T14:26:55.630Z",
+      "finishedAt": "2026-10-21T14:27:13.924Z",
+      "loadBefore": [
+        1.69,
+        1.34,
+        0.69
+      ],
+      "loadAfter": [
+        1.7,
+        1.37,
+        0.71
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 9046.394007,
+      "cpu": {
+        "user": 3303970,
+        "system": 7032590
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 171568,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:27:13.924Z",
+      "finishedAt": "2026-10-21T14:27:28.653Z",
+      "loadBefore": [
+        1.7,
+        1.37,
+        0.71
+      ],
+      "loadAfter": [
+        1.7,
+        1.38,
+        0.73
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6527.023469999999,
+      "cpu": {
+        "user": 2276693,
+        "system": 4846079
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 172300,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:27:28.653Z",
+      "finishedAt": "2026-10-21T14:27:43.818Z",
+      "loadBefore": [
+        1.7,
+        1.38,
+        0.73
+      ],
+      "loadAfter": [
+        1.62,
+        1.38,
+        0.74
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6290.935011,
+      "cpu": {
+        "user": 2121505,
+        "system": 5012226
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 174588,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:27:43.818Z",
+      "finishedAt": "2026-10-21T14:27:58.376Z",
+      "loadBefore": [
+        1.62,
+        1.38,
+        0.74
+      ],
+      "loadAfter": [
+        1.48,
+        1.36,
+        0.74
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6208.3733870000015,
+      "cpu": {
+        "user": 1998823,
+        "system": 5091278
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 173984,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:27:58.377Z",
+      "finishedAt": "2026-10-21T14:28:15.485Z",
+      "loadBefore": [
+        1.48,
+        1.36,
+        0.74
+      ],
+      "loadAfter": [
+        1.64,
+        1.41,
+        0.77
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7044.224550000003,
+      "cpu": {
+        "user": 2295697,
+        "system": 5689012
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 177040,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:28:15.486Z",
+      "finishedAt": "2026-10-21T14:28:32.935Z",
+      "loadBefore": [
+        1.64,
+        1.41,
+        0.77
+      ],
+      "loadAfter": [
+        1.66,
+        1.43,
+        0.79
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7296.014892000001,
+      "cpu": {
+        "user": 2402842,
+        "system": 5845520
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 175032,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:28:32.936Z",
+      "finishedAt": "2026-10-21T14:28:51.342Z",
+      "loadBefore": [
+        1.66,
+        1.43,
+        0.79
+      ],
+      "loadAfter": [
+        1.9,
+        1.49,
+        0.82
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 8299.874457,
+      "cpu": {
+        "user": 3092290,
+        "system": 5993390
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 173660,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:28:51.342Z",
+      "finishedAt": "2026-10-21T14:28:58.020Z",
+      "loadBefore": [
+        1.9,
+        1.49,
+        0.82
+      ],
+      "loadAfter": [
+        2,
+        1.52,
+        0.84
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2195.1737120000007,
+      "cpu": {
+        "user": 865581,
+        "system": 1692588
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 175608,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:28:58.021Z",
+      "finishedAt": "2026-10-21T14:29:07.082Z",
+      "loadBefore": [
+        2,
+        1.52,
+        0.84
+      ],
+      "loadAfter": [
+        1.92,
+        1.52,
+        0.84
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 3289.6826820000006,
+      "cpu": {
+        "user": 1458512,
+        "system": 2541547
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 173764,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 5,
+      "startedAt": "2026-10-21T14:29:07.083Z",
+      "finishedAt": "2026-10-21T14:29:16.077Z",
+      "loadBefore": [
+        1.92,
+        1.52,
+        0.84
+      ],
+      "loadAfter": [
+        1.78,
+        1.5,
+        0.84
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2366.2684440000003,
+      "cpu": {
+        "user": 1095802,
+        "system": 1752626
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 170940,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:29:16.078Z",
+      "finishedAt": "2026-10-21T14:29:35.027Z",
+      "loadBefore": [
+        1.78,
+        1.5,
+        0.84
+      ],
+      "loadAfter": [
+        2.76,
+        1.71,
+        0.93
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7253.71819,
+      "cpu": {
+        "user": 2670224,
+        "system": 3977345
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 173352,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:29:35.029Z",
+      "finishedAt": "2026-10-21T14:29:57.005Z",
+      "loadBefore": [
+        2.76,
+        1.71,
+        0.93
+      ],
+      "loadAfter": [
+        2.41,
+        1.7,
+        0.94
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 9167.365484,
+      "cpu": {
+        "user": 3340603,
+        "system": 7136932
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 167020,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:29:57.005Z",
+      "finishedAt": "2026-10-21T14:30:14.509Z",
+      "loadBefore": [
+        2.41,
+        1.7,
+        0.94
+      ],
+      "loadAfter": [
+        2.15,
+        1.69,
+        0.95
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7165.397925000001,
+      "cpu": {
+        "user": 2199103,
+        "system": 5958924
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 167700,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:30:14.509Z",
+      "finishedAt": "2026-10-21T14:30:20.233Z",
+      "loadBefore": [
+        2.15,
+        1.69,
+        0.95
+      ],
+      "loadAfter": [
+        2.3,
+        1.73,
+        0.97
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 1995.2712940000006,
+      "cpu": {
+        "user": 705569,
+        "system": 1650353
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 181388,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:30:20.233Z",
+      "finishedAt": "2026-10-21T14:30:25.963Z",
+      "loadBefore": [
+        2.3,
+        1.73,
+        0.97
+      ],
+      "loadAfter": [
+        2.2,
+        1.72,
+        0.97
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2067.6518469999996,
+      "cpu": {
+        "user": 719925,
+        "system": 1663601
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 175336,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:30:25.964Z",
+      "finishedAt": "2026-10-21T14:30:32.290Z",
+      "loadBefore": [
+        2.2,
+        1.72,
+        0.97
+      ],
+      "loadAfter": [
+        2.5,
+        1.79,
+        1
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 1995.6953780000003,
+      "cpu": {
+        "user": 748819,
+        "system": 1620717
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 168984,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:30:32.291Z",
+      "finishedAt": "2026-10-21T14:30:46.975Z",
+      "loadBefore": [
+        2.5,
+        1.79,
+        1
+      ],
+      "loadAfter": [
+        2.56,
+        1.83,
+        1.03
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6301.514913999999,
+      "cpu": {
+        "user": 2155650,
+        "system": 4967982
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 170096,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:30:46.976Z",
+      "finishedAt": "2026-10-21T14:31:03.070Z",
+      "loadBefore": [
+        2.56,
+        1.83,
+        1.03
+      ],
+      "loadAfter": [
+        3.28,
+        2.04,
+        1.11
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6898.813905999999,
+      "cpu": {
+        "user": 2400384,
+        "system": 4756207
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 165848,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "plain",
+      "depth": 0,
+      "round": 6,
+      "startedAt": "2026-10-21T14:31:03.070Z",
+      "finishedAt": "2026-10-21T14:31:17.635Z",
+      "loadBefore": [
+        3.28,
+        2.04,
+        1.11
+      ],
+      "loadAfter": [
+        3.68,
+        2.18,
+        1.17
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 4902.083445999999,
+      "cpu": {
+        "user": 1583838,
+        "system": 2648959
+      },
+      "profile": {
+        "metrics": {},
+        "counters": {}
+      },
+      "maxRssKiB": 183104,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:31:17.636Z",
+      "finishedAt": "2026-10-21T14:31:24.283Z",
+      "loadBefore": [
+        3.68,
+        2.18,
+        1.17
+      ],
+      "loadAfter": [
+        3.55,
+        2.18,
+        1.18
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2275.29305,
+      "cpu": {
+        "user": 982953,
+        "system": 1639351
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 11.114958000031038
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 934.7470570000023
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1140.258871999994
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 0.6620880000000398
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 31.009721000000354
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 2085.669126
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 1.4786189999949784
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 117.71272700000009
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 2270.946737
+          }
+        },
+        "counters": {
+          "lstatCalls": 7936,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 202516,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:31:24.284Z",
+      "finishedAt": "2026-10-21T14:31:31.271Z",
+      "loadBefore": [
+        3.55,
+        2.18,
+        1.18
+      ],
+      "loadAfter": [
+        4.14,
+        2.33,
+        1.23
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2154.323048,
+      "cpu": {
+        "user": 811637,
+        "system": 966529
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 11.716498000008869
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 801.1086339999856
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1099.7839019999774
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 0.4594440000000759
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 48.27701900000011
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 1974.094502
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 1.6327840000076321
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 88.68722799999978
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 2149.5541999999996
+          }
+        },
+        "counters": {
+          "lstatCalls": 7936,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 208032,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:31:31.283Z",
+      "finishedAt": "2026-10-21T14:31:39.025Z",
+      "loadBefore": [
+        4.14,
+        2.33,
+        1.23
+      ],
+      "loadAfter": [
+        4.18,
+        2.4,
+        1.27
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 2073.278211,
+      "cpu": {
+        "user": 842780,
+        "system": 1639216
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 7.959652000011374
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 856.0770030000213
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1012.8849170000003
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 5.041925000000447
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 45.08229400000073
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 1882.656363
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 1.4861059999975623
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 117.2850040000003
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 2068.755639
+          }
+        },
+        "counters": {
+          "lstatCalls": 7936,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 192412,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:31:39.025Z",
+      "finishedAt": "2026-10-21T14:31:54.026Z",
+      "loadBefore": [
+        4.18,
+        2.4,
+        1.27
+      ],
+      "loadAfter": [
+        3.47,
+        2.33,
+        1.26
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6455.234904999999,
+      "cpu": {
+        "user": 2152947,
+        "system": 5104890
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 12.772132000014608
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 4826.737336999968
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1094.1529959999589
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 0.629849999999351
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 32.60940800000026
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 5655.720510000001
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 1.53499200002625
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 425.1199519999991
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 6449.883750000001
+          }
+        },
+        "counters": {
+          "lstatCalls": 43648,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 174868,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:31:54.027Z",
+      "finishedAt": "2026-10-21T14:32:09.843Z",
+      "loadBefore": [
+        3.47,
+        2.33,
+        1.26
+      ],
+      "loadAfter": [
+        3.74,
+        2.45,
+        1.32
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6710.684066,
+      "cpu": {
+        "user": 2282110,
+        "system": 5235360
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 16.529274000035002
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 4783.609146000006
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1234.013419000019
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 1.0396819999987201
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 78.338076
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 5857.880406
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 4.458819000019503
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 418.7962779999998
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 6695.166889
+          }
+        },
+        "counters": {
+          "lstatCalls": 43648,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 168160,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:32:09.843Z",
+      "finishedAt": "2026-10-21T14:32:24.694Z",
+      "loadBefore": [
+        3.74,
+        2.45,
+        1.32
+      ],
+      "loadAfter": [
+        3.77,
+        2.51,
+        1.36
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 6454.728648,
+      "cpu": {
+        "user": 2085369,
+        "system": 5075582
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 16.957505999951536
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 4666.0347299999485
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1241.7184869999874
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 1.0403299999998126
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 32.08206599999903
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 5665.369503
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 3.390066999996634
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 429.10941699999967
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 6449.625473
+          }
+        },
+        "counters": {
+          "lstatCalls": 43648,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 175788,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:32:24.694Z",
+      "finishedAt": "2026-10-21T14:32:43.382Z",
+      "loadBefore": [
+        3.77,
+        2.51,
+        1.36
+      ],
+      "loadAfter": [
+        3.47,
+        2.52,
+        1.39
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7954.052114000002,
+      "cpu": {
+        "user": 3078199,
+        "system": 5830326
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 16.13458000004539
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 5956.166841999957
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1186.985765000014
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 0.8979070000004867
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 38.71801300000152
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 6840.402976000001
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 4.691272999985813
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 506.6468679999998
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 7944.182169999998
+          }
+        },
+        "counters": {
+          "lstatCalls": 51584,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 175780,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "thin",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:32:43.383Z",
+      "finishedAt": "2026-10-21T14:33:00.270Z",
+      "loadBefore": [
+        3.47,
+        2.52,
+        1.39
+      ],
+      "loadAfter": [
+        3.13,
+        2.5,
+        1.4
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7343.210238,
+      "cpu": {
+        "user": 2664193,
+        "system": 5688487
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 14.426714000041102
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 5499.41116300011
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1187.017485000024
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 1.0353279999999359
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 33.635887000000366
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 6378.146545
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 1.7002709999887884
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 490.97626800000035
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 7330.341296999999
+          }
+        },
+        "counters": {
+          "lstatCalls": 51584,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 172588,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    },
+    {
+      "variant": "callback",
+      "mode": "profile",
+      "depth": 0,
+      "round": 1,
+      "startedAt": "2026-10-21T14:33:00.271Z",
+      "finishedAt": "2026-10-21T14:33:16.719Z",
+      "loadBefore": [
+        3.13,
+        2.5,
+        1.4
+      ],
+      "loadAfter": [
+        2.66,
+        2.42,
+        1.39
+      ],
+      "shape": "real",
+      "count": 0,
+      "cacheState": "hit",
+      "elapsedMs": 7201.894777000001,
+      "cpu": {
+        "user": 2403816,
+        "system": 5779033
+      },
+      "profile": {
+        "metrics": {
+          "source-traversal.ts:checkpoint": {
+            "calls": 1835,
+            "inclusiveMs": 12.874462000005224
+          },
+          "filesystem-probes.ts:probeRootContainedPath": {
+            "calls": 1984,
+            "inclusiveMs": 5378.032794000019
+          },
+          "filesystem-probes.ts:readRegularFile": {
+            "calls": 1856,
+            "inclusiveMs": 1196.3985799999882
+          },
+          "session.ts:#readCacheFile": {
+            "calls": 1,
+            "inclusiveMs": 0.7215099999993981
+          },
+          "session.ts:#restore": {
+            "calls": 1,
+            "inclusiveMs": 34.04874199999904
+          },
+          "source-traversal.ts:collectSourceReferences": {
+            "calls": 1,
+            "inclusiveMs": 6242.658293
+          },
+          "resolver-engine.ts:#checkpoint": {
+            "calls": 307,
+            "inclusiveMs": 5.4167059999999765
+          },
+          "resolver-engine.ts:resolveAll": {
+            "calls": 1,
+            "inclusiveMs": 497.04457600000205
+          },
+          "execution.ts:executeMarkdownLinkValidation": {
+            "calls": 1,
+            "inclusiveMs": 7189.175347000002
+          }
+        },
+        "counters": {
+          "lstatCalls": 51584,
+          "openCalls": 1856,
+          "bufferAllocationBytes": 1946158912,
+          "fileHandleReadCalls": 3712,
+          "fileHandleReturnedBytes": 3320800
+        }
+      },
+      "maxRssKiB": 169140,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "occurrenceCount": 1193,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 1824,
+          "targetReadCount": 777
+        }
+      }
+    }
+  ],
+  "fixtures": [
+    {
+      "synthetic": true,
+      "sourceCount": 1824,
+      "sourceBytes": 3320000,
+      "depth": 4,
+      "withLinks": true,
+      "caseSources": 1221,
+      "caseSourcesWithReferences": 6,
+      "sourcesWithReferences": 175,
+      "occurrenceCount": 1193,
+      "logicalDirectCount": 777,
+      "directTargetNodesIntended": 296,
+      "sourceTargetOverlapIntended": 136,
+      "targetOnlyFiles": 130,
+      "targetOnlyDirectories": 30,
+      "assumptions": "Equal-sized unique documents, one heading each, 32 target-only Markdown heading reads, remaining nonlocal links are HTTP, paths have fixed requested depth; not the user's original corpus.",
+      "sourceManifestSha256": "650c4d04ea9c486e54f15dbff16e474ce58c67d69f1ac8991cad09738eec4cb7"
+    },
+    {
+      "synthetic": true,
+      "sourceCount": 1824,
+      "sourceBytes": 3320000,
+      "depth": 22,
+      "withLinks": true,
+      "caseSources": 1221,
+      "caseSourcesWithReferences": 6,
+      "sourcesWithReferences": 175,
+      "occurrenceCount": 1193,
+      "logicalDirectCount": 777,
+      "directTargetNodesIntended": 296,
+      "sourceTargetOverlapIntended": 136,
+      "targetOnlyFiles": 130,
+      "targetOnlyDirectories": 30,
+      "assumptions": "Equal-sized unique documents, one heading each, 32 target-only Markdown heading reads, remaining nonlocal links are HTTP, paths have fixed requested depth; not the user's original corpus.",
+      "sourceManifestSha256": "fee4d32ad4e68c3868706e5c3c9286c9cfb4294a06af3ad62c9af444ffaf68af"
+    },
+    {
+      "synthetic": true,
+      "sourceCount": 1824,
+      "sourceBytes": 3320000,
+      "depth": 26,
+      "withLinks": true,
+      "caseSources": 1221,
+      "caseSourcesWithReferences": 6,
+      "sourcesWithReferences": 175,
+      "occurrenceCount": 1193,
+      "logicalDirectCount": 777,
+      "directTargetNodesIntended": 296,
+      "sourceTargetOverlapIntended": 136,
+      "targetOnlyFiles": 130,
+      "targetOnlyDirectories": 30,
+      "assumptions": "Equal-sized unique documents, one heading each, 32 target-only Markdown heading reads, remaining nonlocal links are HTTP, paths have fixed requested depth; not the user's original corpus.",
+      "sourceManifestSha256": "ca756d45a3a3da94a9eccf60beb51ff14e8fcc3f6c966370529c2cd429835b9f"
+    }
+  ],
+  "finishedAt": "2026-10-21T14:33:16.720Z"
+}
