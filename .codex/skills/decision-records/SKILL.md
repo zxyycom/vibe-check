@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "77"
+  version: "88"
 ---
 
 # Decision Records
@@ -101,19 +101,38 @@ agent 在委托范围内自行完成语义审查与采用判断。“已确认�
 
 ### 5. 验证与交付
 
-1. 已知合法来源变化先 `sync-index` 再严格 `check`；未解释的索引异常先检查诊断。已建立集合维护后运行严格 `check`；首次候选集合按恢复手册验收。
+1. 已知合法正式来源手改先 `sync-index`；普通维护按本次来源、依赖和最终发布图交付。任务要求当前全集健康时，在维护批次验收运行严格 `check`；删除、身份更正和恢复继续按各自严格契约验收。未解释的索引异常先检查诊断，首次候选集合按恢复手册处理。
 2. 任务要求 Git 待提交快照时，再按[待提交快照](references/cli-operations.md#待提交快照)运行 `stage`。commit 与 push 分别服从当前授权。
 3. 只读任务说明适用判断及结果边界；候选任务说明回放价值与 readiness；维护任务说明实际状态、关系、删除或对齐变化及验证证据；暂存任务说明所选完整 ID 与 pending 结果。
 
 完成前确认：记录值得回放，方向和边界清楚，关系真实直接，alignment 有完整事实依据。机械验证与语义判断分别交付；未验证内容明确标出。
 
-## CLI 入口
+## 工具运行前置
 
-从项目根通过稳定短入口调用：
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
 
-```text
-bun run decisions -- [global-options] <command> [command-options]
-bun run decisions -- help <command>
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
 ```
 
-项目 adapter 将默认 root 绑定到当前仓库；只有需要覆盖时，才在 command 前提供 `--root <workspace-root>`。自定义集合使用工作区内相对 `--decisions-dir`。help 不读取集合状态，精确参数以当前命令帮助为准。
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
+
+## CLI 入口
+
+在**目标工作区根目录**执行，用实际安装位置的脚本绝对路径调用：
+
+```text
+node <skill绝对路径>/scripts/decision-records.ts help <command>
+node <skill绝对路径>/scripts/decision-records.ts [global-options] <command> [command-options]
+```
+
+当前目录默认就是工作区根。若从 skill 安装目录或其他目录调用，显式在 command 前提供 `--root <workspace-root>`；自定义集合使用工作区内相对 `--decisions-dir`。help 不读取集合状态。项目已提供维护短命令时优先使用该入口。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。

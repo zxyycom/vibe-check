@@ -33,6 +33,13 @@ const MISE_TOOLS = [
   "go:github.com/boyter/scc/v4",
   "npm:@colbymchenry/codegraph"
 ] as const;
+const UPSTREAM_SKILLS = [
+  "change-plan",
+  "common-denominator-design",
+  "decision-records",
+  "investigation-report",
+  "product-architecture-judgment"
+] as const;
 
 type EnvironmentAction = "check" | "setup";
 
@@ -59,6 +66,22 @@ function setupEnvironment(): void {
   trustRepositoryMiseConfig();
   runMiseCommand({ args: ["install", "--locked", ...MISE_TOOLS] });
   runCommandInMise({ args: ["install", "--frozen-lockfile"], command: "pnpm" });
+
+  for (const skill of UPSTREAM_SKILLS) {
+    runCommandInMise({
+      args: [
+        "--dir",
+        resolve(REPO_ROOT, ".codex/skills", skill),
+        "install",
+        "--ignore-workspace",
+        "--prod",
+        "--frozen-lockfile",
+        "--config.node-linker=isolated",
+        "--ignore-scripts"
+      ],
+      command: "pnpm"
+    });
+  }
 
   runCommandInMise({ args: ["init", "."], command: "codegraph" });
   runCommandInMise({ args: ["sync", "--quiet", "."], command: "codegraph" });

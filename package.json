@@ -15,7 +15,7 @@
     "typecheck": "bun scripts/development/typecheck.ts",
     "test": "bun scripts/development/test.ts",
     "decisions": "bun scripts/decision-records/command.ts",
-    "change-plan": "bun .codex/skills/change-plan/scripts/change-plan.mjs",
+    "change-plan": "bun .codex/skills/change-plan/scripts/change-plan.ts",
     "investigations": "bun scripts/investigation-report/command.ts",
     "test-evidence": "bun scripts/test-evidence/command.ts",
     "docs:api": "bun scripts/docs/package-api/command.ts --check",

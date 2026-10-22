@@ -3,16 +3,40 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  runDecisionRecordsCli as runInstalledDecisionRecordsCli,
-  scanDecisionRecords as scanInstalledDecisionRecords,
-  validateDecisionRecords as validateInstalledDecisionRecords
-} from "../../.codex/skills/decision-records/scripts/decision-records.mjs";
+import { isNonArrayRecord } from "../value-guards.ts";
 import type {
   DecisionScan as InstalledDecisionScan,
   DecisionScanOptions,
   DecisionValidationResult as InstalledDecisionValidationResult
-} from "../../.codex/skills/decision-records/scripts/decision-records.mjs";
+} from "../../.codex/skills/decision-records/scripts/decision-records.d.mts";
+
+// Consume the installed capability's public declarations without checking its
+// independently maintained runtime source under this repository's compiler options.
+const installedRuntime: unknown = await import(
+  new URL("../../.codex/skills/decision-records/scripts/decision-records.ts", import.meta.url).href
+);
+if (!isInstalledDecisionRuntime(installedRuntime)) {
+  throw new Error("Installed Decision Records runtime does not expose the expected public API");
+}
+const {
+  runDecisionRecordsCli: runInstalledDecisionRecordsCli,
+  scanDecisionRecords: scanInstalledDecisionRecords,
+  validateDecisionRecords: validateInstalledDecisionRecords
+} = installedRuntime;
+
+function isInstalledDecisionRuntime(
+  value: unknown
+): value is Pick<
+  typeof import("../../.codex/skills/decision-records/scripts/decision-records.d.mts"),
+  "runDecisionRecordsCli" | "scanDecisionRecords" | "validateDecisionRecords"
+> {
+  return (
+    isNonArrayRecord(value) &&
+    typeof value.runDecisionRecordsCli === "function" &&
+    typeof value.scanDecisionRecords === "function" &&
+    typeof value.validateDecisionRecords === "function"
+  );
+}
 
 export type {
   DecisionAlignment,
@@ -42,7 +66,7 @@ export type {
   DecisionTags,
   EstablishedDecisionStatus,
   DecisionValidationResult
-} from "../../.codex/skills/decision-records/scripts/decision-records.mjs";
+} from "../../.codex/skills/decision-records/scripts/decision-records.d.mts";
 
 export type RepositoryDecisionScanOptions = Omit<DecisionScanOptions, "workspaceRoot">;
 

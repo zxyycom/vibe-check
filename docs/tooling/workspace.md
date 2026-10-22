@@ -223,13 +223,13 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 
 首次检出、工具 pin 变更或环境缺失时运行 `bun run env:setup`。成功返回表示 checkout 已按以下顺序完成标准自举：
 
-1. trust 当前 `mise.toml`，按锁定结果安装工具和 Node dependencies；
+1. trust 当前 `mise.toml`，按锁定结果安装工具和根 Node dependencies，再按五项上游 Skill 各自的 manifest/锁文件安装隔离的生产依赖，禁用依赖安装脚本；
 2. 初始化并同步当前 checkout 的 CodeGraph；
 3. 通过现有根命令 `bun run package:build` 准备 exact local package candidate。
 
 标准开发与验证命令以 `env:setup` 成功返回为前置条件；项目不承诺未自举的 cold checkout 可以直接运行 Project Gate。后续独立启动的 Gate 从已自举的 private consumer 解析 candidate，并由自己的 preparation assessment 重验 exact installation 后复用；`package:build` 不建立第二套 package acceptance。
 
-首次自举会写入 user-level mise trust/tool state、checkout `node_modules`、`.codegraph`、candidate build/cache evidence 和 `scripts/project/node_modules`。后续执行按各 owner 的 reuse 规则更新或复用这些状态。
+首次自举会写入 user-level mise trust/tool state、checkout 与上游 Skill 各自的 `node_modules`、`.codegraph`、candidate build/cache evidence 和 `scripts/project/node_modules`。后续执行按各 owner 的 reuse 规则更新或复用这些状态。
 
 该 bootstrap 入口只依赖 Node/Bun 内置能力与根级错误映射，不能在依赖安装前加载 `process-execution` 的第三方 runner；`package:build` 只在 frozen dependency install 和 CodeGraph setup 成功后运行，失败会使 `env:setup` 失败。
 
@@ -246,6 +246,8 @@ Product Check 的 scanner command、availability command 和 unavailable behavio
 ## Governance and Test Evidence adapters
 
 `scripts/decision-records/command.ts` 把 repository root 绑定到已安装 capability，并转发其 CLI 或暴露同一 typed operation；`scripts/investigation-report/command.ts` 保留项目默认全量检查并转发已安装 CLI；`change-plan` root command 直接调用其 skill CLI。它们不复制 parser、metadata、index 或 lifecycle 语义。
+
+`change-plan`、`common-denominator-design`、`decision-records`、`investigation-report` 与 `product-architecture-judgment` 以完整上游包维护；`performance-optimization` 与 `test-evidence-review` 保留本地方法层。上游包使用 `.ts` 入口与随包 runtime source；项目 adapter 核对所需函数导出，按随包公开声明消费，不把上游实现纳入仓库的严格 source compiler profile。运行依赖由各包 manifest/锁文件拥有，`env:setup` 显式准备；普通 import、help、检查或自更新不隐式安装。
 
 写入由相应 subcommand/skill 和当前任务授权决定；Change 结项只在明确删除授权下使用 `finalize`，成功即删除整个目录，不建立完成态 archive。
 

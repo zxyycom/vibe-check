@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "67"
+  version: "77"
 ---
 
 # Investigation Report
@@ -108,8 +108,8 @@ tags 表达有正文依据的可检索主题。无真实直接前序时使用空
 agent 在当前授权范围内，自行审查证据、报告边界、资源与关系。关键事实或取舍无法确定且影响结果、超出委托范围或明确要求人工确认时再询问；删除等高风险操作须有覆盖精确目标与影响的授权。
 
 1. 用 `show-candidate` 核对结构、正文与资源 readiness，再独立完成语义审查和 publish 授权判断。
-2. 按 [候选创建与发布](references/cli-operations.md#候选创建与发布)预检并发布；正式编辑、关系维护、身份更正或删除按对应操作契约执行。
-3. 已知合法正式来源变化先 `sync-index`，再全量 `check`；未解释的索引异常先检查诊断。写入完成后验证当前集合，只读审阅保持集合状态不变。
+2. 按[候选创建与发布](references/cli-operations.md#候选创建与发布)执行；需要写前审阅预计影响时单独预检。正式编辑、关系维护、身份更正或删除按对应契约执行。
+3. 已知合法正式来源手改先 `sync-index`；普通维护按本次来源、依赖和最终发布图交付。任务要求当前全集健康时，在维护批次验收运行全量 `check`；删除、身份更正和恢复保持各自严格验收。未解释的索引异常先检查诊断，只读审阅保持集合状态不变。
 4. 任务要求 Git 待提交快照时，再按[暂存操作](references/cli-operations.md#待提交快照)执行 `stage`。commit 与 push 分别服从当前授权。
 
 ## 完成标准
@@ -118,13 +118,32 @@ agent 在当前授权范围内，自行审查证据、报告边界、资源与�
 - tags、直接关系和资源各有正文依据；资源必要、安全，节选性质清楚，复现要求按任务单独验证。
 - 只读交付说明可确认范围、问题与未知；写入交付说明实际变化、同步和检查结果、语义审查结论及未证明边界。机械检查与内容可信分别交付。
 
-## CLI 入口
+## 工具运行前置
 
-从项目根通过稳定短入口调用：
+运行下文公开 `.ts` CLI/import 或自更新入口时，使用 Node.js `>=24.18` 的原生类型擦除。
+依赖沿 Node 正常解析，可复用宿主兼容版本，不要求本地 `node_modules` 或与锁文件精确版本一致。
+依赖缺失、实际不兼容或需要复现随包基线时，使用随包 `package.json` 固定的 pnpm 显式安装：
 
-```text
-bun run investigations -- [global-options] <command> [command-options]
-bun run investigations -- help <command>
+```bash
+pnpm --dir "<skill-directory>" install --ignore-workspace --prod --frozen-lockfile --config.node-linker=isolated
 ```
 
-项目 adapter 将默认 root 绑定到当前仓库；无参数调用 `bun run investigations` 时运行全量检查，提供全局选项时仍须显式指定 command。只有需要覆盖 root 时，才在 command 前提供 `--root <workspace-root>`。自定义集合使用工作区内相对 `--investigations-dir`。help 不读取集合状态，精确参数以当前命令帮助为准。
+运行、import、help 和检查不自动安装。安装副本中的 `scripts/runtime/tools/` 可直接修改，无需构建；
+更新会覆盖正式包中的同路径定制文件。领域操作的其他前置仍由各自操作契约承接。
+
+## CLI 入口
+
+在**目标工作区根目录**执行，用实际安装位置的脚本绝对路径调用：
+
+```text
+node <skill绝对路径>/scripts/check-investigations.ts help <command>
+node <skill绝对路径>/scripts/check-investigations.ts [global-options] <command> [command-options]
+```
+
+当前目录默认就是工作区根。若从 skill 安装目录或其他目录调用，显式在 command 前提供 `--root <workspace-root>`；自定义集合使用工作区内相对 `--investigations-dir`。help 不读取集合状态。项目已提供维护短命令时优先使用该入口。
+
+## 自更新
+
+在本 skill 目录运行 `node scripts/update-skill.ts`，运行前置与依赖修复见[工具运行前置](#工具运行前置)。
+运行时文件或 manifest/锁文件损坏时，重新获取完整 skill 后再安装并重试。
+更新覆盖正式包中的同路径文件、保留其余本地文件。源码更新成功不证明依赖兼容；需要时按新包锁文件显式安装。
