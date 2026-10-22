@@ -1,14 +1,11 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { collectPackageDocumentation } from "../../../docs/package-markdown.ts";
-import {
-  PACKAGE_API_EXAMPLE_PROJECTIONS,
-  PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS
-} from "../../../docs/package-api/example-projections.ts";
+import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../../docs/package-api/example-projections.ts";
 import { renderPackageApiDocumentation } from "../../../docs/package-api/render.ts";
 import { collectPackageMachineMaterials } from "../../../docs/machine-artifacts/package-materials.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
@@ -18,28 +15,6 @@ import { externalConsumerNodeCommand } from "./node-command.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const MACHINE_DEFINITION_PATH = "docs/examples/artifacts/mixed-outcomes/definition.ts";
-
-/** Writes documentation examples contributed by documentation acceptance. */
-export function writeExternalConsumerDocumentationFixture(
-  consumerDirectory: string,
-  sourceRepositoryRoot: string
-): void {
-  for (const sourcePath of packageApiExampleSourcePaths()) {
-    const destination = join(consumerDirectory, sourcePath);
-    mkdirSync(dirname(destination), { recursive: true });
-    writeFileSync(
-      destination,
-      readFileSync(join(sourceRepositoryRoot, sourcePath), "utf8"),
-      "utf8"
-    );
-  }
-  for (const material of collectPackageMachineMaterials(sourceRepositoryRoot)) {
-    if (!material.sourcePath.startsWith("docs/examples/artifacts/mixed-outcomes/")) continue;
-    const destination = join(consumerDirectory, material.sourcePath);
-    mkdirSync(dirname(destination), { recursive: true });
-    writeFileSync(destination, material.content);
-  }
-}
 
 /** Owns installed package documentation and projected example acceptance. */
 export function assertExternalConsumerDocumentation(material: ExternalConsumerMaterial): void {
@@ -64,17 +39,6 @@ export function assertExternalConsumerDocumentation(material: ExternalConsumerMa
     );
   }
   runDocumentationAcceptance(material);
-}
-
-function packageApiExampleSourcePaths(): readonly string[] {
-  return Object.freeze(
-    [
-      ...new Set([
-        ...PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) => projection.sourcePath),
-        ...PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS
-      ])
-    ].sort()
-  );
 }
 
 function runtimeDocumentationExampleSourcePaths(): readonly string[] {

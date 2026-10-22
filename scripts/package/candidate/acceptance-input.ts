@@ -1,7 +1,6 @@
 import { isAbsolute } from "node:path";
 
 import { fileMatchesSha256, isSha256Digest } from "../pack.ts";
-import { preparePackageCandidate } from "./prepare.ts";
 
 export const CANDIDATE_ARTIFACT_PATH_ENV = "VIBE_CHECK_CANDIDATE_ARTIFACT_PATH";
 export const CANDIDATE_ARTIFACT_SHA256_ENV = "VIBE_CHECK_CANDIDATE_ARTIFACT_SHA256";
@@ -36,6 +35,9 @@ export async function resolveCandidateAcceptanceArtifact(
 ): Promise<CandidateAcceptanceArtifact> {
   const gateInput = readGateCandidateAcceptanceArtifact(environment);
   if (gateInput !== undefined) return gateInput;
+  // Gate consumers already have exact prepared evidence. Only a direct target
+  // without it needs the local builder and its documentation/compiler graph.
+  const { preparePackageCandidate } = await import("./prepare.ts");
   const prepared = await preparePackageCandidate();
   return Object.freeze({ artifactPath: prepared.artifactPath, sha256: prepared.sha256 });
 }

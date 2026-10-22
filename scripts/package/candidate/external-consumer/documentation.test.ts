@@ -6,10 +6,8 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 import { cleanupExternalConsumerMaterial, resolveExternalConsumerMaterial } from "./material.ts";
-import {
-  assertExternalConsumerDocumentation,
-  writeExternalConsumerDocumentationFixture
-} from "./documentation.ts";
+import { assertExternalConsumerDocumentation } from "./documentation.ts";
+import { writeExternalConsumerDocumentationFixture } from "./documentation-fixture.ts";
 import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "../../../docs/package-api/example-projections.ts";
 
 test("external consumer documentation fixture carries its registered acceptance support", () => {

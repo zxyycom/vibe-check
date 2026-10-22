@@ -1,6 +1,5 @@
 import { reportProcessOutput, runAsyncMain, runCommand } from "../process-execution/command.ts";
 import { MATERIAL_TASK_NAMES } from "./repository-material/task-contract.ts";
-import { validateRepositoryLayout } from "./repository-layout.ts";
 import {
   parseMaterialValidationTasks,
   runMaterialValidationCli
@@ -30,6 +29,7 @@ export async function runWorkspaceValidation(
   });
   if (materialsExitCode !== 0) return materialsExitCode;
   if (!materialsOnly) {
+    const { validateRepositoryLayout } = await import("./repository-layout.ts");
     validateRepositoryLayout();
     runCommand("git", ["diff", "--check"], { report: reportProcessOutput });
   }

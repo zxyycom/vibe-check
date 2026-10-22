@@ -12,7 +12,7 @@ import {
   resolveCandidateAcceptanceArtifact,
   type CandidateAcceptanceArtifact
 } from "../acceptance-input.ts";
-import { writeExternalConsumerDocumentationFixture } from "./documentation.ts";
+import { writeExternalConsumerDocumentationFixture } from "./documentation-fixture.ts";
 import { writeExternalConsumerRuntimeFixture } from "./runtime.ts";
 import { writeExternalConsumerTypesFixture } from "./type-acceptance.ts";
 import { readGateExternalConsumerMaterial } from "./input.ts";

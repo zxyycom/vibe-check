@@ -128,6 +128,7 @@ Entities:
 
 - Artifact, candidate, and external-consumer acceptance each consume only their closed provider-owned path, digest, containment, inventory, and exact candidate-version material; incomplete, unrelated, mismatched, or malformed material fails before acceptance work begins. Artifact staging uses that version to audit the same manifest identity as the prepared tarball.
 - The external-consumer provider additionally binds its typed output to the prepared artifact path and digest plus its invocation-owned lease root and consumer paths; a same-digest foreign artifact or escaped consumer provenance fails closed.
+- Importing candidate acceptance input, or resolving valid/invalid explicit Gate input, does not load local preparation. Only an absent Gate input loads that direct-target fallback and returns its prepared artifact.
 
 ## Case AUX-PACKAGE-EXTERNAL-CONSUMER-001: An external consumer runs the installed candidate without ancestry fallback
 
@@ -235,7 +236,8 @@ Entities:
 - `bun|scripts/validation/repository-material/workflow.test.ts|material workflow deduplicates focused selections without broadening them`
   Proves:
 
-- The adapter used by workspace main forwards an empty default selection or exact focused argument order and repetition, preserves the material return code, and rejects unknown tasks and the retired `docs` entry before dispatch.
+- The adapter used by workspace main forwards an empty default selection or exact focused argument order and repetition, preserves the material return code, and rejects unknown tasks before dispatch.
+- Materials-only, invalid arguments and nonzero material results do not load layout. The default successful path awaits layout loading, runs it before the Git whitespace check, and propagates missing-module or layout failures without reporting success or starting the later Git check.
 - The real workflow task map invokes all five default tasks, including package API check mode; independent expected leaf calls and reporter messages detect missing or miswired tasks. Focused selection keeps first-occurrence order, removes duplicates and does not add other tasks; the links repository root reaches its validator unchanged.
 - Controlled pending JSON and example-publication operations prevent later tasks and the CLI return from completing prematurely. These tests prove in-process dispatch, completion and parameter wiring, not material contents or OS exit status; process-entry glue is covered by the owner's Manual CR conditions.
 

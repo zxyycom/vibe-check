@@ -69,6 +69,8 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 
 这些 typed facts 可进入本次 invocation 的 machine evidence，但其中含 invocation-local path，所以不是发布材料或可移植 receipt。formal release 的持久边界由 [Package release 的收据契约](package-release.md#受控路径与收据内容) 拥有。
 
+候选包验收输入的验证与 direct-target 按需准备边界由 [Package lifecycle](package-lifecycle.md#local-candidate-lifecycle) 拥有。
+
 ### Test execution partition
 
 `checks/test-execution/lanes.ts` 将 Test Evidence 已知的 Bun test files 投影为互斥且非空的 execution lanes；每个文件必须恰好属于一个 lane，未知 Product owner 在启动测试前失败。`checks/test-execution/checks.ts` 拥有 lane 到 Check ID、显示名、candidate input、mutex、timeout 与 Gate selection metadata 的闭合对象组；`definition.ts` 显式引用该组并把它放入完整 Gate manifest，避免复制 identity 或执行配置。

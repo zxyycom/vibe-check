@@ -51,7 +51,8 @@ Markdown 的源码检查使用 `sourcePath`，包内链接和 staging/tar/instal
 ## material task
 
 material task 的唯一名称是 `json`、`schema`、`examples`、`links` 和 `package-api-documentation`。
-根 validation adapter 默认运行全部 task；显式 focused selection 原样转发，不静默扩张或跳过。
+根 validation adapter 默认依次运行全部 material task、按需加载的 layout 和 `git diff --check`。
+显式 `materials` 模式仅运行材料；focused selection 按原参数转发。参数校验失败或材料返回非零时立即结束，保持 layout 未加载；layout 的加载与校验异常继续抛出。
 repository/material walkers 共用[共享扫描政策](workspace.md#repository-validation-共享扫描政策)的忽略目录集合；
 各 task 仍拥有自己的显式输入。
 
@@ -61,12 +62,13 @@ task map、组合与错误处理使用同一执行路径，只在已有 leaf val
 
 | 证据入口 | 直接证明 |
 | --- | --- |
-| workspace adapter dispatch | 核对默认空 selection、focused 参数顺序/重复、原样返回退出码，以及 unknown task / 退休 `docs` 入口在 dispatch 前拒绝。 |
+| workspace adapter 分发 | 核对默认空 selection、focused 参数顺序/重复、原样返回退出码，以及未知 task 在 dispatch 前拒绝。 |
+| workspace adapter 加载 | 隔离 child 读取真实 adapter 副本，以窄依赖 stub 观察 layout 的加载条件、默认材料/layout/Git 次序与失败传播。 |
 | workflow 分发与完成 | 用独立预期调用序列核对默认五项及实际 leaf 接线（包括 package API `--check`）、focused 去重与不扩张；受控 Promise 核对异步完成后才继续并返回，预期失败累积且继续所选 task，非预期错误不吞。 |
 | workflow 呈现 | 小型操作证明显式 reporter、typed failure 与 CLI stderr/返回码；真实 links failure fixture 证明有序诊断、stderr-only 和非零返回值。 |
 | 真实材料与 validator 验收 | 材料内容和真实接线由各 validator 测试、`bun run validate`、Gate 与 package artifact documentation audit 按各自范围证明，不在分发测试中重复全库扫描。 |
 
-以上 adapter/workflow 测试不启动真实进程，不证明 OS exit status。`Manual CR:` 修改 workspace 或 workflow
+分发与 workflow 使用进程内受控操作，真实材料由 validator 验收；加载 probe 只证明加载与调用边界。正式 CLI 的 OS exit status 由薄接线审查承接。`Manual CR:` 修改 workspace 或 workflow
 process entry 时，核对 `import.meta.main` 保护、`process.argv.slice(2)` 原样传给对应 adapter、在
 `runAsyncMain` 内等待 adapter 并将返回值赋给 `process.exitCode`，以及 stdout/stderr 回调没有互换；
 同时核对默认 leaf object 直接绑定对应真实 validator。这里的薄接线用代码审查，不为覆盖它新增测试专用 CLI/env

@@ -43,6 +43,8 @@ fixture 的 `buildDirectory` 与 `stateDirectory` 必须 test-local 隔离，con
 
 Gate root 在 Product Run 前完成或复用这份 exact preparation；`--all` 的 artifact 与 external-consumer acceptance 消费其 typed evidence，不另建 detached cold candidate。Gate binding 与 aggregate 由 [Project Gate](project-gate.md)拥有。
 
+acceptance input 优先验证显式 Gate artifact：有效输入直接交给验收，非法输入立即失败；direct target 未收到 Gate input 时才加载本地 preparation。external consumer provider 通过 `documentation-fixture.ts` 复制文档验收输入；renderer、实际文档比对和可执行示例由独立的 documentation acceptance 加载并执行。
+
 Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 仍完整审计同一 provider staging，staging corruption 不能绕过 `--all`。
 
 `bun run package:candidate:integration` 是 routine `--test` 之外的显式物理 target：30 秒进程硬限制内，以 test-local state 证明 cold build/install/reuse、installed documentation drift 失败、dependency license drift/missing dependency 触发 reinstall，以及 malformed receipt 触发 rebuild。build staging 仍由 artifact acceptance 审计；Routine Gate 不运行此 target。
