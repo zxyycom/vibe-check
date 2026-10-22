@@ -46,7 +46,6 @@ owner 时，实施与提交必须串行。
 | --- | --- | --- |
 | Config packages | scheduler 证据、公开 API 使用调查 | 需要真实组合成本证据，且会改变 package authoring/Definition owner。 |
 | Scheduler evidence queue | 文档和独立 corpus 调查 | 若改 scheduler/runtime，按以下证据队列内部顺序串行。 |
-| Markdown Link I/O | [`optimize-markdown-link-native-io`](../../changes/optimize-markdown-link-native-io/proposal.md) 的只读/语料准备；原生 baseline 保全后的无重叠局部优化 | 命中共用收集/Markdown lint 读链、package/validation/Case/graph tests 或 candidate build 时，与共享 owner 的其它任务串行；仅对应步骤等待，性能采样使用独占窗口。 |
 
 每个 Change 仍须按自身 artifacts、测试和用户授权实施；新的 blocking policy 或公共抽象须有独立证据。
 
