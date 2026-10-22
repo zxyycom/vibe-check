@@ -185,49 +185,57 @@ describe("Markdown reference graph", () => {
     });
   });
 
+  // Bun 1.3 JUnit reports the name line; keep it on the declaration line for Case identity.
   // oxfmt-ignore
   it("completes more than the old target maximum with disabled or explicit larger totals", { timeout: 20_000 }, async () => {
-      await withFixture(async ({ root }) => {
-        await writeFixtureFile(root, "source.md", "[x](attachment)\n".repeat(10_001));
-        await writeFixtureFile(root, "attachment", "present");
-        for (const limits of [
-          { maxOccurrences: false as const, maxTargetReads: false as const },
-          { maxOccurrences: 100_001, maxTargetReads: 10_001 }
-        ]) {
-          const checked = await execute(
-            executeMarkdownLinkValidation,
-            { ...MARKDOWN_LINK_OPTIONS, limits: { ...MARKDOWN_LINK_OPTIONS.limits, ...limits } },
-            root,
-            SOURCE_ONLY
-          );
-          assert.equal(checked.result.status, "passed");
-          assert.ok("data" in checked.result);
-          assert.deepEqual(checked.result.data, {
-            sourceFileCount: 1,
-            occurrenceCount: 10_001,
-            targetReadCount: 10_001,
-            findingCount: 0,
-            rejectedInputCount: 0
-          });
-          assert.deepEqual(checked.records, []);
-        }
-        const limited = await execute(
+    await withFixture(async ({ root }) => {
+      // Keep the fixture focused on logical target charging across 10,001 references.
+      await writeFixtureFile(root, "source.md", "[x](attachment) ".repeat(10_001));
+      await writeFixtureFile(root, "attachment", "present");
+      // Share parser facts across budget trials; each trial reads current bytes
+      // and independently resolves and charges every logical edge.
+      const budgetOptions = {
+        ...MARKDOWN_LINK_OPTIONS,
+        cache: { enabled: true as const, directory: path.join(root, "parse-cache") }
+      };
+      for (const limits of [
+        { maxOccurrences: false as const, maxTargetReads: false as const },
+        { maxOccurrences: 100_001, maxTargetReads: 10_001 }
+      ]) {
+        const checked = await execute(
           executeMarkdownLinkValidation,
-          {
-            ...MARKDOWN_LINK_OPTIONS,
-            limits: {
-              ...MARKDOWN_LINK_OPTIONS.limits,
-              maxOccurrences: false,
-              maxTargetReads: 10_000
-            }
-          },
+          { ...budgetOptions, limits: { ...budgetOptions.limits, ...limits } },
           root,
           SOURCE_ONLY
         );
-        assert.ok("reason" in limited.result);
-        assert.deepEqual(limited.result.reason, { code: "target-read-limit-exceeded" });
-        assert.deepEqual(limited.records, []);
-      });
+        assert.equal(checked.result.status, "passed");
+        assert.ok("data" in checked.result);
+        assert.deepEqual(checked.result.data, {
+          sourceFileCount: 1,
+          occurrenceCount: 10_001,
+          targetReadCount: 10_001,
+          findingCount: 0,
+          rejectedInputCount: 0
+        });
+        assert.deepEqual(checked.records, []);
+      }
+      const limited = await execute(
+        executeMarkdownLinkValidation,
+        {
+          ...budgetOptions,
+          limits: {
+            ...MARKDOWN_LINK_OPTIONS.limits,
+            maxOccurrences: false,
+            maxTargetReads: 10_000
+          }
+        },
+        root,
+        SOURCE_ONLY
+      );
+      assert.ok("reason" in limited.result);
+      assert.deepEqual(limited.result.reason, { code: "target-read-limit-exceeded" });
+      assert.deepEqual(limited.records, []);
+    });
   });
 
   it("yields edge batches to timer and I/O cancellation without publishing normal Records", async () => {
