@@ -24,6 +24,10 @@ toolchain fingerprint 绑定以下实际材料，而非仅记录包名或 wrappe
 
 candidate identity 另绑定根 manifest、lockfile、workspace 配置、精确依赖补丁与 resolver 使用的路径 containment 校验实现。必需材料缺失或 package identity 不符时拒绝构建。
 
+`collectArtifactFingerprintInputFiles` 每次按当前 source、package scripts 与材料 registry 收集完整仓库输入。hash 按排序后的路径逐项读取原始 bytes，保留清单中的重复项；已安装工具链由上述独立 resolver 绑定。
+
+指纹测试 fixture 按这份当次清单复制普通独立文件，调用方负责副本的修改与清理。测试分别核对完整性、各类输入的字节敏感性、新增输入的发现与副本写入隔离。
+
 worker 不是额外 export：normalization 只在 emitted `function-metrics/analyzer-worker-port.js` 中恰好一次将 `new URL("./analyzer-worker.ts", import.meta.url)` 改为 `analyzer-worker.mjs`，任何数量或 compiler-shape drift 都拒绝产物，绝不 broad-rewrite ordinary URL strings。
 
 ### 依赖与发布清单

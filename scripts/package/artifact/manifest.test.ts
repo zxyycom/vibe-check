@@ -1,5 +1,13 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -84,15 +92,35 @@ test("release manifest bytes invalidate the candidate fingerprint", () => {
     assert.equal(before, createArtifactFingerprint(repositoryRoot));
     const sourcePath = join(root, RELEASE_MANIFEST_SOURCE_PATH);
     writeFileSync(sourcePath, `${readFileSync(sourcePath, "utf8").trimEnd()}\n\n`, "utf8");
-    assert.notEqual(createArtifactFingerprint(root), before);
     const manifestChanged = createArtifactFingerprint(root);
+    assert.notEqual(manifestChanged, before);
     const workspacePath = join(root, "pnpm-workspace.yaml");
     writeFileSync(workspacePath, `${readFileSync(workspacePath, "utf8")}\n`, "utf8");
-    assert.notEqual(createArtifactFingerprint(root), manifestChanged);
     const configurationChanged = createArtifactFingerprint(root);
+    assert.notEqual(configurationChanged, manifestChanged);
     const patchPath = join(root, "patches/execa@10.2.0.patch");
     writeFileSync(patchPath, `${readFileSync(patchPath, "utf8")}\n`, "utf8");
     assert.notEqual(createArtifactFingerprint(root), configurationChanged);
+
+    // A subsequent copy must rediscover new inputs, even under a normally ignored basename.
+    const addedInput = "src/fingerprint-fixture/.cache/added.ts";
+    mkdirSync(dirname(join(root, addedInput)), { recursive: true });
+    writeFileSync(join(root, addedInput), "export const added = true;\n");
+    for (const directory of [".venv", "changes"]) {
+      mkdirSync(join(root, directory), { recursive: true });
+      writeFileSync(join(root, directory, "not-an-input.txt"), "not fingerprint input\n");
+    }
+    const independent = join(temporaryRoot, "independent");
+    copyArtifactFingerprintFixture({ repositoryRoot: root, fixtureRoot: independent });
+    assert.equal(createArtifactFingerprint(independent), createArtifactFingerprint(root));
+    assert.equal(
+      readFileSync(join(independent, addedInput), "utf8"),
+      "export const added = true;\n"
+    );
+    assert.equal(existsSync(join(independent, ".venv")), false);
+    assert.equal(existsSync(join(independent, "changes")), false);
+    writeFileSync(join(independent, addedInput), "changed only in the independent fixture\n");
+    assert.equal(readFileSync(join(root, addedInput), "utf8"), "export const added = true;\n");
   } finally {
     rmSync(temporaryRoot, { force: true, recursive: true });
   }

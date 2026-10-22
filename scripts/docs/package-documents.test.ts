@@ -124,14 +124,14 @@ describe("package document mappings", () => {
       assert.equal(before, createArtifactFingerprint(repositoryRoot));
       const configPath = join(root, PACKAGE_DOCUMENTS_CONFIG_PATH);
       writeFileSync(configPath, `${readFileSync(configPath, "utf8")}\n`, "utf8");
-      assert.notEqual(createArtifactFingerprint(root), before);
       const mappedFingerprint = createArtifactFingerprint(root);
+      assert.notEqual(mappedFingerprint, before);
       const supportPath = PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS[0];
       assert.ok(supportPath !== undefined);
       const supportFile = join(root, supportPath);
       writeFileSync(supportFile, `${readFileSync(supportFile, "utf8")}\n`, "utf8");
-      assert.notEqual(createArtifactFingerprint(root), mappedFingerprint);
       const supportFingerprint = createArtifactFingerprint(root);
+      assert.notEqual(supportFingerprint, mappedFingerprint);
       const gateGuideProjectionFile = join(
         root,
         "scripts/docs/package-api/gate-guide-example-projections.ts"

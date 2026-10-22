@@ -1,18 +1,16 @@
-import { cpSync } from "node:fs";
-import { basename, join } from "node:path";
+import { copyFileSync, mkdirSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+
+import { collectArtifactFingerprintInputFiles } from "./fingerprint.ts";
 
 /** Copies fingerprint test inputs without workspace-generated state; the caller owns cleanup. */
 export function copyArtifactFingerprintFixture(
   roots: Readonly<{ repositoryRoot: string; fixtureRoot: string }>
 ): void {
   const { repositoryRoot, fixtureRoot } = roots;
-  const workspaceScratchRoot = join(repositoryRoot, "tmp");
-  cpSync(repositoryRoot, fixtureRoot, {
-    dereference: false,
-    recursive: true,
-    filter: (source) =>
-      // Exclude only root scratch evidence, not same-named directories within source inputs.
-      source !== workspaceScratchRoot &&
-      ![".cache", ".codegraph", ".git", ".log", "build", "node_modules"].includes(basename(source))
-  });
+  for (const sourcePath of new Set(collectArtifactFingerprintInputFiles(repositoryRoot))) {
+    const destinationPath = join(fixtureRoot, relative(repositoryRoot, sourcePath));
+    mkdirSync(dirname(destinationPath), { recursive: true });
+    copyFileSync(sourcePath, destinationPath);
+  }
 }

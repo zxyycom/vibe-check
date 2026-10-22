@@ -32,7 +32,7 @@ Entities:
 - `bun|scripts/package/artifact/manifest.test.ts|release manifest bytes invalidate the candidate fingerprint`
 - `bun|scripts/package/legal-materials.test.ts|package legal materials > fails closed in the translated-analyzer audit phase order`
 
-Proves:
+  Proves:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
 - Every name in the public declaration inventory has an exported declaration with adjacent Chinese JSDoc. Documentation from an earlier declaration, a non-JSDoc comment, an English-only comment or an unclosed comment cannot supply that adjacency.
@@ -40,6 +40,7 @@ Proves:
 - The byte-level allowlist carries `docs/output.md`, both current v4 schemas, the single definition-backed `mixed-outcomes` artifact set, upstream Lizard/Pygments license and provenance material, and the non-public emitted function-metrics Worker. It has one `licenses` material root with no parallel `third-party-licenses`, excludes historical or analyzer fixture material, and does not publish a root `THIRD_PARTY_NOTICES.md`.
 - The scoped `licenses/analyzer-translations-NOTICE.md` is copied from its repository source rather than generated from fixed narrative phrases. Material acceptance compares actual source/staging/tar/installed notice bytes while preserving the independent provenance and three upstream-license identity pins.
 - The direct legal-material audit exposes the first reachable material-identity, missing-attribution, inventory, translated-target/header, untracked-header or deferred-body error. It does not require hand-written attribution to restate internal extension counts or installation-audit procedures.
+- Artifact fingerprint fixtures rediscover complete current repository inputs, including newly added source paths under otherwise scratch-like basenames, while excluding non-input maintenance directories. Each copy retains the source fingerprint and independent bytes; original manifest, workspace, patch and documentation sensitivity assertions remain.
 
 ## Case AUX-PACKAGE-COMPILER-CACHE-001: Candidate compiler intermediates cannot bypass exact artifact audit
 

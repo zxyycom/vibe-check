@@ -44,7 +44,19 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
   hash.update(`artifact-toolchain=${typeScriptToolchainFingerprint()}\0`);
   hash.update(`runtime-compiler-roots=${JSON.stringify(PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS)}\0`);
 
-  const inputFiles = [
+  for (const filePath of collectArtifactFingerprintInputFiles(repositoryRoot)) {
+    const relativePath = relative(repositoryRoot, filePath).split(sep).join("/");
+    hash.update(relativePath);
+    hash.update("\0");
+    hash.update(readFileSync(filePath));
+    hash.update("\0");
+  }
+  return hash.digest("hex");
+}
+
+/** Current repository inputs in hash order; the installed toolchain has its own resolver. */
+export function collectArtifactFingerprintInputFiles(repositoryRoot: string): readonly string[] {
+  return [
     ...[
       "package.json",
       "pnpm-lock.yaml",
@@ -60,14 +72,6 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
     join(repositoryRoot, TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH),
     ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => join(repositoryRoot, material.path))
   ].sort();
-  for (const filePath of inputFiles) {
-    const relativePath = relative(repositoryRoot, filePath).split(sep).join("/");
-    hash.update(relativePath);
-    hash.update("\0");
-    hash.update(readFileSync(filePath));
-    hash.update("\0");
-  }
-  return hash.digest("hex");
 }
 
 function collectPackageSourceFiles(repositoryRoot: string): readonly string[] {

@@ -54,8 +54,9 @@ test("stable native compiler and compatibility API retain distinct installed ent
       scope === "product" ? "tsconfig.product.json" : "tsconfig.json"
     ]);
   }
-  assert.match(typeScriptToolchainFingerprint(), /^[a-f0-9]{64}$/u);
-  assert.equal(typeScriptToolchainFingerprint(), typeScriptToolchainFingerprint());
+  const fingerprint = typeScriptToolchainFingerprint();
+  assert.match(fingerprint, /^[a-f0-9]{64}$/u);
+  assert.equal(typeScriptToolchainFingerprint(), fingerprint);
   assertCompilerBinBoundary();
 });
 
@@ -79,20 +80,7 @@ function assertCompilerBinBoundary(): void {
     const manifestPath = join(compilerDirectory, "package.json");
     const manifest = { name: "typescript", version: "7.0.2", bin: { tsc: "bin/tsc.js" } };
     const resolverUrl = pathToFileURL(join(fixtureRoot, "scripts/package/compiler-toolchain.ts"));
-    const resolverSource = `import { nativeTypeScriptBinPath } from ${JSON.stringify(resolverUrl.href)};\nconsole.log(nativeTypeScriptBinPath());`;
-    const resolveBin = () =>
-      spawnSync(process.execPath, ["--eval", resolverSource], {
-        cwd: fixtureRoot,
-        encoding: "utf8",
-        env: plainTextProcessEnv()
-      });
-    writeFileSync(manifestPath, JSON.stringify(manifest));
-    const valid = resolveBin();
-    assert.equal(valid.error, undefined);
-    assert.equal(valid.status, 0, valid.stderr);
-    assert.equal(valid.stdout.trim(), binPath);
-
-    for (const invalidManifest of [
+    const invalidManifests = [
       { ...manifest, name: "unrelated-compiler" },
       { ...manifest, version: "" },
       { ...manifest, version: " 7.0.2" },
@@ -100,18 +88,44 @@ function assertCompilerBinBoundary(): void {
       { ...manifest, bin: { tsc: "bin" } },
       { ...manifest, bin: { tsc: "bin/missing.js" } },
       { ...manifest, bin: { tsc: "../outside.js" } }
-    ]) {
-      writeFileSync(manifestPath, JSON.stringify(invalidManifest));
-      const rejected = resolveBin();
-      assert.equal(rejected.error, undefined);
-      assert.notEqual(rejected.status, 0, JSON.stringify(invalidManifest));
-      assert.match(rejected.stderr, /TypeScript (?:toolchain package identity|compiler|tsc bin)/u);
-    }
-    writeFileSync(manifestPath, "{malformed JSON}");
-    const malformed = resolveBin();
-    assert.notEqual(malformed.status, 0);
-    assert.match(malformed.stderr, /could not read TypeScript toolchain manifest/u);
-    assert.ok(malformed.stderr.includes(manifestPath));
+    ];
+    // Keep module resolution isolated, but exercise manifest reads in one child rather
+    // than paying a fresh runtime startup for each mutation of the same fixture.
+    const matrixSource = `
+      import assert from "node:assert/strict";
+      import { writeFileSync } from "node:fs";
+      import { nativeTypeScriptBinPath } from ${JSON.stringify(resolverUrl.href)};
+      const manifestPath = ${JSON.stringify(manifestPath)};
+      const manifest = ${JSON.stringify(manifest)};
+      const resolveValid = () => {
+        writeFileSync(manifestPath, JSON.stringify(manifest));
+        assert.equal(nativeTypeScriptBinPath(), ${JSON.stringify(binPath)});
+      };
+      resolveValid();
+      for (const invalidManifest of ${JSON.stringify(invalidManifests)}) {
+        writeFileSync(manifestPath, JSON.stringify(invalidManifest));
+        assert.throws(
+          () => nativeTypeScriptBinPath(),
+          /TypeScript (?:toolchain package identity|compiler|tsc bin)/u,
+          JSON.stringify(invalidManifest)
+        );
+      }
+      writeFileSync(manifestPath, "{malformed JSON}");
+      assert.throws(() => nativeTypeScriptBinPath(), (error) => {
+        assert.ok(error instanceof Error);
+        assert.match(error.message, /could not read TypeScript toolchain manifest/u);
+        assert.ok(error.message.includes(manifestPath));
+        return true;
+      });
+      resolveValid();
+    `;
+    const matrix = spawnSync(process.execPath, ["--eval", matrixSource], {
+      cwd: fixtureRoot,
+      encoding: "utf8",
+      env: plainTextProcessEnv()
+    });
+    assert.equal(matrix.error, undefined);
+    assert.equal(matrix.status, 0, matrix.stderr);
   } finally {
     rmSync(fixtureRoot, { force: true, recursive: true });
   }
