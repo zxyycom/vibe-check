@@ -21,6 +21,7 @@ describe("Markdown local resolver", () => {
       await writeFixtureFile(root, "docs/source.md", "# Source\n[link](target.md)");
       await writeFixtureFile(outside, "escape.md", "# Escaped\n");
       await symlink(path.join(outside, "escape.md"), path.join(root, "docs", "escape.md"));
+      await symlink("source.md", path.join(root, "docs", "alias.md"));
       const resolver = await createdResolver(root, 10);
 
       const source = await resolver.readSource("docs/source.md", 1_024);
@@ -41,6 +42,18 @@ describe("Markdown local resolver", () => {
         ok: false,
         reason: "source-unavailable"
       });
+      const alias = await resolver.readSource("docs/alias.md", 1_024);
+      assert.equal(alias.ok, true);
+      if (alias.ok && source.ok) {
+        assert.equal(alias.source.path, "docs/alias.md");
+        assert.deepEqual(alias.source.facts, source.source.facts);
+      }
+      for (const rejected of ["docs/missing.md", "docs", "docs/missing/leaf.md"]) {
+        assert.deepEqual(await resolver.readSource(rejected, 1_024), {
+          ok: false,
+          reason: "source-unavailable"
+        });
+      }
       assert.deepEqual(await resolver.readSource("docs/source.md", 1), {
         ok: false,
         reason: "source-too-large"

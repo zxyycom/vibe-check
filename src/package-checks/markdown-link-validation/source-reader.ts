@@ -2,7 +2,6 @@ import path from "node:path";
 
 import type { LinkIoSession } from "./io-session.ts";
 import type { MarkdownLinkParseResult } from "./markdown-parser.ts";
-import { probeRootContainedPath, readRegularFile } from "./filesystem-probes.ts";
 import {
   isRootRelativePath,
   sourceUnavailable,
@@ -11,7 +10,7 @@ import {
 } from "./local-resolution.ts";
 
 export interface RootContainedMarkdownSourceReadRequest {
-  readonly io?: LinkIoSession;
+  readonly io: LinkIoSession;
   readonly canonicalProjectRoot: string;
   readonly maxMarkdownBytes: number;
   readonly parseMarkdownBytes: (bytes: Uint8Array) => Promise<MarkdownLinkParseResult | undefined>;
@@ -47,21 +46,11 @@ async function readRootContainedSourceBytes(
   request: RootContainedMarkdownSourceReadRequest,
   sourcePath: string
 ): Promise<RootContainedSourceBytesRead> {
-  const rootProbe =
-    request.io === undefined
-      ? await probeRootContainedPath(request.canonicalProjectRoot, sourcePath)
-      : await request.io.probeRootContainedPath(sourcePath);
-  if (
-    rootProbe.kind === "outside" ||
-    rootProbe.kind === "unavailable" ||
-    rootProbe.kind === "missing"
-  ) {
+  const source = await request.io.readSourceFile(sourcePath, request.maxMarkdownBytes);
+  if (source.probe.kind !== "contained" || source.read === undefined) {
     return Object.freeze({ kind: "result" as const, result: sourceUnavailable() });
   }
-  const sourceBytes =
-    request.io === undefined
-      ? await readRegularFile(rootProbe.absolutePath, request.maxMarkdownBytes)
-      : await request.io.readRegularFile(rootProbe.absolutePath, request.maxMarkdownBytes);
+  const sourceBytes = source.read;
   if (!sourceBytes.ok) {
     return Object.freeze({
       kind: "result" as const,

@@ -74,15 +74,22 @@ external reachability verdict。本 Check 没有 target discovery、crawler、sh
 ## 私有 I/O 会话与收束
 
 `io-session.ts` 为每个 resolver 维护一个惰性 `node:worker_threads` Worker，绑定 canonical root 与本次 signal，
-最多一个在途 job。containment probe、endpoint probe 与 bounded regular-file read 各为一个完整 job；
-`io-worker.ts` 在 Worker 内用同步 filesystem 操作驱动，不逐路径分量往返父线程。
-root canonicalization、目录单 entry 读取、解析/摘要、图授权与逻辑计费仍由原 owner 负责。
+最多一个在途 job。source 读取必须使用该会话，职责依次为：
+
+1. `source-reader.ts` 检查 root-relative source path，再提交一个 `source-read` job。
+2. `io-worker.ts` 在同一 job 内先完成 component containment probe；只有 `contained` 才对
+   `probe.absolutePath` 执行 bounded regular-file read。其它 probe 结果直接返回，不开始正文 I/O。
+3. 父线程的 `source-reader.ts` 映射 source 读取结果，再将成功返回的 bytes 交给 parse-facts session 解码、摘要与解析。
+
+target 按需使用独立的 containment、endpoint 与 read job。Worker 用同步 filesystem helpers 驱动这些操作，
+containment probe 的全部路径分量观察在 Worker 内完成。root canonicalization、目录单 entry 读取、解析/摘要与上述引用图职责留在父线程。
+
 文件 Worker 默认继承父进程参数；仅当存在 string-input-only 的 `--input-type`（含 `--input_type` 别名、split/等号形式）时，
 剔除该选项及其值，其余参数原样保留，以支持 Node eval/stdin 宿主且保留 preload 上下文。
-这不保证任意 Node flags 组合均适用于 Worker，构建失败仍按下述 unavailable 边界处理。
+其它 Node flags 组合的 Worker 创建失败按下述 unavailable 边界处理。
 
 `filesystem-policy.ts` 共享纯路径游标、symlink 转移、endpoint 分类与读缓冲规则；同步和异步驱动各自执行 I/O。
-未注入会话的共用读链（包括 Markdown lint）继续使用 async 后端，不创建 Worker。
+`filesystem-probes.ts` 的 async 后端供 Markdown lint 等调用方使用，不创建 Worker。
 mdlink 的 Worker 创建、发送、协议、error 或意外 exit 故障使会话失败，不重试观察或回退到 async 后端；
 父线程按失败发生的 source/target 阶段映射既有 unavailable reason。
 
@@ -137,16 +144,15 @@ fresh parse 成功后将 facts 放入 dirty Map；terminal boundary 调用幂等
 
 ## 性能采用证据
 
-2026-10-23（Asia/Shanghai）的真实安装包同窗口比较支持采用私有 Worker、自适应缓冲与本次收集纯 memo 组合。
-Node 24.18.0 的 1824 源合成语料 D30/D60，wall 中位数分别从 7.111/12.806 秒降至 0.997/1.385 秒，
-配对节省中位数 85.98%/89.14%，各 8/8 更快；Bun 1.3.14 三个深度均为 4/4 更快。
-接受 Node 1/8 文档分别增加约 24.0/22.8 ms 的配对常数代价，不声称每个规模或 RSS 均改善。
-必要 I/O 计数不变，正常语料工作缓冲累计申请由 1,946,158,912 降为 3,322,656 bytes；memo 的两次独立控制仅 1/2 更快，
-只承接纯计算增长改善，不宣称独立 wall 收益。
+以下 2026-10-23 的形成时证据解释当前机制的采用依据，具体身份、方法、全部样本与适用边界留在附件；
+它们不是 timing 硬 Gate，也不是跨平台、冷盘或任意规模的性能保证。
 
-[形成时方法、产物身份与完整计时](_resources/markdown-link-native-io/evidence.md)保留全部 152 个样本、节流与 smoke 边界。
-这些是 Linux、warm parse cache、特定负载的采用依据，不是跨平台/冷盘保证或 timing 硬 Gate；
-[前期调查](../investigations/profile-markdown-link-consumer-workload.md)仍只保存原型认识。
+- **私有 Worker、自适应缓冲与收集纯 memo**：[真实安装包对照](_resources/markdown-link-native-io/evidence.md)的
+  1824 源合成语料中，Node D30/D60 配对 wall 节省中位数为 85.98%/89.14%，各 8/8 更快；Bun 三个深度各 4/4 更快。
+  Node 1/8 文档接受约 24.0/22.8 ms 的配对常数代价；收集 memo 只承接纯计算增长改善，独立 wall 控制为 1/2 更快。
+- **`source-read` 融合**：[源码副本公开 API 对照](_resources/markdown-link-source-fusion/evidence.md)的
+  1824 源语料 D10/D30/D60 中，Node 配对 wall 节省中位数为 28.42%/23.93%/15.31%，Bun 为 31.09%/23.01%/15.75%，各 6/6 更快。
+  独立三源诊断的工作 job 从 8 降至 5，路径观察和正文 I/O 计数不变；真实安装包 smoke 验证功能与收束，不提供安装包计时收益。
 
 ## 验证
 

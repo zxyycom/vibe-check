@@ -3,10 +3,15 @@ import path from "node:path";
 import type { EndpointProbe, RootProbe } from "./local-resolution.ts";
 import type { RegularFileRead } from "./filesystem-probes.ts";
 
+/** A source read never starts body I/O unless the component probe authorized its final path. */
+export type SourceFileRead =
+  | Readonly<{ probe: Exclude<RootProbe, { kind: "contained" }>; read?: never }>
+  | Readonly<{ probe: Extract<RootProbe, { kind: "contained" }>; read: RegularFileRead }>;
+
 export type LinkIoJob =
   | Readonly<{ kind: "containment"; path: string }>
   | Readonly<{ kind: "endpoint"; path: string }>
-  | Readonly<{ kind: "read"; path: string; maxBytes: number }>;
+  | Readonly<{ kind: "read" | "source-read"; path: string; maxBytes: number }>;
 export type LinkIoRequest =
   | Readonly<{ kind: "job"; id: number; job: LinkIoJob }>
   | Readonly<{ kind: "close"; id: number }>;
@@ -14,6 +19,7 @@ export type LinkIoResponse =
   | Readonly<{ kind: "containment"; id: number; probe: RootProbe }>
   | Readonly<{ kind: "endpoint"; id: number; probe: EndpointProbe }>
   | Readonly<{ kind: "read"; id: number; read: RegularFileRead }>
+  | Readonly<{ kind: "source-read"; id: number; source: SourceFileRead }>
   | Readonly<{ kind: "cancelled" | "failed" | "closed"; id: number }>;
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
@@ -35,6 +41,7 @@ function isLinkIoJob(value: unknown): value is LinkIoJob {
     case "endpoint":
       return true;
     case "read":
+    case "source-read":
       return (
         Number.isSafeInteger(value.maxBytes) &&
         Number(value.maxBytes) > 0 &&
@@ -62,7 +69,16 @@ function isJobResponse(value: Record<string, unknown>, job: LinkIoJob): boolean 
       return isEndpointProbe(value.probe, true);
     case "read":
       return isBoundedReadResult(value.read, job.maxBytes);
+    case "source-read":
+      return isSourceFileRead(value.source, job.maxBytes);
   }
+}
+
+function isSourceFileRead(value: unknown, maxBytes: number): value is SourceFileRead {
+  if (!isRecord(value) || !isRootProbe(value.probe)) return false;
+  return value.probe.kind === "contained"
+    ? isBoundedReadResult(value.read, maxBytes)
+    : !Object.hasOwn(value, "read");
 }
 
 function isBoundedReadResult(value: unknown, maxBytes: number): value is RegularFileRead {

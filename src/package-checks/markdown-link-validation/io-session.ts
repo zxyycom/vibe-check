@@ -8,7 +8,8 @@ import {
   isLinkIoResponse,
   type LinkIoJob,
   type LinkIoRequest,
-  type LinkIoResponse
+  type LinkIoResponse,
+  type SourceFileRead
 } from "./io-protocol.ts";
 
 export interface LinkIoWorkerPort {
@@ -127,6 +128,10 @@ export class LinkIoSession {
     const response = await this.#run({ kind: "read", path: target, maxBytes });
     return response?.kind === "read" ? response.read : { ok: false, reason: "unavailable" };
   }
+  async readSourceFile(target: string, maxBytes: number): Promise<SourceFileRead> {
+    const response = await this.#run({ kind: "source-read", path: target, maxBytes });
+    return response?.kind === "source-read" ? response.source : { probe: { kind: "unavailable" } };
+  }
 
   finalize(): Promise<void> {
     this.#finalization ??= this.#drain();
@@ -219,10 +224,13 @@ export class LinkIoSession {
   }
 
   #settleJobReply(pending: PendingIoJob, message: LinkIoResponse): void {
+    let probe: RootProbe | undefined;
+    if (message.kind === "containment") probe = message.probe;
+    else if (message.kind === "source-read") probe = message.source.probe;
     if (
-      message.kind === "containment" &&
-      (message.probe.kind === "contained" || message.probe.kind === "missing") &&
-      !isWithinRoot(this.#root, message.probe.absolutePath)
+      probe !== undefined &&
+      (probe.kind === "contained" || probe.kind === "missing") &&
+      !isWithinRoot(this.#root, probe.absolutePath)
     ) {
       this.#fail();
       return;
