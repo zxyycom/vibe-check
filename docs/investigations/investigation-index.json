@@ -2923,6 +2923,38 @@
         "process-boundaries"
       ],
       "title": "验证 Execa 10.2 的超限回收与命令结果完整性修复"
+    },
+    "261023-evaluate-markdown-link-fusion-and-restore": {
+      "formedAt": "2026-10-23T02:35:03Z",
+      "name": "evaluate-markdown-link-fusion-and-restore",
+      "question": "在已优化的原生 I/O 基线上，source 任务融合、cache 恢复去重、正文转移与 UTF-8 校验归并的收益、适用条件和安全边界是什么？",
+      "relations": [
+        {
+          "summary": "补充优化基线下任务融合、缓存恢复与字节处理的性能及安全证据",
+          "target": "261021-profile-markdown-link-consumer-workload",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261023-evaluate-markdown-link-fusion-and-restore/evidence.md",
+        "261023-evaluate-markdown-link-fusion-and-restore/fusion.patch",
+        "261023-evaluate-markdown-link-fusion-and-restore/restore.patch",
+        "261023-evaluate-markdown-link-fusion-and-restore/timing-samples.csv",
+        "261023-evaluate-markdown-link-fusion-and-restore/transfer-utf8-evidence.md",
+        "261023-evaluate-markdown-link-fusion-and-restore/transfer-utf8-timing-samples.csv",
+        "261023-evaluate-markdown-link-fusion-and-restore/transfer.patch",
+        "261023-evaluate-markdown-link-fusion-and-restore/utf8.patch"
+      ],
+      "sourcePath": "evaluate-markdown-link-fusion-and-restore.md",
+      "tags": [
+        "cache-design",
+        "cancellation",
+        "markdown-link-validation",
+        "performance",
+        "utf8",
+        "worker-threads"
+      ],
+      "title": "Markdown Link 剩余开销：任务融合、缓存恢复与字节处理"
     }
   },
   "metadata": {},
@@ -3043,7 +3075,8 @@
       "261021-assess-typescript-upgrade": "sha256:783598bf7a31c9ef8bcf33712383d5613ceb7bec2a4fba3ab4e4d857e7e59051",
       "261021-diagnose-markdownlint-core-instance-mismatch": "sha256:e4479a42d88203188c0394fba110e0ba45965f2f4d6f8d6b4376d628919488cf",
       "261021-profile-markdown-link-consumer-workload": "sha256:964bafc9ad98422c3b61a37b96893e1f925f602d8b964095031e2136de2bfb82",
-      "261021-verify-upgraded-command-result-integrity": "sha256:4d6eef0e21ad37c8dccdd0b208884f3901b0b576290bb1756ea0f8d22f740698"
+      "261021-verify-upgraded-command-result-integrity": "sha256:4d6eef0e21ad37c8dccdd0b208884f3901b0b576290bb1756ea0f8d22f740698",
+      "261023-evaluate-markdown-link-fusion-and-restore": "sha256:03f0a5ef4860d5bff594f8a934ff87d008e590bdc491069c20420ffdc3b54f82"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

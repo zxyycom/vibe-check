@@ -1,0 +1,138 @@
+--- a/src/package-checks/markdown-link-validation/io-protocol.ts
++++ b/src/package-checks/markdown-link-validation/io-protocol.ts
+@@ -3,10 +3,14 @@
+ import type { EndpointProbe, RootProbe } from "./local-resolution.ts";
+ import type { RegularFileRead } from "./filesystem-probes.ts";
+
++export type SourceFileRead =
++  | Readonly<{ probe: Exclude<RootProbe, { kind: "contained" }>; read?: never }>
++  | Readonly<{ probe: Extract<RootProbe, { kind: "contained" }>; read: RegularFileRead }>;
++
+ export type LinkIoJob =
+   | Readonly<{ kind: "containment"; path: string }>
+   | Readonly<{ kind: "endpoint"; path: string }>
+-  | Readonly<{ kind: "read"; path: string; maxBytes: number }>;
++  | Readonly<{ kind: "read" | "source-read"; path: string; maxBytes: number }>;
+ export type LinkIoRequest =
+   | Readonly<{ kind: "job"; id: number; job: LinkIoJob }>
+   | Readonly<{ kind: "close"; id: number }>;
+@@ -14,6 +18,7 @@
+   | Readonly<{ kind: "containment"; id: number; probe: RootProbe }>
+   | Readonly<{ kind: "endpoint"; id: number; probe: EndpointProbe }>
+   | Readonly<{ kind: "read"; id: number; read: RegularFileRead }>
++  | Readonly<{ kind: "source-read"; id: number; source: SourceFileRead }>
+   | Readonly<{ kind: "cancelled" | "failed" | "closed"; id: number }>;
+
+ export function isRecord(value: unknown): value is Record<string, unknown> {
+@@ -35,6 +40,7 @@
+     case "endpoint":
+       return true;
+     case "read":
++    case "source-read":
+       return (
+         Number.isSafeInteger(value.maxBytes) &&
+         Number(value.maxBytes) > 0 &&
+@@ -62,6 +68,13 @@
+       return isEndpointProbe(value.probe, true);
+     case "read":
+       return isBoundedReadResult(value.read, job.maxBytes);
++    case "source-read": {
++      const source = value.source;
++      return isRecord(source) && isRootProbe(source.probe) &&
++        (source.probe.kind === "contained"
++          ? isBoundedReadResult(source.read, job.maxBytes)
++          : source.read === undefined);
++    }
+   }
+ }
+
+--- a/src/package-checks/markdown-link-validation/io-session.ts
++++ b/src/package-checks/markdown-link-validation/io-session.ts
+@@ -10,6 +10,7 @@
+   type LinkIoRequest,
+   type LinkIoResponse
+ } from "./io-protocol.ts";
++import type { SourceFileRead } from "./io-protocol.ts";
+
+ export interface LinkIoWorkerPort {
+   postMessage(request: LinkIoRequest): void;
+@@ -127,6 +128,10 @@
+     const response = await this.#run({ kind: "read", path: target, maxBytes });
+     return response?.kind === "read" ? response.read : { ok: false, reason: "unavailable" };
+   }
++  async readSourceFile(target: string, maxBytes: number): Promise<SourceFileRead> {
++    const response = await this.#run({ kind: "source-read", path: target, maxBytes });
++    return response?.kind === "source-read" ? response.source : { probe: { kind: "unavailable" } };
++  }
+
+   finalize(): Promise<void> {
+     this.#finalization ??= this.#drain();
+@@ -219,10 +224,12 @@
+   }
+
+   #settleJobReply(pending: PendingIoJob, message: LinkIoResponse): void {
++    const probe = message.kind === "containment" ? message.probe :
++      message.kind === "source-read" ? message.source.probe : undefined;
+     if (
+-      message.kind === "containment" &&
+-      (message.probe.kind === "contained" || message.probe.kind === "missing") &&
+-      !isWithinRoot(this.#root, message.probe.absolutePath)
++      probe !== undefined &&
++      (probe.kind === "contained" || probe.kind === "missing") &&
++      !isWithinRoot(this.#root, probe.absolutePath)
+     ) {
+       this.#fail();
+       return;
+--- a/src/package-checks/markdown-link-validation/io-worker.ts
++++ b/src/package-checks/markdown-link-validation/io-worker.ts
+@@ -40,6 +40,14 @@
+     checkIoCancellation(cancellation);
+     const job = message.job;
+     switch (job.kind) {
++      case "source-read": {
++        const probe = probeContainedNative(root, job.path, cancellation);
++        const source = probe.kind === "contained"
++          ? { probe, read: readRegularFileNative(probe.absolutePath, job.maxBytes, cancellation) }
++          : { probe };
++        response = { kind: "source-read", id: message.id, source };
++        break;
++      }
+       case "containment":
+         response = {
+           kind: "containment",
+--- a/src/package-checks/markdown-link-validation/source-reader.ts
++++ b/src/package-checks/markdown-link-validation/source-reader.ts
+@@ -47,10 +47,15 @@
+   request: RootContainedMarkdownSourceReadRequest,
+   sourcePath: string
+ ): Promise<RootContainedSourceBytesRead> {
++  if (request.io !== undefined) {
++    const source = await request.io.readSourceFile(sourcePath, request.maxMarkdownBytes);
++    if (source.probe.kind !== "contained" || source.read === undefined) {
++      return Object.freeze({ kind: "result" as const, result: sourceUnavailable() });
++    }
++    return sourceBytesResult(source.read);
++  }
+   const rootProbe =
+-    request.io === undefined
+-      ? await probeRootContainedPath(request.canonicalProjectRoot, sourcePath)
+-      : await request.io.probeRootContainedPath(sourcePath);
++    await probeRootContainedPath(request.canonicalProjectRoot, sourcePath);
+   if (
+     rootProbe.kind === "outside" ||
+     rootProbe.kind === "unavailable" ||
+@@ -59,9 +64,11 @@
+     return Object.freeze({ kind: "result" as const, result: sourceUnavailable() });
+   }
+   const sourceBytes =
+-    request.io === undefined
+-      ? await readRegularFile(rootProbe.absolutePath, request.maxMarkdownBytes)
+-      : await request.io.readRegularFile(rootProbe.absolutePath, request.maxMarkdownBytes);
++    await readRegularFile(rootProbe.absolutePath, request.maxMarkdownBytes);
++  return sourceBytesResult(sourceBytes);
++}
++
++function sourceBytesResult(sourceBytes: import("./filesystem-probes.ts").RegularFileRead): RootContainedSourceBytesRead {
+   if (!sourceBytes.ok) {
+     return Object.freeze({
+       kind: "result" as const,

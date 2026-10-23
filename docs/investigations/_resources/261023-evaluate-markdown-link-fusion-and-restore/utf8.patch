@@ -1,0 +1,13 @@
+--- a/src/package-checks/markdown-link-validation/parse-facts-cache/session.ts
++++ b/src/package-checks/markdown-link-validation/parse-facts-cache/session.ts
+@@ -41,8 +41,9 @@
+     bytes: Uint8Array,
+     signal: AbortSignal
+   ): Promise<MarkdownLinkParseResult | undefined> {
+-    if (signal.aborted || !isUtf8(bytes)) return undefined;
++    if (signal.aborted) return undefined;
+     if (!this.#cache.enabled) return parseCurrentMarkdownBytes(bytes, signal);
++    if (!isUtf8(bytes)) return undefined;
+
+     await this.#restoreOnce(signal);
+     if (signal.aborted) return undefined;

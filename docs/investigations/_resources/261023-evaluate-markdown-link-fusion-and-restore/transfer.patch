@@ -1,0 +1,14 @@
+--- a/src/package-checks/markdown-link-validation/io-worker.ts
++++ b/src/package-checks/markdown-link-validation/io-worker.ts
+@@ -66,6 +66,10 @@
+   } catch (error: unknown) {
+     response = { kind: error instanceof IoCancelled ? "cancelled" : "failed", id: message.id };
+   }
+-  port.postMessage(response);
++  if (response.kind === "read" && response.read.ok) {
++    port.postMessage(response, [response.read.bytes.buffer as ArrayBuffer]);
++  } else {
++    port.postMessage(response);
++  }
+ }
+ port.on("message", receiveRequest);

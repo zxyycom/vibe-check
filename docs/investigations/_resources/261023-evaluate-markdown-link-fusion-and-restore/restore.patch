@@ -1,0 +1,36 @@
+--- a/src/package-checks/markdown-link-validation/parse-facts-cache/payload.ts
++++ b/src/package-checks/markdown-link-validation/parse-facts-cache/payload.ts
+@@ -43,7 +43,8 @@
+
+ /** Restores one complete, current-version JSONL envelope or rejects it as a cache miss. */
+ export function parseCacheEnvelopeLine(
+-  line: string
++  line: string,
++  restoredFacts?: ReadonlyMap<string, ParsedMarkdownLinkFacts>
+ ):
+   | Readonly<{ readonly identityDigest: string; readonly facts: ParsedMarkdownLinkFacts }>
+   | undefined {
+@@ -56,6 +57,8 @@
+       "payload"
+     ]);
+     if (!isCurrentCacheEnvelope(envelope)) return undefined;
++    // Only a fully restored later line makes this older payload irrelevant.
++    if (restoredFacts?.has(envelope.identityDigest)) return undefined;
+     return Object.freeze({
+       identityDigest: envelope.identityDigest,
+       facts: parseMarkdownLinkParseFactsPayload(envelope.payload)
+--- a/src/package-checks/markdown-link-validation/parse-facts-cache/session.ts
++++ b/src/package-checks/markdown-link-validation/parse-facts-cache/session.ts
+@@ -129,8 +129,10 @@
+     }
+     const lastNewline = text.lastIndexOf("\n");
+     if (lastNewline < 0) return;
+-    for (const line of text.slice(0, lastNewline).split("\n")) {
+-      const restored = parseCacheEnvelopeLine(line);
++    const lines = text.slice(0, lastNewline).split("\n");
++    // Walk backwards so only the last fully valid payload for each identity is built.
++    for (let index = lines.length - 1; index >= 0; index -= 1) {
++      const restored = parseCacheEnvelopeLine(lines[index]!, this.#restored);
+       if (restored !== undefined) this.#restored.set(restored.identityDigest, restored.facts);
+     }
+   }
