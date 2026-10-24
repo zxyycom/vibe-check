@@ -37,6 +37,50 @@ test("checked-in release manifest projects only version and rejects static-sourc
     });
     const projected = mutableManifest(source);
     assert.equal(projected.version, "0.0.1");
+    assert.equal(projected.name, "@zxyycom/vibe-check");
+    assert.equal(typeof projected.description, "string");
+    assert.equal(Array.isArray(projected.keywords), true);
+    assert.equal(projected.license, "MIT AND Apache-2.0 AND BSD-2-Clause");
+    assert.equal(
+      Array.isArray(projected.files) &&
+        projected.files.filter((path) => path === "licenses").length,
+      1
+    );
+    assert.deepEqual(projected.engines, { node: ">=24.18" });
+    assert.deepEqual(projected.repository, {
+      type: "git",
+      url: "git+https://github.com/zxyycom/vibe-check.git"
+    });
+    assert.deepEqual(projected.publishConfig, {
+      access: "public",
+      registry: "https://registry.npmjs.org/"
+    });
+    assert.equal(Object.hasOwn(projected, "private"), false);
+    assert.equal(Object.hasOwn(projected, "bin"), false);
+    assert.equal(Object.hasOwn(projected, "scripts"), false);
+    assert.ok(isNonArrayRecord(projected.exports));
+    assert.deepEqual(Object.keys(projected.exports), ["."]);
+    assert.deepEqual(projected.dependencies, {
+      "@secretlint/core": "13.0.5",
+      "@secretlint/secretlint-rule-privatekey": "13.0.5",
+      ajv: "8.20.0",
+      "csv-parse": "7.0.3",
+      execa: "10.2.0",
+      "fast-glob": "3.3.3",
+      "github-slugger": "2.0.0",
+      immutable: "5.1.9",
+      jscpd: "^5.4.2",
+      markdownlint: "0.42.0",
+      "mdast-util-from-markdown": "2.0.3",
+      "mdast-util-frontmatter": "2.0.1",
+      "mdast-util-gfm": "3.1.0",
+      "micromark-extension-frontmatter": "2.0.0",
+      "micromark-extension-gfm": "3.0.0",
+      micromatch: "4.0.8",
+      mnemonist: "0.40.4",
+      neverthrow: "8.2.0",
+      typebox: "1.3.9"
+    });
 
     const approvedStaticSource = readFileSync(sourcePath, "utf8");
     for (const { mutation, reason } of [

@@ -6,7 +6,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import micromatch from "micromatch";
 
-import { defineConfig, markdownLint, run as packageRun } from "@zxyycom/vibe-check";
+import { run as packageRun } from "@zxyycom/vibe-check";
 import {
   createRepositoryQualityChecks,
   PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS,
@@ -367,40 +367,6 @@ describe("repository quality Checks", () => {
     } finally {
       rmSync(cleanRoot, { force: true, recursive: true });
       rmSync(findingRoot, { force: true, recursive: true });
-    }
-  });
-
-  it("preserves Product-owned empty and unavailable Markdown lint outcomes", async () => {
-    const emptyRoot = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-markdown-empty-"));
-    const missingRoot = join(emptyRoot, "missing-root");
-    try {
-      const check = markdownLint({ files: { patterns: ["docs/**/*.md"] } });
-      const definition = defineConfig({
-        checks: [check],
-        outputs: {
-          diagnosticLogging: { enabled: false },
-          machinePublication: { enabled: false },
-          progressRendering: { enabled: false }
-        }
-      });
-      const empty = await packageRun(definition, { projectRoot: emptyRoot });
-      const unavailable = await packageRun(definition, { projectRoot: missingRoot });
-
-      assert.equal(empty.kind, "completed");
-      assert.equal(unavailable.kind, "completed");
-      if (empty.kind !== "completed" || unavailable.kind !== "completed") return;
-      assert.deepEqual(empty.snapshot.checks[0]?.outcome, {
-        status: "not-applicable",
-        reason: { code: "no-eligible-input" }
-      });
-      assert.deepEqual(unavailable.snapshot.checks[0]?.outcome, {
-        status: "unavailable",
-        reason: { code: "source-unavailable" }
-      });
-      assert.deepEqual(empty.snapshot.records, []);
-      assert.deepEqual(unavailable.snapshot.records, []);
-    } finally {
-      rmSync(emptyRoot, { force: true, recursive: true });
     }
   });
 });

@@ -1,47 +1,31 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { test } from "node:test";
 
 import { cleanupExternalConsumerMaterial, resolveExternalConsumerMaterial } from "./material.ts";
-import {
-  assertExternalConsumerTypes,
-  writeExternalConsumerTypesFixture
-} from "./type-acceptance.ts";
+import { assertExternalConsumerTypes } from "./type-acceptance.ts";
+import { externalConsumerTypecheckConfig } from "./typecheck-fixture.ts";
 
 test("external consumer type fixture uses only its public strictness profile", () => {
-  const consumerDirectory = mkdtempSync(join(tmpdir(), "vibe-check-external-consumer-types-"));
-  try {
-    writeExternalConsumerTypesFixture(consumerDirectory);
-    const config: unknown = JSON.parse(
-      readFileSync(join(consumerDirectory, "tsconfig.json"), "utf8")
-    );
-    assert.deepEqual(config, {
-      compilerOptions: {
-        allowImportingTsExtensions: true,
-        exactOptionalPropertyTypes: true,
-        module: "nodenext",
-        moduleResolution: "nodenext",
-        noUncheckedIndexedAccess: true,
-        noEmit: true,
-        strict: true,
-        target: "esnext",
-        types: ["node"],
-        verbatimModuleSyntax: true
-      },
-      include: [
-        "public-imports.ts",
-        "docs/examples/package-api/*.ts",
-        "node_modules/@zxyycom/vibe-check/docs/examples/artifacts/mixed-outcomes/definition.ts"
-      ]
-    });
-    assert.equal(existsSync(join(consumerDirectory, "node_modules/@types/node/fs.d.ts")), true);
-    assert.equal(existsSync(join(consumerDirectory, "node_modules/undici-types/index.d.ts")), true);
-    assert.equal(existsSync(join(consumerDirectory, "node-globals.d.ts")), false);
-  } finally {
-    rmSync(consumerDirectory, { force: true, recursive: true });
-  }
+  const config: unknown = JSON.parse(externalConsumerTypecheckConfig("@zxyycom/vibe-check"));
+  assert.deepEqual(config, {
+    compilerOptions: {
+      allowImportingTsExtensions: true,
+      exactOptionalPropertyTypes: true,
+      module: "nodenext",
+      moduleResolution: "nodenext",
+      noUncheckedIndexedAccess: true,
+      noEmit: true,
+      strict: true,
+      target: "esnext",
+      types: ["node"],
+      verbatimModuleSyntax: true
+    },
+    include: [
+      "public-imports.ts",
+      "docs/examples/package-api/*.ts",
+      "node_modules/@zxyycom/vibe-check/docs/examples/artifacts/mixed-outcomes/definition.ts"
+    ]
+  });
 });
 
 test("external consumer type acceptance", { concurrency: false, timeout: 20_000 }, async () => {

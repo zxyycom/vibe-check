@@ -1,18 +1,13 @@
 import assert from "node:assert/strict";
-import { rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import type { Check } from "../../check/check.ts";
 import { run } from "../../project-run/run.ts";
 import { maintenanceReminders } from "./maintenance-reminders.ts";
-import {
-  FULL_BASE,
-  commit,
-  definition,
-  onlyOutcome,
-  repository
-} from "./maintenance-reminders.test-support.ts";
+import { FULL_BASE, definition, onlyOutcome } from "./maintenance-reminders.test-support.ts";
 
 function historyFailureGitExecutable(root: string, revListProgram: string): string {
   writeFileSync(join(root, "rev-parse"), `process.stdout.write("${FULL_BASE}\\n");\n`, "utf8");
@@ -22,14 +17,12 @@ function historyFailureGitExecutable(root: string, revListProgram: string): stri
 
 describe("maintenance reminders", () => {
   it("classifies Git history failures as complete advisory or enforcing assessments", async () => {
-    const root = repository();
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-maintenance-history-failures-"));
     try {
-      writeFileSync(join(root, "base.txt"), "base\n", "utf8");
-      const base = commit(root, "base");
       const advisory = maintenanceReminders([
         {
           id: "advisory-unavailable",
-          baseCommit: base,
+          baseCommit: FULL_BASE,
           limits: { commits: 1 },
           message: "Check advisory history"
         }
@@ -37,7 +30,7 @@ describe("maintenance reminders", () => {
       const enforcing = maintenanceReminders([
         {
           id: "enforcing-unavailable",
-          baseCommit: base,
+          baseCommit: FULL_BASE,
           limits: { commits: 1 },
           message: "Check enforcing history",
           mode: "enforcing"
@@ -68,7 +61,7 @@ describe("maintenance reminders", () => {
           entries: [
             {
               assessment: "unavailable",
-              baseCommit: base,
+              baseCommit: FULL_BASE,
               changedLines: null,
               commitCount: null,
               exceeded: [],
@@ -115,7 +108,7 @@ describe("maintenance reminders", () => {
           entries: [
             {
               assessment: "unavailable",
-              baseCommit: base,
+              baseCommit: FULL_BASE,
               changedLines: null,
               commitCount: null,
               exceeded: [],
@@ -145,7 +138,7 @@ describe("maintenance reminders", () => {
           entries: [
             {
               assessment: "unavailable",
-              baseCommit: base,
+              baseCommit: FULL_BASE,
               changedLines: null,
               commitCount: null,
               exceeded: [],

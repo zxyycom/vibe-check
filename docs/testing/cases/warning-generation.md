@@ -5,6 +5,7 @@
 Owner: `docs/development/check-results.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
+- `bun|src/package-checks/duplicate-detection/records.test.ts|duplicate record candidates > marks a finding blocking exactly when any common area is blocking`
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
 - `bun|src/package-checks/function-metrics/constructor.area-findings.test.ts|functionMetrics area findings > records complete analyzer evidence and fails only for effective blocking findings`
 - `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to the analyzer`

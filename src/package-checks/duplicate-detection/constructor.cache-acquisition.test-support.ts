@@ -49,12 +49,14 @@ mockBuiltin("node:path", () => ({
     return originalPath.resolve(...args);
   }
 }));
-const { defineConfig, duplicateDetection, run } = await import("../../index.ts");
+const { duplicateDetection } = await import("./constructor.ts");
+const { executeDuplicateDetection } = await import("./execution.ts");
+const { executeCheck } = await import("../check-execution.test-support.ts");
 // Load the expectations after Product imports so its fingerprint module observes the builtin mocks.
 const { assertCacheAcquisitionSequence } = await import("./constructor.cache.test-support.ts");
 let probeCount = 0;
 const probe: CacheAcquisitionProbe = async (mode, minimumTokens = 100) => {
-  // Fixture reads/assertions between Runs must not contribute to the next Run's acquisition counts.
+  // Fixture reads/assertions between executions must not contribute to the next acquisition counts.
   counts.sourceReads = 0;
   counts.fingerprintHashes = 0;
   counts.git = 0;
@@ -74,22 +76,9 @@ const probe: CacheAcquisitionProbe = async (mode, minimumTokens = 100) => {
       }
     }
   });
-  const result = await run(
-    defineConfig({
-      checks: [check],
-      outputs: {
-        diagnosticLogging: { enabled: false },
-        machinePublication: { enabled: false },
-        progressRendering: { enabled: false }
-      }
-    }),
-    { projectRoot: root }
-  );
-  if (result.kind !== "completed") throw new Error(`unexpected Run result ${result.kind}`);
-  const outcome = result.snapshot.checks[0]?.outcome;
-  if (outcome === undefined) throw new Error("probe Check outcome missing");
+  const { result } = await executeCheck(executeDuplicateDetection, check.options, root);
   probeCount++;
-  return { counts: { ...counts }, outcome };
+  return { counts: { ...counts }, result };
 };
 await assertCacheAcquisitionSequence(root, probe);
 process.stdout.write(JSON.stringify({ probeCount }));

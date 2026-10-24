@@ -1,20 +1,45 @@
 import assert from "node:assert/strict";
-import { readFileSync, rmSync, writeFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 
-import { collectPackageDocumentation } from "./package-markdown.ts";
-import { loadPackageDocuments } from "./package-documents.ts";
-import { renderPackageApiDocumentation } from "./package-api/render.ts";
-import { createPackageApiDocumentationFixture } from "./package-api/test-support.ts";
+import { collectPackageDocumentation, type PackageDocumentationFile } from "./package-markdown.ts";
+import { loadPackageDocuments, PACKAGE_DOCUMENTS_CONFIG_PATH } from "./package-documents.ts";
+
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+
+function createPackageMarkdownFixture(): {
+  readonly root: string;
+  readonly markdownDocuments: readonly PackageDocumentationFile[];
+} {
+  const root = mkdtempSync(join(tmpdir(), "vibe-check-package-markdown-"));
+  const mapping = loadPackageDocuments(repositoryRoot);
+  for (const sourcePath of [
+    PACKAGE_DOCUMENTS_CONFIG_PATH,
+    ...mapping.checkGuides.map((guide) => guide.sourcePath),
+    ...mapping.machineMaterials.map((material) => material.sourcePath)
+  ]) {
+    const destination = join(root, sourcePath);
+    mkdirSync(dirname(destination), { recursive: true });
+    copyFileSync(join(repositoryRoot, sourcePath), destination);
+  }
+  return {
+    root,
+    markdownDocuments: mapping.markdownDocuments.map((document) => ({
+      content: readFileSync(join(repositoryRoot, document.sourcePath), "utf8"),
+      packagePath: document.packagePath
+    }))
+  };
+}
 
 describe("package Markdown", () => {
   it("closes fixture documentation inventory and rejects missing links or extra guide pages", () => {
-    const fixture = createPackageApiDocumentationFixture();
+    const { root: fixture, markdownDocuments } = createPackageMarkdownFixture();
     try {
-      const rendered = renderPackageApiDocumentation({ repositoryRoot: fixture });
       const mapping = loadPackageDocuments(fixture);
-      const documents = collectPackageDocumentation(fixture, rendered.markdownDocuments);
+      const documents = collectPackageDocumentation(fixture, markdownDocuments);
       assert.deepEqual(
         documents.map((document) => document.packagePath).sort(),
         [
@@ -30,12 +55,13 @@ describe("package Markdown", () => {
       );
       const changelog = documents.find((document) => document.packagePath === "docs/changelog.md");
       assert.ok(changelog);
-      assert.equal(changelog.content, readFileSync(join(fixture, "docs/changelog.md"), "utf8"));
-      const readme = rendered.markdownDocuments.find(
-        (document) => document.packagePath === "README.md"
+      assert.equal(
+        changelog.content,
+        readFileSync(join(repositoryRoot, "docs/changelog.md"), "utf8")
       );
+      const readme = markdownDocuments.find((document) => document.packagePath === "README.md");
       assert.ok(readme);
-      const missingLinkMarkdown = rendered.markdownDocuments.map((document) =>
+      const missingLinkMarkdown = markdownDocuments.map((document) =>
         document.packagePath === "README.md"
           ? {
               ...document,
@@ -52,7 +78,7 @@ describe("package Markdown", () => {
       );
 
       for (const documentPath of ["./docs/guides/scheduling.md", "./docs/changelog.md"]) {
-        const missingDocumentMarkdown = rendered.markdownDocuments.map((document) =>
+        const missingDocumentMarkdown = markdownDocuments.map((document) =>
           document.packagePath === "README.md"
             ? {
                 ...document,
@@ -74,14 +100,14 @@ describe("package Markdown", () => {
         "utf8"
       );
       assert.throws(
-        () => collectPackageDocumentation(fixture, rendered.markdownDocuments),
+        () => collectPackageDocumentation(fixture, markdownDocuments),
         /must exactly cover package-provided Check functions/
       );
       writeFileSync(mappingPath, mappingText, "utf8");
 
       writeFileSync(join(fixture, "docs/checks/extra.md"), "# extra\n", "utf8");
       assert.throws(
-        () => collectPackageDocumentation(fixture, rendered.markdownDocuments),
+        () => collectPackageDocumentation(fixture, markdownDocuments),
         /must exactly match the registry/
       );
     } finally {
@@ -90,10 +116,9 @@ describe("package Markdown", () => {
   });
 
   it("rejects package documentation without exactly one trailing LF", () => {
-    const fixture = createPackageApiDocumentationFixture();
+    const { root: fixture, markdownDocuments } = createPackageMarkdownFixture();
     try {
-      const rendered = renderPackageApiDocumentation({ repositoryRoot: fixture });
-      const extraTrailingLf = rendered.markdownDocuments.map((document) =>
+      const extraTrailingLf = markdownDocuments.map((document) =>
         document.packagePath === "docs/api-mechanics.md"
           ? { ...document, content: `${document.content}\n` }
           : document
@@ -113,14 +138,13 @@ describe("package Markdown", () => {
         "<!-- package-api-example:obsolete -->",
         "<!-- /package-api-example:obsolete -->"
       ]) {
-        const fixture = createPackageApiDocumentationFixture();
+        const { root: fixture, markdownDocuments } = createPackageMarkdownFixture();
         try {
           const markdownPath = join(fixture, sourcePath);
           const markdown = readFileSync(markdownPath, "utf8");
           writeFileSync(markdownPath, markdown.replace(/\n$/, `\n${marker}\n`), "utf8");
-          const rendered = renderPackageApiDocumentation({ repositoryRoot: fixture });
           assert.throws(
-            () => collectPackageDocumentation(fixture, rendered.markdownDocuments),
+            () => collectPackageDocumentation(fixture, markdownDocuments),
             (error: unknown) =>
               error instanceof Error &&
               error.message ===

@@ -137,24 +137,50 @@ describe("Markdown lint Check", () => {
     const root = createMarkdownLintTestRoot("vibe-check-markdown-lint-boundaries-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
+      const emptyRoot = join(root, "empty-root");
+      mkdirSync(emptyRoot);
       writeFileSync(join(root, "docs", "first.md"), "#missing\n", "utf8");
       writeFileSync(join(root, "docs", "second.md"), "#missing\n", "utf8");
       writeFileSync(join(root, "docs", "note.txt"), "ordinary text\n", "utf8");
-      const noInput = await executeMarkdownLintCheck(
-        executeMarkdownLint,
-        Object.freeze({
-          ...MARKDOWN_LINT_OPTIONS,
-          files: Object.freeze({
-            ...MARKDOWN_LINT_OPTIONS.files,
-            patterns: Object.freeze(["none/**/*.md"])
-          })
-        }),
-        root
-      );
-      assert.deepEqual(noInput.result, {
-        status: "not-applicable",
-        reason: { code: "no-eligible-input" }
-      });
+      for (const input of [
+        {
+          root: emptyRoot,
+          pattern: "docs/**/*.md",
+          status: "not-applicable",
+          reason: "no-eligible-input"
+        },
+        {
+          root,
+          pattern: "none/**/*.md",
+          status: "not-applicable",
+          reason: "no-eligible-input"
+        },
+        {
+          root: join(root, "missing-root"),
+          pattern: "docs/**/*.md",
+          status: "unavailable",
+          reason: "source-unavailable"
+        }
+      ]) {
+        const observed = await executeMarkdownLintCheck(
+          executeMarkdownLint,
+          Object.freeze({
+            ...MARKDOWN_LINT_OPTIONS,
+            files: Object.freeze({
+              ...MARKDOWN_LINT_OPTIONS.files,
+              patterns: Object.freeze([input.pattern])
+            })
+          }),
+          input.root
+        );
+        assert.equal(observed.result.status, input.status);
+        assert.ok(
+          observed.result.status === "not-applicable" || observed.result.status === "unavailable"
+        );
+        assert.deepEqual(observed.result.reason, { code: input.reason });
+        assert.equal(Object.hasOwn(observed.result, "data"), false);
+        assert.deepEqual(observed.records, []);
+      }
       const rejected = await executeMarkdownLintCheck(
         executeMarkdownLint,
         Object.freeze({

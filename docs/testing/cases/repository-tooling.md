@@ -26,8 +26,7 @@ Entities:
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > indexes adjacent Chinese JSDoc for each exported declaration`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits a readable ESM runtime layout and exact exports`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > rejects missing or malformed private Markdown Link Worker material`
-- `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the audited production dependency set`
-- `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the approved distribution and discovery contract`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > packages approved legal materials and excludes analyzer fixtures`
 - `bun|scripts/package/artifact/documentation-input.test.ts|Gate acceptance rejects entirely missing documentation input instead of rebuilding expectations`
 - `bun|scripts/package/artifact/documentation-input.test.ts|invocation documentation preserves independent source expectations and binds candidate identity`
 - `bun|scripts/package/artifact/documentation-input.test.ts|invocation documentation distinguishes direct absence from invalid supplied input`
@@ -38,7 +37,7 @@ Entities:
 
   Proves:
 
-- Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
+- Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements. Static manifest approvals are observed directly at source-to-projection/audit; real artifact tests retain legal bytes, file exclusions and the pack/audit path. Assertions on `artifact.files` observe the staging-derived inventory, not a second independent tarball readback.
 - 同次 candidate preparation 的 source-derived Markdown、JSDoc 示例与原始机器材料预期通过 invocation-local 文件供 staging/installed docs 验收复用；文件摘要、candidate artifact 路径/摘要、source input fingerprint 与 repository root 必须匹配。缺项、篡改、错误 candidate/root/fingerprint、非法路径或材料形状失败封闭；预期正文不进入 Check data 或 stdout。
 - Artifact 与 installed-documentation 调用方共用各自真实选择入口；Gate documentation input 全缺失时在 renderer、artifact audit 或 direct build 之前失败，不以重建预期补偿接线错误。该负向证明不启动 child，真实 artifact/installed documentation 正向验收仍独立保留。
 - Every name in the public declaration inventory has an exported declaration with adjacent Chinese JSDoc. Documentation from an earlier declaration, a non-JSDoc comment, an English-only comment or an unclosed comment cannot supply that adjacency.
@@ -155,7 +154,7 @@ Entities:
 - The installed command transcript is created only through its explicit artifact branch, retains raw child stdout/stderr, and omits executable, argument and environment definition material. Default discard execution keeps executable, argument, environment and child-output canaries out of Run facts and machine publication, including a startup-failure branch.
 - Installed Node Markdown lint produces a real cold-cache Finding, accepts an identity copied from its public Record data, and re-evaluates applied, changed-reason, unused and removed waivers on subsequent Runs. Applied evidence preserves the original ID and fields, adds only the waiver reason and emits no error; three-field final data remains parseable, and published `records.ndjson` matches snapshot Records.
 - A fresh installed dependency graph, without the repository's micromark override, reports one blocking `reference-links-images` Finding for an undefined full reference; the dependency upgrade cannot silently disable MD052 while ordinary ATX lint still works.
-- Installed Node waiver reconciliation accepts omitted, `undefined` and empty-array waiver inputs, keeps the original Finding reference actionable, returns empty audits, and still rejects invalid Finding identity and `null` waiver configuration.
+- Installed Node imports `reconcileFindingWaivers` from the public package root and performs a normal call with omitted waivers, keeping the original Finding reference actionable and returning empty audits. Default-value and invalid-input matrices are proved by the direct reconciliation tests.
 
 ## Case AUX-PACKAGE-API-DOCUMENTATION-001: Package API documentation projections stay executable and exact
 
@@ -212,7 +211,7 @@ Entities:
 
 - 独立 fixture 的文档 collector 证明 registry、README 直链、changelog bytes 与 guide 集合的闭合；实际仓库材料由 candidate source audit 与真实 artifact/installed 验收负责，不在 collector 自测重跑一轮真仓库正向。
 - Package documentation has exactly one README-linked guide for every package-provided Check function and a direct machine-output guide link. The README and exact guide directory cannot omit a direct link, publish an unregistered extra page, or restore a Check index layer.
-- Generated and hand-written Markdown use canonical LF text with one trailing LF. Renderer output, hand-written Check guides, and machine Markdown reject both opening and closing package example projection markers before package construction.
+- The collector accepts rendered Markdown input with canonical LF text and one trailing LF. Hand-written Check guides and machine Markdown reject both opening and closing package example projection markers before package construction; renderer execution and its marker checks are proved separately.
 - The published Markdown inventory includes the exact checked-in changelog bytes and rejects a missing README link to that document.
 
 ## Case AUX-PACKAGE-DEPENDENCY-VERSIONS-001: Candidate dependency requirements validate actual resolutions
@@ -304,8 +303,6 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects the central composition manifest into an ordinary Project Definition`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > uses the strict repository policy and binds only the mise-provided SCC command`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > settles four blocking Checks while retaining advisory Markdown lint Findings`
-- `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > preserves Product-owned empty and unavailable Markdown lint outcomes`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > settles a blocking normal quality Finding through its owning Check and effective aggregate`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > substitutes an unavailable absolute SCC command without a function-metrics command`
   Proves:
 
@@ -318,7 +315,7 @@ Entities:
 - Duplicate、file、function metrics 与 Markdown Link 的 normal Finding 使用 blocking policy，未豁免 Finding 经 owning Check 和默认 aggregate 阻断 Gate。Function metrics 保留 `50 + 150/below 5 + CC 10 + parameters 5` 限值，只对 `createProjectGateEntries` 当前起始行的 `function-code-density` 使用一项精确 waiver；其它函数与指标继续阻断。
 - File metrics 保持全仓 `300 + 500/decision tokens ≤ 10` 行数策略；仅对 `docs/guides/building-project-gate.md` 的 `code-lines` 配置用户确认的单页教程 waiver，该文件仍在扫描范围内，其它路径不继承豁免。
 - Markdown Link 保持完整文档输入和 blocking policy；Gate 将 `maxOccurrences` 与 `maxTargetReads` 设为 `false`，其它资源限制及 root-external 授权边界保持。
-- `markdown-lint` 独立使用八项固定规则、`docs/**/*.md` / `changes/**/*.md` 范围和 non-blocking policy；Gate 显式启用可删除的逐文件 findings 缓存，不缩小检查范围。Finding 仍进入 Records 与 final data，空输入及不可用仍由 Product 结算。
+- `markdown-lint` 独立使用八项固定规则、`docs/**/*.md` / `changes/**/*.md` 范围和 non-blocking policy；Gate 显式启用可删除的逐文件 findings 缓存，不缩小检查范围。真实质量组工厂接线保留 advisory Finding 的 Records、final data 和 passed outcome。
 - 三项 metrics 的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；function metrics 额外排除 Product test/test-support，duplicate/file 仍选择这些测试文件。Duplicate detection 不选择 Markdown；duplicate/file metrics 不选择 historical Schemas，但继续选择 current Schemas。两个 Markdown Check 的范围均限于 `docs/**/*.md` 与 `changes/**/*.md`。
 - Artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共五个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。显式 `package:candidate:integration` 另有 30 秒进程硬限制，但不属于 routine `--test` preset。
 
@@ -463,6 +460,7 @@ Entities:
 Owner: `docs/tooling/project-gate.md#性能预算与-check-耗时分布`
 Entities:
 
+- `bun|scripts/project/gate/runtime/performance-policy.test.ts|Project Gate performance policy > preflights complete standard policies and rejects malformed budgets before use`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > blocks exceeded budgets or invalid measurements and retains failure context`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > enforces each standard profile's versioned budgets independently of runtime and declaration identity`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > summarizes current Check costs and evaluates mean and nearest-rank p95 independently`
@@ -475,7 +473,7 @@ Entities:
 - fast/changed/all 使用同一版本化策略：总预算为 30000/30000/90000ms，均值 2000ms、P95 5000ms；receipt 的 all+release 仍使用原 all 预算，不增加发布档。完整三档策略在 candidate preparation 前校验；非法或 loader 抛错失败，不读取本机配置或按 runtime/指纹改变门限。
 - `elapsed-to-initial-result` 包括三个连续阶段；等于预算为 info，总耗时、均值或 P95 任一独立超标即 error / blocks。无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 不加载策略或评估正式预算。
 - Check 分布不计 null，但计入真实零值；输出执行数量、累计执行耗时和独立判断的均值/P95，累计值明确不等于墙钟。nearest-rank 对小集合、20 项和 34 项具有确定结果，空集合显示 n/a，最慢三项按耗时及 ID 确定排序。重复 ID、非法耗时和累计溢出不产生伪统计。
-- 三档的总耗时、均值、P95 独立及组合超标均使默认 contributor 退出 1；error、唯一 failed / exit 1 与安全现场实际落入 gate.log，终端只显示超标和日志入口。准备、load、Run 各执行一次，预算对象与 Product facts 不改写；现场保留完整 duration facts、实际测量、candidate 身份/准备动作及 runtime，未超标时无失败现场。现场只投影授权字段，控制字符转义后仍通过 contribution 校验，JSON 读回保留原值。
+- 领域 API 覆盖三档总耗时、均值、P95 独立及组合超标的 blocks 与消息；adapter 分别以总耗时、Check 分布超标代表用例证明默认 contributor 返回 exit 1，error、唯一 failed / exit 1 与安全现场实际落入 gate.log，终端只显示超标和日志入口。准备、load、Run 各执行一次，预算对象与 Product facts 不改写；现场保留完整 duration facts、实际测量、candidate 身份/准备动作及 runtime，未超标时无失败现场。现场只投影授权字段，控制字符转义后仍通过 contribution 校验，JSON 读回保留原值。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 

@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { isNonArrayRecord } from "../../data-boundary/value-shapes.ts";
-import type { CheckOutcome } from "../../check/check.ts";
+import type { CheckResult } from "../../check/check.ts";
 
 import { fingerprintProjectFiles } from "../project-files/file-fingerprint.ts";
 import { createTypeScriptSourceRoot } from "../check-execution.test-support.ts";
@@ -18,7 +18,7 @@ export interface CacheAcquisitionProbeResult {
     git: number;
     cacheDirectory: number;
   }>;
-  readonly outcome: CheckOutcome;
+  readonly result: CheckResult;
 }
 
 export type CacheAcquisitionProbe = (
@@ -49,20 +49,20 @@ export function assertConditionalCacheAcquisition(): void {
   }
 }
 
-/** Test-owned expectations run in the isolated child; each probe remains a new Check and Run. */
+/** Test-owned expectations run in the isolated child; each probe executes a new Check directly. */
 export async function assertCacheAcquisitionSequence(
   root: string,
   probe: CacheAcquisitionProbe
 ): Promise<void> {
   const disabled = await probe("cache-off");
-  assert.equal(disabled.outcome.status, "passed");
+  assert.equal(disabled.result.status, "passed");
   assertNoCacheAcquisition(disabled);
   assert.equal(readCount(root, "scans"), 1);
   assert.equal(readCount(root, "versions"), 1);
   assert.equal(existsSync(join(root, ".cache-probe")), false);
 
   const noEligible = await probe("no-eligible");
-  assert.deepEqual(noEligible.outcome, {
+  assert.deepEqual(noEligible.result, {
     status: "not-applicable",
     reason: { code: "no-eligible-input" }
   });
@@ -71,8 +71,8 @@ export async function assertCacheAcquisitionSequence(
   assert.equal(readCount(root, "versions"), 1);
 
   const unavailable = await probe("unavailable");
-  assert(unavailable.outcome.status === "unavailable");
-  assert.deepEqual(unavailable.outcome.reason, { code: "external-dependency-unavailable" });
+  assert(unavailable.result.status === "unavailable");
+  assert.deepEqual(unavailable.result.reason, { code: "external-dependency-unavailable" });
   assertNoCacheAcquisition(unavailable);
   assert.equal(existsSync(join(root, ".cache-probe")), false);
 
@@ -80,13 +80,10 @@ export async function assertCacheAcquisitionSequence(
   const before = fingerprintProjectFiles(root, ["src/a.ts", "src/b.ts"]);
   writeFileSync(join(root, "mutate-once"), "yes");
   const miss = await probe("cache-on");
-  assert.equal(miss.outcome.status, "passed");
-  assert.deepEqual(miss.counts, {
-    sourceReads: 2,
-    fingerprintHashes: 3,
-    git: 1,
-    cacheDirectory: 1
-  });
+  assert.equal(miss.result.status, "passed");
+  assert.equal(miss.counts.sourceReads, 2);
+  assert.equal(miss.counts.git, 1);
+  assert.equal(miss.counts.cacheDirectory, 1);
   assert.equal(readCount(root, "scans"), 2);
   const cacheRoot = join(root, ".cache-probe", "quality-scan-cache-v3");
   const entries = readdirSync(cacheRoot);
@@ -101,7 +98,9 @@ export async function assertCacheAcquisitionSequence(
   await probe("cache-on");
   assert.equal(readCount(root, "scans"), 3);
   const hit = await probe("cache-on");
-  assert.deepEqual(hit.counts, miss.counts);
+  assert.equal(hit.counts.sourceReads, 2);
+  assert.equal(hit.counts.git, 1);
+  assert.equal(hit.counts.cacheDirectory, 1);
   assert.equal(readCount(root, "scans"), 3);
   assert.equal(readCount(root, "versions"), 4);
 
@@ -118,8 +117,8 @@ export async function assertCacheAcquisitionSequence(
   // Cache-off still lets the scanner own actual read failure; no cache preflight substitutes for it.
   writeFileSync(join(root, "remove-on-version"), "yes");
   const readFailure = await probe("cache-off");
-  assert(readFailure.outcome.status === "unavailable");
-  assert.deepEqual(readFailure.outcome.reason, { code: "external-execution-failed" });
+  assert(readFailure.result.status === "unavailable");
+  assert.deepEqual(readFailure.result.reason, { code: "external-execution-failed" });
   assertNoCacheAcquisition(readFailure);
 }
 

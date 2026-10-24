@@ -330,24 +330,6 @@ describe("Project Gate change regions", () => {
     ]) {
       assert.deepEqual(matchingRegions(path, independentRegions), independentRegions, path);
     }
-    const testLanes = resolveProjectGateTestLanes(process.cwd());
-    const scriptLaneRegions = [
-      ["packageTooling", "package-tests"],
-      ["scriptsProject", "project-tests"],
-      ["scriptsProjectSelection", "project-selection-tests"],
-      ["scriptsLayout", "layout-tests"],
-      ["scriptsMachineArtifacts", "machine-artifact-tests"],
-      ["scriptsPackageToolsBoundary", "package-tools-boundary-tests"],
-      ["scriptsTestEvidence", "test-evidence-tests"],
-      ["scriptsTooling", "script-tooling-tests"],
-      ["scriptsValidation", "validation-tests"]
-    ] as const;
-    for (const [lane, region] of scriptLaneRegions) {
-      assert.ok(testLanes[lane].length > 0, lane);
-      for (const path of testLanes[lane]) {
-        assert.deepEqual(matchingRegions(path, [region]), [region], path);
-      }
-    }
   });
 
   it("keeps quality and material regions specific to their inputs", () => {

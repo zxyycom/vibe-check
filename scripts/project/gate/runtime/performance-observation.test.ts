@@ -157,7 +157,7 @@ describe("Project Gate performance budgets", () => {
     });
     assert.ok(Object.isFrozen(PROJECT_GATE_PERFORMANCE_POLICY));
     for (const profile of ["fast", "changed", "all"] as const) {
-      const configured = PROJECT_GATE_PERFORMANCE_POLICY[profile];
+      const configured: ProjectGatePerformanceBudget = PROJECT_GATE_PERFORMANCE_POLICY[profile];
       assert.ok(Object.isFrozen(configured));
       for (const offset of [-1, 0, 1]) {
         const elapsedMs = configured.maxElapsedMs + offset;
@@ -201,6 +201,57 @@ describe("Project Gate performance budgets", () => {
           }
           assert.doesNotMatch(message, /no matching|manually update|fingerprint/);
         }
+      }
+      for (const scenario of [
+        { elapsedMs: 120, maxMeanCheckMs: 50, maxP95CheckMs: 5000, exceeded: ["mean"] },
+        { elapsedMs: 120, maxMeanCheckMs: 2000, maxP95CheckMs: 65, exceeded: ["p95"] },
+        {
+          elapsedMs: configured.maxElapsedMs + 1,
+          maxMeanCheckMs: 50,
+          maxP95CheckMs: 65,
+          exceeded: ["mean", "p95"]
+        }
+      ]) {
+        const result = evaluateProjectGatePerformance(
+          {
+            ...context(scenario.elapsedMs),
+            initialResult: createProjectGateResult("passed"),
+            performancePolicy: {
+              ...PROJECT_GATE_PERFORMANCE_POLICY,
+              [profile]: {
+                ...configured,
+                maxMeanCheckMs: scenario.maxMeanCheckMs,
+                maxP95CheckMs: scenario.maxP95CheckMs
+              }
+            },
+            runResult: {
+              kind: "completed",
+              declarativeFingerprint: "a".repeat(64),
+              checkDurations: [
+                { checkId: "lint-product", durationMs: 70 },
+                { checkId: "typecheck-scripts", durationMs: 60 }
+              ]
+            },
+            selection: { kind: profile }
+          },
+          runtime
+        );
+        assert.equal(result.blocks, true);
+        assert.equal(result.messages.length, 3);
+        assert.equal(
+          result.messages[0]?.level,
+          scenario.elapsedMs > configured.maxElapsedMs ? "error" : "info"
+        );
+        assert.equal(result.messages[1]?.level, "error");
+        assert.ok(
+          result.messages[1]?.message.includes(
+            `exceeded Check budgets: ${scenario.exceeded.join(", ")}`
+          )
+        );
+        const evidence: unknown = JSON.parse(result.messages[2]?.message ?? "");
+        assert.ok(isNonArrayRecord(evidence));
+        assert.equal(evidence.profile, profile);
+        assert.deepEqual(evidence.measurements, { meanCheckMs: 65, p95CheckMs: 70 });
       }
     }
   });

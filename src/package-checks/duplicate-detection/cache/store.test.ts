@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import { strict as assert } from "node:assert";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 
@@ -12,7 +12,7 @@ import {
 } from "./store.ts";
 import type { DuplicateCodeFragment } from "../measurement-model.ts";
 import { createDuplicateScanCacheIdentity, jscpdCacheConfiguration } from "./identity.ts";
-import { DEFAULT_JSCPD_COMMAND, readJscpdBinTarget } from "../jscpd/command-resolution.ts";
+import { DEFAULT_JSCPD_COMMAND } from "../jscpd/command-resolution.ts";
 
 describe("quality measurement cache", () => {
   it("keys duplicate-code cache by scanner and exact input identity", () => {
@@ -23,7 +23,7 @@ describe("quality measurement cache", () => {
     try {
       const baseKey = buildScanCacheKey(identity);
       assertIdentityInputs(baseKey, identity);
-      assertDefaultJscpdIdentity(tempDir);
+      assertDefaultJscpdIdentity();
       assertRawScanConfigurationVersion();
 
       writeScanCacheEntry({ rootDir: tempDir, identity, metrics: [fragment] });
@@ -108,7 +108,7 @@ function assertRawScanConfigurationVersion(): void {
   );
 }
 
-function assertDefaultJscpdIdentity(tempDir: string): void {
+function assertDefaultJscpdIdentity(): void {
   const defaultScanner = { command: DEFAULT_JSCPD_COMMAND };
   const defaultConfiguration = jscpdCacheConfiguration({
     dependency: defaultScanner,
@@ -123,12 +123,6 @@ function assertDefaultJscpdIdentity(tempDir: string): void {
     reporter: "json",
     workerPolicy: "tool-default"
   });
-  const firstInstalledBin = fakeInstalledJscpdBin(tempDir, "first-consumer");
-  const secondInstalledBin = fakeInstalledJscpdBin(tempDir, "second-consumer");
-  assert.notEqual(firstInstalledBin, secondInstalledBin);
-  const publicDefaultCommand = JSON.stringify(DEFAULT_JSCPD_COMMAND);
-  assert.equal(publicDefaultCommand.includes(firstInstalledBin), false);
-  assert.equal(publicDefaultCommand.includes(secondInstalledBin), false);
   assert.notDeepEqual(defaultConfiguration, explicitCustomJscpdCacheConfiguration());
   assert.deepEqual(repositoryLocalJscpdCacheConfiguration().backend, {
     executable: "/workspace/consumer/node_modules/.bin/jscpd",
@@ -203,15 +197,6 @@ function cacheIdentity(): DuplicateCodeCacheIdentity {
       fingerprint: "sha256:test:1"
     }
   };
-}
-
-function fakeInstalledJscpdBin(rootDir: string, consumerName: string): string {
-  const packageDir = join(rootDir, consumerName, "node_modules", "jscpd");
-  const packageManifestPath = join(packageDir, "package.json");
-  mkdirSync(packageDir, { recursive: true });
-  writeFileSync(packageManifestPath, JSON.stringify({ bin: { jscpd: "./run-jscpd.js" } }), "utf8");
-  writeFileSync(join(packageDir, "run-jscpd.js"), "", "utf8");
-  return readJscpdBinTarget(packageManifestPath) ?? "";
 }
 
 function duplicateFragment(): DuplicateCodeFragment {

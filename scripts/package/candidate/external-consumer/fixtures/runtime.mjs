@@ -60,24 +60,13 @@ const admissionSimulationEvidence = await observeAdmissionSimulation(projectRoot
 await assertInstalledMarkdownLintWaivers();
 
 const waiverCandidate = { id: "installed-finding" };
-for (const configuration of [{}, { waivers: undefined }, { waivers: [] }]) {
-  const reconciled = reconcileFindingWaivers({
-    findings: [waiverCandidate],
-    identify: (finding) => finding.id,
-    ...configuration
-  });
-  assert.equal(reconciled.findings[0].finding, waiverCandidate);
-  assert.equal(reconciled.findings[0].disposition, "actionable");
-  assert.deepEqual(reconciled.waiverAudits, []);
-}
-assert.throws(
-  () => reconcileFindingWaivers({ findings: [waiverCandidate], identify: () => undefined }),
-  TypeError
-);
-assert.throws(
-  () => reconcileFindingWaivers({ findings: [], identify: () => "unused", waivers: null }),
-  TypeError
-);
+const reconciled = reconcileFindingWaivers({
+  findings: [waiverCandidate],
+  identify: (finding) => finding.id
+});
+assert.equal(reconciled.findings[0].finding, waiverCandidate);
+assert.equal(reconciled.findings[0].disposition, "actionable");
+assert.deepEqual(reconciled.waiverAudits, []);
 
 const jsonCheck = jsonValidation();
 const parserEvidence = {

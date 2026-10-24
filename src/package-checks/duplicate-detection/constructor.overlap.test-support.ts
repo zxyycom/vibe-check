@@ -166,78 +166,59 @@ export async function assertReevaluatedCommonAreaPolicies(
 ): Promise<void> {
   const sharedArea = options.codeAreas.shared;
   if (sharedArea === undefined) throw new Error("duplicateDetection shared area is missing");
-  const blockingCommonArea = await executeCheck(
+  const cached = await executeCheck(
     executeDuplicateDetection,
     {
       ...options,
       codeAreas: {
         ...options.codeAreas,
-        shared: { ...sharedArea, findingPolicy: "blocking" }
+        shared: { ...sharedArea, minimumLines: 8, minimumTokens: 75 },
+        "also-shared": {
+          ...sharedArea,
+          findingPolicy: "blocking",
+          minimumLines: 8,
+          minimumTokens: 75
+        }
       }
     },
     root
   );
-  assert.deepEqual(blockingCommonArea.result, {
-    status: "failed",
-    data: { blockingFindingCount: 1, findingCount: 1 },
-    messages: [
-      {
-        code: "blocking-findings",
-        level: "error",
-        message:
-          "1 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-      },
-      DUPLICATE_DETAILS.overlapError
-    ]
+  assert(cached.result.status === "failed");
+  assert.deepEqual(cached.result.data, { blockingFindingCount: 3, findingCount: 3 });
+  assert.equal(cached.records.length, 3);
+  assert.deepEqual(cached.result.messages?.[0], {
+    code: "blocking-findings",
+    level: "error",
+    message:
+      "3 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
   });
-  assert.equal(Reflect.get(blockingCommonArea.records[0]?.data ?? {}, "blocking"), true);
-  assert.equal(readFileSync(scanCountPath, "utf8"), "1");
-  const stricter = await executeCheck(
-    executeDuplicateDetection,
-    {
-      ...options,
-      codeAreas: {
-        ...options.codeAreas,
-        shared: { ...sharedArea, minimumTokens: 130 }
-      }
-    },
-    root
+  assert.deepEqual(
+    cached.result.messages?.find(
+      ({ message }) => message === DUPLICATE_DETAILS.overlapError.message
+    ),
+    DUPLICATE_DETAILS.overlapError
   );
-  assert.deepEqual(stricter.result, {
-    status: "passed",
-    data: { blockingFindingCount: 0, findingCount: 0 }
-  });
-  assert.equal(stricter.records.length, 0);
-  assert.equal(readFileSync(scanCountPath, "utf8"), "1");
-  const multipleCommonAreas = {
-    ...options,
-    codeAreas: {
-      ...options.codeAreas,
-      "also-shared": { ...sharedArea, minimumLines: 12, minimumTokens: 100 }
-    }
-  };
-  const overlapping = await executeCheck(executeDuplicateDetection, multipleCommonAreas, root);
-  assert(overlapping.result.status === "passed");
-  assert.deepEqual(overlapping.result.data, { blockingFindingCount: 0, findingCount: 1 });
-  assert.equal(overlapping.records.length, 1);
-  assert.deepEqual(Reflect.get(overlapping.records[0]?.data ?? {}, "codeAreas"), [
-    "also-shared",
-    "shared"
-  ]);
-  const stricterLines = await executeCheck(
-    executeDuplicateDetection,
-    {
-      ...multipleCommonAreas,
-      codeAreas: {
-        ...multipleCommonAreas.codeAreas,
-        "also-shared": { ...sharedArea, minimumLines: 13, minimumTokens: 100 }
-      }
-    },
-    root
+  // Raw cache retains even previously filtered fragments; current membership and policy are reapplied.
+  assert.deepEqual(
+    new Set(cached.records.map(({ data }) => data)),
+    new Set(
+      [
+        { tokenCount: 80, lineCount: 12, startLine: 20, endLine: 31 },
+        { tokenCount: 120, lineCount: 8, startLine: 5, endLine: 12 },
+        { tokenCount: 120, lineCount: 12, startLine: 40, endLine: 51 }
+      ].map(({ tokenCount, lineCount, startLine, endLine }) => ({
+        blocking: true,
+        codeAreas: ["also-shared", "shared"],
+        lineCount,
+        locations: [
+          { endLine, path: "scripts/b.ts", startLine },
+          { endLine, path: "src/a.ts", startLine }
+        ],
+        metric: "duplicate-tokens",
+        tokenCount
+      }))
+    )
   );
-  assert(stricterLines.result.status === "passed");
-  assert.deepEqual(stricterLines.result.data, { blockingFindingCount: 0, findingCount: 0 });
-  assert.deepEqual(stricterLines.records, []);
   assert.equal(readFileSync(scanCountPath, "utf8"), "1");
 }
 

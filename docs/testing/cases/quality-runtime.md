@@ -376,7 +376,7 @@ Entities:
 
 Proves:
 
-- Empty selections are not applicable, rejected selected inputs remain successful evidence, and limits or cancellation make the Check unavailable without publishing partial lint Findings.
+- Empty roots and zero-match selections are not applicable; a missing project root is unavailable with `source-unavailable`. These direct executions publish neither data nor Records. Rejected selected inputs remain successful evidence, and limits or cancellation make the Check unavailable without publishing partial lint Findings.
 
 ## Case QUALITY-RUNTIME-MARKDOWN-LINT-REFERENCES: Markdown lint MD052 public result
 

@@ -4,7 +4,7 @@
 
 ## Why
 
-当前部分测试为路径规则、取消或容量判断经过完整准备流程、重复真实工具链读取或生产容量文件；layout 还机器锁定目录组织和构建源码写法。测试分组名称不能清楚区分产品测试、仓库扫描和安装验收。用户明确授权先移除这些硬约束，再降低测试层级与规模，最后调整命名和执行频率。
+本 Change 针对测试层级过高、重复准备和自动验收职责混杂的问题：路径规则、取消或容量判断经过完整流程，layout 锁定目录组织和构建源码写法，分组名称难以区分产品测试、仓库扫描和安装验收。实施按硬约束清理、测试降层、命名与频率调整推进；当前追加清理保留独立证明，减少重复执行和无关 fixture。
 
 ## Outcome
 
@@ -16,9 +16,13 @@
 
 依次删除目录硬约束及构建源码正则锁，保留真实依赖边界；降低 package 错入口测试与 Git fixture 重复工作；以私有策略缩小容量、以确定性同步或时钟替代无关等待；最后按责任命名现有 Check 并收敛 routine/release-only/explicit-only 选择。
 
+追加清理覆盖 Gate 重复证明、未被消费的 Git/安装 fixture、hash 次数锁定及错层规则矩阵。性能策略、duplicate area/blocking、Markdown collector、类型配置和 manifest 静态批准值由已有直接入口证明；真实 scanner/cache、日志、产物及安装验收保留独立的接线证明。
+
 ### Resulting Impacts
 
 同步校验器、package 私有依赖、相关 Product 私有测试接线、Case 和内部 owner。修订 Gate 自动验收方向的长期记录，保留唯一候选、installed docs/runtime、四项扫描、原性能预算与统计口径。按追加授权，以 AI-ready-docs 和完整编码规范复核本次及相关前序改动，并保存 Git 提交；Change 删除另需明确授权。
+
+追加测试清理同步实体映射与 `Proves`，生产代码、公开 API、Gate 选择及预算保持不变。本轮授权包含两版清理的提交前复核、必要提交及 hook 推送；完整 Gate 性能验收继续保留未完成状态。
 
 ## Success Criteria
 

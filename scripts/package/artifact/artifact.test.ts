@@ -222,43 +222,13 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     }
   });
 
-  it("declares the audited production dependency set", { timeout: 20_000 }, async () => {
+  it("packages approved legal materials and excludes analyzer fixtures", async () => {
     const { artifact } = await fixture();
-    assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
-      "@secretlint/core": "13.0.5",
-      "@secretlint/secretlint-rule-privatekey": "13.0.5",
-      ajv: "8.20.0",
-      "csv-parse": "7.0.3",
-      execa: "10.2.0",
-      "fast-glob": "3.3.3",
-      "github-slugger": "2.0.0",
-      immutable: "5.1.9",
-      jscpd: "^5.4.2",
-      markdownlint: "0.42.0",
-      "mdast-util-from-markdown": "2.0.3",
-      "mdast-util-frontmatter": "2.0.1",
-      "mdast-util-gfm": "3.1.0",
-      "micromark-extension-frontmatter": "2.0.0",
-      "micromark-extension-gfm": "3.0.0",
-      micromatch: "4.0.8",
-      mnemonist: "0.40.4",
-      neverthrow: "8.2.0",
-      typebox: "1.3.9"
-    });
-  });
-
-  it("declares the approved distribution and discovery contract", async () => {
-    const { artifact } = await fixture();
-    const manifest = candidateManifest(artifact.stagingDirectory);
-    assert.equal(manifest.name, "@zxyycom/vibe-check");
     assert.equal(artifact.files.includes("package/LICENSE"), true);
     assert.match(
       readFileSync(join(artifact.stagingDirectory, "LICENSE"), "utf8"),
       /^MIT License\n\nCopyright \(c\) 2026 zxyycom\n/u
     );
-    assert.equal(typeof manifest.description, "string");
-    assert.equal(Array.isArray(manifest.keywords), true);
-    assert.equal(manifest.license, "MIT AND Apache-2.0 AND BSD-2-Clause");
     for (const path of [
       PACKAGE_THIRD_PARTY_NOTICES_PATH,
       PACKAGE_LIZARD_MIT_LICENSE_PATH,
@@ -274,10 +244,6 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       false
     );
     assert.equal(
-      Array.isArray(manifest.files) && manifest.files.filter((path) => path === "licenses").length,
-      1
-    );
-    assert.equal(
       readFileSync(join(artifact.stagingDirectory, PACKAGE_THIRD_PARTY_NOTICES_PATH), "utf8"),
       readFileSync(join(repositoryRoot, PACKAGE_THIRD_PARTY_NOTICES_PATH), "utf8")
     );
@@ -285,20 +251,6 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       artifact.files.some((path) => path.includes("/analyzer/fixtures/")),
       false
     );
-    assert.deepEqual(manifest.engines, { node: ">=24.18" });
-    assert.deepEqual(manifest.repository, {
-      type: "git",
-      url: "git+https://github.com/zxyycom/vibe-check.git"
-    });
-    assert.deepEqual(manifest.publishConfig, {
-      access: "public",
-      registry: "https://registry.npmjs.org/"
-    });
-    assert.equal(Object.hasOwn(manifest, "private"), false);
-    assert.equal(Object.hasOwn(manifest, "bin"), false);
-    assert.equal(Object.hasOwn(manifest, "scripts"), false);
-    assert.ok(isRecord(manifest.exports));
-    assert.deepEqual(Object.keys(manifest.exports), ["."]);
   });
 });
 
@@ -431,18 +383,6 @@ function documentedDeclarationNames(sources: readonly string[]): ReadonlySet<str
     }
   }
   return names;
-}
-
-function candidateDependencies(stagingDirectory: string): unknown {
-  return candidateManifest(stagingDirectory).dependencies;
-}
-
-function candidateManifest(stagingDirectory: string): Readonly<Record<string, unknown>> {
-  const manifest: unknown = JSON.parse(
-    readFileSync(join(stagingDirectory, "package.json"), "utf8")
-  );
-  if (!isRecord(manifest)) throw new TypeError("candidate manifest must be an object");
-  return manifest;
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

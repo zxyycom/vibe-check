@@ -736,124 +736,121 @@ describe("Project Gate adapter closure", () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-gate-performance-failure-"));
     const originalRunResult = JSON.stringify(runResult);
     try {
-      for (const profile of ["fast", "changed", "all"] as const) {
-        for (const scenario of [
-          {
-            name: "elapsed",
-            elapsedMs: 136,
-            maxMeanCheckMs: 2000,
-            maxP95CheckMs: 5000,
-            exceeded: []
-          },
-          {
-            name: "mean",
-            elapsedMs: 45,
-            maxMeanCheckMs: 50,
-            maxP95CheckMs: 5000,
-            exceeded: ["mean"]
-          },
-          {
-            name: "p95",
-            elapsedMs: 45,
-            maxMeanCheckMs: 2000,
-            maxP95CheckMs: 65,
-            exceeded: ["p95"]
-          },
-          {
-            name: "all",
-            elapsedMs: 136,
-            maxMeanCheckMs: 50,
-            maxP95CheckMs: 65,
-            exceeded: ["mean", "p95"]
-          }
-        ]) {
-          const directory = join(root, `${profile}-${scenario.name}`);
-          mkdirSync(directory);
-          const budgets = Object.freeze({
-            ...performancePolicy,
-            [profile]: Object.freeze({
-              ...performanceBudget,
-              maxMeanCheckMs: scenario.maxMeanCheckMs,
-              maxP95CheckMs: scenario.maxP95CheckMs
-            })
-          });
-          const originalBudgets = JSON.stringify(budgets);
-          const calls = { prepare: 0, load: 0, run: 0 };
-          const output = captureConsole();
-          try {
-            const status = await runProjectGateWithoutTranscript(
-              profile === "fast" ? [] : [`--${profile}`],
-              {
-                clock: scriptedClock([100, 110, 125, 100 + scenario.elapsedMs]),
-                createInvocationLogDirectory: () => directory,
-                loadPerformancePolicy: () => budgets,
-                loadRunModule: async () => {
-                  calls.load += 1;
-                  return {
-                    resolvedEntryPath: prepared.resolvedEntryPath,
-                    resultContributor: defaultResultContributor,
-                    run: async () => {
-                      calls.run += 1;
-                      return runResult;
-                    }
-                  };
-                },
-                prepareCandidate: async () => {
-                  calls.prepare += 1;
-                  return prepared;
-                },
-                startTranscript: startProjectGateTranscript
-              }
+      for (const scenario of [
+        {
+          profile: "fast",
+          elapsedMs: 136,
+          maxMeanCheckMs: 2000,
+          maxP95CheckMs: 5000,
+          exceeded: []
+        },
+        {
+          profile: "all",
+          elapsedMs: 45,
+          maxMeanCheckMs: 50,
+          maxP95CheckMs: 65,
+          exceeded: ["mean", "p95"]
+        }
+      ] as const) {
+        const profile = scenario.profile;
+        const directory = join(root, profile);
+        mkdirSync(directory);
+        const budgets = Object.freeze({
+          ...performancePolicy,
+          [profile]: Object.freeze({
+            ...performanceBudget,
+            maxMeanCheckMs: scenario.maxMeanCheckMs,
+            maxP95CheckMs: scenario.maxP95CheckMs
+          })
+        });
+        const originalBudgets = JSON.stringify(budgets);
+        const calls = { prepare: 0, load: 0, run: 0 };
+        const output = captureConsole();
+        try {
+          const status = await runProjectGateWithoutTranscript(
+            profile === "fast" ? [] : [`--${profile}`],
+            {
+              clock: scriptedClock([100, 110, 125, 100 + scenario.elapsedMs]),
+              createInvocationLogDirectory: () => directory,
+              loadPerformancePolicy: () => budgets,
+              loadRunModule: async () => {
+                calls.load += 1;
+                return {
+                  resolvedEntryPath: prepared.resolvedEntryPath,
+                  resultContributor: defaultResultContributor,
+                  run: async () => {
+                    calls.run += 1;
+                    return runResult;
+                  }
+                };
+              },
+              prepareCandidate: async () => {
+                calls.prepare += 1;
+                return prepared;
+              },
+              startTranscript: startProjectGateTranscript
+            }
+          );
+          assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+          assert.deepEqual(calls, { prepare: 1, load: 1, run: 1 });
+          assert.equal(JSON.stringify(budgets), originalBudgets);
+          assert.equal(JSON.stringify(runResult), originalRunResult);
+          assert.equal(output.warnings.length, 0);
+          assert.match(output.logs.join("\n"), /project gate result: failed/);
+          if (scenario.elapsedMs > performanceBudget.maxElapsedMs) {
+            assert.match(
+              output.errors.join("\n"),
+              /elapsed-to-initial-result 136\.0ms .* exceeded budget 135\.0ms/
             );
-            assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
-            assert.deepEqual(calls, { prepare: 1, load: 1, run: 1 });
-            assert.equal(JSON.stringify(budgets), originalBudgets);
-            assert.equal(JSON.stringify(runResult), originalRunResult);
-            assert.equal(output.warnings.length, 0);
-            assert.match(output.logs.join("\n"), /project gate result: failed/);
-            if (scenario.elapsedMs > performanceBudget.maxElapsedMs) {
-              assert.match(
-                output.errors.join("\n"),
-                /elapsed-to-initial-result 136\.0ms .* exceeded budget 135\.0ms/
-              );
-            }
-            if (scenario.exceeded.length > 0) {
-              assert.ok(
-                output.errors
-                  .join("\n")
-                  .includes(`exceeded Check budgets: ${scenario.exceeded.join(", ")}`)
-              );
-              assert.match(
-                output.errors.join("\n"),
-                /slowest Checks: lint-product=70\.0ms, typecheck-scripts=60\.0ms/
-              );
-            }
-            const transcript = readFileSync(join(directory, "gate.log"), "utf8");
-            const prefix =
-              "[GATE] [INFO] project gate info [project-gate-performance-failure-context]: ";
-            const contextLine = transcript.split("\n").find((line) => line.startsWith(prefix));
-            const evidence: unknown = JSON.parse(contextLine?.slice(prefix.length) ?? "");
-            assert.ok(isNonArrayRecord(evidence));
-            assert.equal(evidence.profile, profile);
-            assert.deepEqual(evidence.checkDurations, runResult.checkDurations);
-            assert.deepEqual(evidence.measurements, { meanCheckMs: 65, p95CheckMs: 70 });
-            assert.deepEqual(evidence.runtime, currentProjectGatePerformanceRuntime());
-            assert.deepEqual(evidence.candidate, {
-              version: prepared.candidateVersion,
-              sha256: prepared.sha256,
-              inputFingerprint: prepared.inputFingerprint,
-              preparationAction: prepared.preparationAction,
-              preparationReason: prepared.preparationReason
-            });
-            assert.match(transcript, /\[RESULT:FAILED\]/);
-            assert.match(transcript, /\[EXIT:1\]/);
             assert.doesNotMatch(
-              [...output.logs, ...output.errors].join("\n"),
-              /performance-failure-context/
+              output.errors.join("\n"),
+              /project-gate-performance-check-durations/
             );
-          } finally {
-            output.restore();
           }
+          if (scenario.exceeded.length > 0) {
+            assert.ok(
+              output.errors
+                .join("\n")
+                .includes(`exceeded Check budgets: ${scenario.exceeded.join(", ")}`)
+            );
+            assert.match(
+              output.errors.join("\n"),
+              /slowest Checks: lint-product=70\.0ms, typecheck-scripts=60\.0ms/
+            );
+            assert.doesNotMatch(output.errors.join("\n"), /project-gate-performance-within-limit/);
+          }
+          const transcript = readFileSync(join(directory, "gate.log"), "utf8");
+          assert.match(transcript, /project-gate-performance-check-durations/);
+          assert.match(
+            transcript,
+            scenario.elapsedMs > performanceBudget.maxElapsedMs
+              ? /project-gate-performance-limit-exceeded/
+              : /project-gate-performance-within-limit/
+          );
+          const prefix =
+            "[GATE] [INFO] project gate info [project-gate-performance-failure-context]: ";
+          const contextLine = transcript.split("\n").find((line) => line.startsWith(prefix));
+          const evidence: unknown = JSON.parse(contextLine?.slice(prefix.length) ?? "");
+          assert.ok(isNonArrayRecord(evidence));
+          assert.equal(evidence.profile, profile);
+          assert.deepEqual(evidence.checkDurations, runResult.checkDurations);
+          assert.deepEqual(evidence.measurements, { meanCheckMs: 65, p95CheckMs: 70 });
+          assert.deepEqual(evidence.runtime, currentProjectGatePerformanceRuntime());
+          assert.deepEqual(evidence.candidate, {
+            version: prepared.candidateVersion,
+            sha256: prepared.sha256,
+            inputFingerprint: prepared.inputFingerprint,
+            preparationAction: prepared.preparationAction,
+            preparationReason: prepared.preparationReason
+          });
+          assert.match(transcript, /\[RESULT:FAILED\]/);
+          assert.match(transcript, /\[EXIT:1\]/);
+          assert.doesNotMatch(
+            [...output.logs, ...output.errors].join("\n"),
+            /performance-failure-context/
+          );
+        } finally {
+          output.restore();
         }
       }
     } finally {
@@ -909,55 +906,36 @@ describe("Project Gate adapter closure", () => {
   });
 
   it("fails before candidate preparation when the version-controlled performance policy is invalid", async () => {
-    const invalidBudgets: unknown[] = [
-      null,
-      {},
-      { ...performancePolicy, changed: undefined },
-      { ...performancePolicy, runtime: currentProjectGatePerformanceRuntime() },
-      {
-        ...performancePolicy,
-        fast: { ...performanceBudget, declarativeFingerprint: "a".repeat(64) }
-      },
-      { ...performancePolicy, all: { maxElapsedMs: 135, maxMeanCheckMs: 2000 } },
-      ...[0, -1, 0.1, "135", Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1].map(
-        (limit) => ({
-          ...performancePolicy,
-          fast: { ...performanceBudget, maxElapsedMs: limit }
-        })
-      )
-    ];
-    for (const arguments_ of [[], ["--changed"], ["--all"]]) {
-      for (const policy of [...invalidBudgets, "throw"]) {
-        const calls = { prepare: 0, load: 0, log: 0 };
-        const output = captureConsole();
-        try {
-          const status = await runProjectGateWithoutTranscript(arguments_, {
-            loadPerformancePolicy: () => {
-              if (policy === "throw") throw new Error("fixture policy unavailable");
-              return policy;
-            },
-            loadRunModule: async () => {
-              calls.load += 1;
-              throw new Error("must not load");
-            },
-            createInvocationLogDirectory: () => {
-              calls.log += 1;
-              throw new Error("must not create logs");
-            },
-            prepareCandidate: async () => {
-              calls.prepare += 1;
-              return prepared;
-            }
-          });
-          assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
-          assert.deepEqual(calls, { prepare: 0, load: 0, log: 0 });
-          assert.match(
-            output.errors.join("\n"),
-            /performance policy (?:is invalid|could not be loaded)/
-          );
-        } finally {
-          output.restore();
-        }
+    for (const policy of [null, "throw"]) {
+      const calls = { prepare: 0, load: 0, log: 0 };
+      const output = captureConsole();
+      try {
+        const status = await runProjectGateWithoutTranscript([], {
+          loadPerformancePolicy: () => {
+            if (policy === "throw") throw new Error("fixture policy unavailable");
+            return policy;
+          },
+          loadRunModule: async () => {
+            calls.load += 1;
+            throw new Error("must not load");
+          },
+          createInvocationLogDirectory: () => {
+            calls.log += 1;
+            throw new Error("must not create logs");
+          },
+          prepareCandidate: async () => {
+            calls.prepare += 1;
+            return prepared;
+          }
+        });
+        assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+        assert.deepEqual(calls, { prepare: 0, load: 0, log: 0 });
+        assert.match(
+          output.errors.join("\n"),
+          /performance policy (?:is invalid|could not be loaded)/
+        );
+      } finally {
+        output.restore();
       }
     }
   });
