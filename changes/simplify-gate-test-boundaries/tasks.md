@@ -1,105 +1,157 @@
 # Tasks
 
-当前第七版已实施四处断言补强、一处去重与轻量漂移隔离；本轮接续文档与完整编码规范复核、必要优化和 Git 整理，允许提交及既有 hook 推送。任务 2.4、2.10 保留性能预算与冷集成验收的未完成状态；Change 删除和扩大修复范围另行确认。
+末轮代码/文档修正、独立审查、集中工程验证和一次新 all 均已完成；按授权保存最终计划并结项。下列清单按交付责任收敛，前七版逐项历史从提交恢复。
 
 ## Readiness
 
-- [x] 0.1 核对 main、已有改动、规则/owner、Case 起点及相关决策，划定子代理单写者责任。
-- [x] 0.2 保存修改前完整 Gate 与四组局部两轮测量、命令、输入及资源身份，不重试性能失败。
-- [x] 0.3 核对前序清理时的 clean main 与全树 Case 起点，限定该阶段明显问题、单写者范围和保留的真实边界。
-- [x] 0.4 核对第三版 clean main、完整 Case 起点及已确认取舍，明确保留的独立观察与撤销的组合证明。
-- [x] 0.5 核对第四版 clean main、782 entities / 191 Cases 起点及行为 owner，限定三类断言缺口和三类矩阵下沉，保留必要真实边界。
-- [x] 0.6 核对第五版起点的 22 项已有改动、781 entities / 191 Cases 与行为 owner，划定测试单写者及保留边界；不改生产 API、依赖安装或 Gate 资格。
-- [x] 0.7 核对第六版 clean main、781 entities / 191 Cases / 16 topics 与行为 owner；确认四处缺口和各自不可再降低的观察层，保持既有测试身份与单写者边界。
-- [x] 0.8 核对第七版 clean main `25c75e36`、781 entities / 191 Cases / 16 topics 与 test-design 普查结论；以质量为目标划定四处补强、一处去重及私有材料隔离，6.1-sol 子代理负责主要实现，保持单写者和独立审查。
+- [x] 0.1 核对 main `4cf52b42`、780 entities / 191 Cases / 16 topics 起点、相关 owner 和决策，确认前序工作及本次单写者范围。
+- [x] 0.2 在各追加阶段核对实际 Bun、已有改动、失败现场和授权，保留 Product、lint、预算、timeout 及 Gate 资格边界。
+- [x] 0.3 从同次 all 日志与定向采样选择文件发现优化，并固定同树对照次数；局部计时、并发重叠与完整收益分别判断。
 
 ## Implementation
 
-- [x] 1.1 删除目录硬约束与构建源码写法锁，将保留的依赖边界测试降层并同步 owner/Case。
-- [x] 1.2 将 package 路径、指纹/工具链及文档 guard 错层测试降到真实最窄入口，保留 caller 接线证明。
-- [x] 1.3 缩减真实 Git 重复初始化与无关定时等待，保留真实适配边界及测试隔离。
-- [x] 1.4 用私有策略缩小 function metrics 容量/取消测试，保持生产默认值和公开 API。
-- [x] 1.5 收敛 Gate 命名与 routine/release-only/explicit-only 资格，同步发布接线证据、owner/Case 和长期决策。
-- [x] 1.6 以前序 ai-ready-docs 复核收敛当批文档的主线、owner、重复与状态，将历史细节交回版本引用，并完成独立复核。
-- [x] 1.7 按完整编码规范复核前序提交的全部变化模块及直接调用方，只修正实际语义障碍，保留测试与公开契约。
-- [x] 1.8 删除 Gate 重复、未消费的 Git/安装准备，将已确认的性能、acquisition、collector 和 installed waiver 规则矩阵降层；同步 Case，不改生产接线、预算或超时。
-- [x] 1.9 清理 hash 精确次数、overlap、类型配置、manifest 静态断言及 Gate 内 Product-only outcome 测试，保留真实边界并同步 Case。
-- [x] 1.10 收窄 installed waiver 与 builtin Run/发布接线，将 aggregation 矩阵降到已有 API，移除 artifact 私有路径锁定并同步 Case。
-- [x] 1.11 修复取消阶段、MD052 位置及 history 写失败断言，先通过目标测试，再下沉输出参数、flags 和模块语法矩阵，继承原 Gate lane 资格并同步已有 Case。
-- [x] 1.12 补强预取消零调用、Invocation 等待 prepared 收尾、工具链指纹材料敏感性，再下沉诊断命名非法值矩阵；同步既有 Case 的实际证明范围。
-- [x] 1.13 加固非法 source 请求零 Worker 创建、完整 machine Check outcome 和结构化 Record 身份断言；将直接材料 helper 的负例替换为真实 installed README 漂移到 assessment 的接线验证，同步既有 Case。实现与独立审查完成，物理 target 验收仍由 2.10 承接。
-- [x] 1.14 补强递归 critical-path、路径/换行指纹、Git clean-source 与 workbench 原字节保护；删除文档层重复指纹实体，保留 manifest/工具链的独立证据并同步 Case。
-- [x] 1.15 将 machine drift 写入隔离到五份私有材料；字节负例使用真实 checker，Definition 保留健康基线和单因素修改后的真实 public Run，默认生成行为不变；同步 Case 与 owner，完成窄测试和独立隔离审查。
+- [x] 1.1 前七版完成降层、fixture 减重、断言加固、材料隔离及 Gate 选择分工；稳定 owner、Case 和长期决策已同步，历史见末节。
+- [x] 1.2 实施三条引用预算矩阵和单次 config 扫描，保留独立计费、准确位置、进程/输出失败及 static/runtime 闭合证明。
+- [x] 1.3 完成隔离禁网安装调查；据追加授权通过 mise 将全局实际 Bun 与项目 pin/lock 升至 1.4.4，保留其它工具和旧二进制。
+- [x] 1.4 实施统一严格离线安装、copyfile 隔离、显式 `package:cache:prepare` 与 env:setup 接线，同步 owner/Case。
+- [x] 1.5 修正 JSON 内容断言兼容并保留独立安全/身份断言；将包工具 Case 归入独立 Topic，保持语义与实体身份。
+- [x] 1.6 将 Worker 物理矩阵收窄为默认继承/过滤两个代表，保留纯参数全矩阵、真实 preload/read/finalize 和原 timeout。
+- [x] 1.7 复用发现过程内的 glob，按 include 见证与整树 ignore 条件剪枝，保持完整集合和原诊断，并补齐操作量/反例证明。
+- [x] 1.8 用 ai-ready-docs 复核本次全部文档变更，收敛当前主线、重复和迁移残留；保持 Case 语义、报告形成时认识与安全边界。
+- [x] 1.9 按完整编码规范审查 scripts 15 个、src 39 个 TypeScript 变化文件及直接调用边界；修正倒置源码/元变量范围接纳，并补强两个 dependency 测试文件四处 readback 状态/引用前提，保持 entity/Case，无额外风格例外。
 
 ## Verification
 
-- [x] 2.1 非实施代理独立审查实际 diff、公开 API/默认值、测试证明和文档影响，清除实质阻断。
-- [x] 2.2 最窄测试、全树 Case、typecheck/lint/format、材料、Decision/Change 等受影响工程验证完成。
-- [x] 2.3 停止本轮其它负载后完成同类局部后测及正常 Gate 验收，区分删义务/改频率与执行优化，报告实际功能/性能结果与未验证边界。
-- [ ] 2.4 闭合完整交付 Gate 的功能及性能验收；未通过时保留现场和未完成状态。
-- [x] 2.5 完成最小测试清理的目标测试、全树 Case、工程/材料验证和非实施代理证明审查，交接延后项与当前完整 Gate 结果。
-- [x] 2.6 验证第二版目标测试、真实 artifact/installed/type acceptance、全树 Case、工程与文档检查，由非实施代理核对证明迁移，分别报告功能和性能结果。
-- [x] 2.7 完成第三版最窄测试、全树 Case、工程/材料检查、独立审查及一次完整 Gate，明确未覆盖的组合与性能边界。
-- [x] 2.8 完成第四版最窄测试、全树 Case、工程/材料验证、独立审查及 changed Gate，交付实际结果和保留边界。
-- [x] 2.9 完成第五版目标测试、全树 Case、工程/材料验证、独立审查及 changed Gate，区分独立材料敏感性、真实运行资格与未完成的性能验收。
-- [ ] 2.10 完成第六版目标测试、反例验证、显式物理 candidate 集成、全树 Case、工程/材料验证、独立审查及 routine all；分别报告功能与性能、未验证边界，不对性能失败自动重试取绿。
-- [x] 2.11 完成第七版目标及邻近测试、反例验证、全树 Case、工程/材料检查、独立代码/文档审查、routine all 和显式 workbench；区分本轮质量验收与仍未闭合的性能及冷集成，不重试性能失败取绿。
+- [x] 2.1 前七版的目标测试、Case、工程检查与独立审查已保存；其性能和冷集成缺口由下列本次实际结果闭合，不把旧结果改写为通过。
+- [x] 2.2 预算/扫描改动的目标及邻近测试、Case、工程/材料检查和独立审查通过，前后局部观察与 changed Gate 失败均已记录。
+- [x] 2.3 升级、离线安装、断言兼容及 Worker 收窄经局部/工程验证和独立审查；实际联网准备、cold integration、consumer types 与 workbench 通过。
+- [x] 2.4 文件发现的固定五次同树对照、目标/邻近测试、反例、Case、工程/材料检查和独立审查通过；第十版唯一一次修改后 all 的功能及原性能预算通过，不覆盖之后的末轮修正。
+- [x] 2.5 三份调查报告保存断言兼容、Worker 超时及发现器优化的形成时依据、边界与必要资源；索引和全量检查通过。
+- [x] 2.6 非实施代理反查最终代码/文档及实际 diff，完成代表性阅读任务、集中工程验证和修正后唯一一次新 all，记录功能/性能结论与剩余边界并确认无实质阻断。
 
 ## Evidence
 
-### 当前验证与未完成项
+### 末轮代码与文档复核
 
-第七版四处补强、一处去重与漂移隔离已实现；目标测试、工程检查和 Gate 功能验收通过。routine all 的 mean / P95 仍超预算，不能宣称完整 Gate 通过。代码和内部说明不改变公开 API、默认生成行为、Gate 资格、预算或 timeout。Git 保存与 hook 推送结果以实际 Git 记录确认；本 Change 因 2.4、2.10 未完成而继续保留。
+完整规范审查覆盖 scripts 15 个、src 39 个 TypeScript 变化文件及直接调用边界，无额外风格例外。
+实际新增修正有两项：扫描输出拒绝倒置源码/元变量范围，先红后绿验证为 14 tests；两个 dependency 测试文件的
+四处 readback 状态/引用前提补强，目标组合 98 tests / 38 files 通过，定向反例被捕获。entity/Case 均保持不变。
 
-下表为第七版实施阶段已取得的证据；追加文档与代码审查见[提交前复核](#提交前复核)。
+独立审查以实际 diff 核对全部 54 个 TypeScript 文件、文档 owner 和公开影响，未发现实质阻断。
+代表性阅读任务能恢复离线失败的显式准备路径、Case 闭合不执行正文、局部性能证据的因果边界，以及提交后 finalize 的授权与顺序。
+15 个迁移 Case 与基线逐块一致；仅精确化现有 Case 的 Worker 代表范围和 profile 排除描述，未增加测试义务。
+Product 实现和公开契约未变，测试辅助被产物清单排除，公开材料无需同步。
 
-| 验证 | 实际结果 |
+集中验证通过：两 scope typecheck/lint、format（1,028 文件）、508 JSON / 5 schema / 625 Markdown、
+789 entities / 192 Cases / 17 topics、125 Investigation 及其当前索引、377 Decision、26 Change 和 diff 检查。
+
+2026-10-24 23:41（Asia/Shanghai），最终修正后的唯一一次 `mise exec -- bun run check -- --all` 为
+**41 passed / 0 failed / 2 not-applicable，exit 0**。总反馈 26,854.5 ms / 90,000 ms、mean 1,700.3 ms / 2,000 ms、
+P95 3,905.6 ms / 5,000 ms 均通过；累计执行 69,714.3 ms，不是墙钟。
+最慢三项为 Markdown 5,149.9 ms、function metrics 4,191.3 ms、Gate tooling 3,905.6 ms。
+日志：`.log/project-gate/2026-10-24T15-41-41.566Z-1815622-aed0e7f3-0b5b-462b-be18-5b5ad4fc63c7/`。
+仍使用 candidate `fc12ad0a3171`，preparation 413.3 ms、adapter/setup 517.1 ms、Product Run 25,924.1 ms。
+本轮未重跑 cold integration、consumer types/workbench 或正式 release receipt；前序对应证据保持各自边界。
+
+这次验收针对新修正，不是重复原输入取绿；没有改变 lint、timeout、预算、调度或 Check 粒度。
+单次验收通过不证明长期稳定，也不把与前轮的耗时差解释为本轮断言/边界修正的性能收益。下节保留第十版基线。
+
+### 第十版完整 Gate 基线
+
+第十版修改后唯一一次 `mise exec -- bun run check -- --all`：**41 passed / 0 failed / 2 not-applicable，exit 0**。
+功能、artifact 和 installed docs/runtime 全部通过；性能仍使用原口径与门槛：
+
+| 指标 | 实测 | 预算 |
+| --- | ---: | ---: |
+| 总反馈 | 25,987.6 ms | 90,000 ms |
+| mean | 1,682.5 ms | 2,000 ms |
+| nearest-rank P95 | 4,879.7 ms | 5,000 ms |
+
+日志：`.log/project-gate/2026-10-24T15-21-45.271Z-1735231-baeba634-1ad4-4ab1-a37b-1683e8d2a78a/`。
+Candidate 为 `fc12ad0a3171`，tarball SHA-256 为 `a7922d1a2055c0156a4a41547ba9dca79b386747b1928ba264524fd230872fa0`；
+preparation 329.5 ms、adapter/setup 529.9 ms、Product Run 25,128.1 ms。累计执行 68,983.7 ms 不是墙钟。
+最慢三项为 Markdown tests 6,764.0 ms、Gate tooling tests 5,166.0 ms、supporting Check tests 4,879.7 ms，lint-product 约 4,600 ms。
+
+P95 余量仅约 120 ms，mean 和累计执行也未比起点更低；本次通过不证明未来持续达标或发现器独自造成全部改善。
+没有追加完整重跑，也没有改变 lint、timeout、预算、调度、Check 粒度或选择。
+
+第十版代码收尾集中检查通过：789 entities / 192 Cases / 17 topics，508 JSON / 5 schema / 625 Markdown，125 Investigation；
+该阶段独立代码/文档/报告审查无实质阻断。最终修正后须由 2.6 记录新一轮机械与语义结论。
+consumer types/workbench 的升级后证据见下节，此次 all 未重跑它们；正式 release receipt 未运行，本 Change 不提供正式发布证据。
+
+### 升级后 package 与测试验收
+
+Bun 1.4.4 已通过 mise 安装；全局既有 `bun=latest` 配置保持，其链接和仓库外调用均为 1.4.4，项目 pin 与 Bun-only lock 同步。
+旧 1.3.14/1.4.2 二进制保留。回退到 1.3.14 还须回退依赖原生 offline/Assert 的实现，单改 pin 不足。
+
+实际公网准备经新增 `package:cache:prepare` 成功执行，随后 `package:build` 以离线安装生成候选；facade/lint 修正后重建用于后续验收。
+安装测试证明可用 registry 下冷缓存零请求失败、准备后断网两次 fresh install 和 copyfile 隔离；局部 8 tests 与 scripts 工程检查通过。
+
+| 验证 | 结果与证明边界 |
 | --- | --- |
-| 目标及邻近测试 | 固定 Bun 1.3.14，critical-path/project-files、release、mapping、manifest/compiler、machine validation/workflow 共 18 文件 48 项通过；漂移实施与独立审查也分别通过其最窄测试。 |
-| 反例辨错 | 隔离副本的递归 child-score、路径 hash、LF normalization、仅归一化 CRLF、Git 只检查 untracked 等错误均表现为旧断言通过、新断言失败，恢复后通过。workbench 的覆盖后再报错反例已在普查中验证；本轮实际新断言通过正式 candidate binding。反例副本已清理，不是完整仓库 mutation coverage。 |
-| 隔离 | 仅复制两份 schema、Definition 与 two-file output。字节负例不执行 Run，Definition 健康基线及变化各执行一次真实 source public Run；实施、独立验证和集中 Gate 前后正式材料 SHA-256 均一致。command 的 root 转发另由实际调用链审查承接，不声称单项变异覆盖。 |
-| Case 与工程 | 780 entities / 191 Cases / 16 topics 闭合，比起点仅删除一个重复实体。Product/scripts typecheck、lint、format（1,022 文件）、validate（507 JSON / 5 schema / 621 Markdown）、Decision（377）与全部 Change（26）通过。首次 format 仅 workbench 长 import 不合格式，原实施代理修复后复查通过。 |
-| 独立审查 | 非实施代理按完整 coding-style 复核 10 个变化代码文件及直接上下文、4 份 Case 与 owner/计划，未发现实质代码整改或规范例外；删除后的材料敏感性/工具链资格仍有独立证据，公开使用文档无需改变。已修正 tasks 第六版历史指代，避免混入当前状态。 |
-| routine all | 41 passed / 2 not-applicable，含 artifact、installed docs/runtime 与全部 routine test lanes。elapsed-to-initial 36.066 s 在原 90 s 内；mean 2.257 s、P95 5.285 s 超原 2/5 s，exit 1。最慢三项为 external-consumer provider 9.600 s、Markdown tests 9.574 s、Product lint 5.285 s。 |
-| 显式 workbench | `mise exec -- bun run check -- --admission-workbench` 通过：24 tests / 6 files，1 Check passed / 42 not-applicable，exit 0；包括修改的 CLI 文件。focused 不评估性能预算。 |
+| 显式 cold integration | 原 30 s 进程限制内 6 tests / 1 file 通过，9.98 s；覆盖 cold build/install/reuse、installed README/license drift、missing dependency reinstall 和 malformed receipt rebuild。 |
+| consumer types + workbench | focused 4 passed / 39 not-applicable，exit 0；新建 external consumer 的 types 和 workbench 通过，不评估性能预算。 |
+| 断言兼容 | Bun 1.4.4 下 89 tests / 37 files、两 scope typecheck/lint 和 format 通过；Node 24.18 的 canonical-data、closed-values、strict-document 共 11 tests 通过。 |
+| Worker 收窄 | 公开工具链单文件 4 tests / 384 ms，相邻 Markdown Link 45 tests / 2.42 s；product typecheck/lint/format、完整 Case 与独立审查通过。 |
+| 文件发现 | 同树各五次返回精确相同 298 files；每次目录读取 796→129、目录项 7,784→1,284，中位数 77.347→5.070 ms。目标 7、Test Evidence 18、Gate tooling 51 tests 及 scripts 工程检查通过。 |
 
-all 日志：`.log/project-gate/2026-10-24T11-34-12.841Z-1456490-607045f0-e357-4457-b5da-1b4f1a9ed842/`；workbench 日志：`.log/project-gate/2026-10-24T11-35-02.936Z-1463065-01c35202-330e-46f8-981d-739d6fea5db2/`。本轮复用 `0.0.0-local.7416e73b58ad`，all preparation 0.309 s；没有受控前后测量，不以本次数值主张性能收益。all 未因预算失败重试。
+Types/workbench 日志：`.log/project-gate/2026-10-24T14-01-12.957Z-1620669-2081061b-7c24-4562-aef1-1938c71d9429/`，candidate `fc12ad0a3171`。
+它与第十版 all 使用相同候选内容，但 external consumer 各轮 fresh，不是同一 consumer 或正式 receipt。
 
-未运行：cold candidate integration、consumer types、正式 release receipt。前者是第六版已知失败，后两者不属于本轮改动的资格边界；不能以当前 all/workbench 的功能验收替代它们。
+三份报告分别保存可独立复核的过程，以下是形成时结果，不互相覆盖：
 
-前序未完成项继续有效：冷 candidate 集成在安装完成前超时，其新增 README 漂移断言的物理执行仍待验证。本轮没有修改该冷集成测试或放宽任何预算/timeout；原 all 预算仍为总反馈 90 s、mean 2 s、P95 5 s。
+- **断言兼容：**[报告](../../docs/investigations/diagnose-bun-strict-assertion-compatibility.md)保存首次 all 的 47 个失败节点、四运行时对照、helper 取舍、引用安全及窄验证；形成时修复后的 all 尚待执行。
+- **Worker 超时：**[报告](../../docs/investigations/record-worker-host-test-delivery-timeout.md)保存第二次 all 的宿主超时、延迟失败、局部对照和五次到两次物理启动的取舍；底层卡顿根因未确认。
+- **P95 与文件发现：**[报告](../../docs/investigations/diagnose-gate-p95-test-discovery.md)保存第九版功能全过但 P95 5,388.372 ms 的现场、采样限制、同树原始观测、三个变异及独立 561 组差分/1,070 项剪枝检查；同轮追加唯一一次完整 all 通过。
 
-### 提交前复核
+### Bun 升级前的预算与扫描证据
 
-以 ai-ready-docs 收敛十份文档的主线、owner、历史引用与授权；非实施代理反查代码、Case 及保留的指纹证据，
-确认公开使用文档无需改变，并将 `materialRoot` 转发的证明明确为调用链审查。性能与冷集成的未完成状态继续保留。
+第八版使用 Bun 1.3.14；本节保留尚未在前七版提交中保存的依据，不作为升级后的验收。
 
-另一非实施代理依据完整编码规范审阅十个变化代码模块及直接上下文，未发现必须整改项或需要规范例外的内容；
-测试与 fixture 未获临时用途豁免，代码保持实施后的状态。集中重跑八个目标及邻近文件的 22 项测试通过，
-Product/scripts typecheck、lint 与 format 通过。本次未重跑 all、workbench、cold integration、types 或正式 release receipt，
-实施阶段的验收与失败记录继续有效。
+| 对象 | 实际结果与限制 |
+| --- | --- |
+| Markdown 预算 | 同文件起点 6 tests / 1.83 s，大场景 1,218.06 ms；小矩阵后 6 tests / 628 ms，矩阵 81.23 ms。均单样本，fixture 工作量改变，不是同输入解析加速。 |
+| 单次扫描 | 同树 295 files，四次扫描 767.51 ms、单次 config 403.30 ms；780 native matches 按 ruleId/file/offset 规范化后深比较一致。此计时只覆盖健康 corpus；新增负例另证异常和闭合。 |
+| 测试与工程 | 扫描 16 tests、四条真实 YAML rule-tests；集中 Markdown Link/lint 与 Test Evidence 78 tests / 28 files；两 scope typecheck/lint、format、材料、Decision/Change 和独立审查通过，Case 为 785/191/16。 |
+| changed Gate | 36 passed / 7 not-applicable；总反馈 35.850 s、mean 2.565 s、P95 9.413 s 超原 30/2/5 s 预算，exit 1。仅运行一次，仍使用升级前安装策略。 |
 
-文档收口后，validate、全树 Case（780 entities / 191 Cases / 16 topics）、Decision、全部 Change 与 diff 检查通过。
+changed 日志：`.log/project-gate/2026-10-24T13-33-51.350Z-1539384-cd6a3ff5-2f10-4e1e-98b7-17a7698e75d0/`，candidate `0.0.0-local.7416e73b58ad`。
+最慢三项为 Markdown 9.436 s、function metrics 9.413 s、external preparation 6.286 s；是交付负载而非受控 Gate 对照。
 
-### 冷集成失败现场与恢复边界
+### 升级前的隔离安装 probe
 
-第六版 `mise exec -- bun run package:candidate:integration` 在既有 30 秒硬边界 ETIMEDOUT / exit 1，无测试结果摘要；未放宽 timeout 或重试取绿。失败现场是 `/tmp/vibe-check-package-candidate-ePo1TY/`，用途与清理条件见 `/tmp/vibe-check-package-candidate-ePo1TY.artifact-note.md`。只读检查发现 compiler emit 与 tarball 已形成，consumer 仅有 package.json，安装目录和 preparation receipt 尚未出现。精确耗时根因待调查，继续定位前须确认现场仍可用。
+当时项目 Bun 1.3.14、ambient Bun 1.4.2。使用 exact `7416e73b58ad` tarball、全新仓库外 consumer 及私有缓存副本
+（145 个包体、380 个 metadata）；进程私有 libseccomp 禁止 socket/connect/sendto/sendmsg/sendmmsg/io_uring_setup，
+先以 IPv4/IPv6 socket 返回 EPERM 自证。仓库 node_modules 和共享缓存未作为写入目标。
 
-第六版 routine all 为 41 passed / 2 not-applicable，elapsed-to-initial 51.290 s、mean 2.466 s、P95 6.094 s，exit 1；功能通过但原 2/5 s 分布预算未通过。日志：`.log/project-gate/2026-10-24T09-27-20.454Z-1400625-c788ac0f-13c6-49dc-a26c-3c9b066670a4/`。该轮重建 candidate，属于交付验收而非受控性能对照。
+| Probe | 结果 |
+| --- | --- |
+| Bun 1.3.14 `install --no-save --ignore-scripts <exact-tgz>` | 0.213 s 失败，metadata 请求被禁网边界阻断。 |
+| 同上加 `install.prefer="offline"` | 0.220 s，同样失败。 |
+| Bun 1.4.2 原生 `--offline` | 0.580 s 成功，实际安装 146 packages；另一次从 manifest 保存 lock 的隔离安装 0.552 s。 |
+| Bun 1.3.14 消费该 lock v2 | 拒绝 `Unknown lockfile version`。 |
 
-第六版完整测试、反例、工程检查与提交前复核从 `c73ec649` 的本文件恢复；本节仅保留继续工作所需的失败与恢复信息。
+[Bun 1.4.1 功能说明](https://bun.com/blog/bun-v1.4.1#bun-install-offline)与 probe 共同支持升级后使用原生 offline 的方向；
+原生 offline 与允许 miss 联网的 prefer-offline 不是同一边界。保留旧 Bun、另造 consumer lock/禁网组合的候选未采用，
+根 pnpm lock 也不证明 consumer lock 可用。probe 只证明安装可行性，types/docs/runtime 与 Gate 由后续实际验收提供。
+私有 probe 目录已清理。
 
 ### 证明范围与历史依据
 
-当前保留的观察和取舍见 [design](design.md#decisions)。前序任务勾选记录各阶段已完成的工作；其形成时细节从下表所列提交的固定 artifacts 恢复，不作为本轮新增验收结果。
+当前取舍见 [design](design.md#risks--trade-offs)。前七版形成时记录从下列提交的本文件和固定 artifacts 恢复；
+它们解释已完成工作，不作为本次新增验收或当前规范。
 
-历史只作形成时依据，详细验证记录可从对应提交的本文件恢复：
-
-| 阶段 | 依据与作用 |
+| 阶段 | 恢复依据 |
 | --- | --- |
-| 初始实施与测量 | [测量报告](../../docs/investigations/measure-gate-test-boundary-simplification.md)记录四组局部对照及 Gate 频率取舍；任务 2.3 表示实测及结果交付。 |
-| 前序审查与前两版 | 提交 `f998ed4c`、`82f83db7`、`9bf26715`、`91903719` 保存代码/文档审查与形成时验收；duplicate timeout 的现场另见[交付超时报告](../../docs/investigations/record-delivery-duplicate-lane-timeout.md)。 |
-| 第三至五版 | `823a25eb`、`29de254a` 保存追加清理、实体连续性及验证明细。前序功能验收已通过，性能预算未闭合。 |
-| 第六版 | `c73ec649` 保存四处证明加固、完整设计与独立复核；继续工作所需的预算失败及冷集成现场保留在上一节。 |
+| 初始测量 | [四组局部对照及 Gate 频率取舍](../../docs/investigations/measure-gate-test-boundary-simplification.md)。 |
+| 前序审查与前两版 | `f998ed4c`、`82f83db7`、`9bf26715`、`91903719`；另见[duplicate lane 超时报告](../../docs/investigations/record-delivery-duplicate-lane-timeout.md)。 |
+| 第三至五版 | `823a25eb`、`29de254a`：追加清理、实体连续性、功能通过及性能未闭合。 |
+| 第六版 | `c73ec649`：四处证明加固、独立复核、性能失败和 cold integration 超时。 |
+| 第七版 | `4cf52b42`：四处断言补强、一处去重、machine drift 隔离、功能通过及 all 性能未闭合。 |
 
-前序 package acceptance 的预算状态继续由[对应计划](../consolidate-package-acceptance/tasks.md)承接。
+第六版 cold integration 超时现场 `/tmp/vibe-check-package-candidate-ePo1TY/` 及
+`/tmp/vibe-check-package-candidate-ePo1TY.artifact-note.md` 未由本轮清理；当时 compiler emit/tarball 已形成，consumer 仅有 package.json，
+安装及 receipt 尚未出现。根因未确认，重新调查前须确认现场仍可用；本次 cold integration 通过闭合验收缺口，但不解释旧超时。
+文件发现的短期基线/采样目录已清理，原始十行观测由报告资源保存，失败 Gate 日志保留。
+
+前序 package acceptance 的自身预算状态仍由[对应计划](../consolidate-package-acceptance/tasks.md)承接。
