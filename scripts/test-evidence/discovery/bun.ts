@@ -4,7 +4,7 @@ import path from "node:path";
 
 import {
   astSourceRange,
-  scanAstRule,
+  scanAstRules,
   unsupportedAstDiagnostics,
   type AstMatch
 } from "../ast-grep/scan.ts";
@@ -160,29 +160,31 @@ async function scanBunStaticEntities(
   files: string[],
   cancelSignal?: AbortSignal
 ): Promise<BunStaticResult> {
-  const ruleRoot = path.join(workspaceRoot, "scripts", "test-evidence", "ast-grep", "rules");
-  const nativeScan = await scanAstRule({
+  const scan = await scanAstRules({
     workspaceRoot,
     ...(cancelSignal === undefined ? {} : { cancelSignal }),
-    rulePath: path.join(ruleRoot, "bun-native-test.yml"),
+    configPath: path.join(workspaceRoot, "scripts", "test-evidence", "ast-grep", "sgconfig.yml"),
     paths: files
   });
-  const diagnostics = [...nativeScan.diagnostics];
-  for (const ruleName of [
-    "bun-unsupported-alias.yml",
-    "bun-unsupported-dynamic.yml",
-    "bun-unsupported-parameterized.yml"
-  ]) {
-    const scan = await scanAstRule({
-      workspaceRoot,
-      ...(cancelSignal === undefined ? {} : { cancelSignal }),
-      rulePath: path.join(ruleRoot, ruleName),
-      paths: files
-    });
-    diagnostics.push(...scan.diagnostics);
-    diagnostics.push(...unsupportedAstDiagnostics(scan.matches, "bun"));
+  const nativeMatches: AstMatch[] = [];
+  const unsupportedMatches: AstMatch[] = [];
+  for (const match of scan.matches) {
+    switch (match.ruleId) {
+      case "bun-native-test":
+        nativeMatches.push(match);
+        break;
+      case "bun-unsupported-alias":
+      case "bun-unsupported-dynamic":
+      case "bun-unsupported-parameterized":
+        unsupportedMatches.push(match);
+        break;
+    }
   }
-  const candidates = bunStaticCandidates(nativeScan.matches);
+  const diagnostics = [
+    ...scan.diagnostics,
+    ...unsupportedAstDiagnostics(unsupportedMatches, "bun")
+  ];
+  const candidates = bunStaticCandidates(nativeMatches);
   return {
     entities: candidates.entities,
     diagnostics: [...diagnostics, ...candidates.diagnostics]

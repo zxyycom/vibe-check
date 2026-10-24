@@ -71,7 +71,19 @@ Entities:
 静态发现与 runtime registration 复用同一文件集合；registration child 用专用不匹配 test-name pattern 加载全树，
 要求每个 testcase 明确 skipped，并报告 file、line、suite 和 name。
 
-严格 `check` 每次重新发现完整当前树，不用 Git diff、缓存或历史缩小范围，并验证：
+文件发现每次重新读取当前树，不缓存文件清单；同次发现复用已编译的 include/ignore glob。
+include 的存在性诊断以 ignore 前的真实普通文件为依据。目录剪枝须同时满足：
+
+- 全部 include 已有真实文件匹配；
+- 某条以 `/**` 结尾的 ignore 匹配该目录并覆盖整个子树。
+
+其余目录继续遍历；显式 source root 和 supplemental file 单独验证。被剪枝子树不再读取，其内部读取错误也不在观察范围内。
+
+静态发现通过一次 ast-grep config 扫描同时收集 native 声明与 alias、dynamic、parameterized 三类不支持形态，
+按这四种 rule ID 分类。进程失败、取消、格式错误或未知 rule ID 阻断整次静态结果，不保留部分 matches；
+合法空结果仍须与 runtime registration 闭合。
+
+严格 `check` 按上述发现规则覆盖完整当前测试面，不用 Git diff、缓存或历史缩小范围，并验证：
 
 1. 规范化静态集合与 Bun JUnit registration 集合完全相等。
 2. 每个实体至少有一个 Case；每个 Case 至少引用一个当前实体，且没有未知实体。

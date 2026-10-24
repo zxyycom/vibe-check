@@ -1,0 +1,88 @@
+{
+  "bun": "1.4.4",
+  "profile": {
+    "sourceRoots": [
+      "scripts",
+      "src"
+    ],
+    "include": [
+      "**/*.test.ts"
+    ],
+    "ignore": [
+      "**/node_modules/**"
+    ],
+    "supplementalFiles": []
+  },
+  "runs": [
+    {
+      "name": "before",
+      "elapsedMs": 88.62177299999999,
+      "directories": 796,
+      "entries": 7784,
+      "files": 298
+    },
+    {
+      "name": "after",
+      "elapsedMs": 6.966186000000022,
+      "directories": 129,
+      "entries": 1284,
+      "files": 298
+    },
+    {
+      "name": "after",
+      "elapsedMs": 4.292246999999975,
+      "directories": 129,
+      "entries": 1284,
+      "files": 298
+    },
+    {
+      "name": "before",
+      "elapsedMs": 77.34727200000003,
+      "directories": 796,
+      "entries": 7784,
+      "files": 298
+    },
+    {
+      "name": "before",
+      "elapsedMs": 62.423969,
+      "directories": 796,
+      "entries": 7784,
+      "files": 298
+    },
+    {
+      "name": "after",
+      "elapsedMs": 4.777349000000015,
+      "directories": 129,
+      "entries": 1284,
+      "files": 298
+    },
+    {
+      "name": "after",
+      "elapsedMs": 5.413350999999977,
+      "directories": 129,
+      "entries": 1284,
+      "files": 298
+    },
+    {
+      "name": "before",
+      "elapsedMs": 65.11964900000004,
+      "directories": 796,
+      "entries": 7784,
+      "files": 298
+    },
+    {
+      "name": "before",
+      "elapsedMs": 83.48865899999998,
+      "directories": 796,
+      "entries": 7784,
+      "files": 298
+    },
+    {
+      "name": "after",
+      "elapsedMs": 5.069618999999989,
+      "directories": 129,
+      "entries": 1284,
+      "files": 298
+    }
+  ]
+}

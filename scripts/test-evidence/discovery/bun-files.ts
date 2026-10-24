@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { minimatch } from "minimatch";
+import { Minimatch } from "minimatch";
 
 import { type BunTestSurface, isSafeRelativeGlob } from "../profile.ts";
 import { isSafeRelativePosixPath, resolveExistingWorkspacePath } from "../relative-path.ts";
@@ -38,6 +38,9 @@ function collectDirectoryFiles(
   includeMatches: Map<string, number>
 ): Set<string> {
   const files = new Set<string>();
+  const includes = options.profile.include.map((pattern) => new Minimatch(pattern, GLOB_OPTIONS));
+  const ignores = options.profile.ignore.map((pattern) => new Minimatch(pattern, GLOB_OPTIONS));
+  const ignoredSubtrees = ignores.filter((matcher) => matcher.pattern.endsWith("/**"));
   for (const sourceRoot of options.profile.sourceRoots) {
     const resolved = resolveExistingWorkspacePath(
       options.workspaceRoot,
@@ -47,31 +50,27 @@ function collectDirectoryFiles(
     if (!resolved.stats.isDirectory()) {
       throw new Error(`Bun source root must be a directory: ${sourceRoot}`);
     }
-    collectRootFiles(options.profile, sourceRoot, resolved.absolutePath, includeMatches, files);
+    for (const relativePath of walkRegularFiles(resolved.absolutePath, canSkipDirectory)) {
+      let included = false;
+      for (const matcher of includes) {
+        if (!matcher.match(relativePath)) continue;
+        includeMatches.set(matcher.pattern, (includeMatches.get(matcher.pattern) ?? 0) + 1);
+        included = true;
+      }
+      if (included && !ignores.some((matcher) => matcher.match(relativePath))) {
+        files.add(path.posix.join(sourceRoot, relativePath));
+      }
+    }
   }
   return files;
-}
 
-function collectRootFiles(
-  profile: BunTestSurface,
-  sourceRoot: string,
-  rootPath: string,
-  includeMatches: Map<string, number>,
-  files: Set<string>
-): void {
-  for (const relativePath of walkRegularFiles(rootPath)) {
-    const matchedPatterns = profile.include.filter((pattern) =>
-      minimatch(relativePath, pattern, GLOB_OPTIONS)
+  function canSkipDirectory(relativeDirectory: string): boolean {
+    // A trailing globstar excludes every descendant, not just the directory itself.
+    // Includes count real files before ignores; retain discovery until each has a witness.
+    return (
+      ignoredSubtrees.some((matcher) => matcher.match(`${relativeDirectory}/`)) &&
+      [...includeMatches.values()].every((count) => count > 0)
     );
-    for (const pattern of matchedPatterns) {
-      includeMatches.set(pattern, (includeMatches.get(pattern) ?? 0) + 1);
-    }
-    const ignored = profile.ignore.some((pattern) =>
-      minimatch(relativePath, pattern, GLOB_OPTIONS)
-    );
-    if (matchedPatterns.length > 0 && !ignored) {
-      files.add(path.posix.join(sourceRoot, relativePath));
-    }
   }
 }
 
@@ -134,12 +133,13 @@ function validateSurface(profile: BunTestSurface): void {
   }
 }
 
-function walkRegularFiles(rootPath: string): string[] {
-  const files: string[] = [];
-  visit(rootPath, "");
-  return files;
+function* walkRegularFiles(
+  rootPath: string,
+  canSkipDirectory: (relativeDirectory: string) => boolean
+): Generator<string> {
+  yield* visit(rootPath, "");
 
-  function visit(directoryPath: string, relativeDirectory: string): void {
+  function* visit(directoryPath: string, relativeDirectory: string): Generator<string> {
     const entries = fs
       .readdirSync(directoryPath, { withFileTypes: true })
       .sort((left, right) => compareStrings({ left: left.name, right: right.name }));
@@ -149,9 +149,9 @@ function walkRegularFiles(rootPath: string): string[] {
         : entry.name;
       const absolutePath = path.join(directoryPath, entry.name);
       if (entry.isDirectory()) {
-        visit(absolutePath, relativePath);
+        if (!canSkipDirectory(relativePath)) yield* visit(absolutePath, relativePath);
       } else if (entry.isFile()) {
-        files.push(relativePath);
+        yield relativePath;
       }
     }
   }

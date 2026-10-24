@@ -3064,6 +3064,22 @@
       ],
       "title": "Bun 升级暴露的严格断言原型兼容问题"
     },
+    "261024-diagnose-gate-p95-test-discovery": {
+      "formedAt": "2026-10-24T15:17:04Z",
+      "name": "diagnose-gate-p95-test-discovery",
+      "question": "第九版 all 的 P95 超标中，测试文件发现有哪些可消除成本，如何保持证据集合并验证改善？",
+      "relations": [],
+      "resourceIds": [
+        "261024-diagnose-gate-p95-test-discovery/discovery-comparison.json"
+      ],
+      "sourcePath": "diagnose-gate-p95-test-discovery.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "test-evidence"
+      ],
+      "title": "Gate P95 超标与测试文件发现成本"
+    },
     "261024-measure-gate-test-boundary-simplification": {
       "formedAt": "2026-10-24T04:26:50Z",
       "name": "measure-gate-test-boundary-simplification",
@@ -3272,6 +3288,7 @@
       "261023-evaluate-markdown-link-fusion-and-restore": "sha256:03f0a5ef4860d5bff594f8a934ff87d008e590bdc491069c20420ffdc3b54f82",
       "261023-measure-complete-gate-without-competing-runs": "sha256:511b15391919aa5e305a9cbeb18140fb4d7ca2ec0e89547b65d188c0b9a5f70c",
       "261024-diagnose-bun-strict-assertion-compatibility": "sha256:065d055c171c5c5aeedbea33f5b4ff8a0db64f375470359836ca656d2be9183f",
+      "261024-diagnose-gate-p95-test-discovery": "sha256:9447ad89daa293d502f3bd02161cd88e5f311472dafea893c9a3e0d5ef904874",
       "261024-measure-gate-test-boundary-simplification": "sha256:6499c5bf6519d048a4a890092e1721033d892b4f4cb547594d7014578cf6470e",
       "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf",
       "261024-record-delivery-duplicate-lane-timeout": "sha256:949893b102590be8b31d07dc584b91fa88489463b05c6c1654450bbdad92d5f3",

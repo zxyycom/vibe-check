@@ -14,11 +14,17 @@ type AstRange = {
   end: AstPosition;
 };
 
+type AstRuleId =
+  | "bun-native-test"
+  | "bun-unsupported-alias"
+  | "bun-unsupported-dynamic"
+  | "bun-unsupported-parameterized";
+
 export type AstMatch = {
   file: string;
   text: string;
   range: AstRange;
-  ruleId: string;
+  ruleId: AstRuleId;
   metaVariables: {
     single: Record<
       string,
@@ -30,31 +36,40 @@ export type AstMatch = {
   };
 };
 
-export async function scanAstRule(
+export async function scanAstRules(
   options: {
     cancelSignal?: AbortSignal;
     workspaceRoot: string;
-    rulePath: string;
+    configPath: string;
     paths: string[];
   },
-  runRule = runAstGrep
+  runScan = runAstGrep
 ): Promise<{
   matches: AstMatch[];
   diagnostics: TestEvidenceDiagnostic[];
 }> {
-  const ruleName = path.basename(options.rulePath);
-  const result = await astGrepScanResult(options, runRule);
+  const configName = path.basename(options.configPath);
+  const result = await astGrepScanResult(options, runScan);
   if (result.kind === "failure") return result.value;
-  if (result.value.status !== 0 && result.value.status !== 1)
+  if (
+    result.value.error !== undefined ||
+    result.value.signal !== null ||
+    result.value.timedOut === true ||
+    (result.value.status !== 0 && result.value.status !== 1)
+  ) {
+    const errorMessage =
+      result.value.error?.message ??
+      (result.value.timedOut === true ? "process timed out" : "no error output");
     return staticScanFailure(
-      `ast-grep rule ${ruleName} failed with status ${String(result.value.status)}: ${result.value.stderr.trim()}`
+      `ast-grep config ${configName} failed with status ${String(result.value.status)}, signal ${result.value.signal ?? "none"}: ${result.value.stderr.trim() || errorMessage}`
     );
-  return parsedAstScanResult(result.value.stdout, ruleName);
+  }
+  return parsedAstScanResult(result.value.stdout, configName);
 }
 
 async function astGrepScanResult(
-  options: Parameters<typeof scanAstRule>[0],
-  runRule: typeof runAstGrep
+  options: Parameters<typeof scanAstRules>[0],
+  runScan: typeof runAstGrep
 ): Promise<
   | Readonly<{ readonly kind: "result"; readonly value: Awaited<ReturnType<typeof runAstGrep>> }>
   | Readonly<{
@@ -64,8 +79,16 @@ async function astGrepScanResult(
 > {
   let result;
   try {
-    result = await runRule(
-      ["scan", "--rule", options.rulePath, "--json=stream", "--color", "never", ...options.paths],
+    result = await runScan(
+      [
+        "scan",
+        "--config",
+        options.configPath,
+        "--json=stream",
+        "--color",
+        "never",
+        ...options.paths
+      ],
       {
         ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal }),
         workspaceRoot: options.workspaceRoot
@@ -82,13 +105,13 @@ async function astGrepScanResult(
 
 function parsedAstScanResult(
   stdout: string,
-  ruleName: string
+  configName: string
 ): { matches: AstMatch[]; diagnostics: TestEvidenceDiagnostic[] } {
   try {
     return { matches: parseAstMatches(stdout), diagnostics: [] };
   } catch (error) {
     return staticScanFailure(
-      `ast-grep rule ${ruleName} returned malformed JSON: ${error instanceof Error ? error.message : String(error)}`
+      `ast-grep config ${configName} returned malformed output: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -143,12 +166,14 @@ function normalizeAstMatch(value: unknown): AstMatch {
     !isNonArrayRecord(value) ||
     typeof value.file !== "string" ||
     typeof value.text !== "string" ||
-    typeof value.ruleId !== "string" ||
     !isAstRange(value.range) ||
     !isNonArrayRecord(value.metaVariables) ||
     !isNonArrayRecord(value.metaVariables.single)
   ) {
     throw new Error("invalid ast-grep match shape");
+  }
+  if (!isAstRuleId(value.ruleId)) {
+    throw new Error(`unknown ast-grep ruleId ${String(value.ruleId)}`);
   }
   const single = Object.fromEntries(
     Object.entries(value.metaVariables.single).map(([key, candidate]) => {
@@ -180,7 +205,13 @@ function normalizeAstMatch(value: unknown): AstMatch {
 }
 
 function isAstRange(value: unknown): value is AstRange {
-  return isNonArrayRecord(value) && isAstPosition(value.start) && isAstPosition(value.end);
+  if (!isNonArrayRecord(value) || !isAstPosition(value.start) || !isAstPosition(value.end)) {
+    return false;
+  }
+  return (
+    value.end.line > value.start.line ||
+    (value.end.line === value.start.line && value.end.column >= value.start.column)
+  );
 }
 
 function isAstPosition(value: unknown): value is AstPosition {
@@ -191,4 +222,16 @@ function isAstPosition(value: unknown): value is AstPosition {
     Number.isInteger(value.column) &&
     Number(value.column) >= 0
   );
+}
+
+function isAstRuleId(value: unknown): value is AstRuleId {
+  switch (value) {
+    case "bun-native-test":
+    case "bun-unsupported-alias":
+    case "bun-unsupported-dynamic":
+    case "bun-unsupported-parameterized":
+      return true;
+    default:
+      return false;
+  }
 }
