@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import {
   createTypeScriptSourceRoot,
   prepareCheckOptions
@@ -27,9 +28,9 @@ describe("default Check direct callbacks", () => {
       "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"
     ]);
     assert.equal(defaultCheck.options.requireExistingTargets, true);
-    assert.deepEqual(defaultCheck.options.cache, { enabled: false });
+    assertJsonValueEqual(defaultCheck.options.cache, { enabled: false });
     assert.equal(Object.isFrozen(defaultCheck.options.cache), true);
-    assert.deepEqual(
+    assertJsonValueEqual(
       markdownLinkValidation({
         files: { patterns: ["docs/**/*.md"] },
         limits: { maxTargetReads: 50 },
@@ -55,7 +56,7 @@ describe("default Check direct callbacks", () => {
       }
     );
     const cacheDirectory = join(tmpdir(), "vibe-check-markdown-link-cache-options");
-    assert.deepEqual(
+    assertJsonValueEqual(
       markdownLinkValidation({
         cache: {
           enabled: true,

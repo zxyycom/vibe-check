@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
@@ -72,7 +73,7 @@ describe("Package Run progress rendering outputs", () => {
     if (result.kind !== "output") return;
     assert.deepEqual(result.diagnostic, { code: "progress-rendering-failed" });
     assert.equal(result.outputs.progressRendering.status, "failed");
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
+    assertJsonValueEqual(result.snapshot.checks[0]?.outcome, PASSED);
   });
 
   it("contains a Record preview write failure while retaining accepted Check and Record facts", async () => {
@@ -102,8 +103,8 @@ describe("Package Run progress rendering outputs", () => {
     assert.deepEqual(result.diagnostic, { code: "progress-rendering-failed" });
     assert.equal(result.outputs.progressRendering.status, "failed");
     assert.match(output.attempts[1] ?? "", /\[record] accepted \| \{"source":"callback"}/);
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
-    assert.deepEqual(result.snapshot.records, [
+    assertJsonValueEqual(result.snapshot.checks[0]?.outcome, PASSED);
+    assertJsonValueEqual(result.snapshot.records, [
       { checkId: "custom", id: "accepted", data: { source: "callback" } }
     ]);
   });
@@ -171,8 +172,8 @@ describe("Package Run progress rendering outputs", () => {
       if (result.kind !== "output") continue;
       assert.deepEqual(result.diagnostic, { code: "progress-rendering-failed" });
       assert.equal(result.outputs.progressRendering.status, "failed");
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
-      assert.deepEqual(result.snapshot.records, [
+      assertJsonValueEqual(result.snapshot.checks[0]?.outcome, PASSED);
+      assertJsonValueEqual(result.snapshot.records, [
         { checkId: "custom", id: "accepted", data: { source: "callback" } }
       ]);
       assert.equal(result.checkMessages[0]?.message, "message");
@@ -216,7 +217,7 @@ describe("Package Run progress rendering outputs", () => {
       reason: { code: "record-invalid" },
       status: "unavailable"
     });
-    assert.deepEqual(result.snapshot.records, [
+    assertJsonValueEqual(result.snapshot.records, [
       { checkId: "custom", id: "accepted", data: { source: "callback" } }
     ]);
     const transcript = output.writes.join("");

@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -80,6 +81,21 @@ describe("finding waiver reconciliation", () => {
       ]
     });
 
+    const appliedFinding = result.findings[0];
+    assert.ok(appliedFinding?.disposition === "waived");
+    const appliedIdentity = appliedFinding.waiver.identity;
+    const unusedIdentity = result.waiverAudits[1]?.waiver.identity;
+    assertJsonValueEqual(appliedIdentity, {
+      metric: "parameter-count",
+      path: "src/load.ts",
+      functionName: "loadProject"
+    });
+    assertJsonValueEqual(unusedIdentity, {
+      functionName: "removed",
+      metric: "parameter-count",
+      path: "src/removed.ts"
+    });
+
     assert.deepEqual(result.findings, [
       {
         disposition: "waived",
@@ -90,11 +106,7 @@ describe("finding waiver reconciliation", () => {
           path: "src/load.ts"
         },
         waiver: {
-          identity: {
-            metric: "parameter-count",
-            path: "src/load.ts",
-            functionName: "loadProject"
-          },
+          identity: appliedIdentity,
           reason: "Protocol adapter intentionally mirrors the external fields."
         }
       },
@@ -113,11 +125,7 @@ describe("finding waiver reconciliation", () => {
         matchCount: 1,
         status: "applied",
         waiver: {
-          identity: {
-            metric: "parameter-count",
-            path: "src/load.ts",
-            functionName: "loadProject"
-          },
+          identity: appliedIdentity,
           reason: "Protocol adapter intentionally mirrors the external fields."
         }
       },
@@ -125,11 +133,7 @@ describe("finding waiver reconciliation", () => {
         matchCount: 0,
         status: "unused",
         waiver: {
-          identity: {
-            functionName: "removed",
-            metric: "parameter-count",
-            path: "src/removed.ts"
-          },
+          identity: unusedIdentity,
           reason: "This should be removed when its target disappears."
         }
       }
@@ -161,8 +165,13 @@ describe("finding waiver reconciliation", () => {
     const waived = result.findings[0];
     assert.ok(waived?.disposition === "waived");
     assert.equal(waived.finding, finding);
+    assertJsonValueEqual(waived.waiver.identity, {
+      path: "src/load.ts",
+      subject: "loadProject",
+      tags: ["protocol"]
+    });
     assert.deepEqual(waived.waiver, {
-      identity: { path: "src/load.ts", subject: "loadProject", tags: ["protocol"] },
+      identity: waived.waiver.identity,
       reason: "Protocol adapter intentionally mirrors the external fields."
     });
     assert.equal(Object.isFrozen(waived.waiver), true);
@@ -172,7 +181,7 @@ describe("finding waiver reconciliation", () => {
         waived.waiver.identity !== null &&
         !Array.isArray(waived.waiver.identity)
     );
-    const tags = waived.waiver.identity.tags;
+    const tags: unknown = Reflect.get(waived.waiver.identity, "tags");
     assert.ok(Array.isArray(tags));
     assert.equal(Object.isFrozen(tags), true);
   });

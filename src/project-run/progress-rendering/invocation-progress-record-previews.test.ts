@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -48,7 +49,7 @@ describe("Package Run progress rendering outputs", () => {
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") return;
     assert.equal(formatterCalls, 0);
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+    assertJsonValueEqual(result.snapshot.checks[0]?.outcome, {
       status: "passed",
       data: { retained: "final-data" }
     });

@@ -35,6 +35,12 @@ module 共同契约的测试保留在拥有该契约的最近父 owner；专属 
 项目的行为契约、测试分层、Case 与验证规则仍由各自 owner 定义；skill 提供方法，不替代这些规则。
 仅运行既有测试时直接使用下方验证入口，不额外开展测试设计或账本维护。
 
+### JSON 内容与容器属性
+
+具体 JSON 值断言可使用 [`assertJsonValueEqual`](../../src/data-boundary/json-value-equality.test-support.ts)：
+它执行忽略原型的严格内容比较，保留字段、值类型与数组顺序检查。JSON 准入、原型、冻结和引用身份由拥有相应契约的测试独立断言。
+默认 strict assert 保持原型检查；不得全局忽略原型、改用宽松相等，或用生产规范化构造 expected 形成同实现自证。
+
 ## Case 账本
 
 `docs/testing/cases/**` 连接当前行为承诺与直接测试。每个 Case 按 owner 契约和可观察结果划分，

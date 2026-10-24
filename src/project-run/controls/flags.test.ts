@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
@@ -84,7 +85,7 @@ async function assertFlagEnablementLifecycle(): Promise<void> {
   assert.equal(observerCalls, 2);
   assert.deepEqual(observedStatuses, ["passed", "not-applicable"]);
   assert.deepEqual(observedFlags, [["feature:alpha", "feature:beta"]]);
-  assert.deepEqual(
+  assertJsonValueEqual(
     enabled.snapshot.checks.find(({ checkId }) => checkId === "flag-controlled")?.outcome,
     PASSED
   );

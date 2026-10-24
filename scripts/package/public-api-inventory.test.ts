@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../src/data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -121,7 +122,7 @@ describe("public API inventory", () => {
       assert.equal(Object.hasOwn(packageCheck, "replace"), false);
       assert.equal(Object.hasOwn(packageCheck, "append"), false);
     }
-    assert.deepEqual(
+    assertJsonValueEqual(
       markdownLinkValidation({
         cache: { enabled: true, directory: "/tmp/vibe-check-markdown-link-cache" }
       }).options.cache,

@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { createProjectContextSource } from "../project-context.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
@@ -131,7 +132,7 @@ describe("Package Run direct Check execution", () => {
         status: "unavailable"
       }
     });
-    assert.deepEqual(outcomeFor(result, "observer"), { status: "passed", data: {} });
+    assertJsonValueEqual(outcomeFor(result, "observer"), { status: "passed", data: {} });
     assert.deepEqual(
       started.map((fact) => fact.checkId),
       ["observer"]

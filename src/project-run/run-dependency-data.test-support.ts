@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 
@@ -38,7 +39,7 @@ export async function assertInheritedDependencyList(): Promise<void> {
   );
   assert.equal(result.kind, "completed");
   if (result.kind !== "completed") return;
-  assert.deepEqual(observedList, [
+  assertJsonValueEqual(observedList, [
     { checkId: "inherited-list-alpha", outcome: { status: "passed", data: { source: "alpha" } } },
     { checkId: "inherited-list-omega", outcome: { status: "failed", data: { source: "omega" } } }
   ]);

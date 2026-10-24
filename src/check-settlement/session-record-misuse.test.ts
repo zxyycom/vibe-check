@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
@@ -23,7 +24,7 @@ describe("check-record Core Check session", () => {
     beta.settle({ status: "not-applicable" });
 
     const snapshot = session.freeze();
-    assert.deepEqual(snapshot.records, [
+    assertJsonValueEqual(snapshot.records, [
       { checkId: "alpha-check", id: "shared", data: { retained: true } },
       { checkId: "beta-check", id: "shared", data: { independent: true } }
     ]);
@@ -41,7 +42,7 @@ describe("check-record Core Check session", () => {
     });
     assert.throws(() => alpha.settle({ status: "failed", data: {} }), CoreInvariantFailure);
     const snapshot = session.freeze();
-    assert.deepEqual(snapshot.records, [
+    assertJsonValueEqual(snapshot.records, [
       { checkId: "alpha-check", id: "retained", data: { value: true } }
     ]);
     assert.throws(() => session.openCheckScope("alpha-check"), CoreInvariantFailure);

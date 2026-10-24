@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
@@ -23,11 +24,11 @@ describe("Package Run direct Check execution", () => {
     );
 
     assert.equal(result.kind, "completed");
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+    assertJsonValueEqual(result.snapshot.checks[0]?.outcome, {
       status: "passed",
       data: { summary: "ok" }
     });
-    assert.deepEqual(result.snapshot.records, [
+    assertJsonValueEqual(result.snapshot.records, [
       { checkId: "direct-check", id: "sample", data: { durationMs: 12 } }
     ]);
     assert.deepEqual(result.checkMessages, [

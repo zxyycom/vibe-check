@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -56,7 +57,7 @@ describe("effective Check aggregation", () => {
         assert.strictEqual(checks[0], snapshot.checks[0]);
         assert.strictEqual(checks[1], snapshot.checks[1]);
         assert.strictEqual(checks[2], snapshot.checks[2]);
-        assert.deepEqual(
+        assertJsonValueEqual(
           checks.map((check) => check.outcome),
           [
             { status: "failed", data: { count: 0 } },

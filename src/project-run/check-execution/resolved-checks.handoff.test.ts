@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { createProjectContextSource } from "../project-context.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
@@ -59,6 +60,7 @@ describe("Package Run direct Check execution", () => {
     expectedHandoff: Map<string, Uint8Array>,
     observeDependencies?: (dependencies: CheckDependencies) => void
   ): Promise<void> {
+    let firstConsumerData: unknown;
     let firstConsumerHandoff: Map<string, Uint8Array> | undefined;
     let secondConsumerHandoff: Map<string, Uint8Array> | undefined;
     let observedProviderRead: unknown;
@@ -79,7 +81,7 @@ describe("Package Run direct Check execution", () => {
               const read = dependencies.get(provider);
               assert.equal(read.ok, true);
               if (!read.ok) throw new Error("direct provider handoff was unavailable");
-              assert.deepEqual(read.data, { source: "canonical" });
+              firstConsumerData = read.data;
               firstConsumerHandoff = read.handoff;
               foreignProviderRead = dependencies.get(foreignProvider);
               lookalikeProviderRead = Reflect.apply(
@@ -153,6 +155,7 @@ describe("Package Run direct Check execution", () => {
       signal: undefined
     });
     assert.equal(execution.kind, "completed");
+    assertJsonValueEqual(firstConsumerData, { source: "canonical" });
     assert.equal(firstConsumerHandoff, expectedHandoff);
     assert.equal(secondConsumerHandoff, expectedHandoff);
     assert.deepEqual(observedProviderRead, {

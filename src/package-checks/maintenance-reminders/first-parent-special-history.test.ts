@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -65,7 +65,7 @@ describe("maintenance reminders", () => {
         { projectRoot: root }
       );
       const completed = onlyOutcome(result);
-      assert.deepEqual(completed.outcome, {
+      assertJsonValueEqual(completed.outcome, {
         status: "failed",
         data: {
           entries: [

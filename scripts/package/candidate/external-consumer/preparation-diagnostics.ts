@@ -1,5 +1,6 @@
-import type { SpawnSyncReturns } from "node:child_process";
 import { writeSync } from "node:fs";
+
+import type { ProcessResult } from "../../../process-execution/execution.ts";
 
 type PreparationStage = "fixture" | "install" | "types-fixture" | "entry-resolution" | "identity";
 
@@ -73,7 +74,7 @@ export class ExternalConsumerPreparationDiagnostics {
   }
 
   /** Summarizes only recognized Bun output at exit; these are not live progress timestamps. */
-  public installationResult(result: SpawnSyncReturns<string>): void {
+  public installationResult(result: ProcessResult): void {
     this.emit({
       event: "install-result",
       elapsedMs: this.elapsedMs(),

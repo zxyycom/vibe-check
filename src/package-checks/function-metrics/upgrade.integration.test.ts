@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -74,12 +75,12 @@ test("functionMetrics upgraded readers publish strict findings, real contributor
       );
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") throw new Error("Expected complete Run");
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+      assertJsonValueEqual(result.snapshot.checks[0]?.outcome, {
         status: "failed",
         data: { findingCount: 3, blockingFindingCount: waived ? 2 : 3 }
       });
       const records = result.snapshot.records.map(({ data }) => data);
-      assert.deepEqual(
+      assertJsonValueEqual(
         records.find((data) => Reflect.get(data, "path") === "src/arms.rs"),
         {
           ...rustIdentity,
@@ -94,7 +95,7 @@ test("functionMetrics upgraded readers publish strict findings, real contributor
           ...(waived ? { waiver: { reason: "Intentional three-way classification." } } : {})
         }
       );
-      assert.deepEqual(
+      assertJsonValueEqual(
         records.find((data) => Reflect.get(data, "path") === "src/body.kt"),
         {
           blocking: true,
@@ -107,7 +108,7 @@ test("functionMetrics upgraded readers publish strict findings, real contributor
           limit: 3
         }
       );
-      assert.deepEqual(
+      assertJsonValueEqual(
         records.find((data) => Reflect.get(data, "path") === "src/division.js"),
         {
           blocking: true,
@@ -123,7 +124,7 @@ test("functionMetrics upgraded readers publish strict findings, real contributor
       );
       assert.equal(records.length, waived ? 4 : 3);
       if (waived)
-        assert.deepEqual(
+        assertJsonValueEqual(
           records.find((data) => Reflect.get(data, "kind") === "finding-waiver-audit"),
           {
             identity: {
@@ -161,7 +162,7 @@ test("functionMetrics upgraded readers publish strict findings, real contributor
     );
     assert.equal(atLimit.kind, "completed");
     if (atLimit.kind !== "completed") throw new Error("Expected complete Run");
-    assert.deepEqual(atLimit.snapshot.checks[0]?.outcome, {
+    assertJsonValueEqual(atLimit.snapshot.checks[0]?.outcome, {
       status: "passed",
       data: { findingCount: 0, blockingFindingCount: 0 }
     });

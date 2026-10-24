@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { createProjectContextSource } from "../project-context.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
@@ -67,7 +68,7 @@ export async function assertDirectDependencyLists(): Promise<void> {
   });
 
   assert.equal(directOnly.kind, "completed");
-  assert.deepEqual(observedList, [
+  assertJsonValueEqual(observedList, [
     {
       checkId: "source-failed",
       outcome: { status: "failed", data: { source: "failed" } }

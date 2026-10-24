@@ -21,6 +21,7 @@ artifact builder 产出 tarball；candidate lifecycle 安装并核对该精确�
 | --- | --- |
 | `bun run package:status` | 只读报告 version、`current`/`stale`、unpacked/tarball path 与经验证的 installed entry；stale 时报告 required action，非零退出并提示 `package:build`，不静默修复。 |
 | `bun run package:build` | 按状态执行 prepare 和 audit，分别报告完成后的 current state 与 performed action。 |
+| `bun run package:cache:prepare` | 显式允许联网准备发布依赖的 Bun 缓存；不构建 candidate，也不生成安装验收证据。 |
 | `bun run package:verify` | 运行 complete Project Gate，不是另一条独立准备路径。 |
 
 Preparation 先作不修改文件系统的状态判断，再执行对应动作：
@@ -83,6 +84,31 @@ Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 
 4. 随后的 Product / external runtime 消费同一安装，实际执行 jscpd；preparation 不为同一事实重复启动 probe。
 
 `candidate/external-consumer/**` 建立一次隔离安装及 typed material，分别拥有 types、documentation 与 runtime 验收；父级 candidate lifecycle 不吸收这些职责。其 types fixture 用独立的 `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes` profile 验收安装后的公共 declarations，不承接 `noImplicitOverride`、`noImplicitReturns` 或 unreachable-code 等 implementation-only 规则，也不增加 compiler invocation 或重复安装。
+
+### 严格离线安装与显式缓存准备
+
+local candidate、正式 release preparation 与 external consumer 的实际安装统一经过 `scripts/package/installation.ts`，
+使用项目固定的 Bun，以 `--offline --no-save --ignore-scripts --backend=copyfile` 安装 exact local tarball。
+缓存缺失或不完整时非零失败；日常安装不联网补齐、不自动重试。恢复时先在允许联网的独立步骤运行
+`bun run package:cache:prepare`，成功后重新执行原安装入口。
+失败只报告安全的进程终态和恢复动作，不转储 registry 原始输出、URL 或凭据。
+
+**安装隔离。**
+缓存沿用 Bun 的标准缓存及其 registry/cache 配置；显式 `BUN_INSTALL_CACHE_DIR` 可指定缓存目录。
+缓存只复用依赖元数据与包体，不复用安装后的 node_modules：external provider 每次建立新的仓库外 consumer，
+同次 invocation 的 types/docs/runtime 才共享它。private candidate 的既有 reuse/reinstall/rebuild 生命周期不变。
+`copyfile` 使安装文件与缓存不共享可变硬链接，installed drift 测试或 consumer 修改不能污染后续安装。
+
+**显式准备。**
+`package:cache:prepare` 在一次性临时目录中使用与 artifact builder 相同的已校验 release-manifest 投影安装生产依赖，
+允许联网且禁用 lifecycle scripts；完成或失败均清理临时安装，只保留 Bun 缓存。该入口独立于 candidate preparation，
+可用于首次离线安装前的自举。`env:setup` 在 `package:build` 前显式调用它；Gate、`package:build`、`package:status`
+和 release preparation 只消费已有缓存。
+
+**缓存与验收边界。**
+缓存不绑定某个 candidate version，候选内容变化不清空全部第三方包体；依赖声明变化或 cache miss 时再显式准备。
+当前没有额外的 consumer lock：semver 由缓存中的 metadata 解析，不保证不同缓存得到相同依赖图，也不承诺每轮选中
+registry 最新满足版本。完整 package 身份、材料及 types/docs/runtime 验收仍消费实际安装结果，缓存准备成功不替代这些验收。
 
 ### 隔离安装诊断
 

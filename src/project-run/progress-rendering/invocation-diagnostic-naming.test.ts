@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import {
   existsSync,
@@ -147,7 +148,7 @@ describe("Package Run diagnostic file naming", () => {
       assert.deepEqual(second.diagnostic, { code: "diagnostic-logging-failed" });
       assert.equal(second.outputs.diagnosticLogging.channels.core.status, "failed");
       assert.equal(second.outputs.diagnosticLogging.channels.scheduler.status, "failed");
-      assert.deepEqual(second.snapshot.checks[0]?.outcome, { status: "passed", data: {} });
+      assertJsonValueEqual(second.snapshot.checks[0]?.outcome, { status: "passed", data: {} });
       assert.deepEqual(
         files.map((file) => readFileSync(file, "utf8")),
         activeBytes
@@ -196,7 +197,7 @@ describe("Package Run diagnostic file naming", () => {
       });
       assert.equal(readFileSync(join(directory, "core.log"), "utf8"), "caller-owned bytes");
       assert.equal(existsSync(join(directory, "scheduler.log")), true);
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, { status: "passed", data: {} });
+      assertJsonValueEqual(result.snapshot.checks[0]?.outcome, { status: "passed", data: {} });
     } finally {
       rmSync(root, { force: true, recursive: true });
     }

@@ -85,6 +85,8 @@ function setupEnvironment(): void {
 
   runCommandInMise({ args: ["init", "."], command: "codegraph" });
   runCommandInMise({ args: ["sync", "--quiet", "."], command: "codegraph" });
+  // Explicit setup is network-authorized; ordinary candidate and acceptance installs are offline.
+  runCommandInMise({ args: ["run", "package:cache:prepare"], command: "bun" });
   // Complete bootstrap before later Bun processes start: installing the private candidate
   // after a Bun process has begun resolving modules can leave bare-package resolution stale.
   runCommandInMise({ args: ["run", "package:build"], command: "bun" });

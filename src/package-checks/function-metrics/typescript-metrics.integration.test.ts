@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -64,7 +65,7 @@ test("functionMetrics TypeScript corrections reach public Worker findings, defau
       let findingCount = 0;
       if (diagnostic) findingCount = 2;
       else if (profile === "waived") findingCount = 1;
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+      assertJsonValueEqual(result.snapshot.checks[0]?.outcome, {
         status: diagnostic ? "failed" : "passed",
         data: { findingCount: findingCount, blockingFindingCount: diagnostic ? 2 : 0 }
       });
@@ -74,7 +75,7 @@ test("functionMetrics TypeScript corrections reach public Worker findings, defau
         false
       );
       if (diagnostic || profile === "waived") {
-        assert.deepEqual(
+        assertJsonValueEqual(
           records.find((data) => Reflect.get(data, "metric") === "cyclomatic-complexity"),
           {
             ...identity,
@@ -90,7 +91,7 @@ test("functionMetrics TypeScript corrections reach public Worker findings, defau
         );
       }
       if (diagnostic) {
-        assert.deepEqual(
+        assertJsonValueEqual(
           records.find((data) => Reflect.get(data, "metric") === "nesting-depth"),
           {
             blocking: true,
@@ -104,7 +105,7 @@ test("functionMetrics TypeScript corrections reach public Worker findings, defau
           }
         );
       } else if (profile === "waived") {
-        assert.deepEqual(
+        assertJsonValueEqual(
           records.find((data) => Reflect.get(data, "kind") === "finding-waiver-audit"),
           {
             identity: {
@@ -145,11 +146,11 @@ test("functionMetrics retains every nullish contributor beyond the eight-item hu
     const result = await run(defineConfig({ checks: [check], outputs }), { projectRoot: root });
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") throw new Error("Expected complete Run");
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+    assertJsonValueEqual(result.snapshot.checks[0]?.outcome, {
       status: "failed",
       data: { findingCount: 1, blockingFindingCount: 1 }
     });
-    assert.deepEqual(result.snapshot.records[0]?.data, {
+    assertJsonValueEqual(result.snapshot.records[0]?.data, {
       blocking: true,
       codeAreas: ["sample"],
       functionName: "many",

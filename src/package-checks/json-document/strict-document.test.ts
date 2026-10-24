@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -34,7 +35,7 @@ function assertIssue(result: StrictJsonDocumentResult, reason: JsonDocumentIssue
 
 function assertValid(result: StrictJsonDocumentResult, expectedJsonValue: unknown): void {
   assert.ok(result.kind === "valid");
-  assert.deepEqual(result.jsonValue, expectedJsonValue);
+  assertJsonValueEqual(result.jsonValue, expectedJsonValue);
   assert.deepEqual(Object.keys(result).sort(), ["jsonValue", "kind"]);
 }
 

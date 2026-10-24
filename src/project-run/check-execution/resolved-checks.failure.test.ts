@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { createProjectContextSource } from "../project-context.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
@@ -39,7 +40,7 @@ async function assertDuplicateRecordConflict(): Promise<void> {
     status: "unavailable",
     reason: { code: "record-conflict" }
   });
-  assert.deepEqual(result.snapshot.records, [
+  assertJsonValueEqual(result.snapshot.records, [
     { checkId: "direct-check", id: "retained", data: { value: true } }
   ]);
   assert.deepEqual(
@@ -148,7 +149,7 @@ async function assertHostileValueIsContained(
   assertHostileValueResultIsContained({ channel: input.channel, result });
   input.hostile.assertNotCalled();
   assertReporterIsClosed(fixture.reporter());
-  assert.deepEqual(result.snapshot.records, [
+  assertJsonValueEqual(result.snapshot.records, [
     { checkId: "contained", id: "retained", data: { retained: true } }
   ]);
 }
@@ -206,7 +207,7 @@ function assertHostileValueResultIsContained(
   }>
 ): void {
   assert.equal(input.result.kind, "completed");
-  assert.deepEqual(input.result.snapshot.checks, [
+  assertJsonValueEqual(input.result.snapshot.checks, [
     {
       checkId: "contained",
       displayName: "contained",
@@ -223,7 +224,7 @@ function assertHostileValueResultIsContained(
       outcome: { status: "passed", data: { independent: true } }
     }
   ]);
-  assert.deepEqual(input.result.snapshot.records, [
+  assertJsonValueEqual(input.result.snapshot.records, [
     { checkId: "contained", id: "retained", data: { retained: true } }
   ]);
   assert.deepEqual(input.result.checkMessages, []);

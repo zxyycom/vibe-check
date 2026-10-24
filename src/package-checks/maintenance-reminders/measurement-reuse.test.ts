@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { describe, it } from "node:test";
@@ -85,7 +86,7 @@ describe("maintenance reminders", () => {
       };
       for (let execution = 0; execution < 2; execution += 1) {
         const completed = onlyOutcome(await run(config, { projectRoot: root }));
-        assert.deepEqual(completed.outcome, expected);
+        assertJsonValueEqual(completed.outcome, expected);
         assert.deepEqual(completed.result.checkMessages, []);
         assert.deepEqual(completed.result.snapshot.records, []);
         assert.ok("data" in completed.outcome);
@@ -257,7 +258,7 @@ describe("maintenance reminders", () => {
         const root = scriptedGit(variant.plan);
         try {
           const completed = await evaluate(root, entries);
-          assert.deepEqual(completed.outcome, expected);
+          assertJsonValueEqual(completed.outcome, expected);
           assert.deepEqual(
             completed.result.checkMessages,
             expectedMessages.map((message) => ({ checkId: "maintenance-reminders", ...message }))

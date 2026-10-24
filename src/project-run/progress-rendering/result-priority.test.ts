@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
@@ -101,7 +102,7 @@ describe("Package Run progress result priority", () => {
       /^ {2}\[1\/2] Custom \| passed \| \d+(?:\.\d+)?(?:ms|s)\n {4}\[info] retained message\n$/
     );
     assert.deepEqual(output.writes, ["Vibe Check\ntotal 2 checks\n\nChecks:\n"]);
-    assert.deepEqual(
+    assertJsonValueEqual(
       result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
       [
         { checkId: "first", outcome: PASSED },

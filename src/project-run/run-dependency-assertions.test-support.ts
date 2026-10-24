@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 
@@ -50,7 +51,7 @@ export async function assertInheritedDependencyRead(): Promise<void> {
   );
   assert.equal(result.kind, "completed");
   if (result.kind !== "completed") return;
-  assert.deepEqual(inheritedRead, {
+  assertJsonValueEqual(inheritedRead, {
     ok: true,
     checkId: "inherited-source",
     status: "passed",
@@ -59,8 +60,9 @@ export async function assertInheritedDependencyRead(): Promise<void> {
   const outcome = result.snapshot.checks.find(
     (coreCheck) => coreCheck.checkId === "inherited-source"
   )?.outcome;
-  if (inheritedRead?.ok && outcome?.status === "passed")
-    assert.equal(inheritedRead.data, outcome.data);
+  assert.ok(inheritedRead?.ok === true);
+  assert.ok(outcome?.status === "passed");
+  assert.strictEqual(inheritedRead.data, outcome.data);
 }
 
 function unavailableSource() {

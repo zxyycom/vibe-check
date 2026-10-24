@@ -14,6 +14,7 @@ import {
   PACKAGE_NAME
 } from "../package-contract.ts";
 import { runBun, sha256File } from "../pack.ts";
+import { installOfflinePackage } from "../installation.ts";
 import {
   verifyCandidateRuntimeDependencies,
   type CandidateDependencyProbe
@@ -52,11 +53,7 @@ export function installCandidate(input: {
   // install prevents Bun from satisfying a missing candidate dependency through
   // an ancestor node_modules directory.
   rmSync(join(consumerDirectory, "node_modules"), { force: true, recursive: true });
-  runBun({
-    args: ["install", "--no-save", "--ignore-scripts", artifactPath],
-    cwd: consumerDirectory,
-    phase: `install candidate in ${consumerDirectory}`
-  });
+  installOfflinePackage({ artifactPath, consumerDirectory });
   return verifyInstallation({
     candidateVersion,
     repositoryRoot,

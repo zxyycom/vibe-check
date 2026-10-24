@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -79,7 +80,7 @@ function assertPublishedRunFacts(
 ): void {
   assert.equal(dependentCalls, 1);
   assert.equal(result.aggregate, "passed");
-  assert.deepEqual(
+  assertJsonValueEqual(
     result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
     [
       { checkId: "dependent", outcome: { status: "passed", data: { dependent: true } } },
@@ -87,7 +88,7 @@ function assertPublishedRunFacts(
       { checkId: "quiet-pass-support", outcome: { status: "passed", data: { supporting: true } } }
     ]
   );
-  assert.deepEqual(result.snapshot.records, [
+  assertJsonValueEqual(result.snapshot.records, [
     { checkId: "quiet-pass-support", id: "support-record", data: { retained: true } }
   ]);
   assert.deepEqual(

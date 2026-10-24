@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 
 import { assertEventsInOrder } from "./invocation-event-order.test-support.ts";
@@ -54,8 +55,7 @@ describe("Package Run learned Scheduler admission", () => {
       assert.match(history, /identityDigest/);
       assert.doesNotMatch(history, /private-option/);
       assert.doesNotMatch(history, /private-flag/);
-      const firstPersisted: unknown = JSON.parse(history);
-      assertPersistedDurations(firstPersisted);
+      assertPersistedDurations(JSON.parse(history));
 
       const secondOrder: string[] = [];
       const second = await executeValidatedRun(
@@ -98,7 +98,7 @@ describe("Package Run learned Scheduler admission", () => {
       );
       assert(result.kind === "completed");
       assert.equal(result.aggregate, "passed");
-      assert.deepEqual(
+      assertJsonValueEqual(
         result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
         [
           { checkId: "fast", outcome: PASSED },

@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
@@ -64,7 +65,7 @@ describe("check-record foundation model", () => {
 
     assert.equal(validated.ok, true);
     if (!validated.ok) return;
-    assert.deepEqual(validated.value.records, snapshot.records);
+    assertJsonValueEqual(validated.value.records, snapshot.records);
     assert.equal(Object.isFrozen(validated.value.records[0]?.data), true);
     assert.equal(validateCoreSnapshot({ ...snapshot, definitions: [] }).ok, false);
     assert.equal(
@@ -89,7 +90,7 @@ describe("check-record foundation model", () => {
 
     assert.deepEqual(Object.keys(canonical ?? {}), ["__proto__", "a", "z"]);
     assert.equal(canonical?.z, 0);
-    assert.deepEqual(canonical?.__proto__, { nested: true });
+    assertJsonValueEqual(canonical?.__proto__, { nested: true });
     assert.equal(Object.getPrototypeOf(canonical ?? {}), null);
     assert.equal(Object.isFrozen(canonical), true);
     assert.equal(Object.isFrozen(canonical?.a), true);

@@ -33,6 +33,7 @@ bun run package:release:prepare -- --version <selected-version> --tag latest
 ```
 
 这些输入只选择本地 build identity，不证明 registry availability 或 publish 授权；public access 由 version 投影后的 staging manifest 的 `publishConfig` 闭合。prepare/verify 均不查询 registry、核验 publisher authority 或授权状态，也不执行外部 publish mechanism。
+安装遵循[严格离线与显式缓存准备](package-lifecycle.md#严格离线安装与显式缓存准备)。缺缓存时，先在允许联网的独立准备步骤运行 `bun run package:cache:prepare`，再执行正式 prepare/verify。
 
 ## 发布前对外文档复核
 

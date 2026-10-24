@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { prepareCheckOptions } from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
@@ -99,7 +100,7 @@ describe("functionMetrics analyzer execution", () => {
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
       assert.equal(result.aggregate, "passed");
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+      assertJsonValueEqual(result.snapshot.checks[0]?.outcome, {
         status: "passed",
         data: { blockingFindingCount: 0, findingCount: 0 }
       });

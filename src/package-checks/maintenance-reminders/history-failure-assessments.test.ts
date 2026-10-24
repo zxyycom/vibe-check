@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -55,7 +56,7 @@ describe("maintenance reminders", () => {
         })
       );
 
-      assert.deepEqual(advisoryResult.outcome, {
+      assertJsonValueEqual(advisoryResult.outcome, {
         status: "passed",
         data: {
           entries: [
@@ -102,7 +103,7 @@ describe("maintenance reminders", () => {
           { projectRoot: root }
         )
       );
-      assert.deepEqual(historyCommandFailure.outcome, {
+      assertJsonValueEqual(historyCommandFailure.outcome, {
         status: "passed",
         data: {
           entries: [
@@ -132,7 +133,7 @@ describe("maintenance reminders", () => {
           { projectRoot: root }
         )
       );
-      assert.deepEqual(malformedHistory.outcome, {
+      assertJsonValueEqual(malformedHistory.outcome, {
         status: "failed",
         data: {
           entries: [

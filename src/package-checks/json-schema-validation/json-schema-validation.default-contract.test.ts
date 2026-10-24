@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { prepareCheckOptions } from "../check-execution.test-support.ts";
 import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
@@ -17,8 +18,8 @@ function assertDefaultCheckContract() {
   const defaultCheck = jsonSchemaValidation();
   assert.deepEqual(defaultCheck.options.schemas, []);
   assert.deepEqual(defaultCheck.options.bindings, []);
-  assert.deepEqual(defaultCheck.options.schemaIdentity, { mode: "require-match" });
-  assert.deepEqual(defaultCheck.options.referenceResolution, { mode: "offline" });
+  assertJsonValueEqual(defaultCheck.options.schemaIdentity, { mode: "require-match" });
+  assertJsonValueEqual(defaultCheck.options.referenceResolution, { mode: "offline" });
   assert.throws(
     () => Reflect.apply(jsonSchemaValidation, undefined, [{ unknown: true }]),
     /documented closed policy/

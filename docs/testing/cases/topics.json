@@ -18,6 +18,10 @@
       "description": "Machine v4 DTO/schema、独立 validator、two-file publication、排序、fingerprint 与诊断契约。"
     },
     {
+      "id": "package-tooling",
+      "description": "仓库包产物、候选生命周期、严格离线安装、正式发布与随包材料验收契约。"
+    },
+    {
       "id": "repository-tooling",
       "description": "开发期 thin wrapper、docs/workspace validation、toolkit helper 与并行任务调度契约。"
     },

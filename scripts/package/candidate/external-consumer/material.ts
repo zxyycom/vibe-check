@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { isPathWithin } from "../../../repository-files/paths.ts";
 import { PACKAGE_NAME } from "../../package-contract.ts";
+import { installOfflinePackage } from "../../installation.ts";
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import {
   resolveCandidateAcceptanceArtifact,
@@ -115,13 +116,13 @@ function installCandidate(
   artifactPath: string,
   diagnostics: ExternalConsumerPreparationDiagnostics
 ): void {
-  const result = spawnSync(
-    process.execPath,
-    ["install", "--no-save", "--ignore-scripts", artifactPath],
-    { cwd: consumerDirectory, encoding: "utf8" }
-  );
-  diagnostics.installationResult(result);
-  assertExternalConsumerCommandSucceeded(result, "isolated bun install");
+  installOfflinePackage({
+    artifactPath,
+    consumerDirectory,
+    observeResult: (result) => {
+      diagnostics.installationResult(result);
+    }
+  });
 }
 
 function resolvePublicEntry(consumerDirectory: string): string {

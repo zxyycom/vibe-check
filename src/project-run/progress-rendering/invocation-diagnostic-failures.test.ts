@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -53,11 +54,11 @@ describe("Package Run diagnostic logging output", () => {
       assert.equal(result.kind, "output");
       if (result.kind !== "output") return;
       assert.deepEqual(result.diagnostic, { code: "diagnostic-logging-failed" });
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+      assertJsonValueEqual(result.snapshot.checks[0]?.outcome, {
         status: "passed",
         data: { accepted: true }
       });
-      assert.deepEqual(result.snapshot.records, [
+      assertJsonValueEqual(result.snapshot.records, [
         { checkId: "custom", id: "accepted", data: { source: "callback" } }
       ]);
       assert.equal(result.outputs.diagnosticLogging.status, "failed");

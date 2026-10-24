@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
@@ -18,7 +19,7 @@ describe("machine publication v4 contract", () => {
     });
     const publication = projectMachinePublicationV4(model);
     assert.strictEqual(model.snapshot, snapshot);
-    assert.deepEqual(publication.run.checks, [
+    assertJsonValueEqual(publication.run.checks, [
       {
         checkId: "a-failed",
         displayName: "Failed",
@@ -43,7 +44,7 @@ describe("machine publication v4 contract", () => {
         }
       }
     ]);
-    assert.deepEqual(publication.records, [
+    assertJsonValueEqual(publication.records, [
       {
         checkId: "a-failed",
         data: { details: { count: 1 } },

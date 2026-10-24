@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import { createProjectContextSource } from "../project-context.ts";
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
@@ -54,14 +55,16 @@ describe("Package Run direct Check execution", () => {
     session.openCheckScope("source").settle({ status: "passed", data: { settled: true } });
     const outcome = session.readSettledCheckOutcome("source");
     const read = dependencies.get("source");
-    assert.deepEqual(read, {
+    assertJsonValueEqual(read, {
       ok: true,
       checkId: "source",
       status: "passed",
       data: { settled: true }
     });
     assert.strictEqual(dependencies.list()[0]?.outcome, outcome);
-    if (read.ok && outcome.status === "passed") assert.strictEqual(read.data, outcome.data);
+    assert.ok(read.ok);
+    assert.ok(outcome.status === "passed");
+    assert.strictEqual(read.data, outcome.data);
   }
 
   async function assertSettledDependencyReads(): Promise<void> {
@@ -152,9 +155,9 @@ describe("Package Run direct Check execution", () => {
     });
     assert.equal(execution.kind, "completed");
     assert.equal(dependentCalls, 1);
-    assert.deepEqual(observedRead, upstreamCase.expectedRead);
+    assertJsonValueEqual(observedRead, upstreamCase.expectedRead);
     assertReadableDependencyData(observedRead, outcomeFor(execution, "source"));
-    assert.deepEqual(outcomeFor(execution, "dependent"), {
+    assertJsonValueEqual(outcomeFor(execution, "dependent"), {
       status: "passed",
       data: { dependent: true }
     });
@@ -164,12 +167,10 @@ describe("Package Run direct Check execution", () => {
     observedRead: DependencyReadResult | undefined,
     sourceOutcome: ReturnType<typeof outcomeFor>
   ): void {
-    if (
-      observedRead?.ok === true &&
-      (sourceOutcome.status === "passed" || sourceOutcome.status === "failed")
-    ) {
-      assert.equal(observedRead.data, sourceOutcome.data);
-    }
+    if (observedRead?.ok !== true) return;
+    assert.ok(sourceOutcome.status === "passed" || sourceOutcome.status === "failed");
+    assert.equal(observedRead.status, sourceOutcome.status);
+    assert.strictEqual(observedRead.data, sourceOutcome.data);
   }
 
   async function assertDirectDependencyReads(): Promise<void> {
@@ -224,21 +225,21 @@ describe("Package Run direct Check execution", () => {
     });
 
     assert.equal(directOnly.kind, "completed");
-    assert.deepEqual(directRead, {
+    assertJsonValueEqual(directRead, {
       ok: true,
       checkId: "middle",
       status: "passed",
       data: { middle: true }
     });
     const middleOutcome = outcomeFor(directOnly, "middle");
-    if (directRead?.ok && middleOutcome.status === "passed") {
-      assert.equal(directRead.data, middleOutcome.data);
-    }
+    assert.ok(directRead?.ok === true);
+    assert.ok(middleOutcome.status === "passed");
+    assert.strictEqual(directRead.data, middleOutcome.data);
     assert.deepEqual(transitiveRead, {
       ok: false,
       error: { code: "dependency-not-declared", checkId: "ambient" }
     });
-    assert.deepEqual(directList, [
+    assertJsonValueEqual(directList, [
       { checkId: "middle", outcome: { status: "passed", data: { middle: true } } },
       { checkId: "source", outcome: { status: "passed", data: { source: true } } }
     ]);

@@ -3050,6 +3050,20 @@
       ],
       "title": "完整 Gate 无其它重负载运行时的受控测量"
     },
+    "261024-diagnose-bun-strict-assertion-compatibility": {
+      "formedAt": "2026-10-24T14:05:42Z",
+      "name": "diagnose-bun-strict-assertion-compatibility",
+      "question": "Bun 1.4.4 下旧测试的 null-prototype 深比较失败来自产品变化还是断言语义，怎样保留原证明责任？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "diagnose-bun-strict-assertion-compatibility.md",
+      "tags": [
+        "bun",
+        "runtime-compatibility",
+        "test-evidence"
+      ],
+      "title": "Bun 升级暴露的严格断言原型兼容问题"
+    },
     "261024-measure-gate-test-boundary-simplification": {
       "formedAt": "2026-10-24T04:26:50Z",
       "name": "measure-gate-test-boundary-simplification",
@@ -3243,6 +3257,7 @@
       "261023-diagnose-heavy-check-contention": "sha256:77c0cbf46e3eda113327fa10ef8801b0135ba9f610026f8c1ccf6ab785e91882",
       "261023-evaluate-markdown-link-fusion-and-restore": "sha256:03f0a5ef4860d5bff594f8a934ff87d008e590bdc491069c20420ffdc3b54f82",
       "261023-measure-complete-gate-without-competing-runs": "sha256:511b15391919aa5e305a9cbeb18140fb4d7ca2ec0e89547b65d188c0b9a5f70c",
+      "261024-diagnose-bun-strict-assertion-compatibility": "sha256:065d055c171c5c5aeedbea33f5b4ff8a0db64f375470359836ca656d2be9183f",
       "261024-measure-gate-test-boundary-simplification": "sha256:6499c5bf6519d048a4a890092e1721033d892b4f4cb547594d7014578cf6470e",
       "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf",
       "261024-record-delivery-duplicate-lane-timeout": "sha256:949893b102590be8b31d07dc584b91fa88489463b05c6c1654450bbdad92d5f3"

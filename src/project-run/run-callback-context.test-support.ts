@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 import { basename, resolve as resolvePath } from "node:path";
@@ -51,7 +52,7 @@ export function assertCapturedContext(received: CapturedContext | undefined, roo
 export function assertDirectRunResult(result: Awaited<ReturnType<typeof run>>): void {
   assert.equal(result.kind, "completed");
   if (result.kind !== "completed") return;
-  assert.deepEqual(
+  assertJsonValueEqual(
     result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
     [{ checkId: "custom", outcome: PASSED }]
   );

@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
@@ -49,7 +50,7 @@ describe("check-record Core Check session", () => {
     ]);
     assert.equal(open.records.report({ id: "late" }, {}), "rejected");
     const snapshot = session.freeze();
-    assert.deepEqual(snapshot.records, [
+    assertJsonValueEqual(snapshot.records, [
       { checkId: "open\u0000check", id: "retained", data: { value: 1 } }
     ]);
     assert.strictEqual(
@@ -132,11 +133,11 @@ function settleCanonicalCheckFacts(session: ReturnType<typeof createCoreCheckSes
     alpha.records.report({ id: "sample" }, { "2": "two", "10": { "2": 2, "10": 10 } }),
     "committed"
   );
-  assert.deepEqual(alpha.settle({ status: "failed", data: { "2": "two", "10": 10 } }), {
+  assertJsonValueEqual(alpha.settle({ status: "failed", data: { "2": "two", "10": 10 } }), {
     authorResultAccepted: true,
     outcome: { status: "failed", data: { "2": "two", "10": 10 } }
   });
-  assert.deepEqual(session.readSettledCheckRecords("alpha-check"), [
+  assertJsonValueEqual(session.readSettledCheckRecords("alpha-check"), [
     {
       checkId: "alpha-check",
       id: "sample",
@@ -150,7 +151,7 @@ function assertFrozenSnapshot(
   snapshot: ReturnType<ReturnType<typeof createCoreCheckSession>["freeze"]>
 ) {
   assert.deepEqual(Object.keys(snapshot).sort(), ["checks", "records"]);
-  assert.deepEqual(
+  assertJsonValueEqual(
     snapshot.checks.map((check) => ({ checkId: check.checkId, outcome: check.outcome })),
     [
       { checkId: "alpha-check", outcome: { status: "failed", data: { "2": "two", "10": 10 } } },
@@ -160,7 +161,7 @@ function assertFrozenSnapshot(
       }
     ]
   );
-  assert.deepEqual(snapshot.records, [
+  assertJsonValueEqual(snapshot.records, [
     { checkId: "alpha-check", id: "sample", data: { "2": "two", "10": { "2": 2, "10": 10 } } }
   ]);
 }

@@ -67,6 +67,7 @@ function-metrics 私有 analyzer 和 package-tools/Core 边界。路径用于识
 - `candidate/**` 准备、安装并核对 fingerprint local receipt。
 - `release/**` 验证 clean source、formal version/tag、portable receipt 与 same-artifact Gate handoff。
 - `candidate/external-consumer/**` 拥有隔离 consumer material、typed provider 与 types/documentation/runtime acceptance。
+- `installation.ts` 拥有共用的严格离线安装与显式联网缓存准备；`cache-command.ts` 只接线显式准备命令，完整策略见[Package lifecycle](package-lifecycle.md#严格离线安装与显式缓存准备)。
 
 candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 
@@ -138,7 +139,7 @@ Execa 补丁由 `scripts/package/execa-type-compatibility.type-test.ts` 的 TS6/
 | --- | --- |
 | environment | `bun run env:setup`；`bun run env:check` |
 | development | `bun run format [-- check]`；`bun run lint [-- product \| scripts]`；`bun run typecheck [-- product \| scripts]`；`bun run test` |
-| package candidate | `bun run package:status`；`bun run package:build`；`bun run package:verify`；显式物理集成 `bun run package:candidate:integration` |
+| package candidate | `bun run package:status`；`bun run package:build`；`bun run package:verify`；显式联网缓存准备 `bun run package:cache:prepare`；显式物理集成 `bun run package:candidate:integration` |
 | formal package release | `bun run package:release:prepare -- --version <0.0.PATCH> --tag <tag>`；`bun run package:release:verify -- --receipt <path>` |
 | package API projections | `bun run docs:api`；显式写入 `bun run docs:api:write` |
 | docs/workspace validation | `bun run validate`；`bun run validate -- materials [json \| schema \| examples \| links \| package-api-documentation]` |
@@ -233,11 +234,11 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 
 1. trust 当前 `mise.toml`，按锁定结果安装工具和根 Node dependencies，再按环境脚本列出的五项上游 Skill 各自的 manifest/锁文件安装隔离的生产依赖，禁用依赖安装脚本；
 2. 初始化并同步当前 checkout 的 CodeGraph；
-3. 通过现有根命令 `bun run package:build` 准备 exact local package candidate。
+3. 显式运行 `bun run package:cache:prepare` 准备安装缓存，再通过 `bun run package:build` 离线准备 exact local package candidate。
 
 标准开发与验证命令以 `env:setup` 成功返回为前置条件；项目不承诺未自举的 cold checkout 可以直接运行 Project Gate。后续独立启动的 Gate 从已自举的 private consumer 解析 candidate，并由自己的 preparation assessment 重验 exact installation 后复用；`package:build` 不建立第二套 package acceptance。
 
-首次自举会写入 user-level mise trust/tool state、checkout 与上游 Skill 各自的 `node_modules`、`.codegraph`、candidate build/cache evidence 和 `scripts/project/node_modules`。后续执行按各 owner 的 reuse 规则更新或复用这些状态。
+首次自举会写入 user-level mise trust/tool state、checkout 与上游 Skill 各自的 `node_modules`、Bun 安装缓存、`.codegraph`、candidate build/cache evidence 和 `scripts/project/node_modules`。后续执行按各 owner 的 reuse 规则更新或复用这些状态。
 
 该 bootstrap 入口只依赖 Node/Bun 内置能力与根级错误映射，不能在依赖安装前加载 `process-execution` 的第三方 runner；`package:build` 只在 frozen dependency install 和 CodeGraph setup 成功后运行，失败会使 `env:setup` 失败。
 

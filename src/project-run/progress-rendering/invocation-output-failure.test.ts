@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../../data-boundary/json-value-equality.test-support.ts";
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -68,7 +69,7 @@ describe("Package Run output failure composition", () => {
       assert.deepEqual(result.diagnostic, { code: "machine-publication-failed" });
       assert.equal(result.outputs.machinePublication.status, "failed");
       assert.equal(result.outputs.progressRendering.status, "disabled");
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
+      assertJsonValueEqual(result.snapshot.checks[0]?.outcome, PASSED);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -98,7 +99,7 @@ describe("Package Run output failure composition", () => {
       assert.equal(result.outputs.machinePublication.status, "failed");
       assert.equal(result.outputs.diagnosticLogging.status, "failed");
       assert.match(result.outputs.diagnosticLogging.channels.core.file ?? "", DIAGNOSTIC_FILE);
-      assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
+      assertJsonValueEqual(result.snapshot.checks[0]?.outcome, PASSED);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

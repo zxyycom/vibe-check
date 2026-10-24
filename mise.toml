@@ -22,7 +22,7 @@ VIBE_CHECK_SCC_CMD = { tools = true, value = """
 
 [tools]
 node = "24"
-bun = "1.3.14"
+bun = "1.4.4"
 pnpm = "11.1.3"
 uv = "0.11.28"
 go = "1.26.4"

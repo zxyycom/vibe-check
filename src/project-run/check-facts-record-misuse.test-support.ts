@@ -1,3 +1,4 @@
+import { assertJsonValueEqual } from "../data-boundary/json-value-equality.test-support.ts";
 import { defineContextCallback } from "../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
 
@@ -74,7 +75,7 @@ export async function assertInvalidRecordUseIsContained(): Promise<void> {
     status: "unavailable",
     reason: { code: "record-conflict" }
   });
-  assert.deepEqual(result.snapshot.records, [
+  assertJsonValueEqual(result.snapshot.records, [
     { checkId: "custom", id: "retained", data: { value: true } }
   ]);
   assert.deepEqual(result.checkMessages, []);
