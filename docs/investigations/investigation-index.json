@@ -3103,6 +3103,35 @@
       ],
       "title": "实测 Gate 测试边界简化与验收频率取舍"
     },
+    "261024-profile-markdown-link-fused-path-loop": {
+      "formedAt": "2026-10-24T16:06:39Z",
+      "name": "profile-markdown-link-fused-path-loop",
+      "question": "在已融合 source 任务的当前基线上，D10/30/60 的成本分布、路径拼接与游标推进两因素的独立及组合收益、安全边界是什么？",
+      "relations": [
+        {
+          "summary": "补充融合后剩余成本及路径循环两因素隔离证据",
+          "target": "261023-evaluate-markdown-link-fusion-and-restore",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261024-profile-markdown-link-fused-path-loop/combined.patch",
+        "261024-profile-markdown-link-fused-path-loop/evidence.md",
+        "261024-profile-markdown-link-fused-path-loop/profile-baseline.csv",
+        "261024-profile-markdown-link-fused-path-loop/profile-counts.csv",
+        "261024-profile-markdown-link-fused-path-loop/timing-samples.csv"
+      ],
+      "sourcePath": "profile-markdown-link-fused-path-loop.md",
+      "tags": [
+        "cancellation",
+        "cpu-profiling",
+        "markdown-link-validation",
+        "path-depth",
+        "performance",
+        "worker-threads"
+      ],
+      "title": "Markdown Link 融合后成本：路径拼接与游标推进隔离实验"
+    },
     "261024-recheck-consumer-types-contention": {
       "formedAt": "2026-10-24T03:29:45Z",
       "name": "recheck-consumer-types-contention",
@@ -3290,6 +3319,7 @@
       "261024-diagnose-bun-strict-assertion-compatibility": "sha256:065d055c171c5c5aeedbea33f5b4ff8a0db64f375470359836ca656d2be9183f",
       "261024-diagnose-gate-p95-test-discovery": "sha256:9447ad89daa293d502f3bd02161cd88e5f311472dafea893c9a3e0d5ef904874",
       "261024-measure-gate-test-boundary-simplification": "sha256:6499c5bf6519d048a4a890092e1721033d892b4f4cb547594d7014578cf6470e",
+      "261024-profile-markdown-link-fused-path-loop": "sha256:3025903c3332cdfc1cff6f02436f1233347f1affe2ef64051bfb1d7c301ed827",
       "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf",
       "261024-record-delivery-duplicate-lane-timeout": "sha256:949893b102590be8b31d07dc584b91fa88489463b05c6c1654450bbdad92d5f3",
       "261024-record-worker-host-test-delivery-timeout": "sha256:a58b023011a180a8a218b397559c07b82191759a502e634f2c12a62df90539a9"

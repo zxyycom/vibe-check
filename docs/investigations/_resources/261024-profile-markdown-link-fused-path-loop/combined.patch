@@ -1,0 +1,27 @@
+--- a/src/package-checks/markdown-link-validation/io-native.ts
++++ b/src/package-checks/markdown-link-validation/io-native.ts
+@@ -32,7 +32,9 @@
+     checkIoCancellation(flag);
+     const segment = state.pathSegments[state.segmentIndex];
+     if (segment === undefined) return { kind: "contained", absolutePath: state.currentPath };
+-    const nextPath = path.join(state.currentPath, segment);
++    const nextPath = path.sep === "/" && segment !== "." && segment !== ".." && !segment.includes("/")
++      ? (state.currentPath === "/" ? "/" + segment : state.currentPath + "/" + segment)
++      : path.join(state.currentPath, segment);
+     let status;
+     try {
+       status = lstatSync(nextPath);
+@@ -44,7 +46,12 @@
+     }
+     checkIoCancellation(flag);
+     if (!status.isSymbolicLink()) {
+-      state = advanceContainedComponent(state, nextPath, status);
++      if (state.segmentIndex + 1 === state.pathSegments.length) {
++        return { kind: "contained", absolutePath: nextPath, endpoint: endpointFromStatus(status) };
++      }
++      // Invocation-private cursor: symlink transitions still replace/reset the complete cursor.
++      (state as { currentPath: string }).currentPath = nextPath;
++      (state as { segmentIndex: number }).segmentIndex += 1;
+       continue;
+     }
+     if (!canFollowContainedSymlink(state)) return { kind: "unavailable" };
