@@ -8,7 +8,7 @@
 
 ## Goals / Non-Goals
 
-目标是减少包/API 重复计算并隔离故障注入，保持产品 API、内置 Check 自用、完整验收与性能门限。Lizard 后端和调度/依赖不在范围内；后续 Gate selection 调整由 [simplify-gate-test-boundaries](../simplify-gate-test-boundaries/proposal.md) 承接。本次已获相关改动复核、Git 提交及 hook 推送授权，Change 删除仍需另行授权。
+目标是减少包/API 重复计算并隔离故障注入，保持产品 API、内置 Check 自用、完整验收与性能门限。Lizard 后端和调度/依赖不在范围内；Gate selection 以[当前选择规则](../../docs/tooling/project-gate.md#selection-presets-and-scheduling)为准。本次已获相关改动复核、Git 提交及 hook 推送授权，Change 删除仍需另行授权。
 
 ## Decisions
 
@@ -28,4 +28,4 @@
 
 ## Open Questions
 
-原性能预算验收仍未闭合，tasks 保留该状态；已有测量和功能通过不能替代预算通过。文档与代码追加复核、版本保存统一由 [simplify-gate-test-boundaries](../simplify-gate-test-boundaries/tasks.md) 跟踪。
+原性能预算验收仍未闭合，tasks 保留该状态；已有测量和功能通过不能替代预算通过。
