@@ -39,23 +39,39 @@ compiler cache 按 emit 调用及其输入/runner 源码、Product 源码与输�
 
 fixture 的 `buildDirectory` 与 `stateDirectory` 必须 test-local 隔离，contract 拒绝重叠。cold rebuild 只清理精确拥有的 build paths 与 cache-owned receipt；compiler state 仅由其输入和输出摘要校验决定保留或清理。
 
-路径 contract 的同路径、双向父子与非重叠相邻路径直接由纯路径 owner 验证，不先执行 candidate fingerprint 或文档生成。compiler-cache 分支矩阵保留真实文件摘要、状态判断与 staging copy，以可控工具链身份和 fake compiler emit 验证复用、增量与冷 emit；真实工具链资格与真实产物验收另由各自 owner 保留。
-
 ### Gate 复用与物理集成
 
-Gate root 在 Product Run 前完成或复用这份 exact preparation；routine `--all` 的 artifact 与 installed docs/runtime acceptance 消费其 typed evidence，不另建 detached cold candidate。Gate binding 与 aggregate 由 [Project Gate](project-gate.md)拥有。
+Gate root 在 Product Run 前完成或复用这份 exact preparation；选中的 artifact 与 installed consumer acceptance 共同消费其 typed evidence。
+Check 的选择、candidate binding 与 aggregate 由 [Project Gate](project-gate.md)拥有。
 
-consumer types 仅正式 `--all --release-receipt <path>` 或明确 `--consumer-types` 诊断；两者仍复用同一 external provider material，不另建 candidate 或每个 consumer 重装。日常 all 不证明 types 兼容性，发布前必须按 [Package release](package-release.md#发布工作区冻结源与交接)完成同 tarball 的全部安装验收。
+external provider 只为同次 invocation 安装一次，types/docs/runtime 复用同一 material，分别结算。
+日常 all 不证明 types 兼容性；发布前按 [Package release](package-release.md#发布工作区冻结源与交接)完成同一正式 tarball 的全部安装验收。
 
-acceptance input 优先验证显式 Gate artifact：有效输入直接交给验收，非法输入立即失败；direct target 未收到 Gate input 时才加载本地 preparation。external consumer provider 通过 `documentation-fixture.ts` 复制可执行示例及其支持材料；parent preparation 生成 source-derived 文档预期，独立的 documentation acceptance child 读取同次 invocation 的共享预期，比较实际安装材料并执行可执行示例，不再重复运行 renderer。
+acceptance input 优先验证显式 Gate artifact：有效输入直接交给验收，非法输入立即失败；direct target 未收到 Gate input 时才加载本地 preparation。
 
 Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 仍完整审计同一 provider staging，staging corruption 不能绕过 `--all`。
 
-同次 local candidate preparation 只生成一次 source-derived 文档预期，parent 以内存材料交给 bound Run；Run 在本次 invocation log 下写入 `package-documentation.json`，供 artifact 与 external documentation child 共享。该文件仅是本轮验收输入，不是跨轮 cache 或第二份 package staging。child 核验文件摘要、candidate tarball 路径/摘要、source input fingerprint 与 repository root 后，仍分别比较真实 staging、tarball 和 installed bytes；正文不进入 Check data、Records 或 stdout。Gate 输入缺失或无效时失败，不重新生成预期掩盖接线错误；未收到 Gate input 的 direct target 保留独立准备/验证路径。
-
-缺失文档 input 的负向证明直接调用 artifact 与 installed-documentation 实际使用的选择/guard 入口，并观察 renderer、audit 与 direct build 未调用；不为这项接线判断启动额外 Bun child。真实 artifact 与 installed documentation 的正向验收不由 guard spy 替代。
-
 `bun run package:candidate:integration` 是 routine `--test` 之外的显式物理 target：30 秒进程硬限制内，以 test-local state 证明 cold build/install/reuse、installed documentation drift 失败、dependency license drift/missing dependency 触发 reinstall，以及 malformed receipt 触发 rebuild。build staging 仍由 artifact acceptance 审计；Routine Gate 不运行此 target。
+
+### 文档验收输入的交接
+
+1. 同次 local candidate preparation 只生成一次 source-derived 文档预期，parent 以内存材料交给 bound Run。
+2. Run 在本次 invocation log 下写入 `package-documentation.json`，供 artifact 与 external documentation child 共享；
+   external provider 通过 `documentation-fixture.ts` 复制可执行示例及其支持材料。
+3. child 核验预期文件摘要、candidate tarball 路径/摘要、source input fingerprint 与 repository root，
+   再分别比较真实 staging、tarball 和 installed bytes；独立 documentation acceptance 还执行可执行示例。
+
+预期文件仅是本轮验收输入，不是跨轮 cache 或第二份 staging；正文不进入 Check data、Records 或 stdout。
+显式 Gate artifact 必须带有有效文档输入，缺失或无效时失败，不重新生成预期掩盖接线错误；
+未收到 Gate input 的 direct target 保留独立准备/验证路径。
+
+### 分支测试与真实验收的分工
+
+- **路径与缓存：** 同路径、双向父子与非重叠相邻路径直接由纯路径 owner 验证。compiler-cache 矩阵保留真实文件摘要、
+  状态判断与 staging copy，以可控工具链身份和 fake compiler emit 验证复用、增量与冷 emit；真实工具链资格与产物另行验收。
+- **文档输入 guard：** 直接调用 artifact 与 installed-documentation 各自实际使用的选择/guard 入口，核对缺失输入时
+  renderer、audit 与 direct build 均未调用。
+- **完整正向边界：** 真实 artifact 与 installed documentation 验收保留，不由 guard spy 或 fake emit 替代。
 
 ## 候选包安装与外部使用方验收
 

@@ -51,7 +51,9 @@ bun run test-evidence -- check --root .
 ```
 
 产品或 scripts 改动先运行最窄 Bun test，再按 owner 运行 typecheck/lint。Project Gate 将 Test Evidence entity
-closure 与按稳定 owner 分区的 behavior execution 分别结算。默认 fast 只提供快速工程反馈；changed 根据 Git 变更 region 选择全部受影响验收，包含相关 artifact、external-consumer provider 与 installed docs/runtime acceptance。all 保留不依赖变更命中的完整 routine 验收。缺少可信 Git evidence 或遇到未分类输入时，changed 保守扩大 routine 集合，不当作零变更。consumer types 仅正式 receipt+all 或明确 `--consumer-types`，workbench 仅明确 `--admission-workbench`；`--test` 也不包含这两项。精确资格、输入与性能策略见 [Project Gate](../tooling/project-gate.md#selection-presets-and-scheduling)。
+closure 与按稳定 owner 分区的 behavior execution 分别结算。默认 fast 只提供快速工程反馈；`--test` 强制执行 routine
+测试 lanes，package artifact 与 installed acceptance 由相应验收入口承接。精确选择、保守回退与性能策略由
+[Project Gate](../tooling/project-gate.md#selection-presets-and-scheduling)拥有。
 
 跨 owner、Gate 或 output contract 的日常交付运行：
 

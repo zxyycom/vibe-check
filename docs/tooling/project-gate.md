@@ -30,14 +30,26 @@ selection 参数包含 `--changed`、`--all`，以及 focused presets：`--typec
 | `bun run check -- --changed` | 交付前的受影响验收：按完整输入 region 选择全部相关 routine 行为、质量、材料与 artifact / installed docs/runtime acceptance。 |
 | `bun run check -- --all` | 日常完整验收：不依赖变更命中选择全部 routine Checks，保留大范围变更与选择规则兜底。 |
 | `bun run check -- --all --release-receipt <path>` | 同一正式 tarball 的完整发布验收：routine 全集加 installed consumer types，不选 workbench。 |
+| `bun run check -- --test` | 强制执行全部 routine test lanes；不含 package artifact、installed acceptance 或 workbench。 |
 | `bun run check -- --consumer-types` | 明确的 installed types 诊断，依赖传播带入 external consumer 与 prepared candidate provider。 |
 | `bun run check -- --admission-workbench` | 明确运行 workbench tests，不选择其它测试或安装验收。 |
 
-fast 资格固定为 Product/scripts 两 scope 的 typecheck 与 lint、format、prepared candidate、Project Gate selection 与 package-tools/Core 闭包两条现有测试 lane，以及 Git diff whitespace。其中 candidate 与 whitespace 固定选择，其余按各自输入 region；资格来自明确工程职责，不从单次运行快慢自动推断。全仓指标扫描、完整 Markdown 引用图、Case 审计、其余 routine 行为测试与安装后 docs/runtime 由 changed/all 承接。consumer types 仅发布前或明确诊断，workbench 仅明确选择；两者都不因未知路径或 Git 不可用回退进入 routine。
+Gate 私有 manifest 的 `selectionPolicy` 定义自动选择的范围：
 
-**fast 通过仅表示快速反馈通过。** 需要 Gate 交付验收时运行 changed，大范围变更运行 all，发布走正式 receipt+all；局部改动的最低验证由[交付验证](../navigation.md#交付验证)路由。启动摘要区分反馈档位和验收范围。focused preset 只选择相应闭合集；`--test` 不包含 package acceptance 或 workbench。
+| `selectionPolicy` | 自动选择 | 显式选择 |
+| --- | --- | --- |
+| `routine`（默认） | fast 按资格与输入；changed 按输入；all 全部选择 | 对应 focused preset |
+| `release-only` | 正式 receipt + all | `--consumer-types` |
+| `explicit-only` | 无 | `--admission-workbench` |
 
-Gate 私有 manifest 的 `selectionPolicy` 默认为 `routine`；`release-only` 仅 release flag 或明确 preset，`explicit-only` 仅明确 preset。非 routine entry 不声明 fast 资格或 change region；策略不扩展 Product API，也不增加 runner。consumer types 延后可能把声明兼容问题延迟到发布前发现，workbench 问题可能直到显式运行才发现；这是自动义务与频率变化，不是同 workload 加速。
+当前 manifest 共 43 项：routine all 选择 41 项，正式 receipt + all 选择 42 项，workbench 为剩余的显式项。
+非 routine entry 不声明 fast 资格或 change region；未知输入与 Git 不可用回退只扩大 routine 集合。
+策略只属于 Gate，不扩展 Product API 或增加 runner。types 与 workbench 的缺陷分别可能延迟至发布前或显式运行才被发现；
+这是验收频率取舍，不是同 workload 加速。
+
+fast 资格固定为 Product/scripts 两 scope 的 typecheck 与 lint、format、prepared candidate、Project Gate selection 与 package-tools/Core 闭包两条现有测试 lane，以及 Git diff whitespace。其中 candidate 与 whitespace 固定选择，其余按各自输入 region；资格来自明确工程职责，不从单次运行快慢自动推断。全仓指标扫描、完整 Markdown 引用图、Case 审计、其余 routine 行为测试与安装后 docs/runtime 由 changed/all 承接。
+
+**fast 通过仅表示快速反馈通过。** 需要 Gate 交付验收时运行 changed，大范围变更运行 all，发布走正式 receipt+all；局部改动的最低验证由[交付验证](../navigation.md#交付验证)路由。启动摘要区分反馈档位和验收范围。focused preset 只选择相应闭合集，不替代完整验收。
 
 #### 依赖选择与关系闭合
 
@@ -154,7 +166,7 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 
 测试按证明责任分别结算：package tooling/artifact/installed-consumer、各 Product Check owner 与 Core/package-tools、Project Gate selection 与其余 tooling、admission workbench、Test Evidence、repository layout、package-tools/Core 闭包、machine artifacts、其余 material validation，以及 ordinary scripts。拆分依据是各 lane 的输入和证明义务，不是增加并行度。
 
-仓库扫描的 displayName 明确标记 `Repository scan`，与 `tests-product-*` 功能测试及 `acceptance-installed-package-*` 安装验收区分。Markdown 功能 lane 同时拥有 lint 与 links；Core-and-tools lane 包含 Core 与 package-tools；package-tooling lane 是仓库包工具测试，不是 installed acceptance。修正这些 Gate 私有 ID 会改变本地 learned-history task identity，不迁移旧缓存，也不改写历史 workbench fixture。
+仓库扫描的 displayName 明确标记 `Repository scan`，与 `tests-product-*` 功能测试及 `acceptance-installed-package-*` 安装验收区分。Markdown 功能 lane 同时拥有 lint 与 links；Core-and-tools lane 包含 Core 与 package-tools；package-tooling lane 是仓库包工具测试，不是 installed acceptance。Gate 私有 ID 也是本地 learned-history 的 task identity；更名后旧缓存不迁移，历史 workbench fixture 保留形成时 identity。
 
 几项容易混淆的 test lane 各有自己的输入和证明边界：
 
@@ -178,7 +190,7 @@ package tooling、Gate 本体与普通 tooling 三个 routine 脚本组依赖 Pr
 
 维护 region 时同时核对 import 和直接文件读取，并同步新增消费者。路径矩阵验证跨 owner 输入、正文/helper 区别及删除或重命名后的路径；完整 lane 清单验证每个测试文件触发自身。Git evidence 不可用时保守选择，显式 preset 提供强制路径。
 
-显式 `--test` 强制选择 routine test lanes；`--all` 另包含 package artifact 与 installed docs/runtime 验收。consumer types 只在正式 receipt+all 或 `--consumer-types` 中选择，workbench 只在 `--admission-workbench` 中选择；可信输入或 Git fallback 均不改变这两项边界。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package tooling；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
+各 lane 按[选择参数](#选择参数)进入本次 Run。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package tooling；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
 
 ### Direct repository-quality Checks
 

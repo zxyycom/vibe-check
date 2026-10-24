@@ -18,7 +18,7 @@
 
 ### Resulting Impacts
 
-同步校验器、package 私有依赖、相关 Product 私有测试接线、Case 和内部 owner。修订 Gate 自动验收方向的长期记录，保留唯一候选、installed docs/runtime、四项扫描、原性能预算与统计口径。已有未提交工作作为当前输入保留，不代为提交或结项。
+同步校验器、package 私有依赖、相关 Product 私有测试接线、Case 和内部 owner。修订 Gate 自动验收方向的长期记录，保留唯一候选、installed docs/runtime、四项扫描、原性能预算与统计口径。按追加授权，以 AI-ready-docs 和完整编码规范复核本次及相关前序改动，并保存 Git 提交；Change 删除另需明确授权。
 
 ## Success Criteria
 
@@ -27,6 +27,7 @@
 - 日常 fast/changed/all 不自动选择 types 或 workbench；正式 all + release receipt 包含 types，显式 focused 选择保持可诊断；docs/runtime 验收不随 types 移走。
 - 命名表达职责，不为了 mean/P95 切碎 Check、增加 runner 或放宽预算。
 - 独立代码/文档/测试证据审查与工程验证完成；前后同类 workload 实测，完整 Gate 功能与性能结果分别报告，失败现场保留且不自动重试取绿。
+- 文档能恢复当前 owner、执行路径和状态；代码复核以编码规范为依据，覆盖完整变化模块及直接调用方，不以邻近代码或临时用途豁免。
 
 ## Affected Owners
 

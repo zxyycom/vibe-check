@@ -3095,6 +3095,28 @@
         "test-execution"
       ],
       "title": "复查 Consumer types 的并发放大与资源压力"
+    },
+    "261024-record-delivery-duplicate-lane-timeout": {
+      "formedAt": "2026-10-24T04:56:32Z",
+      "name": "record-delivery-duplicate-lane-timeout",
+      "question": "完整 Gate 中的五秒测试超时与一次隔离通过分别证明什么，尚有哪些验收风险未解决？",
+      "relations": [
+        {
+          "summary": "补充后续交付的测试超时和单次隔离复核边界",
+          "target": "261024-measure-gate-test-boundary-simplification",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261024-record-delivery-duplicate-lane-timeout/duplicate-lane-process.txt"
+      ],
+      "sourcePath": "record-delivery-duplicate-lane-timeout.md",
+      "tags": [
+        "project-gate",
+        "test-execution",
+        "timing"
+      ],
+      "title": "交付验收中 duplicate-detection lane 的超时与隔离复核"
     }
   },
   "metadata": {},
@@ -3222,7 +3244,8 @@
       "261023-evaluate-markdown-link-fusion-and-restore": "sha256:03f0a5ef4860d5bff594f8a934ff87d008e590bdc491069c20420ffdc3b54f82",
       "261023-measure-complete-gate-without-competing-runs": "sha256:511b15391919aa5e305a9cbeb18140fb4d7ca2ec0e89547b65d188c0b9a5f70c",
       "261024-measure-gate-test-boundary-simplification": "sha256:6499c5bf6519d048a4a890092e1721033d892b4f4cb547594d7014578cf6470e",
-      "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf"
+      "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf",
+      "261024-record-delivery-duplicate-lane-timeout": "sha256:949893b102590be8b31d07dc584b91fa88489463b05c6c1654450bbdad92d5f3"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

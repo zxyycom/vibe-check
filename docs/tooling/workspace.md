@@ -53,13 +53,12 @@ nonliteral loading、`require`、`import = require(...)`、解析失败和未知
 material walkers 共同消费，集中定义仓库扫描时忽略的目录集合。
 `repository-layout.ts` 自动验证真实的架构依赖边界：Product/Project/package 依赖方向、process facade、
 function-metrics 私有 analyzer 和 package-tools/Core 边界。路径用于识别这些责任范围，不形成整个目录树的封闭清单。
-规则矩阵优先以源码文本和 AST 分析在内存中验证；文件系统入口保留仓库正向与少量接线测试，不为每个负向变体重建整套目录。
+规则矩阵优先以源码文本和 AST 分析在内存中验证；文件系统入口保留仓库正向与少量接线测试。
 
-`Manual CR:` 目录组织、已迁移路径是否复活、模块名与 barrel 是否有稳定 owner、Gate 根文件的职责，均按
-[编码规范](../development/coding-style.md#8-目录文件与模块命名)及当前 owner 审查；不以固定 Product owner 清单、
-retired-directory 黑名单、`index.ts` basename 禁令或 Gate 根文件清单阻断。新增或移动模块时确认职责、调用方和依赖方向，
-而不是仅核对路径形状。构建源码中的常量、`Object.freeze` 或 `map` 写法不属于 repository validation 义务；
-编译结果、包内 Worker 材料和真实安装运行由[产物验收](package-artifact.md#pack-前后验收)证明。
+`Manual CR:` 目录层级、模块名、入口与 barrel 的职责按
+[编码规范](../development/coding-style.md#8-目录文件与模块命名)及当前 owner 审查；新增或移动模块时核对职责、调用方和依赖方向。
+目录清单、basename 或构建源码的特定写法不替代语义审查；编译结果、包内 Worker 材料和真实安装运行由
+[产物验收](package-artifact.md#pack-前后验收)证明。
 具体 material task 及其显式输入仍由[仓库材料验证](repository-material-validation.md)拥有；此扫描政策不改变 Product 的 file selection。
 
 ### package 子模块职责
@@ -114,7 +113,7 @@ Execa 补丁由 `scripts/package/execa-type-compatibility.type-test.ts` 的 TS6/
 
 `src/index.ts` 是唯一 public 产品入口及 package artifact build/declaration entry。
 两个私有 Worker 的 compiler roots、包内 URL、材料及安装验收由[产物契约](package-artifact.md#构建输入与包接口边界)拥有；
-私有 root 不增加 public entry，repository validation 不检查构建源码的特定表达式。`scripts/project/package.json` 从 exact installed `@zxyycom/vibe-check` candidate 消费该入口。
+私有 root 不增加 public entry。`scripts/project/package.json` 从 exact installed `@zxyycom/vibe-check` candidate 消费该入口。
 
 `scripts/package/**` 只负责准备该 candidate，不能 import 或启动 project consumer。artifact/package-API documentation build 与 audit 可以读取各自显式 allowlisted 的 Product source 或 contract material，但不成为 Package Run consumer。产品 runtime、Definition 和 Check 不得依赖 scripts helper、环境状态或 process adapter。
 

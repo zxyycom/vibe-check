@@ -27,8 +27,8 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| P1 | [`simplify-gate-test-boundaries`](../../changes/simplify-gate-test-boundaries/proposal.md) | 按最新授权依次移除目录/源码锁、降层测试、缩容量/时间、收敛 Gate 命名与自动资格；保留已有 package 改动，layout/package/Case/Gate 共享 owner 串行，前后性能测量独占。types 仅发布或明确诊断、workbench 仅显式选择，不靠拆 Check 达标。 |
-| P1 | [`consolidate-package-acceptance`](../../changes/consolidate-package-acceptance/proposal.md) | 收敛包/API 重复验收与隔离 Worker 负向 fixture；package、Gate typed material、Case 与文档 owner 单写者串行，测量窗口独占，保留内置 Check 自用与原预算。 |
+| P1 | [`simplify-gate-test-boundaries`](../../changes/simplify-gate-test-boundaries/proposal.md) | 承接本次及相关 package 改动的审查修正、版本保存与未通过验收的交接；layout/package/Case/Gate 共享 owner 单写者。超时/性能修复先确定范围，Change 删除另行授权。 |
+| 交接 | [`consolidate-package-acceptance`](../../changes/consolidate-package-acceptance/proposal.md) | 包/API 验收收敛已提交到 main，预算未闭合状态保留在本 Change；后续 selection 与本轮追加复核由 simplify-gate-test-boundaries 承接，package/Gate/Case 共享 owner 串行。 |
 | P1 | [`tier-gate-validation`](../../changes/tier-gate-validation/proposal.md) | 承接测试质量清理与性能阻断方向；当前按授权完成提交前复核与版本保存，Gate/Case/决策 owner 串行。 |
 | 交接 | [`improve-test-evidence-quality`](../../changes/improve-test-evidence-quality/proposal.md) | 承接普查结论并向 Gate 分层交接保留的验收；实施和失败现场见本 Change，版本保存与后继串行。 |
 | 交接 | [`audit-test-evidence-quality`](../../changes/audit-test-evidence-quality/proposal.md) | 普查形成时依据由本 Change 保存，清理实施归 improve-test-evidence-quality；审计不再作为待执行任务。 |

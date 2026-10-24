@@ -271,8 +271,8 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 为子模块目录；现有子目录不再表达下级 owner 时，应合并或移动到正确层级。
 
 文件数量、文件名长度或共同前缀只触发语义审查，拆分结论仍以 owner 和职责判断为准。
-机械校验验证已声明的依赖与交付材料边界；目录组织与命名由 `Manual CR:` 按 owner 审查，不用封闭目录清单、
-`index.ts` basename 或构建源码写法替代语义判断。仓库适用范围见[工作区工具](../tooling/workspace.md#repository-validation-共享扫描政策)。
+机械校验验证已声明的依赖与交付材料边界；目录组织与命名由 `Manual CR:` 按本节和行为 owner 审查。
+仓库自动校验与人工审查的分工见[工作区工具](../tooling/workspace.md#repository-validation-共享扫描政策)。
 
 以下情况触发拆分或层级审查，但不自动指定目标目录：
 

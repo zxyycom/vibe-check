@@ -307,7 +307,7 @@ Entities:
 - `bun|src/package-tools/change-flag-debugging/change-flag-debugging.test.ts|change flag debugging > isolates inputs and frozen results and refreshes files and rules on each invocation`
 - `bun|src/package-tools/change-flag-debugging/change-flag-debugging.test.ts|change flag debugging > queries and formats the same snapshot with acquisition and output facilities blocked`
   Proves:
-- 修改原 patterns/regions 和新增文件不影响旧报告，下次调用采用新全集/规则；任意非空 ID 包括 NUL/**proto** 保留，公开嵌套字段冻结且方法可解构。
+- 修改原 patterns/regions 和新增文件不影响旧报告，下次调用采用新全集/规则；任意非空 ID 包括 NUL 和 `__proto__` 保留，公开嵌套字段冻结且方法可解构。
 - filesystem/process acquisition 与输出设施被封锁后仍可双向查询和反复格式化，同次快照不重新获取或自动输出，文本保留零命中、范围与边界并转义控制字符。
 
 ## Case CHANGE-FLAG-DEBUG-PACKAGE-001: 安装后公开消费完整映射和按需文本
