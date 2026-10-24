@@ -212,7 +212,9 @@ describe("Markdown Link private I/O session", () => {
       assert.deepEqual(await io.readSourceFile(sourcePath, 4), { probe: { kind: "unavailable" } });
     }
     for (const maxBytes of [0, 16_777_217, 1.5, NaN]) {
+      let workerStarts = 0;
       const io = new LinkIoSession(process.cwd(), new AbortController().signal, () => {
+        workerStarts++;
         assert.fail("invalid source jobs must not start a Worker");
       });
       assert.deepEqual(await io.readSourceFile(sourcePath, maxBytes), {
@@ -220,6 +222,7 @@ describe("Markdown Link private I/O session", () => {
       });
       await io.finalize();
       assert.equal(io.failed, true);
+      assert.equal(workerStarts, 0, `invalid byte bound: ${maxBytes}`);
     }
   });
 

@@ -4,11 +4,11 @@
 
 ## Context
 
-前序实施与前三版追加清理已提交。当前在 `823a25eb` 基础上交付第四、五版测试整理，并按用户要求完成文档、编码规范复核与 Git 保存，允许既有 hook 推送。形成时测量见[测量报告](../../docs/investigations/measure-gate-test-boundary-simplification.md)，版本、验证与未完成项集中在 [tasks](tasks.md#evidence)。
+前五版已提交至 `29de254a`。第六版从 clean main 与 781 entities / 191 Cases 起点加固四处断言/接线证据，当前进行文档、编码规范复核与 Git 保存。验证、未完成项和历史依据集中在 [tasks](tasks.md#evidence)。
 
 ## Goals / Non-Goals
 
-目标为减少错误层级、无关输入和强制自动义务，同时保留产品及安装后真实边界；追加审查按当前规范收敛表达。非目标为修改公开 API、移除四项质量扫描、放宽限额/性能预算、建立跨轮 fixture 缓存、优化泛型/调度器或发布 package。完整 Gate 的既有性能阻断如仍出现，保留并报告，不为了过线扩展本次功能范围。
+目标为用最小充分证据覆盖产品及安装后的真实边界，并按当前规范整理实现与说明。范围限于测试、fixture、Gate 选择和相应文档；公开 API、生产默认值、四项扫描、预算与统计口径保持不变。完整 Gate 的功能和性能分别验收，失败现场保留用于后续调查。
 
 ## Decisions
 
@@ -27,12 +27,21 @@
 
 文档在 owner 完整表达规则，在计划保存实施取舍与证据；代码按[编码规范](../../docs/development/coding-style.md)复核完整变化模块及直接消费者，测试与临时 fixture 使用相同标准。
 
+第六版在既有实体内补强以下观察：
+
+| 边界 | 断言与隔离方式 | 再降一层会失去的观察 |
+| --- | --- | --- |
+| I/O session | 会话外计数证明非法 source 请求创建零个 Worker。 | 请求校验先于 Worker 创建的实际顺序；factory 内抛错可能被生产 catch 捕获。 |
+| Machine projection | 独立字面量核对完整 Check identity、displayName、outcome data/reason。 | trusted snapshot 到 machine 的字段传递。 |
+| Publication validator | 合法含 NUL 的结构化身份对按序接受，反序精确拒绝。 | schema、ownership、identity/order 和 fingerprint 共同组成的完整集合边界。 |
+| Installed assessment | 修改私有 fixture 的 installed README，断言 reinstall / installation-invalid，finally 恢复原字节。 | lifecycle 实际校验已安装材料的接线；直接材料 helper 只能证明比较规则。 |
+
 ### Resulting Impacts
 
 1. 测试 rename/split/delete 按语义维护 Case；配对测试放在已有 owner，公开签名不增加测试配置。compiler parser 保留现有隔离矩阵，避免为测试制造生产入口。
 2. 语法配对测试与真实工程闭包同属 `scriptsPackageToolsBoundary` lane；路径纳入边界 region、从 ordinary validation region 排除，并由 selection 路径矩阵验证原 fast 资格。
-3. Gate 自动选择的长期判断由稳定 Decision 承接；前序 ID 改名改变 learned-history identity，旧缓存不迁移。当前测试清理保持 Check 身份、资格、预算、timeout 和 runner 分组。
-4. 按受影响边界串行执行交付 Gate：安装验收变化使用 all，当前跨 owner 测试/Case 使用 changed。其耗时只表示本次验收，不作为受控性能对照。
+3. Gate 自动选择的长期判断由稳定 Decision 承接；当前断言加固保持 Check 身份、资格、预算、timeout 和 runner 分组。
+4. 按受影响边界串行执行交付 Gate：本轮涉及物理 candidate 测试，显式运行 `package:candidate:integration` 并使用 routine all；不增加 routine test discovery 成员。耗时只表示本次验收，不作为受控性能对照。
 
 ## Risks / Trade-offs
 
@@ -42,10 +51,8 @@
 
 ## Open Questions
 
-changed Gate 的已选功能通过，性能预算仍未闭合。后续性能修复范围待确定，任务 2.4 保持未完成；Change 删除另需授权。数值及未验证边界见 [tasks](tasks.md#当前验证与未完成项)。
-
-前轮 timeout 的现场见[交付超时报告](../../docs/investigations/record-delivery-duplicate-lane-timeout.md)。后续单次通过只证明该次执行成功，根因与稳定性仍待验证。
+后续需确定 Gate 性能和冷 candidate 集成超时的修复范围；数值、失败现场及未验证边界见 [tasks](tasks.md#当前验证与未完成项)。当前授权覆盖复核、Git 保存与既有 hook 推送，Change 删除另行授权。
 
 ## Implementation Observations
 
-真实 timer/I/O 资格测试保留 8 MiB 逻辑输入，为实际 `setImmediate` 提供最多 256 次 chunk 让步窗口；断言读取在早期取消即停止。它不是容量上限测试。直接缩成 128/256 KiB 只剩 4/8 次让步，可能在真实回调得到调度前读完；本次不以阻塞 barrier 改变该资格测试，也不为消去数字添加生产 seam。生产容量边界、累计与取消协议的其它测试已缩小。
+真实 timer/I/O 资格测试保留 8 MiB 逻辑输入，为实际 `setImmediate` 提供最多 256 次 chunk 让步窗口，并断言早期取消后读取停止。该规模服务真实调度观察，容量上限、累计与取消协议另用小规模输入证明。进一步缩小会减少真实回调获得调度的机会；应先取得等价观察证据，再调整此规模。

@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import { createPublicationModelV4 } from "./publication-model.ts";
 import { projectMachinePublicationV4 } from "./projection.ts";
+import { createRecordsFingerprintV4 } from "./records-fingerprint.ts";
 import { serializeMachinePublicationV4 } from "./serializers.ts";
 import { validateMachinePublicationSetV4 } from "./validation.ts";
 import { PUBLICATION_INVOCATION, publicationSnapshot } from "./publication.test-support.ts";
@@ -91,6 +92,37 @@ describe("machine publication v4 validation", () => {
       {
         recordsNdjson: Buffer.from(`${JSON.stringify(record)}\n${JSON.stringify(record)}\n`),
         runJson: Buffer.from(candidates.runJson)
+      },
+      "record-canonical-order"
+    );
+
+    // These distinct structural identities collide when joined with a NUL delimiter.
+    const structuralRecords = [
+      { checkId: "a", id: "\0b", data: {}, schemaVersion: "vibe-check.record.v4" },
+      { checkId: "a\0", id: "b", data: {}, schemaVersion: "vibe-check.record.v4" }
+    ] as const;
+    const structuralRun = {
+      ...run,
+      checks: structuralRecords.map(({ checkId }) => ({
+        checkId,
+        displayName: "Owner",
+        outcome: { status: "passed", data: {} }
+      })),
+      recordsFingerprint: createRecordsFingerprintV4(structuralRecords)
+    };
+    const structuralRunJson = Buffer.from(JSON.stringify(structuralRun));
+    const structuralRows = structuralRecords.map((row) => JSON.stringify(row));
+    const accepted = validateMachinePublicationSetV4({
+      recordsNdjson: Buffer.from(`${structuralRows.join("\n")}\n`),
+      runJson: structuralRunJson
+    });
+    assert.equal(accepted.ok, true, accepted.ok ? "" : accepted.diagnostic.message);
+    if (!accepted.ok) return;
+    assert.deepEqual(accepted.value.records, structuralRecords);
+    assertFailure(
+      {
+        recordsNdjson: Buffer.from(`${[...structuralRows].reverse().join("\n")}\n`),
+        runJson: structuralRunJson
       },
       "record-canonical-order"
     );

@@ -18,15 +18,31 @@ describe("machine publication v4 contract", () => {
     });
     const publication = projectMachinePublicationV4(model);
     assert.strictEqual(model.snapshot, snapshot);
-    assert.deepEqual(
-      publication.run.checks.map(({ checkId, outcome }) => [checkId, outcome.status]),
-      [
-        ["a-failed", "failed"],
-        ["b-not-applicable", "not-applicable"],
-        ["c-passed", "passed"],
-        ["d-unavailable", "unavailable"]
-      ]
-    );
+    assert.deepEqual(publication.run.checks, [
+      {
+        checkId: "a-failed",
+        displayName: "Failed",
+        outcome: { status: "failed", data: { summary: "found one" } }
+      },
+      {
+        checkId: "b-not-applicable",
+        displayName: "Not applicable",
+        outcome: { status: "not-applicable" }
+      },
+      {
+        checkId: "c-passed",
+        displayName: "Passed",
+        outcome: { status: "passed", data: { summary: "clear" } }
+      },
+      {
+        checkId: "d-unavailable",
+        displayName: "Unavailable",
+        outcome: {
+          status: "unavailable",
+          reason: { code: "dependency-unavailable", checkIds: ["c-passed"] }
+        }
+      }
+    ]);
     assert.deepEqual(publication.records, [
       {
         checkId: "a-failed",

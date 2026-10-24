@@ -16,7 +16,6 @@ import { fileURLToPath } from "node:url";
 import { after, describe, it } from "node:test";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { assertInstalledCandidateMaterials } from "./installed-materials.ts";
 import { assessPackageCandidatePreparation, preparePackageCandidate } from "./prepare.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -119,19 +118,23 @@ await describe(
     });
 
     await it("rejects installed documentation drift without another installation", async () => {
-      const { first } = await fixture();
-      assert.throws(() => {
-        assertInstalledCandidateMaterials({
-          expectedJSDocExamplePayloads: [],
-          expectedDocuments: [],
-          expectedMachineMaterials: [],
-          expectedAttributionNotice: readFileSync(
-            join(repositoryRoot, "licenses/analyzer-translations-NOTICE.md")
-          ),
-          expectedReadme: "incorrect candidate README\n",
-          packageDirectory: first.installedPackageDirectory
-        });
-      }, /installed candidate README differs from the expected package documentation/);
+      const { buildDirectory, consumerDirectory, first, stateDirectory } = await fixture();
+      const installedReadmePath = join(first.installedPackageDirectory, "README.md");
+      const originalReadme = readFileSync(installedReadmePath);
+      try {
+        writeFileSync(installedReadmePath, "drifted installed documentation\n", "utf8");
+        assert.deepEqual(
+          assessPackageCandidatePreparation({
+            buildDirectory,
+            consumerDirectory,
+            repositoryRoot,
+            stateDirectory
+          }),
+          { action: "reinstall", reason: "installation-invalid" }
+        );
+      } finally {
+        writeFileSync(installedReadmePath, originalReadme);
+      }
     });
 
     await it("rejects installed dependency license drift before candidate reuse", async () => {

@@ -498,7 +498,7 @@ Entities:
   Proves:
 - source adapter 只发送一个包含 byte bound 的融合请求，不再追加独立 containment/read job；contained bytes 恰一次交给 parser，缺失、越界与 I/O 失败不解析，too-large 保持 source-too-large 映射。父端拒绝 malformed source union、超长或非 Uint8Array 正文，以及 contained/missing 响应中的 root 外 path，不放行额外工作。
 - 文件 Worker 仅剔除父进程 string-input-only 的 `--input-type` / `--input_type` split/等号形式，其余参数原样保留；无此 flag 时沿用默认继承。真实 Node 24.18 验证四种形式及普通 V8 flag 路径均可读取、执行 Worker preload 并正常收束；这不是任意 Node flags 组合的兼容性证明。
-- 空输入和提前取消不启动 Worker；正常 finalize 幂等，停止新请求并等待在途 job、关闭确认和退出后移除订阅，不 terminate 活跃工作。
+- 空输入、提前取消和非法 source byte bound 均不启动 Worker；正常 finalize 幂等，停止新请求并等待在途 job、关闭确认和退出后移除订阅，不 terminate 活跃工作。
 - 创建、发送、关闭发送、请求身份/响应形状、超长 bytes、error、意外 exit、重复响应和重入请求故障恰一次结算 pending，随后拒绝新工作，不静默切换后端。
 - 两个真实 resolver 的取消互相隔离。融合 source job 在真实 Worker 的 lstat、readlink、open、fstat、read、close 受控 native 返回边界被原子取消时，pending 与 finalize 均等待操作返回；probe 阶段不启动正文 open，已打开 descriptor 恰一次 close，取消阻止后续 read，Worker 退出与监听器移除后才完成 finalize。
 - execution 在退出后才结算；最终取消优先于 traversal 首错，已有 unavailable 不被关闭失败覆盖，仅关闭失败则 target-unavailable 且无普通 Records/final data。best-effort cache 写入失败不抑制完整成功或 Finding 结果。
