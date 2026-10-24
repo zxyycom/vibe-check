@@ -1,0 +1,245 @@
+--- /workspace/vibe-check/scripts/package/artifact/manifest.test.ts
++++ /workspace/vibe-check/.log/supporting-fixture-experiment-20261023/candidate/manifest.test.ts
+@@ -1,4 +1,5 @@
+ import assert from "node:assert/strict";
++import { createFixtureOwners, writeMinimalFingerprintRepository } from "../fixture-support.ts";
+ import {
+   cpSync,
+   existsSync,
+@@ -13,16 +14,16 @@
+ import { fileURLToPath } from "node:url";
+ import test from "node:test";
+ 
+-import { isNonArrayRecord } from "../../value-guards.ts";
+-import { createArtifactFingerprint } from "./fingerprint.ts";
+-import { copyArtifactFingerprintFixture } from "./fingerprint.test-support.ts";
++import { isNonArrayRecord } from "/workspace/vibe-check/scripts/value-guards.ts";
++import { createArtifactFingerprint } from "/workspace/vibe-check/scripts/package/artifact/fingerprint.ts";
++import { copyArtifactFingerprintFixture } from "/workspace/vibe-check/scripts/package/artifact/fingerprint.test-support.ts";
+ import {
+   auditCandidateManifest,
+   RELEASE_MANIFEST_SOURCE_PATH,
+   writeCandidateManifest
+-} from "./manifest.ts";
+-
+-const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), "../../..");
++} from "/workspace/vibe-check/scripts/package/artifact/manifest.ts";
++
++const repositoryRoot = "/workspace/vibe-check";
+ 
+ test("checked-in release manifest projects only version and rejects static-source or safety drift", () => {
+   const root = mkdtempSync(join(tmpdir(), "vibe-check-package-manifest-"));
+@@ -124,30 +125,55 @@
+   }
+ });
+ 
+-test("release manifest bytes invalidate the candidate fingerprint", () => {
++test("release manifest bytes invalidate the candidate fingerprint", async () => {
+   const temporaryRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-fingerprint-"));
+   const root = join(temporaryRoot, "repository");
+   try {
+-    copyArtifactFingerprintFixture({ repositoryRoot, fixtureRoot: root });
+-    const before = createArtifactFingerprint(root);
+-    assert.equal(before, createArtifactFingerprint(repositoryRoot));
++    // Real bridge keeps complete current input discovery and actual installed toolchain wiring.
++    const integrationRoot = join(temporaryRoot, "integration");
++    copyArtifactFingerprintFixture({ repositoryRoot, fixtureRoot: integrationRoot });
++    assert.equal(createArtifactFingerprint(integrationRoot), createArtifactFingerprint(repositoryRoot));
++    const owners = await createFixtureOwners(repositoryRoot, join(temporaryRoot, "owners"));
++    writeMinimalFingerprintRepository(root, owners.collectArtifactFingerprintInputFiles);
++    const fixtureFingerprint = owners.createArtifactFingerprint;
++    const before = fixtureFingerprint(root);
++    for (const path of owners.toolchainPaths) {
++      const source = readFileSync(path, "utf8");
++      writeFileSync(path, `${source}\n`);
++      assert.notEqual(fixtureFingerprint(root), before, `toolchain input must participate: ${path}`);
++      writeFileSync(path, source);
++      assert.equal(fixtureFingerprint(root), before, `restored toolchain must be deterministic: ${path}`);
++    }
++    for (const relativePath of [
++      "src/index.ts", "src/package-checks/function-metrics/analyzer-worker.ts", "scripts/package/artifact/build.ts",
++      "README.md", "docs/guides/fixture.md", "docs/schemas/fixture.json", "docs/examples/package-api/example.ts",
++      "docs/examples/package-api-support/gate-example-acceptance.ts", "scripts/docs/package-api/gate-guide-example-projections.ts",
++      "package.json", "pnpm-lock.yaml", "scripts/repository-files/paths.ts", "LICENSE", "licenses/analyzer-translations-NOTICE.md"
++    ]) {
++      const path = join(root, relativePath);
++      const source = readFileSync(path, "utf8");
++      writeFileSync(path, `${source}\n`);
++      assert.notEqual(fixtureFingerprint(root), before, `repository input must participate: ${relativePath}`);
++      writeFileSync(path, source);
++      assert.equal(fixtureFingerprint(root), before);
++    }
+     const workerPath = join(root, "src/package-checks/markdown-link-validation/io-worker.ts");
+     const workerSource = readFileSync(workerPath, "utf8");
+     writeFileSync(workerPath, `${workerSource}\n// fingerprint boundary\n`);
+-    assert.notEqual(createArtifactFingerprint(root), before);
++    assert.notEqual(fixtureFingerprint(root), before);
+     writeFileSync(workerPath, workerSource);
+-    assert.equal(createArtifactFingerprint(root), before);
++    assert.equal(fixtureFingerprint(root), before);
+     const sourcePath = join(root, RELEASE_MANIFEST_SOURCE_PATH);
+     writeFileSync(sourcePath, `${readFileSync(sourcePath, "utf8").trimEnd()}\n\n`, "utf8");
+-    const manifestChanged = createArtifactFingerprint(root);
++    const manifestChanged = fixtureFingerprint(root);
+     assert.notEqual(manifestChanged, before);
+     const workspacePath = join(root, "pnpm-workspace.yaml");
+     writeFileSync(workspacePath, `${readFileSync(workspacePath, "utf8")}\n`, "utf8");
+-    const configurationChanged = createArtifactFingerprint(root);
++    const configurationChanged = fixtureFingerprint(root);
+     assert.notEqual(configurationChanged, manifestChanged);
+     const patchPath = join(root, "patches/execa@10.2.0.patch");
+     writeFileSync(patchPath, `${readFileSync(patchPath, "utf8")}\n`, "utf8");
+-    assert.notEqual(createArtifactFingerprint(root), configurationChanged);
++    assert.notEqual(fixtureFingerprint(root), configurationChanged);
+ 
+     // A subsequent copy must rediscover new inputs, even under a normally ignored basename.
+     const addedInput = "src/fingerprint-fixture/.cache/added.ts";
+@@ -158,8 +184,8 @@
+       writeFileSync(join(root, directory, "not-an-input.txt"), "not fingerprint input\n");
+     }
+     const independent = join(temporaryRoot, "independent");
+-    copyArtifactFingerprintFixture({ repositoryRoot: root, fixtureRoot: independent });
+-    assert.equal(createArtifactFingerprint(independent), createArtifactFingerprint(root));
++    owners.copyArtifactFingerprintFixture({ repositoryRoot: root, fixtureRoot: independent });
++    assert.equal(fixtureFingerprint(independent), fixtureFingerprint(root));
+     assert.equal(
+       readFileSync(join(independent, addedInput), "utf8"),
+       "export const added = true;\n"
+--- /workspace/vibe-check/scripts/package/artifact/compiler-cache.test.ts
++++ /workspace/vibe-check/.log/supporting-fixture-experiment-20261023/candidate/compiler-cache.test.ts
+@@ -4,9 +4,9 @@
+ import { dirname, join } from "node:path";
+ import { test } from "node:test";
+ 
+-import { prepareCompilerEmit } from "./compiler-cache.ts";
++import { createFixtureOwners, writeFixtureFile } from "../fixture-support.ts";
+ 
+-test("candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs", () => {
++test("candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs", async () => {
+   const root = mkdtempSync(join(tmpdir(), "vibe-check-compiler-cache-"));
+   const repositoryRoot = join(root, "repository");
+   const stateDirectory = join(root, "state");
+@@ -15,6 +15,8 @@
+   const sourcePath = join(repositoryRoot, "src/index.ts");
+   const compileHadBuildInfo: boolean[] = [];
+   try {
++    const owners = await createFixtureOwners("/workspace/vibe-check", join(root, "owners"));
++    const { prepareCompilerEmit } = owners;
+     mkdirSync(join(repositoryRoot, "src"), { recursive: true });
+     mkdirSync(join(repositoryRoot, "scripts/package"), { recursive: true });
+     mkdirSync(join(repositoryRoot, "docs"), { recursive: true });
+@@ -145,6 +147,17 @@
+     prepare();
+     assert.equal(compileHadBuildInfo.length, 9);
+     assert.equal(compileHadBuildInfo[8], false, "dependency patch bytes must force a cold emit");
++    const priorCompileCount = compileHadBuildInfo.length;
++    for (const [index, path] of owners.toolchainPaths.entries()) {
++      writeFileSync(path, `${readFileSync(path, "utf8")}\n`);
++      prepare();
++      assert.equal(compileHadBuildInfo.length, priorCompileCount + index + 1);
++      assert.equal(compileHadBuildInfo.at(-1), false, `actual toolchain material bytes must force cold emit: ${path}`);
++    }
++    writeFixtureFile(repositoryRoot, "scripts/process-execution/runner.ts", "process invocation changed\n");
++    prepare();
++    assert.equal(compileHadBuildInfo.length, priorCompileCount + owners.toolchainPaths.length + 1);
++    assert.equal(compileHadBuildInfo.at(-1), false, "process runner source addition must force a cold emit");
+   } finally {
+     rmSync(root, { force: true, recursive: true });
+   }
+
+--- /dev/null
++++ experiment-only/fixture-support.ts
+@@ -0,0 +1,93 @@
++import { copyFileSync, existsSync, mkdirSync, symlinkSync, writeFileSync } from "node:fs";
++import { createRequire } from "node:module";
++import { dirname, join } from "node:path";
++import { pathToFileURL } from "node:url";
++
++// Experiment only: copies actual modules without source rewrites, mocks or production seams.
++const OWNER_MODULE_PATHS = [
++  "scripts/docs/package-api/example-projections.ts",
++  "scripts/docs/package-api/gate-guide-example-projections.ts",
++  "scripts/docs/package-documents.ts",
++  "scripts/error-message.ts",
++  "scripts/package/artifact/compiler-cache.ts",
++  "scripts/package/artifact/fingerprint.test-support.ts",
++  "scripts/package/artifact/fingerprint.ts",
++  "scripts/package/artifact/manifest.ts",
++  "scripts/package/compiler-toolchain.ts",
++  "scripts/package/file-inventory.ts",
++  "scripts/package/legal-materials/packaged-audit.ts",
++  "scripts/package/legal-materials/provenance-inventory.ts",
++  "scripts/package/legal-materials.ts",
++  "scripts/package/pack.ts",
++  "scripts/package/package-contract.ts",
++  "scripts/package/package-material-audit.ts",
++  "scripts/package/public-api-inventory.ts",
++  "scripts/process-execution/contract.ts",
++  "scripts/process-execution/execution.ts",
++  "scripts/process-execution/failure.ts",
++  "scripts/process-execution/plain-text-environment.ts",
++  "scripts/process-execution/result.ts",
++  "scripts/process-execution/runner.ts",
++  "scripts/repository-files/paths.ts",
++  "scripts/value-guards.ts"
++] as const;
++
++export async function createFixtureOwners(repositoryRoot: string, ownerRoot: string) {
++  for (const relativePath of OWNER_MODULE_PATHS) {
++    const destination = join(ownerRoot, relativePath);
++    mkdirSync(dirname(destination), { recursive: true });
++    copyFileSync(join(repositoryRoot, relativePath), destination);
++  }
++  const native = "node_modules/@typescript/native";
++  const compatibility = "node_modules/typescript";
++  const api = `${compatibility}/node_modules/@typescript/old`;
++  const platformName = `@typescript/typescript-${process.platform}-${process.arch}`;
++  const platform = `${native}/node_modules/${platformName}`;
++  // Only resolution, identity checks and hashing consume these bytes. No fixture bin executes.
++  const toolchainMaterials = {
++    [`${native}/package.json`]: JSON.stringify({ name: "typescript", version: "7.0.2", bin: { tsc: "bin/tsc.js" }, optionalDependencies: { [platformName]: "7.0.2" } }),
++    [`${native}/bin/tsc.js`]: "// fixture native bin\n",
++    [`${native}/lib/tsc.js`]: "// fixture native runner\n",
++    [`${native}/lib/getExePath.js`]: "// fixture platform resolver\n",
++    [`${platform}/package.json`]: JSON.stringify({ name: platformName, version: "7.0.2" }),
++    [`${platform}/lib/${process.platform === "win32" ? "tsc.exe" : "tsc"}`]: "fixture native executable bytes\n",
++    [`${compatibility}/package.json`]: JSON.stringify({ name: "@typescript/typescript6", version: "6.0.2", main: "lib/typescript.js" }),
++    [`${compatibility}/lib/typescript.js`]: "// fixture compatibility API\n",
++    [`${compatibility}/lib/typescript.d.ts`]: "// fixture compatibility declarations\n",
++    [`${api}/package.json`]: JSON.stringify({ name: "typescript", version: "6.0.3", main: "lib/typescript.js" }),
++    [`${api}/lib/typescript.js`]: "// fixture actual API implementation\n",
++    [`${api}/lib/typescript.d.ts`]: "// fixture actual API declarations\n"
++  };
++  for (const [path, bytes] of Object.entries(toolchainMaterials)) writeFixtureFile(ownerRoot, path, bytes);
++  // Preserve the real process runner dependency; no process execution is mocked or invoked.
++  symlinkSync(dirname(createRequire(import.meta.url).resolve("execa")), join(ownerRoot, "node_modules/execa"), "dir");
++  writeFixtureFile(ownerRoot, "node_modules/@types/node/package.json", JSON.stringify({ name: "@types/node", version: "24.0.0" }));
++  const fingerprint = await import(pathToFileURL(join(ownerRoot, "scripts/package/artifact/fingerprint.ts")).href);
++  const compiler = await import(pathToFileURL(join(ownerRoot, "scripts/package/artifact/compiler-cache.ts")).href);
++  const support = await import(pathToFileURL(join(ownerRoot, "scripts/package/artifact/fingerprint.test-support.ts")).href);
++  return { ...fingerprint, ...compiler, ...support, toolchainPaths: Object.keys(toolchainMaterials).map((path) => join(ownerRoot, path)) };
++}
++
++export function writeMinimalFingerprintRepository(root: string, collectInputs: (root: string) => readonly string[]) {
++  writeFixtureFile(root, "docs/package-documents.json", JSON.stringify({
++    markdownDocuments: [{ id: "readme", sourcePath: "README.md", packagePath: "README.md" }],
++    checkGuides: [{ checkId: "fixture", exportName: "fixture", sourcePath: "docs/guides/fixture.md", packagePath: "docs/guides/fixture.md" }],
++    machineMaterials: [{ sourcePath: "docs/schemas/fixture.json", packagePath: "docs/schemas/fixture.json" }]
++  }));
++  for (const path of ["src/index.ts", "src/package-checks/function-metrics/analyzer-worker.ts", "src/package-checks/markdown-link-validation/io-worker.ts", "scripts/package/artifact/build.ts", "docs/examples/package-api/example.ts"]) {
++    writeFixtureFile(root, path, `// fingerprint input ${path}\n`);
++  }
++  // Setup follows mandatory discovery; assertions independently name sensitivity obligations.
++  for (const path of collectInputs(root)) {
++    if (!existsSync(path)) {
++      mkdirSync(dirname(path), { recursive: true });
++      writeFileSync(path, `fingerprint fixture ${path.slice(root.length + 1)}\n`);
++    }
++  }
++}
++
++export function writeFixtureFile(root: string, path: string, bytes: string) {
++  const destination = join(root, path);
++  mkdirSync(dirname(destination), { recursive: true });
++  writeFileSync(destination, bytes);
++}

@@ -1,0 +1,2043 @@
+{
+  "formedAt": "2026-10-24T04:26:50.360973+00:00",
+  "processing": "Selected facts from three existing measurement summaries, command inventories and identity snapshots. Exact numbers retained; large source/candidate manifests, process samples, stdout/stderr and test bodies are not copied. All original ignored roots remain retained. No new workload is executed by generating this resource.",
+  "before": {
+    "identity": {
+      "head": "d15cbf6f34499fa3027ed6c99d0508436add740f",
+      "branch": "main",
+      "versions": {
+        "bun": "1.3.14",
+        "node": "v24.18.0",
+        "pnpm": "11.1.3",
+        "uv": "uv 0.11.28 (x86_64-unknown-linux-musl)"
+      },
+      "sourceCount": 3395,
+      "sourceSha256": "ed8bec8514e6a7cbe19f3592c269fc89f420e6b9e97079867f94f6cf046ee63f",
+      "toolManifestSha256": "c78c49565b9f653c851ce0dd07feb12e3b466cf83161217c92bfc014b8f5ddc8",
+      "formedAt": {
+        "initial": "2026-10-24T03:41:39.126372+00:00",
+        "post-fullGate": "2026-10-24T03:42:23.429279+00:00",
+        "final": "2026-10-24T03:43:10.014969+00:00"
+      },
+      "stableAgainstInitial": {
+        "initial": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": true,
+          "tools": true,
+          "versions": true
+        },
+        "post-fullGate": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": true,
+          "tools": true,
+          "versions": true
+        },
+        "final": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": true,
+          "tools": true,
+          "versions": true
+        }
+      },
+      "candidateManifestSha256": {
+        "initial": "195cebe0dda32e3bd71a4dcceac2fcb432c3c74b1f3ed6e3664444025046a907",
+        "post-fullGate": "195cebe0dda32e3bd71a4dcceac2fcb432c3c74b1f3ed6e3664444025046a907",
+        "final": "195cebe0dda32e3bd71a4dcceac2fcb432c3c74b1f3ed6e3664444025046a907"
+      },
+      "dirtyStatusSha256": "f710f11b6199f60cf79d28dd37cdd75586302b246d6f285afc3325432bf2c84d",
+      "dirtyStatusEntryCount": 49
+    },
+    "fullGate": {
+      "label": "fullGate",
+      "command": ["mise", "exec", "--", "bun", "run", "check", "--", "--all"],
+      "recordedAt": "2026-10-24T03:42:19.641242+00:00",
+      "wallMs": 37431.30100501003,
+      "exitCode": 1,
+      "timedOut": false,
+      "userMs": 82607.621,
+      "systemMs": 36274.576,
+      "maxRssBytes": 850333696,
+      "memoryPeakBytes": 6442438656,
+      "observerCpuMs": 725.653501,
+      "sampleIntervalMs": 200,
+      "samples": 183,
+      "cgroupMemoryBeforeBytes": 4767375360,
+      "cgroupMemoryAfterBytes": 5026344960,
+      "cgroupDelta": {
+        "cpu.stat": {
+          "usage_usec": 126719395,
+          "user_usec": 87328506,
+          "system_usec": 39390889,
+          "nr_throttled": 140,
+          "throttled_usec": 16120142
+        },
+        "cpu.pressure": {
+          "some": 6763276,
+          "full": 2936544
+        },
+        "memory.events": {
+          "low": 0,
+          "high": 0,
+          "max": 603,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "memory.pressure": {
+          "some": 897888,
+          "full": 890317
+        },
+        "io.pressure": {
+          "some": 296112,
+          "full": 228407
+        }
+      },
+      "memoryStatDelta": {
+        "pgscan_direct": 41338,
+        "pgsteal_direct": 20171,
+        "workingset_refault_file": 1290,
+        "pgmajfault": 692
+      },
+      "observedUnownedCpuMs": 5290.0,
+      "gateLogDirectory": "/workspace/vibe-check/.log/project-gate/2026-10-24T03-41-43.582Z-780042-97f0de44-ae72-48f1-b53d-4f25c66c569d",
+      "functionalStatusCounts": {
+        "passed": 43
+      },
+      "performanceContext": {
+        "profile": "all",
+        "runtime": {
+          "architecture": "x64",
+          "bunVersion": "1.3.14",
+          "platform": "linux"
+        },
+        "budgets": {
+          "maxElapsedMs": 90000,
+          "maxMeanCheckMs": 2000,
+          "maxP95CheckMs": 5000
+        },
+        "timing": {
+          "adapterSetupMs": 536.3769950000001,
+          "candidatePreparationMs": 179.59989199999995,
+          "elapsedToInitialResultMs": 36714.653487999996,
+          "initialResultAtMs": 37278.668622,
+          "productRunMs": 35998.676601,
+          "startedAtMs": 564.015134
+        },
+        "measurements": {
+          "meanCheckMs": 2275.938350837209,
+          "p95CheckMs": 6052.5367559999995
+        },
+        "candidate": {
+          "version": "0.0.0-local.11aaf5e2c0fd",
+          "sha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+          "inputFingerprint": "11aaf5e2c0fdf53f59115f172e85fdbbc730ca92f3750747e9c12c9b476494cf",
+          "preparationAction": "reuse",
+          "preparationReason": "installation-current"
+        },
+        "declarativeFingerprint": "c99f56ee17761e1541bf513b3d20c733069fc8e6936c5b394f04dd8f7f613744"
+      },
+      "preflightWindows": 1
+    },
+    "local": [
+      {
+        "label": "scriptsLayout-1",
+        "recordedAt": "2026-10-24T03:42:29.322389+00:00",
+        "wallMs": 2940.571029961575,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 5531.572,
+        "systemMs": 1187.322,
+        "maxRssBytes": 449540096,
+        "memoryPeakBytes": 5427462144,
+        "observerCpuMs": 68.04242500000001,
+        "sampleIntervalMs": 200,
+        "samples": 16,
+        "cgroupMemoryBeforeBytes": 5028237312,
+        "cgroupMemoryAfterBytes": 5029994496,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 6974063,
+            "user_usec": 5767516,
+            "system_usec": 1206547,
+            "nr_throttled": 1,
+            "throttled_usec": 4935
+          },
+          "cpu.pressure": {
+            "some": 21723,
+            "full": 6556
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 146,
+            "full": 140
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 190.0,
+        "tests": 1,
+        "files": 1,
+        "preflightWindows": 1,
+        "commandKey": "scriptsLayout"
+      },
+      {
+        "label": "packageSupporting-1",
+        "recordedAt": "2026-10-24T03:42:34.072853+00:00",
+        "wallMs": 2741.458851029165,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 2297.469,
+        "systemMs": 1055.123,
+        "maxRssBytes": 393658368,
+        "memoryPeakBytes": 5358387200,
+        "observerCpuMs": 52.04275700000001,
+        "sampleIntervalMs": 200,
+        "samples": 15,
+        "cgroupMemoryBeforeBytes": 5030543360,
+        "cgroupMemoryAfterBytes": 5035958272,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 3627911,
+            "user_usec": 2446051,
+            "system_usec": 1181859,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 11390,
+            "full": 7265
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 1003,
+            "full": 998
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 313,
+          "pgmajfault": 1
+        },
+        "observedUnownedCpuMs": 180.0,
+        "tests": 36,
+        "files": 20,
+        "preflightWindows": 1,
+        "commandKey": "packageSupporting"
+      },
+      {
+        "label": "productFunctionMetrics-1",
+        "recordedAt": "2026-10-24T03:42:38.327765+00:00",
+        "wallMs": 2246.665136946831,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 2461.663,
+        "systemMs": 1152.5240000000001,
+        "maxRssBytes": 374595584,
+        "memoryPeakBytes": 5403209728,
+        "observerCpuMs": 38.573198000000005,
+        "sampleIntervalMs": 200,
+        "samples": 12,
+        "cgroupMemoryBeforeBytes": 5033361408,
+        "cgroupMemoryAfterBytes": 5033652224,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 3760777,
+            "user_usec": 2554329,
+            "system_usec": 1206448,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 12917,
+            "full": 7376
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 0,
+            "full": 0
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 90.0,
+        "tests": 113,
+        "files": 39,
+        "preflightWindows": 1,
+        "commandKey": "productFunctionMetrics"
+      },
+      {
+        "label": "gitTimer-1",
+        "recordedAt": "2026-10-24T03:42:41.228108+00:00",
+        "wallMs": 893.202768987976,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 431.88,
+        "systemMs": 462.472,
+        "maxRssBytes": 120197120,
+        "memoryPeakBytes": 5081587712,
+        "observerCpuMs": 17.493393999999995,
+        "sampleIntervalMs": 200,
+        "samples": 6,
+        "cgroupMemoryBeforeBytes": 5031960576,
+        "cgroupMemoryAfterBytes": 4992327680,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 1299494,
+            "user_usec": 557399,
+            "system_usec": 742096,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 18485,
+            "full": 5684
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 872,
+            "full": 628
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 550,
+          "pgmajfault": 3
+        },
+        "observedUnownedCpuMs": 310.0,
+        "tests": 18,
+        "files": 4,
+        "preflightWindows": 1,
+        "commandKey": "gitTimer"
+      },
+      {
+        "label": "scriptsLayout-2",
+        "recordedAt": "2026-10-24T03:42:45.555078+00:00",
+        "wallMs": 2319.711072021164,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 4751.572,
+        "systemMs": 824.4549999999999,
+        "maxRssBytes": 443584512,
+        "memoryPeakBytes": 5459300352,
+        "observerCpuMs": 42.957998000000025,
+        "sampleIntervalMs": 200,
+        "samples": 13,
+        "cgroupMemoryBeforeBytes": 4999905280,
+        "cgroupMemoryAfterBytes": 5070209024,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 6635132,
+            "user_usec": 5555136,
+            "system_usec": 1079996,
+            "nr_throttled": 2,
+            "throttled_usec": 46559
+          },
+          "cpu.pressure": {
+            "some": 82010,
+            "full": 15415
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 7214,
+            "full": 6365
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 3613,
+          "pgmajfault": 16
+        },
+        "observedUnownedCpuMs": 730.0,
+        "tests": 1,
+        "files": 1,
+        "preflightWindows": 1,
+        "commandKey": "scriptsLayout"
+      },
+      {
+        "label": "packageSupporting-2",
+        "recordedAt": "2026-10-24T03:42:50.094644+00:00",
+        "wallMs": 2531.2463600421324,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 2147.2760000000003,
+        "systemMs": 943.7399999999999,
+        "maxRssBytes": 366960640,
+        "memoryPeakBytes": 5360766976,
+        "observerCpuMs": 43.361209999999986,
+        "sampleIntervalMs": 200,
+        "samples": 14,
+        "cgroupMemoryBeforeBytes": 5067157504,
+        "cgroupMemoryAfterBytes": 5067370496,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 3233353,
+            "user_usec": 2216210,
+            "system_usec": 1017143,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 5235,
+            "full": 4322
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 914,
+            "full": 913
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 110.0,
+        "tests": 36,
+        "files": 20,
+        "preflightWindows": 1,
+        "commandKey": "packageSupporting"
+      },
+      {
+        "label": "productFunctionMetrics-2",
+        "recordedAt": "2026-10-24T03:42:58.683670+00:00",
+        "wallMs": 2573.5126070212573,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 2784.1420000000003,
+        "systemMs": 1356.591,
+        "maxRssBytes": 359272448,
+        "memoryPeakBytes": 5710602240,
+        "observerCpuMs": 49.271803999999975,
+        "sampleIntervalMs": 200,
+        "samples": 14,
+        "cgroupMemoryBeforeBytes": 5407158272,
+        "cgroupMemoryAfterBytes": 5411758080,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 4395011,
+            "user_usec": 2934440,
+            "system_usec": 1460571,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 19033,
+            "full": 8913
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 210,
+            "full": 207
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 150.0,
+        "tests": 113,
+        "files": 39,
+        "preflightWindows": 3,
+        "commandKey": "productFunctionMetrics"
+      },
+      {
+        "label": "gitTimer-2",
+        "recordedAt": "2026-10-24T03:43:01.829692+00:00",
+        "wallMs": 1124.1986310342327,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 690.208,
+        "systemMs": 465.933,
+        "maxRssBytes": 118157312,
+        "memoryPeakBytes": 5947154432,
+        "observerCpuMs": 38.62921199999997,
+        "sampleIntervalMs": 200,
+        "samples": 7,
+        "cgroupMemoryBeforeBytes": 5407150080,
+        "cgroupMemoryAfterBytes": 5906083840,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 2700414,
+            "user_usec": 1375002,
+            "system_usec": 1325413,
+            "nr_throttled": 1,
+            "throttled_usec": 18670
+          },
+          "cpu.pressure": {
+            "some": 48771,
+            "full": 8660
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 18354,
+            "full": 16543
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 2038,
+          "pgmajfault": 21
+        },
+        "observedUnownedCpuMs": 940.0,
+        "tests": 18,
+        "files": 4,
+        "preflightWindows": 1,
+        "commandKey": "gitTimer"
+      }
+    ]
+  },
+  "afterV1Failed": {
+    "identity": {
+      "head": "d15cbf6f34499fa3027ed6c99d0508436add740f",
+      "branch": "main",
+      "versions": {
+        "bun": "1.3.14",
+        "node": "v24.18.0",
+        "pnpm": "11.1.3",
+        "uv": "uv 0.11.28 (x86_64-unknown-linux-musl)"
+      },
+      "sourceCount": 3403,
+      "sourceSha256": "ba685b9ab5509fdccb535b39c988b8aa890593ec72f8865aa87ba6e57a8b8a7d",
+      "toolManifestSha256": "c78c49565b9f653c851ce0dd07feb12e3b466cf83161217c92bfc014b8f5ddc8",
+      "formedAt": {
+        "initial": "2026-10-24T04:13:48.701167+00:00",
+        "postGate": "2026-10-24T04:15:09.175126+00:00"
+      },
+      "stableAgainstInitial": {
+        "initial": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": true,
+          "tools": true,
+          "versions": true
+        },
+        "postGate": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": false,
+          "tools": true,
+          "versions": true
+        }
+      },
+      "candidateManifestSha256": {
+        "initial": "195cebe0dda32e3bd71a4dcceac2fcb432c3c74b1f3ed6e3664444025046a907",
+        "postGate": "1a4eb4e816bb92319d04632c334419c02b01c6d47edc08df126a2d9fcaf9a89a"
+      },
+      "dirtyStatusSha256": "7869e3e89d66b3805c5957d62fe3872b03791c8db8271f6fdfa3f5d86d195e48",
+      "dirtyStatusEntryCount": 97
+    },
+    "fullGate": {
+      "label": "fullGate",
+      "command": ["mise", "exec", "--", "bun", "run", "check", "--", "--all"],
+      "recordedAt": "2026-10-24T04:14:57.396699+00:00",
+      "wallMs": 53725.26974102948,
+      "exitCode": 1,
+      "timedOut": false,
+      "userMs": 82756.645,
+      "systemMs": 36444.682,
+      "maxRssBytes": 1530097664,
+      "memoryPeakBytes": 6442450944,
+      "observerCpuMs": 1028.51216,
+      "sampleIntervalMs": 200,
+      "samples": 262,
+      "cgroupMemoryBeforeBytes": 5571923968,
+      "cgroupMemoryAfterBytes": 5372784640,
+      "cgroupDelta": {
+        "cpu.stat": {
+          "usage_usec": 142163767,
+          "user_usec": 97536862,
+          "system_usec": 44626905,
+          "nr_throttled": 195,
+          "throttled_usec": 20311282
+        },
+        "cpu.pressure": {
+          "some": 8571838,
+          "full": 3756389
+        },
+        "memory.events": {
+          "low": 0,
+          "high": 0,
+          "max": 5031,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "memory.pressure": {
+          "some": 865990,
+          "full": 849041
+        },
+        "io.pressure": {
+          "some": 1028529,
+          "full": 894099
+        }
+      },
+      "memoryStatDelta": {
+        "pgscan_direct": 234273,
+        "pgsteal_direct": 184166,
+        "workingset_refault_file": 95035,
+        "pgmajfault": 40
+      },
+      "observedUnownedCpuMs": 16770.0,
+      "gateLogDirectory": "/workspace/vibe-check/.log/project-gate/2026-10-24T04-14-23.899Z-813086-aceffae8-92a8-4e92-b9a2-8beb58ed34d3",
+      "functionalStatusCounts": {
+        "failed": 2,
+        "not-applicable": 2,
+        "passed": 39
+      },
+      "candidate": {
+        "candidateVersion": "0.0.0-local.e8ae7bc9545c",
+        "sha256": "55e6540c6b1e203cd243d134931bc83778e428fdae19466cb112e996a8b897d2",
+        "inputFingerprint": "e8ae7bc9545cc61ea110a0f12574460ea652e8e0edbfa0ada7770ef4604796f8",
+        "preparationAction": "rebuild",
+        "preparationReason": "receipt-input-mismatch",
+        "reused": false
+      },
+      "performanceEvaluation": "not-evaluated: initial Gate result was not passed",
+      "phaseTiming": {
+        "candidatePreparationMs": null,
+        "adapterSetupMs": null,
+        "productRunMs": null,
+        "explanation": "Functional failure suppresses adapter performance timings; no rerun was done to obtain them. Terminal/core elapsed below is a different, explicitly named diagnostic boundary.",
+        "coreTerminalElapsedMs": 33146,
+        "terminalSummaryElapsedMsRounded": 33000
+      },
+      "diagnosticCheckSummaryNotBudgetEvaluation": {
+        "count": 41,
+        "meanMs": 2022.758804878049,
+        "nearestRankP95Ms": 5143.251,
+        "precision": "core duration facts rounded to 0.001 ms"
+      },
+      "blockingFindings": [
+        {
+          "checkId": "file-metrics",
+          "path": "src/project-run/invocation/learned-scheduling.test.ts",
+          "metric": "code-lines",
+          "actual": 305,
+          "limit": 300
+        },
+        {
+          "checkId": "function-metrics",
+          "path": "scripts/project/gate/runtime/entries.ts",
+          "function": "validateProjectGateObservationSelection",
+          "metric": "cyclomatic-complexity",
+          "actual": 13,
+          "limit": 10
+        },
+        {
+          "checkId": "function-metrics",
+          "path": "scripts/validation/module-specifier-analysis.ts",
+          "function": "analyzeModuleSpecifiers",
+          "metric": "cyclomatic-complexity",
+          "actual": 11,
+          "limit": 10
+        }
+      ],
+      "notRun": [
+        "all four local groups, both repetitions",
+        "consumer-types focused correctness",
+        "admission-workbench focused correctness"
+      ],
+      "preflight": {
+        "quiet": true,
+        "windows": 6
+      }
+    }
+  },
+  "afterV2": {
+    "identity": {
+      "head": "d15cbf6f34499fa3027ed6c99d0508436add740f",
+      "branch": "main",
+      "versions": {
+        "bun": "1.3.14",
+        "node": "v24.18.0",
+        "pnpm": "11.1.3",
+        "uv": "uv 0.11.28 (x86_64-unknown-linux-musl)"
+      },
+      "sourceCount": 3403,
+      "sourceSha256": "97be13a12cea555b69040ce125a0200fa39e7582dd6f314876500a2d55b5ab65",
+      "toolManifestSha256": "c78c49565b9f653c851ce0dd07feb12e3b466cf83161217c92bfc014b8f5ddc8",
+      "formedAt": {
+        "initial": "2026-10-24T04:20:36.631820+00:00",
+        "postGate": "2026-10-24T04:21:15.637431+00:00",
+        "final": "2026-10-24T04:21:49.360681+00:00",
+        "after-focused": "2026-10-24T04:22:26.272036+00:00"
+      },
+      "stableAgainstInitial": {
+        "initial": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": true,
+          "tools": true,
+          "versions": true
+        },
+        "postGate": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": true,
+          "tools": true,
+          "versions": true
+        },
+        "final": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": true,
+          "tools": true,
+          "versions": true
+        },
+        "after-focused": {
+          "head": true,
+          "branch": true,
+          "status": true,
+          "source": true,
+          "candidate": true,
+          "tools": true,
+          "versions": true
+        }
+      },
+      "candidateManifestSha256": {
+        "initial": "1a4eb4e816bb92319d04632c334419c02b01c6d47edc08df126a2d9fcaf9a89a",
+        "postGate": "1a4eb4e816bb92319d04632c334419c02b01c6d47edc08df126a2d9fcaf9a89a",
+        "final": "1a4eb4e816bb92319d04632c334419c02b01c6d47edc08df126a2d9fcaf9a89a",
+        "after-focused": "1a4eb4e816bb92319d04632c334419c02b01c6d47edc08df126a2d9fcaf9a89a"
+      },
+      "dirtyStatusSha256": "7869e3e89d66b3805c5957d62fe3872b03791c8db8271f6fdfa3f5d86d195e48",
+      "dirtyStatusEntryCount": 97
+    },
+    "fullGate": {
+      "label": "fullGate",
+      "command": ["mise", "exec", "--", "bun", "run", "check", "--", "--all"],
+      "recordedAt": "2026-10-24T04:21:11.471713+00:00",
+      "wallMs": 31698.080985981505,
+      "exitCode": 1,
+      "timedOut": false,
+      "userMs": 73366.67,
+      "systemMs": 31388.017,
+      "maxRssBytes": 762814464,
+      "memoryPeakBytes": 6442450944,
+      "observerCpuMs": 659.287399,
+      "sampleIntervalMs": 200,
+      "samples": 155,
+      "cgroupMemoryBeforeBytes": 5393743872,
+      "cgroupMemoryAfterBytes": 5142904832,
+      "cgroupDelta": {
+        "cpu.stat": {
+          "usage_usec": 109554439,
+          "user_usec": 76346816,
+          "system_usec": 33207623,
+          "nr_throttled": 140,
+          "throttled_usec": 13931000
+        },
+        "cpu.pressure": {
+          "some": 5729239,
+          "full": 2628817
+        },
+        "memory.events": {
+          "low": 0,
+          "high": 0,
+          "max": 605,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "memory.pressure": {
+          "some": 234123,
+          "full": 213786
+        },
+        "io.pressure": {
+          "some": 4763,
+          "full": 3924
+        }
+      },
+      "memoryStatDelta": {
+        "pgscan_direct": 80828,
+        "pgsteal_direct": 63942,
+        "workingset_refault_file": 5172,
+        "pgmajfault": 22
+      },
+      "observedUnownedCpuMs": 2860.0,
+      "preflightWindows": 1,
+      "gateLogDirectory": "/workspace/vibe-check/.log/project-gate/2026-10-24T04-20-40.758Z-826874-a7deda73-e3b8-4a52-997f-c815474a24ac",
+      "functionalStatusCounts": {
+        "not-applicable": 2,
+        "passed": 41
+      },
+      "performanceContext": {
+        "profile": "all",
+        "runtime": {
+          "architecture": "x64",
+          "bunVersion": "1.3.14",
+          "platform": "linux"
+        },
+        "budgets": {
+          "maxElapsedMs": 90000,
+          "maxMeanCheckMs": 2000,
+          "maxP95CheckMs": 5000
+        },
+        "timing": {
+          "adapterSetupMs": 510.63169400000004,
+          "candidatePreparationMs": 192.82609900000003,
+          "elapsedToInitialResultMs": 31366.302989,
+          "initialResultAtMs": 31561.988817,
+          "productRunMs": 30662.845196000002,
+          "startedAtMs": 195.685828
+        },
+        "measurements": {
+          "meanCheckMs": 2024.1651533658544,
+          "p95CheckMs": 5564.557801000001
+        },
+        "candidate": {
+          "version": "0.0.0-local.e8ae7bc9545c",
+          "sha256": "55e6540c6b1e203cd243d134931bc83778e428fdae19466cb112e996a8b897d2",
+          "inputFingerprint": "e8ae7bc9545cc61ea110a0f12574460ea652e8e0edbfa0ada7770ef4604796f8",
+          "preparationAction": "reuse",
+          "preparationReason": "installation-current"
+        },
+        "declarativeFingerprint": "9b61289a8465ce3baab2e5a319745b009a3e2d0821c730c1a9401780a618490c"
+      }
+    },
+    "local": [
+      {
+        "label": "scriptsLayout-1",
+        "recordedAt": "2026-10-24T04:21:20.529503+00:00",
+        "wallMs": 1767.5401589949615,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 4385.438,
+        "systemMs": 423.366,
+        "maxRssBytes": 455294976,
+        "memoryPeakBytes": 5737209856,
+        "observerCpuMs": 34.111602999999995,
+        "sampleIntervalMs": 200,
+        "samples": 10,
+        "cgroupMemoryBeforeBytes": 5355233280,
+        "cgroupMemoryAfterBytes": 5360250880,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 4943087,
+            "user_usec": 4552427,
+            "system_usec": 390659,
+            "nr_throttled": 2,
+            "throttled_usec": 5771
+          },
+          "cpu.pressure": {
+            "some": 15422,
+            "full": 4188
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 12,
+            "full": 12
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 2
+        },
+        "observedUnownedCpuMs": 100.0,
+        "tests": 2,
+        "files": 1,
+        "preflightWindows": 1,
+        "commandKey": "scriptsLayout"
+      },
+      {
+        "label": "scriptsLayout-2",
+        "recordedAt": "2026-10-24T04:21:34.553815+00:00",
+        "wallMs": 2050.9349110070616,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 4645.429,
+        "systemMs": 674.4,
+        "maxRssBytes": 455438336,
+        "memoryPeakBytes": 5725261824,
+        "observerCpuMs": 43.609236000000024,
+        "sampleIntervalMs": 200,
+        "samples": 11,
+        "cgroupMemoryBeforeBytes": 5350121472,
+        "cgroupMemoryAfterBytes": 5352468480,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 5516944,
+            "user_usec": 4872390,
+            "system_usec": 644554,
+            "nr_throttled": 1,
+            "throttled_usec": 3301
+          },
+          "cpu.pressure": {
+            "some": 12910,
+            "full": 3625
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 16,
+            "full": 17
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 1
+        },
+        "observedUnownedCpuMs": 160.0,
+        "tests": 2,
+        "files": 1,
+        "preflightWindows": 1,
+        "commandKey": "scriptsLayout"
+      },
+      {
+        "label": "packageSupporting-1",
+        "recordedAt": "2026-10-24T04:21:24.118486+00:00",
+        "wallMs": 1580.456288997084,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 1397.694,
+        "systemMs": 499.749,
+        "maxRssBytes": 269484032,
+        "memoryPeakBytes": 5559074816,
+        "observerCpuMs": 30.54187500000001,
+        "sampleIntervalMs": 200,
+        "samples": 9,
+        "cgroupMemoryBeforeBytes": 5353660416,
+        "cgroupMemoryAfterBytes": 5352456192,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 2097192,
+            "user_usec": 1521010,
+            "system_usec": 576183,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 8366,
+            "full": 3128
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 9,
+            "full": 9
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 150.0,
+        "tests": 36,
+        "files": 20,
+        "preflightWindows": 1,
+        "commandKey": "packageSupporting"
+      },
+      {
+        "label": "packageSupporting-2",
+        "recordedAt": "2026-10-24T04:21:38.162468+00:00",
+        "wallMs": 1599.1615450475365,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 1440.661,
+        "systemMs": 523.676,
+        "maxRssBytes": 273973248,
+        "memoryPeakBytes": 5559361536,
+        "observerCpuMs": 29.704013,
+        "sampleIntervalMs": 200,
+        "samples": 9,
+        "cgroupMemoryBeforeBytes": 5350293504,
+        "cgroupMemoryAfterBytes": 5353312256,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 2193302,
+            "user_usec": 1570498,
+            "system_usec": 622804,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 5572,
+            "full": 4094
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 34,
+            "full": 34
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 1
+        },
+        "observedUnownedCpuMs": 180.0,
+        "tests": 36,
+        "files": 20,
+        "preflightWindows": 1,
+        "commandKey": "packageSupporting"
+      },
+      {
+        "label": "productFunctionMetrics-1",
+        "recordedAt": "2026-10-24T04:21:27.850189+00:00",
+        "wallMs": 1723.9978240104392,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 2283.583,
+        "systemMs": 718.158,
+        "maxRssBytes": 297410560,
+        "memoryPeakBytes": 5591953408,
+        "observerCpuMs": 31.417190999999995,
+        "sampleIntervalMs": 200,
+        "samples": 10,
+        "cgroupMemoryBeforeBytes": 5351145472,
+        "cgroupMemoryAfterBytes": 5352562688,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 3093849,
+            "user_usec": 2351442,
+            "system_usec": 742407,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 12156,
+            "full": 6718
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 0,
+            "full": 0
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 50.0,
+        "tests": 113,
+        "files": 39,
+        "preflightWindows": 1,
+        "commandKey": "productFunctionMetrics"
+      },
+      {
+        "label": "productFunctionMetrics-2",
+        "recordedAt": "2026-10-24T04:21:42.485368+00:00",
+        "wallMs": 2312.363028002437,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 3221.0640000000003,
+        "systemMs": 884.213,
+        "maxRssBytes": 279650304,
+        "memoryPeakBytes": 5565181952,
+        "observerCpuMs": 54.959072,
+        "sampleIntervalMs": 200,
+        "samples": 13,
+        "cgroupMemoryBeforeBytes": 5350383616,
+        "cgroupMemoryAfterBytes": 5351890944,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 4412880,
+            "user_usec": 3418235,
+            "system_usec": 994645,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 22950,
+            "full": 8820
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 0,
+            "full": 0
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 240.0,
+        "tests": 113,
+        "files": 39,
+        "preflightWindows": 1,
+        "commandKey": "productFunctionMetrics"
+      },
+      {
+        "label": "gitTimer-1",
+        "recordedAt": "2026-10-24T04:21:30.490363+00:00",
+        "wallMs": 630.0794960116036,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 511.359,
+        "systemMs": 269.327,
+        "maxRssBytes": 119152640,
+        "memoryPeakBytes": 5388451840,
+        "observerCpuMs": 17.73999799999998,
+        "sampleIntervalMs": 200,
+        "samples": 5,
+        "cgroupMemoryBeforeBytes": 5351682048,
+        "cgroupMemoryAfterBytes": 5352386560,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 850800,
+            "user_usec": 488270,
+            "system_usec": 362531,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 2747,
+            "full": 2193
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 200,
+            "full": 200
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 30.0,
+        "tests": 18,
+        "files": 4,
+        "preflightWindows": 1,
+        "commandKey": "gitTimer"
+      },
+      {
+        "label": "gitTimer-2",
+        "recordedAt": "2026-10-24T04:21:45.225265+00:00",
+        "wallMs": 730.531957000494,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 552.821,
+        "systemMs": 345.815,
+        "maxRssBytes": 120045568,
+        "memoryPeakBytes": 5411721216,
+        "observerCpuMs": 16.795485,
+        "sampleIntervalMs": 200,
+        "samples": 5,
+        "cgroupMemoryBeforeBytes": 5351538688,
+        "cgroupMemoryAfterBytes": 5358186496,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 1151339,
+            "user_usec": 645154,
+            "system_usec": 506186,
+            "nr_throttled": 0,
+            "throttled_usec": 0
+          },
+          "cpu.pressure": {
+            "some": 5542,
+            "full": 3054
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 45,
+            "full": 45
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 0,
+          "pgmajfault": 0
+        },
+        "observedUnownedCpuMs": 100.0,
+        "tests": 18,
+        "files": 4,
+        "preflightWindows": 1,
+        "commandKey": "gitTimer"
+      }
+    ],
+    "focusedCorrectnessOnly": [
+      {
+        "label": "focused-consumer-types",
+        "recordedAt": "2026-10-24T04:22:01.072423+00:00",
+        "wallMs": 8619.632113026455,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 7220.169,
+        "systemMs": 3649.379,
+        "maxRssBytes": 815964160,
+        "memoryPeakBytes": 6442405888,
+        "observerCpuMs": 172.403725,
+        "sampleIntervalMs": 200,
+        "samples": 43,
+        "cgroupMemoryBeforeBytes": 5346361344,
+        "cgroupMemoryAfterBytes": 4953583616,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 21104725,
+            "user_usec": 13084164,
+            "system_usec": 8020561,
+            "nr_throttled": 21,
+            "throttled_usec": 1779544
+          },
+          "cpu.pressure": {
+            "some": 582522,
+            "full": 345127
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 2163,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 284000,
+            "full": 282406
+          },
+          "io.pressure": {
+            "some": 931,
+            "full": 871
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 145451,
+          "pgsteal_direct": 99437,
+          "workingset_refault_file": 606,
+          "pgmajfault": 1
+        },
+        "observedUnownedCpuMs": 7930.0,
+        "preflightWindows": 1,
+        "gateLogDirectory": "/workspace/vibe-check/.log/project-gate/2026-10-24T04-21-53.441Z-834876-099727cd-6a3a-4a15-ae56-93dfb0bdcd37",
+        "functionalStatusCounts": {
+          "not-applicable": 40,
+          "passed": 3
+        },
+        "selectedCheckIds": [
+          "acceptance-installed-package-types",
+          "prepared-external-package-consumer",
+          "prepared-package-candidate"
+        ],
+        "performanceMessages": [
+          "[GATE] [INFO] project gate info [project-gate-performance-focused-selection]: focused preset selection has no performance budget evaluation"
+        ],
+        "preparedCandidate": {
+          "candidateVersion": "0.0.0-local.e8ae7bc9545c",
+          "sha256": "55e6540c6b1e203cd243d134931bc83778e428fdae19466cb112e996a8b897d2",
+          "inputFingerprint": "e8ae7bc9545cc61ea110a0f12574460ea652e8e0edbfa0ada7770ef4604796f8",
+          "preparationAction": "reuse",
+          "preparationReason": "installation-current",
+          "reused": true
+        },
+        "diagnosticCheckDurations": [
+          {
+            "checkId": "prepared-package-candidate",
+            "status": "passed",
+            "durationMs": 4.906
+          },
+          {
+            "checkId": "prepared-external-package-consumer",
+            "status": "passed",
+            "durationMs": 1213.208
+          },
+          {
+            "checkId": "acceptance-installed-package-types",
+            "status": "passed",
+            "durationMs": 5965.87
+          }
+        ],
+        "commandKey": "focused-consumer-types"
+      },
+      {
+        "label": "focused-admission-workbench",
+        "recordedAt": "2026-10-24T04:22:25.891027+00:00",
+        "wallMs": 5827.649992017541,
+        "exitCode": 0,
+        "timedOut": false,
+        "userMs": 6250.6539999999995,
+        "systemMs": 2089.3639999999996,
+        "maxRssBytes": 348491776,
+        "memoryPeakBytes": 5930475520,
+        "observerCpuMs": 106.762293,
+        "sampleIntervalMs": 200,
+        "samples": 30,
+        "cgroupMemoryBeforeBytes": 5082861568,
+        "cgroupMemoryAfterBytes": 5077590016,
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 15298815,
+            "user_usec": 11485192,
+            "system_usec": 3813622,
+            "nr_throttled": 15,
+            "throttled_usec": 1226029
+          },
+          "cpu.pressure": {
+            "some": 580031,
+            "full": 235556
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.pressure": {
+            "some": 430,
+            "full": 430
+          },
+          "io.pressure": {
+            "some": 1909,
+            "full": 1620
+          }
+        },
+        "memoryStatDelta": {
+          "pgscan_direct": 0,
+          "pgsteal_direct": 0,
+          "workingset_refault_file": 1519,
+          "pgmajfault": 13
+        },
+        "observedUnownedCpuMs": 3840.0,
+        "preflightWindows": 1,
+        "gateLogDirectory": "/workspace/vibe-check/.log/project-gate/2026-10-24T04-22-21.146Z-835368-0207a8f4-99dd-43af-8384-65c89f906669",
+        "functionalStatusCounts": {
+          "not-applicable": 42,
+          "passed": 1
+        },
+        "selectedCheckIds": ["tests-scripts-admission-workbench"],
+        "performanceMessages": [
+          "[GATE] [INFO] project gate info [project-gate-performance-focused-selection]: focused preset selection has no performance budget evaluation"
+        ],
+        "preparedCandidate": null,
+        "diagnosticCheckDurations": [
+          {
+            "checkId": "tests-scripts-admission-workbench",
+            "status": "passed",
+            "durationMs": 4417.658
+          }
+        ],
+        "commandKey": "focused-admission-workbench"
+      }
+    ]
+  },
+  "workloads": {
+    "fullGate": ["mise", "exec", "--", "bun", "run", "check", "--", "--all"],
+    "localInvocation": {
+      "command": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+      "argsPrefix": ["test"],
+      "files": "Append this group’s ordered entries from fileLists.",
+      "argsSuffix": ["--reporter=dots"]
+    },
+    "orderedLocalGroupsPerRound": [
+      "scriptsLayout",
+      "packageSupporting",
+      "productFunctionMetrics",
+      "gitTimer"
+    ],
+    "localRounds": 2,
+    "fileLists": {
+      "scriptsLayout": ["scripts/validation/repository-layout.test.ts"],
+      "packageSupporting": [
+        "scripts/package/artifact/acceptance-input.test.ts",
+        "scripts/package/artifact/compiler-cache.test.ts",
+        "scripts/package/artifact/documentation-input.test.ts",
+        "scripts/package/artifact/esm-module-specifiers.test.ts",
+        "scripts/package/artifact/manifest.test.ts",
+        "scripts/package/artifact/runtime-source-maps.test.ts",
+        "scripts/package/candidate/acceptance-input.test.ts",
+        "scripts/package/candidate/candidate.test.ts",
+        "scripts/package/candidate/dependency-license-audit.test.ts",
+        "scripts/package/candidate/external-consumer/input.test.ts",
+        "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+        "scripts/package/candidate/receipt.test.ts",
+        "scripts/package/command.test.ts",
+        "scripts/package/compiler-toolchain.test.ts",
+        "scripts/package/dependency-version.test.ts",
+        "scripts/package/legal-materials.test.ts",
+        "scripts/package/legal-materials/source-mapping.test.ts",
+        "scripts/package/public-api-inventory.test.ts",
+        "scripts/package/release/command.test.ts",
+        "scripts/package/release/release.test.ts"
+      ],
+      "productFunctionMetrics": [
+        "src/package-checks/function-metrics/analysis.test.ts",
+        "src/package-checks/function-metrics/analyzer-adapter.test.ts",
+        "src/package-checks/function-metrics/analyzer-worker.test.ts",
+        "src/package-checks/function-metrics/analyzer/extension-output.test.ts",
+        "src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts",
+        "src/package-checks/function-metrics/analyzer/model-context.test.ts",
+        "src/package-checks/function-metrics/analyzer/pipeline.test.ts",
+        "src/package-checks/function-metrics/analyzer/port-facade.test.ts",
+        "src/package-checks/function-metrics/analyzer/reader-registry.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/clike-readers.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/erlang.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/fortran.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/golike-readers.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/javascript.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/malformed-source.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/php-plsql.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/script-readers.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/st.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/tsx.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/typescript.test.ts",
+        "src/package-checks/function-metrics/analyzer/readers/vue.test.ts",
+        "src/package-checks/function-metrics/analyzer/shared/clike.test.ts",
+        "src/package-checks/function-metrics/analyzer/shared/code-reader.test.ts",
+        "src/package-checks/function-metrics/analyzer/shared/golike.test.ts",
+        "src/package-checks/function-metrics/analyzer/shared/js-style-regex.test.ts",
+        "src/package-checks/function-metrics/analyzer/shared/rubylike.test.ts",
+        "src/package-checks/function-metrics/analyzer/source-baseline-upgrade.test.ts",
+        "src/package-checks/function-metrics/analyzer/source-identity.test.ts",
+        "src/package-checks/function-metrics/analyzer/typescript-metrics.test.ts",
+        "src/package-checks/function-metrics/constructor.area-findings.test.ts",
+        "src/package-checks/function-metrics/constructor.input-rejection.test.ts",
+        "src/package-checks/function-metrics/constructor.test.ts",
+        "src/package-checks/function-metrics/finding-waivers.test.ts",
+        "src/package-checks/function-metrics/measurement.admission.test.ts",
+        "src/package-checks/function-metrics/measurement.encoding.test.ts",
+        "src/package-checks/function-metrics/measurement.resource.test.ts",
+        "src/package-checks/function-metrics/target-files.test.ts",
+        "src/package-checks/function-metrics/typescript-metrics.integration.test.ts",
+        "src/package-checks/function-metrics/upgrade.integration.test.ts"
+      ],
+      "gitTimer": [
+        "src/project-run/changes/git.test.ts",
+        "src/project-run/task-scheduler/task-engine.admission.test.ts",
+        "src/project-run/task-scheduler/task-engine.scope-capacity.test.ts",
+        "src/project-run/invocation/learned-scheduling.test.ts"
+      ]
+    },
+    "fileListsEqualBeforeV2": {
+      "scriptsLayout": true,
+      "packageSupporting": true,
+      "productFunctionMetrics": true,
+      "gitTimer": true
+    },
+    "comparisonKeyOwnerLaneMap": {
+      "beforePackageLane": "packageSupporting",
+      "afterPackageLane": "packageTooling"
+    },
+    "plainEnvironmentOverrides": {
+      "CARGO_TERM_COLOR": "never",
+      "CLICOLOR": "0",
+      "CLICOLOR_FORCE": "0",
+      "FORCE_COLOR": "0",
+      "NO_COLOR": "1",
+      "PNPM_CONFIG_COLOR": "false",
+      "PY_COLORS": "0",
+      "TERM": "dumb",
+      "UV_NO_COLOR": "1",
+      "npm_config_color": "false"
+    },
+    "cachePolicy": "Natural caches; never cleared; no fastest pick or automatic retry.",
+    "quietRule": "Each workload starts after a 2-second window with no unowned process consuming more than 500 ms CPU; wait at most 30 such windows; never terminate unrelated work.",
+    "polling": "wait4 WNOHANG approximately 10 ms, numeric /proc+cgroup approximately 200 ms; HWM is not simultaneous process-tree RSS.",
+    "focusedConsumerTypes": ["mise", "exec", "--", "bun", "run", "check", "--", "--consumer-types"],
+    "focusedAdmissionWorkbench": [
+      "mise",
+      "exec",
+      "--",
+      "bun",
+      "run",
+      "check",
+      "--",
+      "--admission-workbench"
+    ],
+    "cwd": "/workspace/vibe-check",
+    "cpuMax": "400000 100000",
+    "memoryMax": "6442450944"
+  },
+  "comparison": {
+    "local": [
+      {
+        "group": "scriptsLayout",
+        "beforeWallMs": [2940.571029961575, 2319.711072021164],
+        "afterWallMs": [1767.5401589949615, 2050.9349110070616],
+        "beforeArithmeticMeanMs": 2630.1410509913694,
+        "afterArithmeticMeanMs": 1909.2375350010116,
+        "arithmeticMeanChangePercent": -27.409310071740467,
+        "beforeTests": 1,
+        "afterTests": 2,
+        "beforeFiles": 1,
+        "afterFiles": 1,
+        "fileListEqual": true
+      },
+      {
+        "group": "packageSupporting",
+        "beforeWallMs": [2741.458851029165, 2531.2463600421324],
+        "afterWallMs": [1580.456288997084, 1599.1615450475365],
+        "beforeArithmeticMeanMs": 2636.3526055356488,
+        "afterArithmeticMeanMs": 1589.8089170223102,
+        "arithmeticMeanChangePercent": -39.69665083175412,
+        "beforeTests": 36,
+        "afterTests": 36,
+        "beforeFiles": 20,
+        "afterFiles": 20,
+        "fileListEqual": true
+      },
+      {
+        "group": "productFunctionMetrics",
+        "beforeWallMs": [2246.665136946831, 2573.5126070212573],
+        "afterWallMs": [1723.9978240104392, 2312.363028002437],
+        "beforeArithmeticMeanMs": 2410.088871984044,
+        "afterArithmeticMeanMs": 2018.1804260064382,
+        "arithmeticMeanChangePercent": -16.261161591729078,
+        "beforeTests": 113,
+        "afterTests": 113,
+        "beforeFiles": 39,
+        "afterFiles": 39,
+        "fileListEqual": true
+      },
+      {
+        "group": "gitTimer",
+        "beforeWallMs": [893.202768987976, 1124.1986310342327],
+        "afterWallMs": [630.0794960116036, 730.531957000494],
+        "beforeArithmeticMeanMs": 1008.7007000111043,
+        "afterArithmeticMeanMs": 680.3057265060488,
+        "arithmeticMeanChangePercent": -32.55623531355142,
+        "beforeTests": 18,
+        "afterTests": 18,
+        "beforeFiles": 4,
+        "afterFiles": 4,
+        "fileListEqual": true
+      }
+    ],
+    "checkIdentityRenameMap": {
+      "tests-package-artifact": "acceptance-package-artifact",
+      "tests-package-consumer-docs": "acceptance-installed-package-docs",
+      "tests-package-consumer-runtime": "acceptance-installed-package-runtime",
+      "tests-package-consumer-types": "acceptance-installed-package-types",
+      "tests-package-supporting": "tests-package-tooling",
+      "tests-product-runtime": "tests-product-core-and-tools",
+      "tests-product-markdown-links": "tests-product-markdown"
+    },
+    "routineChecksNotRunAfterPolicyChange": [
+      {
+        "checkId": "acceptance-installed-package-types",
+        "beforeDurationMs": 7048.362563999999
+      },
+      {
+        "checkId": "tests-scripts-admission-workbench",
+        "beforeDurationMs": 5237.239846
+      }
+    ],
+    "matchedRoutineChecks": [
+      {
+        "checkId": "acceptance-installed-package-docs",
+        "beforeDurationMs": 2019.1162339999973,
+        "afterDurationMs": 2052.0957259999996
+      },
+      {
+        "checkId": "acceptance-installed-package-runtime",
+        "beforeDurationMs": 2887.538529999998,
+        "afterDurationMs": 2479.8870940000015
+      },
+      {
+        "checkId": "acceptance-package-artifact",
+        "beforeDurationMs": 2851.54119,
+        "afterDurationMs": 1543.8734570000015
+      },
+      {
+        "checkId": "decision-records",
+        "beforeDurationMs": 1039.3641809999972,
+        "afterDurationMs": 1446.1250489999984
+      },
+      {
+        "checkId": "duplicate-detection",
+        "beforeDurationMs": 201.37164699999994,
+        "afterDurationMs": 1999.527661
+      },
+      {
+        "checkId": "file-metrics",
+        "beforeDurationMs": 380.1352939999997,
+        "afterDurationMs": 529.2551620000013
+      },
+      {
+        "checkId": "format-check",
+        "beforeDurationMs": 737.5937310000008,
+        "afterDurationMs": 220.06359900000098
+      },
+      {
+        "checkId": "function-metrics",
+        "beforeDurationMs": 6052.5367559999995,
+        "afterDurationMs": 5564.557801000001
+      },
+      {
+        "checkId": "git-diff-whitespace",
+        "beforeDurationMs": 339.1601179999998,
+        "afterDurationMs": 85.34746599999926
+      },
+      {
+        "checkId": "lint-product",
+        "beforeDurationMs": 2728.0270979999996,
+        "afterDurationMs": 3652.297342
+      },
+      {
+        "checkId": "lint-scripts",
+        "beforeDurationMs": 3282.4201790000006,
+        "afterDurationMs": 2739.7255019999993
+      },
+      {
+        "checkId": "markdown-link-validation",
+        "beforeDurationMs": 1218.2174430000014,
+        "afterDurationMs": 644.6696510000002
+      },
+      {
+        "checkId": "markdown-lint",
+        "beforeDurationMs": 2419.4877129999986,
+        "afterDurationMs": 1093.4051010000003
+      },
+      {
+        "checkId": "materials-examples-validator",
+        "beforeDurationMs": 279.1817699999956,
+        "afterDurationMs": 221.98489100000006
+      },
+      {
+        "checkId": "materials-json-validator",
+        "beforeDurationMs": 1799.5345490000036,
+        "afterDurationMs": 1029.1936659999992
+      },
+      {
+        "checkId": "materials-links-validator",
+        "beforeDurationMs": 33.2461570000014,
+        "afterDurationMs": 24.564202999998088
+      },
+      {
+        "checkId": "materials-schema-publication-validator",
+        "beforeDurationMs": 132.52210700000433,
+        "afterDurationMs": 200.45602800000052
+      },
+      {
+        "checkId": "materials-schema-validator",
+        "beforeDurationMs": 135.47566799999913,
+        "afterDurationMs": 163.6931450000011
+      },
+      {
+        "checkId": "prepared-external-package-consumer",
+        "beforeDurationMs": 8123.373200999999,
+        "afterDurationMs": 7912.046471
+      },
+      {
+        "checkId": "prepared-package-candidate",
+        "beforeDurationMs": 4.6117810000000645,
+        "afterDurationMs": 5.620165000000043
+      },
+      {
+        "checkId": "test-evidence",
+        "beforeDurationMs": 2523.825815,
+        "afterDurationMs": 3354.432627
+      },
+      {
+        "checkId": "test-evidence-rule-tests",
+        "beforeDurationMs": 41.31766200000129,
+        "afterDurationMs": 24.474883999999292
+      },
+      {
+        "checkId": "tests-package-tooling",
+        "beforeDurationMs": 3207.716076,
+        "afterDurationMs": 2226.9100050000015
+      },
+      {
+        "checkId": "tests-product-core-and-tools",
+        "beforeDurationMs": 5859.949704000001,
+        "afterDurationMs": 2892.073714000002
+      },
+      {
+        "checkId": "tests-product-duplicate-detection",
+        "beforeDurationMs": 3517.780875999997,
+        "afterDurationMs": 5304.895211999999
+      },
+      {
+        "checkId": "tests-product-file-metrics",
+        "beforeDurationMs": 1960.3219690000005,
+        "afterDurationMs": 2407.0479049999994
+      },
+      {
+        "checkId": "tests-product-function-metrics",
+        "beforeDurationMs": 2568.1410749999995,
+        "afterDurationMs": 3020.1635879999994
+      },
+      {
+        "checkId": "tests-product-json",
+        "beforeDurationMs": 1108.847569000005,
+        "afterDurationMs": 589.9166990000012
+      },
+      {
+        "checkId": "tests-product-markdown",
+        "beforeDurationMs": 5416.126318,
+        "afterDurationMs": 5511.934426
+      },
+      {
+        "checkId": "tests-product-secret-detection",
+        "beforeDurationMs": 1161.1274489999996,
+        "afterDurationMs": 496.8068579999999
+      },
+      {
+        "checkId": "tests-product-supporting-checks",
+        "beforeDurationMs": 3581.106292999999,
+        "afterDurationMs": 5310.486523
+      },
+      {
+        "checkId": "tests-scripts-layout",
+        "beforeDurationMs": 4931.092915000001,
+        "afterDurationMs": 3815.7598899999994
+      },
+      {
+        "checkId": "tests-scripts-machine-artifacts",
+        "beforeDurationMs": 2148.609832000002,
+        "afterDurationMs": 1289.541535999997
+      },
+      {
+        "checkId": "tests-scripts-package-tools-boundary",
+        "beforeDurationMs": 1588.7776080000003,
+        "afterDurationMs": 1048.8882540000013
+      },
+      {
+        "checkId": "tests-scripts-project",
+        "beforeDurationMs": 3037.845045000002,
+        "afterDurationMs": 6455.422222
+      },
+      {
+        "checkId": "tests-scripts-project-selection",
+        "beforeDurationMs": 887.3019329999988,
+        "afterDurationMs": 957.3942889999998
+      },
+      {
+        "checkId": "tests-scripts-test-evidence",
+        "beforeDurationMs": 1197.9027449999994,
+        "afterDurationMs": 1240.8946849999993
+      },
+      {
+        "checkId": "tests-scripts-tooling",
+        "beforeDurationMs": 1598.5001839999968,
+        "afterDurationMs": 1713.366324999999
+      },
+      {
+        "checkId": "tests-scripts-validation",
+        "beforeDurationMs": 1105.219001999998,
+        "afterDurationMs": 739.907482999999
+      },
+      {
+        "checkId": "typecheck-product",
+        "beforeDurationMs": 826.8872929999998,
+        "afterDurationMs": 517.5174709999992
+      },
+      {
+        "checkId": "typecheck-scripts",
+        "beforeDurationMs": 646.8939660000033,
+        "afterDurationMs": 464.547512000001
+      }
+    ],
+    "matchedRoutineCheckSummaryBefore": {
+      "count": 41,
+      "sumMs": 85579.746676,
+      "meanMs": 2087.3108945365852,
+      "nearestRankP95Ms": 5859.949704000001
+    },
+    "matchedRoutineCheckSummaryAfter": {
+      "count": 41,
+      "sumMs": 82990.771288,
+      "meanMs": 2024.1651533658537,
+      "nearestRankP95Ms": 5564.557801000001
+    }
+  },
+  "testBodyComparison": {
+    "beforeFiles": 64,
+    "afterFiles": 64,
+    "changed": [
+      {
+        "path": "scripts/package/artifact/compiler-cache.test.ts",
+        "beforeSha256": "3af696e0db402491367341f6ba7a8f919cf3e2a064f83c506d3818c1b48a5aa6",
+        "afterSha256": "dc23596658b48dfae807a63d9f9a8e56bcf644bc70590006ef8fa65c1a7cf658"
+      },
+      {
+        "path": "scripts/package/artifact/documentation-input.test.ts",
+        "beforeSha256": "6fbe50d1543bfc39b35c424dda6f8906cb54a23e112732a705ea6c5e7227976c",
+        "afterSha256": "5bb0681c29d33c55027c9b57d0af28d1b59f0698c07ebce2adefdcc271358585"
+      },
+      {
+        "path": "scripts/package/artifact/manifest.test.ts",
+        "beforeSha256": "36f8e35e0f6e05fbf6c9a1488c99b19c330a89406df1179dec7eab0ebd49005c",
+        "afterSha256": "e2dd580e80c62e5dd63b698da28d8d0acca2fda9e866f44fdf8e0a2a96565149"
+      },
+      {
+        "path": "scripts/package/candidate/candidate.test.ts",
+        "beforeSha256": "64bb699a74339545f09e419caa0af4d98b199409164c2fa2a7fe43f2ee6663ff",
+        "afterSha256": "c9483543553ef0eaa92b87f162edbbb602261e8b702764a89e01fb1432248062"
+      },
+      {
+        "path": "scripts/validation/repository-layout.test.ts",
+        "beforeSha256": "65e20a9471143b76dab562fe8571a19f8520638563a4cf4fe65d245cae416254",
+        "afterSha256": "ad93bc9b68728ae8d4f63673deb08ef6eaace12781e4581f5497d1cf6ee1176f"
+      },
+      {
+        "path": "src/package-checks/function-metrics/constructor.test.ts",
+        "beforeSha256": "70af1e6d47622a18341ff9c33fde0344ed7f49adc6cbe0a8eeb520fba29a85a3",
+        "afterSha256": "cc000fb748d5f14e8c58e9a9bf37fb8e1ce3221d249de1c745aa0e3ac5b8cd44"
+      },
+      {
+        "path": "src/package-checks/function-metrics/measurement.resource.test.ts",
+        "beforeSha256": "ffc19d69fd9588d2cb3eed19a05820f4803769ead3c054fa5c6496bba9a7c25f",
+        "afterSha256": "ecec2b5d883f6ae12d19e79e19ed36c936db6d7d915403f0fd58d676e843920f"
+      },
+      {
+        "path": "src/project-run/changes/git.test.ts",
+        "beforeSha256": "5bf33667234fcd0b88f6dfbf4bf8a3764bf000f20ecc23feb8a0143031194f16",
+        "afterSha256": "c97c70179ffc25c3ef71a8ff87fde6135e38036fda9df602fbb8134de4ea489f"
+      },
+      {
+        "path": "src/project-run/invocation/learned-scheduling.test.ts",
+        "beforeSha256": "68675d781c5ee9688812c19f67dada832b19b27ff20851c281ea69424149066c",
+        "afterSha256": "ec2d23da32dd790a3e6e280b81593f9158371135ef34f46f145d3b3a03d0b009"
+      },
+      {
+        "path": "src/project-run/task-scheduler/task-engine.admission.test.ts",
+        "beforeSha256": "ddc1092cd233fa8f6ba5545c785a8ad7847c00f8a16dd5a630369f6fbc744cf7",
+        "afterSha256": "eb9862c5c7ff69722e67be72a95f6b54fa45d64def7ee2b1f93bcb6e3ebc71b5"
+      },
+      {
+        "path": "src/project-run/task-scheduler/task-engine.scope-capacity.test.ts",
+        "beforeSha256": "0047a1a92d0c1a397db2363a9f14f809e5a5aae43a7575ef497af6a3c92fd068",
+        "afterSha256": "cb45553c32f47c9162d2671e00cf0f6787c68fefd9e3301c72652e27d8e6686b"
+      }
+    ],
+    "note": "Exact patch retained; equal file/test counts do not prove unchanged assertions. Layout includes retired obligations removed plus fixture lowering; other scenarios can change scale/timing or proof level."
+  },
+  "v1RepairExplanation": {
+    "newSourceIdentityNotSameInputRetry": true,
+    "learnedFixture": "Deduplicate two homogeneous fixture objects, preserve assertions; resulting codeLines 296.",
+    "moduleAnalysis": "Unify import/re-export collection, retain explicit type/value syntax predicates; resulting main-function CCN 9.",
+    "gatePolicy": "Three-row containment table plus independent 9-pair assertion matrix inside an existing test entity; resulting CCN 10.",
+    "metricLimitsWaiversRunnerBudgetsChanged": false
+  },
+  "originalEvidenceRoots": [
+    ".log/gate-test-boundary-before-20261024-Tz7JLO",
+    ".log/gate-test-boundary-after-20261024-cVxbnt",
+    ".log/gate-test-boundary-after-v2-20261024-QEjJJn"
+  ],
+  "boundaries": [
+    "V1 first functional failure is retained; three changes create a new source identity before this separately authorized V2, not a retry for green.",
+    "One V2 routine all only, final exit1 solely performance; no automatic retry.",
+    "All local groups twice serial in fixed order after fullGate, natural caches, no fastest-pick; two samples do not establish stable p95.",
+    "43 defined Checks remain; routine executed count changes 43→41 due to types/workbench frequency policy, not pure same-workload optimization.",
+    "Matched Check-ID summaries only remove the denominator effect; source/tests/scheduling environment still differ and do not provide causal isolation.",
+    "Candidate before reused 11aaf5e2c0fd; V1 rebuilt e8ae7bc9545c; V2 reused e8ae7bc9545c. Preparation and Product Run are separate from process wall.",
+    "focused work uses fresh invocation/provider and is correctness-only, outside routine comparison; its adapter phase timings are not emitted by focused policy.",
+    "Shared cgroup CPU/PSI/events and sampled unrelated CPU cannot be assigned to individual Checks or eliminate brief external processes/host contention.",
+    "wait4 CPU includes reaped children; RSS HWM is not simultaneous process-tree RSS.",
+    "No formal receipt/release branch/prepare or release verification was run; focused types is not formal same-receipt release evidence."
+  ]
+}

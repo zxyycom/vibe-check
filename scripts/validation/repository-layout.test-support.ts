@@ -7,98 +7,41 @@ export const PACKAGE_TOOL_FIXTURE_COMPILER_OPTIONS = {
   types: []
 } as const;
 
-const PRODUCT_OWNERS = [
-  "check",
-  "check-settlement",
-  "data-boundary",
-  "machine-output",
-  "package-checks",
-  "package-tools",
-  "project-definition",
-  "project-run"
-];
+export function repositoryBoundarySources(): Map<string, string> {
+  return new Map([
+    ["src/index.ts", "export {};\n"],
+    ["src/package-checks/function-metrics/analyzer/pipeline.ts", "export {};\n"],
+    [
+      "src/package-checks/function-metrics/analyzer/port-facade.ts",
+      'import "./pipeline.ts";\nexport {};\n'
+    ],
+    [
+      "src/package-checks/function-metrics/analyzer/port-facade.test.ts",
+      'import "./pipeline.ts";\nimport "./port-facade.ts";\n'
+    ],
+    [
+      "src/package-checks/function-metrics/analyzer-adapter.ts",
+      'import "./analyzer/port-facade.ts";\nexport {};\n'
+    ],
+    [
+      "src/package-checks/function-metrics/analyzer-adapter.test.ts",
+      'import "./analyzer-adapter.ts";\n'
+    ],
+    [
+      "src/package-checks/function-metrics/analyzer-worker.ts",
+      'import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";\nvoid analyzeFunctionMetricsSources;\n'
+    ],
+    [
+      "src/package-checks/function-metrics/target-files.ts",
+      'import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";\nvoid analyzeFunctionMetricsSources;\n'
+    ]
+  ]);
+}
 
 export function createTargetLayout(): string {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-repository-layout-"));
   writeFileSync(join(root, "package.json"), '{"type":"module"}\n', "utf8");
-  writeSource(root, "src/index.ts", "export {};\n");
-  for (const owner of PRODUCT_OWNERS) {
-    if (owner === "package-tools") {
-      // The owner exists even when its optional production surface is empty.
-      mkdirSync(join(root, "src", owner), { recursive: true });
-    } else {
-      writeSource(root, `src/${owner}/${owner}.ts`, "export {};\n");
-    }
-  }
-  writeSource(root, "src/package-checks/function-metrics/analyzer/pipeline.ts", "export {};\n");
-  writeSource(
-    root,
-    "src/package-checks/function-metrics/analyzer/port-facade.ts",
-    'import "./pipeline.ts";\nexport {};\n'
-  );
-  writeSource(
-    root,
-    "src/package-checks/function-metrics/analyzer/port-facade.test.ts",
-    'import "./pipeline.ts";\nimport "./port-facade.ts";\nexport {};\n'
-  );
-  writeSource(
-    root,
-    "src/package-checks/function-metrics/analyzer-adapter.ts",
-    'import "./analyzer/port-facade.ts";\nexport {};\n'
-  );
-  writeSource(
-    root,
-    "src/package-checks/function-metrics/analyzer-adapter.test.ts",
-    'import "./analyzer-adapter.ts";\nexport {};\n'
-  );
-  writeSource(
-    root,
-    "src/package-checks/function-metrics/analyzer-worker.ts",
-    'import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";\nvoid analyzeFunctionMetricsSources;\n'
-  );
-  writeSource(
-    root,
-    "src/package-checks/function-metrics/target-files.ts",
-    [
-      'import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";',
-      '// import { analyzeSourceCode } from "./analyzer/pipeline.ts";',
-      "void analyzeFunctionMetricsSources;"
-    ].join("\n")
-  );
-  writeSource(
-    root,
-    "scripts/package/artifact/build.ts",
-    [
-      "const entries = PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS.map((sourcePath) =>",
-      "  join(repositoryRoot, sourcePath)",
-      ");",
-      "void entries;"
-    ].join("\n")
-  );
-  writeSource(
-    root,
-    "scripts/package/package-contract.ts",
-    [
-      'export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH = "src/package-checks/function-metrics/analyzer-worker.ts";',
-      'export const PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH = "src/package-checks/markdown-link-validation/io-worker.ts";',
-      "export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([",
-      '  "src/index.ts",',
-      "  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH,",
-      "  PACKAGE_MARKDOWN_LINK_WORKER_SOURCE_PATH",
-      "]);"
-    ].join("\n")
-  );
-  for (const path of [
-    "scripts/project/gate/definition.test.ts",
-    "scripts/project/gate/definition.ts",
-    "scripts/project/gate/run.test.ts",
-    "scripts/project/gate/run.ts",
-    "scripts/project/gate/checks/process/process.ts",
-    "scripts/project/gate/runtime/bound-run.ts"
-  ]) {
-    writeSource(root, path, "export {};\n");
-  }
-  writeSource(root, "scripts/package/candidate/prepare.ts", "export {};\n");
+  for (const [path, source] of repositoryBoundarySources()) writeSource(root, path, source);
   return root;
 }
 

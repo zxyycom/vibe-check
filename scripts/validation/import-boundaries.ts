@@ -1,4 +1,4 @@
-import { dirname, relative, resolve } from "node:path";
+import { posix, relative } from "node:path";
 
 import {
   readModuleSpecifierAnalysis,
@@ -16,9 +16,7 @@ const PRIVATE_PROCESS_EXECUTION_FILES = new Set([
 
 interface ImportBoundaryInput {
   readonly repositoryPath: string;
-  readonly root: string;
-  readonly analysesBySourcePath: Map<string, ModuleSpecifierAnalysis>;
-  readonly sourcePath: string;
+  readonly analysis: ModuleSpecifierAnalysis;
   readonly violations: string[];
 }
 
@@ -31,19 +29,28 @@ export function validateImportBoundaries(
   for (const sourcePath of sourceFiles) {
     const repositoryPath = relativePath(root, sourcePath);
     if (isFixtureSourcePath(repositoryPath)) continue;
-    const input: ImportBoundaryInput = {
+    validateModuleImportBoundaries(
       repositoryPath,
-      root,
-      analysesBySourcePath,
-      sourcePath,
+      readModuleSpecifierAnalysis({ sourcePath, repositoryPath, analysesBySourcePath }),
       violations
-    };
-    validateProductImportsScripts(input);
-    validateProjectImportsProduct(input);
-    validatePackageImportsProject(input);
-    validateEnvironmentImportsProcessExecution(input);
-    validateScriptPrivateProcessExecutionImports(input);
+    );
   }
+}
+
+/** Applies dependency policy to one repository-relative module analysis, without filesystem IO. */
+export function validateModuleImportBoundaries(
+  repositoryPath: string,
+  analysis: ModuleSpecifierAnalysis,
+  violations: string[]
+): void {
+  if (isFixtureSourcePath(repositoryPath)) return;
+  appendModuleSpecifierDiagnostics(violations, analysis);
+  const input: ImportBoundaryInput = { repositoryPath, analysis, violations };
+  validateProductImportsScripts(input);
+  validateProjectImportsProduct(input);
+  validatePackageImportsProject(input);
+  validateEnvironmentImportsProcessExecution(input);
+  validateScriptPrivateProcessExecutionImports(input);
 }
 
 export function relativePath(root: string, absolutePath: string): string {
@@ -51,12 +58,11 @@ export function relativePath(root: string, absolutePath: string): string {
 }
 
 export function resolvedRelativeModulePath(
-  root: string,
-  sourcePath: string,
+  repositoryPath: string,
   specifier: string
 ): string | undefined {
   if (!specifier.startsWith(".")) return undefined;
-  return relativePath(root, resolve(dirname(sourcePath), specifier));
+  return posix.normalize(posix.join(posix.dirname(repositoryPath), specifier));
 }
 
 /** Fixture text may deliberately be malformed source rather than parsable TypeScript. */
@@ -66,24 +72,34 @@ export function isFixtureSourcePath(repositoryPath: string): boolean {
 
 function validateProductImportsScripts(input: ImportBoundaryInput): void {
   if (!input.repositoryPath.startsWith("src/")) return;
-  reportImportsUnder(input, valueModuleSpecifiers(input), "scripts", "product-imports-scripts");
+  reportImportsUnder(
+    input,
+    input.analysis.valueModuleSpecifiers,
+    "scripts",
+    "product-imports-scripts"
+  );
 }
 
 function validateProjectImportsProduct(input: ImportBoundaryInput): void {
   if (!input.repositoryPath.startsWith("scripts/project/")) return;
-  reportImportsUnder(input, moduleSpecifiers(input), "src", "project-deep-imports-product");
+  reportImportsUnder(input, input.analysis.moduleSpecifiers, "src", "project-deep-imports-product");
 }
 
 function validatePackageImportsProject(input: ImportBoundaryInput): void {
   if (!input.repositoryPath.startsWith("scripts/package/")) return;
-  reportImportsUnder(input, moduleSpecifiers(input), "scripts/project", "package-imports-project");
+  reportImportsUnder(
+    input,
+    input.analysis.moduleSpecifiers,
+    "scripts/project",
+    "package-imports-project"
+  );
 }
 
 function validateEnvironmentImportsProcessExecution(input: ImportBoundaryInput): void {
   if (input.repositoryPath !== "scripts/environment/manage.ts") return;
   reportImportsUnder(
     input,
-    moduleSpecifiers(input),
+    input.analysis.moduleSpecifiers,
     "scripts/process-execution",
     "environment-imports-process-execution"
   );
@@ -96,8 +112,8 @@ function validateScriptPrivateProcessExecutionImports(input: ImportBoundaryInput
   ) {
     return;
   }
-  for (const specifier of moduleSpecifiers(input)) {
-    const targetPath = resolvedRelativeModulePath(input.root, input.sourcePath, specifier);
+  for (const specifier of input.analysis.moduleSpecifiers) {
+    const targetPath = resolvedRelativeModulePath(input.repositoryPath, specifier);
     if (targetPath !== undefined && PRIVATE_PROCESS_EXECUTION_FILES.has(targetPath)) {
       input.violations.push(
         `script-deep-imports-process-execution: ${input.repositoryPath} -> ${specifier}`
@@ -113,32 +129,13 @@ function reportImportsUnder(
   violationCode: string
 ): void {
   for (const specifier of specifiers) {
-    if (resolvesUnder(input.root, input.sourcePath, specifier, targetRoot)) {
+    if (resolvesUnder(input.repositoryPath, specifier, targetRoot)) {
       input.violations.push(`${violationCode}: ${input.repositoryPath} -> ${specifier}`);
     }
   }
 }
 
-function moduleSpecifiers(input: ImportBoundaryInput): readonly string[] {
-  return analyzeImportBoundarySource(input).moduleSpecifiers;
-}
-
-function valueModuleSpecifiers(input: ImportBoundaryInput): readonly string[] {
-  return analyzeImportBoundarySource(input).valueModuleSpecifiers;
-}
-
-function analyzeImportBoundarySource(input: ImportBoundaryInput): ModuleSpecifierAnalysis {
-  const analysis = readModuleSpecifierAnalysis(input);
-  appendModuleSpecifierDiagnostics(input.violations, analysis);
-  return analysis;
-}
-
-function resolvesUnder(
-  root: string,
-  sourcePath: string,
-  specifier: string,
-  targetRoot: string
-): boolean {
-  const targetPath = resolvedRelativeModulePath(root, sourcePath, specifier);
+function resolvesUnder(repositoryPath: string, specifier: string, targetRoot: string): boolean {
+  const targetPath = resolvedRelativeModulePath(repositoryPath, specifier);
   return targetPath === targetRoot || targetPath?.startsWith(`${targetRoot}/`) === true;
 }

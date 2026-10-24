@@ -289,7 +289,7 @@
       "260904-publish-project-gate-machine-facts-in-machine-namespace": "sha256:c7541c56895fd0403dfe644bc32e07a154c0de55c204f24b2123bd73a78ab373",
       "260904-render-record-and-message-previews-in-product-progress": "sha256:bcbd648f1291757d2360e2071821a6a2994551976b6e5d58e508711025e1b6e7",
       "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes": "sha256:225dada187603fbf1ca08509cbbbe8db79710ae1b94b6a38b6576538a67bedc5",
-      "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": "sha256:74a6c8734cace02cb7ade0720773be9e61255f990778e2b47ee655ae1caef5b6",
+      "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": "sha256:bdd311f43518d9bd4d4c864e8927f04954e4ce7ebcd164a00712f64d67c2c070",
       "260904-unify-effective-flag-selection-and-aggregation": "sha256:bf8c3e22a82bbf05a7a19681c4c3fbc8d75546e8ae2c1168d9d5f43fcfaff9ce",
       "260904-use-project-check-command-with-focused-gate-presets": "sha256:39c5ba6bb62abbc55c6733a42f7510741a245237b30cf1b04e90d62f292ad60b",
       "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict": "sha256:ff0bb1d9104b3d745b2a0cb9bd72f503be9889a389b5ceadca774f9c696613aa",
@@ -378,8 +378,10 @@
       "261019-bind-gate-pinned-tools-at-check-owned-boundaries": "sha256:a239178c818aa4091199f3bd39bb078b945655087a7ef357525096b3e78497f8",
       "261019-require-consumer-oriented-package-documentation-review": "sha256:99f9cc0cc0b37c8e7664dab27b04a390d5a1402d22a7bc0e8f75a1310e21e8d6",
       "261022-enforce-gate-performance-budgets": "sha256:b72be1ac6d535d43e91a082d1de35e59d1bdc80702f026174398cf7a2a23fb09",
-      "261022-tier-gate-validation": "sha256:90f5393cb53053494b0cf8ac9bcd8ca5df51c5b968d65d32f6337deb82d31d1f",
-      "261022-version-gate-performance-policy": "sha256:34f91f12c8a4b3a6371545a334c95c0600939017ae170d70ff707ac9e09114e4"
+      "261022-tier-gate-validation": "sha256:6a2d413cc0c6521fad686032a73c4ef35c4d5181806e82c0b3a218fd7c0dd4a8",
+      "261022-version-gate-performance-policy": "sha256:34f91f12c8a4b3a6371545a334c95c0600939017ae170d70ff707ac9e09114e4",
+      "261024-reuse-exact-candidate-across-gate-acceptance": "sha256:3a4823ddfae872da6d998afffb8fb5f62aff6d2fb5d6198c4a7db12e4c86af59",
+      "261024-separate-routine-release-and-explicit-gate-selection": "sha256:a4e104907485db4572553fa82ba8aa1b039f393466ef7c9546b937cd3621a7e2"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6034,9 +6036,9 @@
     },
     "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": {
       "name": "reuse-gate-prepared-candidate-without-detached-lifecycle",
-      "sourcePath": "reuse-gate-prepared-candidate-without-detached-lifecycle.md",
+      "sourcePath": "archive/reuse-gate-prepared-candidate-without-detached-lifecycle.md",
       "title": "以唯一 prepared candidate 完成 Project Gate package 验收",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-04T03:03:18Z",
       "purpose": "让 complete --all Gate 复用唯一真实 package preparation，并保留产物、consumer 与 cold integration 证明。",
@@ -7845,9 +7847,9 @@
     },
     "261022-tier-gate-validation": {
       "name": "tier-gate-validation",
-      "sourcePath": "tier-gate-validation.md",
+      "sourcePath": "archive/tier-gate-validation.md",
       "title": "分离快速反馈、受影响验收与完整 Gate",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-22T09:59:19Z",
       "purpose": "让日常反馈更轻且交付验收范围明确",
@@ -7880,6 +7882,52 @@
           "type": "修订",
           "target": "261022-enforce-gate-performance-budgets",
           "summary": "以统一版本化策略替代本机预算并扩展三档"
+        }
+      ]
+    },
+    "261024-reuse-exact-candidate-across-gate-acceptance": {
+      "name": "reuse-exact-candidate-across-gate-acceptance",
+      "sourcePath": "reuse-exact-candidate-across-gate-acceptance.md",
+      "title": "跨 Gate 验收复用唯一 exact candidate",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T04:05:40Z",
+      "purpose": "保留唯一候选和独立安装验收，避免重复物理准备",
+      "background": "唯一candidate已消除重复准备，但原all仍强制运行types验收",
+      "decision": "唯一candidate与一次external安装继续复用，types随发布或明确诊断选择",
+      "tags": [
+        "configuration",
+        "testing",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260904-reuse-gate-prepared-candidate-without-detached-lifecycle",
+          "summary": "保留唯一候选复用并修订types选择频率"
+        }
+      ]
+    },
+    "261024-separate-routine-release-and-explicit-gate-selection": {
+      "name": "separate-routine-release-and-explicit-gate-selection",
+      "sourcePath": "separate-routine-release-and-explicit-gate-selection.md",
+      "title": "分离日常、发布与显式 Gate 义务",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-24T04:05:40Z",
+      "purpose": "让日常完整验收与发布、手动诊断各自具有明确范围",
+      "background": "完整manifest把consumer types与workbench自动带入日常all及保守回退",
+      "decision": "保留fast与受影响验收，将types设为发布前或显式、workbench仅显式",
+      "tags": [
+        "configuration",
+        "performance",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261022-tier-gate-validation",
+          "summary": "保留分层反馈并明确发布和显式义务"
         }
       ]
     }

@@ -4,10 +4,13 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { collectPackageDocumentation } from "../../../docs/package-markdown.ts";
 import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../../docs/package-api/example-projections.ts";
-import { renderPackageApiDocumentation } from "../../../docs/package-api/render.ts";
-import { collectPackageMachineMaterials } from "../../../docs/machine-artifacts/package-materials.ts";
+import {
+  artifactDocumentation,
+  type PackageDocumentationExpectation
+} from "../../artifact/documentation-audit.ts";
+import { readPackageDocumentationInput } from "../../artifact/documentation-input.ts";
+import { readGateExternalConsumerMaterial } from "./input.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import type { ExternalConsumerMaterial } from "./material.ts";
@@ -18,18 +21,17 @@ const MACHINE_DEFINITION_PATH = "docs/examples/artifacts/mixed-outcomes/definiti
 
 /** Owns installed package documentation and projected example acceptance. */
 export function assertExternalConsumerDocumentation(material: ExternalConsumerMaterial): void {
-  const documentation = renderPackageApiDocumentation({ repositoryRoot });
-  const supportingDocuments = collectPackageDocumentation(
-    repositoryRoot,
-    documentation.markdownDocuments
-  );
-  for (const document of [documentation.readme, ...supportingDocuments]) {
+  const documentation = externalConsumerDocumentation({ material, repositoryRoot });
+  for (const document of [
+    { packagePath: "README.md", content: documentation.readme },
+    ...documentation.documents
+  ]) {
     assert.equal(
       readFileSync(join(material.installedPackageDirectory, document.packagePath), "utf8"),
       document.content
     );
   }
-  for (const materialFile of collectPackageMachineMaterials(repositoryRoot)) {
+  for (const materialFile of documentation.machineMaterials) {
     assert.equal(
       readFileSync(join(material.installedPackageDirectory, materialFile.packagePath)).equals(
         materialFile.content
@@ -39,6 +41,25 @@ export function assertExternalConsumerDocumentation(material: ExternalConsumerMa
     );
   }
   runDocumentationAcceptance(material);
+}
+
+/** Selects shared source expectations before installed bytes or examples can be accepted. */
+export function externalConsumerDocumentation(input: {
+  readonly material: ExternalConsumerMaterial;
+  readonly repositoryRoot: string;
+  readonly environment?: NodeJS.ProcessEnv;
+  readonly renderDocumentation?: typeof artifactDocumentation;
+}): PackageDocumentationExpectation {
+  const environment = input.environment ?? process.env;
+  const shared = readPackageDocumentationInput({
+    artifact: input.material,
+    environment,
+    repositoryRoot: input.repositoryRoot
+  });
+  if (shared === undefined && readGateExternalConsumerMaterial(environment) !== undefined) {
+    throw new TypeError("Gate documentation acceptance requires its source documentation input");
+  }
+  return shared ?? (input.renderDocumentation ?? artifactDocumentation)(input.repositoryRoot);
 }
 
 function runtimeDocumentationExampleSourcePaths(): readonly string[] {

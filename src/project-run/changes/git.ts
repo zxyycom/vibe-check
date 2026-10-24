@@ -26,14 +26,7 @@ export function prepareProjectChanges(
   const declaredFlags = declaredChangeFlags(input.changes);
   try {
     const paths = collectGitChangedPaths(input.projectRoot, input.changes.source.compareWith);
-    const projectChanges = matchedProjectChanges(paths, input.changes);
-    return Object.freeze({
-      effectiveFlags: combineFlags(
-        input.callerFlags,
-        projectChanges.files.flatMap(({ flags }) => flags)
-      ),
-      projectChanges
-    });
+    return projectChangesFromPaths({ ...input, paths });
   } catch {
     return Object.freeze({
       effectiveFlags: combineFlags(input.callerFlags, declaredFlags),
@@ -43,6 +36,24 @@ export function prepareProjectChanges(
       })
     });
   }
+}
+
+/** Projects already acquired changed paths through the Run-owned flag regions. */
+export function projectChangesFromPaths(
+  input: Readonly<{
+    readonly callerFlags: readonly string[];
+    readonly changes: NormalizedProjectChangesConfiguration;
+    readonly paths: readonly string[];
+  }>
+): PreparedProjectChanges {
+  const projectChanges = matchedProjectChanges(input.paths, input.changes);
+  return Object.freeze({
+    effectiveFlags: combineFlags(
+      input.callerFlags,
+      projectChanges.files.flatMap(({ flags }) => flags)
+    ),
+    projectChanges
+  });
 }
 
 function declaredChangeFlags(changes: NormalizedProjectChangesConfiguration): readonly string[] {
@@ -135,7 +146,7 @@ function gitNulPaths(cwd: string, args: readonly string[]): readonly string[] {
 }
 
 /** Parses Git's `--name-status -z` protocol without line or tab splitting. */
-function parseGitNameStatus(stdout: string): readonly string[] {
+export function parseGitNameStatus(stdout: string): readonly string[] {
   const tokens = stdout.split("\0");
   if (tokens.at(-1) === "") tokens.pop();
   const paths: string[] = [];

@@ -87,6 +87,7 @@ export async function prepareReleaseCandidateFromReceipt(input: {
   return Object.freeze({
     ...verified.artifact,
     consumerDirectory,
+    documentation,
     installedPackageDirectory: installation.installedPackageDirectory,
     ...RELEASE_RECEIPT_PREPARATION_FACT,
     resolvedEntryPath: installation.resolvedEntryPath

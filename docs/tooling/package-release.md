@@ -55,7 +55,7 @@ bun run package:release:prepare -- --version <selected-version> --tag latest
 
 1. **准备。** Change 实现 worktree 在无前缀发布分支（例如 `release-0-0-2`）准备 Plan、实现修正、升级说明与非敏感证据，并开展[对外文档复核](#发布前对外文档复核)。该工作区承接持续记录，正式构建使用下一步的冻结工作区；`main` 保持开发集成线。
 2. **冻结。** 选定 clean source commit `S` 后，建立独立 detached 发布 worktree 并固定在 `S`。prepare 前须满足[发布身份要求](#发布身份与授权边界)中的同一 clean `HEAD` 条件。
-3. **验收。** 在 frozen worktree 从 `S` prepare 正式 tarball 与 receipt，运行 `bun run package:release:verify -- --receipt <receipt-path>`，将完整 `--all` Gate 与 external-consumer acceptance 绑定到同一 tarball；同时完成[正式包文档确认](#发布前对外文档复核)。
+3. **验收。** 在 frozen worktree 从 `S` prepare 正式 tarball 与 receipt，运行 `bun run package:release:verify -- --receipt <receipt-path>`，由该命令接线 `--all --release-receipt <path>`，将完整 routine Gate 及 installed types/docs/runtime acceptance 绑定到同一 tarball；日常无 receipt 的 all 不包含 types，不能替代本步骤；同时完成[正式包文档确认](#发布前对外文档复核)。
 4. **发布与标记。** 同一 tarball 的完整验收、对外文档独立语义复核、临发布 freshness/registry/authority 核验和精确外部写入授权均满足后，才按已确认机制发布。发布及分发验证成功后，Git `v<selected-version>` tag 指向 `S`。
 5. **合入。** 发布修正、Plan 和非敏感证据可在 Change 实现 worktree 持续维护，不使 detached worktree drift；只有正式发布及分发验证成功后，才按授权和受影响验证合回 `main`。任何拟纳入发布的 source 或 packaged-material 变更都须重选 clean commit、重新建立冻结 worktree、prepare 和完整验收。
 

@@ -9,7 +9,10 @@ import { PLAIN_TEXT_PROCESS_ENV } from "../../../process-execution/execution.ts"
 
 import type { ProjectGatePreset } from "../runtime/catalog.ts";
 import type { ProcessFailureProjection } from "./process/failure-projection.ts";
-import type { ProjectGateEntryDeclaration } from "../runtime/entries.ts";
+import type {
+  ProjectGateEntryDeclaration,
+  ProjectGateSelectionPolicy
+} from "../runtime/entries.ts";
 import { settleProjectGateCommand } from "./command-result.ts";
 
 const DEFAULT_GATE_COMMAND_TIMEOUT_MS = 120_000;
@@ -46,6 +49,7 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     readonly mutex?: readonly string[];
     readonly presets: readonly ProjectGatePreset[];
     readonly fast: boolean;
+    readonly selectionPolicy?: ProjectGateSelectionPolicy;
     readonly changeRegion?: string;
     readonly resourceClaims?: Readonly<Record<string, number>>;
     readonly timeoutMs?: number;
@@ -63,6 +67,7 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     fast,
     changeRegion,
     resourceClaims,
+    selectionPolicy,
     timeoutMs
   } = input;
   if (dataDependency !== undefined && failureProjection !== undefined) {
@@ -124,6 +129,7 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     ...(mutex === undefined ? {} : { mutex }),
     presets,
     fast,
+    ...(selectionPolicy === undefined ? {} : { selectionPolicy }),
     ...(changeRegion === undefined ? {} : { changeRegion }),
     ...(resourceClaims === undefined ? {} : { resourceClaims })
   };

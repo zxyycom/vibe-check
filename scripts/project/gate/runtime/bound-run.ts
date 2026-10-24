@@ -1,7 +1,8 @@
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { run as packageRun, type RunControls, type RunResult } from "@zxyycom/vibe-check";
+import { writePackageDocumentationInput } from "../../../package/artifact/documentation-input.ts";
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
 import { selectionFromFlags } from "./controls.ts";
@@ -30,9 +31,16 @@ export async function run(controls: ProjectGateRunControls): Promise<RunResult> 
   if (selectionFromFlags(controls.flags ?? []) === undefined)
     throw new TypeError("Project Gate controls failed closed validation");
 
+  const documentationInput = writePackageDocumentationInput({
+    artifact: controls.preparedCandidate,
+    documentation: controls.preparedCandidate.documentation,
+    path: join(controls.invocationLogDirectory, "package-documentation.json"),
+    repositoryRoot
+  });
   const externalConsumerLease = createExternalConsumerMaterialLease();
   const entries = createProjectGateEntries({
     externalConsumerLease,
+    documentationInput,
     preparedCandidate: controls.preparedCandidate
   });
   try {

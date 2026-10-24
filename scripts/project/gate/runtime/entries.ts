@@ -7,13 +7,27 @@ const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
 const PROJECT_GATE_RELATIONS = ["dependsOn", "observes"] as const;
 
 type ProjectGateRelation = (typeof PROJECT_GATE_RELATIONS)[number];
+export type ProjectGateSelectionPolicy = "routine" | "release-only" | "explicit-only";
+
+// Automatic selections of an observer must also select the observed entry.
+// Explicit-only observers have no automatic selection obligation; presets below
+// independently check every focused path.
+const OBSERVED_POLICIES_BY_OBSERVER_POLICY: Readonly<
+  Record<ProjectGateSelectionPolicy, readonly ProjectGateSelectionPolicy[]>
+> = {
+  routine: ["routine"],
+  "release-only": ["routine", "release-only"],
+  "explicit-only": ["routine", "release-only", "explicit-only"]
+};
 
 /** Project-local selection metadata for one ordinary Check value. */
 export interface ProjectGateEntry {
   readonly check: Check;
   readonly presets: readonly ProjectGatePreset[];
   readonly fast: boolean;
-  /** Omitted only for Checks that always participate in the incremental selections. */
+  /** Defaults to routine; non-routine work never joins changed/all fallback. */
+  readonly selectionPolicy?: ProjectGateSelectionPolicy;
+  /** Routine entries without a region always participate in incremental selections. */
   readonly changeRegion?: string;
 }
 
@@ -31,7 +45,7 @@ export function defineProjectGateEntries(
   for (const entry of entries) validateProjectGateEntryMetadata(entry, entriesByCheckId);
   for (const entry of entries) validateProjectGateEntryRelations(entry, entriesByCheckId);
   return Object.freeze(
-    entries.map(({ check, changeRegion, fast, mutex, presets, resourceClaims }) =>
+    entries.map(({ check, changeRegion, fast, mutex, presets, resourceClaims, selectionPolicy }) =>
       Object.freeze({
         check:
           mutex === undefined && resourceClaims === undefined
@@ -45,6 +59,7 @@ export function defineProjectGateEntries(
               }),
         presets: Object.freeze([...presets]),
         fast,
+        ...(selectionPolicy === undefined ? {} : { selectionPolicy }),
         ...(changeRegion === undefined ? {} : { changeRegion })
       })
     )
@@ -92,12 +107,20 @@ function validateProjectGateObservationSelection(
   entry: ProjectGateEntry,
   observedEntry: ProjectGateEntry
 ): void {
+  const policy = entry.selectionPolicy ?? "routine";
+  const observedPolicy = observedEntry.selectionPolicy ?? "routine";
+  if (!OBSERVED_POLICIES_BY_OBSERVER_POLICY[policy].includes(observedPolicy)) {
+    throw new TypeError(
+      `Project Gate observes relation is not selection-policy closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
+    );
+  }
   if (entry.fast && !observedEntry.fast) {
     throw new TypeError(
       `Project Gate observes relation is not fast-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
     );
   }
   if (
+    policy === "routine" &&
     observedEntry.changeRegion !== undefined &&
     entry.changeRegion !== observedEntry.changeRegion
   ) {
@@ -148,4 +171,19 @@ function validateProjectGateEntrySelection(entry: ProjectGateEntry): void {
     throw new TypeError(`Project Gate entry has an unknown preset: ${check.checkId}`);
   if (new Set(presets).size !== presets.length)
     throw new TypeError(`Project Gate entry has duplicated presets: ${check.checkId}`);
+  validateProjectGateEntryPolicy(entry);
+}
+
+/** Non-routine policies cannot also declare incremental obligations. */
+function validateProjectGateEntryPolicy(entry: ProjectGateEntry): void {
+  const { check, selectionPolicy, fast, changeRegion, presets } = entry;
+  if (selectionPolicy === undefined || selectionPolicy === "routine") return;
+  if (selectionPolicy !== "release-only" && selectionPolicy !== "explicit-only")
+    throw new TypeError(`Project Gate entry selection policy is invalid: ${check.checkId}`);
+  if (fast || changeRegion !== undefined)
+    throw new TypeError(
+      `Project Gate non-routine entry has routine selection metadata: ${check.checkId}`
+    );
+  if (selectionPolicy === "explicit-only" && presets.length === 0)
+    throw new TypeError(`Project Gate explicit entry has no preset: ${check.checkId}`);
 }

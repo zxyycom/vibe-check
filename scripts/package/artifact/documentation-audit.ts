@@ -18,11 +18,14 @@ import {
 } from "../../docs/machine-artifacts/package-materials.ts";
 import { PACKAGE_README_PATH } from "../package-contract.ts";
 
-export interface ArtifactDocumentation {
+export interface PackageDocumentationExpectation {
   readonly documents: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly machineMaterials: readonly PackageMachineMaterial[];
   readonly readme: string;
+}
+
+export interface ArtifactDocumentation extends PackageDocumentationExpectation {
   readonly rendered: RenderedPackageApiDocumentation;
 }
 

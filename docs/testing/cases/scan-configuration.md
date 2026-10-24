@@ -82,13 +82,16 @@ Entities:
 Owner: `docs/development/project-definition.md#public-authoring-surface`
 Entities:
 
-- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > publishes only the approved runtime and type roots`
+- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > exposes approved authoring values and adjacent source JSDoc`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits a readable ESM runtime layout and exact exports`
+- `bun|scripts/package/candidate/external-consumer/runtime.test.ts|external consumer runtime acceptance`
 - `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type fixture uses only its public strictness profile`
 - `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type acceptance`
   Proves:
 
 - The public package uses the `@zxyycom/vibe-check` import specifier; its runtime values and named type roots match `CURRENT_PUBLIC_CONTRACT` in `scripts/package/public-api-inventory.ts`, including current package Checks and their final-data parsers, Core data/file-region operations, file-selection defaults, change-flag debugging and declarative callback authoring. Internal process runner, normalized-controls and Git-acquisition helpers are not public roots. `commandCheck` exposes its constructor, environment/output/final-data/unavailable-reason/Check contracts plus resolved options, execution and completion-input types. Change-flag authoring exposes one string-leaf `CheckFlagCondition`, `{ when, propagateDependsOn? }` enablement, Git source/region/configuration, and file-centric evidence types; retired condition-input and enablement-mode roots are absent.
 - An installed consumer can declare `handoff: true` on a `defineCheck` provider, infer provider-aware `dependencies.get(provider)` data/reference types without manual generics, and observe strict identity only within the authorized current Run. The returned reference is absent from installed Run and machine evidence rather than becoming a published contract.
+- Exact public surface is observed at final artifacts: the declaration module graph rejects missing or extra type roots, and the existing ancestry-external Node runner compares actual namespace keys to the independent runtime inventory. Source evidence retains callable/default behavior and exactly one adjacent Chinese JSDoc owner without building a second source export graph.
 - An ancestry-external TypeScript consumer imports and typechecks that public surface without casts or manual dependency-read generics; the same acceptance reads the installed declaration owners directly and requires the documented `defineCheck` / `run` summaries, remarks, parameters, returns and example rather than constructing a second compiler program after the stable TS7 compiler.
 - The installed consumer can declare a typed Git change configuration, build a nested string-atom condition with every direct builder, retain the `changeFlag("source")` literal type, declare `project` needs to read optional `project.changes` from `prepare(options, context)` and `execute(options, context)`, and distinguish successful files from unavailable evidence.
 - The installed consumer can declare `observes`, enumerate its direct settled outcome through the callback-local `dependencies.list()` surface, and still uses the producing parser for final data.

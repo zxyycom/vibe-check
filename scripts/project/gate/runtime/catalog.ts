@@ -1,5 +1,7 @@
 /** Closed focused selections exposed by the Project Gate command. */
 export const PROJECT_GATE_PRESETS = Object.freeze([
+  "admission-workbench",
+  "consumer-types",
   "materials",
   "lint",
   "quality",

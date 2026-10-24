@@ -1,0 +1,533 @@
+{
+  "purpose": "One complete Gate observation, not a same-artifact causal AB or a repeated-run latency distribution.",
+  "command": "mise exec -- bun run check -- --all",
+  "source": {
+    "head": "d15cbf6f34499fa3027ed6c99d0508436add740f",
+    "branch": "main",
+    "status": "M docs/investigations/investigation-index.json\n M docs/testing/cases/quality-gate.md\n M docs/testing/cases/repository-tooling.md\n M docs/tooling/gate-diagnostics.md\n M docs/tooling/package-lifecycle.md\n M docs/tooling/project-gate.md\n M scripts/package/candidate/external-consumer/material.ts\n M scripts/project/gate/checks/external-consumer-material.test.ts\n M scripts/project/gate/checks/repository-quality.test.ts\n M scripts/project/gate/checks/repository-quality.ts\n M scripts/project/gate/definition.test.ts\n M scripts/project/gate/definition.ts\n?? docs/investigations/_resources/261023-diagnose-fast-gate-lint-amplification/\n?? docs/investigations/diagnose-fast-gate-lint-amplification.md\n?? scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts\n?? scripts/package/candidate/external-consumer/preparation-diagnostics.ts",
+    "fileCount": 3373,
+    "manifestSha256": "00c19833514a5a9396a103dd821f1e0bf98f4b38e143fbf16518e9d8febbf901",
+    "unchangedBeforeAfter": {
+      "head": true,
+      "branch": true,
+      "status": true,
+      "source": true,
+      "tools": true,
+      "candidate": true
+    }
+  },
+  "tools": {
+    "mise": {
+      "path": "/home/dev/.local/bin/mise",
+      "version": "2026.7.5 linux-x64 (2026-07-09)",
+      "sha256": "5f7ab76afdf0780d12edeaa67e908094e9ccf7924cfe203e415c1cfb87bbf778"
+    },
+    "bun": {
+      "path": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+      "version": "1.3.14",
+      "sha256": "9fd36f87e4b90b07632b987a2e4ec81ca15a62c81bf983190cea6d715be2ad74"
+    },
+    "node": {
+      "path": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node",
+      "version": "v24.18.0",
+      "sha256": "41a74efb34cbde5c7632cdac0cf8bd1a14d0b8d73dc1e82755014d9a9ce70f5c"
+    },
+    "pnpm": {
+      "path": "/home/dev/.local/share/mise/installs/pnpm/11.1.3/pnpm",
+      "version": "11.1.3",
+      "sha256": "e5e29eb103e73729ed4115f0e939fb376386dd0d76db56b12459524041f922a0"
+    },
+    "uv": {
+      "path": "/home/dev/.local/share/mise/installs/uv/0.11.28/uv-x86_64-unknown-linux-musl/uv",
+      "version": "uv 0.11.28 (x86_64-unknown-linux-musl)",
+      "sha256": "ea1cfe896531cfeeb0c3e73288ef8f04deedf56c2607a39b3e15f85256830d80"
+    },
+    "scc": {
+      "path": "/home/dev/.local/share/mise/installs/go/1.26.4/bin/scc",
+      "version": "scc version 4.0.0",
+      "sha256": "668c616ec977ba9d329af8d2c165079ed5b8f001147ac2c293d982d427ff6c90"
+    },
+    "compilerAndLint": {
+      "sha256": "f0eb5ebd32840fcfacd6cfa2311da07b68e95c1cf689627d9feb7f49065516b6",
+      "entries": {
+        "node_modules/.pnpm/@oxlint+binding-linux-x64-gnu@1.89.0/node_modules/@oxlint/binding-linux-x64-gnu/oxlint.linux-x64-gnu.node": {
+          "sha256": "8e6e2644d968b4a87d6d25283701a04e40ff682a74e8b522d8cea64dfa32a8fc",
+          "bytes": 15265392
+        },
+        "node_modules/.pnpm/@oxlint-tsgolint+linux-x64@7.0.2004/node_modules/@oxlint-tsgolint/linux-x64/tsgolint": {
+          "sha256": "99ee9267df9ea81db27130a8ecdfb67eeaf88a1e0b20d90e02d2ae6574bdc516",
+          "bytes": 22569122
+        },
+        "node_modules/.pnpm/@typescript+typescript-linux-x64@7.0.2/node_modules/@typescript/typescript-linux-x64/lib/tsc": {
+          "sha256": "4f2de678286401759b3fb4475bafe35b8f32b4b3a07d92642bbf37eadc9b34a4",
+          "bytes": 24101026
+        },
+        "node_modules/@typescript/native/package.json": {
+          "sha256": "3722b30210616a13a3213ded11575ba6b2dbab10c32a5ef67afca8513e27017e",
+          "bytes": 3087
+        }
+      }
+    }
+  },
+  "candidate": {
+    "version": "0.0.0-local.4a8cfeb642f8",
+    "artifact": {
+      "path": "/workspace/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.4a8cfeb642f8.tgz",
+      "sha256": "51c0d2363606baad8037c824f4103b0102d5e488fbeab1bebcbfdbccbceb9767"
+    },
+    "inputFingerprint": "4a8cfeb642f89b6e694081a2d0cc966eaa1fe777047c55901b558fc1cf9d6da3",
+    "manifestSha256": "906b573cc51ccf69d3a86bf0b61ac8ecd4a5af15b65b846c03828dcd0cbb50fa",
+    "manifestFiles": 3116
+  },
+  "preparation": {
+    "command": [
+      "bun",
+      "run",
+      "package:build"
+    ],
+    "startedAt": "2026-10-23T08:12:06.163506+00:00",
+    "wallMs": 17116.30465905182,
+    "exitCode": 0,
+    "competingWorkloads": [
+      {
+        "pid": 293938,
+        "ppid": 293937,
+        "session": 293935,
+        "startTicks": 28267997,
+        "cpuMs": 2070.0,
+        "rssBytes": 99979264,
+        "threads": 14,
+        "kind": "test-or-check",
+        "observer": false,
+        "owned": false
+      }
+    ]
+  },
+  "observation": {
+    "command": [
+      "bun",
+      "run",
+      "check",
+      "--",
+      "--all"
+    ],
+    "rootPid": 299455,
+    "startedAt": "2026-10-23T08:15:15.633291+00:00",
+    "wallMs": 54787.731649004854,
+    "exitCode": 1,
+    "sampleCount": 109,
+    "sampleIntervalMs": 500.0,
+    "observerCpuMs": 471.57824700000003,
+    "childUserMs": 116350.68699999999,
+    "childSystemMs": 63713.600999999995,
+    "competingWorkloads": [],
+    "cpuMax": "400000 100000",
+    "memoryMax": "6442450944",
+    "cgroupDelta": {
+      "cpu.stat": {
+        "usage_usec": 185440864,
+        "user_usec": 119125019,
+        "system_usec": 66315846,
+        "nice_usec": 0,
+        "nr_periods": 548,
+        "nr_throttled": 243,
+        "throttled_usec": 26153249,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "memory.events": {
+        "low": 0,
+        "high": 0,
+        "max": 7043,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "memory.stat": {
+        "workingset_refault_file": 59942,
+        "pswpin": 10,
+        "pswpout": 43540,
+        "pgscan_direct": 408228,
+        "pgsteal_direct": 313920,
+        "pgmajfault": 151
+      },
+      "cpu.pressure": {
+        "some": 9524969,
+        "full": 4733296
+      },
+      "memory.pressure": {
+        "some": 2114790,
+        "full": 1984116
+      },
+      "io.pressure": {
+        "some": 347746,
+        "full": 214488
+      }
+    }
+  },
+  "observationBoundaries": {
+    "requestedIntervalMs": 500,
+    "maximumObservedIntervalMs": 555.0705089699477,
+    "pollingMissesShortLivedProcesses": true,
+    "hostNotIsolated": true,
+    "cachesNotReset": true,
+    "earlierPreflightAbortedBeforeGateLaunch": true,
+    "quietWindowSeconds": 10,
+    "sourceSnapshotsExcludeIgnoredCachesAndLogs": true
+  },
+  "memory": {
+    "memoryInitialBytes": 5728751616,
+    "memoryPeakBytes": 6442450944,
+    "memoryPeakAtMs": 10092.145834991243,
+    "memoryFinalBytes": 4777123840
+  },
+  "performanceContext": {
+    "profile": "all",
+    "runtime": {
+      "architecture": "x64",
+      "bunVersion": "1.3.14",
+      "platform": "linux"
+    },
+    "budgets": {
+      "maxElapsedMs": 90000,
+      "maxMeanCheckMs": 2000,
+      "maxP95CheckMs": 5000
+    },
+    "timing": {
+      "adapterSetupMs": 750.5312200000001,
+      "candidatePreparationMs": 225.38443900000001,
+      "elapsedToInitialResultMs": 53944.427497,
+      "initialResultAtMs": 54174.826126,
+      "productRunMs": 52968.511838,
+      "startedAtMs": 230.398629
+    },
+    "measurements": {
+      "meanCheckMs": 3263.0052503720913,
+      "p95CheckMs": 10721.184853
+    },
+    "candidate": {
+      "version": "0.0.0-local.4a8cfeb642f8",
+      "sha256": "51c0d2363606baad8037c824f4103b0102d5e488fbeab1bebcbfdbccbceb9767",
+      "inputFingerprint": "4a8cfeb642f89b6e694081a2d0cc966eaa1fe777047c55901b558fc1cf9d6da3",
+      "preparationAction": "reuse",
+      "preparationReason": "installation-current"
+    },
+    "declarativeFingerprint": "3c7e154772be46078e47716a59c92e0b3a6ff4bdab18453a3bf433a08a64ed7a",
+    "checkDurations": [
+      {
+        "checkId": "decision-records",
+        "durationMs": 1089.3324189999985
+      },
+      {
+        "checkId": "duplicate-detection",
+        "durationMs": 2663.002100999998
+      },
+      {
+        "checkId": "file-metrics",
+        "durationMs": 1055.6799029999966
+      },
+      {
+        "checkId": "format-check",
+        "durationMs": 413.00853499999357
+      },
+      {
+        "checkId": "function-metrics",
+        "durationMs": 9268.645088000001
+      },
+      {
+        "checkId": "git-diff-whitespace",
+        "durationMs": 437.3908450000017
+      },
+      {
+        "checkId": "lint-product",
+        "durationMs": 6873.6903170000005
+      },
+      {
+        "checkId": "lint-scripts",
+        "durationMs": 2982.0717959999965
+      },
+      {
+        "checkId": "markdown-link-validation",
+        "durationMs": 2429.2008729999943
+      },
+      {
+        "checkId": "markdown-lint",
+        "durationMs": 2033.0644949999987
+      },
+      {
+        "checkId": "materials-examples-validator",
+        "durationMs": 474.56374399999913
+      },
+      {
+        "checkId": "materials-json-validator",
+        "durationMs": 2831.562027999993
+      },
+      {
+        "checkId": "materials-links-validator",
+        "durationMs": 35.078763999998046
+      },
+      {
+        "checkId": "materials-schema-publication-validator",
+        "durationMs": 183.23997999999847
+      },
+      {
+        "checkId": "materials-schema-validator",
+        "durationMs": 156.3855360000016
+      },
+      {
+        "checkId": "prepared-external-package-consumer",
+        "durationMs": 2160.482903
+      },
+      {
+        "checkId": "prepared-package-candidate",
+        "durationMs": 7.338165000000117
+      },
+      {
+        "checkId": "test-evidence",
+        "durationMs": 4064.372533000005
+      },
+      {
+        "checkId": "test-evidence-rule-tests",
+        "durationMs": 186.72727999999915
+      },
+      {
+        "checkId": "tests-package-artifact",
+        "durationMs": 4985.050578000002
+      },
+      {
+        "checkId": "tests-package-consumer-docs",
+        "durationMs": 2306.929462
+      },
+      {
+        "checkId": "tests-package-consumer-runtime",
+        "durationMs": 5330.9415480000025
+      },
+      {
+        "checkId": "tests-package-consumer-types",
+        "durationMs": 14125.30256
+      },
+      {
+        "checkId": "tests-package-supporting",
+        "durationMs": 12188.345162
+      },
+      {
+        "checkId": "tests-product-duplicate-detection",
+        "durationMs": 5559.531738999998
+      },
+      {
+        "checkId": "tests-product-file-metrics",
+        "durationMs": 2095.703529999999
+      },
+      {
+        "checkId": "tests-product-function-metrics",
+        "durationMs": 3528.713992000001
+      },
+      {
+        "checkId": "tests-product-json",
+        "durationMs": 1467.3703569999998
+      },
+      {
+        "checkId": "tests-product-markdown-links",
+        "durationMs": 10721.184853
+      },
+      {
+        "checkId": "tests-product-runtime",
+        "durationMs": 4404.844155999999
+      },
+      {
+        "checkId": "tests-product-secret-detection",
+        "durationMs": 2108.771053999997
+      },
+      {
+        "checkId": "tests-product-supporting-checks",
+        "durationMs": 3742.1606979999997
+      },
+      {
+        "checkId": "tests-scripts-admission-workbench",
+        "durationMs": 6975.372324
+      },
+      {
+        "checkId": "tests-scripts-layout",
+        "durationMs": 4472.957241999997
+      },
+      {
+        "checkId": "tests-scripts-machine-artifacts",
+        "durationMs": 2019.8710290000017
+      },
+      {
+        "checkId": "tests-scripts-package-tools-boundary",
+        "durationMs": 1565.0101910000012
+      },
+      {
+        "checkId": "tests-scripts-project",
+        "durationMs": 4049.624465000001
+      },
+      {
+        "checkId": "tests-scripts-project-selection",
+        "durationMs": 1457.7450630000021
+      },
+      {
+        "checkId": "tests-scripts-test-evidence",
+        "durationMs": 2133.232608999999
+      },
+      {
+        "checkId": "tests-scripts-tooling",
+        "durationMs": 2077.5937119999944
+      },
+      {
+        "checkId": "tests-scripts-validation",
+        "durationMs": 1581.7643349999998
+      },
+      {
+        "checkId": "typecheck-product",
+        "durationMs": 1270.4484740000044
+      },
+      {
+        "checkId": "typecheck-scripts",
+        "durationMs": 795.9193280000036
+      }
+    ],
+    "logs": {
+      "directory": "/workspace/vibe-check/.log/project-gate/2026-10-23T08-15-16.894Z-299456-7095910b-02f4-46ff-b123-3fb6740eb056",
+      "gate": "gate.log",
+      "progress": "progress.log",
+      "machine": "machine/run.json",
+      "commandCheck": "checks/<check-id>/process.log"
+    }
+  },
+  "comparison": {
+    "sameCheckIds": true,
+    "checkCount": 43,
+    "historicalExecutionSummaryMsRounded": 128500,
+    "controlledExecutionSummaryMsRounded": 52600,
+    "historicalChecksPassed": 39,
+    "historicalChecksFailed": 4,
+    "controlledChecksPassed": 43,
+    "controlledChecksFailed": 0,
+    "checks": {
+      "Prepared external package consumer": {
+        "historical": {
+          "status": "passed",
+          "durationMsRounded": 10000.0
+        },
+        "controlled": {
+          "status": "passed",
+          "durationMsRounded": 2200.0
+        }
+      },
+      "Function metrics": {
+        "historical": {
+          "status": "passed",
+          "durationMsRounded": 13700.0
+        },
+        "controlled": {
+          "status": "passed",
+          "durationMsRounded": 9300.0
+        }
+      },
+      "Bun Product Markdown link tests": {
+        "historical": {
+          "status": "passed",
+          "durationMsRounded": 23200.0
+        },
+        "controlled": {
+          "status": "passed",
+          "durationMsRounded": 10700.0
+        }
+      },
+      "Bun external package consumer type acceptance": {
+        "historical": {
+          "status": "failed",
+          "durationMsRounded": 21900.0
+        },
+        "controlled": {
+          "status": "passed",
+          "durationMsRounded": 14100.0
+        }
+      },
+      "TypeScript product lint": {
+        "historical": {
+          "status": "passed",
+          "durationMsRounded": 22400.0
+        },
+        "controlled": {
+          "status": "passed",
+          "durationMsRounded": 6900.0
+        }
+      },
+      "Bun package calculation and material tests": {
+        "historical": {
+          "status": "failed",
+          "durationMsRounded": 31800.0
+        },
+        "controlled": {
+          "status": "passed",
+          "durationMsRounded": 12200.0
+        }
+      }
+    }
+  },
+  "consumerStagesMs": {
+    "historical": {
+      "fixture": 18.698,
+      "install": 6426.971,
+      "typesFixture": 613.838,
+      "entryResolution": 2633.481,
+      "identity": 0.291
+    },
+    "controlled": {
+      "fixture": 12.472,
+      "install": 1823.092,
+      "typesFixture": 121.657,
+      "entryResolution": 71.965,
+      "identity": 0.153
+    }
+  },
+  "sources": {
+    "historical": {
+      "directory": ".log/project-gate/2026-10-23T07-47-43.266Z-266315-eeb3e247-b4f1-49fb-97c3-c97c758cfc69",
+      "recordCount": 6,
+      "files": {
+        "gate.log": {
+          "bytes": 885,
+          "sha256": "8ddfad77b11c075da681b028673143d9b37964d6db450f916e5f2f580cfff404"
+        },
+        "progress.log": {
+          "bytes": 5135,
+          "sha256": "f6bc70fe0b353f84360238e7a6549879095bb0f39a72764c975e61f481e0c0f3"
+        },
+        "machine/run.json": {
+          "bytes": 138863,
+          "sha256": "f9919aac24c574dbaf6d92cff769c7d7a0554f5f6d45f181e4ecc98ff773841a"
+        },
+        "machine/records.ndjson": {
+          "bytes": 2040,
+          "sha256": "c5703bc85bea6dc7e786b7a8ce3fe9b085a0ea8d35caf74e74254a6809333abd"
+        }
+      }
+    },
+    "controlled": {
+      "directory": "/workspace/vibe-check/.log/project-gate/2026-10-23T08-15-16.894Z-299456-7095910b-02f4-46ff-b123-3fb6740eb056",
+      "recordCount": 2,
+      "files": {
+        "gate.log": {
+          "bytes": 5499,
+          "sha256": "7f11c75d95ac8ce6bafc877712879435c8431c75757f5204850121598388a2be"
+        },
+        "progress.log": {
+          "bytes": 3790,
+          "sha256": "2122163fbc8a76a508bc3cc27ff574bb309f5b2aa5ec51c1f21819ab2cd874ce"
+        },
+        "machine/run.json": {
+          "bytes": 138858,
+          "sha256": "b7b40bc0904e704542658d779ecef95564250a8246b858ce3aade3b998030367"
+        },
+        "machine/records.ndjson": {
+          "bytes": 1065,
+          "sha256": "60c95f32531caffdd6b89a8a2962d3a4d9009dcf174b9d663060a17ec5dc7ff6"
+        }
+      }
+    }
+  },
+  "selectionNote": "Historical rounded comparison is restricted to the six report rows; current unrounded durations retain all 43 Checks. Full local comparison and snapshots remain under .log/gate-controlled-comparison-20261023/. Nonessential memory gauges and preparation counters were omitted."
+}

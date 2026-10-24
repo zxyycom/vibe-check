@@ -21,6 +21,12 @@ const currentStatus = Object.freeze({
 });
 
 const rebuiltCandidate: PreparedPackageCandidate = Object.freeze({
+  documentation: {
+    documents: [],
+    machineMaterials: [],
+    expectedJSDocExamplePayloads: [],
+    readme: ""
+  },
   artifactPath: "/fixture/build/artifacts/zxyycom-vibe-check-0.0.0-local.stale.tgz",
   candidateVersion: "0.0.0-local.stale",
   consumerDirectory: "/fixture/consumer",

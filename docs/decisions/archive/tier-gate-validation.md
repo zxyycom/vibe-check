@@ -1,7 +1,7 @@
 ---
 title: 分离快速反馈、受影响验收与完整 Gate
 id: 261022-tier-gate-validation
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-10-22T09:59:19Z
 purpose: 让日常反馈更轻且交付验收范围明确
@@ -29,4 +29,4 @@ relations: []
 - 采用: changed 是交付前全部受影响验收，包含相关行为、质量、材料与 artifact/consumer；以真实输入及共享依赖保守选择，未知路径和不可用 Git 证据扩大选择，不按零变更放行。
 - 采用: all 保留不依赖变更命中的完整 manifest，服务发布、大范围变更及选择规则兜底。完整验收仍执行自己的 Git whitespace 等实际检查，不承诺完全不访问 Git。
 - 采用: fast 提供快速反馈，正式 Gate 交付验收运行 changed，发布和大范围变更运行 all；局部改动的最低验证由文档导航路由。focused 保持可组合定向检查，不替代正式验收；参数、摘要、导航与测试按同一语义闭合。
-- 采用: 保留单一 Gate 进程入口、exact candidate、receipt 只配合 all、Product 依赖传播与严格聚合。不同档位减少工作量与同一工作量的性能优化分别解释；性能策略由其 owner 独立拥有，精确当前行为见 [Project Gate](../tooling/project-gate.md)。
+- 采用: 保留单一 Gate 进程入口、exact candidate、receipt 只配合 all、Product 依赖传播与严格聚合。不同档位减少工作量与同一工作量的性能优化分别解释；性能策略由其 owner 独立拥有，精确当前行为见 [Project Gate](../../tooling/project-gate.md)。

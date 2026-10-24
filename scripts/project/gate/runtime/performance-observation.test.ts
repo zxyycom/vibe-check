@@ -34,6 +34,18 @@ describe("Project Gate performance budgets", () => {
     assert.equal(initialResult.status, "passed");
     assert.equal(initialResult.messages.length, 1);
 
+    const releaseWithinAllBudget = evaluateProjectGatePerformance(
+      {
+        ...context(50_000),
+        initialResult,
+        selection: { kind: "all", release: true },
+        performancePolicy: PROJECT_GATE_PERFORMANCE_POLICY
+      },
+      runtime
+    );
+    assert.equal(releaseWithinAllBudget.blocks, false);
+    assert.match(releaseWithinAllBudget.messages[0]?.message ?? "", /within budget 90000\.0ms/);
+
     const exceeded = evaluateProjectGatePerformance(
       Object.freeze({ ...context(136), initialResult }),
       runtime
@@ -384,6 +396,12 @@ function context(elapsedToInitialResultMs: number): ProjectGateContext {
 }
 
 const preparedCandidate = Object.freeze({
+  documentation: {
+    documents: [],
+    machineMaterials: [],
+    expectedJSDocExamplePayloads: [],
+    readme: ""
+  },
   artifactPath: "/tmp/vibe-check.tgz",
   candidateVersion: "0.0.0-local.fixture",
   consumerDirectory: "/tmp/consumer",

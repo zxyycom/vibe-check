@@ -6,10 +6,17 @@ import {
   CANDIDATE_STAGING_DIRECTORY_ENV,
   CANDIDATE_VERSION_ENV
 } from "../../../../package/artifact/acceptance-input.ts";
+import {
+  packageDocumentationEnvironment,
+  type PackageDocumentationInput
+} from "../../../../package/artifact/documentation-input.ts";
 import type { Check } from "@zxyycom/vibe-check";
 
 import type { ProjectGatePreset } from "../../runtime/catalog.ts";
-import type { ProjectGateEntryDeclaration } from "../../runtime/entries.ts";
+import type {
+  ProjectGateEntryDeclaration,
+  ProjectGateSelectionPolicy
+} from "../../runtime/entries.ts";
 import {
   EXTERNAL_CONSUMER_ARTIFACT_PATH_ENV,
   EXTERNAL_CONSUMER_ARTIFACT_SHA256_ENV,
@@ -41,7 +48,8 @@ export interface ProjectGateTestCheckDefinition {
   readonly mutex?: readonly string[];
   readonly presets: readonly ProjectGatePreset[];
   readonly fast: boolean;
-  readonly changeRegion: string;
+  readonly changeRegion?: string;
+  readonly selectionPolicy?: ProjectGateSelectionPolicy;
   readonly testTimeoutMs?: number;
   readonly timeoutMs?: number;
 }
@@ -50,6 +58,7 @@ export interface ProjectGateTestCheckDefinition {
 export function createProjectGateTestEntries(
   input: Readonly<{
     readonly definitions: readonly ProjectGateTestCheckDefinition[];
+    readonly documentationInput: PackageDocumentationInput;
     readonly externalConsumer: Check;
     readonly lanes: ProjectGateTestLanes;
     readonly preparedCandidate: Check;
@@ -61,6 +70,7 @@ export function createProjectGateTestEntries(
     input.definitions.map((definition) =>
       createProjectGateTestEntry({
         definition,
+        documentationInput: input.documentationInput,
         externalConsumer: input.externalConsumer,
         files: input.lanes[definition.lane],
         preparedCandidate: input.preparedCandidate,
@@ -95,6 +105,7 @@ export function defineProjectGateTestChecks(
 
 function createProjectGateTestEntry(input: {
   readonly definition: ProjectGateTestCheckDefinition;
+  readonly documentationInput: PackageDocumentationInput;
   readonly externalConsumer: Check;
   readonly files: readonly string[];
   readonly preparedCandidate: Check;
@@ -110,7 +121,10 @@ function createProjectGateTestEntry(input: {
     ...(definition.mutex === undefined ? {} : { mutex: definition.mutex }),
     presets: definition.presets,
     fast: definition.fast,
-    changeRegion: definition.changeRegion,
+    ...(definition.changeRegion === undefined ? {} : { changeRegion: definition.changeRegion }),
+    ...(definition.selectionPolicy === undefined
+      ? {}
+      : { selectionPolicy: definition.selectionPolicy }),
     resourceClaims,
     ...(definition.timeoutMs === undefined ? {} : { timeoutMs: definition.timeoutMs })
   };
@@ -120,7 +134,10 @@ function createProjectGateTestEntry(input: {
       ...processEntry,
       dataDependency: {
         checkId: preparedCandidate.checkId,
-        environment: artifactCandidateEnvironment,
+        environment: (data) => ({
+          ...artifactCandidateEnvironment(data),
+          ...packageDocumentationEnvironment(input.documentationInput)
+        }),
         parseData: parseProjectGatePreparedCandidateData
       }
     });
@@ -129,7 +146,12 @@ function createProjectGateTestEntry(input: {
     ...processEntry,
     dataDependency: {
       checkId: externalConsumer.checkId,
-      environment: externalConsumerEnvironment,
+      environment: (data) => ({
+        ...externalConsumerEnvironment(data),
+        ...(definition.lane === "packageConsumerDocs"
+          ? packageDocumentationEnvironment(input.documentationInput)
+          : {})
+      }),
       parseData: parseExternalConsumerMaterialData
     }
   });

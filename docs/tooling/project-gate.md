@@ -5,7 +5,7 @@ Gate 的 candidate 绑定、aggregation 和诊断接线在此定义；Product Ru
 
 ## Project Gate
 
-`scripts/project/gate/run.ts` 是 Project Gate 唯一的 process entry；Gate 源码按责任保持下面的固定布局：
+`scripts/project/gate/run.ts` 是 Project Gate 唯一的 process entry；下面是当前 Gate 源码的责任导航，不作为目录形状的机械约束：
 
 ```text
 scripts/project/gate/
@@ -19,20 +19,25 @@ scripts/project/gate/
 
 #### 选择参数
 
-selection 参数包含 `--changed`、`--all`，以及 focused presets：`--typecheck`、`--lint`、`--test`、`--materials`、`--quality`。
+selection 参数包含 `--changed`、`--all`，以及 focused presets：`--typecheck`、`--lint`、`--test`、`--materials`、`--quality`、`--consumer-types`、`--admission-workbench`。
 `-h` / `--help` 必须单独使用。多个 focused preset 取并集并替换默认选择，重复项被规范化；
 `--changed` 与 `--all` 各自独占选择，不能与彼此或 focused preset 组合。`--release-receipt <path>` 是 selection 之外的 formal candidate input，只能与
-`--all` 组合。help 在 candidate preparation、package import 和 log directory creation 前退出。
+`--all` 组合；该组合额外选择发布前 consumer types，沿用 all 性能预算。help 在 candidate preparation、package import 和 log directory creation 前退出。
 
 | 调用 | 用途与选择 |
 | --- | --- |
 | `bun run check` | 默认 fast：快速工程反馈，仅选择有 fast 资格且受输入变化影响的 Check，加上固定 provider/whitespace。 |
-| `bun run check -- --changed` | 交付前的受影响验收：按完整输入 region 选择全部相关行为、质量、材料与 package acceptance。 |
-| `bun run check -- --all` | 发布或大范围变更的完整验收：不依赖变更命中，强制选择全部 Checks，保留独立兜底。 |
+| `bun run check -- --changed` | 交付前的受影响验收：按完整输入 region 选择全部相关 routine 行为、质量、材料与 artifact / installed docs/runtime acceptance。 |
+| `bun run check -- --all` | 日常完整验收：不依赖变更命中选择全部 routine Checks，保留大范围变更与选择规则兜底。 |
+| `bun run check -- --all --release-receipt <path>` | 同一正式 tarball 的完整发布验收：routine 全集加 installed consumer types，不选 workbench。 |
+| `bun run check -- --consumer-types` | 明确的 installed types 诊断，依赖传播带入 external consumer 与 prepared candidate provider。 |
+| `bun run check -- --admission-workbench` | 明确运行 workbench tests，不选择其它测试或安装验收。 |
 
-fast 资格固定为 Product/scripts 两 scope 的 typecheck 与 lint、format、prepared candidate、Project Gate selection 与 package-tools/Core 闭包两条现有测试 lane，以及 Git diff whitespace。其中 candidate 与 whitespace 固定选择，其余按各自输入 region；资格来自明确工程职责，不从单次运行快慢自动推断。全仓指标扫描、完整 Markdown 引用图、Case 审计、其余行为测试与安装后 consumer 由 changed/all 承接。
+fast 资格固定为 Product/scripts 两 scope 的 typecheck 与 lint、format、prepared candidate、Project Gate selection 与 package-tools/Core 闭包两条现有测试 lane，以及 Git diff whitespace。其中 candidate 与 whitespace 固定选择，其余按各自输入 region；资格来自明确工程职责，不从单次运行快慢自动推断。全仓指标扫描、完整 Markdown 引用图、Case 审计、其余 routine 行为测试与安装后 docs/runtime 由 changed/all 承接。consumer types 仅发布前或明确诊断，workbench 仅明确选择；两者都不因未知路径或 Git 不可用回退进入 routine。
 
-**fast 通过仅表示快速反馈通过。** 需要 Gate 交付验收时运行 changed，发布与大范围变更运行 all；局部改动的最低验证由[交付验证](../navigation.md#交付验证)路由。启动摘要区分反馈档位和验收范围。focused preset 只选择相应闭合集；`--test` 不包含 package acceptance。
+**fast 通过仅表示快速反馈通过。** 需要 Gate 交付验收时运行 changed，大范围变更运行 all，发布走正式 receipt+all；局部改动的最低验证由[交付验证](../navigation.md#交付验证)路由。启动摘要区分反馈档位和验收范围。focused preset 只选择相应闭合集；`--test` 不包含 package acceptance 或 workbench。
+
+Gate 私有 manifest 的 `selectionPolicy` 默认为 `routine`；`release-only` 仅 release flag 或明确 preset，`explicit-only` 仅明确 preset。非 routine entry 不声明 fast 资格或 change region；策略不扩展 Product API，也不增加 runner。consumer types 延后可能把声明兼容问题延迟到发布前发现，workbench 问题可能直到显式运行才发现；这是自动义务与频率变化，不是同 workload 加速。
 
 #### 依赖选择与关系闭合
 
@@ -42,11 +47,11 @@ string-leaf AST，且对每个投影写入 literal `propagateDependsOn: true`，
 运行被带入的 prerequisite。公开 grammar 与默认 selection 由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
 Gate 只拥有 manifest projection 与其验证。
 
-fast 与 changed 使用同一保守输入 region，fast 另外要求资格；changed 覆盖完整 manifest。映射由 `runtime/eligibility.ts` 维护，manifest 声明各条目的 region。Git snapshot 取本地 `HEAD~1...HEAD` 的最近一次提交（merge commit 的第一父链），并合并 staged、unstaged 与 untracked 变化；它不依赖远端分支同步状态。缺少可信 Git 证据时，changed 保守选择全部 Checks，不当作零变更；未分类根路径同样选择全部。已知目录家族下的新模块由其保守 owner region 承接，例如 project 新子 owner 归 ordinary scripts，validation 新实现/helper/测试归 validation lane。
+fast 与 changed 使用同一保守输入 region，fast 另外要求资格；changed 覆盖完整 routine manifest。映射由 `runtime/eligibility.ts` 维护，manifest 声明各条目的 region。Git snapshot 取本地 `HEAD~1...HEAD` 的最近一次提交（merge commit 的第一父链），并合并 staged、unstaged 与 untracked 变化；它不依赖远端分支同步状态。缺少可信 Git 证据时，changed 保守选择全部 routine Checks，不当作零变更；未分类根路径同样选择全部 routine Checks。已知目录家族下的新模块由其保守 owner region 承接，例如 project 新子 owner 归 ordinary scripts，validation 新实现/helper/测试归 validation lane。
 
-共享 material source 可选择多个实际消费者。package supporting lane 由已登记随包材料及其生成/构建输入选择，包含受管示例的 `docs/examples/package-api-support/**` 验收支持源，不由调查或决策文档选择。Test Evidence 对 Case 账本及当前行为 owner 所在的文档目录保守选择，同目录内的非 owner 文档仍可能唤起它；新增 owner 路径须由 selection 测试闭合。调查和决策文档不是行为 owner。
+共享 material source 可选择多个实际消费者。package tooling lane 由已登记随包材料及其生成/构建输入选择，包含受管示例的 `docs/examples/package-api-support/**` 验收支持源，不由调查或决策文档选择。Test Evidence 对 Case 账本及当前行为 owner 所在的文档目录保守选择，同目录内的非 owner 文档仍可能唤起它；新增 owner 路径须由 selection 测试闭合。调查和决策文档不是行为 owner。
 
-`prepared-package-candidate`、Git diff whitespace 在 fast/changed 固定选择；repository material links 在 changed 任意文件变更时选择。changed 的 package artifact、external-consumer provider 与三个 consumer 共用完整 package 输入 region，包含 Product、注册随包材料、构建脚本与依赖配置；不以“只改正文”漏掉真实发布输入。Markdown link validation 在 changed 任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。focused preset 和 `--all` 是不依赖 change flag 的强制路径。
+`prepared-package-candidate`、Git diff whitespace 在 fast/changed 固定选择；repository material links 在 changed 任意文件变更时选择。changed 的 package artifact、external-consumer provider 与 installed docs/runtime consumer 共用完整 package 输入 region，包含 Product、注册随包材料、构建脚本与依赖配置；不以“只改正文”漏掉真实发布输入。Markdown link validation 在 changed 任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。focused preset 和 `--all` 是不依赖 change flag 的强制路径。
 
 Markdown lint 保持完整 corpus 与现有 non-blocking policy；Gate 显式启用 Product 的逐文件 findings 缓存，目录为本地可删除的 `.cache/vibe-check/markdown-lint-findings/`。当前 bytes、选择与终态每次重新核对；冷态可能增加缓存写入成本，缓存命中不是跳过 Check 的依据。
 
@@ -56,7 +61,7 @@ Markdown Link 显式启用[parse-facts cache](../checks/markdown-link-validation
 
 材料 JSON、Schema、Schema publication 与 machine example Checks 各自按 changed 与其输入 region 选择，或由 materials/all 强制执行。`markdown-lint` 使用自己的 docs/changes Markdown input，并额外由 `quality` focused path 强制执行。schema-publication 的输入包含发布 schema 与 v4 schema source；machine example 的生成读取完整 Product 执行与输出模型，因此它保守覆盖 Product 非测试 `src/**`，但普通 scripts 或无关 docs 不会启动它。具体 region 由 `runtime/eligibility.ts` 声明；可信零匹配时 Check 保留 not-applicable，Git unavailable 时 Product 注入 flag 并保守执行。
 
-Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 fast 资格、change region 与
+Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 selection policy、fast 资格、适用的 change region 与
 每个 preset 的选择闭合，以保证观察输入可用。`observes` 不传播选择。任一 owner 自带 `enabledByFlags` 时 Gate 拒绝组合，
 避免覆盖 owner 的 condition。
 
@@ -68,11 +73,16 @@ bound Run 不传入 aggregation policy，而使用 Product 的默认 strict-all 
 
 scheduler 的 root `maxParallel`、named-resource budget 与跨 owner mutex 名称在 `definition.ts` 声明；Check 固有 timeout/mutex 可由其 owner 对象声明，Gate manifest 保证本地 relation 输入与 `observes` 可读性，Product 则拥有已选 `dependsOn` closure。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in repository material 的 validation Checks 共享 repository-material mutex。
 
+`lint-product` 与 `lint-scripts` 共享 `project-gate-type-aware-lint` mutex，同一 Run 中至多执行一个 type-aware lint。
+两者仍独立选择和结算，不建立相互依赖或固定顺序；该 mutex 不限制 typecheck 等其它工作，也不改变 lint 的输入、规则或后端线程配置。
+这一约束避免两份类型后端重叠，依据见[lint 耗时调查](../investigations/diagnose-fast-gate-lint-amplification.md)；
+它不承诺所有 workload 更快，性能仍按本次完整 Gate 结果和既定预算判定。
+
 Gate 保留 root `maxParallel: 3`，并使用两个**逻辑** named-resource budget；unit 既不是 CPU core、内存量，也不是实测竞争系数：
 
 | Resource ID                     | Capacity / unit              | Claiming Checks                                                                                                      | 静态分类理由                                                                                                                             |
 | ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `project-gate-bun-test-runners` | 2 个并发 `bun test` runner   | 所有 `tests-*` test-lane Check，各 claim `1`                                                                         | 每个 lane 都启动一个 Bun test child runner。预算限制这一同类 runner 最多占用两个 root slot，而不保证某一异类 Check 一定获准入。          |
+| `project-gate-bun-test-runners` | 2 个并发 `bun test` runner   | 所有行为测试和 acceptance test-lane Check，各 claim `1`                                                                         | 每个 lane 都启动一个 Bun test child runner。预算限制这一同类 runner 最多占用两个 root slot，而不保证某一异类 Check 一定获准入。          |
 | `project-gate-repository-scans` | 2 个并发递归 repository scan | `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-lint`、`markdown-link-validation`，各 claim `1` | 五项都会递归收集或读取 repository inputs；前三项还会运行 scanner 或 worker。预算避免让三项以上同类全树读取重叠，同时不把五项全部串行化。 |
 
 typecheck、lint、format、candidate provider、external-consumer provider 与 native repository-material/governance Checks 不声明 named-resource claim：它们不属于以上同类工作预算；已有 package-lifecycle/repository-material mutex 仍单独表达各自的独占关系。新声明必须先有同样可从 owner 恢复的共享工作特征和逻辑单位；不得因单次时长、高方差或“所有 Check 都用 CPU”扩大这些 budget。Product 继续验证 capacity/claim 合法性并原子持有/释放 units；模拟器可读取版本化映射，但必须自行定义竞争减速，不得从该表推断物理竞争或性能收益。
@@ -142,7 +152,9 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 
 `checks/test-execution/lanes.ts` 将 Test Evidence 已知的 Bun test files 投影为互斥且非空的 execution lanes；每个文件必须恰好属于一个 lane，未知 Product owner 在启动测试前失败。`checks/test-execution/checks.ts` 拥有 lane 到 Check ID、显示名、candidate input、mutex、timeout 与 Gate selection metadata 的闭合对象组；`definition.ts` 显式引用该组并把它放入完整 Gate manifest，避免复制 identity 或执行配置。
 
-测试按证明责任分别结算：package supporting/artifact/external-consumer、各 Product Check owner 与 runtime、Project Gate selection 与其余 tooling、admission workbench、Test Evidence、repository layout、package-tools/Core 闭包、machine artifacts、其余 material validation，以及 ordinary scripts。拆分依据是各 lane 的输入和证明义务，不是增加并行度。
+测试按证明责任分别结算：package tooling/artifact/installed-consumer、各 Product Check owner 与 Core/package-tools、Project Gate selection 与其余 tooling、admission workbench、Test Evidence、repository layout、package-tools/Core 闭包、machine artifacts、其余 material validation，以及 ordinary scripts。拆分依据是各 lane 的输入和证明义务，不是增加并行度。
+
+仓库扫描的 displayName 明确标记 `Repository scan`，与 `tests-product-*` 功能测试及 `acceptance-installed-package-*` 安装验收区分。Markdown 功能 lane 同时拥有 lint 与 links；Core-and-tools lane 包含 Core 与 package-tools；package-tooling lane 是仓库包工具测试，不是 installed acceptance。修正这些 Gate 私有 ID 会改变本地 learned-history task identity，不迁移旧缓存，也不改写历史 workbench fixture。
 
 几项容易混淆的 test lane 各有自己的输入和证明边界：
 
@@ -156,17 +168,17 @@ Product test lanes 的 changed 输入由 `runtime/product-test-regions.ts` 声�
 | 输入 | 选择边界 |
 | --- | --- |
 | 已知 Check 私有实现、helper、fixture | 选择所属组。file metrics 还消费 JSON validation/document 的实现、helper 和 fixture；Markdown lint 与 links 同组。 |
-| 已知 owner 的 `*.test.ts` 正文 | 选择自身 Product lane 及扫描其正文的组。host-environment/project-files 测试属于 supporting Checks；Core/runtime 测试正文由 runtime lane 承接。 |
+| 已知 owner 的 `*.test.ts` 正文 | 选择自身 Product lane 及扫描其正文的组。host-environment/project-files 测试属于 supporting Checks；Core/package-tools 测试正文由 Core-and-tools lane 承接。 |
 | 根导出、Core/runtime、package tools、共用 Check helper、project-files、host-environment 的实现与 helper | 保守选择全部七个 Check 组。 |
 | 尚未分类的新模块，包括测试正文 | 保持共享输入回退，直到确认消费者。 |
 
 function metrics 的 source-identity 审计与行为测试仍在同一 lane。审计读取全部 `src/**` 与 Lizard provenance，因此该组保留完整输入范围。
 
-包支持、Gate 本体、admission workbench 与普通 tooling 四个脚本组依赖 Product 实现、helper、fixture 和未知 owner 路径；已知 Product 测试正文由其 owning lane 承接。包源码/JSDoc 扫描本身排除测试正文，Gate 读取的完整测试文件清单则由每次启动的 lane 分区校验承接。layout、质量扫描与 Test Evidence 按各自实际的正文输入选择。
+package tooling、Gate 本体与普通 tooling 三个 routine 脚本组依赖 Product 实现、helper、fixture 和未知 owner 路径；已知 Product 测试正文由其 owning lane 承接。包源码/JSDoc 扫描本身排除测试正文，Gate 读取的完整测试文件清单则由每次启动的 lane 分区校验承接。layout、质量扫描与 Test Evidence 按各自实际的正文输入选择。
 
 维护 region 时同时核对 import 和直接文件读取，并同步新增消费者。路径矩阵验证跨 owner 输入、正文/helper 区别及删除或重命名后的路径；完整 lane 清单验证每个测试文件触发自身。Git evidence 不可用时保守选择，显式 preset 提供强制路径。
 
-显式 `--test` 强制选择 routine test lanes；`--all` 另包含 package artifact 与 external-consumer 验收。缺少可信 Git evidence 时保守选择。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package supporting；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
+显式 `--test` 强制选择 routine test lanes；`--all` 另包含 package artifact 与 installed docs/runtime 验收。consumer types 只在正式 receipt+all 或 `--consumer-types` 中选择，workbench 只在 `--admission-workbench` 中选择；可信输入或 Git fallback 均不改变这两项边界。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package tooling；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
 
 ### Direct repository-quality Checks
 

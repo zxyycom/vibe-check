@@ -120,6 +120,8 @@ test("external consumer provider binds typed output to invocation provenance", a
     [EXTERNAL_CONSUMER_ROOT_ENV]: providerRoot
   };
   const fixtureSource = [
+    `import { ExternalConsumerPreparationDiagnostics } from ${JSON.stringify(resolve("scripts/package/candidate/external-consumer/preparation-diagnostics.ts"))};`,
+    'new ExternalConsumerPreparationDiagnostics().measure("fixture", () => undefined);',
     `const expected = ${JSON.stringify(expectedEnvironment)};`,
     "for (const [name, value] of Object.entries(expected)) {",
     "  if (process.env[name] !== value) process.exit(19);",
@@ -146,7 +148,10 @@ test("external consumer provider binds typed output to invocation provenance", a
   );
   assert.deepEqual(wired.result, { status: "passed", data: externalConsumerData });
   assert.deepEqual(wired.records, []);
-  assert.match(readFileSync(join(artifactDirectory, "process.log"), "utf8"), /status=passed/);
+  const transcript = readFileSync(join(artifactDirectory, "process.log"), "utf8");
+  assert.match(transcript, /status=passed/);
+  assert.match(transcript, /stderr:\n[\s\S]*external-consumer-setup .*"event":"stage-started"/u);
+  assert.match(transcript, /"event":"stage-finished","stage":"fixture","status":"completed"/u);
 
   assert.equal(
     validateExternalConsumerProviderProvenance(

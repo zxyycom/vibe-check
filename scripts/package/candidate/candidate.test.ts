@@ -7,27 +7,29 @@ import { fileURLToPath } from "node:url";
 
 import { PACKAGE_CANDIDATE_INTEGRATION_INVOCATION } from "./integration-command.ts";
 import { installCandidate } from "./install.ts";
-import { assessPackageCandidatePreparation } from "./prepare.ts";
+import { packageCandidatePaths } from "../build-contract.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("package candidate preparation contracts", () => {
   it("rejects overlapping package build and cache roots", () => {
-    const root = mkdtempSync(join(tmpdir(), "vibe-check-candidate-overlap-"));
-    try {
+    const root = join(repositoryRoot, "candidate-path-fixture");
+    for (const [buildDirectory, stateDirectory] of [
+      [root, root],
+      [root, join(root, "cache")],
+      [join(root, "build"), root]
+    ] as const) {
       assert.throws(
-        () =>
-          assessPackageCandidatePreparation({
-            buildDirectory: root,
-            consumerDirectory: join(root, "consumer"),
-            repositoryRoot,
-            stateDirectory: root
-          }),
+        () => packageCandidatePaths(repositoryRoot, { buildDirectory, stateDirectory }),
         /buildDirectory and stateDirectory must not overlap/
       );
-    } finally {
-      rmSync(root, { force: true, recursive: true });
     }
+    const paths = packageCandidatePaths(repositoryRoot, {
+      buildDirectory: join(root, "build"),
+      stateDirectory: join(root, "build-cache")
+    });
+    assert.equal(paths.buildDirectory, join(root, "build"));
+    assert.equal(paths.stateDirectory, join(root, "build-cache"));
   });
 
   it("rejects invalid private consumer manifests", () => {

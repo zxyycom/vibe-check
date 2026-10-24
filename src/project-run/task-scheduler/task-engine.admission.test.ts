@@ -8,7 +8,6 @@ import {
   completedValues,
   createDeferred,
   decisionFor,
-  delay,
   recordedSchedulerDecisions,
   recordingLogger,
   rootBudgetGraph,
@@ -22,8 +21,10 @@ describe("static task engine", () => {
     let active = 0;
     let maxActive = 0;
     const graph = rootBudgetGraph();
+    const firstCohortStarted = createDeferred<void>();
+    const releaseFirstCohort = createDeferred<void>();
 
-    const run = await runTaskGraph<string>({
+    const running = runTaskGraph<string>({
       graph,
       maxParallel: 3,
       diagnosticLogger: recordingLogger(observations),
@@ -31,13 +32,20 @@ describe("static task engine", () => {
         active += 1;
         maxActive = Math.max(maxActive, active);
         events.push(`start:${task.id}`);
-        await delay(task.id === "base" ? 10 : 2);
+        if (active === 3) firstCohortStarted.resolve();
+        await releaseFirstCohort.promise;
         events.push(`end:${task.id}`);
         active -= 1;
         return task.id;
       }
     });
 
+    await firstCohortStarted.promise;
+    assert.equal(active, 3);
+    assert.equal(events.includes("start:dependent"), false);
+    assert.equal(events.includes("start:mutex-two"), false);
+    releaseFirstCohort.resolve();
+    const run = await running;
     assert.equal(maxActive, 3);
     assert.ok(events.indexOf("end:base") < events.indexOf("start:dependent"));
     assert.ok(events.indexOf("end:mutex-one") < events.indexOf("start:mutex-two"));

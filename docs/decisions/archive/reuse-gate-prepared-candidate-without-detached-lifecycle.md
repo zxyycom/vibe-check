@@ -1,7 +1,7 @@
 ---
 title: 以唯一 prepared candidate 完成 Project Gate package 验收
 id: 260904-reuse-gate-prepared-candidate-without-detached-lifecycle
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T03:03:18Z
 purpose: 让 complete --all Gate 复用唯一真实 package preparation，并保留产物、consumer 与 cold integration 证明。
@@ -39,6 +39,6 @@ relations:
 - 采用: Complete `--all` package acceptance 继续包含 artifact、external provider、types、documentation 和 runtime 独立 Checks。Artifact 只读 shared staging/tar；external provider 真实安装一次并发布 closed、versioned、invocation-owned typed data，三个 consumer 只读复用该 material 且分别结算。
 - 采用: Routine candidate 测试只证明路径、receipt、input/decision 与显式 integration invocation contract，不在 `--all` 内另建 detached package。真实 cold build/install/reuse/reinstall 与 ancestor fallback 保留为显式 package-tooling integration target，保持既有 20 秒主 case 和 30 秒 target 硬限制；该 target 失败必须非零退出，但不属于 routine `--test` preset。
 - 采用: 原 candidate routine Check 不再具有独立 terminal 意义，快速 contract 并入 package-supporting lane，不保留空壳 Check。External provider 继续持有 package lifecycle mutex，快速 contract 测试不持有物理 mutex。
-- 采用: Root scheduler 保持 `maxParallel: 3`；documentation-materials mutex、required/complete `--all` package selection 和默认 priority 保持。调用级聚合独立遵循[默认严格聚合决策](default-effective-check-aggregation-with-caller-local-callback.md)，Gate 不额外配置旧 `all` policy。非零 priority 仍只允许在 exact candidate、相同 membership/runtime 下完成重复 AB/BA 证据后采用。
+- 采用: Root scheduler 保持 `maxParallel: 3`；documentation-materials mutex、required/complete `--all` package selection 和默认 priority 保持。调用级聚合独立遵循[默认严格聚合决策](../default-effective-check-aggregation-with-caller-local-callback.md)，Gate 不额外配置旧 `all` policy。非零 priority 仍只允许在 exact candidate、相同 membership/runtime 下完成重复 AB/BA 证据后采用。
 - 采用: Supported routine Bun runner profile 继续完整映射它声明的全部 test entities；显式 cold integration 使用非 runner-profile 文件身份和受文档拥有的 root package command，不伪装为未执行的 semantic Case 实体。
 - 不采用: 在每次 `--all` 中重复 cold build、每个 consumer 重复安装、读取 ambient receipt、放宽 timeout、失败重试、降低 root 并发、用 successful import 替代 artifact/material audit，或删除真实 cold integration。

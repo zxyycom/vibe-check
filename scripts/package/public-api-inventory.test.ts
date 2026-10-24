@@ -54,7 +54,7 @@ import {
 import { run } from "../../src/project-run/run.ts";
 
 describe("public API inventory", () => {
-  it("publishes only the approved runtime and type roots", () => {
+  it("exposes approved authoring values and adjacent source JSDoc", () => {
     assert.equal(CURRENT_PUBLIC_CONTRACT.packageImport, "@zxyycom/vibe-check");
     assert.equal(
       CURRENT_PUBLIC_CONTRACT.defaults.defaultProjectFileSelection,
@@ -130,18 +130,7 @@ describe("public API inventory", () => {
 
     const entryPath = fileURLToPath(new URL("../../src/index.ts", import.meta.url));
     const packageEntrySource = readFileSync(entryPath, "utf8");
-    const exports = publicRootExportNames(entryPath);
     assert.match(packageEntrySource, /^\/\*[\s\S]*?@packageDocumentation[\s\S]*?\*\//);
-    assert.deepEqual(exports.types, Object.values(CURRENT_PUBLIC_CONTRACT.types).sort());
-    assert.deepEqual(
-      exports.runtime,
-      [
-        ...Object.values(CURRENT_PUBLIC_CONTRACT.defaults),
-        ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
-        ...Object.values(CURRENT_PUBLIC_CONTRACT.checks),
-        ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers)
-      ].sort()
-    );
     assertExportObserverRecognizesDeclarationsAndReexports();
     assertPublicRootsHaveChineseJSDoc(CURRENT_PUBLIC_CONTRACT);
   });

@@ -23,18 +23,19 @@ import {
   PACKAGE_LIZARD_MIT_LICENSE_PATH,
   PACKAGE_PYGMENTS_LICENSE_PATH,
   PACKAGE_THIRD_PARTY_NOTICES_PATH,
-  PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH,
-  RUNTIME_EXPORTS
+  PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH
 } from "../../package/package-contract.ts";
 import {
-  readGateArtifactAcceptanceInput,
+  prepareArtifactAcceptanceInput,
   type ArtifactAcceptanceInput
 } from "./acceptance-input.ts";
-import { artifactDocumentation } from "./documentation-audit.ts";
+import {
+  artifactDocumentation,
+  type PackageDocumentationExpectation
+} from "./documentation-audit.ts";
+import { createWorkerMaterialFixture } from "./worker-material.test-support.ts";
 import { buildCandidateArtifact } from "./build.ts";
 import { createArtifactFingerprint } from "./fingerprint.ts";
-import { readTranslatedAnalyzerAttributionNotice } from "../legal-materials.ts";
-import { auditStagingRuntime } from "./staging-audit.ts";
 import { publicRootExportNames } from "../public-exports.test-support.ts";
 import { assertReadableStagingRuntimeLayout } from "./staging-runtime-layout.ts";
 import { assertInstalledPrivateWorkerMaterials } from "./packed-tar-audit.ts";
@@ -46,7 +47,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     | Promise<
         Readonly<{
           artifact: ArtifactAcceptanceInput;
-          documentation: ReturnType<typeof artifactDocumentation>;
+          documentation: PackageDocumentationExpectation;
         }>
       >
     | undefined;
@@ -59,29 +60,16 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
         if (fixtureRoot === undefined) throw new Error("artifact fixture root must exist");
         const buildDirectory = join(fixtureRoot, "build");
         const stateDirectory = join(fixtureRoot, "state");
-        const documentation = artifactDocumentation(repositoryRoot);
-        const gateInput = readGateArtifactAcceptanceInput();
-        if (gateInput !== undefined) {
-          auditStagingRuntime({
-            candidateVersion: gateInput.candidateVersion,
-            repositoryRoot,
-            expectedDocuments: documentation.documents,
-            expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
-            expectedMachineMaterials: documentation.machineMaterials,
-            expectedAttributionNotice: readTranslatedAnalyzerAttributionNotice(repositoryRoot),
-            expectedReadme: documentation.readme,
-            stagingDirectory: gateInput.stagingDirectory
-          });
-        }
-        const artifact =
-          gateInput ??
-          (await buildDirectArtifactFixture({
-            buildDirectory,
-            documentation,
-            repositoryRoot,
-            stateDirectory
-          }));
-        return Object.freeze({ artifact, documentation });
+        return prepareArtifactAcceptanceInput({
+          repositoryRoot,
+          buildDirect: (documentation) =>
+            buildDirectArtifactFixture({
+              buildDirectory,
+              documentation,
+              repositoryRoot,
+              stateDirectory
+            })
+        });
       })();
     }
     return fixturePromise;
@@ -182,53 +170,55 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       1
     );
     assert.deepEqual(
-      publicRootExportNames(join(artifact.stagingDirectory, "index.mjs")).runtime,
-      RUNTIME_EXPORTS
-    );
-    assert.deepEqual(
       publicRootExportNames(join(artifact.stagingDirectory, "types", "index.d.ts")).types,
       Object.values(CURRENT_PUBLIC_CONTRACT.types).sort()
     );
   });
 
   it("rejects missing or malformed private Markdown Link Worker material", async () => {
-    const { artifact } = await fixture();
-    const workerPath = join(artifact.stagingDirectory, PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH);
-    const parentPath = join(
-      artifact.stagingDirectory,
-      PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH
-    );
-    const parentSource = readFileSync(parentPath, "utf8");
-    assertInstalledPrivateWorkerMaterials({
-      artifactPath: artifact.artifactPath,
-      packageDirectory: artifact.stagingDirectory
-    });
-    renameSync(workerPath, `${workerPath}.missing`);
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-worker-material-"));
     try {
-      assert.throws(() => {
-        assertReadableStagingRuntimeLayout(artifact.stagingDirectory);
-      }, /missing the emitted markdown-link Worker entry/u);
-    } finally {
-      renameSync(`${workerPath}.missing`, workerPath);
-    }
-    for (const malformed of [
-      parentSource.replace("./io-worker.mjs", "../../../outside-worker.mjs"),
-      `${parentSource}\nnew URL("./io-worker.mjs", import.meta.url);\n`
-    ]) {
+      const artifact = createWorkerMaterialFixture(root);
+      const workerPath = join(artifact.stagingDirectory, PACKAGE_MARKDOWN_LINK_WORKER_RUNTIME_PATH);
+      const parentPath = join(
+        artifact.stagingDirectory,
+        PACKAGE_MARKDOWN_LINK_WORKER_PARENT_RUNTIME_PATH
+      );
+      const parentSource = readFileSync(parentPath, "utf8");
+      assertReadableStagingRuntimeLayout(artifact.stagingDirectory);
+      assertInstalledPrivateWorkerMaterials({
+        artifactPath: artifact.artifactPath,
+        packageDirectory: artifact.stagingDirectory
+      });
+      renameSync(workerPath, `${workerPath}.missing`);
       try {
-        writeFileSync(parentPath, malformed);
-        assert.throws(() => {
-          assertInstalledPrivateWorkerMaterials({
-            artifactPath: artifact.artifactPath,
-            packageDirectory: artifact.stagingDirectory
-          });
-        }, /installed private Worker material differs from the exact artifact/u);
         assert.throws(() => {
           assertReadableStagingRuntimeLayout(artifact.stagingDirectory);
-        }, /must resolve exactly one emitted Worker URL/u);
+        }, /missing the emitted markdown-link Worker entry/u);
       } finally {
-        writeFileSync(parentPath, parentSource);
+        renameSync(`${workerPath}.missing`, workerPath);
       }
+      for (const malformed of [
+        parentSource.replace("./io-worker.mjs", "../../../outside-worker.mjs"),
+        `${parentSource}\nnew URL("./io-worker.mjs", import.meta.url);\n`
+      ]) {
+        try {
+          writeFileSync(parentPath, malformed);
+          assert.throws(() => {
+            assertInstalledPrivateWorkerMaterials({
+              artifactPath: artifact.artifactPath,
+              packageDirectory: artifact.stagingDirectory
+            });
+          }, /installed private Worker material differs from the exact artifact/u);
+          assert.throws(() => {
+            assertReadableStagingRuntimeLayout(artifact.stagingDirectory);
+          }, /must resolve exactly one emitted Worker URL/u);
+        } finally {
+          writeFileSync(parentPath, parentSource);
+        }
+      }
+    } finally {
+      rmSync(root, { force: true, recursive: true });
     }
   });
 

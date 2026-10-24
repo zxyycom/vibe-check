@@ -133,15 +133,13 @@ describe("Project Gate change regions", () => {
     }
   });
 
-  it("covers every execution lane test file with its owning change region", () => {
+  it("covers every routine execution lane test file with its owning change region", () => {
     const lanes = resolveProjectGateTestLanes(process.cwd());
     const laneRegions = [
       ["packageArtifact", "package-tests"],
       ["packageConsumerDocs", "package-tests"],
       ["packageConsumerRuntime", "package-tests"],
-      ["packageConsumerTypes", "package-tests"],
-      ["packageSupporting", "package-tests"],
-      ["scriptsAdmissionWorkbench", "admission-workbench-tests"],
+      ["packageTooling", "package-tests"],
       ["scriptsLayout", "layout-tests"],
       ["scriptsMachineArtifacts", "machine-artifact-tests"],
       ["scriptsPackageToolsBoundary", "package-tools-boundary-tests"],
@@ -154,10 +152,10 @@ describe("Project Gate change regions", () => {
       ["productFileMetrics", "product-file-metrics-tests"],
       ["productFunctionMetrics", "product-function-metrics-tests"],
       ["productJsonChecks", "product-json-tests"],
-      ["productMarkdownLinks", "product-markdown-tests"],
+      ["productMarkdown", "product-markdown-tests"],
       ["productSecretDetection", "product-secret-detection-tests"],
       ["productSupportingChecks", "product-supporting-check-tests"],
-      ["productRuntime", "product-runtime"]
+      ["productCoreAndTools", "product-core-and-tools"]
     ] as const;
     for (const [lane, region] of laneRegions) {
       assert.ok(lanes[lane].length > 0, lane);
@@ -169,7 +167,6 @@ describe("Project Gate change regions", () => {
 
   it("selects independent script test lanes from their changed inputs", () => {
     const lanes = [
-      "admission-workbench-tests",
       "project-tests",
       "project-selection-tests",
       "layout-tests",
@@ -177,7 +174,7 @@ describe("Project Gate change regions", () => {
       "package-tools-boundary-tests",
       "validation-tests",
       "script-tooling-tests",
-      "product-runtime"
+      "product-core-and-tools"
     ] as const;
     const scenarios = [
       {
@@ -223,7 +220,6 @@ describe("Project Gate change regions", () => {
       {
         path: "scripts/value-guards.ts",
         selected: [
-          "admission-workbench-tests",
           "project-tests",
           "layout-tests",
           "machine-artifact-tests",
@@ -266,13 +262,12 @@ describe("Project Gate change regions", () => {
       {
         path: "src/machine-output/v4/schema.ts",
         selected: [
-          "admission-workbench-tests",
           "project-tests",
           "layout-tests",
           "machine-artifact-tests",
           "validation-tests",
           "script-tooling-tests",
-          "product-runtime"
+          "product-core-and-tools"
         ]
       },
       {
@@ -282,11 +277,10 @@ describe("Project Gate change regions", () => {
       {
         path: "src/package-checks/new-check/regression.test.ts",
         selected: [
-          "admission-workbench-tests",
           "project-tests",
           "layout-tests",
           "script-tooling-tests",
-          "product-runtime"
+          "product-core-and-tools"
         ]
       },
       { path: "docs/tooling/project-gate.md", selected: [] },
@@ -296,12 +290,7 @@ describe("Project Gate change regions", () => {
       assert.deepEqual(matchingRegions(path, lanes), selected, path);
     }
 
-    const independentRegions = [
-      "package-tests",
-      "project-tests",
-      "admission-workbench-tests",
-      "script-tooling-tests"
-    ] as const;
+    const independentRegions = ["package-tests", "project-tests", "script-tooling-tests"] as const;
     // Independent expected owners; do not derive exclusions from the policy under test.
     const knownOwners = [
       "package-checks/command-check",
@@ -343,8 +332,7 @@ describe("Project Gate change regions", () => {
     }
     const testLanes = resolveProjectGateTestLanes(process.cwd());
     const scriptLaneRegions = [
-      ["packageSupporting", "package-tests"],
-      ["scriptsAdmissionWorkbench", "admission-workbench-tests"],
+      ["packageTooling", "package-tests"],
       ["scriptsProject", "project-tests"],
       ["scriptsProjectSelection", "project-selection-tests"],
       ["scriptsLayout", "layout-tests"],
@@ -475,15 +463,15 @@ describe("Project Gate change regions", () => {
     }
   });
 
-  it("keeps the product-runtime region complete for the lane resolver", () => {
+  it("keeps the product Core-and-tools region complete for the lane resolver", () => {
     const lanes = resolveProjectGateTestLanes(process.cwd());
     const allProductRuntimeFiles = Object.values(lanes)
       .flat()
       .filter((file) => file.startsWith("src/") && !file.startsWith("src/package-checks/"));
-    assert.deepEqual(lanes.productRuntime, allProductRuntimeFiles);
+    assert.deepEqual(lanes.productCoreAndTools, allProductRuntimeFiles);
     assert.equal(
-      lanes.productRuntime.every((file) =>
-        matchingRegions(file, ["product-runtime"]).includes("product-runtime")
+      lanes.productCoreAndTools.every((file) =>
+        matchingRegions(file, ["product-core-and-tools"]).includes("product-core-and-tools")
       ),
       true
     );

@@ -61,6 +61,9 @@ completion callback 只在完整 numeric exit 后运行：exit `0` 结算 passed
 
 Product diagnostic channel、Gate transcript、progress transcript 与 Product `commandCheck` transcript 各自记录不同层次，不互相解析或复制。
 
+external-consumer provider 的 stderr 另含[隔离安装诊断](package-lifecycle.md#隔离安装诊断)的有界阶段与安全摘要。
+它们只进入该 Check 的 `process.log`，不扩展 stdout material、Records 或 outcome，也不由 Gate 解析为安装失败原因。
+
 ## Gate terminal and transcript
 
 | Channel        | 它包含的事实                                                                                                                           | 它不包含的事实                                                       |

@@ -31,6 +31,12 @@ import {
 import { resolveProjectGateTestLanes } from "./checks/test-execution/lanes.ts";
 
 const preparedCandidate = Object.freeze({
+  documentation: {
+    documents: [],
+    machineMaterials: [],
+    expectedJSDocExamplePayloads: [],
+    readme: ""
+  },
   artifactPath: "/tmp/project-gate-candidate/artifacts/vibe-check.tgz",
   candidateVersion: "0.0.0-local.fixture",
   consumerDirectory: "/tmp/project-gate-candidate/consumer",
@@ -55,19 +61,19 @@ const expectedCheckIds = [
   "format-check",
   "prepared-package-candidate",
   "prepared-external-package-consumer",
-  "tests-package-supporting",
-  "tests-package-artifact",
-  "tests-package-consumer-types",
-  "tests-package-consumer-docs",
-  "tests-package-consumer-runtime",
+  "tests-package-tooling",
+  "acceptance-package-artifact",
+  "acceptance-installed-package-types",
+  "acceptance-installed-package-docs",
+  "acceptance-installed-package-runtime",
   "tests-product-duplicate-detection",
   "tests-product-file-metrics",
   "tests-product-function-metrics",
   "tests-product-json",
-  "tests-product-markdown-links",
+  "tests-product-markdown",
   "tests-product-secret-detection",
   "tests-product-supporting-checks",
-  "tests-product-runtime",
+  "tests-product-core-and-tools",
   "tests-scripts-admission-workbench",
   "tests-scripts-project",
   "tests-scripts-project-selection",
@@ -93,6 +99,15 @@ const expectedCheckIds = [
   "git-diff-whitespace"
 ] as const;
 
+const expectedRoutineCheckIds = expectedCheckIds.filter(
+  (checkId) =>
+    checkId !== "acceptance-installed-package-types" &&
+    checkId !== "tests-scripts-admission-workbench"
+);
+const expectedReleaseCheckIds = expectedCheckIds.filter(
+  (checkId) => checkId !== "tests-scripts-admission-workbench"
+);
+
 const qualityCheckIds: ReadonlySet<string> = new Set([
   "duplicate-detection",
   "file-metrics",
@@ -100,16 +115,16 @@ const qualityCheckIds: ReadonlySet<string> = new Set([
   "markdown-lint",
   "markdown-link-validation"
 ]);
-const bunTestRunnerCheckIds: readonly string[] = expectedCheckIds.filter((checkId) =>
-  checkId.startsWith("tests-")
+const bunTestRunnerCheckIds: readonly string[] = expectedCheckIds.filter(
+  (checkId) => checkId.startsWith("tests-") || checkId.startsWith("acceptance-")
 );
 
 const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "prepared-external-package-consumer",
-  "tests-package-artifact",
-  "tests-package-consumer-types",
-  "tests-package-consumer-docs",
-  "tests-package-consumer-runtime"
+  "acceptance-package-artifact",
+  "acceptance-installed-package-types",
+  "acceptance-installed-package-docs",
+  "acceptance-installed-package-runtime"
 ]);
 const expectedFastCheckIds = [
   "typecheck-product",
@@ -131,8 +146,17 @@ const expectedCheckIdsBySelection: readonly Readonly<{
     checkIds: expectedFastCheckIds,
     selection: { kind: "fast" }
   },
-  { checkIds: expectedCheckIds, selection: { kind: "changed" } },
-  { checkIds: expectedCheckIds, selection: { kind: "all" } },
+  { checkIds: expectedRoutineCheckIds, selection: { kind: "changed" } },
+  { checkIds: expectedRoutineCheckIds, selection: { kind: "all" } },
+  { checkIds: expectedReleaseCheckIds, selection: { kind: "all", release: true } },
+  {
+    checkIds: ["acceptance-installed-package-types"],
+    selection: { kind: "focused", presets: ["consumer-types"] }
+  },
+  {
+    checkIds: ["tests-scripts-admission-workbench"],
+    selection: { kind: "focused", presets: ["admission-workbench"] }
+  },
   {
     checkIds: ["typecheck-product", "typecheck-scripts"],
     selection: { kind: "focused", presets: ["typecheck"] }
@@ -154,16 +178,15 @@ const expectedCheckIdsBySelection: readonly Readonly<{
   },
   {
     checkIds: [
-      "tests-package-supporting",
+      "tests-package-tooling",
       "tests-product-duplicate-detection",
       "tests-product-file-metrics",
       "tests-product-function-metrics",
       "tests-product-json",
-      "tests-product-markdown-links",
+      "tests-product-markdown",
       "tests-product-secret-detection",
       "tests-product-supporting-checks",
-      "tests-product-runtime",
-      "tests-scripts-admission-workbench",
+      "tests-product-core-and-tools",
       "tests-scripts-project",
       "tests-scripts-project-selection",
       "tests-scripts-test-evidence",
@@ -182,6 +205,11 @@ const expectedCheckIdsBySelection: readonly Readonly<{
 describe("Project Gate Definition", () => {
   it("projects the central composition manifest into an ordinary Project Definition", async () => {
     const entries = createProjectGateEntries({
+      documentationInput: {
+        path: "/tmp/docs.json",
+        sha256: "c".repeat(64),
+        inputFingerprint: preparedCandidate.inputFingerprint
+      },
       externalConsumerLease: createExternalConsumerMaterialLease(),
       preparedCandidate
     });
@@ -198,7 +226,8 @@ describe("Project Gate Definition", () => {
           "check",
           ...(entry.changeRegion === undefined ? [] : ["changeRegion"]),
           "fast",
-          "presets"
+          "presets",
+          ...(entry.selectionPolicy === undefined ? [] : ["selectionPolicy"])
         ].sort()
       );
     }
@@ -241,11 +270,32 @@ describe("Project Gate Definition", () => {
     for (const check of definition.checks) {
       assert.deepEqual(check.resourceClaims, expectedResourceClaimsFor(check.checkId));
     }
+    assert.deepEqual(
+      definition.checks
+        .filter(
+          ({ mutex }) => Array.isArray(mutex) && mutex.includes("project-gate-type-aware-lint")
+        )
+        .map(({ checkId }) => checkId),
+      ["lint-product", "lint-scripts"]
+    );
+    for (const checkId of ["lint-product", "lint-scripts"]) {
+      const check = definition.checks.find(({ checkId: candidateId }) => candidateId === checkId);
+      assert.deepEqual(check?.mutex, ["project-gate-type-aware-lint"]);
+      assert.deepEqual(check?.dependsOn ?? [], []);
+    }
     assert.deepEqual(PROJECT_GATE_RUN_CONFIG.selection, {
       complete: "all",
       changed: "changed",
       default: "fast",
-      presets: ["materials", "lint", "quality", "test", "typecheck"]
+      presets: [
+        "admission-workbench",
+        "consumer-types",
+        "materials",
+        "lint",
+        "quality",
+        "test",
+        "typecheck"
+      ]
     });
     assert.equal(Object.hasOwn(definition, "policies"), false);
     assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);
@@ -263,7 +313,7 @@ describe("Project Gate Definition", () => {
     });
     assert.equal(
       definition.checks.find(({ checkId }) => checkId === "markdown-link-validation")?.displayName,
-      "Markdown link validation"
+      "Repository scan: Markdown links"
     );
     assert.equal(
       definition.checks.find(({ checkId }) => checkId === "markdown-link-validation")
@@ -324,10 +374,10 @@ describe("Project Gate Definition", () => {
       ["tests-product-file-metrics", expectedTestLanes.productFileMetrics],
       ["tests-product-function-metrics", expectedTestLanes.productFunctionMetrics],
       ["tests-product-json", expectedTestLanes.productJsonChecks],
-      ["tests-product-markdown-links", expectedTestLanes.productMarkdownLinks],
+      ["tests-product-markdown", expectedTestLanes.productMarkdown],
       ["tests-product-secret-detection", expectedTestLanes.productSecretDetection],
       ["tests-product-supporting-checks", expectedTestLanes.productSupportingChecks],
-      ["tests-product-runtime", expectedTestLanes.productRuntime],
+      ["tests-product-core-and-tools", expectedTestLanes.productCoreAndTools],
       ["tests-scripts-admission-workbench", expectedTestLanes.scriptsAdmissionWorkbench],
       ["tests-scripts-project", expectedTestLanes.scriptsProject],
       ["tests-scripts-project-selection", expectedTestLanes.scriptsProjectSelection],
@@ -337,11 +387,11 @@ describe("Project Gate Definition", () => {
       ["tests-scripts-package-tools-boundary", expectedTestLanes.scriptsPackageToolsBoundary],
       ["tests-scripts-validation", expectedTestLanes.scriptsValidation],
       ["tests-scripts-tooling", expectedTestLanes.scriptsTooling],
-      ["tests-package-supporting", expectedTestLanes.packageSupporting],
-      ["tests-package-artifact", expectedTestLanes.packageArtifact],
-      ["tests-package-consumer-types", expectedTestLanes.packageConsumerTypes],
-      ["tests-package-consumer-docs", expectedTestLanes.packageConsumerDocs],
-      ["tests-package-consumer-runtime", expectedTestLanes.packageConsumerRuntime]
+      ["tests-package-tooling", expectedTestLanes.packageTooling],
+      ["acceptance-package-artifact", expectedTestLanes.packageArtifact],
+      ["acceptance-installed-package-types", expectedTestLanes.packageConsumerTypes],
+      ["acceptance-installed-package-docs", expectedTestLanes.packageConsumerDocs],
+      ["acceptance-installed-package-runtime", expectedTestLanes.packageConsumerRuntime]
     ] as const) {
       const entry = entries.find(({ check }) => check.checkId === checkId);
       assert.ok(entry, `${checkId} must exist`);
@@ -375,7 +425,7 @@ describe("Project Gate Definition", () => {
     );
     assert.deepEqual(packageLifecycleEntry?.check.mutex, ["project-gate-package-lifecycle"]);
     assert.equal(
-      entries.find(({ check }) => check.checkId === "tests-package-artifact")?.check.mutex,
+      entries.find(({ check }) => check.checkId === "acceptance-package-artifact")?.check.mutex,
       undefined
     );
     const preparedCandidateEntry = entries.find(
@@ -385,16 +435,16 @@ describe("Project Gate Definition", () => {
       ({ check }) => check.checkId === "prepared-external-package-consumer"
     );
     const packageArtifactEntry = entries.find(
-      ({ check }) => check.checkId === "tests-package-artifact"
+      ({ check }) => check.checkId === "acceptance-package-artifact"
     );
     assert.deepEqual(packageArtifactEntry?.check.dependsOn, ["prepared-package-candidate"]);
     assert.deepEqual(externalConsumerProviderEntry?.check.dependsOn, [
       "prepared-package-candidate"
     ]);
     for (const checkId of [
-      "tests-package-consumer-types",
-      "tests-package-consumer-docs",
-      "tests-package-consumer-runtime"
+      "acceptance-installed-package-types",
+      "acceptance-installed-package-docs",
+      "acceptance-installed-package-runtime"
     ]) {
       assert.deepEqual(entries.find(({ check }) => check.checkId === checkId)?.check.dependsOn, [
         "prepared-external-package-consumer"
@@ -436,6 +486,54 @@ describe("Project Gate Definition", () => {
         { check: dependent, presets: ["test"], fast: true }
       ])
     );
+    for (const [observerPolicy, observedPolicy, allowed] of [
+      ["routine", "routine", true],
+      ["routine", "release-only", false],
+      ["routine", "explicit-only", false],
+      ["release-only", "routine", true],
+      ["release-only", "release-only", true],
+      ["release-only", "explicit-only", false],
+      ["explicit-only", "routine", true],
+      ["explicit-only", "release-only", true],
+      ["explicit-only", "explicit-only", true]
+    ] as const) {
+      const validateRelation = () =>
+        defineProjectGateEntries([
+          {
+            check: prerequisite,
+            presets: ["consumer-types"],
+            fast: false,
+            selectionPolicy: observedPolicy
+          },
+          {
+            check: observer,
+            presets: ["consumer-types"],
+            fast: false,
+            selectionPolicy: observerPolicy
+          }
+        ]);
+      if (allowed) assert.doesNotThrow(validateRelation);
+      else assert.throws(validateRelation, /not selection-policy closed/);
+    }
+    for (const selectionPolicy of ["release-only", "explicit-only"] as const) {
+      assert.throws(
+        () =>
+          defineProjectGateEntries([
+            { check: prerequisite, presets: ["consumer-types"], fast: true, selectionPolicy }
+          ]),
+        /non-routine entry has routine selection metadata/
+      );
+    }
+    assert.throws(
+      () =>
+        defineProjectGateEntries([
+          { check: prerequisite, presets: [], fast: false, selectionPolicy: "explicit-only" }
+        ]),
+      /explicit entry has no preset/
+    );
+    const invalidPolicy: ProjectGateEntry = { check: prerequisite, presets: [], fast: false };
+    Object.defineProperty(invalidPolicy, "selectionPolicy", { value: "unknown" });
+    assert.throws(() => defineProjectGateEntries([invalidPolicy]), /selection policy is invalid/);
     const selfDependent = defineCheck({
       checkId: "fixture-self-dependent",
       dependsOn: ["fixture-self-dependent"],
@@ -622,6 +720,11 @@ describe("Project Gate Definition", () => {
 
   it("keeps fast, changed, all, and focused membership golden while aggregation uses Product selection", async () => {
     const entries = createProjectGateEntries({
+      documentationInput: {
+        path: "/tmp/docs.json",
+        sha256: "c".repeat(64),
+        inputFingerprint: preparedCandidate.inputFingerprint
+      },
       externalConsumerLease: createExternalConsumerMaterialLease(),
       preparedCandidate
     });
@@ -662,7 +765,7 @@ describe("Project Gate Definition", () => {
           )
         )
         .map(({ checkId }) => checkId),
-      expectedCheckIds
+      expectedRoutineCheckIds
     );
     for (const check of definition.checks)
       assert.equal(check.enabledByFlags?.propagateDependsOn, true);
@@ -670,14 +773,15 @@ describe("Project Gate Definition", () => {
       const entry = entries.find(({ check }) => check.checkId === checkId);
       assert.ok(entry);
       assert.equal(entry.fast, false);
-      assert.equal(entry.changeRegion, "package-tests");
-      assert.deepEqual(entry.presets, []);
+      const releaseOnly = checkId === "acceptance-installed-package-types";
+      assert.equal(entry.changeRegion, releaseOnly ? undefined : "package-tests");
+      assert.deepEqual(entry.presets, releaseOnly ? ["consumer-types"] : []);
       assert.equal(
         matchesFlagEnablement(
           projectGateFlagControlledCheck(entry).enabledByFlags,
           new Set(["project-gate:changed", "vibe-check:change:package-tests"])
         ),
-        true
+        !releaseOnly
       );
     }
     // Real Product fallback injects every declared region when Git evidence is unavailable.
@@ -708,7 +812,44 @@ describe("Project Gate Definition", () => {
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
       assert.equal(result.aggregate, "passed");
-      assert.deepEqual([...calls].sort(), [...expectedCheckIds].sort());
+      assert.deepEqual([...calls].sort(), [...expectedRoutineCheckIds].sort());
+      const dependencyEntries = fixtureEntries.map((entry, index) => ({
+        ...entry,
+        check: defineCheck({
+          checkId: entry.check.checkId,
+          displayName: entry.check.displayName,
+          dependsOn: entries[index]?.check.dependsOn ?? [],
+          execute: () => {
+            calls.push(entry.check.checkId);
+            return { status: "passed", data: {} };
+          }
+        })
+      }));
+      for (const [preset, expected] of [
+        [
+          "consumer-types",
+          [
+            "prepared-package-candidate",
+            "prepared-external-package-consumer",
+            "acceptance-installed-package-types"
+          ]
+        ],
+        ["admission-workbench", ["tests-scripts-admission-workbench"]]
+      ] as const) {
+        calls.length = 0;
+        const focusedResult = await packageRun(createProjectGateDefinition(dependencyEntries), {
+          flags: selectionFlags({ kind: "focused", presets: [preset] }),
+          projectRoot,
+          outputs: {
+            diagnosticLogging: { enabled: false },
+            machinePublication: { enabled: false },
+            progressRendering: { enabled: false }
+          }
+        });
+        assert.equal(focusedResult.kind, "completed");
+        if (focusedResult.kind === "completed") assert.equal(focusedResult.aggregate, "passed");
+        assert.deepEqual([...calls].sort(), [...expected].sort(), preset);
+      }
     } finally {
       rmSync(projectRoot, { force: true, recursive: true });
     }

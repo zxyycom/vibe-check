@@ -77,7 +77,7 @@ export const PROJECT_GATE_PRODUCT_TEST_REGIONS = Object.freeze({
     "host-environment",
     "project-files"
   ]),
-  "product-runtime": {
+  "product-core-and-tools": {
     patterns: [
       "src/**",
       ...knownCheckDirectories.map((directory) => `!src/package-checks/${directory}/**/*.test.ts`)

@@ -7,7 +7,6 @@ import {
   continuationPriorityGraph,
   createDeferred,
   decisionFor,
-  delay,
   noActivationGraph,
   recordedSchedulerDecisions,
   recordingLogger,
@@ -59,18 +58,37 @@ describe("static task engine", () => {
     const observations: DiagnosticObservation[] = [];
     const releaseWide = createDeferred<void>();
     const releaseLow = createDeferred<void>();
+    const wideStarted = createDeferred<void>();
+    const constrained = createDeferred<void>();
+    const logger = recordingLogger(observations);
     const graph = tighteningScopeGraph();
 
     const running = runTaskGraph({
       graph,
       maxParallel: 2,
-      diagnosticLogger: recordingLogger(observations),
+      diagnosticLogger: {
+        ...logger,
+        observe: (observation) => {
+          logger.observe(observation);
+          const details = observation.details;
+          if (
+            observation.event === "scheduler.decision" &&
+            typeof details === "object" &&
+            details !== null &&
+            "kind" in details &&
+            details.kind === "await-running" &&
+            events.includes("end:gate")
+          )
+            constrained.resolve();
+        }
+      },
       execute: async (task) => {
         events.push(`start:${task.id}`);
         if (task.id === "gate") {
-          await waitFor(() => events.includes("start:wide-one"));
+          await wideStarted.promise;
         }
         if (task.id === "wide-one") {
+          wideStarted.resolve();
           await releaseWide.promise;
         }
         if (task.id === "low") {
@@ -81,8 +99,7 @@ describe("static task engine", () => {
       }
     });
 
-    await waitFor(() => events.includes("end:gate"));
-    await delay(2);
+    await constrained.promise;
     const constrainedWait = decisionFor(graph, {
       activeScopeIds: ["wide"],
       maxParallel: 2,

@@ -9,8 +9,16 @@ import {
 } from "./analyzer-worker-port.ts";
 import type { FunctionMetric, FunctionMetricsExactInputSet } from "./measurement-model.ts";
 
-const MAXIMUM_FILE_BYTES = 8 * 1024 * 1024;
-const MAXIMUM_AGGREGATE_BYTES = 64 * 1024 * 1024;
+/** Private admission policy; not a Check option or public Run control. */
+export interface FunctionSourceLimits {
+  readonly maximumFileBytes: number;
+  readonly maximumAggregateBytes: number;
+}
+
+export const DEFAULT_FUNCTION_SOURCE_LIMITS: FunctionSourceLimits = Object.freeze({
+  maximumFileBytes: 8 * 1024 * 1024,
+  maximumAggregateBytes: 64 * 1024 * 1024
+});
 const READ_CHUNK_BYTES = 32 * 1024;
 
 export type FunctionMeasurementResult = Readonly<
@@ -27,11 +35,13 @@ interface FunctionMeasurementInput {
 }
 
 export interface FunctionMeasurementDependencies {
+  readonly sourceLimits: FunctionSourceLimits;
   readonly createWorker: () => FunctionMetricsWorkerPort;
   readonly yieldAdmission: () => Promise<void>;
 }
 
 const DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES: FunctionMeasurementDependencies = Object.freeze({
+  sourceLimits: DEFAULT_FUNCTION_SOURCE_LIMITS,
   createWorker: createNodeFunctionMetricsWorker,
   yieldAdmission: yieldAdmissionToImmediate
 });
@@ -48,7 +58,9 @@ export async function measureFunctionMetrics(
     dependencies.createWorker ?? DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES.createWorker;
   const yieldAdmission =
     dependencies.yieldAdmission ?? DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES.yieldAdmission;
-  const admitted = await readExactFunctionSources(input, signal, yieldAdmission);
+  const sourceLimits =
+    dependencies.sourceLimits ?? DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES.sourceLimits;
+  const admitted = await readExactFunctionSources(input, signal, yieldAdmission, sourceLimits);
   if (admitted.kind !== "complete") return admitted;
   if (signal.aborted) return Object.freeze({ kind: "cancelled" });
   return analyzeAdmittedSources(admitted.request, input.approvedExactPaths, signal, createWorker);
@@ -57,7 +69,8 @@ export async function measureFunctionMetrics(
 async function readExactFunctionSources(
   input: FunctionMetricsExactInputSet,
   signal: AbortSignal,
-  yieldAdmission: () => Promise<void>
+  yieldAdmission: () => Promise<void>,
+  sourceLimits: FunctionSourceLimits
 ): Promise<
   | Readonly<{ readonly kind: "cancelled" }>
   | Readonly<{ readonly kind: "complete"; readonly request: FunctionMetricsAnalysisWorkerRequest }>
@@ -72,7 +85,8 @@ async function readExactFunctionSources(
       resolve(input.rootDir, path),
       aggregateBytes,
       signal,
-      yieldAdmission
+      yieldAdmission,
+      sourceLimits
     );
     if (source.kind !== "complete") return source;
     aggregateBytes += source.byteLength;
@@ -88,7 +102,8 @@ async function readBoundedSource(
   absolutePath: string,
   aggregateBytes: number,
   signal: AbortSignal,
-  yieldAdmission: () => Promise<void>
+  yieldAdmission: () => Promise<void>,
+  sourceLimits: FunctionSourceLimits
 ): Promise<
   | Readonly<{ readonly kind: "cancelled" }>
   | Readonly<{ readonly kind: "complete"; readonly byteLength: number; readonly source: string }>
@@ -110,7 +125,10 @@ async function readBoundedSource(
       const bytesRead = readSync(descriptor, chunk, 0, chunk.length, null);
       if (bytesRead === 0) break;
       fileBytes += bytesRead;
-      if (fileBytes > MAXIMUM_FILE_BYTES || aggregateBytes + fileBytes > MAXIMUM_AGGREGATE_BYTES) {
+      if (
+        fileBytes > sourceLimits.maximumFileBytes ||
+        aggregateBytes + fileBytes > sourceLimits.maximumAggregateBytes
+      ) {
         return Object.freeze({ kind: "resource-limit-exceeded" });
       }
       chunks.push(Buffer.from(chunk.subarray(0, bytesRead)));

@@ -40,6 +40,22 @@ describe("repository quality Checks", () => {
         "markdown-link-validation"
       ]
     );
+    assert.deepEqual(
+      [
+        checks.duplicateDetection,
+        checks.fileMetrics,
+        checks.functionMetrics,
+        checks.markdownLint,
+        checks.markdownLinkValidation
+      ].map(({ displayName }) => displayName),
+      [
+        "Repository scan: duplicate detection",
+        "Repository scan: file metrics",
+        "Repository scan: function metrics",
+        "Repository scan: Markdown lint",
+        "Repository scan: Markdown links"
+      ]
+    );
     const {
       duplicateDetection,
       fileMetrics,
@@ -177,7 +193,7 @@ describe("repository quality Checks", () => {
           functionName: "createProjectGateEntries",
           metric: "function-code-density",
           path: "scripts/project/gate/definition.ts",
-          startLine: 208
+          startLine: 211
         },
         reason:
           "Gate 的完整顺序 manifest 是低分支的声明清单；按行数拆分会隐藏 Check 顺序和选择，其他函数指标仍阻断。"

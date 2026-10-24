@@ -3,6 +3,8 @@
 维护者在独立合成时间模型中比较 admission policy、重放 heuristic 对照时，从本文恢复命令、协议与证据边界。
 本文拥有这两种工作流的维护规则，仅供工作区使用；模拟证据与真实 Gate 性能证据分别判断。
 
+workbench 的行为测试仅通过 `bun run check -- --admission-workbench` focused selector 明确运行；fast、changed、all、`--test`、正式 receipt 和未知输入/Git fallback 都不自动选择它。完整 Test Evidence 仍注册并核对其 Case，但注册闭合不是正文执行。直接模拟命令不因此成为 Gate selector，合成协议与历史 fixture 不随 Gate 命名调整而改写。
+
 ## Virtual admission workbench
 
 `admission:simulate` 是仓库私有的 exact-candidate consumer，用公开 `AdmissionGraph` 接受每次

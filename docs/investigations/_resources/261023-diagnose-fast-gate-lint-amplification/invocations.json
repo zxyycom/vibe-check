@@ -1,0 +1,97 @@
+{
+  "lintProduct": {
+    "args": [
+      "x",
+      "--no-install",
+      "oxlint",
+      "--deny-warnings",
+      "--format=json",
+      "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
+      "src"
+    ],
+    "command": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "cwd": "/workspace/vibe-check"
+  },
+  "lintScripts": {
+    "args": [
+      "x",
+      "--no-install",
+      "oxlint",
+      "--deny-warnings",
+      "--format=json",
+      "scripts"
+    ],
+    "command": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "cwd": "/workspace/vibe-check"
+  },
+  "typecheckProduct": {
+    "command": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "args": [
+      "/workspace/vibe-check/node_modules/.pnpm/typescript@7.0.2/node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.product.json"
+    ],
+    "cwd": "/workspace/vibe-check"
+  },
+  "typecheckScripts": {
+    "command": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "args": [
+      "/workspace/vibe-check/node_modules/.pnpm/typescript@7.0.2/node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "/workspace/vibe-check"
+  },
+  "selection": {
+    "command": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "args": [
+      "test",
+      "scripts/project/gate/runtime/eligibility.test.ts",
+      "--reporter=dots",
+      "--timeout=15000"
+    ],
+    "cwd": "/workspace/vibe-check"
+  },
+  "format": {
+    "args": [
+      "x",
+      "--no-install",
+      "oxfmt",
+      "--check",
+      ".codex/config.toml",
+      ".oxlintrc.json",
+      ".oxfmtrc.json",
+      "mise.toml",
+      "package.json",
+      "pnpm-workspace.yaml",
+      "scripts/test-evidence/ast-grep/sgconfig.yml",
+      "scripts/test-evidence/supported-runner-profile.json",
+      "scripts/test-evidence/ast-grep/rules/**/*.yml",
+      "scripts/test-evidence/ast-grep/rule-tests/**/*.yml",
+      "tsconfig.json",
+      "tsconfig.product.json",
+      "vibe-check.code-workspace",
+      "src/**/*.ts",
+      "!src/package-checks/function-metrics/analyzer/fixtures/**",
+      "scripts/**/*.ts"
+    ],
+    "command": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "cwd": "/workspace/vibe-check"
+  },
+  "plainTextEnv": {
+    "CARGO_TERM_COLOR": "never",
+    "CLICOLOR": "0",
+    "CLICOLOR_FORCE": "0",
+    "FORCE_COLOR": "0",
+    "NO_COLOR": "1",
+    "PNPM_CONFIG_COLOR": "false",
+    "PY_COLORS": "0",
+    "TERM": "dumb",
+    "UV_NO_COLOR": "1",
+    "npm_config_color": "false"
+  },
+  "runtime": {
+    "bun": "1.3.14",
+    "execPath": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun"
+  }
+}

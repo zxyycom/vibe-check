@@ -51,7 +51,7 @@ bun run test-evidence -- check --root .
 ```
 
 产品或 scripts 改动先运行最窄 Bun test，再按 owner 运行 typecheck/lint。Project Gate 将 Test Evidence entity
-closure 与按稳定 owner 分区的 behavior execution 分别结算。默认 fast 只提供快速工程反馈；changed 根据 Git 变更 region 选择全部受影响验收，包含相关 artifact、external-consumer provider 与 types/docs/runtime acceptance。all 保留不依赖变更命中的完整验收。缺少可信 Git evidence 或遇到未分类输入时，changed 保守扩大，不当作零变更。精确资格、输入与性能策略见 [Project Gate](../tooling/project-gate.md#selection-presets-and-scheduling)。
+closure 与按稳定 owner 分区的 behavior execution 分别结算。默认 fast 只提供快速工程反馈；changed 根据 Git 变更 region 选择全部受影响验收，包含相关 artifact、external-consumer provider 与 installed docs/runtime acceptance。all 保留不依赖变更命中的完整 routine 验收。缺少可信 Git evidence 或遇到未分类输入时，changed 保守扩大 routine 集合，不当作零变更。consumer types 仅正式 receipt+all 或明确 `--consumer-types`，workbench 仅明确 `--admission-workbench`；`--test` 也不包含这两项。精确资格、输入与性能策略见 [Project Gate](../tooling/project-gate.md#selection-presets-and-scheduling)。
 
 跨 owner、Gate 或 output contract 的日常交付运行：
 
@@ -59,11 +59,13 @@ closure 与按稳定 owner 分区的 behavior execution 分别结算。默认 fa
 bun run check -- --changed
 ```
 
-涉及 package artifact、candidate、外部 consumer 或发布验收时显式运行 complete Gate：
+涉及 package artifact、candidate 或 installed docs/runtime 时显式运行 complete routine Gate：
 
 ```bash
 bun run check -- --all
 ```
+
+发布验收使用 `bun run package:release:verify -- --receipt <path>`，将包含 types 的完整验收绑定到同一正式 tarball；不以日常 all 成功替代。未选择的 types/workbench 仍保留完整实体与 Case 映射。
 
 必须报告实际运行的检查和未运行项及影响。
 

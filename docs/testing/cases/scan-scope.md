@@ -47,7 +47,7 @@ Entities:
 Owner: `docs/guides/file-region-index.md#最小用法`
 Entities:
 
-- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > publishes only the approved runtime and type roots`
+- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > exposes approved authoring values and adjacent source JSDoc`
 - `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type acceptance`
 - `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
   Proves:
@@ -90,7 +90,7 @@ Entities:
 - `bun|src/data-boundary/project-file-region-index.test.ts|project file-region index > matches complete native lists including explicit default-excluded and nonexistent paths`
   Proves:
 - collection 和共同显式 path matcher 对 dot、brace、extglob、换行路径、负-only、空列表、`./` 动态/静态 pattern 及用户重新包含使用同一结果；共享选择也不保留后端的 `./` 候选前缀。
-- Run 对真实 Git delta 采用同一完整列表语义，支持 dot/brace/extglob/负-only/重新包含/空列表；build changed path 不套扫描默认排除。
+- Run 的 changed-path projection 对已取得的路径采用同一完整列表语义，支持 dot/brace/extglob/负-only/重新包含/空列表；build changed path 不套扫描默认排除。
 - 扫描前不存在的静态和动态 glob 起点是合法无匹配。
 - Core 对值文件域使用同一原生参数与列表语义，支持 brace/extglob/negative-only/reinclude/dot/大小写/换行路径和动态 ./ pattern；显式 build 文件不被默认排除。
 - 狭义字面路径列表与规范化候选的批次结果，保留固定版本原生 matcher 的 pattern 首现顺序及去重；复杂或未规范化输入、超长 pattern 保留原生结果或错误。操作量检查证明字面列表选择绕过逐 pattern×candidate 的原生正则比较。
@@ -307,7 +307,7 @@ Entities:
 - `bun|src/package-tools/change-flag-debugging/change-flag-debugging.test.ts|change flag debugging > isolates inputs and frozen results and refreshes files and rules on each invocation`
 - `bun|src/package-tools/change-flag-debugging/change-flag-debugging.test.ts|change flag debugging > queries and formats the same snapshot with acquisition and output facilities blocked`
   Proves:
-- 修改原 patterns/regions 和新增文件不影响旧报告，下次调用采用新全集/规则；任意非空 ID 包括 NUL/__proto__ 保留，公开嵌套字段冻结且方法可解构。
+- 修改原 patterns/regions 和新增文件不影响旧报告，下次调用采用新全集/规则；任意非空 ID 包括 NUL/**proto** 保留，公开嵌套字段冻结且方法可解构。
 - filesystem/process acquisition 与输出设施被封锁后仍可双向查询和反复格式化，同次快照不重新获取或自动输出，文本保留零命中、范围与边界并转义控制字符。
 
 ## Case CHANGE-FLAG-DEBUG-PACKAGE-001: 安装后公开消费完整映射和按需文本
@@ -315,7 +315,7 @@ Entities:
 Owner: `docs/guides/debugging-change-flags.md#最小用法`
 Entities:
 
-- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > publishes only the approved runtime and type roots`
+- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > exposes approved authoring values and adjacent source JSDoc`
 - `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type acceptance`
 - `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
   Proves:

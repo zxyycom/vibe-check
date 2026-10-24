@@ -39,13 +39,21 @@ compiler cache 按 emit 调用及其输入/runner 源码、Product 源码与输�
 
 fixture 的 `buildDirectory` 与 `stateDirectory` 必须 test-local 隔离，contract 拒绝重叠。cold rebuild 只清理精确拥有的 build paths 与 cache-owned receipt；compiler state 仅由其输入和输出摘要校验决定保留或清理。
 
+路径 contract 的同路径、双向父子与非重叠相邻路径直接由纯路径 owner 验证，不先执行 candidate fingerprint 或文档生成。compiler-cache 分支矩阵保留真实文件摘要、状态判断与 staging copy，以可控工具链身份和 fake compiler emit 验证复用、增量与冷 emit；真实工具链资格与真实产物验收另由各自 owner 保留。
+
 ### Gate 复用与物理集成
 
-Gate root 在 Product Run 前完成或复用这份 exact preparation；`--all` 的 artifact 与 external-consumer acceptance 消费其 typed evidence，不另建 detached cold candidate。Gate binding 与 aggregate 由 [Project Gate](project-gate.md)拥有。
+Gate root 在 Product Run 前完成或复用这份 exact preparation；routine `--all` 的 artifact 与 installed docs/runtime acceptance 消费其 typed evidence，不另建 detached cold candidate。Gate binding 与 aggregate 由 [Project Gate](project-gate.md)拥有。
 
-acceptance input 优先验证显式 Gate artifact：有效输入直接交给验收，非法输入立即失败；direct target 未收到 Gate input 时才加载本地 preparation。external consumer provider 通过 `documentation-fixture.ts` 复制文档验收输入；renderer、实际文档比对和可执行示例由独立的 documentation acceptance 加载并执行。
+consumer types 仅正式 `--all --release-receipt <path>` 或明确 `--consumer-types` 诊断；两者仍复用同一 external provider material，不另建 candidate 或每个 consumer 重装。日常 all 不证明 types 兼容性，发布前必须按 [Package release](package-release.md#发布工作区冻结源与交接)完成同 tarball 的全部安装验收。
+
+acceptance input 优先验证显式 Gate artifact：有效输入直接交给验收，非法输入立即失败；direct target 未收到 Gate input 时才加载本地 preparation。external consumer provider 通过 `documentation-fixture.ts` 复制可执行示例及其支持材料；parent preparation 生成 source-derived 文档预期，独立的 documentation acceptance child 读取同次 invocation 的共享预期，比较实际安装材料并执行可执行示例，不再重复运行 renderer。
 
 Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 仍完整审计同一 provider staging，staging corruption 不能绕过 `--all`。
+
+同次 local candidate preparation 只生成一次 source-derived 文档预期，parent 以内存材料交给 bound Run；Run 在本次 invocation log 下写入 `package-documentation.json`，供 artifact 与 external documentation child 共享。该文件仅是本轮验收输入，不是跨轮 cache 或第二份 package staging。child 核验文件摘要、candidate tarball 路径/摘要、source input fingerprint 与 repository root 后，仍分别比较真实 staging、tarball 和 installed bytes；正文不进入 Check data、Records 或 stdout。Gate 输入缺失或无效时失败，不重新生成预期掩盖接线错误；未收到 Gate input 的 direct target 保留独立准备/验证路径。
+
+缺失文档 input 的负向证明直接调用 artifact 与 installed-documentation 实际使用的选择/guard 入口，并观察 renderer、audit 与 direct build 未调用；不为这项接线判断启动额外 Bun child。真实 artifact 与 installed documentation 的正向验收不由 guard spy 替代。
 
 `bun run package:candidate:integration` 是 routine `--test` 之外的显式物理 target：30 秒进程硬限制内，以 test-local state 证明 cold build/install/reuse、installed documentation drift 失败、dependency license drift/missing dependency 触发 reinstall，以及 malformed receipt 触发 rebuild。build staging 仍由 artifact acceptance 审计；Routine Gate 不运行此 target。
 
@@ -59,6 +67,22 @@ Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 
 4. 随后的 Product / external runtime 消费同一安装，实际执行 jscpd；preparation 不为同一事实重复启动 probe。
 
 `candidate/external-consumer/**` 建立一次隔离安装及 typed material，分别拥有 types、documentation 与 runtime 验收；父级 candidate lifecycle 不吸收这些职责。其 types fixture 用独立的 `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes` profile 验收安装后的公共 declarations，不承接 `noImplicitOverride`、`noImplicitReturns` 或 unreachable-code 等 implementation-only 规则，也不增加 compiler invocation 或重复安装。
+
+### 隔离安装诊断
+
+准备过程在 stderr 写入 `external-consumer-setup` JSON 行，Gate 将它们保留在
+`prepared-external-package-consumer` 对应的 `checks/<encoded-check-id>/process.log`；stdout 仍只承载原 typed material。
+fixture、安装、类型 fixture、入口解析和 identity 验证各在同步工作前写入开始记录，返回或抛错时写入耗时与终态。
+若 provider 被 timeout/取消终止，最后一个没有结束记录的阶段表示当时尚未完成，不推断其内部原因。
+
+安装返回时另保留 exit code、是否受 signal、是否存在命令执行错误、两条流的 bytes，以及可识别的 Bun
+依赖解析标记、resolved/downloaded/extracted 合计数和 installed package 数。
+这些摘要在安装结束后生成，不是实时进度时间线；每条流只检查前 8,192 个 UTF-16 code units 的完整行，超限明确标记。
+未识别或未取得的计数为 null，不能视为零工作或网络故障。
+这些诊断记录不转储原始输出、异常、环境、URL 或凭据；每次准备的诊断最多 8 KiB，超限写一次截断标记，之后继续原验收工作。
+诊断写入错误明确失败；安装命令、隔离性、重试策略、预算和 typed material 均不因诊断改变。
+
+### 外部使用方验收
 
 `typecheck-fixture.ts` 统一构造 consumer 的 tsconfig 与 public-import source，并组合各领域声明验收片段；`type-acceptance.ts` 负责安装隔离所需的声明依赖、写入 fixture、调用 compiler 和审计已安装 JSDoc。
 

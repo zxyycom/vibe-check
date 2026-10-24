@@ -28,7 +28,9 @@ candidate identity 另绑定根 manifest、lockfile、workspace 配置、精确�
 
 `collectArtifactFingerprintInputFiles` 每次按当前 source、package scripts 与材料 registry 收集完整仓库输入。hash 按排序后的路径逐项读取原始 bytes，保留清单中的重复项；已安装工具链由上述独立 resolver 绑定。
 
-指纹测试 fixture 按这份当次清单复制普通独立文件，调用方负责副本的修改与清理。测试分别核对完整性、各类输入的字节敏感性、新增输入的发现与副本写入隔离。
+指纹分支测试使用独立枚举固定输入、合法最小 registry、source 与 package scripts 的 synthetic repository，仍调用真实 collector/hash；复制测试按该 fixture 的当次清单复制普通独立文件，调用方负责副本的修改与清理。测试分别核对精确清单、各类输入的字节敏感性、新增输入的发现与副本写入隔离，不为输入变体复制完整 checkout。
+
+指纹与 compiler-cache 的分支矩阵只替换私有工具链身份 provider，不替换 collector、hash 或 cache 判断；默认仍读取真实已安装工具链，没有跨轮身份缓存。真实 compiler/compatibility API、platform executable 与材料身份资格由 `compiler-toolchain.test.ts` 直接验证，实际 emit 和 installed consumer 验收继续使用真实 resolver。
 
 Worker URL normalization 仅处理两个已知 owner，各自要求恰好一次精确 `new URL(<source>, import.meta.url)`：
 
@@ -69,7 +71,10 @@ staging、tarball 与 installed candidate 核对 packaged material，并闭合 s
 artifact audit 在 pack 前验证根入口、公开运行时导出、可解析的相对 `.mjs` 引用、源码映射与 package 源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
 
 每次 ESM 范围提取或 Worker URL 处理只解析当前原文一次，语法诊断与结构遍历复用该 AST；诊断阶段只检查语法。
+exact public surface 由最终产物证明：保留 declaration export graph 对独立 type 清单的精确比对，runtime 在现有 ancestry-external Node runner 中比较真实 namespace keys 与独立 runtime 清单。source 侧保留 API authoring/default 行为与唯一相邻 JSDoc owner 证明，不另建完整 source export graph；emitted runtime 也不为相同清单再建 TS graph。
 公开声明验收按文件收集相邻中文 JSDoc，再完整核验公开清单；语言要求由[编码规范](../development/coding-style.md#64-package-对外说明含显式随包用户-markdown-与任务专题以中文叙述为主)拥有。
+
+Worker audit 的缺失、越界 URL、重复 URL 与 tarball bytes drift 负向证明使用最小独立 fixture，仍经过生产 layout/tar audit 入口；不得为注入故障修改真实候选或 Gate 共享 staging。真实候选的完整正向 layout/material 审计保留。
 
 真实安装验收从 exact tarball 在 ancestry-external consumer 中运行受支持 Node，观察 Markdown Link 实际 `.mjs` Worker
 加载、成功与协作取消后的退出，并保留 function-metrics Worker 的分析验收。源码/Bun 测试、路径模拟或 staging audit

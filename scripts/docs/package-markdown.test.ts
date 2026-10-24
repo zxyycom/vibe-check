@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { basename, join } from "node:path";
 import { describe, it } from "node:test";
 
 import { collectPackageDocumentation } from "./package-markdown.ts";
@@ -9,38 +8,29 @@ import { loadPackageDocuments } from "./package-documents.ts";
 import { renderPackageApiDocumentation } from "./package-api/render.ts";
 import { createPackageApiDocumentationFixture } from "./package-api/test-support.ts";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-
 describe("package Markdown", () => {
-  it("requires one README-linked guide for every package-provided Check function", () => {
-    const mapping = loadPackageDocuments(repositoryRoot);
-    const rendered = renderPackageApiDocumentation({ repositoryRoot });
-    const documents = collectPackageDocumentation(repositoryRoot, rendered.markdownDocuments);
-    assert.deepEqual(
-      documents.map((document) => document.packagePath).sort(),
-      [
-        ...mapping.markdownDocuments
-          .filter((document) => document.id !== "readme")
-          .map((document) => document.packagePath),
-        ...mapping.checkGuides.map((guide) => guide.packagePath)
-      ].sort()
-    );
-    assert.equal(
-      documents.some((document) => basename(document.packagePath) === "index.md"),
-      false
-    );
-    const changelog = documents.find((document) => document.packagePath === "docs/changelog.md");
-    assert.ok(changelog);
-    assert.equal(
-      changelog.content,
-      readFileSync(join(repositoryRoot, "docs/changelog.md"), "utf8")
-    );
-  });
-
-  it("rejects a missing direct README link and an extra Check guide page", () => {
+  it("closes fixture documentation inventory and rejects missing links or extra guide pages", () => {
     const fixture = createPackageApiDocumentationFixture();
     try {
       const rendered = renderPackageApiDocumentation({ repositoryRoot: fixture });
+      const mapping = loadPackageDocuments(fixture);
+      const documents = collectPackageDocumentation(fixture, rendered.markdownDocuments);
+      assert.deepEqual(
+        documents.map((document) => document.packagePath).sort(),
+        [
+          ...mapping.markdownDocuments
+            .filter((document) => document.id !== "readme")
+            .map((document) => document.packagePath),
+          ...mapping.checkGuides.map((guide) => guide.packagePath)
+        ].sort()
+      );
+      assert.equal(
+        documents.some((document) => basename(document.packagePath) === "index.md"),
+        false
+      );
+      const changelog = documents.find((document) => document.packagePath === "docs/changelog.md");
+      assert.ok(changelog);
+      assert.equal(changelog.content, readFileSync(join(fixture, "docs/changelog.md"), "utf8"));
       const readme = rendered.markdownDocuments.find(
         (document) => document.packagePath === "README.md"
       );
@@ -78,7 +68,6 @@ describe("package Markdown", () => {
 
       const mappingPath = join(fixture, "docs/package-documents.json");
       const mappingText = readFileSync(mappingPath, "utf8");
-      const mapping = loadPackageDocuments(fixture);
       writeFileSync(
         mappingPath,
         JSON.stringify({ ...mapping, checkGuides: mapping.checkGuides.slice(1) }),

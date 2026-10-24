@@ -95,7 +95,7 @@ Scheduler 根据依赖和资源约束准入工作，Check execution 在被准入
 
 ## Source module boundaries
 
-顶层源码按上述稳定责任组织。表中标为 Core 的六项中的生产模块构成依赖门禁使用的 Core roots：
+顶层源码按上述稳定责任组织；本表描述当前归属，不是目录成员的机器封闭清单。表中标为 Core 的六项中的生产模块构成依赖门禁使用的 Core roots：
 
 | 范围 | 源码归属 | 架构责任 |
 | --- | --- | --- |
@@ -116,4 +116,4 @@ Check-owned analyzer 属于具体 Check；目录深度表达这种父子责任�
 源码模块默认通过具体职责文件协作，不额外建立 barrel 或 compatibility re-export。仓库脚本由 `scripts/**` 拥有，
 Product 不反向依赖脚本、文档、fixture 或测试工具。文件命名与拆分原则见[编码规范](coding-style.md#8-目录文件与模块命名)，
 具体 Run 子模块见[Project Run](project-run.md#run-子模块)，工具子模块见[随包工具实现](package-tools.md)，
-脚本布局与机械约束见[工作区工具](../tooling/workspace.md#source-owners-and-dependency-direction)。
+脚本依赖边界与布局审查见[工作区工具](../tooling/workspace.md#source-owners-and-dependency-direction)。

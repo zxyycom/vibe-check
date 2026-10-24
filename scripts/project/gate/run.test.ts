@@ -53,6 +53,12 @@ import {
 } from "./runtime/transcript.ts";
 
 const prepared = Object.freeze({
+  documentation: {
+    documents: [],
+    machineMaterials: [],
+    expectedJSDocExamplePayloads: [],
+    readme: ""
+  },
   artifactPath: "/tmp/vibe-check.tgz",
   candidateVersion: "0.0.0-local.fixture",
   consumerDirectory: "/tmp/consumer",
@@ -171,7 +177,25 @@ describe("Project Gate entries, root binding, and controls", () => {
     );
     assert.equal(
       projectGateSelectionSummary({ kind: "all" }),
-      "selection=all; acceptance=complete; package-acceptance=selected"
+      "selection=all; acceptance=routine-complete; package-acceptance=selected; consumer-types=not-selected"
+    );
+    for (const preset of ["consumer-types", "admission-workbench"] as const) {
+      assert.deepEqual(parseProjectGateArguments([`--${preset}`]), {
+        ok: true,
+        action: "run",
+        value: { kind: "focused", presets: [preset] }
+      });
+      assert.match(help, new RegExp(`--${preset}`));
+    }
+    const releaseSelection = { kind: "all", release: true } as const;
+    assert.deepEqual(selectionFromFlags(selectionFlags(releaseSelection)), releaseSelection);
+    assert.match(
+      projectGateSelectionSummary(releaseSelection),
+      /acceptance=release.*consumer-types=selected/
+    );
+    assert.match(
+      projectGateSelectionSummary({ kind: "focused", presets: ["consumer-types"] }),
+      /package-acceptance=consumer-types-only/
     );
     assert.equal(parseProjectGateArguments(["unexpected"]).ok, false);
     assert.equal(parseProjectGateArguments(["--profile", "full"]).ok, false);
@@ -184,7 +208,10 @@ describe("Project Gate entries, root binding, and controls", () => {
     for (const flags of [
       ["project-gate:all", "project-gate:fast"],
       ["project-gate:changed", "project-gate:preset=test"],
-      ["project-gate:required"]
+      ["project-gate:required"],
+      ["project-gate:release"],
+      ["project-gate:release", "project-gate:all"],
+      ["project-gate:changed", "project-gate:release"]
     ]) {
       assert.equal(selectionFromFlags(flags), undefined);
     }
@@ -208,7 +235,7 @@ describe("Project Gate entries, root binding, and controls", () => {
           kind: "release-receipt",
           receiptPath: "build/releases/zxyycom-vibe-check-0.0.1.release.json"
         },
-        selection: { kind: "all" }
+        selection: { kind: "all", release: true }
       }
     );
     assert.equal(
@@ -343,6 +370,7 @@ describe("Project Gate adapter closure", () => {
     let localPreparationStarted = false;
     let observedReceiptPath: string | undefined;
     let observedCandidate: PreparedPackageCandidate | undefined;
+    let observedFlags: readonly string[] | undefined;
     const status = await runProjectGateWithoutTranscript(
       ["--all", "--release-receipt", "build/releases/zxyycom-vibe-check-0.0.1.release.json"],
       {
@@ -350,7 +378,8 @@ describe("Project Gate adapter closure", () => {
         loadRunModule: async () => ({
           resolvedEntryPath: preparedRelease.resolvedEntryPath,
           resultContributor: passThroughResultContributor,
-          run: async ({ preparedCandidate }) => {
+          run: async ({ preparedCandidate, flags }) => {
+            observedFlags = flags;
             observedCandidate = preparedCandidate;
             return completedResult("passed");
           }
@@ -370,6 +399,7 @@ describe("Project Gate adapter closure", () => {
     assert.equal(localPreparationStarted, false);
     assert.equal(observedReceiptPath, "build/releases/zxyycom-vibe-check-0.0.1.release.json");
     assert.equal(observedCandidate, preparedRelease);
+    assert.deepEqual(observedFlags, ["project-gate:all", "project-gate:release"]);
   });
 
   it("rejects an imported entry that differs from the prepared candidate before run or resultContributor", async () => {

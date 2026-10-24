@@ -12,7 +12,7 @@ Entities:
 - `bun|scripts/package/command.test.ts|package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance`
   Proves:
 
-- Candidate preparation rejects overlapping build/cache roots and accepts only a valid private consumer manifest. Receipt contracts reject malformed or stale package state before reuse, while root preparation derives the actual build, artifact, installation and resolved entry used by every Project Gate invocation.
+- Candidate path contract rejects identical or either-direction parent/child build/cache roots and accepts adjacent non-overlapping roots without preparing a candidate. Installation accepts only a valid private consumer manifest. Receipt contracts reject malformed or stale package state before reuse, while root preparation derives the actual build, artifact, installation and resolved entry used by every Project Gate invocation.
 - Routine test discovery keeps only fast decision/input contracts. The separately named `package:candidate:integration` target has a 30-second process boundary and exercises physical cold build/install/reuse plus drift/fallback decisions without becoming a second complete package lifecycle inside the Gate. Build-only staging material remains owned by artifact acceptance.
 - Root package status is read-only and reports `current` or `stale` separately from the required repair action; after build, its current state is reported separately from the performed preparation action. Root verify delegates to the complete package acceptance owner rather than accepting stale material or inventing another acceptance path.
 
@@ -28,6 +28,9 @@ Entities:
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > rejects missing or malformed private Markdown Link Worker material`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the audited production dependency set`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the approved distribution and discovery contract`
+- `bun|scripts/package/artifact/documentation-input.test.ts|Gate acceptance rejects entirely missing documentation input instead of rebuilding expectations`
+- `bun|scripts/package/artifact/documentation-input.test.ts|invocation documentation preserves independent source expectations and binds candidate identity`
+- `bun|scripts/package/artifact/documentation-input.test.ts|invocation documentation distinguishes direct absence from invalid supplied input`
 - `bun|scripts/package/artifact/manifest.test.ts|checked-in release manifest projects only version and rejects static-source or safety drift`
 - `bun|scripts/package/artifact/manifest.test.ts|release manifest reader does not leak the caller's repository root`
 - `bun|scripts/package/artifact/manifest.test.ts|release manifest bytes invalidate the candidate fingerprint`
@@ -36,13 +39,15 @@ Entities:
   Proves:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
+- 同次 candidate preparation 的 source-derived Markdown、JSDoc 示例与原始机器材料预期通过 invocation-local 文件供 staging/installed docs 验收复用；文件摘要、candidate artifact 路径/摘要、source input fingerprint 与 repository root 必须匹配。缺项、篡改、错误 candidate/root/fingerprint、非法路径或材料形状失败封闭；预期正文不进入 Check data 或 stdout。
+- Artifact 与 installed-documentation 调用方共用各自真实选择入口；Gate documentation input 全缺失时在 renderer、artifact audit 或 direct build 之前失败，不以重建预期补偿接线错误。该负向证明不启动 child，真实 artifact/installed documentation 正向验收仍独立保留。
 - Every name in the public declaration inventory has an exported declaration with adjacent Chinese JSDoc. Documentation from an earlier declaration, a non-JSDoc comment, an English-only comment or an unclosed comment cannot supply that adjacency.
 - The checked-in release manifest is the stable authoring owner; local/formal builds project only its version from an explicit repository root, while source and projection audits remain closed. The projected manifest uses the user-scoped `@zxyycom/vibe-check` identity and carries the fixed general-purpose quality-gate discovery description and keywords, the complete `MIT AND Apache-2.0 AND BSD-2-Clause` expression, Vibe Check's exact MIT text and `zxyycom` notice, minimum Node engine `>=24.18` without an unverified upper bound, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, Bun engine, or subpath export.
 - The byte-level allowlist carries `docs/output.md`, both current v4 schemas, the single definition-backed `mixed-outcomes` artifact set, upstream Lizard/Pygments license and provenance material, and both non-public emitted function-metrics/Markdown Link Workers. It has one `licenses` material root with no parallel `third-party-licenses`, excludes historical or analyzer fixture material, and does not publish a root `THIRD_PARTY_NOTICES.md`.
-- Markdown Link Worker 缺失、parent URL 越界或重复会使 runtime layout 审计失败；installed private Worker material 还须逐字节匹配 exact tarball，不能用 staging/source 成功替代。
+- Markdown Link Worker 缺失、parent URL 越界或重复会使 runtime layout 审计失败；负向矩阵在最小独立 source/map/Worker/tree 与 tarball fixture 上经过生产审计入口，不临时破坏真实候选。真实 staging 正向和 installed private Worker material 逐字节匹配 exact tarball 的验收仍保留，不能用 fixture/source 成功替代。
 - The scoped `licenses/analyzer-translations-NOTICE.md` is copied from its repository source rather than generated from fixed narrative phrases. Material acceptance compares actual source/staging/tar/installed notice bytes while preserving the independent provenance and three upstream-license identity pins.
 - The direct legal-material audit exposes the first reachable material-identity, missing-attribution, inventory, translated-target/header, untracked-header or deferred-body error. It does not require hand-written attribution to restate internal extension counts or installation-audit procedures.
-- Artifact fingerprint fixtures rediscover complete current repository inputs, including newly added source paths under otherwise scratch-like basenames, while excluding non-input maintenance directories. Each copy retains the source fingerprint and independent bytes; original manifest, workspace, patch and documentation sensitivity assertions remain.
+- A synthetic repository independently enumerates the exact fixed/source/package-script/documentation/legal input classes; the real fingerprint collector and hash bind each input's bytes and toolchain identity. Fixture copies rediscover newly added source paths under otherwise scratch-like basenames while excluding non-input maintenance directories, retain the source fingerprint and isolate subsequent writes; no complete checkout copy is needed for these input variants.
 
 ## Case AUX-PACKAGE-COMPILER-CACHE-001: Candidate compiler intermediates cannot bypass exact artifact audit
 
@@ -52,7 +57,7 @@ Entities:
 - `bun|scripts/package/artifact/compiler-cache.test.ts|candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs`
   Proves:
 
-- Unchanged Product compiler inputs reuse verified local raw emit when only documentation changes. A changed source graph may retain incremental compiler state, but corrupt cached output/build info, a changed source-file set, dependency lock, compiler resolver or dependency patch bytes forces a cold emit. This cache is not the package staging, tarball, installed candidate or a replacement for their full audits.
+- Unchanged Product compiler inputs reuse verified local raw emit when only documentation changes. A changed source graph may retain incremental compiler state, but corrupt cached output/build info, a changed source-file set, dependency lock, compiler resolver, dependency patch bytes or toolchain identity forces a cold emit. The branch matrix substitutes compiler emit and toolchain identity only, retaining real input/output hashing, state decisions and staging copies; installed toolchain qualification remains its own Case. This cache is not the package staging, tarball, installed candidate or a replacement for their full audits.
 
 ## Case AUX-TYPESCRIPT-TOOLCHAIN-001: Stable native compiler coexists with the retained TS6 API
 
@@ -92,7 +97,7 @@ Entities:
 
 - Formal preparation accepts only a positive canonical `0.0.x` and an explicit conservative tag, requires exact clean `HEAD`, and keeps release staging/receipt/compiler state distinct from the fingerprint local candidate while sharing only the versioned artifact root.
 - The versioned receipt uses repository-relative canonical paths, records the scoped package identity, and binds commit, input fingerprint, ordered inventory, SHA-256, SHA-512 SRI, manifest/README identities and the complete third-party legal-material inventory, version, and tag. The scoped translation notice digest comes from actual staged bytes; fixed upstream license and provenance identities remain independently pinned. Its writer rejects a foreign receipt path or mismatched artifact SHA-256 before replacing the owned receipt; its closed grammar and verifier reject extra consumer identity, path escape, duplicated inventory, contract drift, and changed artifact bytes without storing credential material.
-- The root command grammar requires complete named inputs: prepare forwards one explicit version/tag and reports the receipted artifact identity, while verify constructs one unmodified complete `--all` Project Gate invocation for the explicit receipt and preserves its returned exit status. Missing or duplicated inputs fail instead of selecting an implicit version, tag, or receipt.
+- The root command grammar requires complete named inputs: prepare forwards one explicit version/tag and reports the receipted artifact identity, while verify constructs one complete `--all --release-receipt` Project Gate invocation for the explicit receipt and preserves its returned exit status. Missing or duplicated inputs fail instead of selecting an implicit version, tag, or receipt.
 
 ## Case AUX-PACKAGE-ESM-NORMALIZATION-001: Artifact-relative ESM references remain resolvable
 
@@ -200,12 +205,12 @@ Entities:
 Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
 Entities:
 
-- `bun|scripts/docs/package-markdown.test.ts|package Markdown > requires one README-linked guide for every package-provided Check function`
-- `bun|scripts/docs/package-markdown.test.ts|package Markdown > rejects a missing direct README link and an extra Check guide page`
+- `bun|scripts/docs/package-markdown.test.ts|package Markdown > closes fixture documentation inventory and rejects missing links or extra guide pages`
 - `bun|scripts/docs/package-markdown.test.ts|package Markdown > rejects package documentation without exactly one trailing LF`
 - `bun|scripts/docs/package-markdown.test.ts|package Markdown > rejects package example projection markers in hand-written and machine Markdown`
   Proves:
 
+- 独立 fixture 的文档 collector 证明 registry、README 直链、changelog bytes 与 guide 集合的闭合；实际仓库材料由 candidate source audit 与真实 artifact/installed 验收负责，不在 collector 自测重跑一轮真仓库正向。
 - Package documentation has exactly one README-linked guide for every package-provided Check function and a direct machine-output guide link. The README and exact guide directory cannot omit a direct link, publish an unregistered extra page, or restore a Check index layer.
 - Generated and hand-written Markdown use canonical LF text with one trailing LF. Renderer output, hand-written Check guides, and machine Markdown reject both opening and closing package example projection markers before package construction.
 - The published Markdown inventory includes the exact checked-in changelog bytes and rejects a missing README link to that document.
@@ -267,18 +272,18 @@ Entities:
 - JSON, schema, examples and links own their task-local ID/data/presentation. The link fixture proves every missing local-link occurrence has canonical repository-relative source/target, line, code-point column and occurrence, in deterministic source-location order, including repeated targets, skipped external occurrences and astral Unicode before multiple diagnostics.
 - Workspace JSON validation creates one independent Product Run with the public `jsonValidation` constructor; BOM, invalid UTF-8 and duplicate-key fixtures prove it does not silently fall back to `JSON.parse` semantics or invoke the Project Gate.
 
-## Case AUX-REPOSITORY-LAYOUT-001: Repository layout preserves module ownership and dependency direction
+## Case AUX-REPOSITORY-LAYOUT-001: Repository validation preserves architecture dependency boundaries
 
 Owner: `docs/tooling/workspace.md#source-owners-and-dependency-direction`
 Entities:
 
 - `bun|scripts/validation/repository-layout.test.ts|validates repository layout and dependency boundaries`
+- `bun|scripts/validation/repository-layout.test.ts|rejects forbidden dependencies from in-memory module analyses`
 - `bun|scripts/validation/package-tools-core-closure.test.ts|enforces package-tool public contracts and Core closure`
   Proves:
 
-- Workspace validation keeps the Product owner inventory closed, including the declared Core and non-Core tool owners, and rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package compiler-root contract other than exactly three roots: public `src/index.ts` plus the internal function-metrics and Markdown Link Worker roots (neither adds a public entry).
-- A contextually named module is accepted even when its basename is a generic word; layout validation does not replace owner-aware naming review with a context-free word blacklist.
-- It also fail-closes the function-metrics private port boundary: only `analyzer-adapter.ts` may consume `analyzer/port-facade.ts`; port code cannot import Product; `analyzer-worker.ts` and `target-files.ts` must value-import the adapter; a later syntax error still reports its parse diagnostic but cannot create a false missing-adapter-import violation; port-external Product tests cannot deep-import analyzer modules; and public/package entry points cannot leak the façade, adapter, Worker, or deep path.
+- Workspace validation rejects forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, and an environment bootstrap dependency on process-execution. The negative matrix runs source text through real AST analysis and the dependency policies in memory; a minimal filesystem fixture and the current repository positive prove production adapter wiring.
+- It also fail-closes the function-metrics private port boundary: only `analyzer-adapter.ts` may consume `analyzer/port-facade.ts`; port code cannot import Product; `analyzer-worker.ts` and `target-files.ts` must value-import the adapter; a later syntax error still reports its parse diagnostic once but cannot create a false missing-adapter-import violation; port-external Product tests cannot deep-import analyzer modules; and public/package entry points cannot leak the façade, adapter, Worker, or deep path.
 - Optional package-tool production modules are discovered recursively and may use only named Product symbols whose TypeScript identity and type/value role are genuinely exported by the package root; public aliases, values and callback-shaped contracts remain valid while same-module private symbols, package-root round trips, test material, external modules outside the exact approved `node:crypto`, `node:fs`, and `node:path` production set, unresolved paths, and default/namespace/side-effect/star/dynamic/require/import-type-query loading forms fail closed. The fixed Core roots traverse their production import closure under the current TypeScript resolution options, so relative, absolute workspace and configured-alias edges cannot bypass direct or indirect tool rejection; literal dynamic imports join that closure, while nonliteral loading, `require`, and import-equals forms fail closed. The separately executable in-memory TypeScript no-emit proof accepts valid Core and reports an actual argument-type error.
 
 ## Case AUX-DEVELOPMENT-QUALITY-TARGETS-001: Development quality commands exclude only generated analyzer oracle fixtures
@@ -305,9 +310,10 @@ Entities:
   Proves:
 
 - `bun run check` 通过 mise 使用仓库锁定的环境；`scripts/project/gate/run.ts` 是唯一 root process entry。
-- `definition.ts` 用一份稳定顺序的 manifest 组合普通 Check；test lane descriptor 和 repository-quality options 分别由 `checks/test-execution/checks.ts` 与 `checks/repository-quality.ts` 拥有。entry validation 校验 `dependsOn` / `observes` 的 exact collection、self 与 missing target；`observes` 还保持 fast/change-region/preset selection closure。
-- Prepared candidate、external-consumer provider、test lanes 和质量 Check 保持独立 identity。Artifact 使用 prepared candidate；external provider 独占 package-lifecycle mutex，三个 consumer 只读 provider material。Project Gate change selection 与其余 tooling、admission workbench、repository layout、package-tools/Core fixture、machine-artifact acceptance 与其余 material validation 分别为独立 test lanes；两组 material tests 与 schema/example validators 共享 repository-materials mutex，JSON grammar 和 Markdown path validators 不持有它。
-- Scheduler 的 `maxParallel` 为 `3`，两个逻辑资源的 capacity 均为 `2`：所有 `tests-*` lane 各 claim 一个 Bun runner unit，五项直接仓库质量 Check 各 claim 一个 repository-scan unit。其它 typecheck、lint、format、provider 和 native Check 不声明这两个 claim；mutex 仍独立表达独占关系。
+- `definition.ts` 用一份稳定顺序的 manifest 组合普通 Check；test lane descriptor 和 repository-quality options 分别由 `checks/test-execution/checks.ts` 与 `checks/repository-quality.ts` 拥有。entry validation 校验 `dependsOn` / `observes` 的 exact collection、self 与 missing target；`observes` 还保持 selection-policy/fast/适用 change-region/preset selection closure。
+- Repository scan displayName 与 Product 功能测试、installed acceptance 区分；Markdown 功能 lane 包含 lint/links，Core-and-tools 包含 Core/package-tools，package-tooling 是包工具测试。Prepared candidate、external-consumer provider、test lanes 和质量 Check 保持独立 identity。Artifact 使用 prepared candidate；external provider 独占 package-lifecycle mutex，三个 consumer 只读 provider material。Project Gate change selection 与其余 tooling、admission workbench、repository layout、package-tools/Core fixture、machine-artifact acceptance 与其余 material validation 分别为独立 test lanes；两组 material tests 与 schema/example validators 共享 repository-materials mutex，JSON grammar 和 Markdown path validators 不持有它。
+- Scheduler 的 `maxParallel` 为 `3`，两个逻辑资源的 capacity 均为 `2`：所有行为测试与 acceptance lane 各 claim 一个 Bun runner unit，五项直接仓库质量 Check 各 claim 一个 repository-scan unit。其它 typecheck、lint、format、provider 和 native Check 不声明这两个 claim；mutex 仍独立表达独占关系。
+- 仅 Product/scripts 两个 lint Check 共享 type-aware-lint mutex；两者保留独立 identity 与选择，互不声明依赖，其它 Check 不持有该 mutex。
 - Markdown Link 显式使用绝对路径的本地 parse-facts cache 与默认容量提醒；完整 corpus、target work limits 和 blocking policy 保持。
 - Duplicate、file、function metrics 与 Markdown Link 的 normal Finding 使用 blocking policy，未豁免 Finding 经 owning Check 和默认 aggregate 阻断 Gate。Function metrics 保留 `50 + 150/below 5 + CC 10 + parameters 5` 限值，只对 `createProjectGateEntries` 当前起始行的 `function-code-density` 使用一项精确 waiver；其它函数与指标继续阻断。
 - File metrics 保持全仓 `300 + 500/decision tokens ≤ 10` 行数策略；仅对 `docs/guides/building-project-gate.md` 的 `code-lines` 配置用户确认的单页教程 waiver，该文件仍在扫描范围内，其它路径不继承豁免。
@@ -326,22 +332,22 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps fast, changed, all, and focused membership golden while aggregation uses Product selection`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects independent script test lanes from their changed inputs`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects Product Check test lanes without losing shared or cross-owner inputs`
-- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > covers every execution lane test file with its owning change region`
+- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > covers every routine execution lane test file with its owning change region`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps quality and material regions specific to their inputs`
-- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps the product-runtime region complete for the lane resolver`
+- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps the product Core-and-tools region complete for the lane resolver`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects package and Case checks only for their documented source boundaries`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > covers every registered package source and current Case owner`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection`
   Proves:
 
-- 无 selection 参数时采用 fast 快速反馈，只运行有资格且命中输入的工程基础与两条快速测试 lane，加上固定 candidate/whitespace；不能替代验收。`--changed` 选择全部受影响验收，`--all` 不依赖变更命中选择完整 manifest；二者各自独占。focused preset 可重复、组合并替换默认选择，receipt 只与 all 同用，摘要反映实际范围。
-- changed 通过 Gate 的 region 数据与 Product 所用的 `micromatch` 完整列表选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；未分类根路径也保守扩大至全部验收，已知家族下的新脚本模块则由所属保守 region 承接。Product runtime lane 的 region 覆盖其完整 test 分区及相关源码。
-- 已登记的 `docs/examples/package-api-support/**` 验收支持源变化会选择 package supporting lane，避免只修改共享验收逻辑时漏掉复制与 fingerprint 回归；支持源仍不是发布材料。
+- 无 selection 参数时采用 fast 快速反馈，只运行有资格且命中输入的工程基础与两条快速测试 lane，加上固定 candidate/whitespace；不能替代验收。`--changed` 选择全部受影响 routine 验收，`--all` 不依赖变更命中选择完整 routine manifest；二者各自独占。focused preset 可重复、组合并替换默认选择，receipt 只与 all 同用，摘要反映实际范围。
+- changed 通过 Gate 的 region 数据与 Product 所用的 `micromatch` 完整列表选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；未分类根路径也保守扩大至全部 routine 验收，已知家族下的新脚本模块则由所属保守 region 承接。Product Core-and-tools lane 的 region 覆盖其完整 test 分区及相关源码。
+- 已登记的 `docs/examples/package-api-support/**` 验收支持源变化会选择 package tooling lane，避免只修改共享验收逻辑时漏掉复制与 fingerprint 回归；支持源仍不是发布材料。
 - 七个 Product Check test lane 分别绑定自己的 change flag：私有实现与 fixture 触发所属组，已知 owner 的测试正文触发自身 Product lane 及扫描其正文的组。host-environment/project-files 测试属于 supporting Checks。file metrics 另消费 JSON validation/document 的实现、helper 和 fixture；function metrics 的 source-identity 审计覆盖全部 Product source。
-- 根导出、共享实现/helper、未知新模块（含测试正文）、近似目录名和测试工具链保持保守选择。包支持、Gate 本体、admission workbench 与普通 tooling 四个脚本组消费 Product 实现、helper 与 fixture，已知测试正文由 owning Product lane 承接；layout、质量扫描及全树 Test Evidence 保留各自正文输入。实际 Product/runtime 和 routine 脚本 lane 的完整文件清单均能触发自身，启动分区校验与显式 test/all 保持完整覆盖。
+- 根导出、共享实现/helper、未知新模块（含测试正文）、近似目录名和测试工具链保持保守选择。package tooling、Gate 本体与普通 tooling 三个 routine 脚本组消费 Product 实现、helper 与 fixture，已知测试正文由 owning Product lane 承接；layout、质量扫描及全树 Test Evidence 保留各自正文输入。实际 Product/Core-and-tools 和 routine 脚本 lane 的完整文件清单均能触发自身，启动分区校验保持完整文件分区，显式 test/all 覆盖 routine lanes。
 - JSON、Schema、publication、machine example、Markdown、质量扫描和规则测试保持各自的输入边界；schema source 变化会选择 publication validator，独立材料测试证明发布漂移被拒绝。Markdown links 因反向目标依赖仍检查完整 corpus，focused preset 与 `--all` 提供不依赖变更的强制路径。
-- Product effective selection 决定 Check 执行、prerequisite 和 aggregate；未选中 Check 保留 not-applicable fact。fast/changed 保留 prepared candidate；changed 的相关 package 输入同时选择 artifact、external provider 与三个 consumer，all 始终包含它们。发布输入或验收测试变化不会仅因 acceptance 原来不属默认选择而漏验。
+- Product effective selection 决定 Check 执行、prerequisite 和 aggregate；未选中 Check 保留 not-applicable fact。fast/changed 保留 prepared candidate；changed 的相关 package 输入同时选择 artifact、external provider 与 installed docs/runtime，routine all 始终包含它们。types 使用 release-only policy，仅正式 receipt+all 或 consumer-types focused preset；workbench 使用 explicit-only policy，仅 admission-workbench preset，test/all/changed/unknown 或 Git-unavailable fallback 均不带入它。实际 Product 执行证明 consumer-types 自动带入两个 provider，workbench 不带入其它 lane；四扫描和 runner 数不变。
 
 ## Case AUX-PROJECT-GATE-DIAGNOSTIC-LOGGING-001: Project Gate 将 Product owner outputs 放入 invocation namespaces
 
@@ -434,7 +440,7 @@ Entities:
   Proves:
 
 - 隔离 child process 在没有 candidate package 的 project root 中加载真实 root adapter，并以会 throw 的本地 Definition 替身取代 Definition；它证明 candidate preparation 前不会直接或间接加载 package public runtime 或 Definition。`--help`、preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 与 definition-owned `resultContributor` 前停止；help 与 mismatch 也在 invocation log 创建前停止，help 还不会准备或导入 candidate。
-- 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 与 prepared candidate 交给 consumer。Formal mode 只调用 receipt preparer 并把其 exact installed artifact 交给 Run，不调用或回退到 local fingerprint preparer。
+- 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 与 prepared candidate 交给 consumer。Formal mode 只调用 receipt preparer，并把其 exact installed artifact 与 all+release flags 交给 Run，不调用或回退到 local fingerprint preparer；all+release 的 manifest 选择另由 selection Case 证明。
 - 初步 Gate 结果要求 Package Run 的 default aggregate 为 passed；definition warning、progress failure 或非-passed aggregate 形成 failed，non-completed 或 malformed result 形成 unavailable。adapter 不遍历 snapshot 重建 aggregate。
 
 ## Case AUX-PROJECT-GATE-POST-PROCESSING-001: Project Gate 后处理只产出一个最终结果
@@ -466,7 +472,7 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > leaves focused selections outside the total-time budget`
   Proves:
 
-- fast/changed/all 使用同一版本化策略：总预算为 30000/30000/90000ms，均值 2000ms、P95 5000ms。完整三档策略在 candidate preparation 前校验；非法或 loader 抛错失败，不读取本机配置或按 runtime/指纹改变门限。
+- fast/changed/all 使用同一版本化策略：总预算为 30000/30000/90000ms，均值 2000ms、P95 5000ms；receipt 的 all+release 仍使用原 all 预算，不增加发布档。完整三档策略在 candidate preparation 前校验；非法或 loader 抛错失败，不读取本机配置或按 runtime/指纹改变门限。
 - `elapsed-to-initial-result` 包括三个连续阶段；等于预算为 info，总耗时、均值或 P95 任一独立超标即 error / blocks。无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 不加载策略或评估正式预算。
 - Check 分布不计 null，但计入真实零值；输出执行数量、累计执行耗时和独立判断的均值/P95，累计值明确不等于墙钟。nearest-rank 对小集合、20 项和 34 项具有确定结果，空集合显示 n/a，最慢三项按耗时及 ID 确定排序。重复 ID、非法耗时和累计溢出不产生伪统计。
 - 三档的总耗时、均值、P95 独立及组合超标均使默认 contributor 退出 1；error、唯一 failed / exit 1 与安全现场实际落入 gate.log，终端只显示超标和日志入口。准备、load、Run 各执行一次，预算对象与 Product facts 不改写；现场保留完整 duration facts、实际测量、candidate 身份/准备动作及 runtime，未超标时无失败现场。现场只投影授权字段，控制字符转义后仍通过 contribution 校验，JSON 读回保留原值。

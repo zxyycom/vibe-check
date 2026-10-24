@@ -27,14 +27,21 @@ describe("Package Run learned Scheduler admission", () => {
     const root = await mkdtemp(join(tmpdir(), "vibe-check-learned-scheduler-"));
     try {
       const firstOrder: string[] = [];
+      let nowMs = 0;
+      const clock = { now: () => nowMs };
+      const advance = (milliseconds: number): void => {
+        nowMs += milliseconds;
+      };
       const first = await executeValidatedRun(
         learnedDefinition({
           order: firstOrder,
+          advance,
           sampleWindow: 1,
           stateDirectory: join(root, "scheduler-state")
         }),
         { projectRoot: root },
-        []
+        [],
+        { clock }
       );
       assert.equal(first.kind, "completed");
       assert.deepEqual(firstOrder, ["fast", "slow"]);
@@ -47,16 +54,20 @@ describe("Package Run learned Scheduler admission", () => {
       assert.match(history, /identityDigest/);
       assert.doesNotMatch(history, /private-option/);
       assert.doesNotMatch(history, /private-flag/);
+      const firstPersisted: unknown = JSON.parse(history);
+      assertPersistedDurations(firstPersisted);
 
       const secondOrder: string[] = [];
       const second = await executeValidatedRun(
         learnedDefinition({
           order: secondOrder,
+          advance,
           sampleWindow: 1,
           stateDirectory: join(root, "scheduler-state")
         }),
         { projectRoot: root },
-        []
+        [],
+        { clock }
       );
       assert.equal(second.kind, "completed");
       assert.deepEqual(secondOrder, ["slow", "fast"]);
@@ -64,6 +75,7 @@ describe("Package Run learned Scheduler admission", () => {
         await readFile(join(root, "scheduler-state", "scheduler-history.json"), "utf8")
       );
       assertPersistedHistory(persisted);
+      assertPersistedDurations(persisted);
       assert.ok(persisted.series.every((series) => series.samples.length <= 1));
     } finally {
       await rm(root, { force: true, recursive: true });
@@ -174,6 +186,7 @@ describe("Package Run learned Scheduler admission", () => {
 
 function learnedDefinition(input: {
   readonly order: string[];
+  readonly advance?: (milliseconds: number) => void;
   readonly checks?: readonly Check[];
   readonly observe?: (event: LearnedCriticalPathObservation) => void;
   readonly terminalEffects?: readonly SchedulerTerminalEffect[];
@@ -181,7 +194,7 @@ function learnedDefinition(input: {
   readonly stateDirectory: string;
 }) {
   return defineConfig({
-    checks: input.checks ?? learnedChecks(input.order),
+    checks: input.checks ?? learnedChecks(input.order, input.advance),
     outputs: {
       diagnosticLogging: { enabled: false },
       machinePublication: { enabled: false },
@@ -203,29 +216,23 @@ function learnedDefinition(input: {
   });
 }
 
-function learnedChecks(order: string[]): readonly Check[] {
+function learnedChecks(
+  order: string[],
+  advance?: (milliseconds: number) => void
+): readonly Check[] {
   return [
-    {
-      checkId: "fast",
-      displayName: "Fast",
-      execute: async () => {
-        order.push("fast");
-        await delay(2);
-        return PASSED;
-      },
-      options: { retainedOnlyAsDigest: "private-option" }
+    { checkId: "fast", displayName: "Fast", durationMs: 2 },
+    { checkId: "slow", displayName: "Slow", durationMs: 30 }
+  ].map(({ checkId, displayName, durationMs }) => ({
+    checkId,
+    displayName,
+    execute: () => {
+      order.push(checkId);
+      advance?.(durationMs);
+      return PASSED;
     },
-    {
-      checkId: "slow",
-      displayName: "Slow",
-      execute: async () => {
-        order.push("slow");
-        await delay(30);
-        return PASSED;
-      },
-      options: { retainedOnlyAsDigest: "private-option" }
-    }
-  ];
+    options: { retainedOnlyAsDigest: "private-option" }
+  }));
 }
 
 function historyDuringTerminalHook(
@@ -248,10 +255,19 @@ function historyDuringTerminalHook(
   });
 }
 
-function delay(milliseconds: number): Promise<void> {
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
+function assertPersistedDurations(value: unknown): void {
+  assertPersistedHistory(value);
+  const durations = value.series
+    .flatMap((series) => series.samples)
+    .map((sample) => {
+      assert.ok(typeof sample === "object" && sample !== null && "durationMs" in sample);
+      assert.ok(typeof sample.durationMs === "number");
+      return sample.durationMs;
+    });
+  assert.deepEqual(
+    durations.sort((left, right) => left - right),
+    [2, 30]
+  );
 }
 
 function assertPersistedHistory(

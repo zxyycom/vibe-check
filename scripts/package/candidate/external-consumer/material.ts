@@ -16,6 +16,7 @@ import { writeExternalConsumerDocumentationFixture } from "./documentation-fixtu
 import { writeExternalConsumerRuntimeFixture } from "./runtime.ts";
 import { writeExternalConsumerTypesFixture } from "./type-acceptance.ts";
 import { readGateExternalConsumerMaterial } from "./input.ts";
+import { ExternalConsumerPreparationDiagnostics } from "./preparation-diagnostics.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -46,11 +47,20 @@ export function prepareExternalConsumerMaterial(
   }
   const consumerDirectory =
     options.consumerDirectory ?? mkdtempSync(join(tmpdir(), "vibe-check-isolated-consumer-"));
+  const diagnostics = new ExternalConsumerPreparationDiagnostics();
   try {
-    writeExternalConsumerFixture(consumerDirectory);
-    installCandidate(consumerDirectory, artifact.artifactPath);
-    writeExternalConsumerTypesFixture(consumerDirectory);
-    const resolvedEntryPath = resolvePublicEntry(consumerDirectory);
+    diagnostics.measure("fixture", () => {
+      writeExternalConsumerFixture(consumerDirectory);
+    });
+    diagnostics.measure("install", () => {
+      installCandidate(consumerDirectory, artifact.artifactPath, diagnostics);
+    });
+    diagnostics.measure("types-fixture", () => {
+      writeExternalConsumerTypesFixture(consumerDirectory);
+    });
+    const resolvedEntryPath = diagnostics.measure("entry-resolution", () =>
+      resolvePublicEntry(consumerDirectory)
+    );
     const installedPackageDirectory = join(consumerDirectory, "node_modules", PACKAGE_NAME);
     const material = {
       ...artifact,
@@ -58,7 +68,9 @@ export function prepareExternalConsumerMaterial(
       installedPackageDirectory,
       resolvedEntryPath
     };
-    assertExternalConsumerInstallationIdentity(material);
+    diagnostics.measure("identity", () => {
+      assertExternalConsumerInstallationIdentity(material);
+    });
     return Object.freeze(material);
   } catch (error: unknown) {
     rmSync(consumerDirectory, { force: true, recursive: true });
@@ -98,12 +110,17 @@ function writePackageManifest(consumerDirectory: string, name: string): void {
   );
 }
 
-function installCandidate(consumerDirectory: string, artifactPath: string): void {
+function installCandidate(
+  consumerDirectory: string,
+  artifactPath: string,
+  diagnostics: ExternalConsumerPreparationDiagnostics
+): void {
   const result = spawnSync(
     process.execPath,
     ["install", "--no-save", "--ignore-scripts", artifactPath],
     { cwd: consumerDirectory, encoding: "utf8" }
   );
+  diagnostics.installationResult(result);
   assertExternalConsumerCommandSucceeded(result, "isolated bun install");
 }
 

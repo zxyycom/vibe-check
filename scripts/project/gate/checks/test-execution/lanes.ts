@@ -31,14 +31,14 @@ export const PROJECT_GATE_TEST_LANE_NAMES = [
   "packageConsumerDocs",
   "packageConsumerRuntime",
   "packageConsumerTypes",
-  "packageSupporting",
+  "packageTooling",
   "productDuplicateDetection",
   "productFileMetrics",
   "productFunctionMetrics",
   "productJsonChecks",
-  "productMarkdownLinks",
+  "productMarkdown",
   "productSecretDetection",
-  "productRuntime",
+  "productCoreAndTools",
   "productSupportingChecks",
   "scriptsAdmissionWorkbench",
   "scriptsLayout",
@@ -60,7 +60,7 @@ type ProductPackageTestLaneName = Extract<
   | "productFileMetrics"
   | "productFunctionMetrics"
   | "productJsonChecks"
-  | "productMarkdownLinks"
+  | "productMarkdown"
   | "productSecretDetection"
   | "productSupportingChecks"
 >;
@@ -87,7 +87,7 @@ const PRODUCT_PACKAGE_TEST_LANES = Object.freeze([
     ])
   }),
   Object.freeze({
-    lane: "productMarkdownLinks",
+    lane: "productMarkdown",
     prefixes: Object.freeze([
       "src/package-checks/markdown-link-validation/",
       "src/package-checks/markdown-lint/"
@@ -126,9 +126,9 @@ export function resolveProjectGateTestLanes(repositoryRoot: string): ProjectGate
 function testLaneForFile(file: string): ProjectGateTestLaneName {
   const packageLane = PACKAGE_TEST_LANES.get(file);
   if (packageLane !== undefined) return packageLane;
-  if (file.startsWith("scripts/package/")) return "packageSupporting";
+  if (file.startsWith("scripts/package/")) return "packageTooling";
   if (file.startsWith("src/package-checks/")) return productPackageTestLane(file);
-  if (file.startsWith("src/")) return "productRuntime";
+  if (file.startsWith("src/")) return "productCoreAndTools";
   const scriptsLane = scriptTestLane(file);
   if (scriptsLane !== undefined) return scriptsLane;
   throw new TypeError(`Project Gate test file has no execution subcheck: ${file}`);
@@ -165,14 +165,14 @@ function emptyTestLaneFiles(): Record<ProjectGateTestLaneName, string[]> {
     packageConsumerDocs: [],
     packageConsumerRuntime: [],
     packageConsumerTypes: [],
-    packageSupporting: [],
+    packageTooling: [],
     productDuplicateDetection: [],
     productFileMetrics: [],
     productFunctionMetrics: [],
     productJsonChecks: [],
-    productMarkdownLinks: [],
+    productMarkdown: [],
     productSecretDetection: [],
-    productRuntime: [],
+    productCoreAndTools: [],
     productSupportingChecks: [],
     scriptsAdmissionWorkbench: [],
     scriptsLayout: [],
@@ -194,14 +194,14 @@ function freezeTestLanes(
     packageConsumerDocs: Object.freeze([...laneFiles.packageConsumerDocs]),
     packageConsumerRuntime: Object.freeze([...laneFiles.packageConsumerRuntime]),
     packageConsumerTypes: Object.freeze([...laneFiles.packageConsumerTypes]),
-    packageSupporting: Object.freeze([...laneFiles.packageSupporting]),
+    packageTooling: Object.freeze([...laneFiles.packageTooling]),
     productDuplicateDetection: Object.freeze([...laneFiles.productDuplicateDetection]),
     productFileMetrics: Object.freeze([...laneFiles.productFileMetrics]),
     productFunctionMetrics: Object.freeze([...laneFiles.productFunctionMetrics]),
     productJsonChecks: Object.freeze([...laneFiles.productJsonChecks]),
-    productMarkdownLinks: Object.freeze([...laneFiles.productMarkdownLinks]),
+    productMarkdown: Object.freeze([...laneFiles.productMarkdown]),
     productSecretDetection: Object.freeze([...laneFiles.productSecretDetection]),
-    productRuntime: Object.freeze([...laneFiles.productRuntime]),
+    productCoreAndTools: Object.freeze([...laneFiles.productCoreAndTools]),
     productSupportingChecks: Object.freeze([...laneFiles.productSupportingChecks]),
     scriptsAdmissionWorkbench: Object.freeze([...laneFiles.scriptsAdmissionWorkbench]),
     scriptsLayout: Object.freeze([...laneFiles.scriptsLayout]),

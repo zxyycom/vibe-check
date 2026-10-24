@@ -33,8 +33,11 @@ describe("prepared package candidate Check", () => {
       const outcome = runResult.snapshot.checks[0]?.outcome;
       assert.equal(outcome?.status, "passed");
       if (outcome?.status !== "passed") throw new Error("fixture provider must pass");
+      const { documentation, ...candidateIdentity } = fixture.candidate;
+      assert.equal(documentation.readme, "source-only documentation must stay private\n");
+      assert.equal(Object.hasOwn(outcome.data, "documentation"), false);
       assert.deepEqual(parseProjectGatePreparedCandidateData(outcome.data), {
-        ...fixture.candidate,
+        ...candidateIdentity,
         schemaVersion: 3
       });
       assert.throws(
@@ -129,6 +132,12 @@ function createCandidateFixture(): Readonly<{
   writeFileSync(resolvedEntryPath, "export {};\n", "utf8");
   return Object.freeze({
     candidate: Object.freeze({
+      documentation: {
+        documents: [],
+        machineMaterials: [],
+        expectedJSDocExamplePayloads: [],
+        readme: "source-only documentation must stay private\n"
+      },
       artifactPath,
       candidateVersion: "0.0.0-local.fixture",
       consumerDirectory,

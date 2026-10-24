@@ -6,7 +6,13 @@ import { describe, it } from "node:test";
 
 import type { NormalizedProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
 import { parseProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
-import { CHANGE_FLAG_PREFIX, GIT_CHANGES_UNAVAILABLE_CODE, prepareProjectChanges } from "./git.ts";
+import {
+  CHANGE_FLAG_PREFIX,
+  GIT_CHANGES_UNAVAILABLE_CODE,
+  parseGitNameStatus,
+  prepareProjectChanges,
+  projectChangesFromPaths
+} from "./git.ts";
 import { commit, git, write } from "./git.test-support.ts";
 
 const changes: NormalizedProjectChangesConfiguration = {
@@ -21,6 +27,15 @@ const changes: NormalizedProjectChangesConfiguration = {
 
 describe("Project Run Git changes", () => {
   it("collects every Git delta once, retains rename and deletion paths, and matches frozen regions", () => {
+    assert.deepEqual(
+      parseGitNameStatus(
+        "M\0src/tab\tline\n.ts\0R100\0old.ts\0new.ts\0C75\0a.ts\0b.ts\0D\0deleted.ts\0"
+      ),
+      ["src/tab\tline\n.ts", "old.ts", "new.ts", "a.ts", "b.ts", "deleted.ts"]
+    );
+    for (const malformed of ["?\0path\0", "M\0", "R100\0old.ts\0", "M\0\0"]) {
+      assert.throws(() => parseGitNameStatus(malformed));
+    }
     const repository = repositoryFixture();
     try {
       write(repository, "src/committed.ts", "export const committed = 2;\n");
@@ -80,44 +95,38 @@ describe("Project Run Git changes", () => {
   });
 
   it("uses native pattern lists for regions without collection default exclusions", () => {
-    const repository = repositoryFixture();
-    try {
-      for (const path of [
-        "build/a.ts",
-        "docs/new.md",
-        "src/.hidden.ts",
-        "src/generated/new.ts",
-        "src/plain.ts"
-      ])
-        write(repository, path, "new content\n");
-      const prepared = prepareProjectChanges({
-        callerFlags: [],
-        changes: {
-          source: { compareWith: "HEAD" },
-          flags: {
-            all: { patterns: ["**/*"] },
-            brace: { patterns: ["{build,src}/**/*.ts"] },
-            empty: { patterns: [] },
-            extglob: { patterns: ["src/**/@(plain|.hidden).ts"] },
-            negative: { patterns: ["!docs/**"] },
-            reinclude: { patterns: ["src/**", "!src/generated/**", "src/generated/new.ts"] }
-          }
-        },
-        projectRoot: repository
-      });
-      assert.equal(prepared.projectChanges.ok, true);
-      if (!prepared.projectChanges.ok) return;
-      assert.deepEqual(prepared.projectChanges.files, [
-        file("build/a.ts", ["all", "brace", "negative"]),
-        file("docs/new.md", ["all"]),
-        file("src/.hidden.ts", ["all", "brace", "extglob", "negative", "reinclude"]),
-        file("src/generated/new.ts", ["all", "brace", "negative", "reinclude"]),
-        file("src/plain.ts", ["all", "brace", "extglob", "negative", "reinclude"])
-      ]);
-      assert.equal(prepared.effectiveFlags.includes(`${CHANGE_FLAG_PREFIX}empty`), false);
-    } finally {
-      rmSync(repository, { force: true, recursive: true });
-    }
+    const paths = [
+      "build/a.ts",
+      "docs/new.md",
+      "src/.hidden.ts",
+      "src/generated/new.ts",
+      "src/plain.ts"
+    ];
+    const prepared = projectChangesFromPaths({
+      callerFlags: [],
+      changes: {
+        source: { compareWith: "HEAD" },
+        flags: {
+          all: { patterns: ["**/*"] },
+          brace: { patterns: ["{build,src}/**/*.ts"] },
+          empty: { patterns: [] },
+          extglob: { patterns: ["src/**/@(plain|.hidden).ts"] },
+          negative: { patterns: ["!docs/**"] },
+          reinclude: { patterns: ["src/**", "!src/generated/**", "src/generated/new.ts"] }
+        }
+      },
+      paths
+    });
+    assert.equal(prepared.projectChanges.ok, true);
+    if (!prepared.projectChanges.ok) return;
+    assert.deepEqual(prepared.projectChanges.files, [
+      file("build/a.ts", ["all", "brace", "negative"]),
+      file("docs/new.md", ["all"]),
+      file("src/.hidden.ts", ["all", "brace", "extglob", "negative", "reinclude"]),
+      file("src/generated/new.ts", ["all", "brace", "negative", "reinclude"]),
+      file("src/plain.ts", ["all", "brace", "extglob", "negative", "reinclude"])
+    ]);
+    assert.equal(prepared.effectiveFlags.includes(`${CHANGE_FLAG_PREFIX}empty`), false);
   });
 
   it("keeps unavailable evidence distinct while conservatively enabling every declared flag", () => {
@@ -147,56 +156,40 @@ describe("Project Run Git changes", () => {
   });
 
   it("retains a trustworthy zero-match snapshot without deriving a flag", () => {
-    const repository = repositoryFixture();
-    try {
-      write(repository, "docs/changed.md", "# changed\n");
-      commit(repository, "change outside region");
-      const prepared = prepareProjectChanges({
-        callerFlags: ["caller"],
-        changes: {
-          flags: { source: { patterns: ["src/**"] } },
-          source: { compareWith: "HEAD~1" }
-        },
-        projectRoot: repository
-      });
-      assert.deepEqual(prepared.effectiveFlags, ["caller"]);
-      assert.deepEqual(prepared.projectChanges, { files: [], ok: true });
-      assert.equal(Object.isFrozen(prepared.effectiveFlags), true);
-      assert.equal(prepared.projectChanges.ok, true);
-      if (!prepared.projectChanges.ok) return;
-      assert.equal(Object.isFrozen(prepared.projectChanges.files), true);
-    } finally {
-      rmSync(repository, { force: true, recursive: true });
-    }
+    const prepared = projectChangesFromPaths({
+      callerFlags: ["caller"],
+      changes: { flags: { source: { patterns: ["src/**"] } }, source: { compareWith: "HEAD~1" } },
+      paths: ["docs/changed.md"]
+    });
+    assert.deepEqual(prepared.effectiveFlags, ["caller"]);
+    assert.deepEqual(prepared.projectChanges, { files: [], ok: true });
+    assert.equal(Object.isFrozen(prepared.effectiveFlags), true);
+    assert.equal(prepared.projectChanges.ok, true);
+    if (!prepared.projectChanges.ok) return;
+    assert.equal(Object.isFrozen(prepared.projectChanges.files), true);
   });
 
   it("preserves nonempty NUL flag identities without mistaking zero matches for unavailable evidence", () => {
-    const repository = repositoryFixture();
     const id = "nul\0id";
-    try {
-      write(repository, "src/new.ts", "export const value = 1;\n");
-      for (const patterns of [[], ["src/new.ts"]]) {
-        const configuration = parseProjectChangesConfiguration({
-          flags: { [id]: { patterns } },
-          source: { compareWith: "HEAD" }
-        });
-        assert(configuration !== undefined);
-        const prepared = prepareProjectChanges({
-          callerFlags: ["caller"],
-          changes: configuration,
-          projectRoot: repository
-        });
-        assert.deepEqual(prepared.projectChanges, {
-          files: patterns.length === 0 ? [] : [file("src/new.ts", [id])],
-          ok: true
-        });
-        assert.deepEqual(
-          prepared.effectiveFlags,
-          patterns.length === 0 ? ["caller"] : ["caller", `${CHANGE_FLAG_PREFIX}${id}`]
-        );
-      }
-    } finally {
-      rmSync(repository, { force: true, recursive: true });
+    for (const patterns of [[], ["src/new.ts"]]) {
+      const configuration = parseProjectChangesConfiguration({
+        flags: { [id]: { patterns } },
+        source: { compareWith: "HEAD" }
+      });
+      assert(configuration !== undefined);
+      const prepared = projectChangesFromPaths({
+        callerFlags: ["caller"],
+        changes: configuration,
+        paths: ["src/new.ts"]
+      });
+      assert.deepEqual(prepared.projectChanges, {
+        files: patterns.length === 0 ? [] : [file("src/new.ts", [id])],
+        ok: true
+      });
+      assert.deepEqual(
+        prepared.effectiveFlags,
+        patterns.length === 0 ? ["caller"] : ["caller", `${CHANGE_FLAG_PREFIX}${id}`]
+      );
     }
   });
 

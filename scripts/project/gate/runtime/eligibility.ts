@@ -4,6 +4,7 @@ import {
   PROJECT_GATE_ALL_FLAG,
   PROJECT_GATE_CHANGED_FLAG,
   PROJECT_GATE_FAST_FLAG,
+  PROJECT_GATE_RELEASE_FLAG,
   projectGatePresetFlag
 } from "./controls.ts";
 import type { ProjectGateEntry } from "./entries.ts";
@@ -68,16 +69,6 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "!mise.toml",
       "!mise.lock",
       "!vibe-check.code-workspace"
-    ]
-  },
-  "admission-workbench-tests": {
-    patterns: [
-      "scripts/project/admission-workbench/**",
-      "scripts/value-guards.ts",
-      "src/**",
-      ...unrelatedProductTestBodies,
-      "package.json",
-      "pnpm-lock.yaml"
     ]
   },
   "any-change": { patterns: ["**/*", ".*", "**/.*", "**/.*/**"] },
@@ -369,7 +360,6 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/validation/package-tools-module-graph.ts",
       "scripts/validation/function-metrics-analyzer-boundary.ts",
       "scripts/validation/import-boundaries.ts",
-      "scripts/validation/project-gate-layout.ts",
       "scripts/validation/repository-material/task-contract.ts",
       "scripts/validation/repository-scan-policy.ts",
       "scripts/repository-files/**",
@@ -436,6 +426,24 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
  * the Product still excludes `observes` from that propagation.
  */
 export function projectGateFlagControlledCheck(entry: ProjectGateEntry): Check {
+  const conditions = projectGateEntryConditions(entry);
+  return Object.freeze({
+    ...entry.check,
+    enabledByFlags: Object.freeze({ when: any(...conditions), propagateDependsOn: true as const })
+  });
+}
+
+function projectGateEntryConditions(
+  entry: ProjectGateEntry
+): [CheckFlagCondition, ...CheckFlagCondition[]] {
+  const presets = entry.presets.map(projectGatePresetFlag);
+  if (entry.selectionPolicy === "release-only") return [PROJECT_GATE_RELEASE_FLAG, ...presets];
+  if (entry.selectionPolicy === "explicit-only") {
+    const first = presets[0];
+    if (first === undefined)
+      throw new TypeError(`Project Gate explicit entry has no preset: ${entry.check.checkId}`);
+    return [first, ...presets.slice(1)];
+  }
   const affected = entry.changeRegion === undefined ? undefined : changeFlag(entry.changeRegion);
   const changedCondition =
     affected === undefined
@@ -444,15 +452,12 @@ export function projectGateFlagControlledCheck(entry: ProjectGateEntry): Check {
   const conditions: [CheckFlagCondition, ...CheckFlagCondition[]] = [
     PROJECT_GATE_ALL_FLAG,
     changedCondition,
-    ...entry.presets.map(projectGatePresetFlag)
+    ...presets
   ];
   if (entry.fast) {
     conditions.push(
       affected === undefined ? PROJECT_GATE_FAST_FLAG : all(PROJECT_GATE_FAST_FLAG, affected)
     );
   }
-  return Object.freeze({
-    ...entry.check,
-    enabledByFlags: Object.freeze({ when: any(...conditions), propagateDependsOn: true as const })
-  });
+  return conditions;
 }

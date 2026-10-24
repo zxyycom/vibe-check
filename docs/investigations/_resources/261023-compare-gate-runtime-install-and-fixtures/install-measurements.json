@@ -1,0 +1,1671 @@
+{
+  "rows": [
+    {
+      "label": "A1",
+      "mode": "baseline",
+      "successful": true,
+      "consumerDirectory": "/tmp/vibe-check-install-experiment-A1-mmxt6ctv/consumer",
+      "installStages": [
+        {
+          "label": "install",
+          "args": [
+            "install",
+            "--no-save",
+            "--ignore-scripts",
+            "/workspace/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.11aaf5e2c0fd.tgz"
+          ],
+          "wallMs": 7618.163171,
+          "exitCode": 0,
+          "signal": null,
+          "hasError": false,
+          "stdoutBytes": 176,
+          "stderrBytes": 64
+        }
+      ],
+      "packageManagerTotalMs": 7618.163171,
+      "phaseWallMs": {
+        "setup": 7938.993654970545,
+        "owner-audit": 216.56802098732442,
+        "types": 4253.965153999161,
+        "docs": 2020.6124430405907,
+        "runtime": 2503.412219986785
+      },
+      "tarAndGraphAuditMs": 290.4689430142753,
+      "acceptanceTotalMs": 9285.026781028137,
+      "setupPlusAcceptanceMs": 17224.020435998682,
+      "tarAudit": {
+        "artifactSha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+        "fileCount": 1557,
+        "installedInventorySha256": "c8b6620279725f523407948ef562f8a07f3c706e26d8f5f7199958bb872b2547"
+      },
+      "graphSha256": "2b670f0e30bbd76a8f9943cd7584a0a0b7a0da87967e3a66ec8b33b6805f45ac",
+      "installedPackageCountIncludingCandidateAndTypeFixture": 148,
+      "licensedDependenciesIncludingTwoTypeFixturePackages": 147,
+      "containedRequiredDependencyEdges": 302,
+      "directDependencyCount": 19,
+      "lockSha256": null,
+      "resources": {
+        "setup": {
+          "externalObservedDeltaMs": 450.0,
+          "externalConservativeLowerMs": 290.0,
+          "externalConservativeUpperMs": 1278.3000000000002,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 5528.3,
+          "sampledPeakCgroupMemoryBytes": 5646659584,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 5528300,
+              "user_usec": 444477,
+              "system_usec": 5083823,
+              "nice_usec": 0,
+              "nr_periods": 80,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 16492,
+              "full": 5804
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 13230,
+              "full": 13186
+            }
+          }
+        },
+        "owner-audit": {
+          "externalObservedDeltaMs": 0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 272.618,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 272.618,
+          "sampledPeakCgroupMemoryBytes": 5609664512,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 272618,
+              "user_usec": 130245,
+              "system_usec": 142372,
+              "nice_usec": 0,
+              "nr_periods": 2,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 309,
+              "full": 249
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "types": {
+          "externalObservedDeltaMs": 160.0,
+          "externalConservativeLowerMs": 40.0,
+          "externalConservativeUpperMs": 1639.4610000000002,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 6559.461,
+          "sampledPeakCgroupMemoryBytes": 6442356736,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 6559461,
+              "user_usec": 5198827,
+              "system_usec": 1360635,
+              "nice_usec": 0,
+              "nr_periods": 43,
+              "nr_throttled": 2,
+              "throttled_usec": 7329,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 15,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 8781,
+              "full": 5777
+            },
+            "memory.pressure": {
+              "some": 1580,
+              "full": 1579
+            },
+            "io.pressure": {
+              "some": 4,
+              "full": 5
+            }
+          }
+        },
+        "docs": {
+          "externalObservedDeltaMs": 90.0,
+          "externalConservativeLowerMs": 30.0,
+          "externalConservativeUpperMs": 1409.8580000000002,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 2559.858,
+          "sampledPeakCgroupMemoryBytes": 5796995072,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 2559858,
+              "user_usec": 1773191,
+              "system_usec": 786666,
+              "nice_usec": 0,
+              "nr_periods": 20,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 7566,
+              "full": 4529
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 12,
+              "full": 11
+            }
+          }
+        },
+        "runtime": {
+          "externalObservedDeltaMs": 90.0,
+          "externalConservativeLowerMs": 40.0,
+          "externalConservativeUpperMs": 2851.212,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 3491.212,
+          "sampledPeakCgroupMemoryBytes": 5764894720,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 3491212,
+              "user_usec": 2442910,
+              "system_usec": 1048303,
+              "nice_usec": 0,
+              "nr_periods": 25,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 19546,
+              "full": 8657
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        }
+      },
+      "tests": {
+        "types": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [4.24s]\n",
+        "docs": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [2.00s]\n",
+        "runtime": ".\n\n1 pass\n0 fail\nRan 1 test across 1 file. [2.49s]\n"
+      }
+    },
+    {
+      "label": "B1",
+      "mode": "resolve-then-frozen",
+      "successful": true,
+      "consumerDirectory": "/tmp/vibe-check-install-experiment-B1-2oimynm_/consumer",
+      "installStages": [
+        {
+          "label": "resolve-lock",
+          "args": [
+            "install",
+            "--lockfile-only",
+            "--ignore-scripts"
+          ],
+          "wallMs": 453.79126700000006,
+          "exitCode": 0,
+          "signal": null,
+          "hasError": false,
+          "stdoutBytes": 73,
+          "stderrBytes": 77
+        },
+        {
+          "label": "install-frozen",
+          "args": [
+            "install",
+            "--frozen-lockfile",
+            "--ignore-scripts"
+          ],
+          "wallMs": 1848.772,
+          "exitCode": 0,
+          "signal": null,
+          "hasError": false,
+          "stdoutBytes": 172,
+          "stderrBytes": 0
+        }
+      ],
+      "packageManagerTotalMs": 2302.563267,
+      "phaseWallMs": {
+        "setup": 2489.446207007859,
+        "owner-audit": 259.26222500856966,
+        "types": 9592.176817997824,
+        "docs": 5518.934810999781,
+        "runtime": 3489.04836201109
+      },
+      "tarAndGraphAuditMs": 232.11179702775553,
+      "acceptanceTotalMs": 19091.53401304502,
+      "setupPlusAcceptanceMs": 21580.98022005288,
+      "tarAudit": {
+        "artifactSha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+        "fileCount": 1557,
+        "installedInventorySha256": "c8b6620279725f523407948ef562f8a07f3c706e26d8f5f7199958bb872b2547"
+      },
+      "graphSha256": "2b670f0e30bbd76a8f9943cd7584a0a0b7a0da87967e3a66ec8b33b6805f45ac",
+      "installedPackageCountIncludingCandidateAndTypeFixture": 148,
+      "licensedDependenciesIncludingTwoTypeFixturePackages": 147,
+      "containedRequiredDependencyEdges": 302,
+      "directDependencyCount": 19,
+      "lockSha256": "b53ea07982b02bd058254c12ed59b6239860322a6c35b2d1f6d38cd62fb31e46",
+      "resources": {
+        "setup": {
+          "externalObservedDeltaMs": 150.0,
+          "externalConservativeLowerMs": 40.0,
+          "externalConservativeUpperMs": 1647.739,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 2757.739,
+          "sampledPeakCgroupMemoryBytes": 5798789120,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 2757739,
+              "user_usec": 241557,
+              "system_usec": 2516182,
+              "nice_usec": 0,
+              "nr_periods": 25,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 2391,
+              "full": 1407
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 2958,
+              "full": 2958
+            }
+          }
+        },
+        "owner-audit": {
+          "externalObservedDeltaMs": 0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 333.906,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 333.906,
+          "sampledPeakCgroupMemoryBytes": 5794033664,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 333906,
+              "user_usec": 209025,
+              "system_usec": 124882,
+              "nice_usec": 0,
+              "nr_periods": 2,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 675,
+              "full": 584
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "types": {
+          "externalObservedDeltaMs": 750.0,
+          "externalConservativeLowerMs": 520.0,
+          "externalConservativeUpperMs": 1499.0300000000007,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 12699.03,
+          "sampledPeakCgroupMemoryBytes": 6442418176,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 12699030,
+              "user_usec": 8025547,
+              "system_usec": 4673484,
+              "nice_usec": 0,
+              "nr_periods": 96,
+              "nr_throttled": 2,
+              "throttled_usec": 4876,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 1295,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 30287,
+              "full": 23070
+            },
+            "memory.pressure": {
+              "some": 265018,
+              "full": 265018
+            },
+            "io.pressure": {
+              "some": 942,
+              "full": 926
+            }
+          }
+        },
+        "docs": {
+          "externalObservedDeltaMs": 660.0,
+          "externalConservativeLowerMs": 460.0,
+          "externalConservativeUpperMs": 2665.7889999999998,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 7135.789,
+          "sampledPeakCgroupMemoryBytes": 5792325632,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 7135789,
+              "user_usec": 4698837,
+              "system_usec": 2436952,
+              "nice_usec": 0,
+              "nr_periods": 55,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 27028,
+              "full": 20894
+            },
+            "memory.pressure": {
+              "some": 2148,
+              "full": 2141
+            },
+            "io.pressure": {
+              "some": 966,
+              "full": 959
+            }
+          }
+        },
+        "runtime": {
+          "externalObservedDeltaMs": 520.0,
+          "externalConservativeLowerMs": 380.0,
+          "externalConservativeUpperMs": 3312.353,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 5032.353,
+          "sampledPeakCgroupMemoryBytes": 5738913792,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 5032353,
+              "user_usec": 3657418,
+              "system_usec": 1374935,
+              "nice_usec": 0,
+              "nr_periods": 35,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 27753,
+              "full": 14626
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 242,
+              "full": 213
+            }
+          }
+        }
+      },
+      "tests": {
+        "types": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [9.58s]\n",
+        "docs": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [5.50s]\n",
+        "runtime": ".\n\n1 pass\n0 fail\nRan 1 test across 1 file. [3.47s]\n"
+      }
+    },
+    {
+      "label": "C1",
+      "mode": "frozen-seed",
+      "successful": true,
+      "consumerDirectory": "/tmp/vibe-check-install-experiment-C1-bgi5g259/consumer",
+      "installStages": [
+        {
+          "label": "install-frozen",
+          "args": [
+            "install",
+            "--frozen-lockfile",
+            "--ignore-scripts"
+          ],
+          "wallMs": 2112.9943329999996,
+          "exitCode": 0,
+          "signal": null,
+          "hasError": false,
+          "stdoutBytes": 172,
+          "stderrBytes": 0
+        }
+      ],
+      "packageManagerTotalMs": 2112.9943329999996,
+      "phaseWallMs": {
+        "setup": 2316.7084889719263,
+        "owner-audit": 257.9694950254634,
+        "types": 8045.198180014268,
+        "docs": 2493.7003849772736,
+        "runtime": 3386.394797009416
+      },
+      "tarAndGraphAuditMs": 297.9403199860826,
+      "acceptanceTotalMs": 14481.203177012503,
+      "setupPlusAcceptanceMs": 16797.91166598443,
+      "tarAudit": {
+        "artifactSha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+        "fileCount": 1557,
+        "installedInventorySha256": "c8b6620279725f523407948ef562f8a07f3c706e26d8f5f7199958bb872b2547"
+      },
+      "graphSha256": "2b670f0e30bbd76a8f9943cd7584a0a0b7a0da87967e3a66ec8b33b6805f45ac",
+      "installedPackageCountIncludingCandidateAndTypeFixture": 148,
+      "licensedDependenciesIncludingTwoTypeFixturePackages": 147,
+      "containedRequiredDependencyEdges": 302,
+      "directDependencyCount": 19,
+      "lockSha256": "b53ea07982b02bd058254c12ed59b6239860322a6c35b2d1f6d38cd62fb31e46",
+      "resources": {
+        "setup": {
+          "externalObservedDeltaMs": 70.0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 903.3009999999999,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 2483.301,
+          "sampledPeakCgroupMemoryBytes": 5782138880,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 2483301,
+              "user_usec": 170809,
+              "system_usec": 2312492,
+              "nice_usec": 0,
+              "nr_periods": 24,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 1092,
+              "full": 1011
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 689,
+              "full": 689
+            }
+          }
+        },
+        "owner-audit": {
+          "externalObservedDeltaMs": 0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 339.212,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 339.212,
+          "sampledPeakCgroupMemoryBytes": 5761011712,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 339212,
+              "user_usec": 191754,
+              "system_usec": 147458,
+              "nice_usec": 0,
+              "nr_periods": 2,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 1228,
+              "full": 637
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "types": {
+          "externalObservedDeltaMs": 520.0,
+          "externalConservativeLowerMs": 320.0,
+          "externalConservativeUpperMs": 2522.3250000000007,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 11132.325,
+          "sampledPeakCgroupMemoryBytes": 6442442752,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 11132325,
+              "user_usec": 7224446,
+              "system_usec": 3907879,
+              "nice_usec": 0,
+              "nr_periods": 81,
+              "nr_throttled": 1,
+              "throttled_usec": 2443,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 1127,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 21826,
+              "full": 15092
+            },
+            "memory.pressure": {
+              "some": 46767,
+              "full": 46767
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "docs": {
+          "externalObservedDeltaMs": 60.0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 1450.719,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 3080.719,
+          "sampledPeakCgroupMemoryBytes": 5787430912,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 3080719,
+              "user_usec": 1949120,
+              "system_usec": 1131599,
+              "nice_usec": 0,
+              "nr_periods": 25,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 8196,
+              "full": 6713
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "runtime": {
+          "externalObservedDeltaMs": 290.0,
+          "externalConservativeLowerMs": 150.0,
+          "externalConservativeUpperMs": 2712.093,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 4582.093,
+          "sampledPeakCgroupMemoryBytes": 5736833024,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 4582093,
+              "user_usec": 3343442,
+              "system_usec": 1238651,
+              "nice_usec": 0,
+              "nr_periods": 34,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 15361,
+              "full": 10423
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 2204,
+              "full": 2204
+            }
+          }
+        }
+      },
+      "tests": {
+        "types": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [8.04s]\n",
+        "docs": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [2.48s]\n",
+        "runtime": ".\n\n1 pass\n0 fail\nRan 1 test across 1 file. [3.37s]\n"
+      }
+    },
+    {
+      "label": "C2",
+      "mode": "frozen-seed",
+      "successful": true,
+      "consumerDirectory": "/tmp/vibe-check-install-experiment-C2-noad8lae/consumer",
+      "installStages": [
+        {
+          "label": "install-frozen",
+          "args": [
+            "install",
+            "--frozen-lockfile",
+            "--ignore-scripts"
+          ],
+          "wallMs": 2142.3767669999997,
+          "exitCode": 0,
+          "signal": null,
+          "hasError": false,
+          "stdoutBytes": 172,
+          "stderrBytes": 0
+        }
+      ],
+      "packageManagerTotalMs": 2142.3767669999997,
+      "phaseWallMs": {
+        "setup": 2311.212071974296,
+        "owner-audit": 216.16196597460657,
+        "types": 6608.027259004302,
+        "docs": 2592.6346670021303,
+        "runtime": 2642.6556130172685
+      },
+      "tarAndGraphAuditMs": 238.61779796425253,
+      "acceptanceTotalMs": 12298.09730296256,
+      "setupPlusAcceptanceMs": 14609.309374936856,
+      "tarAudit": {
+        "artifactSha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+        "fileCount": 1557,
+        "installedInventorySha256": "c8b6620279725f523407948ef562f8a07f3c706e26d8f5f7199958bb872b2547"
+      },
+      "graphSha256": "2b670f0e30bbd76a8f9943cd7584a0a0b7a0da87967e3a66ec8b33b6805f45ac",
+      "installedPackageCountIncludingCandidateAndTypeFixture": 148,
+      "licensedDependenciesIncludingTwoTypeFixturePackages": 147,
+      "containedRequiredDependencyEdges": 302,
+      "directDependencyCount": 19,
+      "lockSha256": "b53ea07982b02bd058254c12ed59b6239860322a6c35b2d1f6d38cd62fb31e46",
+      "resources": {
+        "setup": {
+          "externalObservedDeltaMs": 50.0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 874.703,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 2454.703,
+          "sampledPeakCgroupMemoryBytes": 5774864384,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 2454703,
+              "user_usec": 133009,
+              "system_usec": 2321694,
+              "nice_usec": 0,
+              "nr_periods": 24,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 910,
+              "full": 733
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "owner-audit": {
+          "externalObservedDeltaMs": 0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 280.089,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 280.089,
+          "sampledPeakCgroupMemoryBytes": 5754155008,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 280089,
+              "user_usec": 124587,
+              "system_usec": 155503,
+              "nice_usec": 0,
+              "nr_periods": 2,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 427,
+              "full": 364
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "types": {
+          "externalObservedDeltaMs": 280.0,
+          "externalConservativeLowerMs": 100.0,
+          "externalConservativeUpperMs": 1491.7999999999993,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 9031.8,
+          "sampledPeakCgroupMemoryBytes": 6442418176,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 9031800,
+              "user_usec": 6372589,
+              "system_usec": 2659211,
+              "nice_usec": 0,
+              "nr_periods": 67,
+              "nr_throttled": 1,
+              "throttled_usec": 482,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 885,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 13756,
+              "full": 11051
+            },
+            "memory.pressure": {
+              "some": 183807,
+              "full": 183806
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "docs": {
+          "externalObservedDeltaMs": 120.0,
+          "externalConservativeLowerMs": 30.0,
+          "externalConservativeUpperMs": 1364.4070000000002,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 3244.407,
+          "sampledPeakCgroupMemoryBytes": 5811392512,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 3244407,
+              "user_usec": 2163053,
+              "system_usec": 1081353,
+              "nice_usec": 0,
+              "nr_periods": 26,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 8520,
+              "full": 6840
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 14,
+              "full": 14
+            }
+          }
+        },
+        "runtime": {
+          "externalObservedDeltaMs": 90.0,
+          "externalConservativeLowerMs": 10.0,
+          "externalConservativeUpperMs": 2472.039,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 3472.039,
+          "sampledPeakCgroupMemoryBytes": 5796593664,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 3472039,
+              "user_usec": 2494553,
+              "system_usec": 977486,
+              "nice_usec": 0,
+              "nr_periods": 26,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 18489,
+              "full": 8032
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        }
+      },
+      "tests": {
+        "types": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [6.59s]\n",
+        "docs": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [2.57s]\n",
+        "runtime": ".\n\n1 pass\n0 fail\nRan 1 test across 1 file. [2.63s]\n"
+      }
+    },
+    {
+      "label": "B2",
+      "mode": "resolve-then-frozen",
+      "successful": true,
+      "consumerDirectory": "/tmp/vibe-check-install-experiment-B2-dzuvtgjv/consumer",
+      "installStages": [
+        {
+          "label": "resolve-lock",
+          "args": [
+            "install",
+            "--lockfile-only",
+            "--ignore-scripts"
+          ],
+          "wallMs": 414.83898899999997,
+          "exitCode": 0,
+          "signal": null,
+          "hasError": false,
+          "stdoutBytes": 73,
+          "stderrBytes": 77
+        },
+        {
+          "label": "install-frozen",
+          "args": [
+            "install",
+            "--frozen-lockfile",
+            "--ignore-scripts"
+          ],
+          "wallMs": 1706.9125709999998,
+          "exitCode": 0,
+          "signal": null,
+          "hasError": false,
+          "stdoutBytes": 172,
+          "stderrBytes": 0
+        }
+      ],
+      "packageManagerTotalMs": 2121.7515599999997,
+      "phaseWallMs": {
+        "setup": 2328.6298289895058,
+        "owner-audit": 237.20690998015925,
+        "types": 4741.202606994193,
+        "docs": 1927.1545570227318,
+        "runtime": 2359.932650986593
+      },
+      "tarAndGraphAuditMs": 317.21979699796066,
+      "acceptanceTotalMs": 9582.716521981638,
+      "setupPlusAcceptanceMs": 11911.346350971144,
+      "tarAudit": {
+        "artifactSha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+        "fileCount": 1557,
+        "installedInventorySha256": "c8b6620279725f523407948ef562f8a07f3c706e26d8f5f7199958bb872b2547"
+      },
+      "graphSha256": "2b670f0e30bbd76a8f9943cd7584a0a0b7a0da87967e3a66ec8b33b6805f45ac",
+      "installedPackageCountIncludingCandidateAndTypeFixture": 148,
+      "licensedDependenciesIncludingTwoTypeFixturePackages": 147,
+      "containedRequiredDependencyEdges": 302,
+      "directDependencyCount": 19,
+      "lockSha256": "b53ea07982b02bd058254c12ed59b6239860322a6c35b2d1f6d38cd62fb31e46",
+      "resources": {
+        "setup": {
+          "externalObservedDeltaMs": 50.0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 899.933,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 2479.933,
+          "sampledPeakCgroupMemoryBytes": 5822664704,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 2479933,
+              "user_usec": 166836,
+              "system_usec": 2313096,
+              "nice_usec": 0,
+              "nr_periods": 23,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 1416,
+              "full": 825
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 1747,
+              "full": 1729
+            }
+          }
+        },
+        "owner-audit": {
+          "externalObservedDeltaMs": 0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 320.223,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 320.223,
+          "sampledPeakCgroupMemoryBytes": 5801803776,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 320223,
+              "user_usec": 217259,
+              "system_usec": 102964,
+              "nice_usec": 0,
+              "nr_periods": 2,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 587,
+              "full": 520
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "types": {
+          "externalObservedDeltaMs": 210.0,
+          "externalConservativeLowerMs": 60.0,
+          "externalConservativeUpperMs": 1565.8159999999998,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 6555.816,
+          "sampledPeakCgroupMemoryBytes": 6442422272,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 6555816,
+              "user_usec": 5136598,
+              "system_usec": 1419217,
+              "nice_usec": 0,
+              "nr_periods": 48,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 1558,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 9474,
+              "full": 7707
+            },
+            "memory.pressure": {
+              "some": 130976,
+              "full": 130977
+            },
+            "io.pressure": {
+              "some": 24,
+              "full": 24
+            }
+          }
+        },
+        "docs": {
+          "externalObservedDeltaMs": 60.0,
+          "externalConservativeLowerMs": 10.0,
+          "externalConservativeUpperMs": 1339.277,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 2389.277,
+          "sampledPeakCgroupMemoryBytes": 5787758592,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 2389277,
+              "user_usec": 1660840,
+              "system_usec": 728437,
+              "nice_usec": 0,
+              "nr_periods": 19,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 6271,
+              "full": 3902
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 22,
+              "full": 22
+            }
+          }
+        },
+        "runtime": {
+          "externalObservedDeltaMs": 80.0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 2434.864,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 3104.864,
+          "sampledPeakCgroupMemoryBytes": 5742923776,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 3104864,
+              "user_usec": 2357091,
+              "system_usec": 747773,
+              "nice_usec": 0,
+              "nr_periods": 24,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 12906,
+              "full": 6720
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        }
+      },
+      "tests": {
+        "types": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [4.72s]\n",
+        "docs": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [1.92s]\n",
+        "runtime": ".\n\n1 pass\n0 fail\nRan 1 test across 1 file. [2.34s]\n"
+      }
+    },
+    {
+      "label": "A2",
+      "mode": "baseline",
+      "successful": true,
+      "consumerDirectory": "/tmp/vibe-check-install-experiment-A2-5a_us6_a/consumer",
+      "installStages": [
+        {
+          "label": "install",
+          "args": [
+            "install",
+            "--no-save",
+            "--ignore-scripts",
+            "/workspace/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.11aaf5e2c0fd.tgz"
+          ],
+          "wallMs": 1980.843183,
+          "exitCode": 0,
+          "signal": null,
+          "hasError": false,
+          "stdoutBytes": 176,
+          "stderrBytes": 62
+        }
+      ],
+      "packageManagerTotalMs": 1980.843183,
+      "phaseWallMs": {
+        "setup": 2182.175403984729,
+        "owner-audit": 247.11225798819214,
+        "types": 5722.625595983118,
+        "docs": 2200.197489990387,
+        "runtime": 2659.2235929565504
+      },
+      "tarAndGraphAuditMs": 274.5553540298715,
+      "acceptanceTotalMs": 11103.714290948119,
+      "setupPlusAcceptanceMs": 13285.889694932848,
+      "tarAudit": {
+        "artifactSha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+        "fileCount": 1557,
+        "installedInventorySha256": "c8b6620279725f523407948ef562f8a07f3c706e26d8f5f7199958bb872b2547"
+      },
+      "graphSha256": "2b670f0e30bbd76a8f9943cd7584a0a0b7a0da87967e3a66ec8b33b6805f45ac",
+      "installedPackageCountIncludingCandidateAndTypeFixture": 148,
+      "licensedDependenciesIncludingTwoTypeFixturePackages": 147,
+      "containedRequiredDependencyEdges": 302,
+      "directDependencyCount": 19,
+      "lockSha256": null,
+      "resources": {
+        "setup": {
+          "externalObservedDeltaMs": 50.0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 750.681,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 2350.681,
+          "sampledPeakCgroupMemoryBytes": 5799968768,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 2350681,
+              "user_usec": 139900,
+              "system_usec": 2210781,
+              "nice_usec": 0,
+              "nr_periods": 22,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 854,
+              "full": 733
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 48,
+              "full": 48
+            }
+          }
+        },
+        "owner-audit": {
+          "externalObservedDeltaMs": 0,
+          "externalConservativeLowerMs": 0,
+          "externalConservativeUpperMs": 316.373,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 316.373,
+          "sampledPeakCgroupMemoryBytes": 5762998272,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 316373,
+              "user_usec": 169683,
+              "system_usec": 146690,
+              "nice_usec": 0,
+              "nr_periods": 2,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 1757,
+              "full": 392
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "types": {
+          "externalObservedDeltaMs": 200.0,
+          "externalConservativeLowerMs": 80.0,
+          "externalConservativeUpperMs": 1683.1930000000002,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 8053.193,
+          "sampledPeakCgroupMemoryBytes": 6442450944,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 8053193,
+              "user_usec": 6122900,
+              "system_usec": 1930293,
+              "nice_usec": 0,
+              "nr_periods": 58,
+              "nr_throttled": 3,
+              "throttled_usec": 7415,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 1059,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 16254,
+              "full": 10764
+            },
+            "memory.pressure": {
+              "some": 25842,
+              "full": 25841
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        },
+        "docs": {
+          "externalObservedDeltaMs": 130.0,
+          "externalConservativeLowerMs": 40.0,
+          "externalConservativeUpperMs": 1318.6190000000001,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 2788.619,
+          "sampledPeakCgroupMemoryBytes": 5814796288,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 2788619,
+              "user_usec": 1840501,
+              "system_usec": 948119,
+              "nice_usec": 0,
+              "nr_periods": 22,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 6973,
+              "full": 5777
+            },
+            "memory.pressure": {
+              "some": 165,
+              "full": 166
+            },
+            "io.pressure": {
+              "some": 172,
+              "full": 172
+            }
+          }
+        },
+        "runtime": {
+          "externalObservedDeltaMs": 150.0,
+          "externalConservativeLowerMs": 20.0,
+          "externalConservativeUpperMs": 2569.252,
+          "externalActiveOver500Ms": [],
+          "cgroupCpuUsageMs": 3569.252,
+          "sampledPeakCgroupMemoryBytes": 5806809088,
+          "resourceCounters": {
+            "cpu.stat": {
+              "usage_usec": 3569252,
+              "user_usec": 2608570,
+              "system_usec": 960683,
+              "nice_usec": 0,
+              "nr_periods": 26,
+              "nr_throttled": 0,
+              "throttled_usec": 0,
+              "nr_bursts": 0,
+              "burst_usec": 0
+            },
+            "memory.events": {
+              "low": 0,
+              "high": 0,
+              "max": 0,
+              "oom": 0,
+              "oom_kill": 0,
+              "oom_group_kill": 0
+            },
+            "cpu.pressure": {
+              "some": 15504,
+              "full": 7428
+            },
+            "memory.pressure": {
+              "some": 0,
+              "full": 0
+            },
+            "io.pressure": {
+              "some": 0,
+              "full": 0
+            }
+          }
+        }
+      },
+      "tests": {
+        "types": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [5.71s]\n",
+        "docs": "..\n\n2 pass\n0 fail\nRan 2 tests across 1 file. [2.19s]\n",
+        "runtime": ".\n\n1 pass\n0 fail\nRan 1 test across 1 file. [2.65s]\n"
+      }
+    }
+  ],
+  "integrity": {
+    "sourceUnchanged": true,
+    "candidateUnchanged": true,
+    "toolsUnchanged": true,
+    "sourceSha256": "2165e0051daf727c10d5248de79cccf80a02ab3e42581bb8490757ba5d3be813",
+    "sourceFileCount": 3385,
+    "allGraphsEqual": true,
+    "allTarInventoriesEqual": true,
+    "allLocksEqual": true
+  },
+  "seedB1PlusC1PlusC2": {
+    "packageManagerTotalMs": 6557.934367,
+    "setupTotalMs": 7117.366767954081,
+    "acceptanceTotalMs": 45870.834493020084,
+    "setupPlusAcceptanceMs": 52988.201260974165,
+    "observedStartThroughLastRuntimeEndMs": 81767.799,
+    "includedMinimumPreflightMs": 28000
+  },
+  "documentationExpectationMs": 116.78357800701633,
+  "externalCpuBoundsMethod": "Lower: sum of observed per-PID/startTicks CPU counter deltas minus 20 ms each (two 100 Hz ticks), floor zero. Upper: whole-cgroup usage delta minus conservative observed owned and observer lower bounds. Upper includes unseen short-lived work and boundary gaps; it is intentionally loose, not an attribution. Raw observed CPU and classified active >500 ms processes are also retained. Only numeric facts, not unrelated argv, are used.",
+  "limitations": [
+    "Natural cache/network history, not cache-reset A/B; A1 resolution combined marker 120 versus 1 for later resolving installs",
+    "Two samples only; no stable percentiles",
+    "No named heavy competitors and no observed unclassified process exceeded 500 ms per command, but sub-500 ms processes and interval gaps remain",
+    "Fixed lock proves only this exact current candidate, not future new candidate migration",
+    "B1 lock generation cost fully retained; one Gate has one install and cannot assume amortization",
+    "Initial separate harness run banned unrelated /tmp/node_modules and failed before any install; explicitly authorized correction preserved original evidence",
+    "No full Gate or production source change"
+  ],
+  "costBoundary": "phaseWallMs is child spawn-to-wait4 completion, about 10 ms polling precision. setupPlusAcceptanceMs adds first tar/graph audit but excludes 2-second per-child observer preflights, snapshots, and final post-acceptance identity recheck. Real B1-to-C2 timeline is separately recorded, includes 28 seconds of observer preflight; none is described as a full Gate metric.",
+  "plan": {
+    "experiment": "consumer-install-experiment-20261023-corrected",
+    "status": "measurement-window-granted",
+    "candidateVersion": "0.0.0-local.11aaf5e2c0fd",
+    "artifactPath": "/workspace/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.11aaf5e2c0fd.tgz",
+    "artifactSha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+    "sequence": [
+      [
+        "A1",
+        "baseline"
+      ],
+      [
+        "B1",
+        "resolve-then-frozen"
+      ],
+      [
+        "C1",
+        "frozen-seed"
+      ],
+      [
+        "C2",
+        "frozen-seed"
+      ],
+      [
+        "B2",
+        "resolve-then-frozen"
+      ],
+      [
+        "A2",
+        "baseline"
+      ]
+    ],
+    "conditions": {
+      "baseline": "Fresh ancestry-external consumer; exact original bun install --no-save --ignore-scripts <current tarball>",
+      "resolve-then-frozen": "Fresh consumer declares only exact current tarball. bun install --lockfile-only --ignore-scripts followed by bun install --frozen-lockfile --ignore-scripts. Both costs included.",
+      "frozen-seed": "Fresh consumer receives only B1 package.json and Bun-authored bun.lock, never node_modules; frozen real install. B1 resolution cost separately charged; not a new persistent cache or a claim about future candidates."
+    },
+    "setupTimeoutSeconds": 30,
+    "acceptanceChildTimeoutSeconds": 30,
+    "acceptanceTestTimeoutSeconds": 20,
+    "retries": 0,
+    "failurePolicy": "Stop the complete sequence after any actual install/acceptance failure or environmental preflight block; no retries or replacements.",
+    "cache": "Existing Bun global install cache at natural state, no flush/warmup/new custom cache; Bun itself may read/write it. Fresh consumer for every attempt.",
+    "network": "Registry reads/downloads may occur on unresolved or missing packages; no publish or credentials output. Resolution output markers are not network traces.",
+    "correctness": [
+      "exact tarball sha before every install",
+      "all installed candidate bytes equal tar member bytes",
+      "candidate-only manifest except baseline private manifest",
+      "all installed dependency license audit and Ajv/jscpd/markdownlint owner probes",
+      "all direct dependency constraints from installed candidate checked",
+      "original types acceptance",
+      "original documentation acceptance",
+      "original runtime acceptance",
+      "fresh directory and ancestry checks",
+      "lock bytes unchanged after frozen installs"
+    ],
+    "limits": [
+      "Two observations per condition support ranges only, not stable quantiles",
+      "Fixed current artifact does not prove migration to a future candidate version",
+      "Lock generation cost is not removed from total cost",
+      "Bun latest online documentation may differ from local 1.3.14; local execution is authoritative",
+      "Full Gate not run and unchanged budgets not proven"
+    ],
+    "sources": [
+      "https://bun.com/docs/pm/lockfile",
+      "https://bun.com/docs/pm/cli/install",
+      "https://bun.com/docs/pm/global-cache"
+    ],
+    "correction": "Initial harness failed before any install because it incorrectly banned unrelated /tmp/node_modules. Original attempt preserved; parent explicitly authorized one corrected experiment. Actual package and dependency containment remains checked."
+  },
+  "rawLocalRoot": "/workspace/vibe-check/.log/consumer-install-experiment-20261023-corrected"
+}

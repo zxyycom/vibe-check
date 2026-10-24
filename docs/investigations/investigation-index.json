@@ -2924,6 +2924,78 @@
       ],
       "title": "验证 Execa 10.2 的超限回收与命令结果完整性修复"
     },
+    "261023-compare-gate-runtime-install-and-fixtures": {
+      "formedAt": "2026-10-23T10:32:33Z",
+      "name": "compare-gate-runtime-install-and-fixtures",
+      "question": "固定候选和工具链后，切换 Check 宿主、冻结隔离安装与缩小测试夹具哪项值得推进，哪些收益不足以支付维护成本？",
+      "relations": [
+        {
+          "summary": "将已定位重复工作与宿主差异转为三项有界实验",
+          "target": "261023-diagnose-heavy-check-contention",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261023-compare-gate-runtime-install-and-fixtures/fixture-measurements.json",
+        "261023-compare-gate-runtime-install-and-fixtures/install-measurements.json",
+        "261023-compare-gate-runtime-install-and-fixtures/runtime-driver.mjs",
+        "261023-compare-gate-runtime-install-and-fixtures/runtime-input.json",
+        "261023-compare-gate-runtime-install-and-fixtures/runtime-measurements.json",
+        "261023-compare-gate-runtime-install-and-fixtures/supporting-prototype.patch",
+        "261023-compare-gate-runtime-install-and-fixtures/worker-parity.mjs"
+      ],
+      "sourcePath": "compare-gate-runtime-install-and-fixtures.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "runtime-host",
+        "test-fixtures"
+      ],
+      "title": "比较 Gate 运行宿主、隔离安装与测试夹具的优化收益"
+    },
+    "261023-diagnose-fast-gate-lint-amplification": {
+      "formedAt": "2026-10-23T06:34:34Z",
+      "name": "diagnose-fast-gate-lint-amplification",
+      "question": "同一 lint 在 fast Gate 中为何显著变慢，哪些资源与编排证据足以指导不削弱检查的优化？",
+      "relations": [],
+      "resourceIds": [
+        "261023-diagnose-fast-gate-lint-amplification/concurrency-probes.json",
+        "261023-diagnose-fast-gate-lint-amplification/invocations.json",
+        "261023-diagnose-fast-gate-lint-amplification/measure.py",
+        "261023-diagnose-fast-gate-lint-amplification/measurements.json"
+      ],
+      "sourcePath": "diagnose-fast-gate-lint-amplification.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "resource-contention",
+        "type-aware-lint"
+      ],
+      "title": "调查 fast Gate 的 lint 耗时放大与性能阻断"
+    },
+    "261023-diagnose-heavy-check-contention": {
+      "formedAt": "2026-10-23T09:54:25Z",
+      "name": "diagnose-heavy-check-contention",
+      "question": "完整 Gate 最慢三项在做什么，固定输入后并发竞争能解释多少耗时，哪些局部成本值得继续处理？",
+      "relations": [
+        {
+          "summary": "在验收合并后的固定输入上拆解最慢三项并发成本",
+          "target": "261023-measure-complete-gate-without-competing-runs",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261023-diagnose-heavy-check-contention/measurements.json"
+      ],
+      "sourcePath": "diagnose-heavy-check-contention.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "resource-contention",
+        "test-execution"
+      ],
+      "title": "拆解完整 Gate 的慢检查与并发放大"
+    },
     "261023-evaluate-markdown-link-fusion-and-restore": {
       "formedAt": "2026-10-23T02:35:03Z",
       "name": "evaluate-markdown-link-fusion-and-restore",
@@ -2955,6 +3027,74 @@
         "worker-threads"
       ],
       "title": "Markdown Link 剩余开销：任务融合、缓存恢复与字节处理"
+    },
+    "261023-measure-complete-gate-without-competing-runs": {
+      "formedAt": "2026-10-23T08:19:45Z",
+      "name": "measure-complete-gate-without-competing-runs",
+      "question": "固定输入且未观察到其它重负载 Gate 时，完整验收是否仍变慢并触发性能阻断？",
+      "relations": [
+        {
+          "summary": "扩展至完整验收，区分外部 Gate 与共享配额压力",
+          "target": "261023-diagnose-fast-gate-lint-amplification",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261023-measure-complete-gate-without-competing-runs/measurements.json"
+      ],
+      "sourcePath": "measure-complete-gate-without-competing-runs.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "resource-contention"
+      ],
+      "title": "完整 Gate 无其它重负载运行时的受控测量"
+    },
+    "261024-measure-gate-test-boundary-simplification": {
+      "formedAt": "2026-10-24T04:26:50Z",
+      "name": "measure-gate-test-boundary-simplification",
+      "question": "测试降层与日常验收频率调整后，哪些成本下降，完整 Gate 是否仍被原性能预算阻断？",
+      "relations": [
+        {
+          "summary": "保留竞争归因边界并实测测试降层与验收频率取舍",
+          "target": "261024-recheck-consumer-types-contention",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261024-measure-gate-test-boundary-simplification/measurements.json"
+      ],
+      "sourcePath": "measure-gate-test-boundary-simplification.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "resource-contention",
+        "test-execution"
+      ],
+      "title": "实测 Gate 测试边界简化与验收频率取舍"
+    },
+    "261024-recheck-consumer-types-contention": {
+      "formedAt": "2026-10-24T03:29:45Z",
+      "name": "recheck-consumer-types-contention",
+      "question": "逐项配对和历史接续能否复现 Consumer types 的 15 秒，哪些资源证据能解释放大、哪些仍不能归因？",
+      "relations": [
+        {
+          "summary": "以配对和历史接续复查类型验收放大并对齐旧压力窗口",
+          "target": "261023-diagnose-heavy-check-contention",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261024-recheck-consumer-types-contention/measurements.json"
+      ],
+      "sourcePath": "recheck-consumer-types-contention.md",
+      "tags": [
+        "performance",
+        "project-gate",
+        "resource-contention",
+        "test-execution"
+      ],
+      "title": "复查 Consumer types 的并发放大与资源压力"
     }
   },
   "metadata": {},
@@ -3076,7 +3216,13 @@
       "261021-diagnose-markdownlint-core-instance-mismatch": "sha256:e4479a42d88203188c0394fba110e0ba45965f2f4d6f8d6b4376d628919488cf",
       "261021-profile-markdown-link-consumer-workload": "sha256:964bafc9ad98422c3b61a37b96893e1f925f602d8b964095031e2136de2bfb82",
       "261021-verify-upgraded-command-result-integrity": "sha256:4d6eef0e21ad37c8dccdd0b208884f3901b0b576290bb1756ea0f8d22f740698",
-      "261023-evaluate-markdown-link-fusion-and-restore": "sha256:03f0a5ef4860d5bff594f8a934ff87d008e590bdc491069c20420ffdc3b54f82"
+      "261023-compare-gate-runtime-install-and-fixtures": "sha256:faacd530386fb1d50973f2ab21c23402456badf45733bbd96a6f4fe74185aafb",
+      "261023-diagnose-fast-gate-lint-amplification": "sha256:1cdea925598ffbd8e567b81235ed182cf3e36029823209d3e63a68e8dbfcbe92",
+      "261023-diagnose-heavy-check-contention": "sha256:77c0cbf46e3eda113327fa10ef8801b0135ba9f610026f8c1ccf6ab785e91882",
+      "261023-evaluate-markdown-link-fusion-and-restore": "sha256:03f0a5ef4860d5bff594f8a934ff87d008e590bdc491069c20420ffdc3b54f82",
+      "261023-measure-complete-gate-without-competing-runs": "sha256:511b15391919aa5e305a9cbeb18140fb4d7ca2ec0e89547b65d188c0b9a5f70c",
+      "261024-measure-gate-test-boundary-simplification": "sha256:6499c5bf6519d048a4a890092e1721033d892b4f4cb547594d7014578cf6470e",
+      "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

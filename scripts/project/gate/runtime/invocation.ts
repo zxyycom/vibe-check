@@ -105,7 +105,7 @@ function invocationForSelection(
     ok: true,
     action: "run",
     candidateInput: Object.freeze({ kind: "release-receipt", receiptPath: releaseReceiptPath }),
-    selection
+    selection: Object.freeze({ kind: "all", release: true })
   });
 }
 

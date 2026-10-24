@@ -1,7 +1,10 @@
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { artifactDocumentation } from "../artifact/documentation-audit.ts";
+import {
+  artifactDocumentation,
+  type PackageDocumentationExpectation
+} from "../artifact/documentation-audit.ts";
 import { readTranslatedAnalyzerAttributionNotice } from "../legal-materials.ts";
 import { PACKAGE_TARBALL_STEM } from "../package-contract.ts";
 import { buildCandidateArtifact, type CandidateArtifact } from "../artifact/build.ts";
@@ -34,6 +37,7 @@ export type {
 } from "./preparation-decision.ts";
 
 interface PreparedPackageCandidateLocation {
+  readonly documentation: PackageDocumentationExpectation;
   readonly consumerDirectory: string;
   readonly installedPackageDirectory: string;
   readonly resolvedEntryPath: string;
@@ -79,6 +83,7 @@ export async function preparePackageCandidate(
       artifact: plan.artifact,
       consumerDirectory: plan.consumerDirectory,
       decision: plan,
+      documentation: plan.documentation,
       installation: plan.installation
     });
   }
@@ -104,6 +109,7 @@ export async function preparePackageCandidate(
       artifact: plan.artifact,
       consumerDirectory: plan.consumerDirectory,
       decision: plan,
+      documentation: plan.documentation,
       installation
     });
   }
@@ -140,6 +146,7 @@ export async function preparePackageCandidate(
     artifact,
     consumerDirectory: plan.consumerDirectory,
     decision: plan,
+    documentation: plan.documentation,
     installation
   });
 }
@@ -298,10 +305,12 @@ function createPreparedCandidate(input: {
   readonly artifact: CandidateArtifact;
   readonly consumerDirectory: string;
   readonly decision: LocalCandidatePreparationDecision;
+  readonly documentation: PackageDocumentationExpectation;
   readonly installation: InstalledCandidate;
 }): PreparedPackageCandidate {
   return Object.freeze({
     ...input.artifact,
+    documentation: input.documentation,
     consumerDirectory: input.consumerDirectory,
     installedPackageDirectory: input.installation.installedPackageDirectory,
     ...candidatePreparationFact(input.decision),

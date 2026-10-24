@@ -9,16 +9,16 @@ export function createProjectGateTestCheckDefinitions(
 ): readonly ProjectGateTestCheckDefinition[] {
   return defineProjectGateTestChecks([
     {
-      checkId: "tests-package-supporting",
-      displayName: "Bun package calculation and material tests",
-      lane: "packageSupporting",
+      checkId: "tests-package-tooling",
+      displayName: "Bun package tooling tests",
+      lane: "packageTooling",
       presets: ["test"],
       fast: false,
       changeRegion: "package-tests"
     },
     {
       candidateInput: "artifact",
-      checkId: "tests-package-artifact",
+      checkId: "acceptance-package-artifact",
       displayName: "Bun package artifact acceptance",
       lane: "packageArtifact",
       presets: [],
@@ -28,18 +28,18 @@ export function createProjectGateTestCheckDefinitions(
     },
     {
       candidateInput: "external-consumer",
-      checkId: "tests-package-consumer-types",
-      displayName: "Bun external package consumer type acceptance",
+      checkId: "acceptance-installed-package-types",
+      displayName: "Installed package consumer type acceptance",
       lane: "packageConsumerTypes",
-      presets: [],
+      presets: ["consumer-types"],
       fast: false,
-      changeRegion: "package-tests",
+      selectionPolicy: "release-only",
       timeoutMs: input.packageAcceptanceTimeoutMs
     },
     {
       candidateInput: "external-consumer",
-      checkId: "tests-package-consumer-docs",
-      displayName: "Bun external package consumer documentation acceptance",
+      checkId: "acceptance-installed-package-docs",
+      displayName: "Installed package consumer documentation acceptance",
       lane: "packageConsumerDocs",
       presets: [],
       fast: false,
@@ -48,8 +48,8 @@ export function createProjectGateTestCheckDefinitions(
     },
     {
       candidateInput: "external-consumer",
-      checkId: "tests-package-consumer-runtime",
-      displayName: "Bun external package consumer runtime acceptance",
+      checkId: "acceptance-installed-package-runtime",
+      displayName: "Installed package consumer runtime acceptance",
       lane: "packageConsumerRuntime",
       presets: [],
       fast: false,
@@ -89,9 +89,9 @@ export function createProjectGateTestCheckDefinitions(
       changeRegion: "product-json-tests"
     },
     {
-      checkId: "tests-product-markdown-links",
-      displayName: "Bun Product Markdown link tests",
-      lane: "productMarkdownLinks",
+      checkId: "tests-product-markdown",
+      displayName: "Bun Product Markdown lint and link tests",
+      lane: "productMarkdown",
       presets: ["test"],
       fast: false,
       changeRegion: "product-markdown-tests"
@@ -113,12 +113,12 @@ export function createProjectGateTestCheckDefinitions(
       changeRegion: "product-supporting-check-tests"
     },
     {
-      checkId: "tests-product-runtime",
-      displayName: "Bun Product runtime tests",
-      lane: "productRuntime",
+      checkId: "tests-product-core-and-tools",
+      displayName: "Bun Product Core and package-tool tests",
+      lane: "productCoreAndTools",
       presets: ["test"],
       fast: false,
-      changeRegion: "product-runtime"
+      changeRegion: "product-core-and-tools"
     },
     ...scriptTestChecks(input.repositoryMaterialsMutex)
   ]);
@@ -132,9 +132,9 @@ function scriptTestChecks(
       checkId: "tests-scripts-admission-workbench",
       displayName: "Bun admission workbench tests",
       lane: "scriptsAdmissionWorkbench",
-      presets: ["test"],
+      presets: ["admission-workbench"],
       fast: false,
-      changeRegion: "admission-workbench-tests"
+      selectionPolicy: "explicit-only"
     },
     {
       checkId: "tests-scripts-project",

@@ -56,6 +56,7 @@ export function prepareCompilerEmit(input: {
   readonly repositoryRoot: string;
   readonly stagingDirectory: string;
   readonly tsBuildInfoPath: string;
+  readonly toolchainFingerprint?: () => string;
   readonly compile: (output: {
     readonly declarationDirectory: string;
     readonly runtimeDirectory: string;
@@ -63,7 +64,10 @@ export function prepareCompilerEmit(input: {
 }): void {
   const cacheDirectory = join(dirname(input.tsBuildInfoPath), "compiler-emit");
   const recordPath = join(dirname(input.tsBuildInfoPath), "compiler-emit.json");
-  const compilerInputs = fingerprintCompilerInputs(input.repositoryRoot);
+  const compilerInputs = fingerprintCompilerInputs(
+    input.repositoryRoot,
+    input.toolchainFingerprint ?? typeScriptToolchainFingerprint
+  );
   const prior = readRecord(recordPath);
   const hasValidPriorCompilerState =
     prior !== undefined &&
@@ -116,7 +120,10 @@ export function prepareCompilerEmit(input: {
   }
 }
 
-function fingerprintCompilerInputs(repositoryRoot: string): Readonly<{
+function fingerprintCompilerInputs(
+  repositoryRoot: string,
+  toolchainFingerprint: () => string
+): Readonly<{
   readonly configFingerprint: string;
   readonly sourceFingerprint: string;
   readonly sourcePaths: readonly string[];
@@ -143,7 +150,7 @@ function fingerprintCompilerInputs(repositoryRoot: string): Readonly<{
         join(repositoryRoot, "pnpm-workspace.yaml"),
         join(repositoryRoot, "patches/execa@10.2.0.patch")
       ],
-      `${COMPILER_OPTIONS_VERSION}\0bun=${process.versions.bun ?? "unknown"}\0toolchain=${typeScriptToolchainFingerprint()}`
+      `${COMPILER_OPTIONS_VERSION}\0bun=${process.versions.bun ?? "unknown"}\0toolchain=${toolchainFingerprint()}`
     ),
     sourceFingerprint: digestFiles(repositoryRoot, sourceFiles, "runtime-source-v1"),
     sourcePaths: Object.freeze(sourcePaths)

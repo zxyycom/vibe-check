@@ -1,0 +1,2170 @@
+{
+  "question": "Top three complete Gate costs: inherent work versus simultaneous execution",
+  "rawDirectory": "/workspace/vibe-check/.log/top-check-contention-20261023/controlled",
+  "plan": {
+    "createdAt": "2026-10-23T09:49:47.164907+00:00",
+    "conditions": [
+      [
+        "serial-a",
+        "serial"
+      ],
+      [
+        "parallel-a",
+        "parallel"
+      ],
+      [
+        "parallel-b",
+        "parallel"
+      ],
+      [
+        "serial-b",
+        "serial"
+      ],
+      [
+        "supporting-profile",
+        "profile"
+      ],
+      [
+        "supporting-registration",
+        "registration"
+      ]
+    ],
+    "timeoutSeconds": {
+      "types": 30,
+      "supporting": 120,
+      "lint": 30
+    },
+    "retries": 0,
+    "preparation": "once before all conditions",
+    "cache": "natural existing state; no flush or explicit warmup"
+  },
+  "initialPreflight": {
+    "quiet": false,
+    "blockingProcessCount": 1,
+    "workloadLaunched": false
+  },
+  "inputs": {
+    "head": "d15cbf6f34499fa3027ed6c99d0508436add740f",
+    "branch": "main",
+    "sourceFiles": 3383,
+    "sourceSha256": "ae5554ef1eb7464395c465ce2049d1cd87591bca5ea06cc10ba382c4688a4bb1",
+    "sourceUnchanged": true,
+    "candidateSha256": "195cebe0dda32e3bd71a4dcceac2fcb432c3c74b1f3ed6e3664444025046a907",
+    "candidateUnchanged": true,
+    "artifact": {
+      "path": "/workspace/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.11aaf5e2c0fd.tgz",
+      "sha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76"
+    },
+    "candidateVersion": "0.0.0-local.11aaf5e2c0fd",
+    "tools": {
+      "mise": {
+        "path": "/home/dev/.local/bin/mise",
+        "version": "2026.7.5 linux-x64 (2026-07-09)",
+        "sha256": "5f7ab76afdf0780d12edeaa67e908094e9ccf7924cfe203e415c1cfb87bbf778"
+      },
+      "bun": {
+        "path": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+        "version": "1.3.14",
+        "sha256": "9fd36f87e4b90b07632b987a2e4ec81ca15a62c81bf983190cea6d715be2ad74"
+      },
+      "node": {
+        "path": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node",
+        "version": "v24.18.0",
+        "sha256": "41a74efb34cbde5c7632cdac0cf8bd1a14d0b8d73dc1e82755014d9a9ce70f5c"
+      },
+      "pnpm": {
+        "path": "/home/dev/.local/share/mise/installs/pnpm/11.1.3/pnpm",
+        "version": "11.1.3",
+        "sha256": "e5e29eb103e73729ed4115f0e939fb376386dd0d76db56b12459524041f922a0"
+      },
+      "uv": {
+        "path": "/home/dev/.local/share/mise/installs/uv/0.11.28/uv-x86_64-unknown-linux-musl/uv",
+        "version": "uv 0.11.28 (x86_64-unknown-linux-musl)",
+        "sha256": "ea1cfe896531cfeeb0c3e73288ef8f04deedf56c2607a39b3e15f85256830d80"
+      },
+      "scc": {
+        "path": "/home/dev/.local/share/mise/installs/go/1.26.4/bin/scc",
+        "version": "scc version 4.0.0",
+        "sha256": "668c616ec977ba9d329af8d2c165079ed5b8f001147ac2c293d982d427ff6c90"
+      },
+      "compilerAndLint": {
+        "sha256": "f0eb5ebd32840fcfacd6cfa2311da07b68e95c1cf689627d9feb7f49065516b6",
+        "entries": {
+          "node_modules/.pnpm/@oxlint+binding-linux-x64-gnu@1.89.0/node_modules/@oxlint/binding-linux-x64-gnu/oxlint.linux-x64-gnu.node": {
+            "sha256": "8e6e2644d968b4a87d6d25283701a04e40ff682a74e8b522d8cea64dfa32a8fc",
+            "bytes": 15265392
+          },
+          "node_modules/.pnpm/@oxlint-tsgolint+linux-x64@7.0.2004/node_modules/@oxlint-tsgolint/linux-x64/tsgolint": {
+            "sha256": "99ee9267df9ea81db27130a8ecdfb67eeaf88a1e0b20d90e02d2ae6574bdc516",
+            "bytes": 22569122
+          },
+          "node_modules/.pnpm/@typescript+typescript-linux-x64@7.0.2/node_modules/@typescript/typescript-linux-x64/lib/tsc": {
+            "sha256": "4f2de678286401759b3fb4475bafe35b8f32b4b3a07d92642bbf37eadc9b34a4",
+            "bytes": 24101026
+          },
+          "node_modules/@typescript/native/package.json": {
+            "sha256": "3722b30210616a13a3213ded11575ba6b2dbab10c32a5ef67afca8513e27017e",
+            "bytes": 3087
+          }
+        }
+      }
+    },
+    "toolsUnchanged": true,
+    "consumerManifestSha256": "ee0161f5cd9c90ee6f0cef5438b2bde2383789bcb3eab5765724954f509477ec",
+    "consumerUnchanged": true
+  },
+  "commands": {
+    "bun": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "lint": {
+      "args": [
+        "x",
+        "--no-install",
+        "oxlint",
+        "--deny-warnings",
+        "--format=json",
+        "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
+        "src"
+      ],
+      "command": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+      "cwd": "/workspace/vibe-check"
+    },
+    "lanes": {
+      "supporting": [
+        "scripts/package/artifact/acceptance-input.test.ts",
+        "scripts/package/artifact/compiler-cache.test.ts",
+        "scripts/package/artifact/documentation-input.test.ts",
+        "scripts/package/artifact/esm-module-specifiers.test.ts",
+        "scripts/package/artifact/manifest.test.ts",
+        "scripts/package/artifact/runtime-source-maps.test.ts",
+        "scripts/package/candidate/acceptance-input.test.ts",
+        "scripts/package/candidate/candidate.test.ts",
+        "scripts/package/candidate/dependency-license-audit.test.ts",
+        "scripts/package/candidate/external-consumer/input.test.ts",
+        "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+        "scripts/package/candidate/receipt.test.ts",
+        "scripts/package/command.test.ts",
+        "scripts/package/compiler-toolchain.test.ts",
+        "scripts/package/dependency-version.test.ts",
+        "scripts/package/legal-materials.test.ts",
+        "scripts/package/legal-materials/source-mapping.test.ts",
+        "scripts/package/public-api-inventory.test.ts",
+        "scripts/package/release/command.test.ts",
+        "scripts/package/release/release.test.ts"
+      ],
+      "types": [
+        "scripts/package/candidate/external-consumer/type-acceptance.test.ts"
+      ]
+    },
+    "plainEnv": {
+      "CARGO_TERM_COLOR": "never",
+      "CLICOLOR": "0",
+      "CLICOLOR_FORCE": "0",
+      "FORCE_COLOR": "0",
+      "NO_COLOR": "1",
+      "PNPM_CONFIG_COLOR": "false",
+      "PY_COLORS": "0",
+      "TERM": "dumb",
+      "UV_NO_COLOR": "1",
+      "npm_config_color": "false"
+    }
+  },
+  "conditions": [
+    {
+      "label": "serial-a",
+      "mode": "serial",
+      "wallMs": 9816.595670010429,
+      "checks": [
+        {
+          "name": "types",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts",
+            "--reporter=dots"
+          ],
+          "startMs": 0.1485159737057984,
+          "wallMs": 4441.382258024532,
+          "userMs": 5148.077,
+          "systemMs": 1128.8519999999999,
+          "maxRssKiB": 787208,
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "supporting",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/artifact/acceptance-input.test.ts",
+            "scripts/package/artifact/compiler-cache.test.ts",
+            "scripts/package/artifact/documentation-input.test.ts",
+            "scripts/package/artifact/esm-module-specifiers.test.ts",
+            "scripts/package/artifact/manifest.test.ts",
+            "scripts/package/artifact/runtime-source-maps.test.ts",
+            "scripts/package/candidate/acceptance-input.test.ts",
+            "scripts/package/candidate/candidate.test.ts",
+            "scripts/package/candidate/dependency-license-audit.test.ts",
+            "scripts/package/candidate/external-consumer/input.test.ts",
+            "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+            "scripts/package/candidate/receipt.test.ts",
+            "scripts/package/command.test.ts",
+            "scripts/package/compiler-toolchain.test.ts",
+            "scripts/package/dependency-version.test.ts",
+            "scripts/package/legal-materials.test.ts",
+            "scripts/package/legal-materials/source-mapping.test.ts",
+            "scripts/package/public-api-inventory.test.ts",
+            "scripts/package/release/command.test.ts",
+            "scripts/package/release/release.test.ts",
+            "--reporter=dots"
+          ],
+          "startMs": 4452.014863025397,
+          "wallMs": 3397.323458979372,
+          "userMs": 2315.022,
+          "systemMs": 1828.834,
+          "maxRssKiB": 352740,
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "lint",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "x",
+            "--no-install",
+            "oxlint",
+            "--deny-warnings",
+            "--format=json",
+            "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
+            "src"
+          ],
+          "startMs": 7859.803495986853,
+          "wallMs": 1946.6335049946792,
+          "userMs": 4097.79,
+          "systemMs": 844.36,
+          "maxRssKiB": 762744,
+          "exitCode": 0,
+          "timedOut": false
+        }
+      ],
+      "observation": {
+        "startedAt": "2026-10-23T09:50:07.158255+00:00",
+        "exitCode": 0,
+        "observerWallMs": 10062.335219990928,
+        "childUserMs": 11646.333,
+        "childSystemMs": 3830.6139999999987,
+        "observerCpuMs": 60.48679500000009,
+        "sampleIntervalMs": 500.0,
+        "sampleCount": 21,
+        "competingWorkloads": [],
+        "cpuMax": "400000 100000",
+        "memoryMax": "6442450944",
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 16330037,
+            "user_usec": 12253943,
+            "system_usec": 4076094,
+            "nice_usec": 0,
+            "nr_periods": 101,
+            "nr_throttled": 11,
+            "throttled_usec": 94436,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.stat": {
+            "anon": 3227648,
+            "file": 1474560,
+            "kernel": 352256,
+            "kernel_stack": 16384,
+            "pagetables": 16384,
+            "sec_pagetables": 0,
+            "percpu": 0,
+            "sock": 0,
+            "vmalloc": 0,
+            "shmem": 0,
+            "file_mapped": 0,
+            "file_dirty": -5492736,
+            "file_writeback": 0,
+            "swapcached": 4096,
+            "anon_thp": 0,
+            "file_thp": 0,
+            "shmem_thp": 0,
+            "inactive_anon": 3174400,
+            "active_anon": 4096,
+            "inactive_file": -3424256,
+            "active_file": 4886528,
+            "unevictable": 0,
+            "slab_reclaimable": 274848,
+            "slab_unreclaimable": 59912,
+            "slab": 334760,
+            "workingset_refault_anon": 2,
+            "workingset_refault_file": 0,
+            "workingset_activate_anon": 1,
+            "workingset_activate_file": 0,
+            "workingset_restore_anon": 0,
+            "workingset_restore_file": 0,
+            "workingset_nodereclaim": 0,
+            "pgdemote_kswapd": 0,
+            "pgdemote_direct": 0,
+            "pgdemote_khugepaged": 0,
+            "pgdemote_proactive": 0,
+            "pgscan": 0,
+            "pgsteal": 0,
+            "pswpin": 2,
+            "pswpout": 0,
+            "pgscan_kswapd": 0,
+            "pgscan_direct": 0,
+            "pgscan_khugepaged": 0,
+            "pgscan_proactive": 0,
+            "pgsteal_kswapd": 0,
+            "pgsteal_direct": 0,
+            "pgsteal_khugepaged": 0,
+            "pgsteal_proactive": 0,
+            "pgfault": 635817,
+            "pgmajfault": 2,
+            "pgrefill": 0,
+            "pgactivate": 2755,
+            "pgdeactivate": 0,
+            "pglazyfree": 0,
+            "pglazyfreed": 0,
+            "swpin_zero": 0,
+            "swpout_zero": 0,
+            "thp_fault_alloc": 0,
+            "thp_collapse_alloc": 0,
+            "thp_swpout": 0,
+            "thp_swpout_fallback": 0
+          },
+          "cpu.pressure": {
+            "some": 47319,
+            "full": 33946
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 41,
+            "full": 17
+          }
+        },
+        "memory": {
+          "startBytes": 5158658048,
+          "peakBytes": 5928005632,
+          "endBytes": 5162803200,
+          "peakComponentsBytes": {
+            "anon": 2092748800,
+            "file": 3153506304,
+            "shmem": 0,
+            "kernel": 677158912
+          }
+        }
+      }
+    },
+    {
+      "label": "parallel-a",
+      "mode": "parallel",
+      "wallMs": 6686.198765004519,
+      "checks": [
+        {
+          "name": "lint",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "x",
+            "--no-install",
+            "oxlint",
+            "--deny-warnings",
+            "--format=json",
+            "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
+            "src"
+          ],
+          "startMs": 1.7394410097040236,
+          "wallMs": 3795.350930013228,
+          "userMs": 4993.901,
+          "systemMs": 1965.903,
+          "maxRssKiB": 722068,
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "supporting",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/artifact/acceptance-input.test.ts",
+            "scripts/package/artifact/compiler-cache.test.ts",
+            "scripts/package/artifact/documentation-input.test.ts",
+            "scripts/package/artifact/esm-module-specifiers.test.ts",
+            "scripts/package/artifact/manifest.test.ts",
+            "scripts/package/artifact/runtime-source-maps.test.ts",
+            "scripts/package/candidate/acceptance-input.test.ts",
+            "scripts/package/candidate/candidate.test.ts",
+            "scripts/package/candidate/dependency-license-audit.test.ts",
+            "scripts/package/candidate/external-consumer/input.test.ts",
+            "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+            "scripts/package/candidate/receipt.test.ts",
+            "scripts/package/command.test.ts",
+            "scripts/package/compiler-toolchain.test.ts",
+            "scripts/package/dependency-version.test.ts",
+            "scripts/package/legal-materials.test.ts",
+            "scripts/package/legal-materials/source-mapping.test.ts",
+            "scripts/package/public-api-inventory.test.ts",
+            "scripts/package/release/command.test.ts",
+            "scripts/package/release/release.test.ts",
+            "--reporter=dots"
+          ],
+          "startMs": 1.0006190277636051,
+          "wallMs": 5395.866283972282,
+          "userMs": 2726.036,
+          "systemMs": 2323.787,
+          "maxRssKiB": 351556,
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "types",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts",
+            "--reporter=dots"
+          ],
+          "startMs": 0.17950305482372642,
+          "wallMs": 6675.876586989034,
+          "userMs": 5504.896000000001,
+          "systemMs": 1643.2769999999998,
+          "maxRssKiB": 823460,
+          "exitCode": 0,
+          "timedOut": false
+        }
+      ],
+      "observation": {
+        "startedAt": "2026-10-23T09:50:19.234962+00:00",
+        "exitCode": 0,
+        "observerWallMs": 7087.66605600249,
+        "childUserMs": 13261.79,
+        "childSystemMs": 5975.450000000001,
+        "observerCpuMs": 44.172141000000224,
+        "sampleIntervalMs": 500.0,
+        "sampleCount": 15,
+        "competingWorkloads": [],
+        "cpuMax": "400000 100000",
+        "memoryMax": "6442450944",
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 19688475,
+            "user_usec": 13590310,
+            "system_usec": 6098165,
+            "nice_usec": 0,
+            "nr_periods": 71,
+            "nr_throttled": 26,
+            "throttled_usec": 4295913,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 290,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.stat": {
+            "anon": -32501760,
+            "file": -39342080,
+            "kernel": -507904,
+            "kernel_stack": -81920,
+            "pagetables": -16384,
+            "sec_pagetables": 0,
+            "percpu": 0,
+            "sock": 0,
+            "vmalloc": 0,
+            "shmem": 0,
+            "file_mapped": -139264,
+            "file_dirty": -13258752,
+            "file_writeback": 0,
+            "swapcached": -61440,
+            "anon_thp": 0,
+            "file_thp": 0,
+            "shmem_thp": 0,
+            "inactive_anon": -36204544,
+            "active_anon": 3706880,
+            "inactive_file": -25288704,
+            "active_file": -14061568,
+            "unevictable": 0,
+            "slab_reclaimable": -371016,
+            "slab_unreclaimable": -47424,
+            "slab": -418440,
+            "workingset_refault_anon": 0,
+            "workingset_refault_file": 1,
+            "workingset_activate_anon": 0,
+            "workingset_activate_file": 1,
+            "workingset_restore_anon": 0,
+            "workingset_restore_file": 1,
+            "workingset_nodereclaim": 0,
+            "pgdemote_kswapd": 0,
+            "pgdemote_direct": 0,
+            "pgdemote_khugepaged": 0,
+            "pgdemote_proactive": 0,
+            "pgscan": 24219,
+            "pgsteal": 16474,
+            "pswpin": 0,
+            "pswpout": 6729,
+            "pgscan_kswapd": 0,
+            "pgscan_direct": 24219,
+            "pgscan_khugepaged": 0,
+            "pgscan_proactive": 0,
+            "pgsteal_kswapd": 0,
+            "pgsteal_direct": 16474,
+            "pgsteal_khugepaged": 0,
+            "pgsteal_proactive": 0,
+            "pgfault": 631654,
+            "pgmajfault": 1,
+            "pgrefill": 29618,
+            "pgactivate": 3273,
+            "pgdeactivate": 3975,
+            "pglazyfree": 0,
+            "pglazyfreed": 0,
+            "swpin_zero": 0,
+            "swpout_zero": 64,
+            "thp_fault_alloc": 0,
+            "thp_collapse_alloc": 0,
+            "thp_swpout": 0,
+            "thp_swpout_fallback": 0
+          },
+          "cpu.pressure": {
+            "some": 1278264,
+            "full": 734720
+          },
+          "memory.pressure": {
+            "some": 213089,
+            "full": 213027
+          },
+          "io.pressure": {
+            "some": 124,
+            "full": 124
+          }
+        },
+        "memory": {
+          "startBytes": 5168181248,
+          "peakBytes": 6442426368,
+          "endBytes": 5094817792,
+          "peakComponentsBytes": {
+            "anon": 2619404288,
+            "file": 3136524288,
+            "shmem": 0,
+            "kernel": 682045440
+          }
+        }
+      }
+    },
+    {
+      "label": "parallel-b",
+      "mode": "parallel",
+      "wallMs": 5828.087077010423,
+      "checks": [
+        {
+          "name": "lint",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "x",
+            "--no-install",
+            "oxlint",
+            "--deny-warnings",
+            "--format=json",
+            "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
+            "src"
+          ],
+          "startMs": 1.5302550164051354,
+          "wallMs": 3253.514896030538,
+          "userMs": 4839.92,
+          "systemMs": 1171.033,
+          "maxRssKiB": 712744,
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "supporting",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/artifact/acceptance-input.test.ts",
+            "scripts/package/artifact/compiler-cache.test.ts",
+            "scripts/package/artifact/documentation-input.test.ts",
+            "scripts/package/artifact/esm-module-specifiers.test.ts",
+            "scripts/package/artifact/manifest.test.ts",
+            "scripts/package/artifact/runtime-source-maps.test.ts",
+            "scripts/package/candidate/acceptance-input.test.ts",
+            "scripts/package/candidate/candidate.test.ts",
+            "scripts/package/candidate/dependency-license-audit.test.ts",
+            "scripts/package/candidate/external-consumer/input.test.ts",
+            "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+            "scripts/package/candidate/receipt.test.ts",
+            "scripts/package/command.test.ts",
+            "scripts/package/compiler-toolchain.test.ts",
+            "scripts/package/dependency-version.test.ts",
+            "scripts/package/legal-materials.test.ts",
+            "scripts/package/legal-materials/source-mapping.test.ts",
+            "scripts/package/public-api-inventory.test.ts",
+            "scripts/package/release/command.test.ts",
+            "scripts/package/release/release.test.ts",
+            "--reporter=dots"
+          ],
+          "startMs": 0.9770860197022557,
+          "wallMs": 4364.818611007649,
+          "userMs": 2551.544,
+          "systemMs": 1649.3519999999999,
+          "maxRssKiB": 361300,
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "types",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts",
+            "--reporter=dots"
+          ],
+          "startMs": 0.13928901171311736,
+          "wallMs": 5817.784396989737,
+          "userMs": 5357.05,
+          "systemMs": 1163.786,
+          "maxRssKiB": 787432,
+          "exitCode": 0,
+          "timedOut": false
+        }
+      ],
+      "observation": {
+        "startedAt": "2026-10-23T09:50:28.335134+00:00",
+        "exitCode": 0,
+        "observerWallMs": 6084.941403998528,
+        "childUserMs": 12811.796999999995,
+        "childSystemMs": 3992.609999999999,
+        "observerCpuMs": 38.20048600000003,
+        "sampleIntervalMs": 500.0,
+        "sampleCount": 13,
+        "competingWorkloads": [],
+        "cpuMax": "400000 100000",
+        "memoryMax": "6442450944",
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 17131558,
+            "user_usec": 13107129,
+            "system_usec": 4024428,
+            "nice_usec": 0,
+            "nr_periods": 61,
+            "nr_throttled": 23,
+            "throttled_usec": 3680301,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 166,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.stat": {
+            "anon": -13365248,
+            "file": -25509888,
+            "kernel": -352256,
+            "kernel_stack": 0,
+            "pagetables": 0,
+            "sec_pagetables": 0,
+            "percpu": 0,
+            "sock": 0,
+            "vmalloc": 0,
+            "shmem": 0,
+            "file_mapped": -225280,
+            "file_dirty": -133296128,
+            "file_writeback": 0,
+            "swapcached": 86016,
+            "anon_thp": 0,
+            "file_thp": 0,
+            "shmem_thp": 0,
+            "inactive_anon": -17690624,
+            "active_anon": 4386816,
+            "inactive_file": 9867264,
+            "active_file": -35393536,
+            "unevictable": 0,
+            "slab_reclaimable": -380216,
+            "slab_unreclaimable": 29944,
+            "slab": -350272,
+            "workingset_refault_anon": 0,
+            "workingset_refault_file": 218,
+            "workingset_activate_anon": 0,
+            "workingset_activate_file": 218,
+            "workingset_restore_anon": 0,
+            "workingset_restore_file": 218,
+            "workingset_nodereclaim": 0,
+            "pgdemote_kswapd": 0,
+            "pgdemote_direct": 0,
+            "pgdemote_khugepaged": 0,
+            "pgdemote_proactive": 0,
+            "pgscan": 14414,
+            "pgsteal": 9876,
+            "pswpin": 0,
+            "pswpout": 3385,
+            "pgscan_kswapd": 0,
+            "pgscan_direct": 14414,
+            "pgscan_khugepaged": 0,
+            "pgscan_proactive": 0,
+            "pgsteal_kswapd": 0,
+            "pgsteal_direct": 9876,
+            "pgsteal_khugepaged": 0,
+            "pgsteal_proactive": 0,
+            "pgfault": 617728,
+            "pgmajfault": 1,
+            "pgrefill": 17702,
+            "pgactivate": 9233,
+            "pgdeactivate": 15198,
+            "pglazyfree": 0,
+            "pglazyfreed": 0,
+            "swpin_zero": 0,
+            "swpout_zero": 17,
+            "thp_fault_alloc": 0,
+            "thp_collapse_alloc": 0,
+            "thp_swpout": 0,
+            "thp_swpout_fallback": 0
+          },
+          "cpu.pressure": {
+            "some": 1175425,
+            "full": 627010
+          },
+          "memory.pressure": {
+            "some": 92522,
+            "full": 91668
+          },
+          "io.pressure": {
+            "some": 86,
+            "full": 86
+          }
+        },
+        "memory": {
+          "startBytes": 5094985728,
+          "peakBytes": 6442123264,
+          "endBytes": 5055475712,
+          "peakComponentsBytes": {
+            "anon": 2664333312,
+            "file": 3090624512,
+            "shmem": 0,
+            "kernel": 682123264
+          }
+        }
+      }
+    },
+    {
+      "label": "serial-b",
+      "mode": "serial",
+      "wallMs": 7683.374020969495,
+      "checks": [
+        {
+          "name": "types",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/candidate/external-consumer/type-acceptance.test.ts",
+            "--reporter=dots"
+          ],
+          "startMs": 0.21737400675192475,
+          "wallMs": 3576.0372079676017,
+          "userMs": 4605.146,
+          "systemMs": 749.544,
+          "maxRssKiB": 828296,
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "supporting",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/artifact/acceptance-input.test.ts",
+            "scripts/package/artifact/compiler-cache.test.ts",
+            "scripts/package/artifact/documentation-input.test.ts",
+            "scripts/package/artifact/esm-module-specifiers.test.ts",
+            "scripts/package/artifact/manifest.test.ts",
+            "scripts/package/artifact/runtime-source-maps.test.ts",
+            "scripts/package/candidate/acceptance-input.test.ts",
+            "scripts/package/candidate/candidate.test.ts",
+            "scripts/package/candidate/dependency-license-audit.test.ts",
+            "scripts/package/candidate/external-consumer/input.test.ts",
+            "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+            "scripts/package/candidate/receipt.test.ts",
+            "scripts/package/command.test.ts",
+            "scripts/package/compiler-toolchain.test.ts",
+            "scripts/package/dependency-version.test.ts",
+            "scripts/package/legal-materials.test.ts",
+            "scripts/package/legal-materials/source-mapping.test.ts",
+            "scripts/package/public-api-inventory.test.ts",
+            "scripts/package/release/command.test.ts",
+            "scripts/package/release/release.test.ts",
+            "--reporter=dots"
+          ],
+          "startMs": 3586.8319179862738,
+          "wallMs": 2568.8955719815567,
+          "userMs": 2169.085,
+          "systemMs": 948.27,
+          "maxRssKiB": 354036,
+          "exitCode": 0,
+          "timedOut": false
+        },
+        {
+          "name": "lint",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "x",
+            "--no-install",
+            "oxlint",
+            "--deny-warnings",
+            "--format=json",
+            "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
+            "src"
+          ],
+          "startMs": 6166.208859998733,
+          "wallMs": 1507.0024709566496,
+          "userMs": 3910.146,
+          "systemMs": 687.8499999999999,
+          "maxRssKiB": 718872,
+          "exitCode": 0,
+          "timedOut": false
+        }
+      ],
+      "observation": {
+        "startedAt": "2026-10-23T09:50:36.433567+00:00",
+        "exitCode": 0,
+        "observerWallMs": 8046.801357995719,
+        "childUserMs": 10759.634000000005,
+        "childSystemMs": 2398.3890000000015,
+        "observerCpuMs": 45.24225900000012,
+        "sampleIntervalMs": 500.0,
+        "sampleCount": 17,
+        "competingWorkloads": [],
+        "cpuMax": "400000 100000",
+        "memoryMax": "6442450944",
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 13493703,
+            "user_usec": 11074559,
+            "system_usec": 2419144,
+            "nice_usec": 0,
+            "nr_periods": 80,
+            "nr_throttled": 8,
+            "throttled_usec": 44434,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.stat": {
+            "anon": -3997696,
+            "file": 385024,
+            "kernel": 77824,
+            "kernel_stack": 0,
+            "pagetables": 0,
+            "sec_pagetables": 0,
+            "percpu": 0,
+            "sock": 0,
+            "vmalloc": 0,
+            "shmem": 0,
+            "file_mapped": 0,
+            "file_dirty": -8634368,
+            "file_writeback": 0,
+            "swapcached": -4096,
+            "anon_thp": 0,
+            "file_thp": 0,
+            "shmem_thp": 0,
+            "inactive_anon": -3805184,
+            "active_anon": 0,
+            "inactive_file": -33665024,
+            "active_file": 34045952,
+            "unevictable": 0,
+            "slab_reclaimable": 46072,
+            "slab_unreclaimable": 36496,
+            "slab": 82568,
+            "workingset_refault_anon": 1,
+            "workingset_refault_file": 0,
+            "workingset_activate_anon": 0,
+            "workingset_activate_file": 0,
+            "workingset_restore_anon": 0,
+            "workingset_restore_file": 0,
+            "workingset_nodereclaim": 0,
+            "pgdemote_kswapd": 0,
+            "pgdemote_direct": 0,
+            "pgdemote_khugepaged": 0,
+            "pgdemote_proactive": 0,
+            "pgscan": 0,
+            "pgsteal": 0,
+            "pswpin": 1,
+            "pswpout": 0,
+            "pgscan_kswapd": 0,
+            "pgscan_direct": 0,
+            "pgscan_khugepaged": 0,
+            "pgscan_proactive": 0,
+            "pgsteal_kswapd": 0,
+            "pgsteal_direct": 0,
+            "pgsteal_khugepaged": 0,
+            "pgsteal_proactive": 0,
+            "pgfault": 633482,
+            "pgmajfault": 1,
+            "pgrefill": 0,
+            "pgactivate": 10080,
+            "pgdeactivate": 0,
+            "pglazyfree": 0,
+            "pglazyfreed": 0,
+            "swpin_zero": 0,
+            "swpout_zero": 0,
+            "thp_fault_alloc": 0,
+            "thp_collapse_alloc": 0,
+            "thp_swpout": 0,
+            "thp_swpout_fallback": 0
+          },
+          "cpu.pressure": {
+            "some": 21873,
+            "full": 18952
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 117,
+            "full": 116
+          }
+        },
+        "memory": {
+          "startBytes": 5057130496,
+          "peakBytes": 5832298496,
+          "endBytes": 5052571648,
+          "peakComponentsBytes": {
+            "anon": 2063089664,
+            "file": 3089059840,
+            "shmem": 0,
+            "kernel": 675131392
+          }
+        }
+      }
+    },
+    {
+      "label": "supporting-profile",
+      "mode": "profile",
+      "wallMs": 2760.7092849793844,
+      "checks": [
+        {
+          "name": "supporting",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/artifact/acceptance-input.test.ts",
+            "scripts/package/artifact/compiler-cache.test.ts",
+            "scripts/package/artifact/documentation-input.test.ts",
+            "scripts/package/artifact/esm-module-specifiers.test.ts",
+            "scripts/package/artifact/manifest.test.ts",
+            "scripts/package/artifact/runtime-source-maps.test.ts",
+            "scripts/package/candidate/acceptance-input.test.ts",
+            "scripts/package/candidate/candidate.test.ts",
+            "scripts/package/candidate/dependency-license-audit.test.ts",
+            "scripts/package/candidate/external-consumer/input.test.ts",
+            "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+            "scripts/package/candidate/receipt.test.ts",
+            "scripts/package/command.test.ts",
+            "scripts/package/compiler-toolchain.test.ts",
+            "scripts/package/dependency-version.test.ts",
+            "scripts/package/legal-materials.test.ts",
+            "scripts/package/legal-materials/source-mapping.test.ts",
+            "scripts/package/public-api-inventory.test.ts",
+            "scripts/package/release/command.test.ts",
+            "scripts/package/release/release.test.ts",
+            "--reporter=junit",
+            "--reporter-outfile=/workspace/vibe-check/.log/top-check-contention-20261023/controlled/supporting-profile/supporting.xml"
+          ],
+          "startMs": 0.15297398203983903,
+          "wallMs": 2750.412877998315,
+          "userMs": 2271.209,
+          "systemMs": 1099.3319999999999,
+          "maxRssKiB": 372116,
+          "exitCode": 0,
+          "timedOut": false
+        }
+      ],
+      "observation": {
+        "startedAt": "2026-10-23T09:50:46.492268+00:00",
+        "exitCode": 0,
+        "observerWallMs": 3020.817302982323,
+        "childUserMs": 2310.9660000000003,
+        "childSystemMs": 1114.0769999999982,
+        "observerCpuMs": 19.965437000000197,
+        "sampleIntervalMs": 500.0,
+        "sampleCount": 7,
+        "competingWorkloads": [],
+        "cpuMax": "400000 100000",
+        "memoryMax": "6442450944",
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 3592889,
+            "user_usec": 2396009,
+            "system_usec": 1196881,
+            "nice_usec": 0,
+            "nr_periods": 30,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.stat": {
+            "anon": -540672,
+            "file": 131072,
+            "kernel": 155648,
+            "kernel_stack": 49152,
+            "pagetables": 4096,
+            "sec_pagetables": 0,
+            "percpu": 0,
+            "sock": 0,
+            "vmalloc": 0,
+            "shmem": 0,
+            "file_mapped": 0,
+            "file_dirty": 217088,
+            "file_writeback": 0,
+            "swapcached": 0,
+            "anon_thp": 0,
+            "file_thp": 0,
+            "shmem_thp": 0,
+            "inactive_anon": -409600,
+            "active_anon": 0,
+            "inactive_file": -69632,
+            "active_file": 274432,
+            "unevictable": 0,
+            "slab_reclaimable": 32696,
+            "slab_unreclaimable": 72328,
+            "slab": 105024,
+            "workingset_refault_anon": 0,
+            "workingset_refault_file": 0,
+            "workingset_activate_anon": 0,
+            "workingset_activate_file": 0,
+            "workingset_restore_anon": 0,
+            "workingset_restore_file": 0,
+            "workingset_nodereclaim": 0,
+            "pgdemote_kswapd": 0,
+            "pgdemote_direct": 0,
+            "pgdemote_khugepaged": 0,
+            "pgdemote_proactive": 0,
+            "pgscan": 0,
+            "pgsteal": 0,
+            "pswpin": 0,
+            "pswpout": 0,
+            "pgscan_kswapd": 0,
+            "pgscan_direct": 0,
+            "pgscan_khugepaged": 0,
+            "pgscan_proactive": 0,
+            "pgsteal_kswapd": 0,
+            "pgsteal_direct": 0,
+            "pgsteal_khugepaged": 0,
+            "pgsteal_proactive": 0,
+            "pgfault": 163155,
+            "pgmajfault": 0,
+            "pgrefill": 0,
+            "pgactivate": 1867,
+            "pgdeactivate": 0,
+            "pglazyfree": 0,
+            "pglazyfreed": 0,
+            "swpin_zero": 0,
+            "swpout_zero": 0,
+            "thp_fault_alloc": 0,
+            "thp_collapse_alloc": 0,
+            "thp_swpout": 0,
+            "thp_swpout_fallback": 0
+          },
+          "cpu.pressure": {
+            "some": 9732,
+            "full": 5301
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 34,
+            "full": 34
+          }
+        },
+        "memory": {
+          "startBytes": 5056696320,
+          "peakBytes": 5385031680,
+          "endBytes": 5055819776,
+          "peakComponentsBytes": {
+            "anon": 1615638528,
+            "file": 3089616896,
+            "shmem": 0,
+            "kernel": 674562048
+          }
+        }
+      }
+    },
+    {
+      "label": "supporting-registration",
+      "mode": "registration",
+      "wallMs": 590.0100889848545,
+      "checks": [
+        {
+          "name": "supporting",
+          "command": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "test",
+            "scripts/package/artifact/acceptance-input.test.ts",
+            "scripts/package/artifact/compiler-cache.test.ts",
+            "scripts/package/artifact/documentation-input.test.ts",
+            "scripts/package/artifact/esm-module-specifiers.test.ts",
+            "scripts/package/artifact/manifest.test.ts",
+            "scripts/package/artifact/runtime-source-maps.test.ts",
+            "scripts/package/candidate/acceptance-input.test.ts",
+            "scripts/package/candidate/candidate.test.ts",
+            "scripts/package/candidate/dependency-license-audit.test.ts",
+            "scripts/package/candidate/external-consumer/input.test.ts",
+            "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+            "scripts/package/candidate/receipt.test.ts",
+            "scripts/package/command.test.ts",
+            "scripts/package/compiler-toolchain.test.ts",
+            "scripts/package/dependency-version.test.ts",
+            "scripts/package/legal-materials.test.ts",
+            "scripts/package/legal-materials/source-mapping.test.ts",
+            "scripts/package/public-api-inventory.test.ts",
+            "scripts/package/release/command.test.ts",
+            "scripts/package/release/release.test.ts",
+            "--reporter=dots",
+            "--test-name-pattern=^NO_MEASURED_CASE_MATCHES_THIS$"
+          ],
+          "startMs": 0.17908302834257483,
+          "wallMs": 579.6843279968016,
+          "userMs": 549.141,
+          "systemMs": 167.129,
+          "maxRssKiB": 177768,
+          "exitCode": 1,
+          "timedOut": false
+        }
+      ],
+      "observation": {
+        "startedAt": "2026-10-23T09:50:51.525353+00:00",
+        "exitCode": 1,
+        "observerWallMs": 1008.983995008748,
+        "childUserMs": 572.5179999999953,
+        "childSystemMs": 177.14800000000253,
+        "observerCpuMs": 7.495145000000036,
+        "sampleIntervalMs": 500.0,
+        "sampleCount": 3,
+        "competingWorkloads": [],
+        "cpuMax": "400000 100000",
+        "memoryMax": "6442450944",
+        "cgroupDelta": {
+          "cpu.stat": {
+            "usage_usec": 782920,
+            "user_usec": 598502,
+            "system_usec": 184417,
+            "nice_usec": 0,
+            "nr_periods": 10,
+            "nr_throttled": 0,
+            "throttled_usec": 0,
+            "nr_bursts": 0,
+            "burst_usec": 0
+          },
+          "memory.events": {
+            "low": 0,
+            "high": 0,
+            "max": 0,
+            "oom": 0,
+            "oom_kill": 0,
+            "oom_group_kill": 0
+          },
+          "memory.stat": {
+            "anon": -61440,
+            "file": 126976,
+            "kernel": -49152,
+            "kernel_stack": -49152,
+            "pagetables": -4096,
+            "sec_pagetables": 0,
+            "percpu": 0,
+            "sock": 0,
+            "vmalloc": 0,
+            "shmem": 0,
+            "file_mapped": 0,
+            "file_dirty": 622592,
+            "file_writeback": 0,
+            "swapcached": 0,
+            "anon_thp": 0,
+            "file_thp": 0,
+            "shmem_thp": 0,
+            "inactive_anon": -8192,
+            "active_anon": 0,
+            "inactive_file": 126976,
+            "active_file": 0,
+            "unevictable": 0,
+            "slab_reclaimable": 24704,
+            "slab_unreclaimable": -30112,
+            "slab": -5408,
+            "workingset_refault_anon": 0,
+            "workingset_refault_file": 0,
+            "workingset_activate_anon": 0,
+            "workingset_activate_file": 0,
+            "workingset_restore_anon": 0,
+            "workingset_restore_file": 0,
+            "workingset_nodereclaim": 0,
+            "pgdemote_kswapd": 0,
+            "pgdemote_direct": 0,
+            "pgdemote_khugepaged": 0,
+            "pgdemote_proactive": 0,
+            "pgscan": 0,
+            "pgsteal": 0,
+            "pswpin": 0,
+            "pswpout": 0,
+            "pgscan_kswapd": 0,
+            "pgscan_direct": 0,
+            "pgscan_khugepaged": 0,
+            "pgscan_proactive": 0,
+            "pgsteal_kswapd": 0,
+            "pgsteal_direct": 0,
+            "pgsteal_khugepaged": 0,
+            "pgsteal_proactive": 0,
+            "pgfault": 37412,
+            "pgmajfault": 0,
+            "pgrefill": 0,
+            "pgactivate": 0,
+            "pgdeactivate": 0,
+            "pglazyfree": 0,
+            "pglazyfreed": 0,
+            "swpin_zero": 0,
+            "swpout_zero": 0,
+            "thp_fault_alloc": 0,
+            "thp_collapse_alloc": 0,
+            "thp_swpout": 0,
+            "thp_swpout_fallback": 0
+          },
+          "cpu.pressure": {
+            "some": 4458,
+            "full": 1136
+          },
+          "memory.pressure": {
+            "some": 0,
+            "full": 0
+          },
+          "io.pressure": {
+            "some": 0,
+            "full": 0
+          }
+        },
+        "memory": {
+          "startBytes": 5055619072,
+          "peakBytes": 5192638464,
+          "endBytes": 5054758912,
+          "peakComponentsBytes": {
+            "anon": 1423966208,
+            "file": 3089739776,
+            "shmem": 0,
+            "kernel": 673898496
+          }
+        }
+      }
+    }
+  ],
+  "preparation": {
+    "observation": {
+      "startedAt": "2026-10-23T09:49:52.679356+00:00",
+      "exitCode": 0,
+      "observerWallMs": 12066.932418965735,
+      "childUserMs": 215.27899999999994,
+      "childSystemMs": 4443.561000000001,
+      "observerCpuMs": 64.8257280000002,
+      "sampleIntervalMs": 500.0,
+      "sampleCount": 25,
+      "competingWorkloads": [],
+      "cpuMax": "400000 100000",
+      "memoryMax": "6442450944",
+      "cgroupDelta": {
+        "cpu.stat": {
+          "usage_usec": 5333412,
+          "user_usec": 452528,
+          "system_usec": 4880883,
+          "nice_usec": 0,
+          "nr_periods": 121,
+          "nr_throttled": 0,
+          "throttled_usec": 0,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "memory.events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "memory.stat": {
+          "anon": 1527808,
+          "file": 176824320,
+          "kernel": 17002496,
+          "kernel_stack": -49152,
+          "pagetables": 0,
+          "sec_pagetables": 0,
+          "percpu": 0,
+          "sock": 0,
+          "vmalloc": 0,
+          "shmem": 0,
+          "file_mapped": 131072,
+          "file_dirty": 161521664,
+          "file_writeback": 0,
+          "swapcached": 0,
+          "anon_thp": 0,
+          "file_thp": 0,
+          "shmem_thp": 0,
+          "inactive_anon": 1634304,
+          "active_anon": -4096,
+          "inactive_file": 67940352,
+          "active_file": 108883968,
+          "unevictable": 0,
+          "slab_reclaimable": 17057536,
+          "slab_unreclaimable": 4160,
+          "slab": 17061696,
+          "workingset_refault_anon": 1,
+          "workingset_refault_file": 3915,
+          "workingset_activate_anon": 1,
+          "workingset_activate_file": 3413,
+          "workingset_restore_anon": 0,
+          "workingset_restore_file": 3100,
+          "workingset_nodereclaim": 0,
+          "pgdemote_kswapd": 0,
+          "pgdemote_direct": 0,
+          "pgdemote_khugepaged": 0,
+          "pgdemote_proactive": 0,
+          "pgscan": 0,
+          "pgsteal": 0,
+          "pswpin": 1,
+          "pswpout": 0,
+          "pgscan_kswapd": 0,
+          "pgscan_direct": 0,
+          "pgscan_khugepaged": 0,
+          "pgscan_proactive": 0,
+          "pgsteal_kswapd": 0,
+          "pgsteal_direct": 0,
+          "pgsteal_khugepaged": 0,
+          "pgsteal_proactive": 0,
+          "pgfault": 24334,
+          "pgmajfault": 1,
+          "pgrefill": 0,
+          "pgactivate": 20974,
+          "pgdeactivate": 0,
+          "pglazyfree": 0,
+          "pglazyfreed": 0,
+          "swpin_zero": 0,
+          "swpout_zero": 0,
+          "thp_fault_alloc": 0,
+          "thp_collapse_alloc": 0,
+          "thp_swpout": 0,
+          "thp_swpout_fallback": 0
+        },
+        "cpu.pressure": {
+          "some": 13745,
+          "full": 11409
+        },
+        "memory.pressure": {
+          "some": 153392,
+          "full": 153192
+        },
+        "io.pressure": {
+          "some": 174172,
+          "full": 173961
+        }
+      },
+      "memory": {
+        "startBytes": 4961337344,
+        "peakBytes": 5202178048,
+        "endBytes": 5156069376,
+        "peakComponentsBytes": {
+          "anon": 1377316864,
+          "file": 3146403840,
+          "shmem": 0,
+          "kernel": 673501184
+        }
+      }
+    },
+    "stages": [
+      {
+        "event": "stage-started",
+        "stage": "fixture",
+        "elapsedMs": 0.038
+      },
+      {
+        "event": "stage-finished",
+        "stage": "fixture",
+        "status": "completed",
+        "durationMs": 10.389
+      },
+      {
+        "event": "stage-started",
+        "stage": "install",
+        "elapsedMs": 10.438
+      },
+      {
+        "event": "install-result",
+        "elapsedMs": 11562.978,
+        "exitCode": 0,
+        "signalled": false,
+        "commandError": false,
+        "stdout": {
+          "bytes": 177,
+          "inspectionTruncated": false,
+          "resolvingDependencies": false,
+          "resolvedDownloadedExtractedCount": null,
+          "installedPackageCount": 146
+        },
+        "stderr": {
+          "bytes": 64,
+          "inspectionTruncated": false,
+          "resolvingDependencies": true,
+          "resolvedDownloadedExtractedCount": 120,
+          "installedPackageCount": null
+        }
+      },
+      {
+        "event": "stage-finished",
+        "stage": "install",
+        "status": "completed",
+        "durationMs": 11553.244
+      },
+      {
+        "event": "stage-started",
+        "stage": "types-fixture",
+        "elapsedMs": 11563.696
+      },
+      {
+        "event": "stage-finished",
+        "stage": "types-fixture",
+        "status": "completed",
+        "durationMs": 81.638
+      },
+      {
+        "event": "stage-started",
+        "stage": "entry-resolution",
+        "elapsedMs": 11645.367
+      },
+      {
+        "event": "stage-finished",
+        "stage": "entry-resolution",
+        "status": "completed",
+        "durationMs": 53.138
+      },
+      {
+        "event": "stage-started",
+        "stage": "identity",
+        "elapsedMs": 11698.569
+      },
+      {
+        "event": "stage-finished",
+        "stage": "identity",
+        "status": "completed",
+        "durationMs": 0.169
+      }
+    ]
+  },
+  "supportingProfile": {
+    "tests": 36,
+    "failures": 0,
+    "skipped": 0,
+    "bunTotalSeconds": 2.717920132,
+    "caseTotalSeconds": 2.114461,
+    "cases": [
+      {
+        "file": "scripts/package/artifact/manifest.test.ts",
+        "name": "release manifest bytes invalidate the candidate fingerprint",
+        "seconds": 0.507736
+      },
+      {
+        "file": "scripts/package/public-api-inventory.test.ts",
+        "name": "exposes approved authoring values and adjacent source JSDoc",
+        "seconds": 0.405984
+      },
+      {
+        "file": "scripts/package/artifact/compiler-cache.test.ts",
+        "name": "candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs",
+        "seconds": 0.33338
+      },
+      {
+        "file": "scripts/package/artifact/documentation-input.test.ts",
+        "name": "Gate acceptance rejects entirely missing documentation input instead of rebuilding expectations",
+        "seconds": 0.267407
+      },
+      {
+        "file": "scripts/package/compiler-toolchain.test.ts",
+        "name": "stable native compiler and compatibility API retain distinct installed entrypoints",
+        "seconds": 0.251221
+      },
+      {
+        "file": "scripts/package/candidate/acceptance-input.test.ts",
+        "name": "accepts an exact Gate candidate artifact input",
+        "seconds": 0.086803
+      },
+      {
+        "file": "scripts/package/candidate/candidate.test.ts",
+        "name": "rejects overlapping package build and cache roots",
+        "seconds": 0.058755
+      },
+      {
+        "file": "scripts/package/release/release.test.ts",
+        "name": "requires one exact clean Git worktree revision before formal preparation",
+        "seconds": 0.055548
+      },
+      {
+        "file": "scripts/package/artifact/esm-module-specifiers.test.ts",
+        "name": "rewrites relative module references without changing ordinary path strings",
+        "seconds": 0.028612
+      },
+      {
+        "file": "scripts/package/legal-materials.test.ts",
+        "name": "fails closed in the translated-analyzer audit phase order",
+        "seconds": 0.017319
+      },
+      {
+        "file": "scripts/package/candidate/dependency-license-audit.test.ts",
+        "name": "covers every package directory and fails closed on unsupported declarations and layouts",
+        "seconds": 0.015081
+      },
+      {
+        "file": "scripts/package/artifact/manifest.test.ts",
+        "name": "checked-in release manifest projects only version and rejects static-source or safety drift",
+        "seconds": 0.01251
+      },
+      {
+        "file": "scripts/package/artifact/esm-module-specifiers.test.ts",
+        "name": "rejects malformed emitted JavaScript before artifact normalization",
+        "seconds": 0.0104
+      },
+      {
+        "file": "scripts/package/legal-materials/source-mapping.test.ts",
+        "name": "source mapping sync leaves curated files untouched when validation rejects a mapping",
+        "seconds": 0.00936
+      },
+      {
+        "file": "scripts/package/legal-materials/source-mapping.test.ts",
+        "name": "source mapping sync derives only the package provenance pin after reviewing curated mappings",
+        "seconds": 0.00916
+      },
+      {
+        "file": "scripts/package/release/release.test.ts",
+        "name": "writes a portable sanitized receipt and rejects identity or artifact drift",
+        "seconds": 0.005495
+      },
+      {
+        "file": "scripts/package/legal-materials/source-mapping.test.ts",
+        "name": "source mapping sync restores a prior file when a later write fails",
+        "seconds": 0.00416
+      },
+      {
+        "file": "scripts/package/artifact/runtime-source-maps.test.ts",
+        "name": "normalizes and verifies one map against its packaged TypeScript source",
+        "seconds": 0.003834
+      },
+      {
+        "file": "scripts/package/artifact/acceptance-input.test.ts",
+        "name": "rejects incomplete or unrelated artifact staging material",
+        "seconds": 0.00362
+      },
+      {
+        "file": "scripts/package/candidate/external-consumer/input.test.ts",
+        "name": "external consumer provider input is closed and fail-closed",
+        "seconds": 0.003486
+      },
+      {
+        "file": "scripts/package/candidate/receipt.test.ts",
+        "name": "rejects malformed and stale receipts before artifact reuse",
+        "seconds": 0.003385
+      },
+      {
+        "file": "scripts/package/artifact/acceptance-input.test.ts",
+        "name": "accepts provider-owned artifact staging material",
+        "seconds": 0.002823
+      },
+      {
+        "file": "scripts/package/artifact/esm-module-specifiers.test.ts",
+        "name": "normalizes only the exact private Markdown Link Worker URL and rejects shape drift",
+        "seconds": 0.002781
+      },
+      {
+        "file": "scripts/package/release/command.test.ts",
+        "name": "formal release root commands require closed inputs and bind verification to one complete --all Gate receipt",
+        "seconds": 0.002579
+      },
+      {
+        "file": "scripts/package/dependency-version.test.ts",
+        "name": "package dependency versions satisfy only their declared requirement",
+        "seconds": 0.002472
+      },
+      {
+        "file": "scripts/package/artifact/documentation-input.test.ts",
+        "name": "invocation documentation preserves independent source expectations and binds candidate identity",
+        "seconds": 0.001671
+      },
+      {
+        "file": "scripts/package/candidate/candidate.test.ts",
+        "name": "rejects invalid private consumer manifests",
+        "seconds": 0.00161
+      },
+      {
+        "file": "scripts/package/artifact/manifest.test.ts",
+        "name": "release manifest reader does not leak the caller's repository root",
+        "seconds": 0.001521
+      },
+      {
+        "file": "scripts/package/artifact/documentation-input.test.ts",
+        "name": "invocation documentation distinguishes direct absence from invalid supplied input",
+        "seconds": 0.001167
+      },
+      {
+        "file": "scripts/package/candidate/acceptance-input.test.ts",
+        "name": "rejects incomplete or mismatched Gate candidate artifact input",
+        "seconds": 0.001147
+      },
+      {
+        "file": "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+        "name": "consumer preparation diagnostics retain safe facts without changing operation outcomes",
+        "seconds": 0.001124
+      },
+      {
+        "file": "scripts/package/candidate/external-consumer/preparation-diagnostics.test.ts",
+        "name": "consumer preparation diagnostics bound inspection and transcript without skipping work",
+        "seconds": 0.000906
+      },
+      {
+        "file": "scripts/package/command.test.ts",
+        "name": "package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance",
+        "seconds": 0.000764
+      },
+      {
+        "file": "scripts/package/release/release.test.ts",
+        "name": "accepts only explicit canonical prestable versions and conservative tags",
+        "seconds": 0.000424
+      },
+      {
+        "file": "scripts/package/release/release.test.ts",
+        "name": "isolates formal staging and receipt state from the default local candidate",
+        "seconds": 0.000131
+      },
+      {
+        "file": "scripts/package/candidate/candidate.test.ts",
+        "name": "keeps the explicit cold integration target outside routine discovery with hard timeout",
+        "seconds": 8.5e-05
+      }
+    ]
+  },
+  "registrationProbe": {
+    "meaning": "Runner/loading/registration/filter/exit; not acceptance",
+    "exitCode": 1,
+    "matched": 0,
+    "skipped": 36
+  },
+  "compilerDiagnostic": {
+    "plan": {
+      "command": [
+        "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+        "/workspace/vibe-check/node_modules/.pnpm/typescript@7.0.2/node_modules/typescript/bin/tsc",
+        "--project",
+        "tsconfig.json",
+        "--extendedDiagnostics"
+      ],
+      "runs": 1,
+      "automaticRetries": 0,
+      "purpose": "Compiler phase totals, not generic type tracing or acceptance replacement"
+    },
+    "observation": {
+      "startedAt": "2026-10-23T09:53:41.327732+00:00",
+      "exitCode": 0,
+      "observerWallMs": 5031.418931961525,
+      "childUserMs": 6348.976000000001,
+      "childSystemMs": 1010.235,
+      "observerCpuMs": 30.123212000000002,
+      "sampleIntervalMs": 500.0,
+      "sampleCount": 11,
+      "competingWorkloads": [],
+      "cpuMax": "400000 100000",
+      "memoryMax": "6442450944",
+      "cgroupDelta": {
+        "cpu.stat": {
+          "usage_usec": 7543092,
+          "user_usec": 6499328,
+          "system_usec": 1043763,
+          "nice_usec": 0,
+          "nr_periods": 50,
+          "nr_throttled": 1,
+          "throttled_usec": 7388,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "memory.events": {
+          "low": 0,
+          "high": 0,
+          "max": 0,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "memory.stat": {
+          "anon": 684032,
+          "file": 139264,
+          "kernel": -61440,
+          "kernel_stack": -49152,
+          "pagetables": -4096,
+          "sec_pagetables": 0,
+          "percpu": 0,
+          "sock": 0,
+          "vmalloc": 0,
+          "shmem": 0,
+          "file_mapped": 262144,
+          "file_dirty": 491520,
+          "file_writeback": 0,
+          "swapcached": 0,
+          "anon_thp": 0,
+          "file_thp": 0,
+          "shmem_thp": 0,
+          "inactive_anon": 835584,
+          "active_anon": 4096,
+          "inactive_file": -290816,
+          "active_file": 417792,
+          "unevictable": 0,
+          "slab_reclaimable": 21760,
+          "slab_unreclaimable": -14448,
+          "slab": 7312,
+          "workingset_refault_anon": 1,
+          "workingset_refault_file": 0,
+          "workingset_activate_anon": 0,
+          "workingset_activate_file": 0,
+          "workingset_restore_anon": 0,
+          "workingset_restore_file": 0,
+          "workingset_nodereclaim": 0,
+          "pgdemote_kswapd": 0,
+          "pgdemote_direct": 0,
+          "pgdemote_khugepaged": 0,
+          "pgdemote_proactive": 0,
+          "pgscan": 0,
+          "pgsteal": 0,
+          "pswpin": 1,
+          "pswpout": 0,
+          "pgscan_kswapd": 0,
+          "pgscan_direct": 0,
+          "pgscan_khugepaged": 0,
+          "pgscan_proactive": 0,
+          "pgsteal_kswapd": 0,
+          "pgsteal_direct": 0,
+          "pgsteal_khugepaged": 0,
+          "pgsteal_proactive": 0,
+          "pgfault": 229156,
+          "pgmajfault": 1,
+          "pgrefill": 0,
+          "pgactivate": 103,
+          "pgdeactivate": 0,
+          "pglazyfree": 0,
+          "pglazyfreed": 0,
+          "swpin_zero": 0,
+          "swpout_zero": 0,
+          "thp_fault_alloc": 0,
+          "thp_collapse_alloc": 0,
+          "thp_swpout": 0,
+          "thp_swpout_fallback": 0
+        },
+        "cpu.pressure": {
+          "some": 6573,
+          "full": 4903
+        },
+        "memory.pressure": {
+          "some": 0,
+          "full": 0
+        },
+        "io.pressure": {
+          "some": 118,
+          "full": 118
+        }
+      },
+      "memory": {
+        "startBytes": 5042929664,
+        "peakBytes": 5842739200,
+        "endBytes": 5042757632,
+        "peakComponentsBytes": {
+          "anon": 2066001920,
+          "file": 3098923008,
+          "shmem": 0,
+          "kernel": 672808960
+        }
+      }
+    },
+    "output": "Files:              418\nLines:           134214\nIdentifiers:     116601\nSymbols:        1385495\nTypes:           687237\nInstantiations: 2383201\nMemory used:    710184K\nMemory allocs:  5465854\nConfig time:     0.001s\nParse time:      0.055s\nBind time:       0.025s\nCheck time:      4.079s\nEmit time:       0.000s\nTotal time:      4.162s\n",
+    "timing": {
+      "wallMs": 4628.106618998572,
+      "exitCode": 0
+    }
+  },
+  "priorCompleteGate": {
+    "directory": "/workspace/vibe-check/.log/project-gate/2026-10-23T09-18-49.073Z-412657-d9ecd1af-674d-45a8-aac4-0e916a6f2ce3",
+    "context": {
+      "profile": "all",
+      "runtime": {
+        "architecture": "x64",
+        "bunVersion": "1.3.14",
+        "platform": "linux"
+      },
+      "budgets": {
+        "maxElapsedMs": 90000,
+        "maxMeanCheckMs": 2000,
+        "maxP95CheckMs": 5000
+      },
+      "timing": {
+        "adapterSetupMs": 1022.7395169999999,
+        "candidatePreparationMs": 318.201818,
+        "elapsedToInitialResultMs": 44884.597573,
+        "initialResultAtMs": 45223.409432,
+        "productRunMs": 43543.656238,
+        "startedAtMs": 338.811859
+      },
+      "measurements": {
+        "meanCheckMs": 2687.7949974883727,
+        "p95CheckMs": 9127.835136
+      },
+      "candidate": {
+        "version": "0.0.0-local.11aaf5e2c0fd",
+        "sha256": "eacc71a0a5ae7cc73ac06da7226c6c73d4b1ebc73920fc9888c48d82c316eb76",
+        "inputFingerprint": "11aaf5e2c0fdf53f59115f172e85fdbbc730ca92f3750747e9c12c9b476494cf",
+        "preparationAction": "reuse",
+        "preparationReason": "installation-current"
+      },
+      "declarativeFingerprint": "c99f56ee17761e1541bf513b3d20c733069fc8e6936c5b394f04dd8f7f613744",
+      "checkDurations": [
+        {
+          "checkId": "decision-records",
+          "durationMs": 1412.3005849999972
+        },
+        {
+          "checkId": "duplicate-detection",
+          "durationMs": 2322.1636540000036
+        },
+        {
+          "checkId": "file-metrics",
+          "durationMs": 293.133342000001
+        },
+        {
+          "checkId": "format-check",
+          "durationMs": 268.0971750000026
+        },
+        {
+          "checkId": "function-metrics",
+          "durationMs": 6790.296957999999
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "durationMs": 300.94289800000115
+        },
+        {
+          "checkId": "lint-product",
+          "durationMs": 9127.835136
+        },
+        {
+          "checkId": "lint-scripts",
+          "durationMs": 2841.584744
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "durationMs": 1531.2887339999943
+        },
+        {
+          "checkId": "markdown-lint",
+          "durationMs": 1717.3654190000016
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "durationMs": 219.2559939999992
+        },
+        {
+          "checkId": "materials-json-validator",
+          "durationMs": 1075.9632520000014
+        },
+        {
+          "checkId": "materials-links-validator",
+          "durationMs": 49.60436400000617
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "durationMs": 93.86056700000336
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "durationMs": 122.30877699999837
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "durationMs": 2180.8494470000005
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "durationMs": 6.103785000000016
+        },
+        {
+          "checkId": "test-evidence",
+          "durationMs": 2959.4125150000036
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "durationMs": 333.8881380000021
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "durationMs": 1859.9426590000003
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "durationMs": 2705.656056
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "durationMs": 3198.313264000004
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "durationMs": 15028.307271999998
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "durationMs": 10770.168193000001
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "durationMs": 3235.926238
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "durationMs": 1886.4293739999994
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "durationMs": 4108.162912
+        },
+        {
+          "checkId": "tests-product-json",
+          "durationMs": 692.0803769999984
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "durationMs": 7231.6037670000005
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "durationMs": 5452.825972999999
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "durationMs": 667.0033980000007
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "durationMs": 4130.144987
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "durationMs": 5528.541303
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "durationMs": 4597.756100000002
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "durationMs": 1083.1057779999974
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "durationMs": 1209.0850619999983
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "durationMs": 3032.6459890000006
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "durationMs": 828.5373729999992
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "durationMs": 1079.7659300000014
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "durationMs": 1499.8552770000024
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "durationMs": 975.598116000001
+        },
+        {
+          "checkId": "typecheck-product",
+          "durationMs": 464.3766770000002
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "durationMs": 663.0973329999979
+        }
+      ],
+      "logs": {
+        "directory": "/workspace/vibe-check/.log/project-gate/2026-10-23T09-18-49.073Z-412657-d9ecd1af-674d-45a8-aac4-0e916a6f2ce3",
+        "gate": "gate.log",
+        "progress": "progress.log",
+        "machine": "machine/run.json",
+        "commandCheck": "checks/<check-id>/process.log"
+      }
+    },
+    "observation": {
+      "startedAt": "2026-10-23T09:18:47.270938+00:00",
+      "exitCode": 1,
+      "observerWallMs": 45654.78306799196,
+      "childUserMs": 97213.227,
+      "childSystemMs": 49466.981,
+      "observerCpuMs": 370.6230700000006,
+      "sampleIntervalMs": 500.0,
+      "sampleCount": 91,
+      "competingWorkloads": [],
+      "cpuMax": "400000 100000",
+      "memoryMax": "6442450944",
+      "cgroupDelta": {
+        "cpu.stat": {
+          "usage_usec": 150566164,
+          "user_usec": 99432122,
+          "system_usec": 51134042,
+          "nice_usec": 0,
+          "nr_periods": 457,
+          "nr_throttled": 179,
+          "throttled_usec": 21909340,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "memory.events": {
+          "low": 0,
+          "high": 0,
+          "max": 5275,
+          "oom": 0,
+          "oom_kill": 0,
+          "oom_group_kill": 0
+        },
+        "memory.stat": {
+          "anon": -32378880,
+          "file": -480665600,
+          "kernel": -6615040,
+          "kernel_stack": 49152,
+          "pagetables": 303104,
+          "sec_pagetables": 0,
+          "percpu": 0,
+          "sock": 0,
+          "vmalloc": 0,
+          "shmem": 0,
+          "file_mapped": 7671808,
+          "file_dirty": 3706880,
+          "file_writeback": 0,
+          "swapcached": -512000,
+          "anon_thp": 0,
+          "file_thp": 0,
+          "shmem_thp": 0,
+          "inactive_anon": -39641088,
+          "active_anon": 6856704,
+          "inactive_file": 11862016,
+          "active_file": -492539904,
+          "unevictable": 0,
+          "slab_reclaimable": -7045512,
+          "slab_unreclaimable": 97992,
+          "slab": -6947520,
+          "workingset_refault_anon": 6,
+          "workingset_refault_file": 37818,
+          "workingset_activate_anon": 3,
+          "workingset_activate_file": 28661,
+          "workingset_restore_anon": 0,
+          "workingset_restore_file": 7623,
+          "workingset_nodereclaim": 0,
+          "pgdemote_kswapd": 0,
+          "pgdemote_direct": 0,
+          "pgdemote_khugepaged": 0,
+          "pgdemote_proactive": 0,
+          "pgscan": 227104,
+          "pgsteal": 189434,
+          "pswpin": 6,
+          "pswpout": 7651,
+          "pgscan_kswapd": 580,
+          "pgscan_direct": 226524,
+          "pgscan_khugepaged": 0,
+          "pgscan_proactive": 0,
+          "pgsteal_kswapd": 580,
+          "pgsteal_direct": 188854,
+          "pgsteal_khugepaged": 0,
+          "pgsteal_proactive": 0,
+          "pgfault": 4502153,
+          "pgmajfault": 83,
+          "pgrefill": 160493,
+          "pgactivate": 37095,
+          "pgdeactivate": 148343,
+          "pglazyfree": 0,
+          "pglazyfreed": 0,
+          "swpin_zero": 0,
+          "swpout_zero": 71,
+          "thp_fault_alloc": 0,
+          "thp_collapse_alloc": 0,
+          "thp_swpout": 0,
+          "thp_swpout_fallback": 0
+        },
+        "cpu.pressure": {
+          "some": 7997033,
+          "full": 3920328
+        },
+        "memory.pressure": {
+          "some": 570233,
+          "full": 545610
+        },
+        "io.pressure": {
+          "some": 229054,
+          "full": 196759
+        }
+      },
+      "memory": {
+        "startBytes": 5201293312,
+        "peakBytes": 6442450944,
+        "endBytes": 4678647808,
+        "peakComponentsBytes": {
+          "anon": 2419015680,
+          "file": 3333341184,
+          "shmem": 0,
+          "kernel": 685072384
+        }
+      }
+    }
+  },
+  "limits": [
+    "Two samples per primary condition, naturally evolving OS caches; no flush or explicit warmup",
+    "Parallel commands begin together; historical Gate staggered starts and ran other checks before/after",
+    "Process and cgroup observations do not allocate CPU-throttling or memory-reclaim time per check",
+    "Extended diagnostics is a separate reporting probe, not a speed comparison",
+    "No-match registration exit 1 is preserved; all four primary conditions passed without retries",
+    "No Gate rerun, timeout/threshold/test-selection/scheduling/code changes or cross-run cache added"
+  ]
+}

@@ -219,7 +219,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
           functionName: "createProjectGateEntries",
           metric: "function-code-density",
           path: "scripts/project/gate/definition.ts",
-          startLine: 208
+          startLine: 211
         },
         reason:
           "Gate 的完整顺序 manifest 是低分支的声明清单；按行数拆分会隐藏 Check 顺序和选择，其他函数指标仍阻断。"
@@ -265,14 +265,27 @@ export function createRepositoryQualityChecks(
   scanners: RepositoryQualityScannerCommands = repositoryQualityScannerCommands()
 ): RepositoryQualityChecks {
   return Object.freeze({
-    duplicateDetection: duplicateDetection(options.duplicateDetection),
+    duplicateDetection: duplicateDetection({
+      ...options.duplicateDetection,
+      displayName: "Repository scan: duplicate detection"
+    }),
     fileMetrics: fileMetrics({
       ...options.fileMetrics,
+      displayName: "Repository scan: file metrics",
       scanner: { executable: absoluteScannerCommand(scanners.scc, MISE_SCC_COMMAND_ENV) }
     }),
-    functionMetrics: functionMetrics(options.functionMetrics),
-    markdownLint: markdownLint(options.markdownLint),
-    markdownLinkValidation: markdownLinkValidation(options.markdownLinkValidation)
+    functionMetrics: functionMetrics({
+      ...options.functionMetrics,
+      displayName: "Repository scan: function metrics"
+    }),
+    markdownLint: markdownLint({
+      ...options.markdownLint,
+      displayName: "Repository scan: Markdown lint"
+    }),
+    markdownLinkValidation: markdownLinkValidation({
+      ...options.markdownLinkValidation,
+      displayName: "Repository scan: Markdown links"
+    })
   });
 }
 

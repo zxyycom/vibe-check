@@ -3,10 +3,11 @@ import { PROJECT_GATE_PRESETS, PROJECT_GATE_SELECTION, type ProjectGatePreset } 
 export const PROJECT_GATE_ALL_FLAG = "project-gate:all";
 export const PROJECT_GATE_FAST_FLAG = "project-gate:fast";
 export const PROJECT_GATE_CHANGED_FLAG = "project-gate:changed";
+export const PROJECT_GATE_RELEASE_FLAG = "project-gate:release";
 const PROJECT_GATE_PRESET_FLAG_PREFIX = "project-gate:preset=";
 
 export type ProjectGateSelection =
-  | Readonly<{ readonly kind: "all" }>
+  | Readonly<{ readonly kind: "all"; readonly release?: true }>
   | Readonly<{ readonly kind: "focused"; readonly presets: readonly ProjectGatePreset[] }>
   | Readonly<{ readonly kind: "fast" | "changed" }>;
 
@@ -56,21 +57,25 @@ export function projectGateHelp(): string {
     "Options:",
     "  --typecheck               Run product and script typechecks.",
     "  --lint                    Run product and script lint.",
-    "  --test                    Run routine tests without package acceptance.",
+    "  --test                    Run routine tests without package acceptance or workbench.",
+    "  --consumer-types          Diagnose installed package consumer types.",
+    "  --admission-workbench     Run admission workbench tests explicitly.",
     "  --materials               Run repository material validation.",
     "  --quality                 Run repository quality Checks.",
     "  --changed                 Run all affected Checks, including package acceptance.",
-    "  --all                     Run the complete Gate; cannot be combined with presets.",
+    "  --all                     Run complete routine acceptance, excluding explicit-only work.",
     "  --release-receipt <path>  Consume one closed formal receipt; requires --all.",
     "  -h, --help                Show this help without preparing or running a candidate.",
     "",
     "No selection option runs fast affected engineering checks and qualified quick tests.",
     "Focused presets can be combined and replace the default fast selection; only --all",
-    "is complete acceptance independent of changed-path evidence.",
+    "is complete routine acceptance independent of changed-path evidence.",
+    "Consumer types run only explicitly or with --all --release-receipt; workbench is explicit-only.",
     "",
     "Examples:",
     "  bun run check -- --typecheck --lint",
-    "  bun run check -- --test",
+    "  bun run check -- --consumer-types",
+    "  bun run check -- --admission-workbench",
     "  bun run check -- --materials --quality",
     "  bun run check -- --changed",
     "  bun run check -- --all",
@@ -86,9 +91,9 @@ export function projectGateSelectionSummary(selection: ProjectGateSelection): st
     case "changed":
       return "selection=changed; acceptance=affected; package-acceptance=affected";
     case "all":
-      return "selection=all; acceptance=complete; package-acceptance=selected";
+      return `selection=all; acceptance=${selection.release === true ? "release" : "routine-complete"}; package-acceptance=selected; consumer-types=${selection.release === true ? "selected" : "not-selected"}`;
     case "focused":
-      return `selection=focused; presets=${selection.presets.join(",")}; acceptance=partial; package-acceptance=not-selected`;
+      return `selection=focused; presets=${selection.presets.join(",")}; acceptance=partial; package-acceptance=${selection.presets.includes("consumer-types") ? "consumer-types-only" : "not-selected"}`;
   }
 }
 
@@ -100,7 +105,10 @@ export function selectionFlags(selection: ProjectGateSelection): readonly string
     case "changed":
       return Object.freeze([PROJECT_GATE_CHANGED_FLAG]);
     case "all":
-      return Object.freeze([PROJECT_GATE_ALL_FLAG]);
+      return Object.freeze([
+        PROJECT_GATE_ALL_FLAG,
+        ...(selection.release === true ? [PROJECT_GATE_RELEASE_FLAG] : [])
+      ]);
     case "focused":
       return Object.freeze(selection.presets.map(projectGatePresetFlag));
   }
@@ -116,6 +124,12 @@ export function selectionFromFlags(flags: readonly string[]): ProjectGateSelecti
 }
 
 function selectionForExclusiveFlag(flags: readonly string[]): ProjectGateSelection | undefined {
+  if (
+    flags.length === 2 &&
+    flags[0] === PROJECT_GATE_ALL_FLAG &&
+    flags[1] === PROJECT_GATE_RELEASE_FLAG
+  )
+    return Object.freeze({ kind: "all", release: true });
   if (flags.length !== 1) return undefined;
   if (flags[0] === PROJECT_GATE_FAST_FLAG) return Object.freeze({ kind: "fast" });
   if (flags[0] === PROJECT_GATE_CHANGED_FLAG) return Object.freeze({ kind: "changed" });

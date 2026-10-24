@@ -114,14 +114,8 @@ describe("functionMetrics analyzer execution", () => {
     let workerTerminated = 0;
     let workerUnsubscribed = 0;
     let workerListeners: Parameters<FunctionMetricsWorkerPort["subscribe"]>[0] | undefined;
-    let cancellation: ReturnType<typeof setTimeout> | undefined;
     try {
-      const nestedConditionals = `${"value ? ".repeat(6000)}0${" : 0".repeat(6000)}`;
-      writeFileSync(
-        join(root, "src", "a.ts"),
-        `export function adversarial(value: boolean) { return ${nestedConditionals}; }\n`,
-        "utf8"
-      );
+      writeFileSync(join(root, "src", "a.ts"), "export function input() { return 1; }\n", "utf8");
       const check = functionMetrics({
         findingWaivers: [
           {
@@ -142,11 +136,10 @@ describe("functionMetrics analyzer execution", () => {
             measurement: {
               createWorker: (): FunctionMetricsWorkerPort => {
                 workerStarted += 1;
-                cancellation = setTimeout(() => {
-                  controller.abort();
-                }, 0);
                 return {
-                  postMessage: () => undefined,
+                  postMessage: () => {
+                    controller.abort();
+                  },
                   subscribe: (listeners) => {
                     workerListeners = listeners;
                     return (): void => {
@@ -188,7 +181,6 @@ describe("functionMetrics analyzer execution", () => {
       assert.equal(workerUnsubscribed, 1);
       assert.deepEqual(observed.records, []);
     } finally {
-      if (cancellation !== undefined) clearTimeout(cancellation);
       rmSync(root, { recursive: true, force: true });
     }
   });
@@ -196,7 +188,7 @@ describe("functionMetrics analyzer execution", () => {
   it("fails an over-limit exact input before records or waiver audit", async () => {
     const root = createRoot("vibe-check-function-resource-limit-");
     try {
-      writeFileSync(join(root, "src", "over-limit.ts"), Buffer.alloc(8 * 1024 * 1024 + 1, 0x20));
+      writeFileSync(join(root, "src", "over-limit.ts"), Buffer.alloc(33, 0x20));
       const check = functionMetrics({
         codeAreas: {
           source: {
@@ -216,7 +208,22 @@ describe("functionMetrics analyzer execution", () => {
         ]
       });
 
-      const observed = await execute(executeFunctionMetrics, check.options, root);
+      let workers = 0;
+      const observed = await execute(
+        (options, context) =>
+          executeFunctionMetrics(options, context, {
+            measurement: {
+              sourceLimits: { maximumFileBytes: 32, maximumAggregateBytes: 64 },
+              createWorker: () => {
+                workers += 1;
+                throw new Error("over-limit input must not start");
+              }
+            }
+          }),
+        check.options,
+        root
+      );
+      assert.equal(workers, 0);
       assert.deepEqual(observed.result, {
         status: "unavailable",
         reason: { code: "resource-limit-exceeded" },

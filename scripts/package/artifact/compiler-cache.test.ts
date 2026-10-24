@@ -14,6 +14,7 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
   const tsBuildInfoPath = join(stateDirectory, "candidate.tsbuildinfo");
   const sourcePath = join(repositoryRoot, "src/index.ts");
   const compileHadBuildInfo: boolean[] = [];
+  let toolchainIdentity = "fixture-toolchain-v1";
   try {
     mkdirSync(join(repositoryRoot, "src"), { recursive: true });
     mkdirSync(join(repositoryRoot, "scripts/package"), { recursive: true });
@@ -43,6 +44,7 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
         repositoryRoot,
         stagingDirectory,
         tsBuildInfoPath,
+        toolchainFingerprint: () => toolchainIdentity,
         compile: ({ declarationDirectory, runtimeDirectory }) => {
           compileHadBuildInfo.push(existsSync(tsBuildInfoPath));
           mkdirSync(declarationDirectory, { recursive: true });
@@ -145,6 +147,15 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
     prepare();
     assert.equal(compileHadBuildInfo.length, 9);
     assert.equal(compileHadBuildInfo[8], false, "dependency patch bytes must force a cold emit");
+
+    toolchainIdentity = "fixture-toolchain-v2";
+    prepare();
+    assert.equal(compileHadBuildInfo.length, 10);
+    assert.equal(
+      compileHadBuildInfo[9],
+      false,
+      "toolchain identity changes must force a cold emit"
+    );
   } finally {
     rmSync(root, { force: true, recursive: true });
   }

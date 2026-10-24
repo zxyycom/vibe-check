@@ -20,6 +20,7 @@ test("accepts provider-owned artifact staging material", () => {
   try {
     assert.deepEqual(readGateArtifactAcceptanceInput(fixture.environment), {
       artifactPath: fixture.artifactPath,
+      sha256: sha256File(fixture.artifactPath),
       candidateVersion: "0.0.1",
       files: ["package/index.mjs"],
       stagingDirectory: fixture.stagingDirectory

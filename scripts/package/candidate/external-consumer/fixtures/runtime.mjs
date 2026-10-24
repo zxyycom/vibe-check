@@ -1,3 +1,4 @@
+import * as publicApi from "@zxyycom/vibe-check";
 import { defineContextCallback } from "@zxyycom/vibe-check";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -35,6 +36,8 @@ import {
   reconcileFindingWaivers,
   run
 } from "@zxyycom/vibe-check";
+
+assert.deepEqual(Object.keys(publicApi).sort(), "__VIBE_CHECK_EXPECTED_RUNTIME_EXPORTS__");
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
@@ -152,7 +155,10 @@ const installedFunctionMetrics = functionMetrics({
       files: { patterns: ["function-metrics.ts"] },
       limits: {
         cyclomaticComplexity: { maximum: 1 },
-        codeLines: {maximum: 3, lowComplexityAllowance: {cyclomaticComplexityBelow: 6, maximum: 3}}
+        codeLines: {
+          maximum: 3,
+          lowComplexityAllowance: { cyclomaticComplexityBelow: 6, maximum: 3 }
+        }
       }
     }
   }
@@ -214,46 +220,52 @@ const firstChangedFilesConsumer = defineCheck({
   checkId: "first-changed-files-consumer",
   displayName: "First changed-files consumer",
   observes: [failedChangedFiles.checkId],
-  execute: { contextNeeds: ["dependencies"], callback: (_options, { dependencies }) => {
-    const observation = dependencies
-      .list()
-      .find(({ checkId }) => checkId === failedChangedFiles.checkId);
-    if (observation === undefined || observation.outcome.status !== "failed") {
-      return { status: "unavailable", reason: { code: "changed-files-data-unavailable" } };
-    }
-    const parsedChangedFiles = failedChangedFiles.parseData(observation.outcome.data);
-    return {
-      status: "passed",
-      data: {
-        fileCount: parsedChangedFiles.files.length,
-        observedStatus: observation.outcome.status
+  execute: {
+    contextNeeds: ["dependencies"],
+    callback: (_options, { dependencies }) => {
+      const observation = dependencies
+        .list()
+        .find(({ checkId }) => checkId === failedChangedFiles.checkId);
+      if (observation === undefined || observation.outcome.status !== "failed") {
+        return { status: "unavailable", reason: { code: "changed-files-data-unavailable" } };
       }
-    };
-  } }
+      const parsedChangedFiles = failedChangedFiles.parseData(observation.outcome.data);
+      return {
+        status: "passed",
+        data: {
+          fileCount: parsedChangedFiles.files.length,
+          observedStatus: observation.outcome.status
+        }
+      };
+    }
+  }
 });
 
 const secondChangedFilesConsumer = defineCheck({
   checkId: "second-changed-files-consumer",
   displayName: "Second changed-files consumer",
   dependsOn: [changedFiles.checkId],
-  execute: { contextNeeds: ["dependencies"], callback: (_options, { dependencies }) => {
-    const read = dependencies.get(changedFiles);
-    if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
-    const parsedChangedFiles = changedFiles.parseData(read.data);
-    const firstFile = parsedChangedFiles.files[0];
-    const firstFileBytes = firstFile === undefined ? undefined : read.handoff.get(firstFile);
-    if (firstFileBytes === undefined) {
-      return { status: "unavailable", reason: { code: "changed-file-bytes-unavailable" } };
-    }
-    return {
-      status: read.status,
-      data: {
-        firstFile,
-        firstFileByteLength: firstFileBytes.byteLength,
-        handoffIdentity: read.handoff === changedFileBytes
+  execute: {
+    contextNeeds: ["dependencies"],
+    callback: (_options, { dependencies }) => {
+      const read = dependencies.get(changedFiles);
+      if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
+      const parsedChangedFiles = changedFiles.parseData(read.data);
+      const firstFile = parsedChangedFiles.files[0];
+      const firstFileBytes = firstFile === undefined ? undefined : read.handoff.get(firstFile);
+      if (firstFileBytes === undefined) {
+        return { status: "unavailable", reason: { code: "changed-file-bytes-unavailable" } };
       }
-    };
-  } }
+      return {
+        status: read.status,
+        data: {
+          firstFile,
+          firstFileByteLength: firstFileBytes.byteLength,
+          handoffIdentity: read.handoff === changedFileBytes
+        }
+      };
+    }
+  }
 });
 
 let blockedChangedFilesConsumerCalls = 0;
@@ -526,7 +538,9 @@ async function assertInstalledMarkdownLintWaivers() {
         rejectedInputCount: 0
       });
       const publishedRecords = readFileSync(join(root, "machine", "records.ndjson"), "utf8")
-        .trimEnd().split("\n").map((line) => JSON.parse(line));
+        .trimEnd()
+        .split("\n")
+        .map((line) => JSON.parse(line));
       // Compare JSON values, not the null prototypes/frozen descriptors of live canonical data.
       const records = JSON.parse(JSON.stringify(result.snapshot.records));
       assert.deepEqual(
@@ -551,21 +565,29 @@ async function assertInstalledMarkdownLintWaivers() {
       assert.ok(waived.messages.some(({ code }) => code === "finding-waived"));
       assert.ok(waived.messages.every(({ level }) => level !== "error"));
     }
-    const unused = await execute([{
-      identity: { ...identity, path: "other.md" },
-      reason: "Stale source identity."
-    }]);
+    const unused = await execute([
+      {
+        identity: { ...identity, path: "other.md" },
+        reason: "Stale source identity."
+      }
+    ]);
     assert.equal(unused.outcome.status, "failed");
     assert.deepEqual(
       unused.records.find(({ data }) => data.kind === "lint-finding")?.data,
       fresh.records[0].data
     );
-    assert.ok(unused.records.some(({ data }) =>
-      data.kind === "finding-waiver-audit" && data.status === "unused" && data.matchCount === 0
-    ));
+    assert.ok(
+      unused.records.some(
+        ({ data }) =>
+          data.kind === "finding-waiver-audit" && data.status === "unused" && data.matchCount === 0
+      )
+    );
     const removed = await execute([]);
     assert.equal(removed.outcome.status, "failed");
-    assert.deepEqual(removed.records.map(({ data }) => data), fresh.records.map(({ data }) => data));
+    assert.deepEqual(
+      removed.records.map(({ data }) => data),
+      fresh.records.map(({ data }) => data)
+    );
   } finally {
     await rm(root, { force: true, recursive: true });
   }
@@ -675,22 +697,25 @@ async function observeAdmissionSimulation(projectRoot) {
           kind: "custom",
           strategy: {
             kind: "simple",
-            decide: defineContextCallback("scheduler.decide", { contextNeeds: ["admissionState","candidates"], callback: (context) => {
-              if (!lookaheadSelected) {
-                const selected = context.admissionState.select(second.checkId);
-                if (!selected.accepted)
-                  throw new Error("installed callback lookahead was rejected");
-                lookaheadSelected = true;
-                const settled = selected.state.settle(second.checkId, "satisfied");
-                if (!settled.accepted)
-                  throw new Error("installed callback branch settlement was rejected");
-                lookaheadSettled = true;
+            decide: defineContextCallback("scheduler.decide", {
+              contextNeeds: ["admissionState", "candidates"],
+              callback: (context) => {
+                if (!lookaheadSelected) {
+                  const selected = context.admissionState.select(second.checkId);
+                  if (!selected.accepted)
+                    throw new Error("installed callback lookahead was rejected");
+                  lookaheadSelected = true;
+                  const settled = selected.state.settle(second.checkId, "satisfied");
+                  if (!settled.accepted)
+                    throw new Error("installed callback branch settlement was rejected");
+                  lookaheadSettled = true;
+                }
+                const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
+                return candidate === undefined
+                  ? { kind: "wait" }
+                  : { kind: "select", taskId: candidate.taskId };
               }
-              const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
-              return candidate === undefined
-                ? { kind: "wait" }
-                : { kind: "select", taskId: candidate.taskId };
-            } })
+            })
           }
         },
         maxParallel: 1
@@ -722,14 +747,19 @@ async function observeAdmissionSimulation(projectRoot) {
           kind: "custom",
           strategy: {
             kind: "simple",
-            decide: defineContextCallback("scheduler.decide", { contextNeeds: ["admissionState"], callback: (context) => {
-              hardGuardCallbackCount += 1;
-              if (!context.admissionState.validateSelection(guarded.checkId).accepted) {
-                throw new Error("installed hard-guard callback did not receive an admissible task");
+            decide: defineContextCallback("scheduler.decide", {
+              contextNeeds: ["admissionState"],
+              callback: (context) => {
+                hardGuardCallbackCount += 1;
+                if (!context.admissionState.validateSelection(guarded.checkId).accepted) {
+                  throw new Error(
+                    "installed hard-guard callback did not receive an admissible task"
+                  );
+                }
+                controller.abort();
+                return { kind: "select", taskId: guarded.checkId };
               }
-              controller.abort();
-              return { kind: "select", taskId: guarded.checkId };
-            } })
+            })
           }
         },
         maxParallel: 1

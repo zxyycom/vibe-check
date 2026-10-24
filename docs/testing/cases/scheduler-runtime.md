@@ -103,7 +103,7 @@ Entities:
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > uses caller-owned observations and contains local history write failure`
   Proves:
 
-- Caller-owned learned history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, applies the configured sample/series bounds, and persists digest-only closed state through same-directory atomic replacement.
+- Caller-owned learned history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, applies the configured sample/series bounds, and persists digest-only closed state through same-directory atomic replacement. The Run integration uses its existing private clock to persist exact 2/30 ms admitted durations and observes the next Run reverse admission order without wall-clock sleeps.
 - Missing, malformed, incompatible, and read-failed state forms an empty model; post-drain write failure and concurrent last-writer activity only reduce future samples. Caller-owned identity projections and optional observations do not expose Product options, flags, or a Product diagnostic channel. The tool/API owner, not this Case, defines static fallback when prediction cannot be formed.
 
 ## Case WB-RUNTIME-SCHEDULER-PREDICTION-001: Frozen duration predictions use a deterministic bounded prior

@@ -7,49 +7,128 @@ import { functionMetrics } from "./constructor.ts";
 import { createRoot, execute } from "./constructor.test-support.ts";
 import { executeFunctionMetrics } from "./execution.ts";
 import type { FunctionMetricsWorkerPort } from "./analyzer-worker-port.ts";
-import { measureFunctionMetrics, type FunctionMeasurementDependencies } from "./measurement.ts";
+import {
+  DEFAULT_FUNCTION_SOURCE_LIMITS,
+  measureFunctionMetrics,
+  type FunctionMeasurementDependencies
+} from "./measurement.ts";
 
-const MEBIBYTE = 1024 * 1024;
-const FILE_LIMIT = 8 * MEBIBYTE;
+const FILE_LIMIT = 32 * 1024 + 1;
 
 describe("functionMetrics resource admission", () => {
-  it("uses actual bytes for the 8 MiB per-file boundary and fails closed above it", async () => {
+  it("uses actual bytes across chunk boundaries and fails closed above the private file limit", async () => {
+    assert.deepEqual(DEFAULT_FUNCTION_SOURCE_LIMITS, {
+      maximumFileBytes: 8 * 1024 * 1024,
+      maximumAggregateBytes: 64 * 1024 * 1024
+    });
+    assert.equal(Object.isFrozen(DEFAULT_FUNCTION_SOURCE_LIMITS), true);
     const root = createRoot("vibe-check-function-file-cap-");
     try {
       const boundaryPath = "src/boundary.ts";
-      writeFileSync(join(root, boundaryPath), Buffer.alloc(FILE_LIMIT, 0x20));
-      const boundary = await measure(root, [boundaryPath]);
-      assert.deepEqual(boundary, { kind: "complete", metrics: [] });
+      const source = `${"é".repeat((FILE_LIMIT - 1) / 2)} `;
+      assert.equal(Buffer.byteLength(source), FILE_LIMIT);
+      writeFileSync(join(root, boundaryPath), source);
+      let posted = 0;
+      let yields = 0;
+      const sourceLimits = { maximumFileBytes: FILE_LIMIT, maximumAggregateBytes: FILE_LIMIT * 2 };
+      const createWorker = () =>
+        scriptedWorker({
+          postMessage: (listeners, request) => {
+            posted += 1;
+            assert.deepEqual(request, { files: [{ path: boundaryPath, source }] });
+            listeners.message({ kind: "complete", metrics: [] });
+          }
+        });
+      assert.deepEqual(
+        await measure(root, [boundaryPath], {
+          sourceLimits,
+          createWorker,
+          yieldAdmission: async () => {
+            yields += 1;
+          }
+        }),
+        { kind: "complete", metrics: [] }
+      );
+      assert.equal(yields, 2);
+      assert.equal(posted, 1);
 
-      const overLimitPath = "src/over-limit.ts";
-      writeFileSync(join(root, overLimitPath), Buffer.alloc(FILE_LIMIT + 1, 0x20));
-      assert.deepEqual(await measure(root, [overLimitPath]), { kind: "resource-limit-exceeded" });
+      writeFileSync(join(root, boundaryPath), `${source} `);
+      let workers = 0;
+      assert.deepEqual(
+        await measure(root, [boundaryPath], {
+          sourceLimits,
+          createWorker: () => {
+            workers += 1;
+            throw new Error("over-limit file must not start");
+          }
+        }),
+        { kind: "resource-limit-exceeded" }
+      );
+      assert.equal(workers, 0);
+
+      // Omitted policy still admits this input: the small test policy is not the production default.
+      assert.deepEqual(
+        await measure(root, [boundaryPath], {
+          createWorker: () =>
+            scriptedWorker({
+              postMessage: (listeners, request) => {
+                posted += 1;
+                assert.deepEqual(request, {
+                  files: [{ path: boundaryPath, source: `${source} ` }]
+                });
+                listeners.message({ kind: "complete", metrics: [] });
+              }
+            })
+        }),
+        { kind: "complete", metrics: [] }
+      );
+      assert.equal(posted, 2);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
   });
 
-  // oxfmt-ignore
-  it("fails the whole exact input when aggregate bytes exceed 64 MiB without sending a prefix", { timeout: 20_000 }, async () => {
+  it("fails the whole exact input above the private aggregate limit without sending a prefix", async () => {
     const root = createRoot("vibe-check-function-aggregate-cap-");
     try {
-      const paths = Array.from({ length: 9 }, (_, index) => `src/input-${index}.ts`);
-      for (const path of paths.slice(0, 8)) {
-        writeFileSync(join(root, path), Buffer.alloc(FILE_LIMIT, 0x20));
-      }
-      const aggregateCapPath = paths[8];
-      if (aggregateCapPath === undefined) throw new Error("expected aggregate cap fixture path");
-      writeFileSync(join(root, aggregateCapPath), " ");
-      assert.deepEqual(await measure(root, paths.slice(0, 8), {
-        createWorker: () => scriptedWorker({ postMessage: (listeners) => {
-          listeners.message({ kind: "complete", metrics: [] });
-        } })
-      }), { kind: "complete", metrics: [] });
+      const paths = ["src/first.ts", "src/second.ts", "src/extra.ts"];
+      for (const path of paths.slice(0, 2)) writeFileSync(join(root, path), "12345678");
+      writeFileSync(join(root, "src/extra.ts"), " ");
+      const sourceLimits = { maximumFileBytes: 8, maximumAggregateBytes: 16 };
+      let posted = 0;
+      assert.deepEqual(
+        await measure(root, paths.slice(0, 2), {
+          sourceLimits,
+          createWorker: () =>
+            scriptedWorker({
+              postMessage: (listeners, request) => {
+                posted += 1;
+                assert.deepEqual(request, {
+                  files: [
+                    { path: "src/first.ts", source: "12345678" },
+                    { path: "src/second.ts", source: "12345678" }
+                  ]
+                });
+                listeners.message({ kind: "complete", metrics: [] });
+              }
+            })
+        }),
+        { kind: "complete", metrics: [] }
+      );
+      assert.equal(posted, 1);
       let workers = 0;
-      assert.deepEqual(await measure(root, paths, {
-        createWorker: () => { workers += 1; throw new Error("over-limit batch must not start"); }
-      }), { kind: "resource-limit-exceeded" });
+      assert.deepEqual(
+        await measure(root, paths, {
+          sourceLimits,
+          createWorker: () => {
+            workers += 1;
+            throw new Error("over-limit batch must not start");
+          }
+        }),
+        { kind: "resource-limit-exceeded" }
+      );
       assert.equal(workers, 0);
+      assert.equal(posted, 1);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -226,7 +305,7 @@ describe("functionMetrics resource admission", () => {
     const root = createRoot("vibe-check-function-admission-cancel-");
     let workerStarted = false;
     try {
-      writeFileSync(join(root, "src", "input.ts"), Buffer.alloc(FILE_LIMIT, 0x20));
+      writeFileSync(join(root, "src", "input.ts"), "function input() { return 1; }\n");
       const check = functionMetrics({
         codeAreas: {
           source: {
@@ -246,41 +325,40 @@ describe("functionMetrics resource admission", () => {
         ]
       });
       const controller = new AbortController();
-      const cancellation = setTimeout(() => {
-        controller.abort();
-      }, 0);
-      try {
-        const observed = await execute(
-          (options, context) =>
-            executeFunctionMetrics(options, context, {
-              measurement: {
-                createWorker: () => {
-                  workerStarted = true;
-                  throw new Error("Worker must not start after admission cancellation.");
-                }
+      let yields = 0;
+      const observed = await execute(
+        (options, context) =>
+          executeFunctionMetrics(options, context, {
+            measurement: {
+              yieldAdmission: async () => {
+                yields += 1;
+                controller.abort();
+              },
+              createWorker: () => {
+                workerStarted = true;
+                throw new Error("Worker must not start after admission cancellation.");
               }
-            }),
-          check.options,
-          root,
-          controller.signal
-        );
-        assert.deepEqual(observed.result, {
-          status: "unavailable",
-          reason: { code: "cancelled" },
-          messages: [
-            {
-              code: "cancelled",
-              level: "error",
-              message:
-                "Function metrics was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
             }
-          ]
-        });
-        assert.equal(workerStarted, false);
-        assert.deepEqual(observed.records, []);
-      } finally {
-        clearTimeout(cancellation);
-      }
+          }),
+        check.options,
+        root,
+        controller.signal
+      );
+      assert.deepEqual(observed.result, {
+        status: "unavailable",
+        reason: { code: "cancelled" },
+        messages: [
+          {
+            code: "cancelled",
+            level: "error",
+            message:
+              "Function metrics was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+          }
+        ]
+      });
+      assert.equal(workerStarted, false);
+      assert.deepEqual(observed.records, []);
+      assert.equal(yields, 1);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -305,15 +383,15 @@ type WorkerListeners = Parameters<FunctionMetricsWorkerPort["subscribe"]>[0];
 
 function scriptedWorker(
   input: Readonly<{
-    readonly postMessage: (listeners: WorkerListeners) => void;
+    readonly postMessage: (listeners: WorkerListeners, request: unknown) => void;
     readonly terminate?: () => void;
   }>
 ): FunctionMetricsWorkerPort {
   let listeners: WorkerListeners | undefined;
   return {
-    postMessage: (): void => {
+    postMessage: (request): void => {
       if (listeners === undefined) throw new Error("scripted Worker has no listeners");
-      input.postMessage(listeners);
+      input.postMessage(listeners, request);
     },
     subscribe: (nextListeners): (() => void) => {
       listeners = nextListeners;

@@ -1,17 +1,11 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import * as ts from "typescript";
-
 import {
   isFixtureSourcePath,
   relativePath,
   resolvedRelativeModulePath
 } from "./import-boundaries.ts";
 import {
-  analyzeModuleSpecifiers,
   readModuleSpecifierAnalysis,
   appendModuleSpecifierDiagnostics,
-  hasValueImportBinding,
   type ModuleSpecifierAnalysis
 } from "./module-specifier-analysis.ts";
 
@@ -27,8 +21,6 @@ const FUNCTION_METRICS_REQUIRED_ADAPTER_CONSUMERS = Object.freeze([
 
 interface AnalyzerBoundaryInput {
   readonly repositoryPath: string;
-  readonly root: string;
-  readonly sourcePath: string;
   readonly violations: string[];
 }
 
@@ -48,19 +40,34 @@ export function validateFunctionMetricsAnalyzerBoundary(
   violations: string[],
   analysesBySourcePath = new Map<string, ModuleSpecifierAnalysis>()
 ): void {
-  validateAnalyzerBoundaryFiles(root, violations);
-  const portFacadeConsumers = new Set<string>();
+  const modules = new Map<string, ModuleSpecifierAnalysis>();
   for (const sourcePath of sourceFiles) {
     const repositoryPath = relativePath(root, sourcePath);
     if (isFixtureSourcePath(repositoryPath)) continue;
-    const analysis = readModuleSpecifierAnalysis({
-      sourcePath,
+    modules.set(
       repositoryPath,
-      analysesBySourcePath
-    });
+      readModuleSpecifierAnalysis({
+        sourcePath,
+        repositoryPath,
+        analysesBySourcePath
+      })
+    );
+  }
+  validateFunctionMetricsAnalyzerModules(modules, violations);
+}
+
+/** Applies the private port's cross-module dependency policy to the discovered source analyses. */
+export function validateFunctionMetricsAnalyzerModules(
+  modules: ReadonlyMap<string, ModuleSpecifierAnalysis>,
+  violations: string[]
+): void {
+  validateAnalyzerBoundaryFiles(modules, violations);
+  const portFacadeConsumers = new Set<string>();
+  for (const [repositoryPath, analysis] of modules) {
+    if (isFixtureSourcePath(repositoryPath)) continue;
     appendModuleSpecifierDiagnostics(violations, analysis);
-    const input: AnalyzerBoundaryInput = { repositoryPath, root, sourcePath, violations };
-    const resolvedSpecifiers = resolveModuleSpecifiers(root, sourcePath, analysis.moduleSpecifiers);
+    const input: AnalyzerBoundaryInput = { repositoryPath, violations };
+    const resolvedSpecifiers = resolveModuleSpecifiers(repositoryPath, analysis.moduleSpecifiers);
 
     if (isFunctionMetricsAnalyzerPath(repositoryPath)) {
       validateAnalyzerInternalImports(input, resolvedSpecifiers);
@@ -78,17 +85,20 @@ export function validateFunctionMetricsAnalyzerBoundary(
   }
 
   validatePortFacadeConsumers(portFacadeConsumers, violations);
-  validateRequiredFunctionMetricsAdapterImports(root, sourceFiles, violations);
-  validateFunctionMetricsPrivatePublicEntry(root, violations);
+  validateRequiredFunctionMetricsAdapterImports(modules, violations);
+  validateFunctionMetricsPrivatePublicEntry(modules, violations);
 }
 
-function validateAnalyzerBoundaryFiles(root: string, violations: string[]): void {
-  if (!existsSync(join(root, FUNCTION_METRICS_PORT_FACADE_PATH))) {
+function validateAnalyzerBoundaryFiles(
+  modules: ReadonlyMap<string, ModuleSpecifierAnalysis>,
+  violations: string[]
+): void {
+  if (!modules.has(FUNCTION_METRICS_PORT_FACADE_PATH)) {
     violations.push(
       `function-metrics-port-facade: ${FUNCTION_METRICS_PORT_FACADE_PATH} is missing`
     );
   }
-  if (!existsSync(join(root, FUNCTION_METRICS_ADAPTER_PATH))) {
+  if (!modules.has(FUNCTION_METRICS_ADAPTER_PATH)) {
     violations.push(
       `function-metrics-analyzer-adapter: ${FUNCTION_METRICS_ADAPTER_PATH} is missing`
     );
@@ -96,12 +106,11 @@ function validateAnalyzerBoundaryFiles(root: string, violations: string[]): void
 }
 
 function resolveModuleSpecifiers(
-  root: string,
-  sourcePath: string,
+  repositoryPath: string,
   specifiers: readonly string[]
 ): readonly ResolvedModuleSpecifier[] {
   return specifiers.flatMap((specifier) => {
-    const targetPath = resolvedRelativeModulePath(root, sourcePath, specifier);
+    const targetPath = resolvedRelativeModulePath(repositoryPath, specifier);
     return targetPath === undefined ? [] : [{ specifier, targetPath }];
   });
 }
@@ -186,20 +195,21 @@ function validatePortFacadeConsumers(portFacadeConsumers: Set<string>, violation
 }
 
 function validateRequiredFunctionMetricsAdapterImports(
-  root: string,
-  sourceFiles: readonly string[],
+  modules: ReadonlyMap<string, ModuleSpecifierAnalysis>,
   violations: string[]
 ): void {
-  const sourcePaths = new Map(
-    sourceFiles.map((sourcePath) => [relativePath(root, sourcePath), sourcePath])
-  );
   for (const consumerPath of FUNCTION_METRICS_REQUIRED_ADAPTER_CONSUMERS) {
-    const sourcePath = sourcePaths.get(consumerPath);
-    if (sourcePath === undefined) {
+    const analysis = modules.get(consumerPath);
+    if (analysis === undefined) {
       violations.push(`function-metrics-required-adapter-import: ${consumerPath} is missing`);
       continue;
     }
-    if (!hasFunctionMetricsAdapterValueImport(root, sourcePath)) {
+    if (
+      !analysis.valueImportSpecifiers.some(
+        (specifier) =>
+          resolvedRelativeModulePath(consumerPath, specifier) === FUNCTION_METRICS_ADAPTER_PATH
+      )
+    ) {
       violations.push(
         `function-metrics-required-adapter-import: ${consumerPath} must value-import ${FUNCTION_METRICS_ADAPTER_PATH}`
       );
@@ -207,37 +217,18 @@ function validateRequiredFunctionMetricsAdapterImports(
   }
 }
 
-/** Required consumers keep this predicate independent from parse-failed extraction views. */
-function hasFunctionMetricsAdapterValueImport(root: string, sourcePath: string): boolean {
-  const sourceFile = ts.createSourceFile(
-    sourcePath,
-    readFileSync(sourcePath, "utf8"),
-    ts.ScriptTarget.Latest,
-    false,
-    ts.ScriptKind.TS
-  );
-  return sourceFile.statements.some((statement) => {
-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
-      return false;
-    }
-    if (!hasValueImportBinding(statement.importClause)) return false;
-    return (
-      resolvedRelativeModulePath(root, sourcePath, statement.moduleSpecifier.text) ===
-      FUNCTION_METRICS_ADAPTER_PATH
-    );
-  });
-}
-
-function validateFunctionMetricsPrivatePublicEntry(root: string, violations: string[]): void {
-  const packageEntryPath = join(root, "src/index.ts");
-  if (!existsSync(packageEntryPath)) {
+function validateFunctionMetricsPrivatePublicEntry(
+  modules: ReadonlyMap<string, ModuleSpecifierAnalysis>,
+  violations: string[]
+): void {
+  const analysis = modules.get("src/index.ts");
+  if (analysis === undefined) {
     violations.push("function-metrics-private-public-entry: src/index.ts is missing");
     return;
   }
-  const analysis = analyzeModuleSpecifiers(readFileSync(packageEntryPath, "utf8"), "src/index.ts");
   appendModuleSpecifierDiagnostics(violations, analysis);
   for (const specifier of analysis.moduleSpecifiers) {
-    const targetPath = resolvedRelativeModulePath(root, packageEntryPath, specifier);
+    const targetPath = resolvedRelativeModulePath("src/index.ts", specifier);
     if (targetPath !== undefined && isFunctionMetricsPrivatePath(targetPath)) {
       violations.push(`function-metrics-private-public-entry: src/index.ts -> ${specifier}`);
     }

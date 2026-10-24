@@ -12,6 +12,7 @@ import {
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import type { PackageDocumentationInput } from "../../package/artifact/documentation-input.ts";
 import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
 import { workspaceFormatInvocation } from "../../development/format.ts";
 import { workspaceFormatTargets } from "../../development/format-targets.ts";
@@ -57,6 +58,7 @@ import { resolveProjectGateTestLanes } from "./checks/test-execution/lanes.ts";
 
 const repositoryMaterialsMutex = ["project-gate-repository-materials"] as const;
 const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
+const typeAwareLintMutex = ["project-gate-type-aware-lint"] as const;
 const packageAcceptanceTimeoutMs = 30_000;
 const projectGateCommandTimeoutMs = 30_000;
 const gateCommandOutputByteLimit = 1024 * 1024;
@@ -161,6 +163,7 @@ const projectGateTestChecks = createProjectGateTestCheckDefinitions({
 
 /** Runtime material bound to one Project Gate invocation. */
 export interface ProjectGateRuntime {
+  readonly documentationInput: PackageDocumentationInput;
   readonly externalConsumerLease: ExternalConsumerMaterialLease;
   readonly preparedCandidate: PreparedPackageCandidate;
 }
@@ -225,6 +228,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     }),
     {
       check: createLintProductCheck(),
+      mutex: typeAwareLintMutex,
       presets: ["lint"],
       fast: true,
       changeRegion: "product-source"
@@ -245,6 +249,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       invocation: lintInvocation("scripts", "json"),
       checkId: "lint-scripts",
       displayName: "TypeScript script lint",
+      mutex: typeAwareLintMutex,
       presets: ["lint"],
       fast: true,
       changeRegion: "script-source"
@@ -271,6 +276,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     },
     ...createProjectGateTestEntries({
       definitions: projectGateTestChecks,
+      documentationInput: runtime.documentationInput,
       externalConsumer,
       lanes: testLanes,
       preparedCandidate,

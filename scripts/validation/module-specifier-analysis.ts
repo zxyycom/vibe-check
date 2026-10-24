@@ -4,6 +4,8 @@ import * as ts from "typescript";
 
 export interface ModuleSpecifierAnalysis {
   readonly diagnostics: readonly string[];
+  /** Static bound value imports remain available when a later statement has a syntax error. */
+  readonly valueImportSpecifiers: readonly string[];
   readonly moduleSpecifiers: readonly string[];
   readonly valueModuleSpecifiers: readonly string[];
 }
@@ -35,31 +37,39 @@ export function analyzeModuleSpecifiers(
     ts.ScriptKind.TS
   );
   const diagnostics = syntaxDiagnostics(sourceFile, repositoryPath);
-  if (diagnostics.length > 0) return emptyAnalysis(diagnostics);
+  const valueImportSpecifiers = sourceFile.statements.flatMap((statement) =>
+    ts.isImportDeclaration(statement) &&
+    ts.isStringLiteral(statement.moduleSpecifier) &&
+    hasValueImportBinding(statement.importClause)
+      ? [statement.moduleSpecifier.text]
+      : []
+  );
+  if (diagnostics.length > 0) {
+    return { diagnostics, valueImportSpecifiers, moduleSpecifiers: [], valueModuleSpecifiers: [] };
+  }
 
   const moduleSpecifiers = new Set<string>();
   const valueModuleSpecifiers = new Set<string>();
   for (const statement of sourceFile.statements) {
-    if (ts.isImportDeclaration(statement)) {
-      addStaticModuleSpecifier(moduleSpecifiers, statement.moduleSpecifier);
-      if (statement.importClause === undefined || hasValueImportBinding(statement.importClause)) {
-        addStaticModuleSpecifier(valueModuleSpecifiers, statement.moduleSpecifier);
-      }
-      continue;
-    }
-    if (ts.isExportDeclaration(statement)) {
-      addStaticModuleSpecifier(moduleSpecifiers, statement.moduleSpecifier);
-      if (!statement.isTypeOnly) {
-        addStaticModuleSpecifier(valueModuleSpecifiers, statement.moduleSpecifier);
-      }
+    if (!ts.isImportDeclaration(statement) && !ts.isExportDeclaration(statement)) continue;
+    addStaticModuleSpecifier(moduleSpecifiers, statement.moduleSpecifier);
+    if (isValueModuleDeclaration(statement)) {
+      addStaticModuleSpecifier(valueModuleSpecifiers, statement.moduleSpecifier);
     }
   }
   collectDynamicImportSpecifiers(sourceFile, moduleSpecifiers, valueModuleSpecifiers);
   return {
     diagnostics,
+    valueImportSpecifiers,
     moduleSpecifiers: [...moduleSpecifiers],
     valueModuleSpecifiers: [...valueModuleSpecifiers]
   };
+}
+
+/** Imports and re-exports share edge extraction, but have distinct type-only syntax. */
+function isValueModuleDeclaration(statement: ts.ImportDeclaration | ts.ExportDeclaration): boolean {
+  if (ts.isExportDeclaration(statement)) return !statement.isTypeOnly;
+  return statement.importClause === undefined || hasValueImportBinding(statement.importClause);
 }
 
 /** Appends syntax diagnostics once while callers preserve their existing violation order. */
@@ -70,14 +80,6 @@ export function appendModuleSpecifierDiagnostics(
   for (const diagnostic of analysis.diagnostics) {
     if (!violations.includes(diagnostic)) violations.push(diagnostic);
   }
-}
-
-function emptyAnalysis(diagnostics: readonly string[]): ModuleSpecifierAnalysis {
-  return {
-    diagnostics,
-    moduleSpecifiers: [],
-    valueModuleSpecifiers: []
-  };
 }
 
 function syntaxDiagnostics(sourceFile: ts.SourceFile, repositoryPath: string): readonly string[] {
@@ -109,7 +111,7 @@ function syntaxDiagnostic(
   return `module-specifier-parse: ${repositoryPath}:${position.line + 1}:${position.character + 1}: syntax error${code}`;
 }
 
-export function hasValueImportBinding(importClause: ts.ImportClause | undefined): boolean {
+function hasValueImportBinding(importClause: ts.ImportClause | undefined): boolean {
   if (importClause === undefined || importClause.phaseModifier === ts.SyntaxKind.TypeKeyword) {
     return false;
   }

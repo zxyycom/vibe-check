@@ -9,12 +9,12 @@ import {
   writeFileSync
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { createArtifactFingerprint } from "./fingerprint.ts";
+import { collectArtifactFingerprintInputFiles, createArtifactFingerprint } from "./fingerprint.ts";
 import { copyArtifactFingerprintFixture } from "./fingerprint.test-support.ts";
 import {
   auditCandidateManifest,
@@ -128,26 +128,45 @@ test("release manifest bytes invalidate the candidate fingerprint", () => {
   const temporaryRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-fingerprint-"));
   const root = join(temporaryRoot, "repository");
   try {
-    copyArtifactFingerprintFixture({ repositoryRoot, fixtureRoot: root });
-    const before = createArtifactFingerprint(root);
-    assert.equal(before, createArtifactFingerprint(repositoryRoot));
+    const inputPaths = writeFingerprintRepository(root);
+    assert.deepEqual(
+      collectArtifactFingerprintInputFiles(root).map((path) => relative(root, path)),
+      [...inputPaths].sort()
+    );
+    const fingerprint = (directory: string) =>
+      createArtifactFingerprint(directory, () => "fixture-toolchain-v1");
+    const before = fingerprint(root);
+    assert.notEqual(
+      createArtifactFingerprint(root, () => "fixture-toolchain-v2"),
+      before
+    );
     const workerPath = join(root, "src/package-checks/markdown-link-validation/io-worker.ts");
     const workerSource = readFileSync(workerPath, "utf8");
     writeFileSync(workerPath, `${workerSource}\n// fingerprint boundary\n`);
-    assert.notEqual(createArtifactFingerprint(root), before);
+    assert.notEqual(fingerprint(root), before);
     writeFileSync(workerPath, workerSource);
-    assert.equal(createArtifactFingerprint(root), before);
+    assert.equal(fingerprint(root), before);
     const sourcePath = join(root, RELEASE_MANIFEST_SOURCE_PATH);
     writeFileSync(sourcePath, `${readFileSync(sourcePath, "utf8").trimEnd()}\n\n`, "utf8");
-    const manifestChanged = createArtifactFingerprint(root);
+    const manifestChanged = fingerprint(root);
     assert.notEqual(manifestChanged, before);
     const workspacePath = join(root, "pnpm-workspace.yaml");
     writeFileSync(workspacePath, `${readFileSync(workspacePath, "utf8")}\n`, "utf8");
-    const configurationChanged = createArtifactFingerprint(root);
+    const configurationChanged = fingerprint(root);
     assert.notEqual(configurationChanged, manifestChanged);
     const patchPath = join(root, "patches/execa@10.2.0.patch");
     writeFileSync(patchPath, `${readFileSync(patchPath, "utf8")}\n`, "utf8");
-    assert.notEqual(createArtifactFingerprint(root), configurationChanged);
+    assert.notEqual(fingerprint(root), configurationChanged);
+
+    // Every independently enumerated input class must contribute its bytes to the real hash.
+    for (const path of new Set(inputPaths)) {
+      const absolutePath = join(root, path);
+      const original = readFileSync(absolutePath);
+      const unchanged = fingerprint(root);
+      writeFileSync(absolutePath, Buffer.concat([original, Buffer.from("\n")]));
+      assert.notEqual(fingerprint(root), unchanged, `fingerprint must bind ${path}`);
+      writeFileSync(absolutePath, original);
+    }
 
     // A subsequent copy must rediscover new inputs, even under a normally ignored basename.
     const addedInput = "src/fingerprint-fixture/.cache/added.ts";
@@ -159,7 +178,7 @@ test("release manifest bytes invalidate the candidate fingerprint", () => {
     }
     const independent = join(temporaryRoot, "independent");
     copyArtifactFingerprintFixture({ repositoryRoot: root, fixtureRoot: independent });
-    assert.equal(createArtifactFingerprint(independent), createArtifactFingerprint(root));
+    assert.equal(fingerprint(independent), fingerprint(root));
     assert.equal(
       readFileSync(join(independent, addedInput), "utf8"),
       "export const added = true;\n"
@@ -172,6 +191,62 @@ test("release manifest bytes invalidate the candidate fingerprint", () => {
     rmSync(temporaryRoot, { force: true, recursive: true });
   }
 });
+
+/** Minimal repository inputs, independent of the collector under test. */
+function writeFingerprintRepository(root: string): readonly string[] {
+  const paths = [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "patches/execa@10.2.0.patch",
+    "scripts/repository-files/paths.ts",
+    "src/index.ts",
+    "src/package-checks/markdown-link-validation/io-worker.ts",
+    "scripts/docs/package-documents.ts",
+    "scripts/docs/package-api/example-projections.ts",
+    "scripts/docs/package-api/gate-guide-example-projections.ts",
+    "scripts/docs/package-api/markdown-example-fences.ts",
+    "scripts/docs/package-api/render.ts",
+    "scripts/docs/package-api/check-guides.ts",
+    "scripts/docs/package-markdown.ts",
+    "scripts/docs/machine-artifacts/package-materials.ts",
+    "docs/examples/package-api-support/gate-example-acceptance.ts",
+    "docs/examples/package-api/example.ts",
+    "docs/package-documents.json",
+    "README.md",
+    "docs/checks/fixture.md",
+    "docs/schema.json",
+    "scripts/package/candidate/install.ts",
+    RELEASE_MANIFEST_SOURCE_PATH,
+    "LICENSE",
+    "licenses/analyzer-translations-NOTICE.md",
+    "licenses/lizard-1.24.1-provenance.json",
+    "licenses/Lizard-1.24.1-MIT.txt",
+    "licenses/Lizard-1.24.1-lizard.py-Apache-2.0.txt",
+    "licenses/Pygments-2.18.0-BSD-2-Clause.txt"
+  ];
+  for (const path of paths) {
+    const absolutePath = join(root, path);
+    mkdirSync(dirname(absolutePath), { recursive: true });
+    writeFileSync(absolutePath, `fixture ${path}\n`);
+  }
+  writeFileSync(
+    join(root, "docs/package-documents.json"),
+    JSON.stringify({
+      markdownDocuments: [{ id: "readme", sourcePath: "README.md", packagePath: "README.md" }],
+      checkGuides: [
+        {
+          checkId: "fixture",
+          exportName: "fixtureCheck",
+          sourcePath: "docs/checks/fixture.md",
+          packagePath: "docs/checks/fixture.md"
+        }
+      ],
+      machineMaterials: [{ sourcePath: "docs/schema.json", packagePath: "docs/schema.json" }]
+    })
+  );
+  return paths;
+}
 
 test("release manifest reader does not leak the caller's repository root", () => {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-package-manifest-isolation-"));

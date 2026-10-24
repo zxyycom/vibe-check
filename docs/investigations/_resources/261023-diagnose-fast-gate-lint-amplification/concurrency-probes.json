@@ -1,0 +1,68 @@
+[
+  {
+    "label": "probe-threads-one",
+    "command": [
+      "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+      "x",
+      "--no-install",
+      "oxlint",
+      "--deny-warnings",
+      "--format=json",
+      "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
+      "src",
+      "--threads=1"
+    ],
+    "overrides": {
+      "GODEBUG": "schedtrace=1000"
+    },
+    "exitCode": 0,
+    "wallMs": 3727.9010849888436,
+    "stdout": {
+      "diagnostics": [],
+      "number_of_files": 687,
+      "number_of_rules": 127,
+      "threads_count": 1,
+      "start_time": 3.647932831
+    },
+    "schedulerTrace": [
+      "SCHED 0ms: gomaxprocs=4 idleprocs=2 threads=4 spinningthreads=1 needspinning=0 idlethreads=0 runqueue=0 [ 1 0 0 0 ] schedticks=[ 0 0 0 0 ]",
+      "SCHED 1010ms: gomaxprocs=4 idleprocs=0 threads=5 spinningthreads=0 needspinning=1 idlethreads=0 runqueue=1 [ 0 0 0 0 ] schedticks=[ 1584 2300 2378 1589 ]",
+      "SCHED 2011ms: gomaxprocs=4 idleprocs=2 threads=5 spinningthreads=1 needspinning=0 idlethreads=2 runqueue=1 [ 0 0 0 0 ] schedticks=[ 1641 2354 2428 1670 ]",
+      "SCHED 3015ms: gomaxprocs=4 idleprocs=0 threads=5 spinningthreads=0 needspinning=1 idlethreads=0 runqueue=0 [ 0 0 0 0 ] schedticks=[ 1649 2359 2462 1686 ]"
+    ]
+  },
+  {
+    "label": "probe-gomaxprocs-one",
+    "command": [
+      "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+      "x",
+      "--no-install",
+      "oxlint",
+      "--deny-warnings",
+      "--format=json",
+      "--ignore-pattern=src/package-checks/function-metrics/analyzer/fixtures/**",
+      "src"
+    ],
+    "overrides": {
+      "GODEBUG": "schedtrace=1000",
+      "GOMAXPROCS": "1"
+    },
+    "exitCode": 0,
+    "wallMs": 5724.587241013069,
+    "stdout": {
+      "diagnostics": [],
+      "number_of_files": 687,
+      "number_of_rules": 127,
+      "threads_count": 4,
+      "start_time": 5.665611878
+    },
+    "schedulerTrace": [
+      "SCHED 0ms: gomaxprocs=1 idleprocs=0 threads=3 spinningthreads=0 needspinning=1 idlethreads=0 runqueue=0 [ 2 ] schedticks=[ 2 ]",
+      "SCHED 1009ms: gomaxprocs=1 idleprocs=0 threads=3 spinningthreads=0 needspinning=1 idlethreads=1 runqueue=1 [ 0 ] schedticks=[ 6474 ]",
+      "SCHED 2012ms: gomaxprocs=1 idleprocs=0 threads=3 spinningthreads=0 needspinning=1 idlethreads=1 runqueue=0 [ 0 ] schedticks=[ 6564 ]",
+      "SCHED 3016ms: gomaxprocs=1 idleprocs=0 threads=3 spinningthreads=0 needspinning=1 idlethreads=1 runqueue=1 [ 1 ] schedticks=[ 6641 ]",
+      "SCHED 4018ms: gomaxprocs=1 idleprocs=0 threads=3 spinningthreads=0 needspinning=1 idlethreads=1 runqueue=0 [ 0 ] schedticks=[ 6729 ]",
+      "SCHED 5023ms: gomaxprocs=1 idleprocs=0 threads=3 spinningthreads=0 needspinning=1 idlethreads=1 runqueue=1 [ 1 ] schedticks=[ 6787 ]"
+    ]
+  }
+]

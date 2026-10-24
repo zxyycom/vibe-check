@@ -1,6 +1,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { RUNTIME_EXPORTS } from "../../package-contract.ts";
+
 const ISOLATED_JSON_SCHEMA_ID = "https://schemas.vibe-check.example/person";
 
 /** Writes tool-resolution and Run-evidence inputs contributed by runtime acceptance. */
@@ -50,7 +52,9 @@ function runFixture(): string {
     fileURLToPath(new URL("./fixtures/runtime.mjs", import.meta.url)),
     "utf8"
   );
-  return source.replaceAll("__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__", ISOLATED_JSON_SCHEMA_ID);
+  return source
+    .replaceAll("__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__", ISOLATED_JSON_SCHEMA_ID)
+    .replace('"__VIBE_CHECK_EXPECTED_RUNTIME_EXPORTS__"', JSON.stringify(RUNTIME_EXPORTS));
 }
 
 function commandCheckFixture(): string {

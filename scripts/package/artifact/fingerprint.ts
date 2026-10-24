@@ -38,10 +38,13 @@ const DOCUMENTATION_EXAMPLES_DIRECTORY = "docs/examples/package-api";
  * may alter the accepted tarball, receipt, install, or audit evidence. This conservative
  * invalidation avoids reusing a candidate after any package-lifecycle boundary changes.
  */
-export function createArtifactFingerprint(repositoryRoot: string): string {
+export function createArtifactFingerprint(
+  repositoryRoot: string,
+  toolchainFingerprint: () => string = typeScriptToolchainFingerprint
+): string {
   const hash = createHash("sha256");
   hash.update(`bun=${bunVersion()}\0`);
-  hash.update(`artifact-toolchain=${typeScriptToolchainFingerprint()}\0`);
+  hash.update(`artifact-toolchain=${toolchainFingerprint()}\0`);
   hash.update(`runtime-compiler-roots=${JSON.stringify(PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS)}\0`);
 
   for (const filePath of collectArtifactFingerprintInputFiles(repositoryRoot)) {
