@@ -1,6 +1,6 @@
 # Proposal
 
-按真实证明责任简化测试与 Gate 自动选择，并以实测交付；本文是本次实施计划。
+按真实证明责任简化测试与 Gate 自动选择；当前第七版补强测试质量并隔离材料漂移测试，本文保存本 Change 的实施范围与验收条件。
 
 ## Why
 
@@ -14,17 +14,20 @@
 
 ### Intended Change
 
-1. 将路径、配置、选择、聚合、加载语法及 Gate 性能规则矩阵放到已有直接入口；用代表性 Run、模块解析和安装验收证明接线。
-2. 保留真实 Git、文件身份与故障、scanner/cache、timer/I/O、compiler、制品字节和 installed Node/Worker 边界，减少未消费的 fixture 与重复准备。
-3. 用独立精确断言证明取消阶段、预取消零调用、MD052 位置、history 写入失败、prepared 异步收尾和工具链材料敏感性。
-4. 以私有限额和可控同步缩小测试输入；按职责命名 Gate Check，并区分 routine/release-only/explicit-only 选择。目录组织由人工审查负责，自动验证保留真实依赖边界。
-5. 复用既有生产入口，在现有测试内加固非法请求零 Worker 创建、完整 Check outcome 投影、结构化 Record 身份与真实 installed README 漂移的 assessment 接线。
+当前第七版在既有测试实体与生产入口内完成：
+
+1. 补强递归 critical-path、路径及换行指纹、Git clean-source 和 workbench 文件保护四处断言。
+2. 删除文档层重复指纹测试，由已有 manifest 与 compiler 测试分别证明材料敏感性和真实工具链资格。
+3. 将 machine drift 写入隔离到两份 schema、Definition 和 two-file output 的私有副本；字节负例使用直接 checker，Definition 到生成结果比较保留真实 public Run。
+4. 以 ai-ready-docs 审核这批文档，按完整编码规范复核全部变化代码模块及直接调用方，完成必要优化与版本保存。
+
+前六版已完成的降层、fixture 减重、断言加固与 Gate 选择分工继续作为本 Change 的基线；设计与形成时证据从 [tasks 的版本索引](tasks.md#证明范围与历史依据)恢复。
 
 ### Resulting Impacts
 
-同步 Case 的实体映射与实际 `Proves`、相关 owner 和 Gate 选择方向的长期记录。测试移动继承原 lane 与输入 region；唯一候选、installed docs/runtime、四项扫描、原预算及统计口径保持完整。
+本 Change 已同步降层后的 Case、相关 owner 和 Gate 选择方向的长期记录；测试移动继承原 lane 与输入 region。唯一候选、installed docs/runtime、四项扫描、原预算及统计口径继续保持完整。
 
-当前交付为第六版四处证明加固及提交前复核：用 ai-ready-docs 收敛六份文档，按完整编码规范检查四个变化代码模块及直接上下文，再保存 Git，允许既有 hook 推送。公开 API、生产默认值、Gate 资格和预算保持不变。性能及冷集成超时的扩大修复范围、Change 删除另行确认；实际证据和未完成项见 [tasks](tasks.md#当前验证与未完成项)。
+本轮同步 Case、内部材料 owner 与当前计划，完成独立代码/文档审查及受影响验证；公开 API、生成器默认行为、Gate 资格和预算保持不变。当前授权覆盖必要优化、Git 提交及既有 hook 推送；Change 删除、性能预算与冷集成的扩大修复须另行确认。实际证据和未完成项见 [tasks](tasks.md#当前验证与未完成项)。
 
 ## Success Criteria
 
@@ -34,7 +37,8 @@
 - Check 粒度与命名表达证明责任，性能按原预算及统计边界判断。
 - 独立代码/文档/测试证据审查与工程验证完成；前后同类 workload 实测，完整 Gate 功能与性能结果分别报告，失败现场保留且不自动重试取绿。
 - 文档能恢复当前 owner、执行路径和状态；代码复核以编码规范为依据，覆盖完整变化模块及直接调用方，不以邻近代码或临时用途豁免。
+- 第七版四处补强能识别已确认的弱断言反例；去重后保留材料敏感性和真实工具链资格的独立证据。漂移负例只改五份私有材料，字节校验执行零次 Run，Definition 健康基线及单因素变化各执行一次真实 Run；漂移验证链保持进程内执行。
 
 ## Affected Owners
 
-[Workspace](../../docs/tooling/workspace.md)、[Architecture](../../docs/development/architecture.md)、[Coding style](../../docs/development/coding-style.md)、[Package artifact](../../docs/tooling/package-artifact.md)、[Package lifecycle](../../docs/tooling/package-lifecycle.md)、[Project Gate](../../docs/tooling/project-gate.md)、[Package release](../../docs/tooling/package-release.md)、[Admission workbench](../../docs/tooling/admission-workbench.md)、[Scheduler](../../docs/development/scheduler.md)、[Testing](../../docs/testing/strategy.md)与相关 Case。
+[Workspace](../../docs/tooling/workspace.md)、[Architecture](../../docs/development/architecture.md)、[Coding style](../../docs/development/coding-style.md)、[Package artifact](../../docs/tooling/package-artifact.md)、[Package lifecycle](../../docs/tooling/package-lifecycle.md)、[Project Gate](../../docs/tooling/project-gate.md)、[Package release](../../docs/tooling/package-release.md)、[Admission workbench](../../docs/tooling/admission-workbench.md)、[Scheduler](../../docs/development/scheduler.md)、[Package tools](../../docs/development/package-tools.md)、[Project files](../../docs/development/project-files.md)、[Output maintenance](../../docs/development/output-maintenance.md)、[Testing](../../docs/testing/strategy.md)与相关 Case。

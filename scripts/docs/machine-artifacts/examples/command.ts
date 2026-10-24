@@ -16,12 +16,16 @@ export async function generatePublishedMachineExamples(): Promise<void> {
   publishMachineExampleFiles(await generatedFiles());
 }
 
-export async function checkPublishedMachineExamples(): Promise<void> {
-  checkPublishedMachineExampleFiles(await generatedFiles());
+export async function checkPublishedMachineExamples(
+  options: Readonly<{ materialRoot?: string }> = {}
+): Promise<void> {
+  checkPublishedMachineExampleFiles(await generatedFiles(options), options);
 }
 
-async function generatedFiles(): Promise<readonly GeneratedMachineExampleFile[]> {
-  const example = await buildCanonicalMachineExample();
+async function generatedFiles(
+  options: Readonly<{ materialRoot?: string }> = {}
+): Promise<readonly GeneratedMachineExampleFile[]> {
+  const example = await buildCanonicalMachineExample(options);
   const candidates = serializeMachinePublicationV4(example.publication);
   const validation = validateMachinePublicationSetV4({
     runJson: encoder.encode(candidates.runJson),

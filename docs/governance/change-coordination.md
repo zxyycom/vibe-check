@@ -27,7 +27,7 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| P1 | [`simplify-gate-test-boundaries`](../../changes/simplify-gate-test-boundaries/proposal.md) | 当前复核测试加固的文档与代码并保存 Git，允许既有 hook 推送；冷集成与性能未完成项见目标 tasks。package/Case/Gate 共享 owner 串行，扩大修复范围与 Change 删除另行确认。 |
+| P1 | [`simplify-gate-test-boundaries`](../../changes/simplify-gate-test-boundaries/proposal.md) | 复核第七版文档与全部变化代码，完成必要优化与 Git 整理，允许既有 hook 推送。冷集成与性能未完成项见目标 tasks；扩大修复范围与 Change 删除另行确认。package/Case/Gate 共享 owner 串行。 |
 | 交接 | [`consolidate-package-acceptance`](../../changes/consolidate-package-acceptance/proposal.md) | 包/API 验收收敛已提交到 main，预算未闭合状态保留在本 Change；后续 selection 与本轮追加复核由 simplify-gate-test-boundaries 承接，package/Gate/Case 共享 owner 串行。 |
 | P1 | [`tier-gate-validation`](../../changes/tier-gate-validation/proposal.md) | 承接测试质量清理与性能阻断方向；当前按授权完成提交前复核与版本保存，Gate/Case/决策 owner 串行。 |
 | 交接 | [`improve-test-evidence-quality`](../../changes/improve-test-evidence-quality/proposal.md) | 承接普查结论并向 Gate 分层交接保留的验收；实施和失败现场见本 Change，版本保存与后继串行。 |

@@ -50,12 +50,14 @@ export function generatePublishedMachineSchemas(): void {
   }
 }
 
-export function checkPublishedMachineSchemas(): void {
+export function checkPublishedMachineSchemas({
+  materialRoot = workspaceRoot
+}: Readonly<{ materialRoot?: string }> = {}): void {
   for (const publishedSchema of publishedSchemas) {
     const expected = serializeSchema(publishedSchema.schema);
     let actual: string;
     try {
-      actual = fs.readFileSync(resolvePublishedPath(publishedSchema.path), "utf8");
+      actual = fs.readFileSync(path.join(materialRoot, publishedSchema.path), "utf8");
     } catch (error: unknown) {
       if (!isMissingFile(error)) throw error;
       throw machineSchemaFailure("published-schema-missing", publishedSchema.path);

@@ -190,7 +190,7 @@ package tooling、Gate 本体与普通 tooling 三个 routine 脚本组依赖 Pr
 
 维护 region 时同时核对 import 和直接文件读取，并同步新增消费者。路径矩阵验证跨 owner 输入、正文/helper 区别及删除或重命名后的路径；完整 lane 清单验证每个测试文件触发自身。Git evidence 不可用时保守选择，显式 preset 提供强制路径。
 
-各 lane 按[选择参数](#选择参数)进入本次 Run。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package tooling；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
+各 lane 按[选择参数](#选择参数)进入本次 Run。两组材料测试与 schema/example validators 共享 repository-material mutex；machine drift 测试使用私有材料，隔离与证明分工见[输出维护](../development/output-maintenance.md#package-材料的维护与验证)。快速 candidate contract 属于 package tooling；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
 
 ### Direct repository-quality Checks
 

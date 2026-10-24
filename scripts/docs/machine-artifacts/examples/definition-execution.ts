@@ -37,8 +37,10 @@ const expectedCheckOutcomes = [
 type ExampleSnapshot = Awaited<ReturnType<typeof executeExampleDefinition>>;
 
 /** Executes the public example Definition through the complete public Run boundary. */
-export async function buildCanonicalMachineExample(): Promise<CanonicalMachineExample> {
-  const definition = loadExampleDefinition();
+export async function buildCanonicalMachineExample({
+  materialRoot = workspaceRoot
+}: Readonly<{ materialRoot?: string }> = {}): Promise<CanonicalMachineExample> {
+  const definition = loadExampleDefinition(materialRoot);
   assertExampleOutputConfiguration(definition);
   const snapshot = await executeExampleDefinition(definition);
   assertExampleFacts(snapshot);
@@ -49,8 +51,8 @@ export async function buildCanonicalMachineExample(): Promise<CanonicalMachineEx
   return Object.freeze({ model, publication: projectMachinePublicationV4(model) });
 }
 
-function loadExampleDefinition(): packageApi.ProjectDefinition {
-  const definitionPath = path.join(workspaceRoot, MACHINE_EXAMPLE_DEFINITION_PATH);
+function loadExampleDefinition(materialRoot: string): packageApi.ProjectDefinition {
+  const definitionPath = path.join(materialRoot, MACHINE_EXAMPLE_DEFINITION_PATH);
   const loaded: unknown = definitionLoader.evalModule(readFileSync(definitionPath, "utf8"), {
     filename: definitionPath
   });

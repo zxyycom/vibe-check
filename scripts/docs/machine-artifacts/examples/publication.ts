@@ -40,14 +40,15 @@ export function publishMachineExampleFiles(files: readonly GeneratedMachineExamp
 }
 
 export function checkPublishedMachineExampleFiles(
-  files: readonly GeneratedMachineExampleFile[]
+  files: readonly GeneratedMachineExampleFile[],
+  { materialRoot = workspaceRoot }: Readonly<{ materialRoot?: string }> = {}
 ): void {
-  checkCurrentExampleInventory();
+  checkCurrentExampleInventory(materialRoot);
   for (const file of files) {
     const expected = encoder.encode(file.contents);
     let actual: Buffer;
     try {
-      actual = fs.readFileSync(resolvePublishedPath(file.relativePath));
+      actual = fs.readFileSync(path.join(materialRoot, file.relativePath));
     } catch (error: unknown) {
       if (!isMissingFile(error)) throw error;
       throw machineExampleFailure("published-machine-example-missing", file.relativePath);
@@ -77,8 +78,8 @@ function cleanRetiredExampleDirectories(): void {
   }
 }
 
-function checkCurrentExampleInventory(): void {
-  const rootEntries = readPublishedDirectory(MACHINE_EXAMPLES_ROOT);
+function checkCurrentExampleInventory(materialRoot: string): void {
+  const rootEntries = readPublishedDirectory({ relativePath: MACHINE_EXAMPLES_ROOT, materialRoot });
   for (const entry of rootEntries) {
     if (!entry.isDirectory() || entry.name !== MACHINE_EXAMPLE_NAME) {
       throw inventoryDrift(`${MACHINE_EXAMPLES_ROOT}/${entry.name}`);
@@ -88,11 +89,11 @@ function checkCurrentExampleInventory(): void {
   if (example?.isDirectory() !== true) {
     throw machineExampleFailure("published-machine-example-missing", MACHINE_EXAMPLE_ROOT);
   }
-  checkExampleInventory(new Set<string>(MACHINE_EXAMPLE_FILES));
+  checkExampleInventory(new Set<string>(MACHINE_EXAMPLE_FILES), materialRoot);
 }
 
-function checkExampleInventory(expectedFiles: ReadonlySet<string>): void {
-  const entries = readPublishedDirectory(MACHINE_EXAMPLE_ROOT);
+function checkExampleInventory(expectedFiles: ReadonlySet<string>, materialRoot: string): void {
+  const entries = readPublishedDirectory({ relativePath: MACHINE_EXAMPLE_ROOT, materialRoot });
   for (const entry of entries) {
     if (!entry.isFile() || !expectedFiles.has(entry.name)) {
       throw inventoryDrift(`${MACHINE_EXAMPLE_ROOT}/${entry.name}`);
@@ -108,9 +109,12 @@ function checkExampleInventory(expectedFiles: ReadonlySet<string>): void {
   }
 }
 
-function readPublishedDirectory(relativePath: string): fs.Dirent[] {
+function readPublishedDirectory({
+  relativePath,
+  materialRoot
+}: Readonly<{ relativePath: string; materialRoot: string }>): fs.Dirent[] {
   try {
-    return fs.readdirSync(resolvePublishedPath(relativePath), {
+    return fs.readdirSync(path.join(materialRoot, relativePath), {
       withFileTypes: true
     });
   } catch (error: unknown) {

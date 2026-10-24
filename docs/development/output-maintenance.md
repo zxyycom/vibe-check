@@ -51,6 +51,14 @@ directories 与当前两份 generated outputs。
 field schema、ordering、ownership 和 fingerprint，再检查 schema/example generation drift。`src/machine-output/v4/**` tests
 另行确认 runtime schema source、projection 和 serializer；两条验证路径不把对方的 validator 当作 acceptance authority。
 
+漂移测试使用五份私有材料：两份 current schemas、Definition 与 two-file output。内部检查入口接受可选
+`materialRoot`，供 schema 读取、Definition 读取、生成结果比较及 inventory 检查共同使用；省略时读取脚本所在
+workspace 的正式材料。CLI 参数与 generation 写入入口保持原行为。
+
+字节漂移由进程内真实 schema/file checker 验证，执行零次 Run，并断言具体 failure kind 与材料路径。
+Definition 漂移则在健康基线与单因素变化后各执行一次 source public Run，再生成、比较结果。测试写入和清理范围
+均为私有副本；installed acceptance 由下述独立边界承接。
+
 Candidate fingerprint、staging allowlist、packed tar audit、installation audit 与 ancestry-external material acceptance 都使用同一
 JSON 文件映射；installed consumer typecheck 直接包含随包 Definition，documentation acceptance 还把它交给
 candidate `run`，核对 package-provided/custom outcomes、三条 RunResult messages、两条 Records 和已配置的 machine

@@ -1,9 +1,18 @@
 import { strict as assert } from "node:assert";
 import fs from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, it } from "node:test";
 
 import { checkPublishedMachineExamples } from "../../../docs/machine-artifacts/examples/command.ts";
-import { checkPublishedMachineSchemas } from "../../../docs/machine-artifacts/schemas.ts";
+import {
+  checkPublishedMachineExampleFiles,
+  MachineExamplePublicationFailure
+} from "../../../docs/machine-artifacts/examples/publication.ts";
+import {
+  checkPublishedMachineSchemas,
+  MachineSchemaPublicationFailure
+} from "../../../docs/machine-artifacts/schemas.ts";
 import { toDocumentationAbsolutePath } from "../repository-paths.ts";
 import { canonicalJsonText } from "./canonical.ts";
 import {
@@ -234,12 +243,15 @@ describe("independent repository material machine artifact validation", () => {
   });
 
   it("detects generated schema and example drift", async () => {
-    await proveDrift("docs/schemas/vibe-check-run.schema.json", checkPublishedMachineSchemas);
-    await proveDrift(
-      "docs/examples/artifacts/mixed-outcomes/run.json",
-      checkPublishedMachineExamples
-    );
-    await proveDefinitionDrift(checkPublishedMachineExamples);
+    const materialRoot = fs.mkdtempSync(path.join(tmpdir(), "vibe-check-machine-drift-"));
+    try {
+      copyMachineMaterials(materialRoot);
+      proveSchemaByteDrift(materialRoot);
+      proveExampleByteDrift(materialRoot);
+      await proveDefinitionDrift(materialRoot);
+    } finally {
+      fs.rmSync(materialRoot, { force: true, recursive: true });
+    }
   });
 });
 
@@ -336,26 +348,76 @@ function expectFailure(
   return result.diagnostic;
 }
 
-async function proveDrift(path: string, check: () => void | Promise<void>): Promise<void> {
-  const absolute = toDocumentationAbsolutePath(path);
-  const original = fs.readFileSync(absolute, "utf8");
-  fs.writeFileSync(absolute, `${original}\n`, "utf8");
-  try {
-    await assert.rejects(async () => check(), /drift/);
-  } finally {
-    fs.writeFileSync(absolute, original, "utf8");
+function copyMachineMaterials(materialRoot: string): void {
+  for (const relativePath of [
+    "docs/schemas/vibe-check-run.schema.json",
+    "docs/schemas/vibe-check-record.schema.json",
+    "docs/examples/artifacts/mixed-outcomes/definition.ts",
+    "docs/examples/artifacts/mixed-outcomes/run.json",
+    "docs/examples/artifacts/mixed-outcomes/records.ndjson"
+  ]) {
+    const destination = path.join(materialRoot, relativePath);
+    fs.mkdirSync(path.dirname(destination), { recursive: true });
+    fs.copyFileSync(toDocumentationAbsolutePath(relativePath), destination);
   }
 }
 
-async function proveDefinitionDrift(check: () => Promise<void>): Promise<void> {
-  const path = toDocumentationAbsolutePath("docs/examples/artifacts/mixed-outcomes/definition.ts");
-  const original = fs.readFileSync(path, "utf8");
+function proveSchemaByteDrift(materialRoot: string): void {
+  const relativePath = "docs/schemas/vibe-check-run.schema.json";
+  const schemaPath = path.join(materialRoot, relativePath);
+  const original = fs.readFileSync(schemaPath, "utf8");
+  checkPublishedMachineSchemas({ materialRoot });
+  fs.writeFileSync(schemaPath, `${original}\n`, "utf8");
+  assert.throws(
+    () => {
+      checkPublishedMachineSchemas({ materialRoot });
+    },
+    (error: unknown) =>
+      error instanceof MachineSchemaPublicationFailure &&
+      error.kind === "published-schema-drift" &&
+      error.path === relativePath
+  );
+  fs.writeFileSync(schemaPath, original, "utf8");
+}
+
+function proveExampleByteDrift(materialRoot: string): void {
+  const exampleRoot = "docs/examples/artifacts/mixed-outcomes";
+  const files = ["run.json", "records.ndjson"].map((name) => ({
+    relativePath: `${exampleRoot}/${name}`,
+    contents: fs.readFileSync(path.join(materialRoot, exampleRoot, name), "utf8")
+  }));
+  const relativePath = `${exampleRoot}/run.json`;
+  const runPath = path.join(materialRoot, relativePath);
+  const original = fs.readFileSync(runPath, "utf8");
+  checkPublishedMachineExampleFiles(files, { materialRoot });
+  fs.writeFileSync(runPath, `${original}\n`, "utf8");
+  assert.throws(
+    () => {
+      checkPublishedMachineExampleFiles(files, { materialRoot });
+    },
+    (error: unknown) =>
+      error instanceof MachineExamplePublicationFailure &&
+      error.kind === "published-machine-example-drift" &&
+      error.path === relativePath
+  );
+  fs.writeFileSync(runPath, original, "utf8");
+}
+
+async function proveDefinitionDrift(materialRoot: string): Promise<void> {
+  const definitionPath = path.join(
+    materialRoot,
+    "docs/examples/artifacts/mixed-outcomes/definition.ts"
+  );
+  await checkPublishedMachineExamples({ materialRoot });
+  const original = fs.readFileSync(definitionPath, "utf8");
   const changed = original.replace("minimumFileCount: 2", "minimumFileCount: 3");
   assert.notEqual(changed, original);
-  fs.writeFileSync(path, changed, "utf8");
-  try {
-    await assert.rejects(check, /drift/);
-  } finally {
-    fs.writeFileSync(path, original, "utf8");
-  }
+  fs.writeFileSync(definitionPath, changed, "utf8");
+  await assert.rejects(
+    () => checkPublishedMachineExamples({ materialRoot }),
+    (error: unknown) =>
+      error instanceof MachineExamplePublicationFailure &&
+      error.kind === "published-machine-example-drift" &&
+      error.path === "docs/examples/artifacts/mixed-outcomes/run.json"
+  );
 }
