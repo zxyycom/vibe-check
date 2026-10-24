@@ -3131,6 +3131,20 @@
         "timing"
       ],
       "title": "交付验收中 duplicate-detection lane 的超时与隔离复核"
+    },
+    "261024-record-worker-host-test-delivery-timeout": {
+      "formedAt": "2026-10-24T14:19:57Z",
+      "name": "record-worker-host-test-delivery-timeout",
+      "question": "五次真实 Node/Worker 宿主组合测试的超时证明什么，怎样缩小重复执行而保留必要边界？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "record-worker-host-test-delivery-timeout.md",
+      "tags": [
+        "markdown-link-validation",
+        "test-execution",
+        "timing"
+      ],
+      "title": "完整 Gate 中的 Node Worker 宿主测试超时与边界收窄"
     }
   },
   "metadata": {},
@@ -3260,7 +3274,8 @@
       "261024-diagnose-bun-strict-assertion-compatibility": "sha256:065d055c171c5c5aeedbea33f5b4ff8a0db64f375470359836ca656d2be9183f",
       "261024-measure-gate-test-boundary-simplification": "sha256:6499c5bf6519d048a4a890092e1721033d892b4f4cb547594d7014578cf6470e",
       "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf",
-      "261024-record-delivery-duplicate-lane-timeout": "sha256:949893b102590be8b31d07dc584b91fa88489463b05c6c1654450bbdad92d5f3"
+      "261024-record-delivery-duplicate-lane-timeout": "sha256:949893b102590be8b31d07dc584b91fa88489463b05c6c1654450bbdad92d5f3",
+      "261024-record-worker-host-test-delivery-timeout": "sha256:a58b023011a180a8a218b397559c07b82191759a502e634f2c12a62df90539a9"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

@@ -157,3 +157,6 @@ fresh parse 成功后将 facts 放入 dirty Map；terminal boundary 调用幂等
 ## 验证
 
 修改 parser/probe/cache 或 I/O 会话时运行相邻单元与 Check integration tests，分别核对 immutable occurrence/range、两种驱动的 no-follow/containment/真实 EOF、当前 bytes 校验、恢复/终态写入、取消与 drain/exit。Worker 的实际包内加载还须通过[installed consumer 验收](../tooling/package-artifact.md#pack-前后验收)。cache 命中不能跳过授权或改变 Findings/settlement；共享收集测试不能代替这些 resolver 证据。
+
+Worker 宿主参数的四种 input-type 拼写由纯函数矩阵验证；真实 Node 验收用无 input-type 的默认继承与 alias split
+过滤两个代表，分别观察真实 Worker 读取、preload 和退出。参数拼写覆盖与物理宿主接线由这两层共同证明。

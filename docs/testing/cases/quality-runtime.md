@@ -476,11 +476,11 @@ Owner: `docs/checks/markdown-link-validation.md#工作原理`
 Entities:
 
 - `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > prechecks the entire logical-node batch before extra target reads and honors staged failure order`
-- `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > completes more than the old target maximum with disabled or explicit larger totals`
+- `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > charges every reference independently across disabled, exact and exceeded budgets`
 - `bun|src/package-checks/markdown-link-validation/graph-behavior.test.ts|Markdown reference graph > yields edge batches to timer and I/O cancellation without publishing normal Records`
   Proves:
 - 全部源错误先于目标内容错误；节点全部逻辑边的预算超限先于额外内容读取和解码，不能先读首条边再逐边耗尽。不可用不发布部分普通 Records。
-- 10,001 条计费引用在 false 和显式更大正整数预算下完整成功，计数不因节点命中缩小；显式有限 10,000 预算仍阻断。
+- 同一目标的三条引用在关闭预算和恰好等于计数的预算下完整成功，occurrence 与 target-read 计数不因节点命中缩小；任一预算设为二且关闭另一项时独立超限，不发布普通 Records 或 final data。
 - 边批次向真实事件循环让步，可观察 timer 与 I/O 触发的取消；取消结算无普通 Records 或 final data，不解释为 clean validation。
 
 ## Case AUX-MARKDOWN-LINK-IO-LIFECYCLE-001: Markdown Link 私有 I/O 在发布前完成收束
@@ -497,7 +497,7 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/execution-lifecycle.test.ts|Markdown Link terminal I/O lifecycle > awaits Worker exit and prioritizes cancellation, original failure and close failure before publication`
   Proves:
 - source adapter 只发送一个包含 byte bound 的融合请求，不再追加独立 containment/read job；contained bytes 恰一次交给 parser，缺失、越界与 I/O 失败不解析，too-large 保持 source-too-large 映射。父端拒绝 malformed source union、超长或非 Uint8Array 正文，以及 contained/missing 响应中的 root 外 path，不放行额外工作。
-- 文件 Worker 仅剔除父进程 string-input-only 的 `--input-type` / `--input_type` split/等号形式，其余参数原样保留；无此 flag 时沿用默认继承。真实 Node 24.18 验证四种形式及普通 V8 flag 路径均可读取、执行 Worker preload 并正常收束；这不是任意 Node flags 组合的兼容性证明。
+- 纯函数矩阵验证文件 Worker 仅剔除父进程 string-input-only 的 `--input-type` / `--input_type` split/等号形式，其余参数原样保留，无此 flag 时沿用默认继承。真实 Node 24.18 以普通 V8 flag 和 `--input_type module` 分别证明默认继承与过滤路径均可读取、执行 Worker preload 并正常收束；兼容性证据限于这两个宿主代表。
 - 空输入、提前取消和非法 source byte bound 均不启动 Worker；正常 finalize 幂等，停止新请求并等待在途 job、关闭确认和退出后移除订阅，不 terminate 活跃工作。
 - 创建、发送、关闭发送、请求身份/响应形状、超长 bytes、error、意外 exit、重复响应和重入请求故障恰一次结算 pending，随后拒绝新工作，不静默切换后端。
 - 两个真实 resolver 的取消互相隔离。融合 source job 在真实 Worker 的 lstat、readlink、open、fstat、read、close 受控 native 返回边界被原子取消时，pending 与 finalize 均等待操作返回；probe 阶段不启动正文 open，已打开 descriptor 恰一次 close，取消阻止后续 read，Worker 退出与监听器移除后才完成 finalize。

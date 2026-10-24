@@ -185,56 +185,45 @@ describe("Markdown reference graph", () => {
     });
   });
 
-  // Bun 1.3 JUnit reports the name line; keep it on the declaration line for Case identity.
+  // Keep the test name on its declaration line so static and JUnit Case locations agree.
   // oxfmt-ignore
-  it("completes more than the old target maximum with disabled or explicit larger totals", { timeout: 20_000 }, async () => {
+  it("charges every reference independently across disabled, exact and exceeded budgets", async () => {
     await withFixture(async ({ root }) => {
-      // Keep the fixture focused on logical target charging across 10,001 references.
-      await writeFixtureFile(root, "source.md", "[x](attachment) ".repeat(10_001));
+      await writeFixtureFile(root, "source.md", "[x](attachment) [x](attachment) [x](attachment)");
       await writeFixtureFile(root, "attachment", "present");
-      // Share parser facts across budget trials; each trial reads current bytes
-      // and independently resolves and charges every logical edge.
-      const budgetOptions = {
-        ...MARKDOWN_LINK_OPTIONS,
-        cache: { enabled: true as const, directory: path.join(root, "parse-cache") }
-      };
-      for (const limits of [
-        { maxOccurrences: false as const, maxTargetReads: false as const },
-        { maxOccurrences: 100_001, maxTargetReads: 10_001 }
-      ]) {
+      for (const { maxOccurrences, maxTargetReads, reason } of [
+        { maxOccurrences: false, maxTargetReads: false, reason: null },
+        { maxOccurrences: 3, maxTargetReads: 3, reason: null },
+        { maxOccurrences: 2, maxTargetReads: false, reason: "occurrence-limit-exceeded" },
+        { maxOccurrences: false, maxTargetReads: 2, reason: "target-read-limit-exceeded" }
+      ] as const) {
         const checked = await execute(
           executeMarkdownLinkValidation,
-          { ...budgetOptions, limits: { ...budgetOptions.limits, ...limits } },
+          {
+            ...MARKDOWN_LINK_OPTIONS,
+            limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxOccurrences, maxTargetReads }
+          },
           root,
           SOURCE_ONLY
         );
+        assert.deepEqual(checked.records, []);
+        if (reason !== null) {
+          assert.equal(checked.result.status, "unavailable");
+          assert.ok("reason" in checked.result);
+          assert.deepEqual(checked.result.reason, { code: reason });
+          assert.equal("data" in checked.result, false);
+          continue;
+        }
         assert.equal(checked.result.status, "passed");
         assert.ok("data" in checked.result);
         assert.deepEqual(checked.result.data, {
           sourceFileCount: 1,
-          occurrenceCount: 10_001,
-          targetReadCount: 10_001,
+          occurrenceCount: 3,
+          targetReadCount: 3,
           findingCount: 0,
           rejectedInputCount: 0
         });
-        assert.deepEqual(checked.records, []);
       }
-      const limited = await execute(
-        executeMarkdownLinkValidation,
-        {
-          ...budgetOptions,
-          limits: {
-            ...MARKDOWN_LINK_OPTIONS.limits,
-            maxOccurrences: false,
-            maxTargetReads: 10_000
-          }
-        },
-        root,
-        SOURCE_ONLY
-      );
-      assert.ok("reason" in limited.result);
-      assert.deepEqual(limited.result.reason, { code: "target-read-limit-exceeded" });
-      assert.deepEqual(limited.records, []);
     });
   });
 

@@ -8,13 +8,8 @@ import type { LinkIoRequest, LinkIoResponse } from "./io-protocol.ts";
 /** Exercise Node's actual flag inheritance and preload execution in a real file-backed Worker. */
 export function assertNodeStringInputWorker(root: string): void {
   const nodeCommand = process.env.VIBE_CHECK_NODE_CMD ?? "node";
-  const inputFlags = [
-    ["--max-old-space-size=1024"],
-    ["--input-type=module"],
-    ["--input-type", "module"],
-    ["--input_type=module"],
-    ["--input_type", "module"]
-  ];
+  // The pure execArgv assertions cover every spelling; real Workers cover the two inheritance branches.
+  const inputFlags = [["--max-old-space-size=1024"], ["--input_type", "module"]];
   for (const [index, flags] of inputFlags.entries()) {
     const marker = path.join(root, `preloaded-${index}`);
     const preload = `
