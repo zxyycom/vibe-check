@@ -231,7 +231,7 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 
 首次检出、工具 pin 变更或环境缺失时运行 `bun run env:setup`。成功返回表示 checkout 已按以下顺序完成标准自举：
 
-1. trust 当前 `mise.toml`，按锁定结果安装工具和根 Node dependencies，再按五项上游 Skill 各自的 manifest/锁文件安装隔离的生产依赖，禁用依赖安装脚本；
+1. trust 当前 `mise.toml`，按锁定结果安装工具和根 Node dependencies，再按环境脚本列出的五项上游 Skill 各自的 manifest/锁文件安装隔离的生产依赖，禁用依赖安装脚本；
 2. 初始化并同步当前 checkout 的 CodeGraph；
 3. 通过现有根命令 `bun run package:build` 准备 exact local package candidate。
 
@@ -255,7 +255,11 @@ Product Check 的 scanner command、availability command 和 unavailable behavio
 
 `scripts/decision-records/command.ts` 把 repository root 绑定到已安装 capability，并转发其 CLI 或暴露同一 typed operation；`scripts/investigation-report/command.ts` 保留项目默认全量检查并转发已安装 CLI；`change-plan` root command 直接调用其 skill CLI。它们不复制 parser、metadata、index 或 lifecycle 语义。
 
-`change-plan`、`common-denominator-design`、`decision-records`、`investigation-report` 与 `product-architecture-judgment` 以完整上游包维护；`performance-optimization` 与 `test-evidence-review` 保留本地方法层。上游包使用 `.ts` 入口与随包 runtime source；项目 adapter 核对所需函数导出，按随包公开声明消费，不把上游实现纳入仓库的严格 source compiler profile。运行依赖由各包 manifest/锁文件拥有，`env:setup` 显式准备；普通 import、help、检查或自更新不隐式安装。
+`change-plan`、`common-denominator-design`、`decision-records`、`investigation-report`、`product-architecture-judgment` 与 `test-design` 以完整上游包维护；`performance-optimization` 与 `test-evidence-review` 保留本地方法层。上游包使用 `.ts` 入口与随包 runtime source；项目 adapter 核对所需函数导出，按随包公开声明消费，不把上游实现纳入仓库的严格 source compiler profile。运行依赖由各包 manifest/锁文件拥有，`env:setup` 显式准备其列出的五项；普通 import、help、检查或自更新不隐式安装。
+
+`test-design` 引自 [zxyycom/skills 的固定提交](https://github.com/zxyycom/skills/tree/2764ad0b8b518315a151e7bc9457184ce41afe62/skills/test-design)，方法版本为 `3`。
+指令使用无需依赖，不加入 `env:setup` 的依赖安装列表；自更新依赖按随包说明另行显式准备。
+随包 updater 面向 release，使用前先比较 release 与当前方法版本，避免将源码版本降级。测试设计与证据审查的分工见[测试策略](../testing/strategy.md#测试设计与证据审查)。
 
 写入由相应 subcommand/skill 和当前任务授权决定；Change 结项只在明确删除授权下使用 `finalize`，成功即删除整个目录，不建立完成态 archive。
 

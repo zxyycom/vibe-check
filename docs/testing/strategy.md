@@ -24,6 +24,17 @@
 module 共同契约的测试保留在拥有该契约的最近父 owner；专属 test support 随它服务的行为 owner。不得为了目录整齐另建
 `tests/` owner；Case 账本记录每个当前实体的实际路径。
 
+## 测试设计与证据审查
+
+[test-design](../../.codex/skills/test-design/SKILL.md) 用于设计、编写、审查或精简自动化测试：从行为契约选择
+最小充分边界、有辨错能力的场景、独立预期与观察，并核对隔离、失败传播和运行维护成本。
+
+最终测试入口与证明范围交给 [test-evidence-review](../../.codex/skills/test-evidence-review/SKILL.md)，审查证据质量，
+并按[Case 维护](case-maintenance.md)处理语义连续性与全树闭合。设计阶段尚无直接测试的方案不创建名义 Case。
+
+项目的行为契约、测试分层、Case 与验证规则仍由各自 owner 定义；skill 提供方法，不替代这些规则。
+仅运行既有测试时直接使用下方验证入口，不额外开展测试设计或账本维护。
+
 ## Case 账本
 
 `docs/testing/cases/**` 连接当前行为承诺与直接测试。每个 Case 按 owner 契约和可观察结果划分，
