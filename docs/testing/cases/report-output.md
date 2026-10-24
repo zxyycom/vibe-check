@@ -94,12 +94,3 @@ Entities:
 - `bun|scripts/validation/repository-material/machine-artifacts/validation.test.ts|independent repository material machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
   Proves:
 - The current docs artifact validator rejects v2 and v3 run/Record schema identities; it accepts current v4 artifacts only.
-
-## Case WB-OUTPUT-MAINTENANCE-REMINDER-001: Maintenance reminders use the generic v4 final-data row
-
-Owner: `docs/checks/maintenance-reminders.md#效果与结果`
-Entities:
-
-- `bun|src/package-checks/maintenance-reminders/machine-publication.test.ts|maintenance reminders > publishes one generic final-data Check row without Records or messages`
-  Proves:
-- A due advisory maintenance reminder publishes exactly one ordinary `maintenance-reminders` passed Check outcome with its ordered assessment final data. It publishes no supplemental Records, entry-level machine rows, terminal messages, or quiet-pass presentation fields.

@@ -322,7 +322,6 @@ function assertReadableRuntimeLayout(stagingDirectory: string): void {
     false
   );
   const runtimeEntry = readFileSync(join(runtimeDirectory, "index.mjs"), "utf8");
-  assert.match(runtimeEntry, /from "\.\/project-definition\/project-definition\.mjs"/);
   assert.match(runtimeEntry, /sourceMappingURL=index\.mjs\.map/);
   const sourceMap: unknown = JSON.parse(
     readFileSync(join(runtimeDirectory, "index.mjs.map"), "utf8")

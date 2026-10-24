@@ -4,8 +4,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { defineConfig } from "../../project-definition/project-definition.ts";
-import { run } from "../../project-run/run.ts";
 import { duplicateDetection } from "./constructor.ts";
 import { parseDuplicateDetectionData } from "./final-data.ts";
 import { executeDuplicateDetection } from "./execution.ts";
@@ -77,38 +75,22 @@ describe("default Check direct callbacks", () => {
     }
   });
 
-  it("detects project-relative duplicates through the public Check and fails the default strict aggregate", async function detectsProjectRelativeDuplicatesThroughPublicCheck() {
+  it("detects project-relative duplicates through the default scanner and returns blocking Check evidence", async function detectsProjectRelativeDuplicatesThroughDefaultScanner() {
     const root = createRealDuplicateRoot();
     try {
-      const result = await run(
-        defineConfig({
-          checks: [
-            duplicateDetection({
-              codeAreas: { project: { files: {}, minimumLines: 3, minimumTokens: 20 } },
-              findingPolicy: "blocking"
-            })
-          ],
-          outputs: {
-            diagnosticLogging: { enabled: false },
-            machinePublication: { enabled: false },
-            progressRendering: { enabled: false }
-          }
-        }),
-        { projectRoot: root }
-      );
-      assert.equal(result.kind, "completed");
-      if (result.kind !== "completed") return;
-      assert.equal(result.aggregate, "failed");
-      assert.equal(result.snapshot.checks.length, 1);
-      const outcome = result.snapshot.checks[0]?.outcome;
-      assert.equal(outcome?.status, "failed");
-      if (outcome?.status !== "failed") return;
-      assert.deepEqual(parseDuplicateDetectionData(outcome.data), {
+      const check = duplicateDetection({
+        codeAreas: { project: { files: {}, minimumLines: 3, minimumTokens: 20 } },
+        findingPolicy: "blocking"
+      });
+      assert(check.execute !== undefined);
+      const result = await executeCheck(check.execute, check.options, root);
+      assert(result.result.status === "failed");
+      assert.deepEqual(parseDuplicateDetectionData(result.result.data), {
         blockingFindingCount: 1,
         findingCount: 1
       });
-      assert.equal(result.snapshot.records.length, 1);
-      assert.equal(result.snapshot.records[0]?.checkId, "duplicate-detection");
+      assert.equal(result.records.length, 1);
+      assert.match(result.records[0]?.identity.id ?? "", /^duplicate-fragment\/v1\/sha256:/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

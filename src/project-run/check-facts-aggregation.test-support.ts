@@ -3,23 +3,14 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import type { Check, CheckExecution } from "../check/check.ts";
 import { defineConfig } from "../project-definition/project-definition.ts";
 import type { CheckAggregate, CheckAggregation } from "./controls/contract.ts";
 import { check, definition } from "./check-facts-integration.test-support.ts";
 import { executeValidatedRun } from "./invocation/run.ts";
 import { run } from "./run.ts";
 
-type AggregationStatus = "passed" | "failed" | "not-applicable" | "unavailable";
-
-type DefaultAggregationCase = Readonly<{
-  readonly expected: CheckAggregate;
-  readonly statuses: readonly AggregationStatus[];
-}>;
-
-export async function assertDefaultAndCustomAggregation(): Promise<void> {
-  await assertDefaultStrictAggregation();
-  await assertCustomAggregationReceivesCanonicalFacts();
+export async function assertAggregationControls(): Promise<void> {
+  await assertCustomAggregationRunResult();
   await assertInvalidAggregationControl();
 }
 
@@ -136,39 +127,10 @@ async function assertAggregationFailureCleanup(): Promise<void> {
   }
 }
 
-function assertDefaultStrictAggregation(): Promise<void> {
-  return Promise.all(
-    defaultAggregationCases.map(async ({ expected, statuses }) => {
-      const result = await run(definition(aggregateSource(statuses)));
-      assert.equal(result.kind, "completed");
-      if (result.kind === "completed") assert.equal(result.aggregate, expected);
-    })
-  ).then(() => undefined);
-}
-
-async function assertCustomAggregationReceivesCanonicalFacts(): Promise<void> {
-  const source = definition([
-    check({ checkId: "passed", execute: () => ({ status: "passed", data: { count: 1 } }) }),
-    check({ checkId: "failed", execute: () => ({ status: "failed", data: { count: 0 } }) }),
-    check({ checkId: "na", execute: () => ({ status: "not-applicable" }) })
-  ]);
-  const observed: string[][] = [];
-  for (const expected of ["passed", "failed", "not-applicable", "unavailable"] as const) {
-    const aggregation: CheckAggregation = (checks) => {
-      observed.push(checks.map((coreCheck) => coreCheck.checkId));
-      assert.equal(Object.isFrozen(checks), true);
-      return expected;
-    };
-    const result = await run(source, { checkAggregation: aggregation });
-    assert.equal(result.kind, "completed");
-    if (result.kind === "completed") assert.equal(result.aggregate, expected);
-  }
-  assert.deepEqual(observed, [
-    ["failed", "na", "passed"],
-    ["failed", "na", "passed"],
-    ["failed", "na", "passed"],
-    ["failed", "na", "passed"]
-  ]);
+async function assertCustomAggregationRunResult(): Promise<void> {
+  const result = await run(definition([check()]), { checkAggregation: () => "unavailable" });
+  assert.equal(result.kind, "completed");
+  if (result.kind === "completed") assert.equal(result.aggregate, "unavailable");
 }
 
 async function assertInvalidAggregationControl(): Promise<void> {
@@ -185,25 +147,3 @@ async function assertInvalidAggregationControl(): Promise<void> {
     kind: "configuration"
   });
 }
-
-function aggregateSource(statuses: readonly AggregationStatus[]): Check[] {
-  return statuses.map((status, index) =>
-    check({ checkId: `${status}-${index}`, execute: executionFor(status) })
-  );
-}
-
-function executionFor(status: AggregationStatus): CheckExecution {
-  if (status === "passed") return () => ({ status: "passed", data: {} });
-  if (status === "failed") return () => ({ status: "failed", data: {} });
-  if (status === "not-applicable") return () => ({ status: "not-applicable" });
-  return () => ({ status: "unavailable", reason: { code: "declared-unavailable" } });
-}
-
-const defaultAggregationCases: readonly DefaultAggregationCase[] = [
-  { statuses: ["passed"], expected: "passed" },
-  { statuses: [], expected: "failed" },
-  { statuses: ["failed"], expected: "failed" },
-  { statuses: ["not-applicable"], expected: "failed" },
-  { statuses: ["unavailable"], expected: "failed" },
-  { statuses: ["passed", "failed"], expected: "failed" }
-];

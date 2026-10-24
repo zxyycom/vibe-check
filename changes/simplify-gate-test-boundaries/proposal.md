@@ -18,11 +18,13 @@
 
 追加清理覆盖 Gate 重复证明、未被消费的 Git/安装 fixture、hash 次数锁定及错层规则矩阵。性能策略、duplicate area/blocking、Markdown collector、类型配置和 manifest 静态批准值由已有直接入口证明；真实 scanner/cache、日志、产物及安装验收保留独立的接线证明。
 
+当前第三版收窄 installed waiver 重复变体、builtin 的通用 Run/发布证明和 aggregation 规则矩阵，移除 artifact 中的私有重导出路径锁定。保留独立 façade 字节批准值、真实默认 scanner、warm-cache 重算、timer/I/O、compiler 物理边界及代表性 Run/安装接线。
+
 ### Resulting Impacts
 
-同步校验器、package 私有依赖、相关 Product 私有测试接线、Case 和内部 owner。修订 Gate 自动验收方向的长期记录，保留唯一候选、installed docs/runtime、四项扫描、原性能预算与统计口径。按追加授权，以 AI-ready-docs 和完整编码规范复核本次及相关前序改动，并保存 Git 提交；Change 删除另需明确授权。
+同步校验器、package 私有依赖、相关 Product 私有测试接线、Case 和内部 owner。修订 Gate 自动验收方向的长期记录，保留唯一候选、installed docs/runtime、四项扫描、原性能预算与统计口径。前两版已按授权完成 AI-ready-docs、完整编码规范复核与 Git 保存；第三版继续按这些规范复核变化范围。
 
-追加测试清理同步实体映射与 `Proves`，生产代码、公开 API、Gate 选择及预算保持不变。本轮授权包含两版清理的提交前复核、必要提交及 hook 推送；完整 Gate 性能验收继续保留未完成状态。
+追加测试清理同步实体映射与 `Proves`，生产代码、公开 API、Gate 选择及预算保持不变。前两版已保存为 `91903719`；当前授权包含第三版文档/代码复核、必要 Git 提交及 hook 推送。完整 Gate 性能验收按实际结果交接；Change 删除另需授权。
 
 ## Success Criteria
 

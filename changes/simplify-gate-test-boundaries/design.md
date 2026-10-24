@@ -6,11 +6,11 @@
 
 前序实施及审查已保存为 `f998ed4c`、`82f83db7` 和 `9bf26715`；形成时的输入、前后测量及环境边界见[测量报告](../../docs/investigations/measure-gate-test-boundary-simplification.md)。
 
-两版追加清理从 clean main `9bf26715` 开始，只修改测试及必要计划/Case；起点与完成后的全树 Case 均为 781 entities / 192 Cases / 16 topics。用户当前授权提交前文档/代码复核、必要提交及 hook 推送。当前验证和未完成项由 [tasks](tasks.md#evidence) 承接；更广泛性能修复与 Change 删除另行确定范围或授权。
+前两版追加清理已保存为 `91903719`，第三版在其上完成已确认的降层与收窄。当前授权为提交前文档/代码复核、必要 Git 提交及 hook 推送；验证与未完成项由 [tasks](tasks.md#evidence) 承接，更广泛性能修复与 Change 删除另行确定范围或授权。
 
 ## Goals / Non-Goals
 
-目标为减少错误层级、无关输入和强制自动义务，同时保留产品及安装后真实边界；追加审查按当前规范收敛表达并保存版本。非目标为修改公开 API、移除四项质量扫描、放宽限额/性能预算、建立跨轮 fixture 缓存、优化泛型/调度器或发布 package。完整 Gate 的既有性能阻断如仍出现，保留并报告，不为了过线扩展本次功能范围。
+目标为减少错误层级、无关输入和强制自动义务，同时保留产品及安装后真实边界；追加审查按当前规范收敛表达。非目标为修改公开 API、移除四项质量扫描、放宽限额/性能预算、建立跨轮 fixture 缓存、优化泛型/调度器或发布 package。完整 Gate 的既有性能阻断如仍出现，保留并报告，不为了过线扩展本次功能范围。
 
 ## Decisions
 
@@ -25,6 +25,7 @@
 7. Gate 规则矩阵直接调用性能领域 API，adapter 保留短路顺序、最终结果和真实日志代表证据；已有全集或真实 factory 接线承接重复证明。Markdown lint 的空 root、零匹配和 missing-root outcomes 由 Product 直接执行与真实文件系统证明。
 8. duplicate acquisition 直接执行 Check，保留隔离进程、真实文件、scanner/cache 顺序、零额外获取与身份采样时点；area/blocking 矩阵由领域 API 证明，真实 scan/cache pair 验证 exact-input 交接与 raw-cache 策略重算。Git/安装 fixture 只保留被目标行为实际消费的输入。
 9. Markdown collector 接收已渲染输入，类型配置直接测试既有函数，manifest 静态批准值在 source→projection/audit 层证明。真实 compiler、法律字节、文件排除、pack/installed 和公开 waiver 调用继续验收。
+10. 第三版按不同接线机制保留代表性集成：installed waiver 留首次 finding→公开 identity→applied→machine Records，完整变体归源码 cache/waiver 测试；duplicate 默认 scanner 直接执行 Check，maintenance 通用发布由领域结果及 Run/publication owner 承接。aggregation 矩阵直接调用既有领域 API，保留真实 selection、拒绝清理与发布接线；artifact 保留独立 façade 字节批准值，取消私有重导出路径锁定。
 
 ### Resulting Impacts
 
@@ -32,15 +33,17 @@
 
 追加清理仅维护已有 Case 的实际证明范围；新配对领域测试沿既有 owner 放置，不创建生产测试 seam。真实 Git first-parent、当前 source/target 字节、installed Node/Worker、模块加载及退出证据保留。完整 Gate 串行执行一次作为交付验证，不将其耗时视为受控前后对照。
 
+第三版接受减少特定 builtin 的整链组合观察，不将领域与通用接线分别通过描述为同一端到端证明；失去直接实体的 Case 按实际目的退休。compiler parser 尚未自然分离，保留现有隔离解析矩阵，避免为测试新增生产入口。
+
 ## Risks / Trade-offs
 
 目录偏离不再自动阻断，types 兼容问题可能到发布前才发现，workbench 可到显式使用时才发现问题。测试接线必须真实消费新私有入口，避免只测 helper 而绕过 caller；fixture 复用不得引入顺序依赖。前后常规 Gate workload 因授权移出两项而变化，必须与局部测试优化分开量化。
 
 ## Open Questions
 
-当前待确定的是完整 Gate 性能阻断的后续修复范围，任务 2.4 保持未完成；最近交付结果见 [tasks](tasks.md#当前验证与未完成项)。两版明确清理已通过独立审查，publication/结算等有独立证明责任的集成测试继续保留。
+当前待确定的是完整 Gate 性能阻断的后续修复范围，任务 2.4 保持未完成；第三版直接验证与独立审查结果见 [tasks](tasks.md#当前验证与未完成项)。版本保存不表示性能验收或 Change 结项已完成。
 
-前轮 timeout 的现场见[交付超时报告](../../docs/investigations/record-delivery-duplicate-lane-timeout.md)。后续单次通过只能证明该次执行成功，根因与稳定性仍待验证；本次提交不扩为新的生产测试接口、性能修复或 Change 删除。
+前轮 timeout 的现场见[交付超时报告](../../docs/investigations/record-delivery-duplicate-lane-timeout.md)。后续单次通过只证明该次执行成功，根因与稳定性仍待验证。
 
 ## Implementation Observations
 

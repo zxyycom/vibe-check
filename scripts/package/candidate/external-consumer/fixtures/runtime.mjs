@@ -545,38 +545,14 @@ async function assertInstalledMarkdownLintWaivers() {
     assert.equal(path, "source.md");
     assert.equal(rule, "no-missing-space-atx");
     const identity = { path, rule, range };
-    for (const reason of ["Reviewed source example.", "Updated acceptance reason."]) {
-      const waived = await execute([{ identity, reason }]);
-      assert.equal(waived.outcome.status, "passed");
-      assert.deepEqual(waived.records[0].data, { ...fresh.records[0].data, waiver: { reason } });
-      assert.equal(waived.records[0].id, fresh.records[0].id);
-      assert.equal(waived.records.length, 1);
-      assert.ok(waived.messages.some(({ code }) => code === "finding-waived"));
-      assert.ok(waived.messages.every(({ level }) => level !== "error"));
-    }
-    const unused = await execute([
-      {
-        identity: { ...identity, path: "other.md" },
-        reason: "Stale source identity."
-      }
-    ]);
-    assert.equal(unused.outcome.status, "failed");
-    assert.deepEqual(
-      unused.records.find(({ data }) => data.kind === "lint-finding")?.data,
-      fresh.records[0].data
-    );
-    assert.ok(
-      unused.records.some(
-        ({ data }) =>
-          data.kind === "finding-waiver-audit" && data.status === "unused" && data.matchCount === 0
-      )
-    );
-    const removed = await execute([]);
-    assert.equal(removed.outcome.status, "failed");
-    assert.deepEqual(
-      removed.records.map(({ data }) => data),
-      fresh.records.map(({ data }) => data)
-    );
+    const reason = "Reviewed source example.";
+    const waived = await execute([{ identity, reason }]);
+    assert.equal(waived.outcome.status, "passed");
+    assert.deepEqual(waived.records[0].data, { ...fresh.records[0].data, waiver: { reason } });
+    assert.equal(waived.records[0].id, fresh.records[0].id);
+    assert.equal(waived.records.length, 1);
+    assert.ok(waived.messages.some(({ code }) => code === "finding-waived"));
+    assert.ok(waived.messages.every(({ level }) => level !== "error"));
   } finally {
     await rm(root, { force: true, recursive: true });
   }
