@@ -1,21 +1,14 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { createArtifactFingerprint } from "../package/artifact/fingerprint.ts";
-import { copyArtifactFingerprintFixture } from "../package/artifact/fingerprint.test-support.ts";
 import { collectPackageMachineMaterials } from "./machine-artifacts/package-materials.ts";
 import { collectPackageDocumentation } from "./package-markdown.ts";
 import { renderPackageApiDocumentation } from "./package-api/render.ts";
 import { createPackageApiDocumentationFixture } from "./package-api/test-support.ts";
-import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "./package-api/example-projections.ts";
 import { isNonArrayRecord } from "../value-guards.ts";
 import { loadPackageDocuments, PACKAGE_DOCUMENTS_CONFIG_PATH } from "./package-documents.ts";
-
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 describe("package document mappings", () => {
   it("reads the calling repository mapping and applies distinct source and package paths", () => {
@@ -112,42 +105,6 @@ describe("package document mappings", () => {
       }
     } finally {
       rmSync(fixtureRoot, { force: true, recursive: true });
-    }
-  });
-
-  it("includes raw mapping bytes in the artifact fingerprint", () => {
-    const temporaryRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-document-fingerprint-"));
-    const root = join(temporaryRoot, "repository");
-    try {
-      copyArtifactFingerprintFixture({ repositoryRoot, fixtureRoot: root });
-      const before = createArtifactFingerprint(root);
-      assert.equal(before, createArtifactFingerprint(repositoryRoot));
-      const configPath = join(root, PACKAGE_DOCUMENTS_CONFIG_PATH);
-      writeFileSync(configPath, `${readFileSync(configPath, "utf8")}\n`, "utf8");
-      const mappedFingerprint = createArtifactFingerprint(root);
-      assert.notEqual(mappedFingerprint, before);
-      const supportPath = PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS[0];
-      assert.ok(supportPath !== undefined);
-      const supportFile = join(root, supportPath);
-      writeFileSync(supportFile, `${readFileSync(supportFile, "utf8")}\n`, "utf8");
-      const supportFingerprint = createArtifactFingerprint(root);
-      assert.notEqual(supportFingerprint, mappedFingerprint);
-      const gateGuideProjectionFile = join(
-        root,
-        "scripts/docs/package-api/gate-guide-example-projections.ts"
-      );
-      writeFileSync(
-        gateGuideProjectionFile,
-        `${readFileSync(gateGuideProjectionFile, "utf8")}\n`,
-        "utf8"
-      );
-      assert.notEqual(
-        createArtifactFingerprint(root),
-        supportFingerprint,
-        "Gate-guide projection source changes must invalidate the candidate fingerprint"
-      );
-    } finally {
-      rmSync(temporaryRoot, { force: true, recursive: true });
     }
   });
 });

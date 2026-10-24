@@ -94,7 +94,7 @@ Entities:
 - `bun|scripts/package/release/command.test.ts|formal release root commands require closed inputs and bind verification to one complete --all Gate receipt`
   Proves:
 
-- Formal preparation accepts only a positive canonical `0.0.x` and an explicit conservative tag, requires exact clean `HEAD`, and keeps release staging/receipt/compiler state distinct from the fingerprint local candidate while sharing only the versioned artifact root.
+- Formal preparation accepts only a positive canonical `0.0.x` and an explicit conservative tag, requires the exact repository root and clean `HEAD`, and rejects tracked unstaged changes, staged-only changes and untracked files. Release staging/receipt/compiler state remains distinct from the fingerprint local candidate while sharing only the versioned artifact root.
 - The versioned receipt uses repository-relative canonical paths, records the scoped package identity, and binds commit, input fingerprint, ordered inventory, SHA-256, SHA-512 SRI, manifest/README identities and the complete third-party legal-material inventory, version, and tag. The scoped translation notice digest comes from actual staged bytes; fixed upstream license and provenance identities remain independently pinned. Its writer rejects a foreign receipt path or mismatched artifact SHA-256 before replacing the owned receipt; its closed grammar and verifier reject extra consumer identity, path escape, duplicated inventory, contract drift, and changed artifact bytes without storing credential material.
 - The root command grammar requires complete named inputs: prepare forwards one explicit version/tag and reports the receipted artifact identity, while verify constructs one complete `--all --release-receipt` Project Gate invocation for the explicit receipt and preserves its returned exit status. Missing or duplicated inputs fail instead of selecting an implicit version, tag, or receipt.
 
@@ -179,12 +179,10 @@ Entities:
 
 - `bun|scripts/docs/package-documents.test.ts|package document mappings > reads the calling repository mapping and applies distinct source and package paths`
 - `bun|scripts/docs/package-documents.test.ts|package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets`
-- `bun|scripts/docs/package-documents.test.ts|package document mappings > includes raw mapping bytes in the artifact fingerprint`
   Proves:
 
-- Repository-local JSON maps Markdown, Check guide and machine-material sources to package paths. Distinct source and destination paths remain intact through rendering, raw machine-byte collection and package-local Markdown link validation, including a relocated machine schema; the candidate fingerprint changes for configuration-byte changes.
+- Repository-local JSON maps Markdown, Check guide and machine-material sources to package paths. Distinct source and destination paths remain intact through rendering, raw machine-byte collection and package-local Markdown link validation, including a relocated machine schema.
 - The loader rejects unknown fields, non-canonical or out-of-scope source/package paths, duplicate targets and file/ancestor target conflicts with the corresponding diagnostic. Both ancestor insertion orders reject the first conflicting input, while sibling paths sharing only a textual prefix remain legal.
-- Changes to the explicitly registered internal example-acceptance support bytes or Gate-guide projection group source bytes invalidate the artifact fingerprint, independently of Markdown mapping changes.
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 
@@ -627,7 +625,7 @@ Entities:
 - 错误 evidence 保留已经发生的 boundary、virtual time、action-observation 和 trace prefix，并保留可可靠解析的 scenario/profile/policy/candidate identity；正式 policy context 以 `public-admission-policy-context-v2` 标识，只含 public graph/state、候选、capacity/runtime、独立 cumulative 与已关闭 actionHistory prefix，不暴露 sampled/remaining work、PRNG 或完整 trace。保留的旧 context 只可读取捕获时已关闭的 observation 前缀；负数、非整数及越界索引返回 undefined，累计 wait 与该前缀一致且不随后续执行改变。
 - static 是版本化的简单合法 baseline；learned prepared adapter 通过 descriptor 的 `.callback` 直接准备并选择；为每个 replicate 复制同一固定 history snapshot 到独占 absolute state directory，记录 projection/model/fallback identity，不调用 `complete`，且 history/setup 或非预期 prediction fallback 使比较失败。
 - makespan 与 slot·time、逐 named-resource unit·time 分开；四个调查 proxy profile 保留精确 median 与倍率且不冒充完整 Gate baseline，三档 contention/5.5x 长尾与 claimed-only Gate resource shape 都明确是合成或静态输入，virtual milliseconds 不等于 Gate timing。
-- CLI 成功 JSON 只写 stdout 或独占新建的显式文件；输入、已有目标、符号链接与 public graph failure 返回非零结构 evidence。运行 workbench 不调用 Gate entry、真实 Check 或 private Scheduler source。
+- CLI 成功 JSON 只写 stdout 或独占新建的显式文件；输入、已有目标、符号链接与 public graph failure 返回非零结构 evidence。拒绝再次创建时保留首次 evidence 的完整字节；非法输入及目标拒绝后，已有文件、链接本身与链接目标字节保持原状。运行 workbench 不调用 Gate entry、真实 Check 或 private Scheduler source。
 - 缺少执行模块的真实 bootstrap 仍先拒绝非法参数；有效输入才装载 execution，装载失败沿既有 failure evidence 结算为退出 `1`，不伪造 candidate identity。
 
 ## Case AUX-ADMISSION-WORKBENCH-SHARED-CLOSURE-001: Public shared closure distinguishes cancellation from virtual settlement

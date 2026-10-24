@@ -61,8 +61,8 @@ Entities:
 
 - `bun|src/package-checks/project-files/file-fingerprint.test.ts|quality input fingerprints > uses stable SHA-256 fingerprints for sorted file content`
   Proves:
-- quality input fingerprint 使用排序后的文件内容生成稳定 SHA-256。
-- 文件内容变化会改变 fingerprint，文件顺序变化不会改变 fingerprint。
+- quality input fingerprint 使用排序后的路径及 LF-normalized 当前文件内容生成稳定 SHA-256。
+- 文件内容变化或在相同文件数和内容下更换所选路径会改变 fingerprint；文件顺序以及 LF、CRLF、CR 换行表示变化不改变 fingerprint。
 
 ## Case WB-SCOPE-FILE-COLLECTION-001: 纯磁盘候选与 Check-local 选择保持独立
 

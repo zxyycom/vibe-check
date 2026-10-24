@@ -126,7 +126,7 @@ Entities:
 - `bun|src/package-tools/learned-critical-path/critical-path-ranking.test.ts|critical-path ranking > scores both dependency and observation downstream paths once`
   Proves:
 
-- Before admission, the immutable score table adds each Task estimate to the maximum direct downstream score across both `dependsOn` and `observes` relations; it is frozen and does not reinterpret Task priority or runtime capacity facts.
+- Before admission, the immutable score table adds each Task estimate to the maximum downstream score across both `dependsOn` and `observes` relations, including a transitive path mixing both relation kinds. It is frozen and does not reinterpret Task priority or runtime capacity facts.
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-ADMISSION-001: Public learned strategy preserves generic Scheduler legality
 

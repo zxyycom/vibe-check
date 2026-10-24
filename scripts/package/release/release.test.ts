@@ -162,6 +162,23 @@ describe("formal package release", () => {
       const source = readCleanReleaseSource(root);
       assert.match(source.commit, /^[a-f0-9]{40}$/u);
 
+      const subdirectory = join(root, "subdirectory");
+      mkdirSync(subdirectory);
+      assert.deepEqual(readCleanReleaseSource(root), source);
+      assert.throws(() => readCleanReleaseSource(subdirectory), /exact Git worktree root/);
+
+      writeFileSync(join(root, "tracked.txt"), "unstaged change\n", "utf8");
+      assert.throws(() => readCleanReleaseSource(root), /worktree and index must be clean/);
+      runGitFixtureCommand(root, ["restore", "tracked.txt"]);
+      assert.deepEqual(readCleanReleaseSource(root), source);
+
+      writeFileSync(join(root, "tracked.txt"), "staged change\n", "utf8");
+      runGitFixtureCommand(root, ["add", "tracked.txt"]);
+      assert.throws(() => readCleanReleaseSource(root), /worktree and index must be clean/);
+      runGitFixtureCommand(root, ["restore", "--staged", "tracked.txt"]);
+      runGitFixtureCommand(root, ["restore", "tracked.txt"]);
+      assert.deepEqual(readCleanReleaseSource(root), source);
+
       writeFileSync(join(root, "untracked.txt"), "dirty\n", "utf8");
       assert.throws(() => readCleanReleaseSource(root), /worktree and index must be clean/);
     } finally {

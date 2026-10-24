@@ -1,5 +1,14 @@
 import assert from "node:assert/strict";
-import { copyFile, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import {
+  copyFile,
+  lstat,
+  mkdtemp,
+  readFile,
+  readlink,
+  rm,
+  symlink,
+  writeFile
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
@@ -57,11 +66,13 @@ test("command exclusively creates an explicit output after complete serializatio
     const result = await execa("bun", [command, "chain", "--out", output]);
     assert.equal(result.stdout, "");
     assert.equal(result.stderr, "");
-    assert.equal(parseEvidence(await readFile(output, "utf8")).status, "success");
+    const evidenceBytes = await readFile(output);
+    assert.equal(parseEvidence(evidenceBytes.toString("utf8")).status, "success");
 
     const second = await execa("bun", [command, "chain", "--out", output], { reject: false });
     assert.equal(second.exitCode, 64);
     assert.equal(parsedRecord(second.stderr).status, "error");
+    assert.deepEqual(await readFile(output), evidenceBytes);
   } finally {
     await rm(root, { force: true, recursive: true });
   }
@@ -72,7 +83,8 @@ test("command rejects malformed arguments inputs and unsafe output targets", asy
   try {
     const existing = join(root, "exists.json");
     const malformed = join(root, "malformed.json");
-    await writeFile(existing, "x");
+    const sentinelBytes = Buffer.from("existing output must remain unchanged\n");
+    await writeFile(existing, sentinelBytes);
     await writeFile(malformed, "{");
     const link = join(root, "link.json");
     await symlink(existing, link);
@@ -88,6 +100,10 @@ test("command rejects malformed arguments inputs and unsafe output targets", asy
       const error = parsedRecord(result.stderr);
       assert.equal(error.status, "error");
       assert.equal(requiredRecord(error.error).code, "invalid-input");
+      assert.deepEqual(await readFile(existing), sentinelBytes);
+      assert.equal((await lstat(link)).isSymbolicLink(), true);
+      assert.equal(await readlink(link), existing);
+      assert.deepEqual(await readFile(link), sentinelBytes);
     }
     await assertInputBeforeExecutionLoad();
   } finally {

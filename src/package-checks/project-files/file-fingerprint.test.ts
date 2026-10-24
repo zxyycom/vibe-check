@@ -11,15 +11,30 @@ describe("quality input fingerprints", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-file-fingerprint-"));
     const orderedPaths = ["src/a.ts", "src/b.ts"];
     const reversedPaths = [...orderedPaths].reverse();
+    const originalBContent = "export const b = 2;\n";
 
     try {
       writeFixtureFile(tempDir, "src/a.ts", "export const a = 1;\n");
-      writeFixtureFile(tempDir, "src/b.ts", "export const b = 2;\n");
+      writeFixtureFile(tempDir, "src/b.ts", originalBContent);
 
       const ordered = fingerprintProjectFiles(tempDir, orderedPaths);
       const reversed = fingerprintProjectFiles(tempDir, reversedPaths);
       assert.equal(reversed.fingerprint, ordered.fingerprint);
       assert.match(ordered.fingerprint, /^sha256:[a-f0-9]{64}:2$/);
+
+      writeFixtureFile(tempDir, "src/c.ts", originalBContent);
+      const changedPath = fingerprintProjectFiles(tempDir, ["src/a.ts", "src/c.ts"]);
+      assert.notEqual(changedPath.fingerprint, ordered.fingerprint);
+
+      for (const lineEnding of ["\r\n", "\r"]) {
+        writeFixtureFile(tempDir, "src/b.ts", originalBContent.replaceAll("\n", lineEnding));
+        const normalized = fingerprintProjectFiles(tempDir, orderedPaths);
+        assert.equal(
+          normalized.fingerprint,
+          ordered.fingerprint,
+          `line ending ${JSON.stringify(lineEnding)} must normalize to LF`
+        );
+      }
 
       writeFixtureFile(tempDir, "src/b.ts", "export const b = 3;\n");
       const changed = fingerprintProjectFiles(tempDir, orderedPaths);

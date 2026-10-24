@@ -15,24 +15,27 @@ describe("critical-path ranking", () => {
     const graph = schedulerGraphSnapshot([
       schedulerGraphTask("source"),
       schedulerGraphTask("dependency", { dependsOn: ["source"] }),
-      schedulerGraphTask("observer", { observes: ["source"] })
+      schedulerGraphTask("observer", { observes: ["source"] }),
+      schedulerGraphTask("tail", { observes: ["dependency"] })
     ]);
     const prediction = Object.freeze({
       predictions: Object.freeze([
         Object.freeze({ estimatedDurationMs: 2, taskId: "source" }),
         Object.freeze({ estimatedDurationMs: 5, taskId: "dependency" }),
-        Object.freeze({ estimatedDurationMs: 7, taskId: "observer" })
+        Object.freeze({ estimatedDurationMs: 7, taskId: "observer" }),
+        Object.freeze({ estimatedDurationMs: 11, taskId: "tail" })
       ])
     });
 
     const score = createSchedulerCriticalPathSnapshot(graph, prediction);
 
     assert.deepEqual(score.scores, [
-      { criticalPathScore: 9, taskId: "source" },
-      { criticalPathScore: 5, taskId: "dependency" },
-      { criticalPathScore: 7, taskId: "observer" }
+      { criticalPathScore: 18, taskId: "source" },
+      { criticalPathScore: 16, taskId: "dependency" },
+      { criticalPathScore: 7, taskId: "observer" },
+      { criticalPathScore: 11, taskId: "tail" }
     ]);
-    assert.equal(criticalPathScoreForTask(score, "source"), 9);
+    assert.equal(criticalPathScoreForTask(score, "source"), 18);
     assert.equal(Object.isFrozen(score), true);
     assert.equal(Object.isFrozen(score.scores), true);
     assert.deepEqual(
