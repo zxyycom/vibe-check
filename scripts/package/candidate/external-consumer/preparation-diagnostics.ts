@@ -3,6 +3,36 @@ import { writeSync } from "node:fs";
 
 type PreparationStage = "fixture" | "install" | "types-fixture" | "entry-resolution" | "identity";
 
+interface InstallationOutputSummary {
+  readonly bytes: number;
+  readonly inspectionTruncated: boolean;
+  readonly resolvingDependencies: boolean;
+  readonly resolvedDownloadedExtractedCount: number | null;
+  readonly installedPackageCount: number | null;
+}
+
+type PreparationDiagnostic =
+  | Readonly<{
+      readonly event: "stage-started";
+      readonly stage: PreparationStage;
+      readonly elapsedMs: number;
+    }>
+  | Readonly<{
+      readonly event: "stage-finished";
+      readonly stage: PreparationStage;
+      readonly status: "completed" | "failed";
+      readonly durationMs: number;
+    }>
+  | Readonly<{
+      readonly event: "install-result";
+      readonly elapsedMs: number;
+      readonly exitCode: number | null;
+      readonly signalled: boolean;
+      readonly commandError: boolean;
+      readonly stdout: InstallationOutputSummary;
+      readonly stderr: InstallationOutputSummary;
+    }>;
+
 const diagnosticPrefix = "external-consumer-setup ";
 const diagnosticByteLimit = 8 * 1024;
 const inspectedOutputCharacterLimit = 8 * 1024;
@@ -59,7 +89,7 @@ export class ExternalConsumerPreparationDiagnostics {
     return Math.round((performance.now() - this.startedAtMs) * 1000) / 1000;
   }
 
-  private emit(event: Readonly<Record<string, unknown>>): void {
+  private emit(event: PreparationDiagnostic): void {
     if (this.truncated) return;
     const line = `${diagnosticPrefix}${JSON.stringify(event)}\n`;
     const bytes = Buffer.byteLength(line);
@@ -73,7 +103,7 @@ export class ExternalConsumerPreparationDiagnostics {
   }
 }
 
-function summarizeInstallationOutput(output: string | null) {
+function summarizeInstallationOutput(output: string | null): InstallationOutputSummary {
   const text = output ?? "";
   const prefix = text.slice(0, inspectedOutputCharacterLimit);
   const inspectionTruncated = text.length > inspectedOutputCharacterLimit;

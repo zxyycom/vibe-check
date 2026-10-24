@@ -36,7 +36,7 @@ export type {
   LocalCandidatePreparationReason
 } from "./preparation-decision.ts";
 
-interface PreparedPackageCandidateLocation {
+interface PreparedPackageCandidateMaterial {
   readonly documentation: PackageDocumentationExpectation;
   readonly consumerDirectory: string;
   readonly installedPackageDirectory: string;
@@ -44,7 +44,7 @@ interface PreparedPackageCandidateLocation {
 }
 
 export type PreparedPackageCandidate = Readonly<
-  CandidateArtifact & PreparedPackageCandidateLocation & CandidatePreparationFact
+  CandidateArtifact & PreparedPackageCandidateMaterial & CandidatePreparationFact
 >;
 
 /** Read-only candidate state used by the root package status command. */
