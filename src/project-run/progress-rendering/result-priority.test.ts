@@ -137,8 +137,8 @@ describe("Package Run progress result priority", () => {
       { progressWriterFactory: failingProgressWriter }
     );
 
-    assert.equal(result.kind, "cancelled");
-    if (result.kind !== "cancelled" || result.phase !== "execution") return;
+    assert(result.kind === "cancelled");
+    assert(result.phase === "execution");
     assert.equal(result.outputs.progressRendering.status, "failed");
     assert.equal(result.snapshot.checks.length, 2);
   });

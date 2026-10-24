@@ -109,10 +109,8 @@ Entities:
 - `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > runs each independent preparation inside its admitted Task lifecycle`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > rejects invalid flag input before any Check callback`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > provides canonical immutable callback snapshots`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables all mode only when every configured flag is present`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables any mode when at least one configured flag is present`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables none mode only when no configured flag is present`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables not-all mode when at least one configured flag is absent`
+- `bun|src/project-run/controls/flags.test.ts|Package Run flags > applies flag selection before preparation and preserves dependent and observer lifecycles`
+- `bun|src/project-run/check-execution/flag-controls.test.ts|Check flag selection > selects only matching Checks across all, any, none, and not-all modes`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > rejects caller attempts to supply Product-reserved change flags before preparation`
 - `bun|src/project-run/check-execution/flag-dependency-selection.test.ts|Package Run flag dependency selection > keeps matching roots direct unless their author opts into dependency propagation`
 - `bun|src/project-run/check-execution/flag-dependency-selection.test.ts|Package Run flag dependency selection > starts each opt-in root dependency closure without selecting observations`
@@ -134,7 +132,7 @@ Entities:
   Proves:
 
 - Package Run closes definitions and controls before callbacks or outputs. Its control barrier checks cancellation and declarative conditions before Scheduler admission; nonmatching Checks settle without author work. An admitted Check runs optional preparation with detached frozen options and the invocation signal before its callback. Block, throw, malformed messages/descriptors, and noncanonical prepared/fallback values settle only the owning Check unavailable; cancellation admits no new author work.
-- The mapped `flags.test.ts` entities prove pre-callback rejection for malformed flags and caller use of the `vibe-check:change:` namespace, plus immutable canonical `project.flags` snapshots and declarative `enabledByFlags` predicates. Matching opt-in roots activate their transitive `dependsOn` closure; activated dependencies may run despite their own unmet predicate. Directly selected intermediates still expand when required, shared prerequisites deduplicate, `observes` stays outside the closure, and pre-work cancellation remains earlier.
+- Direct selection tests prove the all/any/none/not-all predicate matrix. The mapped `flags.test.ts` entities prove pre-callback rejection for malformed flags and caller use of the `vibe-check:change:` namespace, immutable canonical `project.flags` snapshots, and representative enabled/disabled selection through preparation, execution, dependency blocking and observation. Matching opt-in roots activate their transitive `dependsOn` closure; activated dependencies may run despite their own unmet predicate. Directly selected intermediates still expand when required, shared prerequisites deduplicate, `observes` stays outside the closure, and pre-work cancellation remains earlier.
 - The mapped Git/change lifecycle entities prove one frozen snapshot per invocation. It supplies the same `project.changes` to `prepare` and `execute`; its derived protected tokens union with caller tokens into the one canonical effective set that drives selection and both callbacks' `project.flags`. The Git fixture covers `compareWith` as a branch, commit hash, `HEAD~N`, or tag revision. A trustworthy zero match is `{ ok: true, files: [] }` and leaves only caller flags; unavailable Git evidence has no fabricated files but injects every declared change flag into that same effective set.
 - Committed, staged, unstaged, untracked, rename and deletion paths deduplicate before frozen regions emit stable flag lists. The name-status NUL parser preserves tab/newline path characters and both rename/copy paths, while rejecting malformed or missing entries. For a nested project root, each Git delta is root-relative; a cross-root rename keeps only its in-root side. A raw Git path containing a backslash is not converted to slash form before validation, so it cannot masquerade as an excluded nested path; it follows the unavailable fallback. Option-like comparison revisions are Definition failures before preparation or execution author work.
 - Nonempty change flag IDs containing NUL retain their author identity: empty patterns yield trustworthy zero matches and no derived flag; matching paths yield the original prefixed token, not conservative unavailable evidence.
@@ -183,10 +181,7 @@ Entities:
 
 - `bun|src/project-run/run-planning.test.ts|Package Run > rejects an invalid projected Check relation graph before any Check callback runs`
 - `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > runs each independent preparation inside its admitted Task lifecycle`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables all mode only when every configured flag is present`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables any mode when at least one configured flag is present`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables none mode only when no configured flag is present`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables not-all mode when at least one configured flag is absent`
+- `bun|src/project-run/controls/flags.test.ts|Package Run flags > applies flag selection before preparation and preserves dependent and observer lifecycles`
   Proves:
 - Direct executable Checks project both `dependsOn` and `observes` into one statically validated shared graph before any author work. Invocation flag control settlements remain Tasks in that graph as pre-admission terminal results and are not admitted again; task-local preparation is admitted work subject to direct relation readiness, mutex, capacity, priority and cancellation rather than a Definition-order preparation barrier.
 - A nonmatching `enabledByFlags` predicate settles `not-applicable / flag-condition-not-matched` before author work. It blocks `dependsOn` consumers as a non-passed prerequisite while remaining visible to explicit `observes` consumers; matching predicates execute the normal preparation/callback path.
@@ -198,7 +193,7 @@ Entities:
 
 - `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > blocks success dependents before their preparation and lets observers read the terminal result`
 - `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > settles every direct non-passed prerequisite before dependent author work`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables all mode only when every configured flag is present`
+- `bun|src/project-run/controls/flags.test.ts|Package Run flags > applies flag selection before preparation and preserves dependent and observer lifecycles`
   Proves:
 - A `failed`, `not-applicable`, or `unavailable` direct `dependsOn` outcome prevents both the dependent preparation and callback. Product, rather than the generic Scheduler, then closes that Check as `unavailable` with `dependency-not-passed`, only stable direct blocker IDs, no author message/Record, and `null` duration.
 - Prerequisite blocking does not cancel the invocation or suppress an explicit observer; cancellation-before-start and generic executor failure remain separate scheduler boundaries.
@@ -386,11 +381,11 @@ Proves:
 Owner: `docs/checks/markdown-lint.md#效果与结果`
 Entities:
 
-- `bun|src/package-checks/markdown-lint/constructor.test.ts|Markdown lint Check > reports MD052 reference forms through the public single-rule Check`
+- `bun|src/package-checks/markdown-lint/constructor.test.ts|Markdown lint Check > projects an MD052 finding into a public single-rule Check Record`
 
 Proves:
 
-- Selecting only `reference-links-images` reports unresolved full, collapsed and image references as public MD052 findings, while ignored task labels, shortcut syntax and the private parser helper do not leak into Records.
+- Selecting only `reference-links-images` projects a non-first-column reference finding into exactly one public lint Record with the project-relative path, public rule and one-based end-exclusive range; final counts match that finding, and the parser-only helper adds no Record.
 
 ## Case QUALITY-RUNTIME-MARKDOWN-LINT-CACHE-PARITY: Markdown lint 缓存保留完整结果
 

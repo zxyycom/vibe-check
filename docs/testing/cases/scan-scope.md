@@ -275,7 +275,7 @@ Entities:
 Proves:
 
 - Fixed front matter recognition and disabled inline backend configuration preserve the Product-selected rule behavior.
-- MD052 initializes its private parser token cache when it is the sole selected rule, while diagnostics from the parser-only helper remain filtered.
+- With only `reference-links-images` selected, the adapter returns the exact line/range/rule list for unresolved full, collapsed and image references. Task-like labels, shortcut syntax and the parser-only helper add no findings.
 
 ## Case CHANGE-FLAG-DEBUG-RELATION-001: 当前所选全集保持零命中与双向 token 关系
 

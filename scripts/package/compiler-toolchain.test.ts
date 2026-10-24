@@ -57,10 +57,10 @@ test("stable native compiler and compatibility API retain distinct installed ent
   const fingerprint = typeScriptToolchainFingerprint();
   assert.match(fingerprint, /^[a-f0-9]{64}$/u);
   assert.equal(typeScriptToolchainFingerprint(), fingerprint);
-  assertCompilerBinBoundary();
+  assertIsolatedToolchainBoundary();
 });
 
-function assertCompilerBinBoundary(): void {
+function assertIsolatedToolchainBoundary(): void {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-compiler-bin-"));
   try {
     const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -74,11 +74,54 @@ function assertCompilerBinBoundary(): void {
       copyFileSync(join(repositoryRoot, relativePath), destination);
     }
     const compilerDirectory = join(fixtureRoot, "node_modules/@typescript/native");
-    mkdirSync(join(compilerDirectory, "bin"), { recursive: true });
     const binPath = join(compilerDirectory, "bin/tsc.js");
-    writeFileSync(binPath, "// fixture compiler launcher\n");
     const manifestPath = join(compilerDirectory, "package.json");
-    const manifest = { name: "typescript", version: "7.0.2", bin: { tsc: "bin/tsc.js" } };
+    const platformName = `@typescript/typescript-${process.platform}-${process.arch}`;
+    const platformDirectory = join(compilerDirectory, "node_modules", platformName);
+    const compatibilityDirectory = join(fixtureRoot, "node_modules/typescript");
+    const apiDirectory = join(compatibilityDirectory, "node_modules/@typescript/old");
+    const manifest = {
+      name: "typescript",
+      version: "7.0.2",
+      bin: { tsc: "bin/tsc.js" },
+      optionalDependencies: { [platformName]: "7.0.2" }
+    };
+    // Only resolution metadata and opaque bytes are needed: this fixture never executes
+    // a compiler or API. Nested packages also require the owning manifest's resolver.
+    const materials = [
+      [manifestPath, JSON.stringify(manifest)],
+      [binPath, "// fixture compiler bin\n"],
+      [join(compilerDirectory, "lib/tsc.js"), "// fixture compiler runner\n"],
+      [join(compilerDirectory, "lib/getExePath.js"), "// fixture platform resolver\n"],
+      [
+        join(platformDirectory, "package.json"),
+        JSON.stringify({ name: platformName, version: "7.0.2" })
+      ],
+      [
+        join(platformDirectory, "lib", process.platform === "win32" ? "tsc.exe" : "tsc"),
+        "fixture native executable\n"
+      ],
+      [
+        join(compatibilityDirectory, "package.json"),
+        JSON.stringify({
+          name: "@typescript/typescript6",
+          version: "6.0.2",
+          main: "lib/typescript.js"
+        })
+      ],
+      [join(compatibilityDirectory, "lib/typescript.js"), "// fixture compatibility API\n"],
+      [join(compatibilityDirectory, "lib/typescript.d.ts"), "// fixture compatibility types\n"],
+      [
+        join(apiDirectory, "package.json"),
+        JSON.stringify({ name: "typescript", version: "6.0.3", main: "lib/typescript.js" })
+      ],
+      [join(apiDirectory, "lib/typescript.js"), "// fixture actual API\n"],
+      [join(apiDirectory, "lib/typescript.d.ts"), "// fixture actual types\n"]
+    ] as const;
+    for (const [path, contents] of materials) {
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, contents);
+    }
     const resolverUrl = pathToFileURL(join(fixtureRoot, "scripts/package/compiler-toolchain.ts"));
     const invalidManifests = [
       { ...manifest, name: "unrelated-compiler" },
@@ -93,8 +136,11 @@ function assertCompilerBinBoundary(): void {
     // than paying a fresh runtime startup for each mutation of the same fixture.
     const matrixSource = `
       import assert from "node:assert/strict";
-      import { writeFileSync } from "node:fs";
-      import { nativeTypeScriptBinPath } from ${JSON.stringify(resolverUrl.href)};
+      import { readFileSync, writeFileSync } from "node:fs";
+      import {
+        nativeTypeScriptBinPath,
+        typeScriptToolchainFingerprint
+      } from ${JSON.stringify(resolverUrl.href)};
       const manifestPath = ${JSON.stringify(manifestPath)};
       const manifest = ${JSON.stringify(manifest)};
       const resolveValid = () => {
@@ -118,6 +164,19 @@ function assertCompilerBinBoundary(): void {
         return true;
       });
       resolveValid();
+      const fingerprint = typeScriptToolchainFingerprint();
+      assert.match(fingerprint, /^[a-f0-9]{64}$/u);
+      for (const path of ${JSON.stringify(materials.map(([path]) => path))}) {
+        const original = readFileSync(path);
+        try {
+          // Whitespace preserves manifest identity/version while changing raw bytes.
+          writeFileSync(path, Buffer.concat([original, Buffer.from("\\n")]));
+          assert.notEqual(typeScriptToolchainFingerprint(), fingerprint, path);
+        } finally {
+          writeFileSync(path, original);
+        }
+        assert.equal(typeScriptToolchainFingerprint(), fingerprint, path);
+      }
     `;
     const matrix = spawnSync(process.execPath, ["--eval", matrixSource], {
       cwd: fixtureRoot,

@@ -167,7 +167,7 @@ Entities:
   Proves:
 
 - 无效 output object 与已知 leaf 返回对应 controls path、invalid-value 和封闭的合法值提示；unknown key 返回具体字段 path 与 unknown-key，不附加 expected 或回显被拒绝值。
-- disabled output 的显式字段仍被校验；accessor 不被执行，Run 在无效目录、未知 output 字段或非法 preview 配置下返回 configuration，且不执行 Check author callback。
+- 直接校验覆盖无效目录、未知 output 字段和 disabled output 的非法显式字段，且不执行 accessor；Run 以 disabled progress 的非法 preview 配置为代表返回 configuration，在 preparation 与 execution 之前拒绝作者工作。
 
 ## Case WB-PROGRESS-OUTPUT-001: Progress rendering is a Run-owned output
 
@@ -275,7 +275,7 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-naming.test.ts|Package Run diagnostic file naming > reports a single channel collision with its real target while the other channel succeeds`
   Proves:
 
-- Only omitted/undefined, `unique` and `channel` controls are accepted; invalid values fail before author work, valid controls are frozen, and undefined is omitted from the snapshot.
+- Direct Controls validation accepts only omitted/undefined, `unique` and `channel`, rejects the invalid-value matrix, freezes valid controls and omits undefined from the snapshot. One Run representative preserves the exact rejection diagnostic before either prepare or execute is called.
 - Default and explicit unique modes preserve UTC/UUID basenames; channel mode selects only `core.log` / `scheduler.log`, preserves invocation correlation and Definition fingerprint, and does not enable disabled diagnostics or create their directory.
 - Concurrent and repeated channel targets fail without overwriting or appending existing bytes, while settled Check facts survive. A pre-existing core file fails only that channel, retains its real target readback, allows scheduler success and produces aggregate diagnostic failure; no pair-atomic rollback is promised.
 

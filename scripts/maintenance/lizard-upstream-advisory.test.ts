@@ -94,12 +94,15 @@ test("Lizard upstream advisory maps timeout and network failures to stable advis
   });
   const cancellation = new AbortController();
   cancellation.abort();
+  let cancelledFetchCalls = 0;
   const cancelled = await checkLizardUpstream({
     fetch: async () => {
+      cancelledFetchCalls += 1;
       throw new Error("cancelled lookup must not start");
     },
     signal: cancellation.signal
   });
+  assert.equal(cancelledFetchCalls, 0);
 
   assert.equal(timeout.code, "lizard-upstream-timeout");
   assert.equal(network.code, "lizard-upstream-network-error");

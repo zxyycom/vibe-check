@@ -149,7 +149,7 @@ Entities:
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > uses caller-owned observations and contains local history write failure`
   Proves:
 
-- The factory sends bounded setup/fallback observations to its optional caller-owned observer without Product diagnostic output. A local history failure remains optimization-only and preserves the completed quality result.
+- A real file-as-directory history write failure emits `recording-unavailable` to the caller-owned observer. The Run still completes with exactly the expected passed Check facts and a passed aggregate. Observations omit private options, flags, identity digests and history samples.
 
 ## Case WB-RUNTIME-ADMISSION-STRATEGY-LIFECYCLE-001: Invocation-scoped strategies preserve terminal delivery
 
@@ -176,7 +176,7 @@ Entities:
   Proves:
 
 - Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver terminalEffect at most once after admission stops, started work drains and generic terminal effects settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no terminal-effect delivery.
-- Generic terminal effects all receive their chance before public `terminalEffect`. Their actual settlement, plus optional `terminalEffect`, is the sole input to `terminalEffects`: generic-only no-context stays enabled/`not-run`; simple and prepared-without-terminalEffect do not independently enable it; a terminal-effect failure cannot overwrite sealed primary facts, and later terminalEffect success cannot overwrite a generic failure.
+- Generic terminal effects all receive their chance before public `terminalEffect`. Invocation awaits the prepared effect's asynchronous completion before settling. Actual effect settlement is the sole input to `terminalEffects`: generic-only no-context stays enabled/`not-run`; simple and prepared-without-terminalEffect do not independently enable it; a terminal-effect failure cannot overwrite sealed primary facts, and later terminalEffect success cannot overwrite a generic failure.
 - A learned factory is an ordinary public prepared strategy: it prepares immutable prediction before Scheduler decisions and records its terminal sample only after terminal delivery, without a private Invocation lifecycle.
 - Preparation, synchronous decisions and generic/prepared terminal delivery observe the same frozen static graph identity with inherited scope/resource facts and the validated root cap; flag-excluded providers still block dependents while terminal observations can proceed.
 - Empty preparation skips graph projection; returned decision needs are copied before Scheduler execution and later caller mutation does not change the delivered fields.

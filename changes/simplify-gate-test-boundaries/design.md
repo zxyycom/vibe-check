@@ -4,9 +4,7 @@
 
 ## Context
 
-前序实施及审查已保存为 `f998ed4c`、`82f83db7` 和 `9bf26715`；形成时的输入、前后测量及环境边界见[测量报告](../../docs/investigations/measure-gate-test-boundary-simplification.md)。
-
-前两版追加清理已保存为 `91903719`，第三版在其上完成已确认的降层与收窄。当前授权为提交前文档/代码复核、必要 Git 提交及 hook 推送；验证与未完成项由 [tasks](tasks.md#evidence) 承接，更广泛性能修复与 Change 删除另行确定范围或授权。
+前序实施与前三版追加清理已提交。当前在 `823a25eb` 基础上交付第四、五版测试整理，并按用户要求完成文档、编码规范复核与 Git 保存，允许既有 hook 推送。形成时测量见[测量报告](../../docs/investigations/measure-gate-test-boundary-simplification.md)，版本、验证与未完成项集中在 [tasks](tasks.md#evidence)。
 
 ## Goals / Non-Goals
 
@@ -16,32 +14,35 @@
 
 ### Intended Change
 
-1. layout 保留文件扫描与 import policy 接线；负向策略矩阵尽量用内存分析，删除组织形状和构建源码正则及其失去义务的测试。
-2. package 路径约束直接调用路径逻辑；fingerprint 使用最小材料与私有工具链身份依赖；文档 guard 由真实调用方共享可直接调用入口，保留没有 fallback 的证明。
-3. Git 分类/解析在逻辑层覆盖，真实 Git 保留代表边界；减少三次初始化，剩余真实用例仍使用独立 fixture，不新增共享缓存。异步顺序使用 barrier，时间计算复用已有可控时钟，真实 event-loop 边界仍有小集成测试。
-4. function metrics 用同一生产读取路径和私有 limit policy 测小容量等于/超限、累计和 chunk 边界；生产默认仍 8/64 MiB。取消测试只用足够触发协议的一行输入，不让假 Worker 配大文本。
-5. Gate 使用 routine/release-only/explicit-only 私有资格策略；复用 `--all --release-receipt` 发布上下文，不新增 Product API 或预算档。types 与 workbench 有显式 focused 诊断入口；常规 all/changed/fallback 不自动包含它们。现有 runner 分组不为性能拆分。
-6. 追加审查以当前 owner 承接完整规则，其它页面保留任务路由；计划只保存当前状态和证据入口，形成时测量过程归调查报告。代码以编码规范的语义下限复核完整变化模块及直接消费者，仅修正实际职责、数据流或失败路径障碍。
-7. Gate 规则矩阵直接调用性能领域 API，adapter 保留短路顺序、最终结果和真实日志代表证据；已有全集或真实 factory 接线承接重复证明。Markdown lint 的空 root、零匹配和 missing-root outcomes 由 Product 直接执行与真实文件系统证明。
-8. duplicate acquisition 直接执行 Check，保留隔离进程、真实文件、scanner/cache 顺序、零额外获取与身份采样时点；area/blocking 矩阵由领域 API 证明，真实 scan/cache pair 验证 exact-input 交接与 raw-cache 策略重算。Git/安装 fixture 只保留被目标行为实际消费的输入。
-9. Markdown collector 接收已渲染输入，类型配置直接测试既有函数，manifest 静态批准值在 source→projection/audit 层证明。真实 compiler、法律字节、文件排除、pack/installed 和公开 waiver 调用继续验收。
-10. 第三版按不同接线机制保留代表性集成：installed waiver 留首次 finding→公开 identity→applied→machine Records，完整变体归源码 cache/waiver 测试；duplicate 默认 scanner 直接执行 Check，maintenance 通用发布由领域结果及 Run/publication owner 承接。aggregation 矩阵直接调用既有领域 API，保留真实 selection、拒绝清理与发布接线；artifact 保留独立 façade 字节批准值，取消私有重导出路径锁定。
+| 责任 | 直接证明 | 保留的真实边界 |
+| --- | --- | --- |
+| Layout / 模块依赖 | 内存 AST 覆盖依赖方向和加载语法；目录形状与构建源码写法交给人工审查。 | 文件扫描、TypeScript resolution、symbol identity、alias、递归闭包及 no-emit 类型错误；Core nonliteral 与 strict-tool dynamic 各留工程接线。 |
+| Controls / flags / aggregation | 既有 API 覆盖非法值、四种 flag 运算及默认/custom 聚合矩阵。 | Run 拒绝时 prepare/execute 零调用、代表性启用/禁用、依赖闭包与 observes、结果传播、错误清理及 publication；诊断文件 collision 与原字节保留。 |
+| 取消 / prepared / history | 取消断言明确 execution phase；预取消以 callback 外部计数证明零调用；prepared barrier 跨 event-loop turn 观察 Invocation 仍 pending。 | barrier 在失败时也释放并等待 Invocation；真实 history 写失败观察 recording-unavailable，Check facts 与 aggregate 仍 passed。 |
+| Markdown | collector 接收已渲染输入；MD052 adapter 精确断言三种引用及忽略形式的位置列表。 | 非首列 finding 到公开 Record 的转换；空 root、零匹配及 missing-root 由 Check 与真实文件系统证明。 |
+| duplicate / waiver | acquisition 直接执行 Check，area/blocking 与完整 waiver 变体由领域/cache 测试证明。 | 默认 scanner、exact-input、零获取、身份采样、source mutation、warm raw-cache 策略重算与隔离进程；installed waiver 保留 finding→公开 identity→applied→machine Records。 |
+| Package / 工具链 | 路径、类型配置和 manifest 静态批准值使用直接入口；生产 fingerprint 对 12 项隔离材料逐项改字节并验证恢复。 | 真实 compiler/API 版本与 AST、物理 bin、法律及 façade 字节、文件排除、pack/installed Node/Worker；嵌套 platform/API 使用 manifest-anchored resolution。 |
+| Git / 容量 / 时间 | 分类与解析用领域输入；同一生产读取路径配私有 limit policy 覆盖等于/超限、累计与 chunk；无关等待用 barrier 或可控时钟。 | 独立 Git first-parent fixture、生产 8/64 MiB 默认限额及真实 timer/I/O 资格；fixture 只准备实际消费的输入。 |
+| Gate | 性能规则使用领域矩阵，已有全集与真实 factory 测试承接分组/接线；按 routine/release-only/explicit-only 选择。 | adapter 短路顺序、最终结果及两类真实日志；唯一 candidate、四扫描、installed docs/runtime；正式 receipt+all 包含 types，types/workbench 保留 focused 入口。 |
+
+文档在 owner 完整表达规则，在计划保存实施取舍与证据；代码按[编码规范](../../docs/development/coding-style.md)复核完整变化模块及直接消费者，测试与临时 fixture 使用相同标准。
 
 ### Resulting Impacts
 
-测试实体 rename/split/delete 依语义维护既有 Case；保留四扫描及 installed runtime/docs，公开签名不新增配置。稳定 owner 区分组织约定的 Manual CR 与机器依赖边界。Gate 分层和唯一 prepared candidate 的长期判断需要承接新的自动选择边界，发布完整性方向不变。Gate ID 改名会改变本地 learned-history identity，不迁移旧缓存或改历史 workbench 模型。
-
-追加清理仅维护已有 Case 的实际证明范围；新配对领域测试沿既有 owner 放置，不创建生产测试 seam。真实 Git first-parent、当前 source/target 字节、installed Node/Worker、模块加载及退出证据保留。完整 Gate 串行执行一次作为交付验证，不将其耗时视为受控前后对照。
-
-第三版接受减少特定 builtin 的整链组合观察，不将领域与通用接线分别通过描述为同一端到端证明；失去直接实体的 Case 按实际目的退休。compiler parser 尚未自然分离，保留现有隔离解析矩阵，避免为测试新增生产入口。
+1. 测试 rename/split/delete 按语义维护 Case；配对测试放在已有 owner，公开签名不增加测试配置。compiler parser 保留现有隔离矩阵，避免为测试制造生产入口。
+2. 语法配对测试与真实工程闭包同属 `scriptsPackageToolsBoundary` lane；路径纳入边界 region、从 ordinary validation region 排除，并由 selection 路径矩阵验证原 fast 资格。
+3. Gate 自动选择的长期判断由稳定 Decision 承接；前序 ID 改名改变 learned-history identity，旧缓存不迁移。当前测试清理保持 Check 身份、资格、预算、timeout 和 runner 分组。
+4. 按受影响边界串行执行交付 Gate：安装验收变化使用 all，当前跨 owner 测试/Case 使用 changed。其耗时只表示本次验收，不作为受控性能对照。
 
 ## Risks / Trade-offs
 
-目录偏离不再自动阻断，types 兼容问题可能到发布前才发现，workbench 可到显式使用时才发现问题。测试接线必须真实消费新私有入口，避免只测 helper 而绕过 caller；fixture 复用不得引入顺序依赖。前后常规 Gate workload 因授权移出两项而变化，必须与局部测试优化分开量化。
+- 领域矩阵与代表接线分别证明，减少了每个非法值、flag 运算、语法或特定 builtin 各自穿过整链的组合观察；二者通过不等同于保留全部端到端证明。
+- 隔离工具链材料证明真实 resolver/hash 的字节敏感性，installed compiler/API 测试另证运行资格；预期值独立于生产计算，fixture 保持调用间隔离。
+- 目录偏离由人工审查发现；types 兼容问题可能到发布前、workbench 问题可能到显式使用时才发现。前后常规 Gate workload 移出两项的收益须与局部执行优化分开量化。
 
 ## Open Questions
 
-当前待确定的是完整 Gate 性能阻断的后续修复范围，任务 2.4 保持未完成；第三版直接验证与独立审查结果见 [tasks](tasks.md#当前验证与未完成项)。版本保存不表示性能验收或 Change 结项已完成。
+changed Gate 的已选功能通过，性能预算仍未闭合。后续性能修复范围待确定，任务 2.4 保持未完成；Change 删除另需授权。数值及未验证边界见 [tasks](tasks.md#当前验证与未完成项)。
 
 前轮 timeout 的现场见[交付超时报告](../../docs/investigations/record-delivery-duplicate-lane-timeout.md)。后续单次通过只证明该次执行成功，根因与稳定性仍待验证。
 

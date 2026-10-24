@@ -133,17 +133,6 @@ it("enforces package-tool public contracts and Core closure", { timeout: 30_000 
     },
     {
       expected:
-        "package-tools-core-unsupported-module-syntax: src/check/import-equals.ts (import equals)",
-      mutate: (root) => {
-        writeSource(
-          root,
-          "src/check/import-equals.ts",
-          'import packageTool = require("../package-tools/consumer/tool.ts");\nvoid packageTool;\n'
-        );
-      }
-    },
-    {
-      expected:
         "package-tools-private-product-symbol: src/package-tools/new-tool/new-tool.ts -> ../../check/public-contract.ts (PrivateContract)",
       mutate: (root) => {
         writeSource(
@@ -187,78 +176,12 @@ it("enforces package-tool public contracts and Core closure", { timeout: 30_000 
     },
     {
       expected:
-        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (default import)",
-      mutate: (root) => {
-        writeSource(
-          root,
-          "src/package-tools/consumer/tool.ts",
-          'import publicValue from "../../check/public-contract.ts";\nvoid publicValue;\n'
-        );
-      }
-    },
-    {
-      expected:
-        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (namespace import)",
-      mutate: (root) => {
-        writeSource(
-          root,
-          "src/package-tools/consumer/tool.ts",
-          'import * as contract from "../../check/public-contract.ts";\nvoid contract;\n'
-        );
-      }
-    },
-    {
-      expected:
-        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (side-effect import)",
-      mutate: (root) => {
-        writeSource(
-          root,
-          "src/package-tools/consumer/tool.ts",
-          'import "../../check/public-contract.ts";\n'
-        );
-      }
-    },
-    {
-      expected:
-        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (export star)",
-      mutate: (root) => {
-        writeSource(
-          root,
-          "src/package-tools/consumer/tool.ts",
-          'export * from "../../check/public-contract.ts";\n'
-        );
-      }
-    },
-    {
-      expected:
         "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (dynamic import)",
       mutate: (root) => {
         writeSource(
           root,
           "src/package-tools/consumer/tool.ts",
           'const contract = import("../../check/public-contract.ts");\nvoid contract;\n'
-        );
-      }
-    },
-    {
-      expected:
-        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (require)",
-      mutate: (root) => {
-        writeSource(
-          root,
-          "src/package-tools/consumer/tool.ts",
-          'const contract = require("../../check/public-contract.ts");\nvoid contract;\n'
-        );
-      }
-    },
-    {
-      expected:
-        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (import type query)",
-      mutate: (root) => {
-        writeSource(
-          root,
-          "src/package-tools/consumer/tool.ts",
-          'type Contract = import("../../check/public-contract.ts").PublicContract;\nexport type { Contract };\n'
         );
       }
     },

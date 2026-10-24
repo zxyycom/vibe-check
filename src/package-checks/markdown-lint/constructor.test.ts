@@ -225,13 +225,13 @@ describe("Markdown lint Check", () => {
     }
   });
 
-  it("reports MD052 reference forms through the public single-rule Check", async () => {
+  it("projects an MD052 finding into a public single-rule Check Record", async () => {
     const root = createMarkdownLintTestRoot("vibe-check-markdown-lint-references-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(
         join(root, "docs", "references.md"),
-        "# Title\n### Warmup heading\n[full][missing-full]\n[collapsed][]\n![image][missing-image]\n[x][x]\n[shortcut]\n",
+        "# Title\n### Warmup heading\nprefix [full][missing-full]\n",
         "utf8"
       );
       const options = markdownLint({
@@ -239,11 +239,28 @@ describe("Markdown lint Check", () => {
         rules: ["reference-links-images"]
       }).options;
       const result = await executeMarkdownLintCheck(executeMarkdownLint, options, root);
-      assert.equal(result.result.status, "passed");
-      assert.equal(result.records.length, 3);
-      assert.equal(
-        result.records.every(({ data }) => JSON.stringify(data).includes("reference-links-images")),
-        true
+      assert.deepEqual(result.result, {
+        status: "passed",
+        data: { sourceFileCount: 1, findingCount: 1, rejectedInputCount: 0 },
+        messages: [
+          {
+            code: "finding-detail",
+            level: "warning",
+            message:
+              "docs/references.md:3:8 reference-links-images: reference links and images require a definition."
+          }
+        ]
+      });
+      assert.deepEqual(
+        result.records.map(({ data }) => data),
+        [
+          {
+            kind: "lint-finding",
+            path: "docs/references.md",
+            rule: "reference-links-images",
+            range: { start: { line: 3, column: 8 }, end: { line: 3, column: 28 } }
+          }
+        ]
       );
     } finally {
       rmSync(root, { recursive: true, force: true });

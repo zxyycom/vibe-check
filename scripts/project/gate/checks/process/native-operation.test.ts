@@ -373,10 +373,12 @@ describe("Project Gate native operation", () => {
 
     const cancelled = new AbortController();
     cancelled.abort();
+    let cancelledOperationCalls = 0;
     const check = createNativeOperationCheck({
       checkId: "fixture-native-cancelled",
       displayName: "Fixture native cancelled",
       operation: () => {
+        cancelledOperationCalls += 1;
         throw new Error("must not run");
       }
     });
@@ -384,6 +386,7 @@ describe("Project Gate native operation", () => {
       status: "unavailable",
       reason: { code: "execution-cancelled" }
     });
+    assert.equal(cancelledOperationCalls, 0);
 
     const afterOperationCancellation = new AbortController();
     let operationWorkspaceRoot: string | undefined;

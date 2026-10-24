@@ -50,12 +50,10 @@ describe("Markdown lint adapter", () => {
       "# Title\n### Warmup heading\n[full][missing-full]\n[collapsed][]\n![image][missing-image]\n[x][x]\n[shortcut]\n",
       ["reference-links-images"]
     );
-    assert.notEqual(typeof findings, "string");
-    if (typeof findings === "string") return;
-    assert.equal(findings.length, 3);
-    assert.equal(
-      findings.every((finding) => finding.rule === "reference-links-images"),
-      true
-    );
+    assert.deepEqual(findings, [
+      { lineNumber: 3, range: [1, 20], rule: "reference-links-images" },
+      { lineNumber: 4, range: [1, 13], rule: "reference-links-images" },
+      { lineNumber: 5, range: [1, 23], rule: "reference-links-images" }
+    ]);
   });
 });

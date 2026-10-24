@@ -355,6 +355,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/validation/repository-layout.ts",
       "scripts/validation/repository-layout.test-support.ts",
       "scripts/validation/package-tools-core-closure.test.ts",
+      "scripts/validation/package-tools-module-graph.test.ts",
       "scripts/validation/package-tools-boundary.ts",
       "scripts/validation/package-tools-core-closure.ts",
       "scripts/validation/package-tools-module-graph.ts",
@@ -400,6 +401,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "pnpm-lock.yaml",
       "!scripts/validation/repository-layout.test.ts",
       "!scripts/validation/package-tools-core-closure.test.ts",
+      "!scripts/validation/package-tools-module-graph.test.ts",
       "!scripts/validation/repository-material/machine-artifacts/validation.test.ts"
     ]
   },

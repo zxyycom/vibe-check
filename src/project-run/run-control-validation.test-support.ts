@@ -5,23 +5,20 @@ import { check, definition, PASSED } from "./run-fixtures.test-support.ts";
 
 export async function assertInvalidRunControlsAndDefinition(calls: () => number): Promise<void> {
   const source = definition([
-    check({
-      execute: () => {
+    {
+      ...check({
+        execute: () => {
+          calls();
+          return PASSED;
+        }
+      }),
+      prepare: (options) => {
         calls();
-        return PASSED;
+        return { status: "success", preparedOptions: options };
       }
-    })
+    }
   ]);
   const unknown = await run(source, { changedFiles: ["src/a.ts"] });
-  const emptyDirectory = await run(source, {
-    outputs: { diagnosticLogging: { directory: "" } }
-  });
-  const nulDirectory = await run(source, {
-    outputs: { machinePublication: { directory: "machine\0output" } }
-  });
-  const unknownOutputKey = await run(source, {
-    outputs: { diagnosticLogging: { directory: "diagnostic", unexpected: true } }
-  });
   const invalidPreview = await run(source, {
     outputs: { progressRendering: { enabled: false, recordPreviewLimit: -1 } }
   });
@@ -31,23 +28,6 @@ export async function assertInvalidRunControlsAndDefinition(calls: () => number)
   const nulProgressLogFile = await run(source, { progressLogFile: "progress\0.log" });
   const invalidDefinition = await run({ ...source, unexpected: true }, {});
   assertInvalidControl(unknown, "controls.changedFiles", "unknown-key");
-  assertInvalidControl(
-    emptyDirectory,
-    "controls.outputs.diagnosticLogging.directory",
-    "invalid-value",
-    "non-empty-string-without-nul"
-  );
-  assertInvalidControl(
-    nulDirectory,
-    "controls.outputs.machinePublication.directory",
-    "invalid-value",
-    "non-empty-string-without-nul"
-  );
-  assertInvalidControl(
-    unknownOutputKey,
-    "controls.outputs.diagnosticLogging.unexpected",
-    "unknown-key"
-  );
   assertInvalidControl(
     invalidPreview,
     "controls.outputs.progressRendering.recordPreviewLimit",

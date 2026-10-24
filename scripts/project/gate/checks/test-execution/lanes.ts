@@ -23,7 +23,8 @@ const SCRIPT_SPECIAL_TEST_LANES = new Map<string, ProjectGateTestLaneName>([
     "scriptsMachineArtifacts"
   ],
   ["scripts/validation/repository-layout.test.ts", "scriptsLayout"],
-  ["scripts/validation/package-tools-core-closure.test.ts", "scriptsPackageToolsBoundary"]
+  ["scripts/validation/package-tools-core-closure.test.ts", "scriptsPackageToolsBoundary"],
+  ["scripts/validation/package-tools-module-graph.test.ts", "scriptsPackageToolsBoundary"]
 ]);
 
 export const PROJECT_GATE_TEST_LANE_NAMES = [

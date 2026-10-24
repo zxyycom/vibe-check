@@ -19,26 +19,34 @@ import { check, deferred, definition } from "./invocation.test-support.ts";
 
 describe("Package Run diagnostic file naming", () => {
   it("rejects unsupported naming before author work while preserving optional controls", async () => {
-    let authorCalls = 0;
-    const source = definition([
-      check({
-        execute: () => {
-          authorCalls += 1;
-          return { status: "passed", data: {} };
-        }
-      })
-    ]);
+    const invalidDiagnostic = {
+      kind: "invalid-run-controls",
+      path: "controls.diagnosticLogFileNaming",
+      reason: "invalid-value"
+    };
     for (const naming of [null, false, 0, "", "fixed", {}, () => "channel"]) {
-      const result = await run(source, { diagnosticLogFileNaming: naming });
-      assert.equal(result.kind, "configuration");
-      if (result.kind !== "configuration") continue;
-      assert.deepEqual(result.diagnostic, {
-        kind: "invalid-run-controls",
-        path: "controls.diagnosticLogFileNaming",
-        reason: "invalid-value"
-      });
+      const controls = validateRunControls({ diagnosticLogFileNaming: naming });
+      assert.deepEqual(controls, { ok: false, error: invalidDiagnostic });
     }
-    assert.equal(authorCalls, 0);
+    const authorCalls = { prepare: 0, execute: 0 };
+    const source = definition([
+      {
+        ...check({
+          execute: () => {
+            authorCalls.execute += 1;
+            return { status: "passed", data: {} };
+          }
+        }),
+        prepare: () => {
+          authorCalls.prepare += 1;
+          return { status: "success", preparedOptions: {} };
+        }
+      }
+    ]);
+    const result = await run(source, { diagnosticLogFileNaming: "fixed" });
+    assert.equal(result.kind, "configuration");
+    if (result.kind === "configuration") assert.deepEqual(result.diagnostic, invalidDiagnostic);
+    assert.deepEqual(authorCalls, { prepare: 0, execute: 0 });
     for (const naming of [undefined, "unique", "channel"] as const) {
       const controls = validateRunControls({ diagnosticLogFileNaming: naming });
       assert.equal(controls.ok, true);

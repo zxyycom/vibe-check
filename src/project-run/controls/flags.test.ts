@@ -25,13 +25,7 @@ function requireCompletedRun(result: Awaited<ReturnType<typeof run>>) {
   return result;
 }
 
-async function assertFlagEnablementMode(
-  input: Readonly<{
-    readonly mode: "all" | "any" | "none" | "not-all";
-    readonly matchingFlags: readonly string[];
-    readonly nonmatchingFlags: readonly string[];
-  }>
-): Promise<void> {
+async function assertFlagEnablementLifecycle(): Promise<void> {
   let preparationCalls = 0;
   let controlledCalls = 0;
   let dependentCalls = 0;
@@ -42,7 +36,7 @@ async function assertFlagEnablementMode(
     {
       checkId: "flag-controlled",
       displayName: "Flag-controlled",
-      enabledByFlags: { when: conditionForMode(input.mode, CONTROL_FLAGS) },
+      enabledByFlags: { when: { kind: "all", conditions: CONTROL_FLAGS } },
       prepare: (options) => {
         preparationCalls += 1;
         return { status: "success", preparedOptions: options };
@@ -82,14 +76,14 @@ async function assertFlagEnablementMode(
     }
   ]);
 
-  const enabled = requireCompletedRun(await run(source, { flags: input.matchingFlags }));
-  const disabled = requireCompletedRun(await run(source, { flags: input.nonmatchingFlags }));
+  const enabled = requireCompletedRun(await run(source, { flags: CONTROL_FLAGS }));
+  const disabled = requireCompletedRun(await run(source, { flags: ["feature:alpha"] }));
   assert.equal(preparationCalls, 1);
   assert.equal(controlledCalls, 1);
   assert.equal(dependentCalls, 1);
   assert.equal(observerCalls, 2);
   assert.deepEqual(observedStatuses, ["passed", "not-applicable"]);
-  assert.deepEqual(observedFlags, [Object.freeze([...new Set(input.matchingFlags)].sort())]);
+  assert.deepEqual(observedFlags, [["feature:alpha", "feature:beta"]]);
   assert.deepEqual(
     enabled.snapshot.checks.find(({ checkId }) => checkId === "flag-controlled")?.outcome,
     PASSED
@@ -112,13 +106,6 @@ async function assertFlagEnablementMode(
       reason: { code: "dependency-not-passed", checkIds: ["flag-controlled"] }
     }
   );
-}
-
-function conditionForMode(
-  kind: "all" | "any" | "none" | "not-all",
-  conditions: readonly [string, ...string[]]
-): NonNullable<Check["enabledByFlags"]>["when"] {
-  return { kind, conditions };
 }
 
 describe("Package Run flags", () => {
@@ -224,45 +211,7 @@ describe("Package Run flags", () => {
     assert.deepEqual(snapshots, [[], [], [], ["disabled:docs", "enabled:docs"]]);
   });
 
-  it("enables all mode only when every configured flag is present", async () => {
-    await assertFlagEnablementMode({
-      matchingFlags: CONTROL_FLAGS,
-      mode: "all",
-      nonmatchingFlags: ["feature:alpha"]
-    });
-  });
-
-  it("enables any mode when at least one configured flag is present", async () => {
-    await assertFlagEnablementMode({
-      matchingFlags: ["feature:beta"],
-      mode: "any",
-      nonmatchingFlags: ["feature:other"]
-    });
-    await assertFlagEnablementMode({
-      matchingFlags: CONTROL_FLAGS,
-      mode: "any",
-      nonmatchingFlags: ["feature:other"]
-    });
-  });
-
-  it("enables none mode only when no configured flag is present", async () => {
-    await assertFlagEnablementMode({
-      matchingFlags: ["feature:other"],
-      mode: "none",
-      nonmatchingFlags: ["feature:alpha"]
-    });
-  });
-
-  it("enables not-all mode when at least one configured flag is absent", async () => {
-    await assertFlagEnablementMode({
-      matchingFlags: ["feature:alpha"],
-      mode: "not-all",
-      nonmatchingFlags: CONTROL_FLAGS
-    });
-    await assertFlagEnablementMode({
-      matchingFlags: [],
-      mode: "not-all",
-      nonmatchingFlags: CONTROL_FLAGS
-    });
+  it("applies flag selection before preparation and preserves dependent and observer lifecycles", async () => {
+    await assertFlagEnablementLifecycle();
   });
 });

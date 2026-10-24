@@ -66,7 +66,7 @@ Entities:
 - `bun|scripts/package/compiler-toolchain.test.ts|stable native compiler and compatibility API retain distinct installed entrypoints`
   Proves:
 
-- The official compatibility alias preserves actual TS6 AST API behavior and `tsc6` version while the explicitly resolved native bin executes stable TS7. Both development scopes invoke that native bin directly rather than relying on PATH, a preview command or a competing `.bin` entry; malformed package identities and missing, directory or escaping bin declarations fail explicitly. The installed native platform and real API inputs form a deterministic toolchain fingerprint.
+- The official compatibility alias preserves TS6 AST API behavior and `tsc6` version while the explicitly resolved native bin executes stable TS7. Both development scopes invoke that bin directly; malformed identities and missing, directory or escaping bin declarations fail explicitly. The production fingerprint changes with each native, platform, wrapper and actual API material's bytes and returns to its baseline after restoration. Nested platform/API packages resolve relative to their owning manifests. Isolated material sensitivity and installed compiler/API execution are separate proofs.
 
 ## Case AUX-TRANSLATED-SOURCE-MAPPING-001: Source mapping maintenance updates only selected derived material
 
@@ -279,11 +279,12 @@ Entities:
 - `bun|scripts/validation/repository-layout.test.ts|validates repository layout and dependency boundaries`
 - `bun|scripts/validation/repository-layout.test.ts|rejects forbidden dependencies from in-memory module analyses`
 - `bun|scripts/validation/package-tools-core-closure.test.ts|enforces package-tool public contracts and Core closure`
+- `bun|scripts/validation/package-tools-module-graph.test.ts|rejects unsupported loading syntax under Core and package-tool policies`
   Proves:
 
 - Workspace validation rejects forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, and an environment bootstrap dependency on process-execution. The negative matrix runs source text through real AST analysis and the dependency policies in memory; a minimal filesystem fixture and the current repository positive prove production adapter wiring.
 - It also fail-closes the function-metrics private port boundary: only `analyzer-adapter.ts` may consume `analyzer/port-facade.ts`; port code cannot import Product; `analyzer-worker.ts` and `target-files.ts` must value-import the adapter; a later syntax error still reports its parse diagnostic once but cannot create a false missing-adapter-import violation; port-external Product tests cannot deep-import analyzer modules; and public/package entry points cannot leak the façade, adapter, Worker, or deep path.
-- Optional package-tool production modules are discovered recursively and may use only named Product symbols whose TypeScript identity and type/value role are genuinely exported by the package root; public aliases, values and callback-shaped contracts remain valid while same-module private symbols, package-root round trips, test material, external modules outside the exact approved `node:crypto`, `node:fs`, and `node:path` production set, unresolved paths, and default/namespace/side-effect/star/dynamic/require/import-type-query loading forms fail closed. The fixed Core roots traverse their production import closure under the current TypeScript resolution options, so relative, absolute workspace and configured-alias edges cannot bypass direct or indirect tool rejection; literal dynamic imports join that closure, while nonliteral loading, `require`, and import-equals forms fail closed. The separately executable in-memory TypeScript no-emit proof accepts valid Core and reports an actual argument-type error.
+- Real TypeScript projects prove recursive tool discovery, public symbol identity including aliases and type/value roles, approved external leaves, and rejection of private/test/unresolved edges and package-root round trips. Core traversal retains relative, absolute, alias and literal-dynamic edges, including indirect tool rejection; a separate no-emit proof catches an actual argument-type error. Loading syntax has exact in-memory diagnostic/edge assertions, with Core nonliteral and strict-tool dynamic loading retained as real project wiring.
 
 ## Case AUX-DEVELOPMENT-QUALITY-TARGETS-001: Development quality commands exclude only generated analyzer oracle fixtures
 
@@ -343,6 +344,7 @@ Entities:
 - 已登记的 `docs/examples/package-api-support/**` 验收支持源变化会选择 package tooling lane，避免只修改共享验收逻辑时漏掉复制与 fingerprint 回归；支持源仍不是发布材料。
 - 七个 Product Check test lane 分别绑定自己的 change flag：私有实现与 fixture 触发所属组，已知 owner 的测试正文触发自身 Product lane 及扫描其正文的组。host-environment/project-files 测试属于 supporting Checks。file metrics 另消费 JSON validation/document 的实现、helper 和 fixture；function metrics 的 source-identity 审计覆盖全部 Product source。
 - 根导出、共享实现/helper、未知新模块（含测试正文）、近似目录名和测试工具链保持保守选择。package tooling、Gate 本体与普通 tooling 三个 routine 脚本组消费 Product 实现、helper 与 fixture，已知测试正文由 owning Product lane 承接；layout、质量扫描及全树 Test Evidence 保留各自正文输入。实际 Product/Core-and-tools 和 routine 脚本 lane 的完整文件清单均能触发自身，启动分区校验保持完整文件分区，显式 test/all 覆盖 routine lanes。
+- package-tools 模块语法配对测试与真实工程闭包测试同属既有快速边界 lane；其测试路径选择 layout 与 package-tools 边界测试 region，不选择其余 validation lane。
 - JSON、Schema、publication、machine example、Markdown、质量扫描和规则测试保持各自的输入边界；schema source 变化会选择 publication validator，独立材料测试证明发布漂移被拒绝。Markdown links 因反向目标依赖仍检查完整 corpus，focused preset 与 `--all` 提供不依赖变更的强制路径。
 - Product effective selection 决定 Check 执行、prerequisite 和 aggregate；未选中 Check 保留 not-applicable fact。fast/changed 保留 prepared candidate；changed 的相关 package 输入同时选择 artifact、external provider 与 installed docs/runtime，routine all 始终包含它们。types 使用 release-only policy，仅正式 receipt+all 或 consumer-types focused preset；workbench 使用 explicit-only policy，仅 admission-workbench preset，test/all/changed/unknown 或 Git-unavailable fallback 均不带入它。实际 Product 执行证明 consumer-types 自动带入两个 provider，workbench 不带入其它 lane；四扫描和 runner 数不变。
 
@@ -386,7 +388,7 @@ Entities:
   Proves:
 
 - Native operation 将 owner-approved safe diagnostics 逐项发布为完整 Check-local Records；它不创建 native `process.log`，也不再承载 diagnostic presentation。repository-material fixture 的 12 条 diagnostics 全部进入 Run snapshot 和 published `records.ndjson`；Product terminal 与 progress tee 用 generic Record preview 只显示五条、将每条 terminal-control-escaped text 限制为 240 Unicode code points，并说明另有七条 omitted。preview 不改变 failed status、final data、accepted focused-command message 或 effective aggregate。
-- 空、重复或不安全 diagnostics，以及 operation throw，均 fail closed 为 unavailable；不会创建 synthetic failed Record 或 native transcript。
+- 空、重复或不安全 diagnostics，以及 operation throw，均 fail closed 为 unavailable；不会创建 synthetic failed Record 或 native transcript。预取消返回 execution-cancelled 且 operation 调用次数为零；operation 后取消仍保留同一 root 与 signal 的交接。
 - Decision Records 只把已验证的 source/index/relationship facts 投影为 typed safe diagnostics，不转交 YAML、schema 或 filesystem `errors` 原文。semantic Test Evidence 只按 origin/code allowlist 和 code-specific policy 发布已验证的 path/location、Case ID 与 `runner: "bun"`；`topic.heading-unexpected` fixture 证明一条显式批准的 unexpected-heading Record。child/parser text、target、selector 和 entity key 不进入 native Record；generic Product preview 不读取或猜测 data fields。未知输入 fail closed 为 unavailable。
 - Test Evidence rule validation 把 cancellation 交给真实 ast-grep process，并只在自身 `checks/test-evidence-rule-tests/process.log` 保留 version/rule-test evidence。nonzero、version mismatch 和 unavailable 仍可区分；version-mismatch Record 只含 expected version、fixed mismatch classification、exit code 和 invocation-relative log reference，不复制 stdout/stderr。
 - Gate command entry factory 只把单一无 shell invocation、ordinary selection metadata、继承环境和安全完成阶段组合到 Product `commandCheck`；plain、typed dependency 或 structured failure projection 中的一种 adapter 仍保持互斥。typed dependency 通过 `dependsOn` 与执行时 resolver 读取，provider 不可用时不启动 child；混合 adapter 在 TypeScript authoring 和 runtime guard 都被拒绝。
@@ -571,8 +573,8 @@ Entities:
 - `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory maps timeout and network failures to stable advisory results`
   Proves:
 
-- 显式 maintenance lookup 只请求固定的 Lizard GitHub HTTPS release endpoint，禁用 credentials 与 redirects，并以 Lizard `1.24.0` 为 baseline；current release 产生 `no-update`，较高 stable release 只产生 `update-available`，不会修改 repository state。
-- HTTP、malformed、oversized、timeout、network 和 caller cancellation 都结算为稳定的 `unavailable` advisory code；它们不伪造“无更新”、不泄漏 transport error，也不形成默认 Gate 的阻断结论。
+- 显式 maintenance lookup 只请求固定的 Lizard GitHub HTTPS release endpoint，禁用 credentials 与 redirects，并以 owner 指定的 pinned Lizard 为 baseline；current release 产生 `no-update`，较高 stable release 只产生 `update-available`，不会修改 repository state。
+- HTTP、malformed、oversized、timeout、network 和 caller cancellation 都结算为稳定的 `unavailable` advisory code；预取消时 fetch 调用次数为零。它们不伪造“无更新”、不泄漏 transport error，也不形成默认 Gate 的阻断结论。
 
 ## Case AUX-LIZARD-PERFORMANCE-EVIDENCE-001: Opt-in Lizard comparison keeps equality and statistical interpretation explicit
 

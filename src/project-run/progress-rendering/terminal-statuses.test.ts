@@ -273,8 +273,8 @@ describe("Package Run progress terminal statuses", () => {
       { progressWriterFactory: () => output.writer }
     );
 
-    assert.equal(result.kind, "cancelled");
-    if (result.kind !== "cancelled" || result.phase !== "execution") return;
+    assert(result.kind === "cancelled");
+    assert(result.phase === "execution");
     assert.equal(unstartedCalls, 0);
     assert.deepEqual(result.snapshot.checks[1]?.outcome, {
       status: "unavailable",

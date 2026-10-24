@@ -1,5 +1,6 @@
 import { defineContextCallback } from "../../package-tools/context-callback/define-context-callback.ts";
 import assert from "node:assert/strict";
+import { setImmediate } from "node:timers/promises";
 import { assertEventsInOrder } from "./invocation-event-order.test-support.ts";
 import type { Check } from "../../check/check.ts";
 import {
@@ -7,7 +8,6 @@ import {
   type CustomAdmissionStrategy
 } from "../../project-definition/project-definition.ts";
 import { executeValidatedRun } from "./run.ts";
-import type { RunResult } from "../result.ts";
 const PASSED = Object.freeze({ data: Object.freeze({}), status: "passed" as const });
 
 const firstCandidateDecision = defineContextCallback("scheduler.decide", {
@@ -19,60 +19,79 @@ const firstCandidateDecision = defineContextCallback("scheduler.decide", {
       : { kind: "select", taskId: candidate.taskId };
   }
 });
-/** Proves the public prepared lifecycle runs after generic terminal Hooks with frozen public contexts. */
+/** Proves Invocation awaits public prepared completion after generic Hooks with frozen public contexts. */
 export async function assertPublicPreparedStrategyRunsOnce(): Promise<void> {
   const events: string[] = [];
-  const result = await executeValidatedRun(
-    defineConfig({
-      checks: [check("check", () => PASSED)],
-      outputs: {
-        machinePublication: { enabled: false },
-        progressRendering: { enabled: false }
-      },
-      scheduler: {
-        admissionPolicy: {
-          kind: "custom",
-          strategy: {
-            kind: "prepared",
-            prepare: defineContextCallback("scheduler.prepare", {
-              contextNeeds: ["graph"],
-              callback: async function (context) {
-                events.push("prepare");
-                assert.equal(Object.isFrozen(context), true);
-                assert.equal(Object.isFrozen(context.graph), true);
-                await Promise.resolve();
-                return {
-                  decide: defineContextCallback("scheduler.decide", {
-                    contextNeeds: ["candidates"],
-                    callback: function (decision) {
-                      events.push("decide");
-                      return firstCandidateDecision.callback(decision);
-                    }
-                  }),
-                  terminalEffect: defineContextCallback("scheduler.terminal", {
-                    contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
-                    callback: function (terminal) {
-                      assert.equal(Object.isFrozen(terminal), true);
-                      assert.equal("terminalMeasurement" in terminal, false);
-                      events.push("complete");
-                    }
-                  })
-                };
-              }
-            })
+  const entered = deferred<void>();
+  const release = deferred<void>();
+  const invocation = executeValidatedRun(
+    customDefinition(
+      {
+        kind: "prepared",
+        prepare: defineContextCallback("scheduler.prepare", {
+          contextNeeds: ["graph"],
+          callback: async function (context) {
+            events.push("prepare");
+            assert.equal(Object.isFrozen(context), true);
+            assert.equal(Object.isFrozen(context.graph), true);
+            await Promise.resolve();
+            return {
+              decide: defineContextCallback("scheduler.decide", {
+                contextNeeds: ["candidates"],
+                callback: function (decision) {
+                  events.push("decide");
+                  return firstCandidateDecision.callback(decision);
+                }
+              }),
+              terminalEffect: defineContextCallback("scheduler.terminal", {
+                contextNeeds: ["execution", "graph", "runMeasurement", "taskTimings"],
+                callback: async function (terminal) {
+                  assert.equal(Object.isFrozen(terminal), true);
+                  assert.equal("terminalMeasurement" in terminal, false);
+                  entered.resolve();
+                  await release.promise;
+                  events.push("complete");
+                }
+              })
+            };
           }
-        },
-        terminalEffects: [() => events.push("generic")]
-      }
-    }),
+        })
+      },
+      [
+        () => {
+          events.push("generic");
+        }
+      ]
+    ),
     {},
     []
   );
-  assert.equal(result.kind, "completed");
-  assertEventsInOrder({ events, required: ["prepare", "decide", "generic", "complete"] });
-  assert.equal(events.filter((event) => event === "prepare").length, 1);
-  assert.equal(events.filter((event) => event === "complete").length, 1);
-  assert.deepEqual(result.outputs.terminalEffects, { enabled: true, status: "succeeded" });
+  let hasSettled = false;
+  const observedInvocation = invocation.finally(() => {
+    hasSettled = true;
+  });
+  try {
+    await Promise.race([
+      entered.promise,
+      observedInvocation.then(() => {
+        throw new Error("Run settled before entering the prepared terminal effect");
+      })
+    ]);
+    // A separate event-loop turn drains completion microtasks if an await is omitted.
+    await setImmediate();
+    assert.equal(hasSettled, false, "Run must await the pending prepared terminal effect");
+    assert.equal(events.includes("complete"), false);
+    release.resolve();
+    const result = await observedInvocation;
+    assert.equal(result.kind, "completed");
+    assertEventsInOrder({ events, required: ["prepare", "decide", "generic", "complete"] });
+    assert.equal(events.filter((event) => event === "prepare").length, 1);
+    assert.equal(events.filter((event) => event === "complete").length, 1);
+    assert.deepEqual(result.outputs.terminalEffects, { enabled: true, status: "succeeded" });
+  } finally {
+    release.resolve();
+    await observedInvocation;
+  }
 }
 /** Proves each overlapping invocation owns only the closure its prepared strategy returned. */
 export async function assertPublicPreparedClosuresStayIsolated(): Promise<void> {
@@ -81,47 +100,36 @@ export async function assertPublicPreparedClosuresStayIsolated(): Promise<void> 
   const events: string[] = [];
   let checkStarts = 0;
   let preparation = 0;
-  const definition = defineConfig({
-    checks: [
-      check("check", async () => {
-        checkStarts += 1;
-        if (checkStarts === 2) bothStarted.resolve();
-        await release.promise;
-        return PASSED;
-      })
-    ],
-    outputs: {
-      machinePublication: { enabled: false },
-      progressRendering: { enabled: false }
-    },
-    scheduler: {
-      admissionPolicy: {
-        kind: "custom",
-        strategy: {
-          kind: "prepared",
-          prepare: defineContextCallback("scheduler.prepare", {
-            callback: function () {
-              preparation += 1;
-              const runId = preparation;
-              return {
-                decide: defineContextCallback("scheduler.decide", {
-                  contextNeeds: ["candidates"],
-                  callback: function (context) {
-                    events.push(`decide-${runId}`);
-                    return firstCandidateDecision.callback(context);
-                  }
-                }),
-                terminalEffect: () => {
-                  events.push(`complete-${runId}`);
-                }
-              };
+  const definition = customDefinition(
+    {
+      kind: "prepared",
+      prepare: defineContextCallback("scheduler.prepare", {
+        callback: function () {
+          preparation += 1;
+          const runId = preparation;
+          return {
+            decide: defineContextCallback("scheduler.decide", {
+              contextNeeds: ["candidates"],
+              callback: function (context) {
+                events.push(`decide-${runId}`);
+                return firstCandidateDecision.callback(context);
+              }
+            }),
+            terminalEffect: () => {
+              events.push(`complete-${runId}`);
             }
-          })
+          };
         }
-      },
-      maxParallel: 1
+      })
+    },
+    [],
+    async () => {
+      checkStarts += 1;
+      if (checkStarts === 2) bothStarted.resolve();
+      await release.promise;
+      return PASSED;
     }
-  });
+  );
   const first = executeValidatedRun(definition, {}, []);
   const second = executeValidatedRun(definition, {}, []);
   await bothStarted.promise;
@@ -222,24 +230,25 @@ export async function assertPublicCompletionFailurePreservesPrimaryResult(): Pro
 }
 /** Proves only concrete generic Hooks or a returned completion can enable terminal measurement output. */
 export async function assertMeasurementOutputParticipants(): Promise<void> {
-  const simple = await executeValidatedRun(
-    customDefinition({
+  for (const strategy of [
+    {
       kind: "simple",
       decide: firstCandidateDecision
-    }),
-    {},
-    []
-  );
-  const preparedWithoutComplete = await executeValidatedRun(
-    customDefinition({
+    },
+    {
       kind: "prepared",
       prepare: () => ({
         decide: firstCandidateDecision
       })
-    }),
-    {},
-    []
-  );
+    }
+  ] satisfies readonly CustomAdmissionStrategy[]) {
+    const result = await executeValidatedRun(customDefinition(strategy), {}, []);
+    assert.equal(result.kind, "completed", strategy.kind);
+    assert.deepEqual(result.outputs.terminalEffects, {
+      enabled: false,
+      status: "disabled"
+    });
+  }
   const genericFailureWithSuccessfulComplete = await executeValidatedRun(
     customDefinition(
       {
@@ -254,22 +263,11 @@ export async function assertMeasurementOutputParticipants(): Promise<void> {
     {},
     []
   );
-  assert.deepEqual(resultWithOutputs(simple).outputs.terminalEffects, {
-    enabled: false,
-    status: "disabled"
-  });
-  assert.deepEqual(resultWithOutputs(preparedWithoutComplete).outputs.terminalEffects, {
-    enabled: false,
-    status: "disabled"
-  });
   assert.equal(genericFailureWithSuccessfulComplete.kind, "output");
-  assert.deepEqual(
-    resultWithOutputs(genericFailureWithSuccessfulComplete).outputs.terminalEffects,
-    {
-      enabled: true,
-      status: "failed"
-    }
-  );
+  assert.deepEqual(genericFailureWithSuccessfulComplete.outputs.terminalEffects, {
+    enabled: true,
+    status: "failed"
+  });
 }
 function customDefinition(
   strategy: CustomAdmissionStrategy,
@@ -277,23 +275,17 @@ function customDefinition(
   execute: Check["execute"] = () => PASSED
 ) {
   return defineConfig({
-    checks: [check("check", execute)],
+    checks: [{ checkId: "check", displayName: "check", execute }],
     outputs: {
       machinePublication: { enabled: false },
       progressRendering: { enabled: false }
     },
     scheduler: {
       admissionPolicy: { kind: "custom", strategy },
+      maxParallel: 1,
       terminalEffects
     }
   });
-}
-function resultWithOutputs(result: RunResult) {
-  if (result.kind === "configuration") assert.fail("expected validated Run result");
-  return result;
-}
-function check(checkId: string, execute: NonNullable<Check["execute"]>): Check {
-  return { checkId, displayName: checkId, execute: execute };
 }
 export { assertEventsInOrder as assertOrdered } from "./invocation-event-order.test-support.ts";
 export function deferred<T>() {

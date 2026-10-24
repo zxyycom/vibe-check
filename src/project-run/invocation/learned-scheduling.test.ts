@@ -96,12 +96,16 @@ describe("Package Run learned Scheduler admission", () => {
         { flags: ["private-flag"], projectRoot: root },
         []
       );
-      assert.equal(result.kind, "completed");
-      assert.ok(
-        observations.some(
-          (event) => event.kind === "history-unavailable" || event.kind === "recording-unavailable"
-        )
+      assert(result.kind === "completed");
+      assert.equal(result.aggregate, "passed");
+      assert.deepEqual(
+        result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
+        [
+          { checkId: "fast", outcome: PASSED },
+          { checkId: "slow", outcome: PASSED }
+        ]
       );
+      assert.ok(observations.some((event) => event.kind === "recording-unavailable"));
       assert.doesNotMatch(
         JSON.stringify(observations),
         /private-option|private-flag|identityDigest|samples/

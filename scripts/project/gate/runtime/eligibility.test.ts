@@ -256,6 +256,10 @@ describe("Project Gate change regions", () => {
         selected: ["layout-tests", "package-tools-boundary-tests"]
       },
       {
+        path: "scripts/validation/package-tools-module-graph.test.ts",
+        selected: ["layout-tests", "package-tools-boundary-tests"]
+      },
+      {
         path: "scripts/canonical-json.ts",
         selected: ["layout-tests", "machine-artifact-tests", "script-tooling-tests"]
       },

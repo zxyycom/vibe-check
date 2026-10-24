@@ -4,7 +4,7 @@
 
 ## Why
 
-本 Change 针对测试层级过高、重复准备和自动验收职责混杂的问题：路径规则、取消或容量判断经过完整流程，layout 锁定目录组织和构建源码写法，分组名称难以区分产品测试、仓库扫描和安装验收。实施按硬约束清理、测试降层、命名与频率调整推进；当前追加清理保留独立证明，减少重复执行和无关 fixture。
+本 Change 针对测试层级过高、重复准备、弱断言和自动验收职责混杂的问题。判断每项测试的保留层级时，先明确再降一层会失去什么不可替代的观察，再选择直接领域入口或必要的真实边界。
 
 ## Outcome
 
@@ -14,17 +14,16 @@
 
 ### Intended Change
 
-依次删除目录硬约束及构建源码正则锁，保留真实依赖边界；降低 package 错入口测试与 Git fixture 重复工作；以私有策略缩小容量、以确定性同步或时钟替代无关等待；最后按责任命名现有 Check 并收敛 routine/release-only/explicit-only 选择。
-
-追加清理覆盖 Gate 重复证明、未被消费的 Git/安装 fixture、hash 次数锁定及错层规则矩阵。性能策略、duplicate area/blocking、Markdown collector、类型配置和 manifest 静态批准值由已有直接入口证明；真实 scanner/cache、日志、产物及安装验收保留独立的接线证明。
-
-当前第三版收窄 installed waiver 重复变体、builtin 的通用 Run/发布证明和 aggregation 规则矩阵，移除 artifact 中的私有重导出路径锁定。保留独立 façade 字节批准值、真实默认 scanner、warm-cache 重算、timer/I/O、compiler 物理边界及代表性 Run/安装接线。
+1. 将路径、配置、选择、聚合、加载语法及 Gate 性能规则矩阵放到已有直接入口；用代表性 Run、模块解析和安装验收证明接线。
+2. 保留真实 Git、文件身份与故障、scanner/cache、timer/I/O、compiler、制品字节和 installed Node/Worker 边界，减少未消费的 fixture 与重复准备。
+3. 用独立精确断言证明取消阶段、预取消零调用、MD052 位置、history 写入失败、prepared 异步收尾和工具链材料敏感性。
+4. 以私有限额和可控同步缩小测试输入；按职责命名 Gate Check，并区分 routine/release-only/explicit-only 选择。目录组织由人工审查负责，自动验证保留真实依赖边界。
 
 ### Resulting Impacts
 
-同步校验器、package 私有依赖、相关 Product 私有测试接线、Case 和内部 owner。修订 Gate 自动验收方向的长期记录，保留唯一候选、installed docs/runtime、四项扫描、原性能预算与统计口径。前两版已按授权完成 AI-ready-docs、完整编码规范复核与 Git 保存；第三版继续按这些规范复核变化范围。
+同步 Case 的实体映射与实际 `Proves`、相关 owner 和 Gate 选择方向的长期记录。测试移动继承原 lane 与输入 region；唯一候选、installed docs/runtime、四项扫描、原预算及统计口径保持完整。
 
-追加测试清理同步实体映射与 `Proves`，生产代码、公开 API、Gate 选择及预算保持不变。前两版已保存为 `91903719`；当前授权包含第三版文档/代码复核、必要 Git 提交及 hook 推送。完整 Gate 性能验收按实际结果交接；Change 删除另需授权。
+当前交付范围为第四、五版测试整理及提交前复核：用 AI-ready-docs 收敛文档，以完整编码规范审查变更模块和直接上下文，再保存 Git 提交，允许既有 hook 推送。Product API、生产默认值和真实依赖安装不变；性能修复的扩大范围与 Change 删除另行授权。实际证据和未完成项见 [tasks](tasks.md#当前验证与未完成项)。
 
 ## Success Criteria
 
