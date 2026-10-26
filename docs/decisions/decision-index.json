@@ -61,7 +61,7 @@
       "260812-enable-tool-effects-by-default": "sha256:27f54c7758a70541ecb85c688a86e18ea3835d5bf8fdb98123d552423d6de042",
       "260812-expose-two-public-operations": "sha256:059ca7f83aeb8d12020300db2678fba42ec44aadfff8c088ce939f38a9956ab1",
       "260812-keep-prestable-package-releases-on-0-0-x": "sha256:8b8c37ce1357a9623aeac856945663f9e4c102ef508f369d7d36d95f8cd551fe",
-      "260812-keep-seven-distinct-project-skills": "sha256:83e3718139414c33e86e569e043445e0735015d313dffdbefb6d69434e4c853a",
+      "260812-keep-seven-distinct-project-skills": "sha256:7c496a6e9fc0c01a936fc6c4b816c65b9307ba387ecf4630b6254559c97b5228",
       "260812-make-bun-entries-use-pinned-tools": "sha256:00e0def13a8ab28e6738f365af178d0171380d4ae5e4874ecd85f744345537a2",
       "260812-release-one-versioned-npm-product-unit": "sha256:2e6d1a5f34eb3780008a505b56392769c5524a6b7d1c01c18b4a31eed961dcde",
       "260812-support-bun-as-the-package-host": "sha256:18bfe5d7a2b68841208c742a4f3b5e9b61b871bd7c50b152ec6a46c6c5070367",
@@ -381,7 +381,8 @@
       "261022-tier-gate-validation": "sha256:6a2d413cc0c6521fad686032a73c4ef35c4d5181806e82c0b3a218fd7c0dd4a8",
       "261022-version-gate-performance-policy": "sha256:34f91f12c8a4b3a6371545a334c95c0600939017ae170d70ff707ac9e09114e4",
       "261024-reuse-exact-candidate-across-gate-acceptance": "sha256:3a4823ddfae872da6d998afffb8fb5f62aff6d2fb5d6198c4a7db12e4c86af59",
-      "261024-separate-routine-release-and-explicit-gate-selection": "sha256:a4e104907485db4572553fa82ba8aa1b039f393466ef7c9546b937cd3621a7e2"
+      "261024-separate-routine-release-and-explicit-gate-selection": "sha256:a4e104907485db4572553fa82ba8aa1b039f393466ef7c9546b937cd3621a7e2",
+      "261026-maintain-distinct-project-skills-with-test-design": "sha256:706042e677a897b44705a0028a7accaf8f0d00ed23105311cb2907d57b45cb59"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -1397,15 +1398,16 @@
     },
     "260812-keep-seven-distinct-project-skills": {
       "name": "keep-seven-distinct-project-skills",
-      "sourcePath": "keep-seven-distinct-project-skills.md",
+      "sourcePath": "archive/keep-seven-distinct-project-skills.md",
       "title": "只保留七项独立项目 Skill",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-12T05:41:33Z",
       "purpose": "让项目只维护具有独立治理、证据或工程判断职责的 Skill，通用编码方法由行为 owner 和编码规范承接。",
       "background": "编码规范已经统一实现模型和代码质量边界，继续安装同义编码 Skill 会形成重复指令和维护面。",
       "decision": "项目只保留三项治理、测试证据、共享契约、产品架构和性能优化七项能力，不再安装通用编码方法 Skill。",
       "tags": [
+        "skills",
         "workflow-policy"
       ],
       "relations": [
@@ -7928,6 +7930,30 @@
           "type": "修订",
           "target": "261022-tier-gate-validation",
           "summary": "保留分层反馈并明确发布和显式义务"
+        }
+      ]
+    },
+    "261026-maintain-distinct-project-skills-with-test-design": {
+      "name": "maintain-distinct-project-skills-with-test-design",
+      "sourcePath": "261026-maintain-distinct-project-skills-with-test-design.md",
+      "title": "在独立项目 Skill 集合中纳入测试设计",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-26T06:54:25Z",
+      "purpose": "让项目以有限且职责独立的 Skill 集合承接特殊工作流和工程判断，并明确测试设计与证据审查的互补责任。",
+      "background": "既有七项集合已明确限制扩展，但测试设计形成独立方法并已接入当前 owner，需以真实后继恢复一致的长期依据。",
+      "decision": "保留原七项并纳入 test-design；以独立责任而非同义通用方法选择 Skill，维护上游包、本地方法层和项目 owner 的边界。",
+      "tags": [
+        "skills",
+        "test-evidence",
+        "testing",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260812-keep-seven-distinct-project-skills",
+          "summary": "保留独立职责边界并纳入测试设计"
         }
       ]
     }
