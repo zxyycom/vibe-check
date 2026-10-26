@@ -66,4 +66,64 @@ Artifact 本轮减少 3.240 s；整体 wall 仅减少 2.388 s，且未改安装�
 - `.log/project-gate/2026-10-23T09-01-03.375Z-360666-3af1d0f5-c313-4fa9-8acb-55fa7338c146/`
 - `.log/project-gate/2026-10-23T09-18-49.073Z-412657-d9ecd1af-674d-45a8-aac4-0e916a6f2ce3/`
 
-最后一次完整 Gate 的性能失败保持为当前未解决的验收事实；后续优化需另行确定范围，本轮不继续追改其它热点。
+上述 2026-10-23 完整 Gate 的性能失败是形成时未解决的验收事实；后续收尾见下节，不改写原始测量或继续追改其它热点。
+
+## 收尾验收：2026-10-26
+
+### 验收口径与输入
+
+在 main `fe044925f0676f74061878b2ae4952fce47adc36` 核对实现提交 `f998ed4c` 已进入当前基线。
+本轮没有修改 Product、scripts、依赖、选择、调度或性能预算；此前 12 个 Change 的结项删除及协调页改动保持独立。
+
+[当前 Gate owner](../../docs/tooling/project-gate.md#selection-presets-and-scheduling)及
+[日常、发布与显式义务 Decision](../../docs/decisions/separate-routine-release-and-explicit-gate-selection.md)
+已将日常 all 限定为 41 项 routine Checks，consumer types 与 workbench 分别转为 release-only 和 explicit-only。
+本轮按既有规则先运行一次 all，再运行一次可组合的 focused types/workbench，不新增参数、不伪造正式 receipt。
+
+两次均在 Linux x64、Bun 1.4.4、Node 24.18.0 下运行，使用 current candidate 的 warm reuse。
+启动前未观察到其它 Gate/test/compiler/install 工作负载；此检查不证明没有 host 争用。
+两次 machine evidence 中 prepared candidate 与 external provider 的 tarball 摘要一致，跨 invocation 的身份也一致：
+
+| 身份 | 核对值 |
+| --- | --- |
+| candidate | `0.0.0-local.7374ef1af2cd` |
+| input fingerprint | `7374ef1af2cdccee0fc753ee08bd513d9f2a2e16f62a9f5d738a2ba637f2eba5` |
+| tarball SHA-256 | `02d24139b3b743108f7e9684106ad038589e1f5ca9e8b9e5d83c1a13641df38b` |
+| preparation | 两次均 `reuse / installation-current`；各 invocation 独立建立并清理 external consumer。 |
+
+### 实际结果
+
+| 调用 | Check 结果 | 最终结果 |
+| --- | --- | --- |
+| `mise exec -- bun run check -- --all` | 41 passed、0 failed、2 not-applicable、0 unavailable | passed / exit 0 |
+| `mise exec -- bun run check -- --consumer-types --admission-workbench` | 4 passed、0 failed、39 not-applicable、0 unavailable | passed / exit 0；focused 不评估性能预算 |
+
+All 的同次总反馈为 19199.9 ms（预算 90000 ms），mean 为 1169.6 ms（预算 2000 ms），nearest-rank P95 为
+3138.7 ms（预算 5000 ms）。三项均达标；这不是 outer command wall，不能与历史表中的 wall 直接相减。
+
+两次 `machine/run.json` 的 passed Check ID 并集恰为当前 manifest 全部 43 项。focused 相对 all 新增的只有
+`acceptance-installed-package-types` 与 `tests-scripts-admission-workbench`；共同的 candidate/external provider 不是额外覆盖。
+Artifact 与 installed docs/runtime 在 all 中执行，installed types 在 focused 中执行，都消费上述同一精确 tarball；
+不同 invocation 不共享同一个 consumer 目录。
+
+日志与 machine evidence：
+
+- all：`.log/project-gate/2026-10-26T03-21-21.972Z-245839-989743b6-f308-423f-80e4-880f3306de1a/`。
+- types/workbench：`.log/project-gate/2026-10-26T03-21-59.705Z-248317-f2623f0d-4e31-4d0a-a394-b25465e42f42/`。
+
+### 结论与边界
+
+本 Change 的实现、前后测量、完整候选材料和当前功能/类型验收已完成；routine all 的现行预算也已通过。
+本轮每种选择各运行一次，没有自动重试或放宽阈值。2.2 可以完成，不再把本项扩张为持续的全仓性能优化。
+
+历史 43 项 all 的 mean/P95 失败保持原样。2026-10-26 上轮清理任务的 changed Gate 性能失败也保留在
+`.log/project-gate/2026-10-26T03-14-15.899Z-237233-9069467f-7b1d-4798-9d48-12ad91eac2a0/`，不被本次 all 成功覆盖。
+当前选择范围、源码和 runtime 均不同于 2026-10-23，不能声称旧 workload 已稳定达标，或把差值归因于本 Change。
+focused 的耗时不纳入 all 分布，不构造“合并 43 项预算通过”的结论。
+
+Gate 后仅更新本 Change 的完成记录及协调页，未改变候选包输入；`package:status` 仍为同一 current candidate。
+最终文档经完整 `validate`、791 entities / 192 Cases / 17 topics 全树闭合、377 条 Decision 检查和
+14 项 Change 检查通过，`git diff --check` 通过。其余 13 个 Change 的 42 个文件哈希未变。
+
+本轮没有新增代码审查；实现阶段的独立审查记录保留。本轮未运行 cold candidate lifecycle integration、正式 release
+receipt 验收、远端发布或跨平台认证，不将本地候选结果表述为正式包发布证据。完成态版本保存与 finalize 按当前授权办理。
