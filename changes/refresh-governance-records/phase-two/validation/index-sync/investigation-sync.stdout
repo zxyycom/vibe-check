@@ -1,2 +1,0 @@
-$ bun scripts/investigation-report/command.ts sync-index
-Investigation index synchronized (126 reports).

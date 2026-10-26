@@ -1,2 +1,0 @@
-$ bun scripts/decision-records/command.ts sync-index
-Rebuilt docs/decisions/decision-index.json from decision Markdown files.
