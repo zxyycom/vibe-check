@@ -27,15 +27,6 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| 交接 | [`consolidate-package-acceptance`](../../changes/consolidate-package-acceptance/proposal.md) | 包/API 验收收敛已提交到 main，其预算验收状态由本 Change 的 tasks 承接；当前 selection 以 [Project Gate](../tooling/project-gate.md#selection-presets-and-scheduling) 为准，package/Gate/Case 共享 owner 串行。 |
-| P1 | [`tier-gate-validation`](../../changes/tier-gate-validation/proposal.md) | 承接测试质量清理与性能阻断方向；当前按授权完成提交前复核与版本保存，Gate/Case/决策 owner 串行。 |
-| 交接 | [`improve-test-evidence-quality`](../../changes/improve-test-evidence-quality/proposal.md) | 承接普查结论并向 Gate 分层交接保留的验收；实施和失败现场见本 Change，版本保存与后继串行。 |
-| 交接 | [`audit-test-evidence-quality`](../../changes/audit-test-evidence-quality/proposal.md) | 普查形成时依据由本 Change 保存，清理实施归 improve-test-evidence-quality；审计不再作为待执行任务。 |
-| 交接 | [`enforce-gate-performance-budgets`](../../changes/enforce-gate-performance-budgets/proposal.md) | 保存现场阻断的前序实施与证据；当前版本化策略由 tier-gate-validation 承接，沿用原阈值与统计边界。 |
-| P1 | [`reduce-gate-preparation-cost`](../../changes/reduce-gate-preparation-cost/proposal.md) | 完整输入独立复制与 Validation layout 按需加载；保留原覆盖并 before/after、完整 Gate，Project 不动，共享 owner 串行。 |
-| P1 | [`refine-script-test-regions`](../../changes/refine-script-test-regions/proposal.md) | 先证明脚本 required 输入后窄化，再分解跨组加载与准备；Gate/Case/owner 与前序改动串行，完整验收不变。 |
-| P1 | [`reduce-gate-hotspot-work`](../../changes/reduce-gate-hotspot-work/proposal.md) | 承接前序测试减重，分解 function-metrics、Markdown tests 与 consumer preparation；源码/Case/owner 写入串行，保持完整验收并复测。 |
-| P1 | [`reduce-gate-test-work`](../../changes/reduce-gate-test-work/proposal.md) | 先移除包测试重复工作，再审计 required 的测试正文选择；与其它 Gate / Case owner 写入串行，保留完整验收并比较前后证据。 |
 | P1 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
 
 ### 并行与提交边界
