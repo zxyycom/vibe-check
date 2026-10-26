@@ -9,19 +9,24 @@ background: Secret bytes、URL query values 和 userinfo 可能包含凭据，�
 decision: 原始敏感材料只存在于调用期受限内存，持久和公开边界只接收安全语义身份与脱敏证据。
 tags:
   - product-contract
+  - secret-detection
+  - security
 relations: []
 ---
 
 ## 目的
+
 - 让 Vibe Check 可以发现秘密并发送必要的外链请求，而不会把秘密原文、credential URL 或其可反推 digest 写入新的存储和输出位置。
 - 让 finding、acceptance、comparison 和 cache 只依赖可安全公开且在值轮换后仍稳定的语义身份。
 
 ## 背景
+
 - Secret detector 必须读取候选文本，network transport 也可能需要保留 query values；这些值经常正是最不应进入日志、artifact 或 fingerprint 的内容。
 - 仅删除显示文本不足以防泄露；raw scanner output、error、cache key、digest、fixture、trace 和临时产物都可能形成新的持久副本。
 - 以 secret value、substring、regex 或完整 URL 匹配 allowlist，会把敏感值继续传播到 project config 和评审历史。
 
 ## 决策
+
 - 采用: Secret bytes、完整 request URL、query values 和 userinfo 只可存在于 invocation-owned bounded memory，并仅由实际 detector 或 request boundary在使用后释放。
 - 采用: 原始敏感材料及其可值关联 digest 不得进入 console、stderr、report、machine DTO、finding/evidence、raw artifact、cache、log、trace、error 或持久 derived key。
 - 采用: Finding 和 acceptance 使用 Product-owned stable rule/check ID、normalized project-relative path、line-independent semantic occurrence及脱敏 shape；secret allowlist不接受 value、substring、regex或message matcher。

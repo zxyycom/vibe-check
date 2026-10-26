@@ -9,6 +9,8 @@ background: 一个 execution 只形成一个 Task；maxParallel 限制该 Task �
 decision: 每个 Check Task 携带 inherited maxParallel；admission 加入自身后不得超限，运行期间该上限持续限制后续 Task。
 tags:
   - configuration
+  - parallel-limits
+  - scheduler
 relations:
   - type: 修订
     target: 260815-carry-recursive-check-parallel-limits-through-task-scopes

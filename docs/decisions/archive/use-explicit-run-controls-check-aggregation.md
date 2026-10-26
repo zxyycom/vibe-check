@@ -8,7 +8,10 @@ purpose: 让需要多 Check 结论的调用方通过显式 Run Controls 聚合 s
 background: 旧通用评估器和独立 Gate result 依赖已退出的 Record catalog、reference 和 baseline 语义。
 decision: Run Controls 可选声明 closed aggregation；Run 只从 selected statuses 返回 aggregate，未配置为 null。
 tags:
+  - aggregation
   - configuration
+  - project-run
+  - run-controls
 relations:
   - type: 替代
     target: 260815-evaluate-decision-policies-from-core-facts

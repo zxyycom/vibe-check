@@ -12,6 +12,7 @@ tags:
 relations:
   - type: "补充"
     target: "260903-assess-lizard-upstream-release-and-branch-delta"
+    summary: "补足已确认上游版本中各扩展的消费价值与边界"
 ---
 
 ## 形成时背景
@@ -22,7 +23,7 @@ Vibe Check 已以 Lizard `1.23.0` 为 source-aligned baseline 完成 `functionMe
 
 **形成时的 current Product 约束（已确认事实）。** [`functionMetrics` owner](../checks/function-metrics.md) 与实现当前只把 NLOC、standard CCN 和参数数量作为可出 Finding 的函数指标；公开 `FunctionMetricsFindingMetric` 也只有 `cyclomatic-complexity`、`function-code-density`、`parameter-count`。port façade 是 Check-private，产出私有 Lizard-domain DTO；Product adapter 才映射到核心字段。逐文件 analyzer/Worker 路径没有可直接承接 cross-file extension aggregation 的 Product contract；形成时已对齐、现已归档的 [private-port Decision](../decisions/archive/isolate-lizard-port-behind-check-private-interface.md) 禁止将它扩张为 public parser、plugin 或 generic extension API。
 
-**适用边界。** 本文只记录 `2026-09-03T01:34:10Z` 时对仓库和官方 `1.24.0` tag 的调查认识。它不修改产品、Change、Decision、baseline、provenance 或 public API；不证明外部消费者永远不需要某指标。真实消费者、阈值、语言范围、性能 budget 和发布授权仍由相应 Product/Change/Decision owner 承接。
+**适用边界。** 本文记录 `2026-09-03T01:34:10Z` 时对仓库和官方 `1.24.0` tag 的调查认识。真实消费者、阈值、语言范围、性能 budget 和发布授权由相应 Product/Change/Decision owner 承接；仓库中缺少消费者不证明外部需求不存在。
 
 ## 调查目的
 
@@ -136,7 +137,7 @@ Vibe Check 已以 Lizard `1.23.0` 为 source-aligned baseline 完成 `functionMe
 - **不应外推：** 上游测试证明的是 Lizard 1.24 行为，不证明 TypeScript port 的 parity、更不证明 Vibe Check public contract 的价值。`1.24.0` tag 以后 `master` 的未发布提交也不在本结论范围内。
 - **重新调查条件：** 出现具体 consumer/threshold、产品决定重定义 CCN、`sync-lizard-typescript-port-to-1-24-0` 更新 baseline、Lizard 发布含 extension 变化的新正式版本，或 owner 改变 worker/DTO/Finding architecture 时，应重新做一轮报告或在授权 Change 中复核。
 
-本报告形成时的实际动作仅为记录调查认识；它没有恢复 extension、变更 Product behavior、建立 Decision 或向外部系统写入。后续 Change 的创建、状态和授权由其各自 artifacts 与当前任务另行承接。
+本报告形成时的实际动作仅为记录调查认识。后续 Change 的创建、状态和授权由其各自 artifacts 与当前任务另行承接。
 
 ## 随附资源
 

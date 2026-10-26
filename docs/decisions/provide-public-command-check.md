@@ -8,7 +8,9 @@ purpose: 让项目用普通 Check 执行外部命令而不重复实现进程生�
 background: 现有自定义 Check 需自行处理 spawn、取消、超时、输出上限与四态映射
 decision: 公开普通 commandCheck 并由 Product 统一命令执行机械语义
 tags:
+  - command-check
   - configuration
+  - process-boundaries
   - product-contract
 relations: []
 ---

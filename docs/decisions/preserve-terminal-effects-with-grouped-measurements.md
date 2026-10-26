@@ -8,7 +8,9 @@ purpose: 保持终态 effect 的准确命名、交付机会与失败优先级
 background: 旧命名决策保留全部 measurement DTO，阻止按独立需求拆分观察成本
 decision: 保留 terminalEffects 流水线并以 runMeasurement 与 taskTimings 替换 raw DTO
 tags:
+  - admission-scheduling
   - product-contract
+  - scheduler
   - workflow-policy
 relations:
   - type: 修订

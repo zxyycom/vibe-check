@@ -8,7 +8,10 @@ purpose: 让 Bun consumer 能检查 ESM 模块边界，并恢复对应的权威 
 background: 单文件 bundle 难以检查和调试；额外运行时格式会扩大尚未承诺的维护责任。
 decision: 交付可读 ESM 模块树、类型声明和源码材料，只公开 package 根路径。
 tags:
+  - esm
+  - package-artifact
   - product-contract
+  - source-layout
   - workflow-policy
 relations: []
 ---

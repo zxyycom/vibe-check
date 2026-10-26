@@ -9,7 +9,10 @@ background: 原生 JSON.parse 很轻但会丢失重复成员证据；更小候�
 decision: 在 jsonValidation Check 的私有 strict document boundary 中采用 Momoa，并接受其单入口约 92 KB 的代码面以换取直接可审计的 AST 语义。
 tags:
   - dependency-policy
+  - json-validation
+  - momoa
   - product-contract
+  - scanner-dependencies
 relations: []
 ---
 

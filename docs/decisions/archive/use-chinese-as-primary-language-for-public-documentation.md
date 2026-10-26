@@ -9,7 +9,9 @@ background: 早期 package 文档曾采用中文主叙述，但该方向未进�
 decision: 对 package consumer 的 README 与声明说明采用中文主叙述，以 reviewer 编辑判断维护，不建立全量字符门禁或机械翻译义务。
 tags:
   - documentation
+  - documentation-language
   - product-contract
+  - public-api
   - workflow-policy
 relations: []
 ---

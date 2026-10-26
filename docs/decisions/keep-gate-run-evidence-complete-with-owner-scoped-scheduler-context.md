@@ -9,6 +9,9 @@ background: 每个 decision 重复 immutable graph 主导诊断体积；单核�
 decision: 每次 Run 的 scheduler channel 记录一次 graph/fingerprint，decision 引用它并保留动态 admission facts。
 tags:
   - configuration
+  - diagnostics
+  - project-gate
+  - scheduler
   - testing
   - workflow-policy
 relations:

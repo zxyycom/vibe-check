@@ -9,7 +9,10 @@ background: 通用 JSON 事件包装、未保存的 Gate 终端过程和根级�
 decision: 用带标签的紧凑 core 时间线、Gate plain transcript 和 process 子目录组织一次性人读诊断。
 tags:
   - configuration
+  - diagnostic-logging
+  - gate-diagnostics
   - product-contract
+  - project-gate
   - workflow-policy
 relations: []
 ---

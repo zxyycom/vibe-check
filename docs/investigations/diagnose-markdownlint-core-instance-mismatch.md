@@ -4,7 +4,7 @@ id: "261021-diagnose-markdownlint-core-instance-mismatch"
 formedAt: "2026-10-21T07:40:54Z"
 question: "原规则与输入不变时，MD052 为何在升级后漏报，修复应落在 Product adapter 还是依赖图？"
 tags:
-  - "dependency-upgrade"
+  - "dependency-upgrades"
   - "markdown-lint"
   - "micromark"
   - "module-identity"

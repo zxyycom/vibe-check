@@ -9,7 +9,10 @@ background: 选择类型和默认基线已公开，实际枚举仍是仅信任�
 decision: 提供校验完整单份 selection 的同步工具，复用既有枚举并返回不可变路径，保留明确失败与 Check 职责。
 tags:
   - configuration
+  - file-selection
   - product-contract
+  - project-files
+  - public-api
 relations: []
 ---
 

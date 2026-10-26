@@ -8,6 +8,8 @@ purpose: 让正式稳定版本前的 breaking machine shape 使用真实新版�
 background: 产品与 package 尚未进入稳定版本，保留 dual writer、reader 或 migration shim 会固化短命 schema 并扩大验证成本。
 decision: 预正式阶段的 breaking machine contract 递增 schema version 后单版本硬切；旧 writer、reader 和兼容路径同时退出。
 tags:
+  - compatibility
+  - machine-output
   - product-contract
 relations: []
 ---

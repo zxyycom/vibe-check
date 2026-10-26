@@ -8,6 +8,9 @@ purpose: 让完整测试身份闭合不再强制由同一个 Check 串行执行�
 background: 当前 Test Evidence 为取得 Bun JUnit 身份而执行全部测试，静态与 Case 校验不足一秒，而 package lifecycle 测试支配二十余秒关键路径。
 decision: Test Evidence 用完整测试面的静态声明与 Bun 注册报告闭合实体，实际测试由覆盖同一文件集合的独立 Gate execution 子 Checks 执行。
 tags:
+  - project-gate
+  - test-evidence
+  - test-execution
   - testing
   - workflow-policy
 relations:

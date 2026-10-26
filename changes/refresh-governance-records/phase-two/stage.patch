@@ -1,0 +1,1461 @@
+--- a/docs/decisions/archive/use-project-decision-records.md
++++ b/docs/decisions/archive/use-project-decision-records.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/use-native-test-evidence-catalog.md
++++ b/docs/decisions/archive/use-native-test-evidence-catalog.md
+@@ -16,0 +17 @@
++
+@@ -21,0 +23 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/use-upstream-project-skill-packages.md
++++ b/docs/decisions/archive/use-upstream-project-skill-packages.md
+@@ -16,0 +17 @@
++
+@@ -20,0 +22 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/use-semantic-test-case-closure.md
++++ b/docs/decisions/archive/use-semantic-test-case-closure.md
+@@ -19,0 +20 @@
++
+@@ -24,0 +26 @@
++
+@@ -32,0 +35 @@
++
+--- a/docs/decisions/archive/use-upstream-skills-with-project-local-exceptions.md
++++ b/docs/decisions/archive/use-upstream-skills-with-project-local-exceptions.md
+@@ -20,0 +21 @@
++
+@@ -26,0 +28 @@
++
+@@ -33,0 +36 @@
++
+--- a/docs/decisions/archive/defer-lizard-runtime-unification.md
++++ b/docs/decisions/archive/defer-lizard-runtime-unification.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/defer-lizard-until-after-semantic-config-workflow.md
++++ b/docs/decisions/archive/defer-lizard-until-after-semantic-config-workflow.md
+@@ -21,0 +22 @@
++
+@@ -26,0 +28 @@
++
+@@ -38,0 +41 @@
++
+--- a/docs/decisions/archive/hard-cut-legacy-tool-shaped-config.md
++++ b/docs/decisions/archive/hard-cut-legacy-tool-shaped-config.md
+@@ -16,0 +17 @@
++
+@@ -22,0 +24 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/keep-public-config-tool-neutral.md
++++ b/docs/decisions/archive/keep-public-config-tool-neutral.md
+@@ -16,0 +17 @@
++
+@@ -22,0 +24 @@
++
+@@ -31,0 +34 @@
++
+--- a/docs/decisions/archive/use-fixed-semantic-config-version.md
++++ b/docs/decisions/archive/use-fixed-semantic-config-version.md
+@@ -16,0 +17 @@
++
+@@ -22,0 +24 @@
++
+@@ -32,0 +35 @@
++
+--- a/docs/decisions/archive/use-json-filename-for-commented-config.md
++++ b/docs/decisions/archive/use-json-filename-for-commented-config.md
+@@ -16,0 +17 @@
++
+@@ -20,0 +22 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/archive/use-semantic-check-ids-in-project-config.md
++++ b/docs/decisions/archive/use-semantic-check-ids-in-project-config.md
+@@ -16,0 +17 @@
++
+@@ -22,0 +24 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/expand-format-aware-quality-checks.md
++++ b/docs/decisions/archive/expand-format-aware-quality-checks.md
+@@ -18,0 +19 @@
++
+@@ -22,0 +24 @@
++
+@@ -27,0 +30 @@
++
+--- a/docs/decisions/archive/keep-sensitive-scan-material-ephemeral.md
++++ b/docs/decisions/archive/keep-sensitive-scan-material-ephemeral.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/require-explicit-network-link-checking.md
++++ b/docs/decisions/archive/require-explicit-network-link-checking.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/require-explicit-quality-baselines.md
++++ b/docs/decisions/archive/require-explicit-quality-baselines.md
+@@ -16,0 +17 @@
++
+@@ -20,0 +22 @@
++
+@@ -25,0 +28 @@
++
+--- a/docs/decisions/archive/use-file-policy-overrides.md
++++ b/docs/decisions/archive/use-file-policy-overrides.md
+@@ -16,0 +17 @@
++
+@@ -20,0 +22 @@
++
+@@ -25,0 +28 @@
++
+--- a/docs/decisions/archive/use-fixed-semantic-config-v2.md
++++ b/docs/decisions/archive/use-fixed-semantic-config-v2.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/use-generic-machine-v2-for-content-findings.md
++++ b/docs/decisions/archive/use-generic-machine-v2-for-content-findings.md
+@@ -16,0 +17 @@
++
+@@ -20,0 +22 @@
++
+@@ -25,0 +28 @@
++
+--- a/docs/decisions/archive/use-location-independent-finding-identities.md
++++ b/docs/decisions/archive/use-location-independent-finding-identities.md
+@@ -16,0 +17 @@
++
+@@ -20,0 +22 @@
++
+@@ -25,0 +28 @@
++
+--- a/docs/decisions/archive/use-neutral-default-for-observation-and-file-policy-for-gates.md
++++ b/docs/decisions/archive/use-neutral-default-for-observation-and-file-policy-for-gates.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -27,0 +30 @@
++
+--- a/docs/decisions/archive/defer-future-feature-detail-until-prioritized.md
++++ b/docs/decisions/archive/defer-future-feature-detail-until-prioritized.md
+@@ -16,0 +17 @@
++
+@@ -20,0 +22 @@
++
+@@ -25,0 +28 @@
++
+--- a/docs/decisions/archive/defer-lizard-until-after-check-foundations.md
++++ b/docs/decisions/archive/defer-lizard-until-after-check-foundations.md
+@@ -22,0 +23 @@
++
+@@ -26,0 +28 @@
++
+@@ -31,0 +34 @@
++
+--- a/docs/decisions/archive/expand-format-aware-built-in-checks.md
++++ b/docs/decisions/archive/expand-format-aware-built-in-checks.md
+@@ -21,0 +22 @@
++
+@@ -25,0 +27 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/keep-decision-policies-closed-and-declarative.md
++++ b/docs/decisions/archive/keep-decision-policies-closed-and-declarative.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/limit-tool-neutrality-to-built-in-checks.md
++++ b/docs/decisions/archive/limit-tool-neutrality-to-built-in-checks.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/require-explicit-named-comparison-references.md
++++ b/docs/decisions/archive/require-explicit-named-comparison-references.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/require-explicit-network-check-authorization.md
++++ b/docs/decisions/archive/require-explicit-network-check-authorization.md
+@@ -21,0 +22 @@
++
+@@ -25,0 +27 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/require-explicit-quality-comparison-references.md
++++ b/docs/decisions/archive/require-explicit-quality-comparison-references.md
+@@ -19,0 +20 @@
++
+@@ -23,0 +25 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/archive/separate-check-and-record-type-identities.md
++++ b/docs/decisions/archive/separate-check-and-record-type-identities.md
+@@ -19,0 +20 @@
++
+@@ -23,0 +25 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/archive/treat-project-definitions-as-trusted-code.md
++++ b/docs/decisions/archive/treat-project-definitions-as-trusted-code.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/use-bun-typescript-project-definition.md
++++ b/docs/decisions/archive/use-bun-typescript-project-definition.md
+@@ -24,0 +25 @@
++
+@@ -28,0 +30 @@
++
+@@ -33,0 +36 @@
++
+--- a/docs/decisions/archive/use-declarative-quality-decision-policies.md
++++ b/docs/decisions/archive/use-declarative-quality-decision-policies.md
+@@ -16,0 +17 @@
++
+@@ -20,0 +22 @@
++
+@@ -25,0 +28 @@
++
+--- a/docs/decisions/archive/use-location-independent-record-identities.md
++++ b/docs/decisions/archive/use-location-independent-record-identities.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/use-neutral-observation-and-project-definition-gates.md
++++ b/docs/decisions/archive/use-neutral-observation-and-project-definition-gates.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/use-runtime-resolved-check-and-record-core.md
++++ b/docs/decisions/archive/use-runtime-resolved-check-and-record-core.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/use-semantic-check-ids-in-quality-records.md
++++ b/docs/decisions/archive/use-semantic-check-ids-in-quality-records.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/use-standard-quality-record-stream.md
++++ b/docs/decisions/archive/use-standard-quality-record-stream.md
+@@ -20,0 +21 @@
++
+@@ -24,0 +26 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/use-static-check-task-plans-with-shared-scheduling.md
++++ b/docs/decisions/archive/use-static-check-task-plans-with-shared-scheduling.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/keep-prestable-releases-on-0-0-x.md
++++ b/docs/decisions/archive/keep-prestable-releases-on-0-0-x.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/keep-project-workflow-skill-overrides-bounded.md
++++ b/docs/decisions/archive/keep-project-workflow-skill-overrides-bounded.md
+@@ -19,0 +20 @@
++
+@@ -23,0 +25 @@
++
+@@ -29,0 +32 @@
++
+--- a/docs/decisions/archive/match-change-detail-to-current-phase.md
++++ b/docs/decisions/archive/match-change-detail-to-current-phase.md
+@@ -19,0 +20 @@
++
+@@ -23,0 +25 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/treat-unaligned-decisions-as-future-direction-input.md
++++ b/docs/decisions/treat-unaligned-decisions-as-future-direction-input.md
+@@ -20,3 +20 @@
+-- `active` 表示方向已经确认并进入当前集合；`alignment` 说明完整方向是当前基线，还是尚未成为当前事实的未来方向。
+-- 未对齐方向是已经确认的未来方向；当前任务另行提供实施授权、范围和优先级。
+-- 相关工作需要在满足本次任务的可行方案中考虑未来方向，实际实施范围仍由当前任务确定。
++`active` 与 `alignment` 分别表达判断仍须恢复、完整方向是否已成为当前事实。相关工作既需要利用已确认的未来方向，也需要由当前任务单独确定实施授权、范围和优先级。
+--- a/docs/decisions/archive/use-versioned-npm-package-release-unit.md
++++ b/docs/decisions/archive/use-versioned-npm-package-release-unit.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/preinstall-selected-typescript-capabilities.md
++++ b/docs/decisions/archive/preinstall-selected-typescript-capabilities.md
+@@ -18,0 +19 @@
++
+@@ -22,0 +24 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/archive/use-complete-upstream-governance-skills.md
++++ b/docs/decisions/archive/use-complete-upstream-governance-skills.md
+@@ -22,0 +23 @@
++
+@@ -27,0 +29 @@
++
+@@ -33,0 +36 @@
++
+--- a/docs/decisions/archive/use-decision-led-change-plans-and-archive-openspec.md
++++ b/docs/decisions/archive/use-decision-led-change-plans-and-archive-openspec.md
+@@ -21,0 +22 @@
++
+@@ -26,0 +28 @@
++
+@@ -33,0 +36 @@
++
+--- a/docs/decisions/archive/approve-public-names-before-publication.md
++++ b/docs/decisions/archive/approve-public-names-before-publication.md
+@@ -21,0 +22 @@
++
+@@ -25,0 +27 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/confirm-package-contract-names-before-publication.md
++++ b/docs/decisions/archive/confirm-package-contract-names-before-publication.md
+@@ -21,0 +22 @@
++
+@@ -25,0 +27 @@
++
+@@ -31,0 +34 @@
++
+--- a/docs/decisions/archive/contain-project-code-behind-private-runtime-boundary.md
++++ b/docs/decisions/archive/contain-project-code-behind-private-runtime-boundary.md
+@@ -21,0 +22 @@
++
+@@ -25,0 +27 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/drive-product-execution-from-project-definition.md
++++ b/docs/decisions/archive/drive-product-execution-from-project-definition.md
+@@ -18,0 +19 @@
++
+@@ -22,0 +24 @@
++
+@@ -27,0 +30 @@
++
+--- a/docs/decisions/archive/enable-tool-effects-by-default.md
++++ b/docs/decisions/archive/enable-tool-effects-by-default.md
+@@ -18,0 +19 @@
++
+@@ -22,0 +24 @@
++
+@@ -27,0 +30 @@
++
+--- a/docs/decisions/archive/expose-two-public-operations.md
++++ b/docs/decisions/archive/expose-two-public-operations.md
+@@ -18,0 +19 @@
++
+@@ -22,0 +24 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/keep-prestable-package-releases-on-0-0-x.md
++++ b/docs/decisions/keep-prestable-package-releases-on-0-0-x.md
+@@ -35,2 +34,0 @@
+-- 不采用: 在尚未确认稳定范围时使用 `0.1.0` 或更高 minor 表示普通开发里程碑。
+-- 不采用: 因版本仍为 `0.0.x` 就忽略已经单独建立的名称、schema、identity、安全或迁移约束。
+--- a/docs/decisions/archive/keep-seven-distinct-project-skills.md
++++ b/docs/decisions/archive/keep-seven-distinct-project-skills.md
+@@ -19,0 +20 @@
++
+@@ -25,0 +27 @@
++
+@@ -34,0 +37 @@
++
+--- a/docs/decisions/archive/make-bun-entries-use-pinned-tools.md
++++ b/docs/decisions/archive/make-bun-entries-use-pinned-tools.md
+@@ -19,0 +20 @@
++
+@@ -24,0 +26 @@
++
+@@ -32,0 +35 @@
++
+--- a/docs/decisions/archive/support-bun-as-the-package-host.md
++++ b/docs/decisions/archive/support-bun-as-the-package-host.md
+@@ -19,0 +20 @@
++
+@@ -23,0 +25 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/archive/use-single-typescript-project-definition.md
++++ b/docs/decisions/archive/use-single-typescript-project-definition.md
+@@ -21,0 +22 @@
++
+@@ -25,0 +27 @@
++
+@@ -31,0 +34 @@
++
+--- a/docs/decisions/archive/settle-check-execution-before-availability.md
++++ b/docs/decisions/archive/settle-check-execution-before-availability.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/bind-external-programs-outside-check-semantics.md
++++ b/docs/decisions/archive/bind-external-programs-outside-check-semantics.md
+@@ -17,0 +18 @@
++
+@@ -20,0 +22 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/license-package-under-mit.md
++++ b/docs/decisions/archive/license-package-under-mit.md
+@@ -17,0 +18 @@
++
+@@ -20,0 +22 @@
++
+@@ -25,0 +28 @@
++
+--- a/docs/decisions/archive/publish-unscoped-vibe-check-publicly.md
++++ b/docs/decisions/archive/publish-unscoped-vibe-check-publicly.md
+@@ -17,0 +18 @@
++
+@@ -20,0 +22 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/record-paused-change-state-in-artifacts.md
++++ b/docs/decisions/archive/record-paused-change-state-in-artifacts.md
+@@ -20,0 +21 @@
++
+@@ -25,0 +27 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/carry-check-parallel-limit-in-task-scope.md
++++ b/docs/decisions/archive/carry-check-parallel-limit-in-task-scope.md
+@@ -21,0 +22 @@
++
+@@ -25,0 +27 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/execute-check-scopes-through-one-task-graph.md
++++ b/docs/decisions/archive/execute-check-scopes-through-one-task-graph.md
+@@ -24,0 +25 @@
++
+@@ -28,0 +30 @@
++
+@@ -33,0 +36 @@
++
+--- a/docs/decisions/archive/use-core-check-and-quality-record-facts.md
++++ b/docs/decisions/archive/use-core-check-and-quality-record-facts.md
+@@ -23,0 +24 @@
++
+@@ -27,0 +29 @@
++
+@@ -32,0 +35 @@
++
+--- a/docs/decisions/archive/vendor-foundation-as-repository-owned-script-tool.md
++++ b/docs/decisions/archive/vendor-foundation-as-repository-owned-script-tool.md
+@@ -17,0 +18 @@
++
+@@ -21,0 +23 @@
++
+@@ -26,0 +29 @@
++
+--- a/docs/decisions/archive/complete-project-gate-before-public-package-release.md
++++ b/docs/decisions/archive/complete-project-gate-before-public-package-release.md
+@@ -27,10 +26,0 @@
+-本记录只决定首次公开 package 的交付顺序与最低消费者证据：local candidate、完整 Gate、正式 cutover，随后才可能公开发布。它不定义 <code>invocation</code> grammar、observer event shape、项目 CLI、renderer 格式、scheduler capacity 或 package public inventory；这些由各自的长期 owner 和 active Change 负责。
+-
+-当前 release path 的 timing 采用两种同源视图：Product 对每个实际执行的 Check 测量一次 <code>durationMs</code>，并在 settled lifecycle feedback 与带 final snapshot 的 structured <code>RunResult</code> per-Check summary 中返回。
+-
+-`durationMs` 是进度和完成摘要的 execution signal，不是 Check terminal status、aggregation input 或 Record 的固有字段。首轮不承诺 <code>startedAt</code> / <code>endedAt</code> 或 record-report time；也不能仅为呈现而改写既有 <code>CheckOutcome</code> 或 minimal Record grammar。
+-
+-该约束不替代未来对独立 performance contract / canonical execution telemetry 的判断；若出现实际消费者，必须先演进长期 Decision，再建立独立 Change。
+-
+-本记录不授予 npm registry 查询、凭据访问或 <code>npm publish</code> 的操作授权。动态 Change stage、任务与 handoff 由各自 active Change 和 change-plan CLI 恢复，不属于本长期决策。
+-
+@@ -40,0 +31,2 @@
++- 本记录决定 local candidate、完整 Gate、正式 cutover 与公开发布的顺序和最低消费者证据；invocation grammar、observer event shape、项目 CLI、renderer、scheduler capacity 与 package public inventory 由各自 owner 承接。
++- npm registry 查询、凭据访问与 `npm publish` 均不因本记录获得操作授权。
+@@ -47 +39 @@
+-- 采用: 在当前 release path 中，Product 对每个实际执行的 Check 测量一次 duration，并在 settled lifecycle feedback 与 final structured <code>RunResult</code> 的 per-Check summary 中暴露 <code>durationMs</code>。它用于进度与完成摘要，不自动成为 Check failure 或 aggregation input；首轮不输出 wall-clock start/end，也不为 Record 添加独立 timing。
++- 采用: 在当前 release path 中，Product 对每个实际执行的 Check 测量一次 duration，并在 settled lifecycle feedback 与 final structured `RunResult` 的 per-Check summary 中暴露 `durationMs`。它用于进度与完成摘要，不自动成为 Check failure 或 aggregation input；首轮不输出 wall-clock start/end，也不为 Record 添加独立 timing。
+@@ -48,0 +41 @@
++- 采用: 后续若有真实消费者需要独立 performance contract 或 canonical execution telemetry，须先演进长期 Decision，再建立独立 Change。
+--- a/docs/decisions/use-four-state-check-results-with-final-data.md
++++ b/docs/decisions/use-four-state-check-results-with-final-data.md
+@@ -36 +36 @@
+-- 采用: `passed` 或 `failed` 的 `data` 是 producing Check 的唯一 primary structured result；无领域数据的 Check 显式返回空 object。Product 在 Core settlement boundary把该data以与Record data相同的canonical JSON安全边界detached、prototype-safe并deep-freeze；需要canonical text或bytes时再显式按lexical key order序列化。
++- 采用: `passed` 或 `failed` 的 `data` 是 producing Check 的唯一 primary structured result；无领域数据的 Check 显式返回空 object。Product 在 Core settlement boundary 以与 Record data 相同的 canonical JSON 安全边界建立 detached、prototype-safe、deep-frozen data；需要 canonical text 或 bytes 时再显式按 lexical key order 序列化。
+--- a/docs/decisions/integrate-foundation-into-workspace-assurance.md
++++ b/docs/decisions/integrate-foundation-into-workspace-assurance.md
+@@ -31,2 +31,2 @@
+-- 形成此 Decision 时，root scripts typecheck 与 lint 已覆盖 Foundation TypeScript，workspace format targets 已覆盖 Foundation 当时的 manifest/config/source/tests，Test Evidence 已运行 Foundation test files。
+-- 形成此 Decision 时，当时的完整 Gate 仍分别运行 Foundation typecheck、lint、format 和 tests。除独立 tsconfig 与 package command wiring 外，这些工作重复现有 assurance；package wrapper 本身没有已确认的独立消费者结果。
++- 当时 root scripts typecheck 与 lint 已覆盖 Foundation TypeScript，workspace format targets 已覆盖 Foundation 当时的 manifest/config/source/tests，Test Evidence 已运行 Foundation test files。
++- 当时完整 Gate 仍分别运行 Foundation typecheck、lint、format 和 tests。除独立 tsconfig 与 package command wiring 外，这些工作重复现有 assurance；package wrapper 本身没有已确认的独立消费者结果。
+@@ -40,3 +40,3 @@
+-- 采用: Foundation 独立 tsconfig、manifest scripts或其它局部入口只有存在真实 caller或独有不变量时才保留；保留项由针对性测试或对应 owner验证，不自动成为独立 Project Gate Check。
+-- 采用: Caller audit 证明零独立消费者的 package wrappers、配置或文档可以按普通代码维护流程删除；是否删除具体文件由实施 Change依据当前调用关系决定。
+-- 不采用: 仅为验证 historical package command wiring重复执行已经由 workspace/Test Evidence证明的同一 source或test事实。
++- 采用: Foundation 独立 tsconfig、manifest scripts 或其它局部入口只有存在真实 caller 或独有不变量时才保留；保留项由针对性测试或对应 owner 验证，不自动成为独立 Project Gate Check。
++- 采用: Caller audit 证明零独立消费者的 package wrappers、配置或文档可以按普通代码维护流程删除；是否删除具体文件由实施 Change 依据当前调用关系决定。
++- 不采用: 仅为验证 historical package command wiring 重复执行已经由 workspace/Test Evidence 证明的同一 source 或 test 事实。
+--- a/docs/investigations/confirm-momoa-with-bun-and-candidate-spike.md
++++ b/docs/investigations/confirm-momoa-with-bun-and-candidate-spike.md
+@@ -37 +37 @@
+-**已确认和已执行。** 用户选择已写入 active/unaligned Decision 和 active Change；Momoa 现在是 root 与 candidate manifest 的精确 production dependency。Bun 实测 ESM import 成功，strict matrix 中六种合法 root 都成功、上述七种非严格输入都抛错。Momoa 不把 duplicate 视为 parse error，而是保留每个 `Object.members` 的 decoded name，因此 owning adapter 可以在 materialization 前将 direct 与 nested escaped duplicate 归一化为 Check-owned issue。候选 tarball 在临时外部 Bun consumer 中携带并解析了相同版本，证明 source workspace 的 ambient installation 不是这项结论的依据。
++### 已确认和已执行
+@@ -39 +39 @@
+-**位置语义。** emoji 样本中第二个 member 的 source UTF-16 index、Momoa `loc.start.offset` 与 `range[0]` 都是 `10`，而其前缀 UTF-8 bytes 是 `12`。因此若首版公开位置，必须明确为 UTF-16 code-unit offset，或在 Change 的 open question 中选择不公开位置；不能把 Momoa offset 标成 byte offset。
++用户选择已写入 active/unaligned Decision 和 active Change；形成时 Momoa 已成为 root 与 candidate manifest 的精确 production dependency。Bun 实测 ESM import 成功，strict matrix 中六种合法 root 都成功、上述七种非严格输入都抛错。Momoa 不把 duplicate 视为 parse error，而是保留每个 `Object.members` 的 decoded name，因此 owning adapter 可以在 materialization 前将 direct 与 nested escaped duplicate 归一化为 Check-owned issue。候选 tarball 在临时外部 Bun consumer 中携带并解析了相同版本，证明 source workspace 的 ambient installation 不是这项结论的依据。
+@@ -41 +41 @@
+-**license/material 结果。** `Apache-2.0` manifest 是可复核的 package metadata，足以进入后续 license review；但已安装 tarball 不包含 separate license text，且本项目尚未把该 third-party material 纳入 candidate legal inventory。故不能把 SPDX metadata 说成完整 license/material closure，也不能把 Decision 标为 aligned。
++### 位置语义
+@@ -43 +43,14 @@
+-**仍未验证与不应外推。** 本轮没有实现 private strict-document helper、bounded read、safe Record/final data、four-state settlement、issue cap/pointer semantics 或 public `jsonValidation`；未修改 Product semantic Cases；未跑完整 `typecheck`、`lint`、required/full Gate 或 benchmark Momoa 的 AST memory/throughput。严格 parser 的 direct behavior 不能替代最终 Check contract。库选型调查本身到此结束；上述 implementation/contract work 由 Change 和 Decision owner 继续承接，若 Momoa 版本、Bun compatibility 或内存预算改变，需要重新调查。
++emoji 样本中第二个 member 的 source UTF-16 index、Momoa `loc.start.offset` 与 `range[0]` 都是 `10`，而其前缀 UTF-8 bytes 是 `12`。因此若首版公开位置，必须明确为 UTF-16 code-unit offset，或在 Change 的 open question 中选择不公开位置；不能把 Momoa offset 标成 byte offset。
++
++### License/material 结果
++
++`Apache-2.0` manifest 是可复核的 package metadata，足以进入后续 license review；但已安装 tarball 不包含 separate license text，且本项目尚未把该 third-party material 纳入 candidate legal inventory。故不能把 SPDX metadata 说成完整 license/material closure，也不能把 Decision 标为 aligned。
++
++### 未覆盖的产品与工程验收
++
++本轮范围止于选型和 dependency/spike 闭合，后续 implementation/contract work 由 Change 和 Decision owner 承接：
++
++- 产品：private strict-document helper、bounded read、safe Record/final data、four-state settlement、issue cap/pointer semantics 和 public `jsonValidation` 均未实现；Product semantic Cases 未修改。
++- 工程与性能：完整 `typecheck`、`lint`、required/full Gate，以及 Momoa AST memory/throughput benchmark 均未运行。
++
++严格 parser 的 direct behavior 不能替代最终 Check contract。若 Momoa 版本、Bun compatibility 或内存预算改变，需要重新调查。
+--- a/docs/investigations/markdown-link-validation-library-strategy.md
++++ b/docs/investigations/markdown-link-validation-library-strategy.md
+@@ -31 +31 @@
+-**项目事实。** 形成时读取了已完成 Change `add-markdown-link-validation` 的 `proposal.md`、`design.md` 及形成时 Decision [`define-offline-markdown-link-target-boundaries.md`](../decisions/archive/define-offline-markdown-link-target-boundaries.md)。前两份 Change 材料现已按项目策略删除；这里仅记录其形成时作用，不提供当前可读取依赖。现有 `scripts/validation/links.ts` 只作为该 Change 已明确排除的 repository-local 对照，不作为候选实现。
++**项目事实。** 形成时读取了 Change `add-markdown-link-validation` 的 `proposal.md`、`design.md` 及形成时 Decision [`define-offline-markdown-link-target-boundaries.md`](../decisions/archive/define-offline-markdown-link-target-boundaries.md)。前两份 Change 材料现已按项目策略删除；这里仅记录其形成时作用，不提供当前可读取依赖。现有 `scripts/validation/links.ts` 只作为该 Change 已明确排除的 repository-local 对照，不作为候选实现。
+--- a/docs/decisions/archive/structure-package-documentation-around-one-readme.md
++++ b/docs/decisions/archive/structure-package-documentation-around-one-readme.md
+@@ -19,0 +20 @@
++
+@@ -23,0 +25 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/archive/author-package-markdown-at-published-paths.md
++++ b/docs/decisions/archive/author-package-markdown-at-published-paths.md
+@@ -19,0 +20 @@
++
+@@ -23,0 +25 @@
++
+@@ -28,0 +31 @@
++
+--- a/docs/decisions/archive/monitor-project-gate-performance-advisory.md
++++ b/docs/decisions/archive/monitor-project-gate-performance-advisory.md
+@@ -30 +29,0 @@
+-- 本记录当前为 `aligned`：完整方向已成为当前稳定基线并完成核对；后续局部接线、测试或文档修改不单独改变这一对齐状态。
+--- a/docs/decisions/archive/observe-repository-quality-checks-inside-project-gate.md
++++ b/docs/decisions/archive/observe-repository-quality-checks-inside-project-gate.md
+@@ -35 +34,0 @@
+-- 本记录当前为 `aligned`：完整方向已成为当前稳定基线并完成核对；后续局部接线、测试或文档修改不单独改变这一对齐状态。
+--- a/docs/decisions/archive/publish-project-gate-machine-facts-with-invocation-evidence.md
++++ b/docs/decisions/archive/publish-project-gate-machine-facts-with-invocation-evidence.md
+@@ -30 +29,0 @@
+-- 本记录当前为 `aligned`：完整方向已成为当前稳定基线并完成核对；后续局部接线、测试或文档修改不单独改变这一对齐状态。
+--- a/docs/decisions/keep-format-aware-check-capabilities-independent.md
++++ b/docs/decisions/keep-format-aware-check-capabilities-independent.md
+@@ -27 +27 @@
+-- JSON、JSON Schema 与 Markdown Link 已形成各自的 Product-provided Check；路径引用、秘密检测与网络链接仍具有不同的授权和失败语义。
++- 形成此决策时，JSON、JSON Schema 与 Markdown Link 已形成各自的 Product-provided Check；路径引用、秘密检测与网络链接仍需分别处理授权和失败语义。
+--- a/docs/decisions/archive/require-known-repository-quality-remediation-before-public-release.md
++++ b/docs/decisions/archive/require-known-repository-quality-remediation-before-public-release.md
+@@ -30 +30 @@
+-- 因而本记录只能作为 active/unaligned future direction：只有处置标准、稳定 release owner 和独立实际证据均已完成，才可审阅对齐；它不授予 publish 或任何外部写入授权。
++- 因而本方向建立时为 active/unaligned future direction：只有处置标准、稳定 release owner 和独立实际证据均已完成，才可审阅对齐；它不授予 publish 或任何外部写入授权。
+--- a/docs/decisions/provide-generic-bounded-finding-presentation.md
++++ b/docs/decisions/provide-generic-bounded-finding-presentation.md
+@@ -39 +39 @@
+-- 采用: 四项随包质量 Check 继续各自选择十条上限与安全字段，并迁移到公共 helper；十条不是 custom Check 的 Product default。
++- 采用: 四项随包质量 Check 共用公共 helper，并继续各自选择十条上限与安全字段；十条不是 custom Check 的 Product default。
+--- a/docs/decisions/archive/add-invocation-local-scheduler-performance-summary.md
++++ b/docs/decisions/archive/add-invocation-local-scheduler-performance-summary.md
+@@ -22 +21,0 @@
+-- 本记录保留基础 Scheduler summary 的形成时判断；它现已由 `extend-invocation-local-scheduler-performance-summary.md` 修订并归档，不再作为当前长期依据。当前 runtime 事实仍由稳定 owner、源码与测试承接。
+@@ -32,0 +32 @@
++- 此基础 Scheduler summary 判断后来由 `extend-invocation-local-scheduler-performance-summary.md` 修订并归档；它只用于恢复形成时依据，不代表当前 runtime 契约。
+--- a/docs/investigations/assess-scc-and-jscpd-upgrade-readiness.md
++++ b/docs/investigations/assess-scc-and-jscpd-upgrade-readiness.md
+@@ -40,2 +39,0 @@
+-
+-预期使用结果是明确恢复三项动作边界：哪个工具可进入近期升级候选、哪个工具不能直接改 pin/version gate，以及各自开始实施前必须取得什么证据。本报告不要求也不授权立即修改依赖。
+--- a/docs/decisions/provide-caller-keyed-json-cache-without-run-caching.md
++++ b/docs/decisions/provide-caller-keyed-json-cache-without-run-caching.md
+@@ -29 +29 @@
+-- duplicate detection 是现行唯一内置 cache consumer，并且只有该 Check 能解释 raw fragment identity、payload 和失败结算；这些领域责任仍不能进入 Project Run。
++- 形成此决策时，duplicate detection 是唯一内置 cache consumer，并且只有该 Check 能解释 raw fragment identity、payload 和失败结算；这些领域责任仍不能进入 Project Run。
+@@ -34,0 +35,2 @@
++### 调用方输入与身份
++
+@@ -37,0 +40,3 @@
++
++### Payload、结果与发布
++
+@@ -40,0 +46,3 @@
++
++### 信任与领域责任
++
+--- a/docs/decisions/archive/use-stateless-admission-policies-with-hard-scheduler-guards.md
++++ b/docs/decisions/archive/use-stateless-admission-policies-with-hard-scheduler-guards.md
+@@ -41,0 +42,2 @@
++### 无状态策略的输入与输出
++
+@@ -43,0 +46,3 @@
++
++### 硬合法性与调度字段
++
+@@ -46,0 +52,3 @@
++
++### 有限进展与演进边界
++
+--- a/docs/decisions/archive/extend-invocation-local-scheduler-performance-summary.md
++++ b/docs/decisions/archive/extend-invocation-local-scheduler-performance-summary.md
+@@ -37,0 +38,2 @@
++### 队列压力与采样边界
++
+@@ -42,0 +45,3 @@
++
++### 准入延迟与 completion tail
++
+@@ -44,0 +50,3 @@
++
++### 比较身份与诊断边界
++
+--- a/docs/decisions/archive/observe-post-action-policy-measurement.md
++++ b/docs/decisions/archive/observe-post-action-policy-measurement.md
+@@ -22,0 +23 @@
++
+@@ -26,0 +28 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/provide-decision-boundary-admission-measurement.md
++++ b/docs/decisions/archive/provide-decision-boundary-admission-measurement.md
+@@ -22,0 +23 @@
++
+@@ -26,0 +28 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/decisions/archive/unify-default-summary-with-terminal-measurement-hooks.md
++++ b/docs/decisions/archive/unify-default-summary-with-terminal-measurement-hooks.md
+@@ -22,0 +23 @@
++
+@@ -26,0 +28 @@
++
+@@ -30,0 +33 @@
++
+--- a/docs/investigations/analyze-markdown-link-cache-packing.md
++++ b/docs/investigations/analyze-markdown-link-cache-packing.md
+@@ -5 +5 @@
+-question: "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？"
++question: "在保持形成时 Markdown Link cache 语义与严格串行约束下，直接 API profile 与 storage-mechanics microbenchmark 是否支持进入有限 shard packing 的正式 runtime 评估？"
+@@ -21 +21 @@
+-本轮只获得性能分析授权。没有修改 Product、活动 Decision 或新建 Change 的授权；本报告和随附资源只保存形成时的诊断与建议，不把 storage experiment 变成产品格式、并发模型或性能验收结论。
++本轮授权限于性能分析，Product、活动 Decision 与 Change 保持不变。报告和随附资源保存形成时的诊断与建议；storage experiment 的证明范围在下文按测量层级区分。
+@@ -71 +71 @@
+-### 建议（基于当前证据的推断）
++### 建议（基于形成时证据的推断）
+--- a/docs/investigations/assess-admission-state-performance-and-selection-index.md
++++ b/docs/investigations/assess-admission-state-performance-and-selection-index.md
+@@ -17,3 +17 @@
+-恢复问题、证据强度、候选方向与验证缺口。它不是实施授权、性能预算、public contract 或长期技术决定：
+-当前行为由源码、测试和稳定行为文档 owner 承接；本报告的 Markdown 是本轮调查认识的语义 owner，
+-`investigation-index.json` 只是它的派生发现索引。
++恢复问题、证据强度、候选方向与验证缺口；实施授权、性能预算、public contract 和长期技术决定由相应 owner 承接。
+@@ -24 +22 @@
+-提供本轮的形成时 benchmark 材料；它不是当前实现或下一轮优化方案的 owner。
++提供本轮的形成时 benchmark 材料。
+--- a/docs/investigations/assess-lizard-extension-adoption-value.md
++++ b/docs/investigations/assess-lizard-extension-adoption-value.md
+@@ -26 +26 @@
+-**适用边界。** 本文只记录 `2026-09-03T01:34:10Z` 时对仓库和官方 `1.24.0` tag 的调查认识。它不修改产品、Change、Decision、baseline、provenance 或 public API；不证明外部消费者永远不需要某指标。真实消费者、阈值、语言范围、性能 budget 和发布授权仍由相应 Product/Change/Decision owner 承接。
++**适用边界。** 本文记录 `2026-09-03T01:34:10Z` 时对仓库和官方 `1.24.0` tag 的调查认识。真实消费者、阈值、语言范围、性能 budget 和发布授权由相应 Product/Change/Decision owner 承接；仓库中缺少消费者不证明外部需求不存在。
+@@ -140 +140 @@
+-本报告形成时的实际动作仅为记录调查认识；它没有恢复 extension、变更 Product behavior、建立 Decision 或向外部系统写入。后续 Change 的创建、状态和授权由其各自 artifacts 与当前任务另行承接。
++本报告形成时的实际动作仅为记录调查认识。后续 Change 的创建、状态和授权由其各自 artifacts 与当前任务另行承接。
+--- a/docs/investigations/compare-lizard-python-typescript-performance.md
++++ b/docs/investigations/compare-lizard-python-typescript-performance.md
+@@ -19 +19 @@
+-**先读结论和授权边界。** 本报告只形成性能证据，**不授权任何优化**。本 Change 不修改 source-aligned `analyzer/**` 的 core、readers、shared 或 extension protocol，也没有实施 Product 优化。当前证据不能把观察到的差异因果归属给 translated core 或 Product 外围；因此不应据此修改任一层。
++**结论概览。** 对照结果随 workload 和计时 scope 翻转；现有证据尚不能把差异因果归属给 translated core 或 Product 外围。本轮只形成性能证据，未修改 source-aligned `analyzer/**` 的 core、readers、shared 或 extension protocol，也未实施 Product 优化；后续实施边界见结果节。
+@@ -34 +34 @@
+-### 当前阅读导航（不属于形成时证据）
++### 后续阅读（不属于形成时证据）
+@@ -36,6 +36 @@
+-- **本报告的 evidence owner：**A historical Product、B fixed-1.24 analyzer-only、C current Product decomposition 的 workload、计时规则、output admission 与形成时解释；机器样本由本报告的随附资源拥有。
+-- **直接前序：**frontmatter 的 `补充 → compare-lizard-and-scc-typescript-port-priority.md`；它只补足此前缺少的正式性能证据，并不把该前序改写为本报告的 measurement owner。
+-- **已确认 / 推断 / 未知：**已确认的 output guard 与 wall-time 分类见“已确认的输出前置条件”和“wall-time 观察”；因果归属仍未知，故“后续实施边界”不是优化授权。
+-- **不能比较或相减：**A、B、C 的数值不得横向相减、相加或用一层的方向解释另一层；尤其 C stage 记录有重叠，CPU/RSS 与 long-lived session 也不在可比范围。
+-- **形成时建议（不是当前状态）：**若要选择优化层，先用与目标层相同的 workload/profile 取得因果证据；本报告本身只提供该调查入口，不授权改动。
+-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
++本报告拥有 A historical Product、B fixed-1.24 analyzer-only、C current Product decomposition 的 workload、计时规则、output admission 与形成时解释，机器样本见随附资源。[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件。报告不拥有持续执行状态，也不自动启动调查或实施；今天是否行动由当前请求授权并由相应 Change 承接，长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
+--- a/docs/investigations/compare-lizard-regex-backends-and-analyzer-cost-allocation.md
++++ b/docs/investigations/compare-lizard-regex-backends-and-analyzer-cost-allocation.md
+@@ -52 +52 @@
+-- 正式 Python/TS measurement runtime 为 Bun 1.3.14、CPython 3.12.13、upstream Lizard 1.24.0 commit `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`；主 Node control 为项目 engines `>=24 <25` 内的 Node 24.18.0 / V8 13.6.233.17-node.50（由 CPython 3.14.7 controller 经 `mise exec -- python3 ...` 启动，child identity 已记录）；host 为 Linux WSL2 / AMD Ryzen AI 7 H 450。`provenance.json` 分别记录 measurement runtimes 与 synthesis host，并保存完整 inputs、resource hashes 和 temporary-source hashes。它是 runtime diagnostic 与后续 go/no-go 输入，**不是** Product runtime 采用建议。
++- 正式 Python/TS measurement runtime 为 Bun 1.3.14、CPython 3.12.13、upstream Lizard 1.24.0 commit `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`；主 Node control 为项目 engines `>=24 <25` 内的 Node 24.18.0 / V8 13.6.233.17-node.50（由 CPython 3.14.7 controller 经 `mise exec -- python3 ...` 启动，child identity 已记录）；host 为 Linux WSL2 / AMD Ryzen AI 7 H 450。`provenance.json` 分别记录 measurement runtimes 与 synthesis host，并保存完整 inputs、resource hashes 和 temporary-source hashes。它保存 runtime diagnostic 与后续 go/no-go 输入。
+@@ -84 +84 @@
+-**证据强度与非授权边界：**有真实 TS raw token text/UTF-16 offset parity 与 raw speed signal；尚无全 reader、full analyzer、Product 或 resource gate 证据，故不采用、不安装、不增加 runtime switch/fallback。
++**证据边界：**有真实 TS raw token text/UTF-16 offset parity 与 raw speed signal；尚无全 reader、full analyzer、Product 或 resource gate 证据，采用前仍须闭合这些证据。
+@@ -90 +90 @@
+-**证据强度与非授权边界：**71.4%/32.8% 与“gap≈full gap”来自不同 driver、样本和嵌套 pipeline 的比例观察；68% 是 sampling self。它们支持优先级，**不**证明 regex 精确占比、100% 因果归属或可回收毫秒。
++**证据边界：**71.4%/32.8% 与“gap≈full gap”来自不同 driver、样本和嵌套 pipeline 的比例观察；68% 是 sampling self。它们支持优先级，**不**证明 regex 精确占比、100% 因果归属或可回收毫秒。
+@@ -96 +96 @@
+-**证据强度与非授权边界：**PCRE2 只可与同协议 native control 比较，且仅属于 raw scanner；不得与 Onig 的其他 raw driver、token/full driver 相减。CLI 的 **38.70 ms**只是预写文件后的 child+scan+JSON parse；纳入 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 后为 **306.24 ms**，其中 16.05 MB stdout 和 **291.80 ms** scan+decode/parse+mapping+digest 吞没 raw-engine signal。
++**证据边界：**PCRE2 只可与同协议 native control 比较，且仅属于 raw scanner；不得与 Onig 的其他 raw driver、token/full driver 相减。CLI 的 **38.70 ms**只是预写文件后的 child+scan+JSON parse；纳入 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 后为 **306.24 ms**，其中 16.05 MB stdout 和 **291.80 ms** scan+decode/parse+mapping+digest 吞没 raw-engine signal。
+@@ -109 +109 @@
+-| 观察                                         |                                                                             数值 | 可支持的结论                                                                                                      | 不可支持的结论                                                            |
++| 观察 | 数值 | 可支持的结论 | 不可支持的结论 |
+@@ -111,5 +111,5 @@
+-| formal complete analyzer median              | Python 304.21 ms；TS 715.11 ms；paired Python/TS 0.4264，95% CI [0.3978, 0.4388] | 当前 real-TS analyzer-only scope 下 TS 约 2.35× Python                                                            | Product、consumer 或 cold Worker 性能                                     |
+-| raw TypeScriptReader token generation median | Python 99.84 ms；TS 510.52 ms；paired Python/TS 0.1943（8 blocks 0.1889–0.1987） | 相同 token stream 的 isolated token generation 在 TS 约 5.15× Python，故是最强的当前 gap candidate                | regex engine 单独就是 5.15×；该数字还含 wrapper/template/array allocation |
+-| TS token/full median scale                   |                                                   510.52 / 715.11 = **约 71.4%** | 在两个有相同 corpus/output 但不同 driver 的 median scale 上，TS token generation 与完整 analyzer 同量级且占大部分 | “TS regex 精确占 full 的 71.4%”或可回收 71.4%                             |
+-| Python token/full median scale               |                                                    99.84 / 304.21 = **约 32.8%** | Python full pipeline 中相同 isolated token stage 的相对量级较小                                                   | 两侧 processor/state 的精确差值                                           |
+-| 两侧 token-generation gap 与 formal full gap |                  510.52 − 99.84 = **410.68 ms**；715.11 − 304.21 = **410.90 ms** | 两个差值量级近乎相同，进一步加强“token path 是主要候选”的优先级                                                   | “100% full gap 已由 regex 证明”或可直接相减的因果 allocation              |
++| formal complete analyzer median | Python 304.21 ms；TS 715.11 ms；paired Python/TS 0.4264，95% CI [0.3978, 0.4388] | 当前 real-TS analyzer-only scope 下 TS 约 2.35× Python | Product、consumer 或 cold Worker 性能 |
++| raw TypeScriptReader token generation median | Python 99.84 ms；TS 510.52 ms；paired Python/TS 0.1943（8 blocks 0.1889–0.1987） | 相同 token stream 的 isolated token generation 在 TS 约 5.15× Python，故是最强的当前 gap candidate | regex engine 单独就是 5.15×；该数字还含 wrapper/template/array allocation |
++| TS token/full median scale | 510.52 / 715.11 = **约 71.4%** | 在两个有相同 corpus/output 但不同 driver 的 median scale 上，TS token generation 与完整 analyzer 同量级且占大部分 | “TS regex 精确占 full 的 71.4%”或可回收 71.4% |
++| Python token/full median scale | 99.84 / 304.21 = **约 32.8%** | Python full pipeline 中相同 isolated token stage 的相对量级较小 | 两侧 processor/state 的精确差值 |
++| 两侧 token-generation gap 与 formal full gap | 510.52 − 99.84 = **410.68 ms**；715.11 − 304.21 = **410.90 ms** | 两个差值量级近乎相同，进一步加强“token path 是主要候选”的优先级 | “100% full gap 已由 regex 证明”或可直接相减的因果 allocation |
+@@ -127 +127 @@
+-| 同一 TS port 的 operation                          | Node 24/V8 median（p10–p90） | Bun/JSC median（p10–p90） | paired Node/Bun median | guard                                                                          |
++| 同一 TS port 的 operation | Node 24/V8 median（p10–p90） | Bun/JSC median（p10–p90） | paired Node/Bun median | guard |
+@@ -129,3 +129,3 @@
+-| raw native `RegExp` fields (`text.length + index`) |       12.58 ms (12.35–13.37) | 439.38 ms (431.48–445.13) |  0.0285（Bun约 35.1×） | 296,074 raw text + UTF-16 starts exact SHA pre/post；每 sample count/field-sum |
+-| raw TypeScriptReader token materialization         |       69.27 ms (66.10–74.04) | 489.32 ms (476.55–504.23) |  0.1419（Bun约 7.05×） | 295,156 token text/position digest                                             |
+-| complete analyzer + Product-field projection       |    128.79 ms (123.67–133.47) | 636.85 ms (625.63–664.68) |  0.1994（Bun约 5.02×） | 2,222 canonical metrics digest                                                 |
++| raw native `RegExp` fields (`text.length + index`) | 12.58 ms (12.35–13.37) | 439.38 ms (431.48–445.13) | 0.0285（Bun约 35.1×） | 296,074 raw text + UTF-16 starts exact SHA pre/post；每 sample count/field-sum |
++| raw TypeScriptReader token materialization | 69.27 ms (66.10–74.04) | 489.32 ms (476.55–504.23) | 0.1419（Bun约 7.05×） | 295,156 token text/position digest |
++| complete analyzer + Product-field projection | 128.79 ms (123.67–133.47) | 636.85 ms (625.63–664.68) | 0.1994（Bun约 5.02×） | 2,222 canonical metrics digest |
+@@ -143 +143 @@
+-| 项目             | 已测事实 / 所需工作                                                                                                                                                                   | 结论边界                                                                                                                  |
++| 项目 | 已测事实 / 所需工作 | 结论边界 |
+@@ -145,4 +145,4 @@
+-| artifact/init    | package 约 507 KB，`onig.wasm` 473,151 bytes；`loadWASM` 异步且为 realm-global single init                                                                                            | one-shot Worker 每次承担 init；必须随 artifact 分发、不得 runtime download                                                |
+-| matching adapter | scanner 返回 capture range而非 token text；binding 已将内部 UTF-8 range 转为 `captureIndices` 的 JS UTF-16 offset，adapter 必须 source slice、用 full capture range，并显式映射 flags | 需覆盖 astral、malformed source、26 shared readers、PHP outer/inner named semantics；Erlang local lexer不应被强行迁移     |
+-| resources/cancel | `OnigScanner` 与 `OnigString` 必须 `dispose()`；正常处理要 `finally`，terminate 只能依赖 realm teardown                                                                               | 10 次 Worker load/terminate 后 parent RSS 41.32→71.72 MiB 是未解释 risk signal，不是已证明 leak，也尚未满足 resource gate |
+-| raw timing       | 同字段 254-file warm raw：native 557.84 ms，Onig 98.91 ms；fresh cold total 187.40 ms                                                                                                 | 都是 raw scanner，非 full analyzer/Product；cold cost会削弱 one-shot Worker 收益                                          |
++| artifact/init | package 约 507 KB，`onig.wasm` 473,151 bytes；`loadWASM` 异步且为 realm-global single init | one-shot Worker 每次承担 init；必须随 artifact 分发、不得 runtime download |
++| matching adapter | scanner 返回 capture range而非 token text；binding 已将内部 UTF-8 range 转为 `captureIndices` 的 JS UTF-16 offset，adapter 必须 source slice、用 full capture range，并显式映射 flags | 需覆盖 astral、malformed source、26 shared readers、PHP outer/inner named semantics；Erlang local lexer不应被强行迁移 |
++| resources/cancel | `OnigScanner` 与 `OnigString` 必须 `dispose()`；正常处理要 `finally`，terminate 只能依赖 realm teardown | 10 次 Worker load/terminate 后 parent RSS 41.32→71.72 MiB 是未解释 risk signal，不是已证明 leak，也尚未满足 resource gate |
++| raw timing | 同字段 254-file warm raw：native 557.84 ms，Onig 98.91 ms；fresh cold total 187.40 ms | 都是 raw scanner，非 full analyzer/Product；cold cost会削弱 one-shot Worker 收益 |
+@@ -160 +160 @@
+-| 候选                              | contract / evidence                                                                                                                                                                | delivery judgment                                                                                                                                                             |
++| 候选 | contract / evidence | delivery judgment |
+@@ -162,8 +162,8 @@
+-| **`vscode-oniguruma@2.0.1` WASM** | current TS raw parity与 speed signal；26 shared patterns和 PHP outer 曾 compile                                                                                                    | **形成时 Bun 内 backend 路径的唯一继续候选**：先 all-reader token parity、full analyzer/Product ABBA、Worker RSS/cancel、exact artifact；不采用、不加 runtime switch/fallback |
+-| Shiki Oniguruma / `onigasm@2.2.5` | 前者只通过 local Bun smoke；后者通过 exact raw `(text, UTF-16 start)` guard，warm raw 465.82 ms，但 release旧且无 public deterministic scanner/string dispose（module-global LRU） | 不如已有 `vscode-oniguruma` speed signal且 lifecycle较弱；不是第二 engine candidate                                                                                           |
+-| **`pcre2-wasm@10.47.5`**          | 现代 embedded-binary PCRE2 WASM；通过 296,074 exact raw text/UTF-16 guard，wrapper index 已是 JS UTF-16 character index                                                            | **性能排除**：same-harness native `matchAll` 2,842.38 ms vs native 666.94 ms（4.26×慢）；iterator 7,757.13 ms。不能与其他 harness 或 full analyzer相减                        |
+-| other PCRE2 WASM wrappers         | `@ofjansen/pcre2-wasm@1.4.0` 在 Bun import 直接 `document is not defined`；universal fork init后因 mandatory `\p{White_Space}` compile fail                                        | 这些是 exact wrapper/delivery/grammar exclusion，不是对 PCRE2 engine 的普遍速度结论                                                                                           |
+-| RE2 / Rust regex / Hyperscan      | 新 `@adguard/re2-wasm@1.2.1` 与 pure-JS `re2js@2.8.6`仍因 mandatory `(?=`拒绝；当前 26 shared patterns还需要 lookahead，PHP另有 named backreference/capture                        | direct replacement 不兼容；重写 pattern 是 tokenizer redesign，不作 backend optimization                                                                                      |
+-| PCRE2 native / Node-API           | 可表达 feature且可选择 16-bit code units/JIT                                                                                                                                       | 没有 Bun-proven full-corpus binding；需要 prebuild、ownership、Worker, SBOM/CVE/license与平台策略，是远期 native-backend project                                              |
+-| `rg --pcre2` / other CLI          | 预写 files 的 child+scan+JSON parse 38.70 ms；包含 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 的 bounded control 为 **306.24 ms**               | 不是 Product CLI，PATH/build/JIT不受控；16.05 MB stdout以及 scan+decode/parse+mapping+digest 的 291.80 ms 计时吞没 raw engine signal；不产品化、不再 benchmark full pipeline  |
+-| Moo/Chevrotain/parser             | built-in JS RegExp 或不同 token/AST contract                                                                                                                                       | 没有 exact stream 的替代引擎或已证收益，排除                                                                                                                                  |
++| **`vscode-oniguruma@2.0.1` WASM** | current TS raw parity与 speed signal；26 shared patterns和 PHP outer 曾 compile | **形成时 Bun 内 backend 路径的唯一继续候选**：先 all-reader token parity、full analyzer/Product ABBA、Worker RSS/cancel、exact artifact；不采用、不加 runtime switch/fallback |
++| Shiki Oniguruma / `onigasm@2.2.5` | 前者只通过 local Bun smoke；后者通过 exact raw `(text, UTF-16 start)` guard，warm raw 465.82 ms，但 release旧且无 public deterministic scanner/string dispose（module-global LRU） | 不如已有 `vscode-oniguruma` speed signal且 lifecycle较弱；不是第二 engine candidate |
++| **`pcre2-wasm@10.47.5`** | 现代 embedded-binary PCRE2 WASM；通过 296,074 exact raw text/UTF-16 guard，wrapper index 已是 JS UTF-16 character index | **性能排除**：same-harness native `matchAll` 2,842.38 ms vs native 666.94 ms（4.26×慢）；iterator 7,757.13 ms。不能与其他 harness 或 full analyzer相减 |
++| other PCRE2 WASM wrappers | `@ofjansen/pcre2-wasm@1.4.0` 在 Bun import 直接 `document is not defined`；universal fork init后因 mandatory `\p{White_Space}` compile fail | 这些是 exact wrapper/delivery/grammar exclusion，不是对 PCRE2 engine 的普遍速度结论 |
++| RE2 / Rust regex / Hyperscan | 新 `@adguard/re2-wasm@1.2.1` 与 pure-JS `re2js@2.8.6`仍因 mandatory `(?=`拒绝；当前 26 shared patterns还需要 lookahead，PHP另有 named backreference/capture | direct replacement 不兼容；重写 pattern 是 tokenizer redesign，不作 backend optimization |
++| PCRE2 native / Node-API | 可表达 feature且可选择 16-bit code units/JIT | 没有 Bun-proven full-corpus binding；需要 prebuild、ownership、Worker, SBOM/CVE/license与平台策略，是远期 native-backend project |
++| `rg --pcre2` / other CLI | 预写 files 的 child+scan+JSON parse 38.70 ms；包含 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 的 bounded control 为 **306.24 ms** | 不是 Product CLI，PATH/build/JIT不受控；16.05 MB stdout以及 scan+decode/parse+mapping+digest 的 291.80 ms 计时吞没 raw engine signal；不产品化、不再 benchmark full pipeline |
++| Moo/Chevrotain/parser | built-in JS RegExp 或不同 token/AST contract | 没有 exact stream 的替代引擎或已证收益，排除 |
+@@ -173,3 +173,3 @@
+-**形成时第一优先级、独立的 Investigation 是 Node 24 runtime-support/migration go/no-go，而不是采用授权。**在项目 engines `>=24 <25` 内，Node 24 的同-port control 仍显示 matcher、token、full operation 的 material speedup；这条路径不要求重写 translated core，却不能凭 benchmark 直接改变 Product runtime。它必须验证：正式 Product API 与 error contract、Worker creation/cancel/termination、package/packed artifact、external Node consumer、现有 Bun support/consumer compatibility、Project Gate 与 cold/warm representative workload。任一支持、语义、交付或端到端收益 gate 不闭合即停止；本报告不授权更改官方 runtime、依赖或 package contract。当轮停止时未启动此 Investigation；本报告不定义今天是否行动。
+-
+-**形成时仅在 Bun 仍被选择或必须支持的前提下，Bun 内 regex-backend 路径唯一值得继续的是 `vscode-oniguruma`。**第二轮实测确认“有真正 npm engine”不代表它在 required stream 上快或易交付；`pcre2-wasm@10.47.5` 已因 same-harness 4.26× 的 raw slowdown 排除。Onig spike 仍先闭合：每 token text/UTF-16 offset/progress、26 shared readers + PHP、现有 27-reader oracle、macro/template/processor/extensions、Worker cancellation/error/RSS、no-download packed artifact/external Bun consumer；之后才在同 runner 比较 raw、full analyzer与 Product cold/warm。任一语义、resource、delivery或稳定收益门槛失败即停止，保留 built-in baseline。它不是依赖、runtime switch/fallback 或 WASM adoption 授权；当轮停止时未启动该 spike。
++**形成时第一优先级、独立的 Investigation 是 Node 24 runtime-support/migration go/no-go。**在项目 engines `>=24 <25` 内，Node 24 的同-port control 仍显示 matcher、token、full operation 的 material speedup；这条路径不要求重写 translated core，却不能凭 benchmark 直接改变 Product runtime。它必须验证：正式 Product API 与 error contract、Worker creation/cancel/termination、package/packed artifact、external Node consumer、现有 Bun support/consumer compatibility、Project Gate 与 cold/warm representative workload。任一支持、语义、交付或端到端收益 gate 不闭合即停止。当轮停止时未启动此 Investigation。
++
++**形成时仅在 Bun 仍被选择或必须支持的前提下，Bun 内 regex-backend 路径唯一值得继续的是 `vscode-oniguruma`。**第二轮实测确认“有真正 npm engine”不代表它在 required stream 上快或易交付；`pcre2-wasm@10.47.5` 已因 same-harness 4.26× 的 raw slowdown 排除。Onig spike 仍先闭合：每 token text/UTF-16 offset/progress、26 shared readers + PHP、现有 27-reader oracle、macro/template/processor/extensions、Worker cancellation/error/RSS、no-download packed artifact/external Bun consumer；之后才在同 runner 比较 raw、full analyzer与 Product cold/warm。任一语义、resource、delivery或稳定收益门槛失败即停止，保留 built-in baseline。当轮停止时未启动该 spike。
+--- a/docs/investigations/diagnose-lizard-real-typescript-analyzer-hot-path.md
++++ b/docs/investigations/diagnose-lizard-real-typescript-analyzer-hot-path.md
+@@ -33 +32,0 @@
+-- **直接前序：**frontmatter 的两个 `归并` 前序分别拥有 27-family 的早期差距诊断与真实 TypeScript 的跨实现复测；本报告只在它们交集的真实 `.ts` analyzer layer 定位候选热点。
+@@ -35 +33,0 @@
+-- **不能比较或相减：**direct/current/ordered 受限反事实、stage observations 和 sampling percentages 不构成同一正式 ABBA；不得将它们相减为 resolver 或 tokenizer 的精确 wall-time 份额，也不得与 Python profile 直接比较。
+--- a/docs/investigations/diagnose-lizard-typescript-port-performance-gap.md
++++ b/docs/investigations/diagnose-lizard-typescript-port-performance-gap.md
+@@ -24 +24 @@
+-**使用与授权边界。** 本报告的用途是定位下一轮调查/Change，不是实施授权。后续代理应按以下状态使用本报告；随附 raw resources 是各项观测的可复核 owner，本报告是这些观测的范围、解释和授权边界 owner。
++**使用与授权边界。** 本报告用于定位下一轮调查/Change；随附 raw resources 支持复核观测，正文说明范围、解释和采用前提。
+@@ -33 +32,0 @@
+-- **本报告的 evidence owner：**fixed Lizard 1.24、27 reader-family representative batch 上的调用边界审计、runtime 筛查、profile、dispatch 反事实与形成时优先级；逐项观测由本报告资源拥有。
+@@ -36 +34,0 @@
+-- **不能比较或相减：**sampling inclusive time、独立 family warmed observations、dispatch microbenchmark 与正式 ABBA wall samples 不是同一计时实验；不得相加为总差距或相减得到其他阶段成本。
+@@ -61,0 +60,2 @@
++
++sampling inclusive time、独立 family warmed observations、dispatch microbenchmark 与正式 ABBA wall samples 不是同一计时实验；不得跨实验相加为总差距，或相减求其它阶段成本。
+@@ -125 +125 @@
+-1. **先开一个受约束的 façade 优化 Change：**只在手写 `port-facade.ts` seam 内研究 source-order-derived suffix fast path，不修改 `reader-registry.ts`、`CodeReader.matchFilename` 或 reader/core；Change/Decision 和 deviation ledger 必须明确它仍是 analyzer port 内的非机械差异。让两个 façade API 共用 resolver，对未被证明安全的 filename 回退原 registry；验证上述完整 filename 语义、oracle parity，以及同 manifest 的正式 15-block ABBA before/after。若语义不能闭合，则停止而不是回退成静默近似。
++1. **先开一个受约束的 façade 优化 Change：**研究表中 A，按上述完整 filename、fallback、deviation、parity 与正式 ABBA 条件验收。若语义不能闭合，则停止而不是实施静默近似。
+--- a/docs/investigations/evaluate-persistent-data-structure-libraries-for-admission-core.md
++++ b/docs/investigations/evaluate-persistent-data-structure-libraries-for-admission-core.md
+@@ -91,2 +91,2 @@
+-**建议：本 Change 不立即新增 production dependency，也不把现有自实现当成「已有库仍不必比较」的
+-永久结论。** `immutable@5.1.9` 是唯一同时具有高采用、近期维护、零 production dependency、内置 TS
++**建议：若继续演进 generic vector，以 `immutable.List` 作为下一轮完整验收的 library baseline；
++本 Change 暂不新增 production dependency。** `immutable@5.1.9` 是唯一同时具有高采用、近期维护、零 production dependency、内置 TS
+@@ -111,2 +111 @@
+-所以目前**不值得无条件新增生产依赖**；但也不应以这份报告为由禁止未来 library candidate。若下一轮要
+-保留或推广 generic `ChunkTree`，先实现一个只替换 vector storage 的 `immutable.List` development candidate，
++若下一轮要保留或推广 generic `ChunkTree`，先实现一个只替换 vector storage 的 `immutable.List` development candidate，
+--- a/docs/investigations/explain-cpython-jsc-lizard-regex-performance-gap.md
++++ b/docs/investigations/explain-cpython-jsc-lizard-regex-performance-gap.md
+@@ -32 +32 @@
+-### 当前阅读导航（不属于形成时证据）
++### 结果概览与后续阅读
+@@ -34,9 +34,3 @@
+-- **本报告的 evidence owner：**同 raw-token workload 下 Bun 1.3.14 与 CPython 3.12.13 的 symmetric scan、scanner API/reuse、pattern ablation、generic-stage control、synthetic control 和 TypeScript generator control，以及结合双方引擎 source 得到的解释边界；CPython 3.14.7 仅保留一组 supporting symmetric observation。
+-- **直接前序：**frontmatter 以 `归并` 连接真实 TypeScript hotspot diagnosis 与[宿主加速候选调查](survey-lizard-host-acceleration-candidates.md)：本报告将前者的热点定位、后者的 backend candidate 与新原因隔离证据综合为下一轮优先级；它不原地改写两份既有材料的形成时判断。
+-- **最重要的当前事实：**254-file current façade fast path 已使 `matchFilename=0`。ordered reader dispatch 是历史路径的已修热点，不是本轮仍存在的 2.35× 差距根因。
+-- **measurement layer：**8–10×只属于 raw matcher 的 `count-only`/`consume-fields` 对称扫描；2.35×属于完整 analyzer-only operation。两层的输入虽相同，driver、样本、warm/JIT/GC 状态和包含工作不同；它们不能相减为“可回收毫秒”，也不能用 raw ratio 预测 Product 加速。
+-- **已排除与未排除：**当前 reader dispatch、per-file `RegExp` construction/reuse、`matchAll`/`exec` wrapper、Unicode word class 与 default token factory 没有主因信号；quoted-string branches 仍只是改变 segmentation 的次级候选，不能据此改实现。
+-- **结论强度：**“两边都有 native engine”“raw output 相同而约 8–10×”“generic branch 对 Bun/JSC 特别敏感”有直接依据；“Yarr 内部哪条 codegen、回溯或字符宽度路径导致该结果”仍未知。
+-- **形成时候选优先级（不是当前状态）：**先以完整 parity 重查 built-in staged-generic control；Oniguruma 是并列 backend candidate；两者不能闭合或仍有 material gap 后，才调查 quoted-string same-output control。这个顺序是调查优先级，不是采用或实现授权。
+-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
+-- **非授权边界：**所有 ablation/staged scanner 都是诊断反事实，不是 production implementation。任何 port 改动仍须独立 Change、Decision、全 reader/token/extension parity 和 Product delivery 验证。
++本轮确认双方均使用 native regexp engine；同 raw-output 的对称扫描中，Bun/JSC 约慢 8–10×，最强定位是 generic lookahead 与 mega-alternation 的组合。Yarr 内部具体 codegen、回溯或字符宽度机制仍未知。8–10×属于 raw matcher，2.35×属于完整 analyzer-only operation，不能相减或预测 Product 加速；当前 façade 的 `matchFilename=0`，历史 reader dispatch 热点也不能解释这项差距。
++
++**后续阅读（不属于形成时证据）：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件。本报告不拥有持续执行状态，也不自动启动调查或实施；今天是否行动由当前请求授权并由相应 Change 承接，长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。本轮 ablation/staged scanner 的诊断性质、候选优先级与采用条件见结果节。
+--- a/docs/decisions/archive/introduce-invocation-scoped-admission-strategy-lifecycle.md
++++ b/docs/decisions/archive/introduce-invocation-scoped-admission-strategy-lifecycle.md
+@@ -38,0 +39,2 @@
++### 单次策略准备与纯选择
++
+@@ -43,0 +46,3 @@
++
++### Scheduler 交接与按需测量
++
+@@ -50,0 +56,3 @@
++
++### 终态交付与 learned 状态
++
+@@ -53,0 +62,3 @@
++
++### 调度约束与有限进展
++
+@@ -56,0 +68,3 @@
++
++### 公共边界与排除
++
+--- a/docs/investigations/investigate-fortran-lizard-performance-hotspot.md
++++ b/docs/investigations/investigate-fortran-lizard-performance-hotspot.md
+@@ -22,8 +22 @@
+-### 当前阅读导航（不属于形成时证据）
+-
+-- **本报告的 evidence owner：**fixed Lizard 1.24 Fortran normal/edge fixture 的 pre-resolved direct in-memory reader/core 观察，以及它对可修改层级的轻量判断；输入与摘录由本报告资源拥有。
+-- **直接前序：**frontmatter 的 `补充 → diagnose-lizard-typescript-port-performance-gap.md`；该前序拥有 27-family 的筛选和 profile 排序，本报告只缩小到 Fortran，不复写其整体语言结论。
+-- **已确认 / 推断 / 未知：**Fortran slice 的 direct-core 差距和不存在 façade-only 修复点已确认；tokenizer/setup 是后续检查顺序只是有限推断；各 core 阶段的可回收比例仍未知。
+-- **不能比较或相减：**该 128-file、顺序 warmed、pre-resolved reader 观察不是跨 runtime ABBA，不能与 27-family totals、真实 TypeScript、raw-scan 或 Product 数字相加、相减或外推。
+-- **形成时建议（不是当前状态）：**当前不实施；仅在出现 Fortran-heavy consumer workload、明确 budget 或新的 source-alignment 授权后，以 token stream 和同一 corpus 重开 scoped core Investigation。
+-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
++后续阅读：[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续轮次的证据与当轮停止事件；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。这些阅读指引不属于本轮形成时证据，也不授权今天继续执行；当前行动由用户请求与相应 Change 承接。
+@@ -51 +44 @@
+-**不适用范围。** 本结论不评价 ST、Ruby 或其他 reader，不证明 Python 与 Bun 任一 runtime 更适合 Product，也不授权改变 Lizard 1.24 source alignment。
++**不适用范围。** 本结论不评价 ST、Ruby 或其他 reader，不证明 Python 与 Bun 任一 runtime 更适合 Product，也不授权改变 Lizard 1.24 source alignment。该 slice 的数值不能与前序 27-family totals、真实 TypeScript、raw-scan 或 Product 数字相加、相减或外推。
+--- a/docs/decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md
++++ b/docs/decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md
+@@ -23,17 +23 @@
+-- 让 Lizard port 继续保持可同步、可审计的上游语义，同时允许针对 TypeScript Product host 的可证性能实现。
+-- 防止将“近一比一翻译”误读为必须永久使用 JavaScript 内建 `RegExp`、生成器或其他宿主原语。
+-
+-### 读取与采用边界
+-
+-- **此记录的 owner：**它只拥有未来在 private Lizard port 采用等价宿主原语的长期约束和验收门槛；它不拥有任何 benchmark 数字、当前实现状态或某个候选的兼容性结论。
+-- **证据读取顺序：**先读[宿主加速候选调查](../investigations/survey-lizard-host-acceleration-candidates.md)取得候选的形成时证据与下一轮实验；其直接前序[真实 TypeScript 慢路径诊断](../investigations/diagnose-lizard-real-typescript-analyzer-hot-path.md)拥有热点定位，并继续追溯其两份直接前序以恢复 workload 和 measurement layer。
+-- **不得从本 Decision 推断：**它没有性能数字可供横向比较、相减或换算为 Product 加速；raw-scan、analyzer-only 与完整 Product 的数字分别由其 Investigation 在限定 workload 和计时边界内拥有。
+-- **当前授权边界：**[综合调查](../investigations/compare-lizard-regex-backends-and-analyzer-cost-allocation.md)只记录当轮停止事件和形成时证据，不拥有持续状态。今天是否开展性能工作由当前请求授权，并由相应 Change 承接范围、实施与验收；本 Decision 的未来候选门槛本身不启动工作。
+-- **重新开启时的门槛：**只有某候选先在独立 Investigation 闭合本记录要求的语义、资源、打包和同 workload 性能证据后，才可由独立 Decision/Change 请求实施；否则保持 built-in `RegExp` 基线。
+-
+-### 适用范围与非授权边界
+-
+-- 本 Decision 只定义**未来**在 private Lizard port 内评估和采用等价宿主原语的条件；当前 built-in `RegExp` 是已对齐基线。
+-- 它不直接授权安装依赖、修改 tokenizer、改变 Worker protocol、增加 Product 配置或公开 API。每个候选仍须有独立 Investigation、Decision 和 Change，并以该 Change 的验收证据决定是否采用。
+-- 它不改变 port façade / Product adapter 的责任边界，也不减损 source identity、oracle、deviation、extension lifecycle 或公开 surface 的既有 owner 和验证要求。
+-- “宿主原语”指实现正则、token scanning 或等价局部执行机制的项目代码或依赖；它不是把 Lizard analyzer 改造成通用 parser、plugin framework 或可切换 backend 产品功能的许可。为 differential test 临时加入的 seam 必须非导出、仅测试可达并在采用后移除，不能演化为持久的可配置 backend interface。
++让 Lizard port 保持可同步、可审计的上游分析语义，同时允许以完整证据采用更合适的 TypeScript 宿主原语；近一比一翻译不等于永久绑定 JavaScript 内建 `RegExp`、生成器或标准库实现。
+@@ -43,3 +27,10 @@
+-- 当前 source-aligned port 已保持上游模块、reader、token stream、processor、状态机、函数信息和 extension lifecycle，并以 oracle、source identity 与 deviation evidence 验证。
+-- 真实 TypeScript analyzer-only 调查已排除当前 reader path matching，将主要热点定位到 source-aligned combined-regex tokenization 在 Bun/JavaScriptCore 上的重复扫描；仅缓存 `RegExp` 构造没有实质价值。
+-- 上游 Python 代码规定的是 tokenizer 产生的 token 和后续分析生命周期，不规定 TypeScript host 必须使用哪一个正则引擎或标准库实现。正则库、WASM、native addon 或等价扫描实现都可能继续表达同一分析语义，但会引入各自的语法、Unicode、资源、打包和供应链边界。
++- 形成本判断时，source-aligned port 已保留上游模块、reader、token stream、processor、状态机、函数信息和 extension lifecycle，并由 oracle、source identity 与 deviation evidence 验证。
++- 真实 TypeScript analyzer-only 调查排除了当时的 reader path matching，将主要热点定位到 Bun/JavaScriptCore 的 combined-regex 重复扫描；仅缓存 `RegExp` 构造没有实质价值。
++- 上游 Python 定义 token 和后续生命周期，而非 TypeScript host 的实现引擎。正则库、WASM、native addon 或等价扫描可能保持同一语义，但各有语法、Unicode、资源、打包和供应链成本。
++
++### 形成时证据的读取
++
++[宿主加速候选调查](../investigations/survey-lizard-host-acceleration-candidates.md)保存候选证据与下一轮实验；
++其直接前序[真实 TypeScript 慢路径诊断](../investigations/diagnose-lizard-real-typescript-analyzer-hot-path.md)拥有热点定位，继续追溯其两份直接前序可恢复 workload 与 measurement layer。
++[综合调查](../investigations/compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存当轮停止事件，不拥有今天的持续状态。
++raw-scan、analyzer-only 与完整 Product 数字分别由相应 Investigation 在限定输入和计时边界内解释，不能跨层相减或换算为 Product 加速。
+@@ -49 +40 @@
+-### 保持不变的 source-alignment 契约
++### 语义与私有边界
+@@ -51,6 +42,3 @@
+-- 采用: source alignment 约束 analyzer 的可观察语义和可同步结构，包括 token stream、reader 选择、processor 顺序、状态机转换、函数边界与字段、extension lifecycle、错误和取消边界；它不要求 TypeScript 与 Python 使用相同语言原语、标准库或执行引擎。
+-
+-### 允许的实现位置与禁止的扩张
+-
+-- 采用: private port 可以使用项目实现或第三方依赖替换正则、token scanning 或其他宿主原语。具体替换必须留在 port 私有边界，不成为 Product 选项、public plugin API、backend abstraction、Python runtime、subprocess 或静默 fallback。
+-- 不采用：不以源码文本相似度否定已有 parity evidence 支持的优化，也不以输出样例相等代替完整 token stream、生命周期、资源和分发验证。
++- 采用: source alignment 约束可观察分析语义及可同步结构：token stream、reader 选择、processor 顺序、状态转换、函数边界与字段、extension lifecycle、错误和取消边界。宿主原语可以不同；不以源码文本相似度否定已有 parity evidence 支持的优化，也不以少量输出样例相等代替完整 token stream、生命周期、资源和分发验证。
++- private port 可使用项目实现或第三方依赖替换正则、token scanning 等局部机制。替换保持 port façade / Product adapter 分工及现有 source identity、oracle、deviation、生命周期和公开 surface 的验证要求。
++- 替换不成为 Product 配置、public API、plugin framework、可切换 backend、Python runtime、subprocess 或静默 fallback。differential test 的临时 seam 必须非导出、仅测试可达并在采用后移除。
+@@ -60,3 +48,3 @@
+-- 采用: 每个非机械优化必须在独立 Investigation/Decision/Change 中明确候选和回退边界，并进入 current deviation evidence。
+-- 采用: 验收至少证明完整 token-stream differential、27-reader oracle、source identity、processor/extension protocol、真实目标 corpus before/after、typecheck/lint 和 required/complete `--all` Gate；无法证明语义等价或稳定收益时不采用。
+-- 采用: 引入库时同时验证所需 regex/Unicode/zero-width/capture/global-iteration 语义、supported Product Worker 与取消/资源行为、package artifact 和支持平台装载、版本与完整性固定、license/security 以及无运行时下载或系统级隐式依赖。WASM、Node-API 或其他 native 载体不因“更快”自动获得例外。
++1. 在独立 Investigation、Decision 和 Change 中明确候选与回退边界，并进入 current deviation evidence；独立 Investigation 先闭合语义、资源、打包与同 workload 性能证据，随后才请求实施。
++2. 至少证明完整 token-stream differential、27-reader oracle、source identity、processor/extension protocol、真实目标 corpus before/after、typecheck/lint 和 required/complete `--all` Gate。语义等价或稳定收益无法证明时不采用。
++3. 引入库还须验证所需 regex/Unicode/zero-width/capture/global-iteration 语义、supported Product Worker 的取消与资源行为、artifact 与支持平台装载、版本/完整性固定、license/security，以及无运行时下载或系统级隐式依赖。WASM、Node-API 等载体遵守同一门槛。
+@@ -64 +52 @@
+-### 当前基线与未预选的技术
++### 未来方向与实施授权
+@@ -66 +54,4 @@
+-- 采用: 当前 built-in `RegExp` 实现继续是已对齐基线；本决策只建立允许评估和采用等价 host primitive 的未来方向，不预先选择 PCRE2、RE2、Oniguruma、WASM、native addon 或手写 scanner，也不把 profiler sample 占比当成可回收承诺。
++本记录只建立未来等价替换的条件，不拥有 benchmark 数字、当前实现状态或某个候选的兼容性结论。
++形成时已对齐基线为 built-in `RegExp`，候选证据不足时保持该基线；未预选 PCRE2、RE2、Oniguruma、WASM、native addon 或手写 scanner，profiler 占比也不是可回收性能承诺。
++
++今天是否开展工作由当前请求授权，由对应 Change 承接范围、实施与验收。本记录本身不启动性能工作，也不直接授权依赖安装、tokenizer 修改、Worker 协议、Product 配置或公开 API 变更。
+--- a/docs/investigations/remeasure-function-metrics-product-reader-fast-path.md
++++ b/docs/investigations/remeasure-function-metrics-product-reader-fast-path.md
+@@ -24 +24 @@
+-### 当前阅读导航（不属于形成时证据）
++### 后续阅读（不属于形成时证据）
+@@ -26,6 +26 @@
+-- **本报告的 evidence owner：**两相邻 revision 在真实仓库 TypeScript corpus 上，从 public `src/index.ts` 发起的完整 `functionMetrics` warmed-operation Product 测量，以及 snapshot equality guard；raw rows/manifest 由本报告资源拥有。
+-- **直接前序：**frontmatter 的 `复查 → verify-lizard-reader-resolution-fast-path.md`；该前序是 fixed synthetic analyzer scope 的验收，本报告只复查其变更在完整 Product layer 的表现。
+-- **已确认 / 推断 / 未知：**所有计数样本 output 等价和本轮 wall observations 已确认；小幅下降是否是稳定实现收益仍是推断未闭合，Product stage 的因果占比未知。
+-- **不能比较或相减：**本报告完整 Product time 不可与 direct analyzer、tokenizer 或旧 synthetic batch 的时间相减；它包含 read/decode、Worker、adapter、Records 与 settlement，且本轮不证明 cold/session/resource 指标。
+-- **形成时建议（不是当前状态）：**若要据此作性能决策，需在明确 consumer corpus、稳定 host 条件和预定义统计阈值下复查；本报告不授权继续改 core、Worker、I/O 或 settlement。
+-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
++本报告拥有两相邻 revision 在真实 TypeScript corpus 上的完整 `functionMetrics` warmed-operation 测量与 snapshot equality guard，raw rows/manifest 见随附资源。[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件。报告不拥有持续执行状态，也不自动启动调查或实施；今天是否行动由当前请求授权并由相应 Change 承接，长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
+@@ -61 +56 @@
+-**边界与未获授权项。** 这不是 cold-start、long-lived session、CPU/RSS、consumer workload、跨主机/运行时或多语言 reader corpus 测量，也没有 isolate 各 Product stage 的因果占比。相同 snapshot 只证明本 corpus 和该公开配置的输出等价，不能替代 filename differential/oracle。该调查不授权进一步优化 translated core、reader、tokenizer、Worker、I/O 或 Product settlement；若需要作性能决策，应在明确 consumer corpus、稳定 host 条件和预定义统计阈值下重新调查。
++**边界与未获授权项。** 这不是 cold-start、long-lived session、CPU/RSS、consumer workload、跨主机/运行时或多语言 reader corpus 测量，也没有 isolate 各 Product stage 的因果占比。本报告的完整 Product time 不可与 direct analyzer、tokenizer 或旧 synthetic batch 的时间跨层相减。相同 snapshot 只证明本 corpus 和该公开配置的输出等价，不能替代 filename differential/oracle。该调查不授权进一步优化 translated core、reader、tokenizer、Worker、I/O 或 Product settlement；若需要作性能决策，应在明确 consumer corpus、稳定 host 条件和预定义统计阈值下重新调查。
+--- a/docs/investigations/remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md
++++ b/docs/investigations/remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md
+@@ -26 +25,0 @@
+-- **本报告的 evidence owner：**254-file 真实 TypeScript 的 Python/TypeScript canonical-metrics equality 与 analyzer-only warmed-operation ABBA/BAAB 对照；request、preflight 和 raw samples 由本报告资源拥有。
+@@ -29 +27,0 @@
+-- **不能比较或相减：**本报告 analyzer-only 数字不能与完整 Product fast-path 复测或 historical Product 数字相减；三者输入、计时边界和运行模型不同，即使量级相近也不代表层级成本相同。
+--- a/docs/investigations/survey-lizard-host-acceleration-candidates.md
++++ b/docs/investigations/survey-lizard-host-acceleration-candidates.md
+@@ -23 +23 @@
+-**本文是候选调查，不是采用或安装授权。**它回答“下一轮应验证什么”，不改变当前已对齐的 built-in `RegExp` port，也不授权修改 Product runtime、公开 API、Worker protocol、依赖或锁文件。
++**本轮建议验证 Oniguruma 私有 tokenizer spike，并以 built-in sticky/multi-pattern scanner 为无依赖 control。** 这是下一轮验证的候选排序，不是采用或安装授权；当前已对齐的 built-in `RegExp` port 保持不变。
+@@ -27 +26,0 @@
+-- **当前不应做：**不因本报告直接采用任何库；不以 parser/AST、Worker pool 或通用 lexer framework 替换 Lizard analyzer；不把 TypeScript-only probe 当作 27-reader 或 Product 结论。
+@@ -37 +36 @@
+-### 当前阅读导航（不属于形成时证据）
++### 后续阅读（不属于形成时证据）
+@@ -39,6 +38,3 @@
+-- **本报告的 evidence owner：**27-reader regex/lexer capability inventory、候选 API/compile probes 与真实 TypeScript raw-scan spike；候选版本、原始 rows、feature inventory 和 guards 由本报告资源拥有。
+-- **直接前序：**frontmatter 的 `补充 → diagnose-lizard-real-typescript-analyzer-hot-path.md`；先从该报告恢复真实 TypeScript analyzer-only hotspot、profile 解释边界和其两份直接前序，而不是把本报告的候选判断当成 root-cause profile。
+-- **已确认 / 推断 / 未知：**“证据状态”是唯一的强度地图：Oniguruma 的 raw-match/offset parity 与 isolated signal 已确认；它值得 full-token experiment 是推断；all-reader semantics、Product lifecycle、delivery 和稳定 full-pipeline 收益仍未知。
+-- **不能比较或相减：**Oniguruma/native raw-scan 数字仅覆盖 raw tokens/digest，且两侧缓存/构造形态不同；不得换算为 analyzer 或 Product 加速，也不得与 profile 百分比、27-language 或完整 Product timing 相减。
+-- **后继的当前结论：**[CPython 与 JavaScriptCore 性能差距解释](explain-cpython-jsc-lizard-regex-performance-gap.md)新增 same-output built-in staged-generic signal；它把 built-in staged-generic 提升为先于或不低于 Oniguruma 的调查候选。该后继拥有其 raw/full measurement layer、已排除项和引擎机制未知项，本报告的形成时 probe 不被回写为该结论的证据。
+-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
++[CPython 与 JavaScriptCore 性能差距解释](explain-cpython-jsc-lizard-regex-performance-gap.md)新增 same-output built-in staged-generic signal，将它提升为先于或不低于 Oniguruma 的调查候选。该后继拥有其 raw/full measurement layer、已排除项和引擎机制未知项；本报告仍保存形成时的 27-reader capability inventory、API/compile probes 与真实 TS raw-scan spike，不回填后继结论。
++
++[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件。报告不拥有持续执行状态，也不自动启动调查或实施；今天是否行动由当前请求授权并由相应 Change 承接，长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。本轮已确认、推断与未知的强度地图及候选采用条件见结果节。
+--- a/docs/investigations/audit-project-gate-function-metrics-check-overhead.md
++++ b/docs/investigations/audit-project-gate-function-metrics-check-overhead.md
+@@ -65,0 +66,2 @@
++#### 测试 lane：resource boundary 与让步控制
++
+@@ -68,0 +71,2 @@
++
++#### Direct Check：输入、Worker、analyzer 与 scope 对照
+--- a/docs/decisions/archive/require-selected-repository-quality-remediation-in-active-cleanup-changes.md
++++ b/docs/decisions/archive/require-selected-repository-quality-remediation-in-active-cleanup-changes.md
+@@ -19,0 +20 @@
++
+@@ -22,0 +24 @@
++
+@@ -27,0 +30 @@
++
+--- a/docs/investigations/assess-node-26-package-host-readiness.md
++++ b/docs/investigations/assess-node-26-package-host-readiness.md
+@@ -15,2 +15,2 @@
+-- 本报告形成时，公开 package 的 Product host 与仓库的 build/test/Gate tooling 已明确分离：Product candidate 从 src/index.ts 和一个内部 function-metrics Worker root 生成 dist/esm 下的 mjs modules，而 repository scripts 仍由 Bun 启动。这个报告不授权把后者迁移到 Node。
+-- 工作区的 package-candidate contract 正在从带有未验证最高边界的 Node 24.18 range 调整为最低版本 >=24.18；这次调查不修改该 contract、Product、scripts、Decision 或 Change。它只评估用户拟将 consumer 验收基线切到 Node 26 时的准备度。
++- 本报告形成时，公开 package 的 Product host 与仓库的 build/test/Gate tooling 已明确分离：Product candidate 从 `src/index.ts` 和一个内部 function-metrics Worker root 生成 `dist/esm` 下的 mjs modules，而 repository scripts 仍由 Bun 启动。Bun tooling 迁移不在本轮授权内。
++- 工作区的 package-candidate contract 正在从带有未验证最高边界的 Node 24.18 range 调整为最低版本 `>=24.18`；本轮只评估 consumer 验收基线切到 Node 26 的准备度，保持该 contract、Product、scripts、Decision 和 Change 不变。
+@@ -33,3 +33,3 @@
+-- docs/development/architecture.md 规定 src/index.ts 是唯一 public entry；docs/tooling/package-lifecycle.md 规定 candidate 逐模块交付 mjs，并把内部 Worker URL 精确改写为 shipped analyzer-worker.mjs。候选包只公开 root export，物理 dist、types 与 src 不是 consumer subpath。
+-- src/package-checks/function-metrics/analyzer-worker-port.ts 通过 new Worker(new URL(..., import.meta.url)) 使用 node:worker_threads；Worker root 使用 parentPort。scripts/package/candidate/external-consumer/runtime-evidence/run.ts 会在隔离安装中核对 parent-to-Worker URL、实际启动依赖的 jscpd，并运行 representative Product fixture。
+-- scripts/package/candidate/external-consumer/documentation.ts 用真实 Node 子进程 import runtime documentation examples 和 package-shipped machine Definition。README 的最小示例也声明 node quality.ts，因此 Node 的 TypeScript execution 对文档承诺实际相关；已发布 Product entry 本身是 mjs，不依赖 Node 直接执行 package 的 ts 源码。
++- `docs/development/architecture.md` 规定 `src/index.ts` 是唯一 public entry；`docs/tooling/package-lifecycle.md` 规定 candidate 逐模块交付 mjs，并把内部 Worker URL 精确改写为 shipped `analyzer-worker.mjs`。候选包只公开 root export，物理 `dist`、`types` 与 `src` 不是 consumer subpath。
++- `src/package-checks/function-metrics/analyzer-worker-port.ts` 通过 `new Worker(new URL(..., import.meta.url))` 使用 `node:worker_threads`；Worker root 使用 `parentPort`。`scripts/package/candidate/external-consumer/runtime-evidence/run.ts` 会在隔离安装中核对 parent-to-Worker URL、实际启动依赖的 jscpd，并运行 representative Product fixture。
++- `scripts/package/candidate/external-consumer/documentation.ts` 用真实 Node 子进程 import runtime documentation examples 和 package-shipped machine Definition。README 的最小示例也声明 `node quality.ts`，因此 Node 的 TypeScript execution 对文档承诺实际相关；已发布 Product entry 本身是 mjs，不依赖 Node 直接执行 package 的 ts 源码。
+@@ -37,2 +37,2 @@
+-  - VIBE_CHECK_NODE_CMD=/home/dev/.local/share/mise/installs/node/26.7.0/bin/node bun test scripts/package/candidate/external-consumer/runtime.test.ts：通过。该测试在隔离安装的 candidate 下以 Node v26.7.0 执行 root import、representative Run、function-metrics Worker、runtime dependency resolution/execution 与 machine output assertions。
+-  - VIBE_CHECK_NODE_CMD=/home/dev/.local/share/mise/installs/node/26.7.0/bin/node bun test scripts/package/candidate/external-consumer/documentation.test.ts：通过。它以 Node v26.7.0 实际 import 受管 runtime ts documentation examples 和 machine Definition。
++  - `VIBE_CHECK_NODE_CMD=/home/dev/.local/share/mise/installs/node/26.7.0/bin/node bun test scripts/package/candidate/external-consumer/runtime.test.ts`：通过。该测试在隔离安装的 candidate 下以 Node v26.7.0 执行 root import、representative Run、function-metrics Worker、runtime dependency resolution/execution 与 machine output assertions。
++  - `VIBE_CHECK_NODE_CMD=/home/dev/.local/share/mise/installs/node/26.7.0/bin/node bun test scripts/package/candidate/external-consumer/documentation.test.ts`：通过。它以 Node v26.7.0 实际 import 受管 runtime ts documentation examples 和 machine Definition。
+--- a/docs/investigations/recheck-cold-candidate-bootstrap-gate-import.md
++++ b/docs/investigations/recheck-cold-candidate-bootstrap-gate-import.md
+@@ -33 +33 @@
+-调查不修改 Product、package candidate、manifest、lockfile、timeout、环境脚本或测试；不安装新的工具链或根开发依赖，不发布或提交。正式 Gate/candidate 入口仍会按其既有 lifecycle build/install private candidate 及其依赖，这正是本轮要观察的 candidate 事实。**执行边界例外：**形成此报告时，一次未引号 shell heredoc 使 Markdown backtick 被 shell substitution 解释；可由 main `.log/project-gate` 目录确认它意外运行了三次 root typecheck Gate，receipt/build/private-consumer mtime 同处该窗口，且 shell output 确认至少一次 root `package:status`。报告写入后已核对没有存活的 Bun/mise/pnpm/candidate process，停止所有新增实验与主 Gate 操作。没有该事故前的紧邻主 candidate identity snapshot，不能将先前获得的 version 与这次写入严格比较；本报告不把主工作区称为未触及。
++调查不修改 Product、package candidate、manifest、lockfile、timeout、环境脚本或测试；不安装新的工具链或根开发依赖，不发布或提交。正式 Gate/candidate 入口仍会按其既有 lifecycle build/install private candidate 及其依赖，这正是本轮要观察的 candidate 事实。
+@@ -49,0 +50,4 @@
++### 实际执行中的边界例外
++
++形成此报告时，一次未引号 shell heredoc 使 Markdown backtick 被 shell substitution 解释；可由 main `.log/project-gate` 目录确认它意外运行了三次 root typecheck Gate，receipt/build/private-consumer mtime 同处该窗口，且 shell output 确认至少一次 root `package:status`。报告写入后已核对没有存活的 Bun/mise/pnpm/candidate process，停止所有新增实验与主 Gate 操作。没有该事故前的紧邻主 candidate identity snapshot，不能将先前获得的 version 与这次写入严格比较；本报告不把主工作区称为未触及。
++
+--- a/docs/decisions/allow-channel-only-diagnostic-filenames-in-invocation-controls.md
++++ b/docs/decisions/allow-channel-only-diagnostic-filenames-in-invocation-controls.md
+@@ -37 +37 @@
+-- 不采用: 全局固定文件名、Product 统一目录布局、Gate 绕过公共 API、writer/readback 之后重命名或通用日志配置框架。
++- 不采用: 将这项命名选择扩张为通用日志配置框架。
+--- a/docs/investigations/compare-simple-admission-algorithms.md
++++ b/docs/investigations/compare-simple-admission-algorithms.md
+@@ -139 +139 @@
+-本轮实际交付是可复核的方案、反例、成本记录和未采用依据，**不是可采用的性能优化**。Product 保留当前方案；本文不把调查产出等同于产品优化成功，也不把未采用升级为永久停止优化的决定。
++本轮材料支持复核方案、反例、成本记录和未采用依据；未采用不构成永久停止优化的决定。
+--- a/docs/decisions/provide-invocation-private-dependency-handoff.md
++++ b/docs/decisions/provide-invocation-private-dependency-handoff.md
+@@ -32,0 +33,2 @@
++### 两种数据与 provider 声明
++
+@@ -35,0 +38,3 @@
++
++### 可见性、验证与共享责任
++
+--- a/docs/decisions/select-admission-optimization-by-effective-opportunity.md
++++ b/docs/decisions/select-admission-optimization-by-effective-opportunity.md
+@@ -38 +38 @@
+-- 采用: 现有 learned optimization Plan 在完成 change-aware 重基线和本方向审阅前不进入 Implementation、Gate A/B 或 production wiring；证据可以支持重写、简化或 not-adopt，不以已有算法复杂度作为继续投入理由。
++- 采用: 形成此决策时的 learned optimization Plan 须先完成 change-aware 重基线和本方向审阅，再进入 Implementation、Gate A/B 或 production wiring；证据可以支持重写、简化或 not-adopt，不以已有算法复杂度作为继续投入理由。
+--- a/docs/decisions/use-blocking-tiered-oxlint-policy.md
++++ b/docs/decisions/use-blocking-tiered-oxlint-policy.md
+@@ -37,0 +38,2 @@
++### 分级规则与统一阻断
++
+@@ -40,0 +43,3 @@
++
++### 未采用的规则与理由
++
+@@ -41,0 +47,3 @@
++
++### 原生 suppression 与 owner
++
+--- a/docs/investigations/investigate-core-package-tools-boundary-validation-gap.md
++++ b/docs/investigations/investigate-core-package-tools-boundary-validation-gap.md
+@@ -5 +5 @@
+-question: "在本轮尚未提交的 Package Tools 边界校验器候选中，Core 依赖闭包为何会漏掉绝对 workspace literal import，动态 literal import 的处理又是否符合预定边界；在修复与正反证据尚未完成时，Project Gate 能形成何种可信结论？"
++question: "Package Tools 边界校验器候选为何漏掉绝对 workspace literal import、误拒绝 Core literal dynamic import，定向修复与正反验证能支持何种 Core 独立性结论？"
+@@ -42,0 +43,2 @@
++### 漏检机理
++
+@@ -45,0 +48,2 @@
++
++### 定向修复与验证演进
+@@ -53 +57,3 @@
+-**独立复核与当前结论：**实施外 reviewer 已基于实际 diff 重跑并确认 layout test、Core no-emit（121 files）以及 absolute、`paths` alias、Core literal dynamic import 和 Core `import = require(...)` 的正反 fixture均符合预期。reviewer 还确认 `node:fs`、`immutable`、`typebox` 和绝对 `node_modules` 路径均正确归为 external，未发现新的当前可利用绕过。故本轮已证实的漏检及其后来发现的 import-equals 漏检均已由实际 resolution/classification 与 fail-closed 语法处理修复，且目标边界验证可再次支持该类 Core 独立性判断。
++### 独立复核与覆盖边界
++
++实施外 reviewer 已基于实际 diff 重跑并确认 layout test、Core no-emit（121 files）以及 absolute、`paths` alias、Core literal dynamic import 和 Core `import = require(...)` 的正反 fixture均符合预期。reviewer 还确认 `node:fs`、`immutable`、`typebox` 和绝对 `node_modules` 路径均正确归为 external，未发现新的当前可利用绕过。故本轮已证实的漏检及其后来发现的 import-equals 漏检均已由实际 resolution/classification 与 fail-closed 语法处理修复，且目标边界验证可再次支持该类 Core 独立性判断。
+--- a/docs/decisions/configure-progress-previews-and-quiet-pass-presentation.md
++++ b/docs/decisions/configure-progress-previews-and-quiet-pass-presentation.md
+@@ -37,0 +38,2 @@
++### Preview 配置与 formatter
++
+@@ -43,0 +46,3 @@
++
++### 事实、身份与交付
++
+@@ -45,0 +51,3 @@
++
++### Quiet-pass row 与计数
++
+@@ -49,0 +58,3 @@
++
++### Gate 安全投影与非目标
++
+--- a/docs/investigations/measure-scc-file-batch-transport-performance.md
++++ b/docs/investigations/measure-scc-file-batch-transport-performance.md
+@@ -46 +46 @@
+-**初始输出等价已确认。** 初始轮的 34 次 warm-up 和 170 次计数 logical scans 均通过 initial harness 的 CSV header、batch-local exact-path、无重复和 normalized digest guard；full-scope baseline、全部 batch-size 与全部 ceiling conditions 的 digest 均为 `f4afbe623636ffdf7a4dde158cc723dace0ac5e4a2861324910602a3b4dfc7a8`。single-file cold-start 的独立 scope digest 是 `481ad69433ed818fe82844494a57428ad5ac256d3332976318ff11394e7b913a`。这只证明 stock SCC 对此 generated corpus 的 by-file CSV output 在不同分批方式下等价；它不证明未来 adapter 的 CSV parser、failure handling、deadline、output accounting 或 final Product result merge。
++### 初始输出等价
+@@ -48 +48,5 @@
+-**冷启动与 batch-size 曲线（ms，10 rounds）。** 当前单进程 baseline 的 median/p95 是 `19.087/28.992`，single-file fresh-process cold start 是 `9.881/11.492`。显式 batch sizes 的完整 logical scan 如下：
++初始轮的 34 次 warm-up 和 170 次计数 logical scans 均通过 initial harness 的 CSV header、batch-local exact-path、无重复和 normalized digest guard；full-scope baseline、全部 batch-size 与全部 ceiling conditions 的 digest 均为 `f4afbe623636ffdf7a4dde158cc723dace0ac5e4a2861324910602a3b4dfc7a8`。single-file cold-start 的独立 scope digest 是 `481ad69433ed818fe82844494a57428ad5ac256d3332976318ff11394e7b913a`。这只证明 stock SCC 对此 generated corpus 的 by-file CSV output 在不同分批方式下等价；它不证明未来 adapter 的 CSV parser、failure handling、deadline、output accounting 或 final Product result merge。
++
++### 冷启动与 batch-size 曲线（ms，10 rounds）
++
++当前单进程 baseline 的 median/p95 是 `19.087/28.992`，single-file fresh-process cold start 是 `9.881/11.492`。显式 batch sizes 的完整 logical scan 如下：
+@@ -64 +68,3 @@
+-**ceiling 曲线与选择。** 所有 ceiling condition 都保持 full-scope digest；batch count 与 wall time 为：
++### ceiling 曲线与选择
++
++所有 ceiling condition 都保持 full-scope digest；batch count 与 wall time 为：
+@@ -77 +83 @@
+-**最终 runtime 复测。** 后续 runtime harness 在同一 host、Bun、mise-resolved stock SCC、620-file corpus、fixed protocol、2 次 warm-up 与 10 个计数 rounds 上运行唯一的第 18 条 `runtime-production-ceiling-28000` condition，直接调用最终 `scanWithScc`。它以同一 private `28,000` planner 得到 `3` 个 batches（`238/241/141` paths；估算 `27,997/27,900/16,400`），并对 scanner 返回的按 path、code lines、decision tokens 归一 payload digest 做完整 expected-value guard。10 个 runtime rounds 的 median/p95 是 **`37.585/45.186 ms`**，payload digest 为 `b4abd7f5703bae07fee30b88fc2fec20027b3bb78b90c11b0f5fc9d20f86f037`。这个 digest 的字段形状不同于初始 direct-CSV guard `f4af…`，但它验证了同一 620 path 的 `code=1`、`decisionTokens=0` 结果；三次调用、path coverage 和 `28,000` partition 与已选择 ceiling 一致。runtime condition 包含 production parser、batch-local scope acceptance、aggregate uniqueness/sort、shared resource accounting 与 process runner，故 wall time 不与仅直接 spawn/CSV-normalize 的初始 ceiling timing 逐毫秒等同；它不重新定义已经按 predeclared six-ceiling curve 得出的 `28,000` 选择。
++### 最终 runtime 复测
+@@ -79 +85,5 @@
+-**未验证边界。** 没有 Windows runner；因此不证明 Windows executable/path quoting、`CreateProcessW` 或真实 consumer file mix。当前 Linux runtime、fake-SCC adapter tests 与 stock-SCC performance data 不能替代真实 Windows acceptance。真实 Windows stock-SCC 超预算 exact-path acceptance 仍是非阻断但必须明示的未验证边界。
++后续 runtime harness 在同一 host、Bun、mise-resolved stock SCC、620-file corpus、fixed protocol、2 次 warm-up 与 10 个计数 rounds 上运行唯一的第 18 条 `runtime-production-ceiling-28000` condition，直接调用最终 `scanWithScc`。它以同一 private `28,000` planner 得到 `3` 个 batches（`238/241/141` paths；估算 `27,997/27,900/16,400`），并对 scanner 返回的按 path、code lines、decision tokens 归一 payload digest 做完整 expected-value guard。10 个 runtime rounds 的 median/p95 是 **`37.585/45.186 ms`**，payload digest 为 `b4abd7f5703bae07fee30b88fc2fec20027b3bb78b90c11b0f5fc9d20f86f037`。这个 digest 的字段形状不同于初始 direct-CSV guard `f4af…`，但它验证了同一 620 path 的 `code=1`、`decisionTokens=0` 结果；三次调用、path coverage 和 `28,000` partition 与已选择 ceiling 一致。runtime condition 包含 production parser、batch-local scope acceptance、aggregate uniqueness/sort、shared resource accounting 与 process runner，故 wall time 不与仅直接 spawn/CSV-normalize 的初始 ceiling timing 逐毫秒等同；它不重新定义已经按 predeclared six-ceiling curve 得出的 `28,000` 选择。
++
++### 未验证边界
++
++没有 Windows runner；因此不证明 Windows executable/path quoting、`CreateProcessW` 或真实 consumer file mix。当前 Linux runtime、fake-SCC adapter tests 与 stock-SCC performance data 不能替代真实 Windows acceptance。真实 Windows stock-SCC 超预算 exact-path acceptance 仍是非阻断但必须明示的未验证边界。
+--- a/docs/decisions/unify-project-change-flags-as-effective-flags.md
++++ b/docs/decisions/unify-project-change-flags-as-effective-flags.md
+@@ -37,0 +38,2 @@
++### 唯一 AST 与有效 flags
++
+@@ -42,0 +45,3 @@
++
++### Git acquisition 与失败回退
++
+--- a/docs/decisions/default-effective-check-aggregation-with-caller-local-callback.md
++++ b/docs/decisions/default-effective-check-aggregation-with-caller-local-callback.md
+@@ -46 +46 @@
+-- 不采用: 继续要求 caller 配置 `"effective"` 或其它 selector、为 default 建立可配置空集合例外、保留旧 policy 兼容、将 callback 设计为 async，或让 callback 接收全量 snapshot、控制执行、修改 facts 或替代 Gate 映射。
++- 不采用: 为默认聚合建立可配置空集合例外，或将全量 snapshot 作为 callback 输入。
+--- a/docs/decisions/retain-on-demand-project-file-collection.md
++++ b/docs/decisions/retain-on-demand-project-file-collection.md
+@@ -30,0 +31 @@
++- 形成此决策时，将 `changes/batch-declared-project-file-inputs` 停在 Draft、未进入 Plan，选择保留按需收集。
+@@ -36 +37 @@
+-- 采用: `changes/batch-declared-project-file-inputs` 保持 Draft，不进入 Plan；本次不增加声明式 `projectFiles`、调用级输入 barrier 或公开 cache/refresh 契约。
++- 采用: 本次不增加声明式 `projectFiles`、调用级输入 barrier 或公开 cache/refresh 契约。
+--- a/docs/investigations/audit-incremental-project-gate-selection-and-cold-cost.md
++++ b/docs/investigations/audit-incremental-project-gate-selection-and-cold-cost.md
+@@ -97 +97 @@
+-**08:38 最终代码补测。** 缓存记录进一步加入 `candidate.tsbuildinfo` 摘要，状态文件被改写也必须冷 emit；对应的轻量测试通过。修改 package builder 后候选指纹失效，完整 `bun run check -- --all` 从重新准备候选起执行，43/43 passed，Gate 计量 **48,102.7ms**（候选准备 **14,872.1ms**、adapter/setup 503.2ms、Product Run 32,727.5ms），外层约 **48.37 秒**，60 秒门禁通过；日志位于 `.log/project-gate/2026-09-24T08-38-01.654Z-2338656-3b9e220d-104b-439e-9ee6-4557a4c3c608/`。这是本仓**失效候选及失效 compiler cache**的补测，不是清除 OS page cache/依赖缓存的完全冷机试验，也不与先前 57.1 秒样本构成严格配对。之后同一最终源码的 required 为 21 passed/22 N/A，Product Run 显示 14.9 秒，外层约 15.99 秒，20 秒门禁通过。`mise exec -- bun run package:status` 读到当前 exact candidate；直接用主机另一 Bun 版本查询会得出不同指纹的 stale 状态，不应用来判断 Gate 候选状态。
++### 2026-09-24 08:38：最终代码补测
+@@ -99 +99 @@
+-**08:58 文档与编码审查后的补测。** 修改了 package compiler cache 校验与说明后，公开入口 `bun run check -- --all` 的 43 项 Check 全部通过，但硬阈值将最终 Gate 判为 failed：`elapsed-to-initial-result` **70,032.0ms**，其中 candidate preparation **26,537.0ms**、adapter/setup **525.3ms**、Product Run **42,969.7ms**，超过本机手工 60,000ms 阈值。日志位于 `.log/project-gate/2026-09-24T08-58-52.700Z-2358378-631c7c65-4cdb-4064-9ea4-88973a1f1129/`。改过的 compiler-cache 源码按当前指纹规则需要重新校验或重建；本次没有单独的 tsgo/安装阶段计时，不能把 26.5 秒归给某一阶段。单次结果证明硬门禁生效，也证明 60 秒对这一失效候选与当前宿主负载组合没有稳定余量；不能用前一次 48.1 秒通过覆盖这次失败。
++缓存记录进一步加入 `candidate.tsbuildinfo` 摘要，状态文件被改写也必须冷 emit；对应的轻量测试通过。修改 package builder 后候选指纹失效，完整 `bun run check -- --all` 从重新准备候选起执行，43/43 passed，Gate 计量 **48,102.7ms**（候选准备 **14,872.1ms**、adapter/setup 503.2ms、Product Run 32,727.5ms），外层约 **48.37 秒**，60 秒门禁通过；日志位于 `.log/project-gate/2026-09-24T08-38-01.654Z-2338656-3b9e220d-104b-439e-9ee6-4557a4c3c608/`。这是本仓**失效候选及失效 compiler cache**的补测，不是清除 OS page cache/依赖缓存的完全冷机试验，也不与先前 57.1 秒样本构成严格配对。之后同一最终源码的 required 为 21 passed/22 N/A，Product Run 显示 14.9 秒，外层约 15.99 秒，20 秒门禁通过。`mise exec -- bun run package:status` 读到当前 exact candidate；直接用主机另一 Bun 版本查询会得出不同指纹的 stale 状态，不应用来判断 Gate 候选状态。
+@@ -101 +101,7 @@
+-**09:00–09:01 复用候选复测。** 不再修改 package builder 后，`--all` 的 43/43 Check 和最终 Gate 均通过：总 **31,007.4ms**，candidate preparation **145.9ms**、Product Run **30,430.3ms**；日志为 `.log/project-gate/2026-09-24T09-00-42.085Z-2364781-1f708b2e-f58a-4c46-8801-d8e56a9e9e71/`。随后默认 required 为 21 passed/22 N/A，Gate **13,816.0ms**（candidate preparation **132.2ms**、Product Run **13,259.1ms**），20 秒门禁通过；日志为 `.log/project-gate/2026-09-24T09-01-19.245Z-2367165-3f69e288-c4ff-43c6-a6aa-68dcc5b0b690/`。这两次只证明复用候选路径，不能消除前一次失效候选的 70.0 秒失败。
++### 2026-09-24 08:58：文档与编码审查后的补测
++
++修改了 package compiler cache 校验与说明后，公开入口 `bun run check -- --all` 的 43 项 Check 全部通过，但硬阈值将最终 Gate 判为 failed：`elapsed-to-initial-result` **70,032.0ms**，其中 candidate preparation **26,537.0ms**、adapter/setup **525.3ms**、Product Run **42,969.7ms**，超过本机手工 60,000ms 阈值。日志位于 `.log/project-gate/2026-09-24T08-58-52.700Z-2358378-631c7c65-4cdb-4064-9ea4-88973a1f1129/`。改过的 compiler-cache 源码按当前指纹规则需要重新校验或重建；本次没有单独的 tsgo/安装阶段计时，不能把 26.5 秒归给某一阶段。单次结果证明硬门禁生效，也证明 60 秒对这一失效候选与当前宿主负载组合没有稳定余量；不能用前一次 48.1 秒通过覆盖这次失败。
++
++### 2026-09-24 09:00–09:01：复用候选复测
++
++不再修改 package builder 后，`--all` 的 43/43 Check 和最终 Gate 均通过：总 **31,007.4ms**，candidate preparation **145.9ms**、Product Run **30,430.3ms**；日志为 `.log/project-gate/2026-09-24T09-00-42.085Z-2364781-1f708b2e-f58a-4c46-8801-d8e56a9e9e71/`。随后默认 required 为 21 passed/22 N/A，Gate **13,816.0ms**（candidate preparation **132.2ms**、Product Run **13,259.1ms**），20 秒门禁通过；日志为 `.log/project-gate/2026-09-24T09-01-19.245Z-2367165-3f69e288-c4ff-43c6-a6aa-68dcc5b0b690/`。这两次只证明复用候选路径，不能消除前一次失效候选的 70.0 秒失败。
+--- a/docs/investigations/measure-and-cache-markdown-lint-findings.md
++++ b/docs/investigations/measure-and-cache-markdown-lint-findings.md
+@@ -28,0 +29,2 @@
++### 缓存依据与责任
++
+@@ -30,0 +33,2 @@
++### 原型与实际 Check 的测量
++
+@@ -31,0 +36,2 @@
++
++### 实际缓存契约
+@@ -39 +45 @@
+-**有条件收益，不是整段墙钟节省。** 实际 Check 的本轮热样本比同轮关闭缓存低约 0.96–1.07 秒；冷建缓存反而比关闭缓存高约 0.6–0.7 秒。本机 Gate 的热 `--quality` 两次 Markdown lint 为约 **1.5 / 1.4 秒**，早先未配对的无缓存 `--quality` 为 **3.9 秒**；前后 candidate、系统负载和源码不同，不能把 2.5 秒直接归因或外推到 Gate 墙钟。热 required 为 **34 passed / 9 N/A、18.5 秒**，`--all` 为 **43/43 passed、27.9 秒**；日志位于 `.log/project-gate/2026-09-24T10-26-57.644Z-2459267-f01e3de3-29f9-482b-933e-20d231c25f6b/` 与 `.log/project-gate/2026-09-24T10-27-17.180Z-2461242-b845efef-7998-4487-a282-c0acf406dee0/`。本轮较多 Product 源码变化选择了 34 项 required Checks，不代表普通文档工作量。
++### 有条件收益，不是整段墙钟节省
+@@ -41 +47 @@
+-**完整性保持。** 新的 `findings-cache.test.ts` 把完整 Check outcome/Records 一致性、内容/规则失效，以及损坏/不可用缓存与取消拆成三项测试。相邻 Markdown lint 与 Link 测试通过；共用的本地缓存选项闭合语法提取到 `src/package-checks/local-cache-options.ts`，两者现有行为未改。Test Evidence 为 **655/655 entities、158 Cases**，文档验证、Product/scripts typecheck 与 lint、format 均通过。首轮 focused quality 因重复代码与过深 range 校验失败，后通过共享语法与复用 adapter range validator 修正，最终 focused quality、required 与 `--all` 均通过；没有质量豁免。初次 required 在 34 项 Checks 全过后因声明指纹不匹配按规则失败，本机只**手工**更新该指纹，20/60 秒阈值未改变；随后两条标准入口通过。
++实际 Check 的本轮热样本比同轮关闭缓存低约 0.96–1.07 秒；冷建缓存反而比关闭缓存高约 0.6–0.7 秒。本机 Gate 的热 `--quality` 两次 Markdown lint 为约 **1.5 / 1.4 秒**，早先未配对的无缓存 `--quality` 为 **3.9 秒**；前后 candidate、系统负载和源码不同，不能把 2.5 秒直接归因或外推到 Gate 墙钟。热 required 为 **34 passed / 9 N/A、18.5 秒**，`--all` 为 **43/43 passed、27.9 秒**；日志位于 `.log/project-gate/2026-09-24T10-26-57.644Z-2459267-f01e3de3-29f9-482b-933e-20d231c25f6b/` 与 `.log/project-gate/2026-09-24T10-27-17.180Z-2461242-b845efef-7998-4487-a282-c0acf406dee0/`。本轮较多 Product 源码变化选择了 34 项 required Checks，不代表普通文档工作量。
+@@ -43 +49 @@
+-**第一次完整工作树复测发现硬阈值风险。** 拆分测试并发布本报告后，同一 candidate 的首次 `bun run check` 虽然 34 项全部通过，仍以 **29,216.9ms** 超出 20,000ms：candidate preparation **7,996.8ms**，adapter/setup **412.0ms**，Product Run **20,808.1ms**；当次 Markdown lint **2.2 秒**。日志为 `.log/project-gate/2026-09-24T10-32-59.905Z-2467050-28809923-55f8-4a61-b904-7b989731e96d/`。随后 `--all` 的 43 项通过、门禁计时 **27,675.8ms / 60 秒**；同 candidate 的再次 required 34 项通过、门禁计时 **18,770.9ms / 20 秒**，其中 candidate preparation 仅 **118.6ms**，日志分别为 `.log/project-gate/2026-09-24T10-33-34.881Z-2473641-843b7b07-ff48-4fb0-b99b-43228fbc4dea/` 与 `.log/project-gate/2026-09-24T10-34-05.534Z-2476048-853a97cc-6635-48cc-84ee-eacf9cdc2473/`。这三次的候选准备成本差异可观察，但不能仅凭它断言编译、打包或系统负载各占多少。硬阈值包含准备和 Run；执行摘要里的 18–20 秒不是同一计时口径。
++### 完整性与初次验收
+@@ -45 +51 @@
+-**编码与文档审查后的再次复测。** 本轮修正意外异常映射、改用具名缓存输入、把 Gate 缓存目录锚定仓库根并整理文档后，失效候选的 required 再次 **34 项 Check 全过、门禁失败**：总计 **34,785.7ms / 20,000ms**，其中 candidate preparation **9,996.7ms**、adapter/setup **463.0ms**、Product Run **24,326.0ms**；Markdown lint 当次 **5.4 秒**。同 candidate 的 `--all` **43/43 通过、28,795.1ms / 60,000ms**，随后 required **34 项通过、19,863.3ms / 20,000ms**；两次的 Markdown lint 分别 **1.6 / 1.3 秒**。日志分别为 `.log/project-gate/2026-09-24T11-57-11.118Z-2506648-8aa4f6ea-6402-4b4e-9dd1-294f36137f5f/`、`.log/project-gate/2026-09-24T11-57-49.362Z-2512958-8ce66b4e-351d-4fb6-927b-50362366f0a9/`、`.log/project-gate/2026-09-24T11-58-23.137Z-2515320-574fb9bf-2c73-4bfa-b29e-1573327239bc/`。这仍是顺序观察而非负载控制实验；缓存收益不是所有运行下的墙钟保证。
++新的 `findings-cache.test.ts` 把完整 Check outcome/Records 一致性、内容/规则失效，以及损坏/不可用缓存与取消拆成三项测试。相邻 Markdown lint 与 Link 测试通过；共用的本地缓存选项闭合语法提取到 `src/package-checks/local-cache-options.ts`，两者现有行为未改。Test Evidence 为 **655/655 entities、158 Cases**，文档验证、Product/scripts typecheck 与 lint、format 均通过。首轮 focused quality 因重复代码与过深 range 校验失败，后通过共享语法与复用 adapter range validator 修正，最终 focused quality、required 与 `--all` 均通过；没有质量豁免。初次 required 在 34 项 Checks 全过后因声明指纹不匹配按规则失败，本机只**手工**更新该指纹，20/60 秒阈值未改变；随后两条标准入口通过。
+@@ -47 +53,11 @@
+-**剩余边界。** 缓存目录容量与删除归 Gate/调用方管理，source 衍生的本地文件不适合机密文档或不可信共享目录。更新 adapter 配置或 finding 解释而 backend 版本未变时，维护者必须提升内部缓存契约版本；仅靠内容和依赖版本不能识别任意代码语义变化。本轮没有清除 OS page cache 或依赖安装缓存；两次失效候选 required 已实际超限，不能把热运行通过视为冷态硬阈值达成。进一步优化应分别量化 candidate preparation 和 34 项 required 的关键路径，而非把 Markdown lint 单项收益等同于总墙钟收益。
++### 第一次完整工作树复测：硬阈值风险
++
++拆分测试并发布本报告后，同一 candidate 的首次 `bun run check` 虽然 34 项全部通过，仍以 **29,216.9ms** 超出 20,000ms：candidate preparation **7,996.8ms**，adapter/setup **412.0ms**，Product Run **20,808.1ms**；当次 Markdown lint **2.2 秒**。日志为 `.log/project-gate/2026-09-24T10-32-59.905Z-2467050-28809923-55f8-4a61-b904-7b989731e96d/`。随后 `--all` 的 43 项通过、门禁计时 **27,675.8ms / 60 秒**；同 candidate 的再次 required 34 项通过、门禁计时 **18,770.9ms / 20 秒**，其中 candidate preparation 仅 **118.6ms**，日志分别为 `.log/project-gate/2026-09-24T10-33-34.881Z-2473641-843b7b07-ff48-4fb0-b99b-43228fbc4dea/` 与 `.log/project-gate/2026-09-24T10-34-05.534Z-2476048-853a97cc-6635-48cc-84ee-eacf9cdc2473/`。这三次的候选准备成本差异可观察，但不能仅凭它断言编译、打包或系统负载各占多少。硬阈值包含准备和 Run；执行摘要里的 18–20 秒不是同一计时口径。
++
++### 编码与文档审查后的再次复测
++
++本轮修正意外异常映射、改用具名缓存输入、把 Gate 缓存目录锚定仓库根并整理文档后，失效候选的 required 再次 **34 项 Check 全过、门禁失败**：总计 **34,785.7ms / 20,000ms**，其中 candidate preparation **9,996.7ms**、adapter/setup **463.0ms**、Product Run **24,326.0ms**；Markdown lint 当次 **5.4 秒**。同 candidate 的 `--all` **43/43 通过、28,795.1ms / 60,000ms**，随后 required **34 项通过、19,863.3ms / 20,000ms**；两次的 Markdown lint 分别 **1.6 / 1.3 秒**。日志分别为 `.log/project-gate/2026-09-24T11-57-11.118Z-2506648-8aa4f6ea-6402-4b4e-9dd1-294f36137f5f/`、`.log/project-gate/2026-09-24T11-57-49.362Z-2512958-8ce66b4e-351d-4fb6-927b-50362366f0a9/`、`.log/project-gate/2026-09-24T11-58-23.137Z-2515320-574fb9bf-2c73-4bfa-b29e-1573327239bc/`。这仍是顺序观察而非负载控制实验；缓存收益不是所有运行下的墙钟保证。
++
++### 剩余边界
++
++缓存目录容量与删除归 Gate/调用方管理，source 衍生的本地文件不适合机密文档或不可信共享目录。更新 adapter 配置或 finding 解释而 backend 版本未变时，维护者必须提升内部缓存契约版本；仅靠内容和依赖版本不能识别任意代码语义变化。本轮没有清除 OS page cache 或依赖安装缓存；两次失效候选 required 已实际超限，不能把热运行通过视为冷态硬阈值达成。进一步优化应分别量化 candidate preparation 和 34 项 required 的关键路径，而非把 Markdown lint 单项收益等同于总墙钟收益。
+--- a/docs/investigations/review-local-head-gate-selection-and-document-inputs.md
++++ b/docs/investigations/review-local-head-gate-selection-and-document-inputs.md
+@@ -41 +41,13 @@
+-公开入口的顺序观察：修改前在上一阶段工作树的 required 为 **21 passed / 22 N/A、15.547s**；修改并手工匹配本地声明指纹后的 required 为 **20 passed / 23 N/A、11.249s**（Product Run 10.662s），`--all` 为 **43/43 passed、30.118s**。最后一次闭包触发 region 小补丁后重新运行：required **20 passed / 23 N/A、10.0s**，`--all` **43/43 passed、28.2s**。前后三组日志分别在 `.log/project-gate/2026-09-24T09-27-51.310Z-2398114-f7bcd8c3-6ff5-4e71-8849-a9b341b353fa/`、`2026-09-24T09-51-17.829Z-2412305-33b6398a-f4f5-4327-9088-8436acbd5218/`、`2026-09-24T09-51-38.573Z-2412988-58fe5e89-8b18-44fa-95fb-e8180818d236/`、`2026-09-24T09-55-56.387Z-2421177-8321271a-d48c-42a5-abc0-147f656a1916/` 与 `2026-09-24T09-56-09.844Z-2421819-f6c1ed39-a30f-466b-9e9f-120242178679/`。这些都是热候选且工作树、选择规则与环境负载未严格配对；总耗时差不能全归因于本轮选择改变。
++### 顺序运行观察与验证
++
++以下均经公开入口运行，现场目录位于 `.log/project-gate/` 下；三阶段、五次运行按取得顺序列出。
++
++| 阶段 / 模式 | 结果 | 耗时 | 现场目录 |
++| --- | --- | --- | --- |
++| 修改前，上一阶段工作树 / required | 21 passed / 22 N/A | 15.547s | `2026-09-24T09-27-51.310Z-2398114-f7bcd8c3-6ff5-4e71-8849-a9b341b353fa/` |
++| 修改并手工匹配本地声明指纹 / required | 20 passed / 23 N/A | 11.249s；Product Run 10.662s | `2026-09-24T09-51-17.829Z-2412305-33b6398a-f4f5-4327-9088-8436acbd5218/` |
++| 同阶段 / `--all` | 43/43 passed | 30.118s | `2026-09-24T09-51-38.573Z-2412988-58fe5e89-8b18-44fa-95fb-e8180818d236/` |
++| 闭包触发 region 小补丁后 / required | 20 passed / 23 N/A | 10.0s | `2026-09-24T09-55-56.387Z-2421177-8321271a-d48c-42a5-abc0-147f656a1916/` |
++| 同阶段 / `--all` | 43/43 passed | 28.2s | `2026-09-24T09-56-09.844Z-2421819-f6c1ed39-a30f-466b-9e9f-120242178679/` |
++
++这些都是热候选且工作树、选择规则与环境负载未严格配对；总耗时差不能全归因于本轮选择改变。
+--- a/docs/investigations/diagnose-required-gate-head-of-line-wait.md
++++ b/docs/investigations/diagnose-required-gate-head-of-line-wait.md
+@@ -60 +60,7 @@
+-第 1–6 节保存初始调查及 05:46 的同轮补证、假设与原建议；不表示其中的待办或基线规则今天仍适用。第 7 节记录后续授权、实施和实测，包括指纹阻断解除及测试输入闭包对原方案的修正。第 8 节保存提交后的最新分阶段测量及优先级修正。现行选择与预算规则以 [Gate owner](../tooling/project-gate.md) 为准。
++本轮认识按三个阶段展开；以下建议和状态均属于所记录时点，现行选择与预算规则以 [Gate owner](../tooling/project-gate.md) 为准。
++
++| 阅读位置 | 该阶段的关键认识与状态 |
++| --- | --- |
++| 第 1–6 节：初始调查及 05:46 补证 | findings cache 已热，learned 队首等待确实存在；尚未证明取消等待能改善总工期。保留等待利弊反例、初始候选及验收条件。 |
++| 第 7 节：后续授权与实测 | 已解除指纹阻断并细化测试选择；输入闭包修正了原矩阵，但两次 required 仍因约 20.5 秒超预算失败。另取得布局重复解析与 CLI 测试成本线索。 |
++| 第 8 节：提交后阶段测量 | 优先级转向 mdlint 无关目录枚举，再分别评估 Link parse-facts、布局解析复用和 function-metrics yield 粒度；这些优化尚未实施，调度仍需独立实验。 |
+--- a/docs/investigations/project-file-collection-readiness.md
++++ b/docs/investigations/project-file-collection-readiness.md
+@@ -39 +39 @@
+-共同参数固定为 dot:true、matchBase:false、nobrace:false、nocase:false、noext:false、noglobstar:false、posix:true、strictSlashes:false。fast-glob 映射相应 braceExpansion:true、caseSensitiveMatch:true、extglob:true、globstar:true、baseNameMatch:false；扫描 onlyFiles:true、followSymbolicLinks:false、suppressErrors:false。负-only 或前导否定 extglob 的候选可保守使用 **/*；空 patterns 不枚举后代但仍检查 root。
++共同参数固定为 `dot:true`、`matchBase:false`、`nobrace:false`、`nocase:false`、`noext:false`、`noglobstar:false`、`posix:true`、`strictSlashes:false`。fast-glob 映射相应 `braceExpansion:true`、`caseSensitiveMatch:true`、`extglob:true`、`globstar:true`、`baseNameMatch:false`；扫描 `onlyFiles:true`、`followSymbolicLinks:false`、`suppressErrors:false`。负-only 或前导否定 extglob 的候选可保守使用 `**/*`；空 patterns 不枚举后代但仍检查 root。
+@@ -41 +41 @@
+-薄适配在 stat/readdir 之前检查固定排除和本轮全部 selections 的安全整子树排除；用户剪枝只采用不会被后续正规则重新包含的末段负规则且以 /** 结束，无法证明时保留访问。每 selection 独立启用默认数组，只有全部无需求才剪枝；混合开关不会错误继承其它 selection 的排除。动态 task base 和静态路径都经同一 fs adapter；lstat 各路径分量阻止目录链接起点及后代，root 链接明确失败。required stat/readdir 真实错误翻译为带绝对目标与 cause 的普通 Error，避免 fast-glob ENOENT 宽容策略。policy 跳过才允许合成 ENOENT，不能把真实缺失映射成它。
++薄适配在 stat/readdir 之前检查固定排除和本轮全部 selections 的安全整子树排除；用户剪枝只采用不会被后续正规则重新包含的末段负规则且以 `/**` 结束，无法证明时保留访问。每 selection 独立启用默认数组，只有全部无需求才剪枝；混合开关不会错误继承其它 selection 的排除。动态 task base 和静态路径都经同一 fs adapter；lstat 各路径分量阻止目录链接起点及后代，root 链接明确失败。required stat/readdir 真实错误翻译为带绝对目标与 cause 的普通 Error，避免 fast-glob ENOENT 宽容策略。policy 跳过才允许合成 ENOENT，不能把真实缺失映射成它。
+@@ -47 +47 @@
+-固定默认数组逐字沿用当前 configuration.ts 的 20 项：.cache、.git（本体和后代）、.log、.pytest_cache、.tmp、.venv、.vibe-check、__pycache__、artifacts、build、coverage、dist、generated、*.generated.*、node_modules、target、tmp、vendor、venv 对应的既有 **/ glob。不加入 archive/historical 业务规则；这些保留在仓库用户负 patterns。
++固定默认数组逐字沿用当前 configuration.ts 的 20 项：.cache、.git（本体和后代）、.log、.pytest_cache、.tmp、.venv、.vibe-check、__pycache__、artifacts、build、coverage、dist、generated、*.generated.*、node_modules、target、tmp、vendor、venv 对应的既有 `**/` glob。不加入 archive/historical 业务规则；这些保留在仓库用户负 patterns。
+@@ -63 +63 @@
+-交接前真实 POSIX fixture 发现，既有共同 matcher 的 toSlashPath 将实际普通文件 literal\name.ts 返回为并不存在的 literal/name.ts。最小 source probe 的 actualNames 为 [literal\name.ts]、collected 为 [literal/name.ts]；这是字符重写造成的身份错误，不是支持特殊名称的证据。按既有 isNormalizedProjectRelativePath 边界，共同 matcher 现在不改写已约定的 slash-path 字符串；collector 仅对最终 selected 的不可表示路径抛带实际目标的普通 acquisition Error，不返回虚假 alias，不静默丢弃。真实 Product test 证明同一反斜杠文件在宽选中失败，在窄 src 或显式用户负规则排除后正常。Run 既有 raw Git path 拒绝保持。此补充不声称扩大支持的 pathname domain；最低 Node/安装后验收已在修正后重跑通过。
++交接前真实 POSIX fixture 发现，既有共同 matcher 的 `toSlashPath` 将实际普通文件 `literal\name.ts` 返回为并不存在的 `literal/name.ts`。最小 source probe 的 `actualNames` 为 `[literal\name.ts]`、`collected` 为 `[literal/name.ts]`；这是字符重写造成的身份错误，不是支持特殊名称的证据。按既有 `isNormalizedProjectRelativePath` 边界，共同 matcher 现在不改写已约定的 slash-path 字符串；collector 仅对最终 selected 的不可表示路径抛带实际目标的普通 acquisition Error，不返回虚假 alias，不静默丢弃。真实 Product test 证明同一反斜杠文件在宽选中失败，在窄 src 或显式用户负规则排除后正常。Run 既有 raw Git path 拒绝保持。此补充不声称扩大支持的 pathname domain；最低 Node/安装后验收已在修正后重跑通过。
+@@ -67 +67 @@
+-非实施代理实际审查发现两个 blocker，原 Gate/test 通过不能证明它们：foo/a.ts 上的 ["./foo/*.ts"] 返回空、["./foo/a.ts"] 返回 normalized Error；POSIX name bytes 626164ff2e7473 被 ["**/*"] / ["bad*.ts"] 返回不存在的 bad�.ts，而 ["!bad*"] 排除。最低 Node 复现 reviewer 探针分别为 3 mismatches 和两份 exists:false。现只移除后端候选的 ./ 前缀，再进行完整 matcher，不改写真实名称；动态、静态、混合共享选择同时证明。
++非实施代理实际审查发现两个 blocker，原 Gate/test 通过不能证明它们：`foo/a.ts` 上的 `["./foo/*.ts"]` 返回空、`["./foo/a.ts"]` 返回 normalized Error；POSIX name bytes `626164ff2e7473` 被 `["**/*"]` / `["bad*.ts"]` 返回不存在的 `bad�.ts`，而 `["!bad*"]` 排除。最低 Node 复现 reviewer 探针分别为 3 mismatches 和两份 `exists:false`。现只移除后端候选的 `./` 前缀，再进行完整 matcher，不改写真实名称；动态、静态、混合共享选择同时证明。
+@@ -69 +69 @@
+-byte name 用一次 encoding:buffer 目录获取保留，UTF-8 decode→encode roundtrip 判定忠实性。最终入选的有损普通文件在后端 duplicate-path filter 前失败，避免与真正 U+FFFD 文件碰撞/去重；真正 U+FFFD 合法，必要目录也按 byte 身份检查，不把同名有损目录读成另一个目录。完整 selection 及固定默认排除先判定需求，范围外有损普通文件、空 patterns 和已证明排除子树仍正常。subtree 剪枝只适用于目录：若同一 base spelling 的普通文件仍由完整列表选中，不因目录负规则而误删。
++byte name 用一次 `encoding:buffer` 目录获取保留，UTF-8 decode→encode roundtrip 判定忠实性。最终入选的有损普通文件在后端 duplicate-path filter 前失败，避免与真正 U+FFFD 文件碰撞/去重；真正 U+FFFD 合法，必要目录也按 byte 身份检查，不把同名有损目录读成另一个目录。完整 selection 及固定默认排除先判定需求，范围外有损普通文件、空 patterns 和已证明排除子树仍正常。subtree 剪枝只适用于目录：若同一 base spelling 的普通文件仍由完整列表选中，不因目录负规则而误删。
+@@ -71 +71 @@
+-宿主探索先误将 Buffer.isBuffer=false 视为 string，又以 typeof name!==string 错把 undefined 判为 byte Dirent；这两项推断均撤销。最终探针同时核对原始 entry 是否 Uint8Array、是否有 isFile 元数据与实际 rawBytes：Node24.18 提供 byte Dirent，locked Bun1.3.14 的该 overload 实际返回 bare Uint8Array names（name/isFile 均不存在）。因此薄 Dirent bridge 按真实 entry 形状接入；Node 使用现成 metadata，Bun 按需要 lazy lstat 并在 entry 内缓存，两宿主不重复目录获取，不建立递归引擎。Bun process.version=v24.3.0 是其 Node compatibility 值，不是验收使用的 Node executable。
++宿主探索先误将 `Buffer.isBuffer=false` 视为 string，又以 `typeof name!==string` 错把 `undefined` 判为 byte Dirent；这两项推断均撤销。最终探针同时核对原始 entry 是否 Uint8Array、是否有 isFile 元数据与实际 rawBytes：Node24.18 提供 byte Dirent，locked Bun1.3.14 的该 overload 实际返回 bare Uint8Array names（`name`/`isFile` 均不存在）。因此薄 Dirent bridge 按真实 entry 形状接入；Node 使用现成 metadata，Bun 按需要 lazy lstat 并在 entry 内缓存，两宿主不重复目录获取，不建立递归引擎。Bun `process.version=v24.3.0` 是其 Node compatibility 值，不是验收使用的 Node executable。
+--- a/docs/investigations/verify-function-metrics-admission-implementation.md
++++ b/docs/investigations/verify-function-metrics-admission-implementation.md
+@@ -119,2 +119 @@
+-不作为仓库交付物。正式保留的是上述 summary 与有序 Records 资源；临时目录按已有 artifact note
+-保留至最终证据复制并经 root 接纳，由 root 收尾，不依赖临时文件读取正式调查结论。
++不作为仓库交付物。正式保留的是上述 summary 与有序 Records 资源，读取正式调查结论不依赖临时文件。
+@@ -153 +151,0 @@
+-Git提交、临时snapshots收尾与Change finalize由root按授权另行完成。
+--- a/docs/decisions/declare-exact-callback-contexts.md
++++ b/docs/decisions/declare-exact-callback-contexts.md
+@@ -34,0 +35,2 @@
++### 声明语法与类型
++
+@@ -37,0 +40,3 @@
++
++### 按需求生产与逐消费者交付
++
+@@ -40,0 +46,3 @@
++
++### 权限、生命周期与公共边界
++
+--- a/docs/decisions/separate-post-action-observation-demands.md
++++ b/docs/decisions/separate-post-action-observation-demands.md
+@@ -35,0 +36,2 @@
++### 逐次决策与 captured prefix
++
+@@ -38,0 +41,3 @@
++
++### 独立测量组与有效性
++
+@@ -41,0 +47,3 @@
++
++### Owner 与非目标
++
+--- a/docs/decisions/observe-markdown-reference-graph.md
++++ b/docs/decisions/observe-markdown-reference-graph.md
+@@ -31,0 +32 @@
++### 形成时采用证据
+@@ -37,0 +39,2 @@
++### 引用图与节点观察
++
+@@ -41,0 +45,3 @@
++
++### 显式缓存与容量提醒
++
+@@ -44,0 +51,3 @@
++
++### 缓存身份、内容与退化
++
+--- a/docs/decisions/validate-complete-gate-markdown-graph.md
++++ b/docs/decisions/validate-complete-gate-markdown-graph.md
+@@ -30,0 +31 @@
++### 形成时采用证据
+--- a/docs/investigations/compare-gate-runtime-install-and-fixtures.md
++++ b/docs/investigations/compare-gate-runtime-install-and-fixtures.md
+@@ -147 +147 @@
+-本轮未运行完整 Gate，仍未证明原 mean / P95 阻断解除；没有 Git 暂存、提交或推送。
++本轮未运行完整 Gate，仍未证明原 mean / P95 阻断解除。
+--- a/docs/investigations/diagnose-gate-p95-test-discovery.md
++++ b/docs/investigations/diagnose-gate-p95-test-discovery.md
+@@ -75,0 +76,2 @@
++### 已实施优化与保留语义
++
+@@ -79,0 +82,2 @@
++
++### 局部验证与归因边界
+--- a/docs/decisions/reuse-exact-candidate-across-gate-acceptance.md
++++ b/docs/decisions/reuse-exact-candidate-across-gate-acceptance.md
+@@ -32,0 +33,2 @@
++### 唯一候选与独立安装验收
++
+@@ -35,0 +38,3 @@
++
++### 测试证据与真实 cold integration
++
+@@ -37,0 +43,3 @@
++
++### 调度、映射与当前 owner
++
+--- a/docs/decisions/261026-maintain-distinct-project-skills-with-test-design.md
++++ b/docs/decisions/261026-maintain-distinct-project-skills-with-test-design.md
+@@ -22,4 +22,2 @@
+-- 让 agent 从有限、可辨认的项目 Skill 集合恢复特殊工作流和独立工程判断，不在同义方法之间猜测优先级。
+-- 让自动化测试既能从行为契约设计有辨错能力的证明，也能对最终证据和 Case 连续性作独立审查；
+-  不以账本闭合代替测试设计，也不以设计方案代替可执行证据。
+-- 保持行为 owner、编码规范、测试策略和项目接线的单一归属，避免 Skill 成为第二套当前规范。
++
++让 agent 从有限、职责可辨认的项目 Skill 集合恢复特殊工作流和独立工程判断。自动化测试的设计与最终证据审查相互补充，行为 owner、编码规范、测试策略和项目接线保持单一归属。
+@@ -28,11 +26,5 @@
+-- 前序真实采用过固定七项安装集合，并规定扩大集合须有新的长期决策；它排除了与编码规范同义的通用
+-  编码方法，但保留了治理 artifact、项目证据及独立工程判断能力。这些限制仍有价值，不能把新增能力
+-  解释为原清单从未固定，也不能原地将七项改写成八项。
+-- 当前 `docs/tooling/workspace.md` 已将 `test-design` 与原七项一起列入安装集合，并明确其上游来源；
+-  `docs/testing/strategy.md` 已区分测试设计与最终证据审查，文档导航和本地 Skill 入口也已接通。
+-  因而需要修订的是长期判断的集合边界，而非再发起一次安装或测试实现。
+-- 测试设计要从行为契约选择最小充分边界、场景、独立预期与观察，核对失败传播、隔离及成本；
+-  这些选择在尚无直接测试时就需要成立。测试证据审查则判断最终测试的证明目的、信号和维护价值，
+-  并在项目声明 Case 账本时处理语义连续性与闭合。二者共享质量关注点，但不能由一种产物替代另一种责任。
+-- 完整上游包与本地方法层承担不同维护责任；项目 runner、Case、CLI 和闭合 runtime 仍由项目 owner
+-  拥有，方法 Skill 的存在不应复制这些规则或隐式带来安装、更新及实施授权。
++
++- 前序真实采用过固定七项安装集合，并规定扩大集合须有新的长期决策；它保留治理 artifact、项目证据及独立工程判断能力，排除与编码规范同义的通用方法。本记录以真实后继纳入第八项，而非改写原七项的采用事实。
++- 形成本记录时，工作区 owner 已列入上游 `test-design`，测试策略已区分设计与证据审查，导航和本地入口也已接通；本次修订长期集合边界，不再发起安装或测试实现。
++- 测试设计在尚无直接测试时，就要从行为契约选择最小充分边界、场景、独立预期与观察，并权衡失败传播、隔离和成本；证据审查则判断最终测试的证明目的、信号、维护价值及项目声明的 Case 连续性与闭合。设计方案、可执行证据和账本闭合各有责任。
++- 完整上游包、本地方法层与项目 runtime 各有维护 owner；方法 Skill 提供工程方法，项目仍拥有 runner、Case、CLI 和闭合实现。
+@@ -41,24 +33,26 @@
+-- 采用: 在原七项基础上纳入具有独立测试设计责任的 `test-design`，项目安装集合明确为
+-  `change-plan`、`common-denominator-design`、`decision-records`、`investigation-report`、
+-  `performance-optimization`、`product-architecture-judgment`、`test-design` 和 `test-evidence-review`。
+-  八项是本次确认的有限基线，不是按数量判定价值，也不是允许按独立性标准自动扩展的开放清单。
+-- 采用: `test-design` 承接自动化测试的方案、编写、改进与设计审查方法，从行为契约形成有辨错能力、
+-  容忍合理实现替换且成本适当的行为证明。最终测试入口与证明范围交给 `test-evidence-review`，
+-  后者审查证据质量，并按项目声明的能力维护 Case 的语义连续性与全树闭合；设计阶段无直接测试的
+-  方案不创建名义 Case。两项方法可以在同一任务协同，但不合并为账本操作或重复的通用编码规范。
+-- 采用: 每个 Skill 的入口描述拥有其通用触发条件；`AGENTS.md` 只补充项目特有 owner、命令和验证路由，
+-  文档导航将任务连接到行为 owner。`docs/tooling/workspace.md` 拥有当前安装清单、明确来源、分发边界与
+-  项目接线；测试策略和 Case owner 拥有项目测试契约。Skill 提供方法，不替代当前规则或改变授权。
+-- 采用: `change-plan`、`common-denominator-design`、`decision-records`、`investigation-report`、
+-  `product-architecture-judgment` 和 `test-design` 按可追溯的完整上游包维护，不在包内保存项目语义；
+-  包内指引、契约、runtime 与更新入口保持同一来源版本。项目接线和必要项目规则在包外维护。
+-  `test-design` 的固定提交来源、方法版本与更新防降级要求由工作区 owner 维护，不因纳入集合而
+-  加入普通指令使用的依赖安装。更新须显式选择，按分发单元完整更新并验证受影响边界，不顺带升级无关 Skill。
+-- 采用: `performance-optimization` 继续作为无 runtime 的本地独立方法目录，`test-evidence-review`
+-  继续作为项目特有方法层 Skill；这两项本地方法不复制上游治理 runtime，也不接管项目 runner、Case、
+-  CLI 或闭合实现。退出安装的 OpenSpec workflow Skill 不因历史 artifacts 而恢复维护。
+-- 采用: 普通实现、调试、审查、重构、接口和自动化从文档导航进入行为 owner，再遵循编码规范和相邻验证；
+-  不为这些同义通用方法另装项目 Skill。自动化测试的方法入口使用上述独立测试职责，不扩张为通用编码流程。
+-- 采用: 未来扩大安装集合仍须通过新的长期决策：候选能力必须具有现有八项、行为 owner 和编码规范不能
+-  承接的独立责任，并明确触发、维护来源和验证边界。独立职责是必要条件，不是安装或更新授权；
+-  不能只因已有同主题 Skill、上游出现新能力或数量变化而扩展集合。
++
++### 有限集合与独立职责
++
++- 采用: 保留原七项并纳入 `test-design`，安装集合为 `change-plan`、`common-denominator-design`、
++  `decision-records`、`investigation-report`、`performance-optimization`、`product-architecture-judgment`、
++  `test-design` 和 `test-evidence-review`。八项是本次确认的有限基线，价值由独立职责判断，不由数量判断。
++- `test-design` 承接自动化测试的方案、编写、改进与设计审查，从行为契约形成有辨错能力、容忍合理实现替换且成本适当的行为证明。
++  `test-evidence-review` 审查最终测试入口、证明范围和证据质量，并按项目声明的能力维护 Case 语义连续性与全树闭合。
++  两者可以协同；设计阶段无直接测试的方案不创建名义 Case，账本操作或通用编码规范不能替代这两项责任。
++- 普通实现、调试、审查、重构、接口和自动化从文档导航进入行为 owner，再遵循编码规范与相邻验证；不另装同义通用方法 Skill。测试方法入口保持上述独立职责。
++- 未来扩大集合须有新的长期决策，候选必须具有现有八项、行为 owner 和编码规范不能承接的独立责任，并说明触发、维护来源与验证边界。
++  独立职责是必要条件，不是自动扩展、安装或更新授权；已有同主题 Skill 或上游新增能力也不改变这一门槛。
++
++### 来源与更新
++
++- `change-plan`、`common-denominator-design`、`decision-records`、`investigation-report`、
++  `product-architecture-judgment` 和 `test-design` 按可追溯的完整上游包维护。包内指引、契约、runtime 与更新入口保持同一来源版本；项目语义和接线在包外维护。
++- `performance-optimization` 是无 runtime 的本地独立方法目录，`test-evidence-review` 是项目特有方法层；两者不复制上游治理 runtime，也不接管项目 runner、Case、CLI 或闭合实现。已退出安装的 OpenSpec workflow Skill 保持退场，历史 artifacts 不构成恢复维护依据。
++- 更新须显式选择，按分发单元完整更新并验证受影响边界，不顺带升级无关 Skill。
++  `test-design` 的固定提交来源、方法版本和更新防降级要求由工作区 owner 维护；普通指令使用不因此新增依赖安装。
++
++### 当前规则与接线 owner
++
++每个 Skill 的入口描述拥有通用触发条件；`AGENTS.md` 只补充项目特有 owner、命令和验证路由，文档导航连接行为 owner。
++`docs/tooling/workspace.md` 拥有当前安装清单、来源、分发边界和项目接线；测试策略与 Case owner 拥有项目测试契约。
++Skill 提供方法，不替代当前规则或改变授权。

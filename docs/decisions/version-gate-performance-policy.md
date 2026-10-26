@@ -10,6 +10,7 @@ decision: 三档预算由版本化策略拥有，保留严格失败口径和同�
 tags:
   - configuration
   - performance
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

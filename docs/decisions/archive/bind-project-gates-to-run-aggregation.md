@@ -8,7 +8,10 @@ purpose: 让项目 Gate 保持显式 Project Definition 与 Run 绑定，同时�
 background: Gate 仍需要项目持有的配置和可审阅的运行输入，但已退休的通用评估模型不再是 current Product contract。
 decision: 项目脚本显式绑定 Definition、Run Controls 与 Gate aggregation；adapter 不隐式选择行为或重算结论。
 tags:
+  - aggregation
   - configuration
+  - project-definition
+  - project-gate
 relations:
   - type: 修订
     target: 260814-use-user-owned-definition-for-observation-and-gates

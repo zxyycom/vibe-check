@@ -8,7 +8,11 @@ purpose: 让 Check-specific 配置和领域输入留在 owning Check，并让 Ru
 background: changed-file list 缺少统一的来源与 baseline 语义，作为默认 project context 会制造隐式公共契约。
 decision: Check options 拥有执行配置；changed-file facts 由 producing Check 形成，不进入 Run Controls。
 tags:
+  - changed-files
   - configuration
+  - project-run
+  - run-controls
+  - typed-providers
 relations:
   - type: 归并
     target: 260817-drive-run-from-check-owned-execution-options

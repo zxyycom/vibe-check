@@ -9,6 +9,7 @@ background: 文档路径分散在代码清单中，维护文档需要同时定�
 decision: 以 docs 下的 JSON 统一声明源文件与包内路径，构建和验收读取同一配置
 tags:
   - documentation
+  - package-artifact
   - workflow-policy
 relations: []
 ---

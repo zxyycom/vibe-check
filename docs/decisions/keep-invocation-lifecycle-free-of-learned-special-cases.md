@@ -8,8 +8,10 @@ purpose: 让 Invocation 承接统一策略生命周期而不为某项可选功�
 background: 原私有生命周期同时拥有 learned state 与专属 observer，和普通 prepared author 的能力不对等。
 decision: Invocation 只适配 static 与公共 custom 策略，学习和观察通过相同公开上下文完成。
 tags:
+  - admission-scheduling
   - configuration
   - product-contract
+  - scheduler
   - workflow-policy
 relations:
   - type: 修订

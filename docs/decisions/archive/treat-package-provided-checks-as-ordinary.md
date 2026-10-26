@@ -8,8 +8,11 @@ purpose: 让 package-provided Check 只通过普通 Check contract 构建，并�
 background: 目录拆分后仍有 Definition ID registry、集中 scanner adapters 和跨 metric 容器，使随包 Check 获得 core 特权。
 decision: Core 只理解普通 Check grammar 和 opaque options；随包 Check 自己拥有 validation、execution、adapter、model 与文档。
 tags:
+  - check-authoring
   - configuration
+  - module-boundaries
   - product-contract
+  - scanner-dependencies
 relations: []
 ---
 

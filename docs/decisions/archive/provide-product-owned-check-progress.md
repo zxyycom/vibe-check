@@ -9,6 +9,8 @@ background: Product 已拥有 Check lifecycle 与 progress rendering output，TT
 decision: 由 Product 私有 lifecycle feedback 驱动 TTY/plain progress，复用执行耗时并让输出失败不改写运行事实。
 tags:
   - product-contract
+  - progress-output
+  - project-run
 relations: []
 ---
 

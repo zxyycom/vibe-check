@@ -4,8 +4,9 @@ id: "261011-project-file-region-index-readiness"
 formedAt: "2026-10-11T10:09:50Z"
 question: "如何以最小无 I/O Core 值数据 API 提供安全双向关系、追加重建和必要内部复用？"
 tags:
-  - "files"
+  - "core"
   - "product-contract"
+  - "project-files"
 relations: []
 ---
 

@@ -9,19 +9,25 @@ background: 产品核心是配置驱动的质量工具；把 scan、gate、repor
 decision: Project Definition 拥有执行配置；public package API 只加载并运行它，另接收必要的当次上下文。
 tags:
   - configuration
+  - project-definition
+  - project-run
+  - public-api
 relations: []
 ---
 
 ## 目的
+
 - 让项目政策、检查选择、门禁、调度和工具效果由一个类型化且可验证的配置 owner 统一驱动。
 - 让 public package API 保持为稳定调用边界，而不是把旧 CLI command grammar 搬成函数、method 或 discriminated command union。
 
 ## 背景
+
 - Project Definition 已被选择为组合政策、built-in Checks、custom Checks 和 scheduler authoring 的单一 TypeScript source。
 - Scan、gate、reporting、cache 与 output 彼此相关；若同时由 Project Definition 和公开 operation-specific methods 决定，会产生 precedence、重复配置和行为漂移。
 - 调用仍需要 project root、definition selection、changed-file/reference input 或当次环境覆盖等上下文，但这些 operational inputs 不应重新拥有项目政策。
 
 ## 决策
+
 - 采用: Project Definition 是产品执行语义的主要公开配置入口，拥有 policy catalog、Check declarations/selection、gate policy、scheduler、reporting、cache 和 output configuration；各字段继续由对应领域 owner 定义和验证。
 - 采用: Public package API 提供一个配置驱动的正式执行 capability：调用方提供 project root、Project Definition source selection 与确有必要的 invocation-scoped operational overrides，Product 加载、验证并执行完整定义。
 - 采用: Invocation overrides 只表达无法稳定写入项目定义的当次上下文，例如 changed-file set、显式 reference、宿主提供的 output destination override 或禁用 effect；它们使用 closed schema 和明确 precedence，不能注册 Check、改写 policy 或提升授权。

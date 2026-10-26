@@ -9,7 +9,10 @@ background: 根第三方说明实为 Lizard 和 Pygments 翻译说明，却混�
 decision: 根仅保留自有许可，翻译归属与原文同置 licenses，动态安装依赖仍独立审计。
 tags:
   - dependency-policy
+  - licensing
+  - package-artifact
   - product-contract
+  - source-alignment
   - workflow-policy
 relations:
   - type: 修订

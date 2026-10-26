@@ -10,6 +10,8 @@ decision: 仓库锁定测试基线，发布 package 接受从该基线开始的�
 tags:
   - configuration
   - dependency-policy
+  - duplicate-detection
+  - jscpd
   - product-contract
 relations:
   - type: 修订

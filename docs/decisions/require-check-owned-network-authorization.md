@@ -8,7 +8,9 @@ purpose: 让 Product-owned 网络 Check 只在普通 Check 的显式、可审阅
 background: 网络权限应由 Check options 显式表达；Product 不提供共享输入或选择层，结论只来自显式 aggregation。
 decision: 网络 capability 由 Check-owned opt-in options 授权；Check 返回四态事实，调用方按 explicit aggregation 决定多 Check 结论。
 tags:
+  - network
   - product-contract
+  - security
 relations:
   - type: 修订
     target: 260805-require-explicit-network-check-authorization
@@ -28,6 +30,9 @@ relations:
 - 一个网络 Check 的正常领域结论、其自身不可用原因和 Gate 对多 Check 的结论不是同一事实；Run aggregation 只消费 selected settled Check statuses。
 
 ## 决策
+
+下文 explicit aggregation 是形成时的聚合机制表述；后续[默认聚合决策](default-effective-check-aggregation-with-caller-local-callback.md)已调整该机制，现行接口从[聚合 owner](../development/check-results.md#effective-aggregation-and-repository-gate-mapping)读取。
+本记录保留 Check-owned 网络 opt-in 与安全 transport 的未来方向，不因聚合机制演进自动实施或标记对齐。
 
 - 采用: 未来 Product-owned 网络 Check 必须把网络 opt-in 表达为自己的 closed Check-owned options；neutral/default composition 以及缺失、无效或未启用的 opt-in 均不得发起网络请求。CLI profile、Gate 名称、环境变量或 Check registration 不得隐式提升该权限。
 - 采用: 网络 Check 自己拥有目标限制、凭据传播和请求资源的安全 transport boundary；精确 allowlist、redirect、timeout 和诊断字段只在出现实际 Check consumer 时作为该 Check 的独立设计细化。

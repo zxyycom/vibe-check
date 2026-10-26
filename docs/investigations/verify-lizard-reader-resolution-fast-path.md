@@ -12,6 +12,7 @@ tags:
 relations:
   - type: "补充"
     target: "260903-diagnose-lizard-typescript-port-performance-gap"
+    summary: "补充reader解析快路径的代表性样本与正确性证据"
 ---
 
 ## 形成时背景

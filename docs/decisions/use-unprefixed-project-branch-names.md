@@ -8,6 +8,7 @@ purpose: 让分支名称表达项目工作而非执行工具或命名空间
 background: 日常开发只在 main 进行，发布或其它明确授权的分支仍需表达项目工作身份
 decision: 对明确获准创建的项目分支使用无前缀语义名称，命名规则不授予创建权限
 tags:
+  - git
   - workflow-policy
 relations: []
 ---

@@ -10,7 +10,11 @@ decision: 保持完整 Lizard 支持范围，并以显式启用的 repository ad
 tags:
   - configuration
   - dependency-policy
+  - dependency-upgrades
+  - function-metrics
+  - lizard
   - product-contract
+  - upstream-advisory
   - workflow-policy
 relations:
   - type: 修订

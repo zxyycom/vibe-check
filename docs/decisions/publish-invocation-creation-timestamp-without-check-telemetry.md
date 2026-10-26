@@ -8,7 +8,9 @@ purpose: 让 machine invocation timestamp 稳定表示 Run 创建时刻，并与
 background: publication timestamp、Run 创建时间和 Check chronology 是不同事实，混用会造成错误审计含义。
 decision: output 启用时一次捕获 Run 创建 instant；machine 与 diagnostic logging 共享该值。
 tags:
+  - machine-output
   - product-contract
+  - project-run
 relations:
   - type: 拆分
     target: 260830-preserve-release-gate-readiness-with-invocation-creation-time

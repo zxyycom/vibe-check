@@ -8,7 +8,9 @@ purpose: 让一次 Run 的 console capture 覆盖 task-local preflight 与 execu
 background: preflight 已移入各 Check Task；router 仍须在任何 author work 前建立并在全部 Check 闭合后恢复。
 decision: 静态图校验后安装一次 router，覆盖每个获准入 Check 的 preflight/execution，直至 resolved Checks 全部结算。
 tags:
+  - console-capture
   - product-contract
+  - project-run
 relations:
   - type: 修订
     target: 260831-install-check-console-router-before-preflight

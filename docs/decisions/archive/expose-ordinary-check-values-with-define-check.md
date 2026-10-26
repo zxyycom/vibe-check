@@ -8,7 +8,10 @@ purpose: 让 package 同时提供普通默认 Check、独立声明的类型辅�
 background: 独立 option-aware Check 需要 contextual typing 才能关联 options、execution context 与结构化 result；运行时仍只接受普通对象。
 decision: Package 公开可选的 defineCheck authoring helper；它只改善独立 Check 的 TypeScript authoring，不改变对象语义或替代最终校验。
 tags:
+  - check-authoring
   - product-contract
+  - public-api
+  - typescript
 relations:
   - type: 替代
     target: 260815-expose-single-check-authoring-surface

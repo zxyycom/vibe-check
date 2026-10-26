@@ -8,9 +8,12 @@ purpose: 让多个 Check 复用一次可信文件变更采集并通过稳定查�
 background: 重复采集与线性扫描会放大 I/O 和查询成本，而全局上下文会制造隐式契约
 decision: 公开显式 provider Check 和普通 execution wrapper，并将规范事实与私有派生索引分层
 tags:
+  - changed-files
+  - check-dependencies
   - configuration
   - performance
   - product-contract
+  - typed-providers
 relations: []
 ---
 

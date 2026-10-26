@@ -8,7 +8,10 @@ purpose: 让 registry、repository 与用户入口使用同一段准确、可检
 background: Product 已迁移到 Node host，但 GitHub 仍描述为 Bun 项目，npm candidate 尚无 description 与 keywords。
 decision: 将 Vibe Check 定位为面向 Node 项目的通用 TypeScript 质量门禁，并同步 npm、GitHub 与 README 描述。
 tags:
+  - node
+  - package-metadata
   - product-contract
+  - product-positioning
 relations: []
 ---
 

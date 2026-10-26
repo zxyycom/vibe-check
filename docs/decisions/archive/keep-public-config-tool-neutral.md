@@ -9,16 +9,19 @@ background: 当前完整 QualityConfig 暴露 lizard、scc、jscpd 与 command/a
 decision: Public project config 只使用产品语义字段，底层 scanner 映射与 dependency resolution 由 Product 内部边界拥有。
 tags:
   - configuration
+  - scanner-dependencies
 relations: []
 ---
 
 ## 目的
+
 - 让项目维护者配置函数、文件、重复检测、scope、report 等产品语义，不必知道当前由哪个
   scanner 实现。
 - 让 scanner 替换、运行时统一和平台命令变化留在 Product-owned dependency boundary，避免
   反复迁移项目配置和 editor schema。
 
 ## 背景
+
 - 当前 `QualityConfig` 顶层暴露 `lizard`、`scc`、`jscpd`，`tools` 又暴露对应 command 与
   args；这些字段把 measurement semantics、scanner identity 和 dependency installation 混在
   一份 public document 中。
@@ -28,6 +31,7 @@ relations: []
   project config 暴露底层实现。
 
 ## 决策
+
 - 采用: Public project config、generated starter、editor schema、help 和示例只声明稳定的
   产品语义字段，不包含 `lizard`、`scc`、`jscpd` tool identity 或 scanner command/args。
 - 采用: Product 内部 dependency boundary 负责把 semantic config 映射到当前 scanner、解析

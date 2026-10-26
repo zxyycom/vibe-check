@@ -8,8 +8,11 @@ purpose: 让公开 package 只在 exact candidate、真实消费者、完整 Gat
 background: 本地 quality dogfood 能证明部分能力，但不能代替 package candidate、consumer 和发布边界验收。
 decision: 先形成不访问 registry 的本地候选，再完成完整 Gate 与发布授权条件。
 tags:
+  - package-candidate
+  - package-release
   - product-contract
   - product-priority
+  - project-gate
 relations:
   - type: 拆分
     target: 260830-preserve-release-gate-readiness-with-invocation-creation-time

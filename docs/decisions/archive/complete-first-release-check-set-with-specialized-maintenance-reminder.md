@@ -9,8 +9,11 @@ background: 用户确认 `maintenanceReminders(entries)`、单一 Check、默认
 decision: 首版以 `maintenanceReminders(entries)` 构造单一 Check，采用 entry-local advisory/enforcing 结论。
 tags:
   - configuration
+  - maintenance-reminders
+  - package-release
   - product-contract
   - product-priority
+  - public-api
 relations:
   - type: 归并
     target: 260824-complete-first-release-check-set-before-publication

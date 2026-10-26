@@ -9,6 +9,9 @@ background: 粗粒度测试包遮蔽 owner 失败，四路调度在四核环境�
 decision: 按行为 owner 拆分测试，root 采用三路调度，只串行仍会执行 package build 或 install 的 Checks。
 tags:
   - configuration
+  - gate-performance
+  - project-gate
+  - scheduler
   - testing
   - workflow-policy
 relations:

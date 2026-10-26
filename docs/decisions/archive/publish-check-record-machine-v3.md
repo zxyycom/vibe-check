@@ -8,7 +8,9 @@ purpose: 让 canonical machine output 直接表达 Check 与 Record 事实，不
 background: v2 definitions、runs、integrity 与 completeness 重复投影 Core 状态，且 checkRunId 让 Record 依赖将退出的运行实例身份。
 decision: machine v3 原子发布 Checks、Records 与解释本次运行所需的元数据，不保留 definitions、runs、integrity 或 completeness。
 tags:
+  - machine-output
   - product-contract
+  - run-outputs
 relations: []
 ---
 

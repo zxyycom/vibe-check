@@ -10,6 +10,8 @@ decision: dependsOn 只表示 all-passed prerequisite；observes 单独等待所
 tags:
   - configuration
   - product-contract
+  - project-run
+  - scheduler
 relations:
   - type: 修订
     target: 260831-enumerate-normalized-direct-dependency-outcomes

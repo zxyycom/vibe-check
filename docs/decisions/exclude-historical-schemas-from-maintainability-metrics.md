@@ -9,6 +9,9 @@ background: 历史 Schema 的 bytes 与 identity 必须保留，file 和 duplica
 decision: 仓库质量范围排除 historical Schema，显式 strict validation 继续拥有其完整性与兼容性证据。
 tags:
   - configuration
+  - duplicate-detection
+  - file-metrics
+  - project-gate
   - workflow-policy
 relations:
   - type: 替代

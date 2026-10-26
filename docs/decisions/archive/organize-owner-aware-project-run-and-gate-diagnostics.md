@@ -9,7 +9,10 @@ background: 单一 core log 与全局 Gate transcript 混合多个 owner，无�
 decision: 按 owner channel 与 namespace 组织 evidence，以 identity、sequence、elapsed 关联跨 owner 过程。
 tags:
   - configuration
+  - diagnostic-logging
+  - gate-diagnostics
   - product-contract
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

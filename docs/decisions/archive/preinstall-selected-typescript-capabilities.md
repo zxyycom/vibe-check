@@ -9,21 +9,26 @@ background: 编码规范已按问题形态选择模型；重复临时选库会�
 decision: 预置 neverthrow、ts-pattern、Remeda、Mnemonist 和产品自制 Option；只按对应问题形态使用，不引入重叠替代。
 tags:
   - dependency-policy
+  - dependency-selection
+  - typescript
   - workflow-policy
 relations: []
 ---
 
 ## 目的
+
 - 为常见且已经调查的问题形态提供可直接使用的默认能力，减少实现者在等价库之间的临时选择。
 - 让第三方依赖、本地原语、使用边界和复核材料都有唯一 owner，避免同一职责出现多套表达。
 
 ## 背景
+
 - Vibe Check 使用 strict TypeScript、NodeNext 和 Bun，需要预装能力能够通过当前类型、模块和
   运行边界验证。
 - 编码规范要求先识别问题形态，再选择能显式呈现不变量、数据流和失败路径的实现模型。只有
   选择原则而没有稳定能力，会让相同问题重复选库；无边界地预置能力则会造成重叠抽象和随机风格。
 
 ## 决策
+
 - 采用: 根项目精确锁定 `neverthrow`、`ts-pattern`、`remeda` 和 `mnemonist`；当前版本由
   `package.json` 与 lockfile 承接，不在决策中复制可变版本事实。
 - 采用: `src/product/foundation/option.ts` 单点拥有项目自制 `Option`，以存在/缺失语义

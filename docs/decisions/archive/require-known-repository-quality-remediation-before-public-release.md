@@ -8,8 +8,11 @@ purpose: 防止 Project Gate 的暂时 non-blocking repository-quality Checks �
 background: 用户原始运行的初始快照为 27 file、129 function 与 2 Markdown link findings；数量可变，公开发布前必须处置届时全部已知 findings。
 decision: 在公开发布前处置并复验这些已知 findings；Gate policy上的 non-blocking 仅维持开发期观察，不构成 release waiver。
 tags:
+  - finding-remediation
+  - package-release
   - product-contract
   - product-priority
+  - project-gate
 relations: []
 ---
 
@@ -24,7 +27,7 @@ relations: []
 - 形成时可复核的两次 Gate 快照分别为 27 file-metrics、129 function-metrics、2 Markdown link findings，以及 28、134、2。它们都是特定 invocation 的证据快照，只用于追溯数量与身份变化，不是稳定 policy 的配额，也不证明任何 finding 已解决。
 - 当前 Project Gate 使用 producing-Check non-blocking policy 与 all eligible aggregation；这可以使可信 finding 所属 Check passed，却不是对 public release 风险的自动接受。
 - `require-complete-project-gate-evidence-before-public-release.md` 规定公开发布前需要完整 Gate 的真实消费者证据；`publish-user-scoped-vibe-check-publicly.md` 仍要求发布前重新核验 registry authority、authentication、目标 version 与外部写入授权。当前稳定 owner 尚未把初始、最终或发布时任一已知 finding 的 remediation evidence 记为已满足的 current fact。
-- 因而本记录只能作为 active/unaligned future direction：只有处置标准、稳定 release owner 和独立实际证据均已完成，才可审阅对齐；它不授予 publish 或任何外部写入授权。
+- 因而本方向建立时为 active/unaligned future direction：只有处置标准、稳定 release owner 和独立实际证据均已完成，才可审阅对齐；它不授予 publish 或任何外部写入授权。
 
 ## 决策
 

@@ -2,7 +2,7 @@
 title: "Markdown Link 缓存合并前性能分析"
 id: "260903-analyze-markdown-link-cache-packing"
 formedAt: "2026-09-03T08:18:29+00:00"
-question: "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？"
+question: "在保持形成时 Markdown Link cache 语义与严格串行约束下，直接 API profile 与 storage-mechanics microbenchmark 是否支持进入有限 shard packing 的正式 runtime 评估？"
 tags:
   - "cache-design"
   - "markdown-link-validation"
@@ -11,13 +11,14 @@ tags:
 relations:
   - type: "补充"
     target: "260903-evaluate-markdown-link-serial-io-optimization"
+    summary: "补充cache API与分片存储微基准，不代替正式Check"
 ---
 
 ## 形成时背景
 
 [`evaluate-markdown-link-serial-io-optimization.md`](./evaluate-markdown-link-serial-io-optimization.md) 已保存正式 Markdown Link Check 的 strict-serial before/after 复查：final formal runtime 的 cold enabled-vs-disabled penalty 为 `34.26%`，未达到原 `<=5%` gate。该报告也确认 source bytes、fatal UTF-8、default-disabled cache 和 current settlement 边界不能因性能工作而绕过。
 
-本轮只获得性能分析授权。没有修改 Product、活动 Decision 或新建 Change 的授权；本报告和随附资源只保存形成时的诊断与建议，不把 storage experiment 变成产品格式、并发模型或性能验收结论。
+本轮授权限于性能分析，Product、活动 Decision 与 Change 保持不变。报告和随附资源保存形成时的诊断与建议；storage experiment 的证明范围在下文按测量层级区分。
 
 与前序的关系为 **补充**：本报告加入当前 cache API 与可替代 storage layout 的不同层级证据，未修正或推翻前序正式 Check 基线的结论。
 
@@ -67,7 +68,7 @@ relations:
 - direct profile 的独立 stage 对照和 microbenchmark 都显示，严格串行 per-entry file operation 数会形成显著机械成本；有限 shard 在该 storage-only corpus 中显著降低 cold population 与 warm full-scan 时间。
 - packing 的收益具有 workload trade-off：粒度越大，cold publication 和 100-file scan 越低；warm full 总体显著低于 entry layout，降至约 256 entries/file 后 single file 略回升；warm one-file 与 one-file incremental 的 read/parse/rewrite 成本则上升。
 
-### 建议（基于当前证据的推断）
+### 建议（基于形成时证据的推断）
 
 - **支持的方向：** 进行 bounded shard packing 的正式 runtime 评估已有充分动机；这不是产品格式选择或实施授权。
 - **下一步测量：** 约 `16` entries/pack 只是 formal runtime 的首测候选，不是选定格式；应与 `32`、`64` 比较，并使用与历史 formal baseline 相同的 cold/warm/incremental protocol 和语义验证。`32` 尚未出现在此 microbenchmark 中，属于待测比较点，不能从表中直接推断胜出。

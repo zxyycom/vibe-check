@@ -8,7 +8,9 @@ purpose: 让 canonical machine output 只表达 Check、Record 与必要运行�
 background: 两个固定路径无法在不增加 reader protocol 时做到文件系统级原子切换，逐文件 rename 还可能让跨运行混合内容通过普通关系校验。
 decision: machine v3 以 Records 内容指纹绑定 run.json 与 records.ndjson，整体验证后才受信；固定路径替换不承诺跨文件系统级原子性。
 tags:
+  - machine-output
   - product-contract
+  - run-outputs
 relations:
   - type: 修订
     target: 260815-publish-check-record-machine-v3

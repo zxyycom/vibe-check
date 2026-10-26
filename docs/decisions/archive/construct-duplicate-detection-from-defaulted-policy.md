@@ -8,8 +8,11 @@ purpose: 让 duplicateDetection 以专用构造函数补齐默认政策，并让
 background: 多层对象展开把默认值维护推给 consumer，public custom args 又暴露了绝大多数不可覆盖的 adapter 责任。
 decision: 使用 defaulted duplicateDetection constructor 和最小 package/custom executable 选择，返回完整普通 Check。
 tags:
+  - check-constructors
   - configuration
+  - duplicate-detection
   - product-contract
+  - scanner-dependencies
 relations:
   - type: 归并
     target: 260817-expose-ordinary-check-values-with-define-check

@@ -9,8 +9,11 @@ background: Lizard 上游逐 reader 正则选择在 Bun 批量分析中成为首
 decision: 只在手写私有 façade 为已证明安全的完整文件名建立 source-order-derived 快速路径，其余输入回退上游对齐 registry。
 tags:
   - dependency-policy
+  - function-metrics
+  - lizard
   - performance
   - product-contract
+  - source-alignment
   - workflow-policy
 relations: []
 ---

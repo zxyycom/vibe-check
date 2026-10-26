@@ -9,7 +9,10 @@ background: 双数组不是统一匹配的必要条件，单数组替换又可�
 decision: 纯磁盘收集使用单份 patterns，固定默认排除默认启用，只有显式 useDefaultExcludes=false 才关闭
 tags:
   - configuration
+  - file-collection
+  - glob
   - product-contract
+  - project-files
 relations:
   - type: 修订
     target: 261010-collect-project-files-only-from-filesystem

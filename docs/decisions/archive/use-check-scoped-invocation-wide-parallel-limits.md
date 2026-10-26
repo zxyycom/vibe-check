@@ -8,7 +8,10 @@ purpose: 让单个 Check 能在自己的执行 span 内安全收紧整次 invoca
 background: root scheduler 只有固定上限，无法表达一个 Check 执行期间要求更低全局容量，同时不能以第二 scheduler 破坏已有依赖和 mutex 协调。
 decision: Check 可声明 maxParallel；同一 scheduler 在 active span 内取最小 cap，并用非抢占 reservation/drain 收紧。
 tags:
+  - admission-scheduling
   - configuration
+  - parallel-limits
+  - scheduler
 relations: []
 ---
 

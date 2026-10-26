@@ -9,8 +9,11 @@ background: 未闭合模板和注释可造成明显成本增长；无差别尾�
 decision: 仅在独立且确定无法闭合的注释或固定模板分支上启用私有尾部防护，其余输入保留原生路径，并以完整语义和分发验收决定采用。
 tags:
   - algorithmic-complexity
+  - function-metrics
+  - lizard
   - performance
   - source-alignment
+  - tokenizer
 relations: []
 ---
 

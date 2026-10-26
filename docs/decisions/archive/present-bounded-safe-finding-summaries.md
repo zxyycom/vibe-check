@@ -8,6 +8,8 @@ purpose: 让少量 Finding 直接出现在 Check 终态输出中，同时保持�
 background: 当前随包 Check 只显示 Finding 数量，维护者必须另行读取 Records 才能定位普通问题。
 decision: 由 producing Check 默认展示至多十条安全摘要，超限时报告剩余数量，完整事实仍由 Records 拥有。
 tags:
+  - check-messages
+  - finding-presentation
   - product-contract
 relations: []
 ---

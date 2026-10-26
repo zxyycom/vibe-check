@@ -8,6 +8,8 @@ purpose: 让 Node consumer 可检查运行时模块边界，并恢复对应的�
 background: 既有可读布局满足调试目标，但只承诺 Bun 加载；Node-only Product 必须显式验证模块、Worker 与依赖解析。
 decision: 继续交付只公开根路径的可读 ESM、声明、源码与映射，并以 Node exact consumer 验证完整运行时布局。
 tags:
+  - node
+  - package-artifact
   - product-contract
   - workflow-policy
 relations:

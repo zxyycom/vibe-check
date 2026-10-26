@@ -8,7 +8,10 @@ purpose: 让每个递归 Check node 在既有单一静态 Task graph 中独立�
 background: 父、子都是正常 Check 后可复用既有 direct/TaskPlan scope；containment 不改变 admission 或 settlement 协议。
 decision: recursive Check 复用现有 scope 与 graph；只有显式 fields 影响 admission，不新增 containment-specific 调度协议。
 tags:
+  - check-lifecycle
   - product-contract
+  - scheduler
+  - task-graph
 relations:
   - type: 修订
     target: 260815-execute-check-scopes-through-one-task-graph

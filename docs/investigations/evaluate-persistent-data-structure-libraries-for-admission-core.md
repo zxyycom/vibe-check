@@ -11,6 +11,7 @@ tags:
 relations:
   - type: "补充"
     target: "260811-functional-utilities-and-data-structures"
+    summary: "补足可变集合选型未覆盖的持久化前驱状态需求"
 ---
 
 ## 形成时背景
@@ -87,8 +88,8 @@ root ESM import 可用。类型检查使用项目 TypeScript 后运行了同一 
 
 ### 结论与建议
 
-**建议：本 Change 不立即新增 production dependency，也不把现有自实现当成「已有库仍不必比较」的
-永久结论。** `immutable@5.1.9` 是唯一同时具有高采用、近期维护、零 production dependency、内置 TS
+**建议：若继续演进 generic vector，以 `immutable.List` 作为下一轮完整验收的 library baseline；
+本 Change 暂不新增 production dependency。** `immutable@5.1.9` 是唯一同时具有高采用、近期维护、零 production dependency、内置 TS
 和 ESM 的合格 generic persistent-vector 候选；它应成为将来若继续演进这块 generic vector 时的唯一
 library baseline。它能替代 status / numeric store 的 `get` / `set` structural-sharing 层，但本轮 isolated
 结果不能代替 Change 要求的完整 semantic-oracle、A/B/C workload、retained branch 和 public candidate
@@ -107,8 +108,7 @@ leftist heap。故应保留很小的 project-owned leftist heap；它唯一拥�
 batch 或 GC/retention 是瓶颈时，才以同一 full workload 单独比较 `TypedArray`。不要为「bitset」把可变
 Mnemonist BitSet 放入 immutable state。
 
-所以目前**不值得无条件新增生产依赖**；但也不应以这份报告为由禁止未来 library candidate。若下一轮要
-保留或推广 generic `ChunkTree`，先实现一个只替换 vector storage 的 `immutable.List` development candidate，
+若下一轮要保留或推广 generic `ChunkTree`，先实现一个只替换 vector storage 的 `immutable.List` development candidate，
 在不改变 public DTO、effect/order、duplicate payload 和 callback hard guard 的前提下重跑完整 gate。只有它
 同时通过 exact oracle、shared workload 与 retained branches，且 package candidate / license / external
 consumer 验收通过，才将 `immutable@5.1.9` 加为精确 production dependency；否则现有 64-slot tree 才有

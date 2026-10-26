@@ -9,7 +9,9 @@ background: 默认增量混合慢验收，快检成功容易被误认为完成�
 decision: 默认 fast、显式 changed 验收受影响输入、all 保留独立全量兜底
 tags:
   - configuration
+  - gate-selection
   - performance
+  - project-gate
   - workflow-policy
 relations: []
 ---

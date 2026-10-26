@@ -9,6 +9,10 @@ background: 三个 Check 都产生 area-owned quality findings，但只有 funct
 decision: 三个 Check 共用 blocking/non-blocking、overlap 与计数规则；Core 不建立 Finding 模型。
 tags:
   - configuration
+  - duplicate-detection
+  - file-metrics
+  - finding-policy
+  - function-metrics
   - product-contract
 relations: []
 ---

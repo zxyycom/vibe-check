@@ -10,6 +10,8 @@ decision: Check 从 typed fields 提取 identity text，Product 生成 opaque ID
 tags:
   - configuration
   - product-contract
+  - quality-records
+  - record-identity
 relations:
   - type: 替代
     target: 260805-use-location-independent-record-identities

@@ -8,6 +8,7 @@ purpose: 让个人项目的 main 提交可以低干扰地同步到远端，同�
 background: post-commit 自动推送属于持续外部写入；网络、鉴权或远端领先都可能失败，未经约束的重试或同步修复会扩大副作用。
 decision: 使用显式启用的仓库 post-commit hook，只对 main 向 origin 执行不带 tag 的普通 push，每小时最多尝试一次，任何失败都不改变 commit 或触发同步修复。
 tags:
+  - git
   - repository-automation
 relations: []
 ---

@@ -5,6 +5,8 @@ formedAt: "2026-08-21T02:22:26Z"
 question: "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？"
 tags:
   - "implementation-libraries"
+  - "type-safety"
+  - "typebox"
 relations: []
 ---
 

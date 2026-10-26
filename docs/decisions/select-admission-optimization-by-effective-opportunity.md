@@ -8,7 +8,9 @@ purpose: 让调度策略只在有效图、数据可信度和选择空间支持�
 background: 窄增量运行会减少调度空间和学习样本，并可能让热缓存掩盖宽图与冷路径退化
 decision: 把低数据和低调度机会作为一等场景，以有界混合策略和确定性回退控制优化成本
 tags:
+  - admission-scheduling
   - performance
+  - scheduler
   - testing
   - workflow-policy
 relations: []
@@ -33,4 +35,4 @@ relations: []
 - 采用: 同时评估最小 deterministic path、有界 branch-and-bound 与 learned/heuristic。无选择空间时使用最小路径；状态空间可控时允许穷举剪枝；较大且数据可信时评估 heuristic。具体 router、阈值和算法由 baseline 决定。
 - 采用: Exact search 只承诺给定 prediction、约束和 objective 下的 model-relative 结果，使用 rolling horizon、deterministic tie-break 及 state/time/memory guards；数据不可信、搜索超限或 candidate fault 时确定性 fallback。
 - 采用: 所有候选只提出下一 admission，Scheduler 继续验证 legality 并拥有真实 lifecycle。策略只读取 source-neutral 的有效图与置信事实。
-- 采用: 现有 learned optimization Plan 在完成 change-aware 重基线和本方向审阅前不进入 Implementation、Gate A/B 或 production wiring；证据可以支持重写、简化或 not-adopt，不以已有算法复杂度作为继续投入理由。
+- 采用: 形成此决策时的 learned optimization Plan 须先完成 change-aware 重基线和本方向审阅，再进入 Implementation、Gate A/B 或 production wiring；证据可以支持重写、简化或 not-adopt，不以已有算法复杂度作为继续投入理由。

@@ -9,6 +9,7 @@ background: 每个递归节点都执行会把 composition 误写成运行事实�
 decision: Check 使用普通递归对象；有 execute 的节点独立执行，children 继续展开，无 execute 的节点只传递组织与继承上下文。
 tags:
   - configuration
+  - project-definition
 relations:
   - type: 修订
     target: 260815-use-one-check-shape-with-recursive-composition

@@ -8,6 +8,7 @@ purpose: 让每项格式或风险能力拥有自己的输入、安全、证据�
 background: Markdown、路径、JSON、Schema、秘密和网络链接有不同风险，不能由一个最低共同 scanner 可靠承接。
 decision: 已实现与未来格式能力都保持独立 Check；Core 只承接通用执行与可信结算。
 tags:
+  - architecture
   - product-contract
   - product-priority
 relations:
@@ -23,12 +24,12 @@ relations:
 
 ## 背景
 
-- JSON、JSON Schema 与 Markdown Link 已形成各自的 Product-provided Check；路径引用、秘密检测与网络链接仍具有不同的授权和失败语义。
+- 形成此决策时，JSON、JSON Schema 与 Markdown Link 已形成各自的 Product-provided Check；路径引用、秘密检测与网络链接仍需分别处理授权和失败语义。
 - Run resolution、单一 Task graph 与 Core settlement 可以复用执行机制，但不能替 producing Check 判断领域 applicability、finding 或安全政策。
 
 ## 决策
 
-- 采用: 每项格式或风险能力保持独立 Product-provided Check，由自身拥有合格输入、领域解析、权限、安全失败、QualityRecords 与结算政策。
+- 采用: 每项格式或风险能力保持独立 Product-provided Check，由自身拥有合格输入、领域解析、权限、安全失败、supplemental Records 与结算政策。
 - 采用: Run resolution、单一 Task graph 与 Core trusted settlement 只承接通用解析、调度和 terminal fact 关闭；Core 不拥有 capability completion、generic finding 或新的 coverage entity。
 - 采用: 已实现的 JSON、JSON Schema 与 Markdown Link 继续由当前 owner 承接；路径引用、秘密检测、网络链接及其它未来能力只有在新的真实 consumer、风险证据或明确优先级下，才以独立决策和 Change 重新基线。
 - 采用: Markdown Structure 不因与 Markdown Link 共享格式而恢复为当前方向；重新提出仍需独立用户结果。

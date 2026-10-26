@@ -9,7 +9,12 @@ background: 现有 analyzer 已完成 runtime hard cut，却仍有 Worker 与文
 decision: Lizard port 仅由 Product adapter 经私有 port façade 调用，并以忠实翻译 profile 维护。
 tags:
   - dependency-policy
+  - function-metrics
+  - lizard
+  - module-boundaries
   - product-contract
+  - source-alignment
+  - source-fidelity
   - workflow-policy
 relations: []
 ---

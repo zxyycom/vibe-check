@@ -9,6 +9,9 @@ background: 既有中央 Definition 拥有 Check 配置，但 afterGate 仍隐�
 decision: 唯一 afterGate 由 definition.ts 配置并经动态 bound module 投影；run.ts 验证 entry 后执行并保持 fail-closed 结果与 exit。
 tags:
   - configuration
+  - package-candidate
+  - project-definition
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

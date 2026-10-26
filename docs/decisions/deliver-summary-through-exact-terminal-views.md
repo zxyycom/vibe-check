@@ -8,7 +8,9 @@ purpose: 保持 summary 与 caller effects 的顺序和故障边界而不绑定�
 background: 终态需求精确交付与旧 summary 共享完整 context identity 冲突
 decision: 统一 terminal runner 并分别投影所需字段，summary 自行包含 writer failure
 tags:
+  - diagnostics
   - product-contract
+  - scheduler
   - workflow-policy
 relations:
   - type: 修订

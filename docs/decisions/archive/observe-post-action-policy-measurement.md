@@ -8,8 +8,11 @@ purpose: 让下一次 custom admission policy 读取上一 accepted action 之�
 background: 归档前序 Decision 的单条 transition snapshot 归属 prior-state interval，无法表达 action 后状态。
 decision: 采用 detached cumulative 与 captured-prefix reader，冻结 action observation 从 action post-state append。
 tags:
+  - admission-scheduling
   - configuration
   - product-contract
+  - scheduler
+  - scheduler-measurement
 relations:
   - type: 修订
     target: 260902-provide-decision-boundary-admission-measurement
@@ -17,14 +20,17 @@ relations:
 ---
 
 ## 目的
+
 - 让 custom policy 的下一真实 callback 得到上一 accepted `select` 或 `wait` action 后的 Scheduler state observation，而不把 lifecycle mutation 的前态 interval误称为 action 结果。
 - 保持 Scheduler 是 clock、interval、hard guard、mutation、effect 和 bounded measurement 的唯一 owner；policy 仍是同步无状态 select/wait callback。
 
 ## 背景
+
 - 已归档前序 Decision 的单条 transition snapshot 将 prior-state interval 置于同一记录，连续 select 和 wait/settlement 时不能精确表达 action 后状态及期间产生的离散事实；它只解释本修订的来源，不是当前 API 或 owner。
 - callback context 与 terminal raw measurement 都必须 detached/frozen；逐轮重建 graph identity 或完整 admissions table会使 policy path 随 decisions×tasks 分配增长。
 
 ## 决策
+
 - 采用: `measurement.cumulative` 是 callback boundary 前已 flush 的 detached/frozen bounded scalar、peak和discrete facts；每次 Run 一次构造的 `SchedulerGraphSnapshot` 在 callbacks 间共享，动态 arrays仍按轮 detached/frozen。
 - 采用: collector invocation-local append-only 保存逐条 frozen action observation。
 - 采用: 每个 context 捕获 `measurementCount` end-count，并以 `measurementAt(index)` 同步读取该 immutable prefix；越界为 `undefined`，旧 context 以后调用也不能观察 future append，因此不返回 live mutable array 或每轮 slice。

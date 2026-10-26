@@ -4,14 +4,15 @@ id: "260903-diagnose-lizard-typescript-port-performance-gap"
 formedAt: "2026-09-03T06:22:29Z"
 question: "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？"
 tags:
+  - "cpu-profiling"
   - "function-metrics"
   - "lizard"
   - "performance"
-  - "profiling"
   - "source-alignment"
 relations:
   - type: "补充"
     target: "260903-compare-lizard-python-typescript-performance"
+    summary: "为既有性能差距补足decode与dispatch分层归因"
 ---
 
 ## 形成时背景
@@ -20,7 +21,7 @@ relations:
 
 本轮只新增 profile、反事实实验和正式调查记录，没有修改 Product、port façade、reader registry、translated core/readers/shared/protocol 或 public/package surface。候选只在 `/tmp` 中执行；其精确源码副本作为报告证据保存，不属于运行时实现，也不构成修改 source-aligned port 的授权。
 
-**使用与授权边界。** 本报告的用途是定位下一轮调查/Change，不是实施授权。后续代理应按以下状态使用本报告；随附 raw resources 是各项观测的可复核 owner，本报告是这些观测的范围、解释和授权边界 owner。
+**使用与授权边界。** 本报告用于定位下一轮调查/Change；随附 raw resources 支持复核观测，正文说明范围、解释和采用前提。
 
 - **已证事实：**本报告的计时、profile、output parity 和 runtime 筛查只适用于所述 fixed Lizard 1.24 representative batch、runtime 和方法；B scope 不包含文件读取、字符解码、Worker 或 Product settlement。
 - **探索性推断：**suffix-index/preselected-reader 反事实只证明固定 corpus 的 output 等价和候选回收方向；它不是正式 before/after ABBA，也不证明任意 filename matcher 等价或能替代 source-order registry。
@@ -29,10 +30,8 @@ relations:
 
 ### 当前阅读导航（不属于形成时证据）
 
-- **本报告的 evidence owner：**fixed Lizard 1.24、27 reader-family representative batch 上的调用边界审计、runtime 筛查、profile、dispatch 反事实与形成时优先级；逐项观测由本报告资源拥有。
 - **直接前序：**frontmatter 的 `补充 → compare-lizard-python-typescript-performance.md`；先从该报告恢复 B analyzer-only 的对照协议，不能把其 historical Product 数字当成本报告 profile 的基线。
 - **已确认 / 推断 / 未知：**“已证结论”和“已证热点”是本轮确认；suffix-index/preselected-reader 的回收方向及 family 排名只是探索性推断；未隔离的 core、runtime 内部原因和任意 filename 等价性仍未知。
-- **不能比较或相减：**sampling inclusive time、独立 family warmed observations、dispatch microbenchmark 与正式 ABBA wall samples 不是同一计时实验；不得相加为总差距或相减得到其他阶段成本。
 - **形成时建议（不是当前状态）：**在独立 Change/Decision 中先验证带 registry fallback 的 façade resolver；若要触及 translated tokenizer/core，先另开 scoped Investigation，而不是从本报告直接实施。
 - **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
@@ -58,6 +57,8 @@ relations:
 **2026-09-23 资源补存（不属于形成时新增观测）：**原先随附的 Bun profile Markdown 渲染与 `/tmp/vibe-lizard-profile/harness.cpuprofile.md` 逐字节一致，现原样保存为 `.txt`（SHA-256 `02703f9cd84ccf668d0edde563145b21ede425f1195811b3264513ad0ebd4671`）；同目录仍存的原生 JSON 格式采样文件包含 13,992 个 samples，与渲染摘要一致，补存为 `.cpuprofile`（SHA-256 `d1d1686d1b0eb3d1ee94e4d3ab7e48b9e2328ab6c1a9e462b16edb7acbf764c9`）。这是事后恢复的采样字节，不追溯证明形成时的执行环境或版本身份。
 
 另以 pre-resolved reader 对 27 families 各执行 15 次 warmed observation，用于排列剩余 core hotspot。Python 与 TypeScript 分别顺序采样，未做跨 runtime ABBA，故只报告方向和候选集中度，不将 family 数字当作发布性能承诺。
+
+sampling inclusive time、独立 family warmed observations、dispatch microbenchmark 与正式 ABBA wall samples 不是同一计时实验；不得跨实验相加为总差距，或相减求其它阶段成本。
 
 ## 调查结果与边界
 
@@ -121,7 +122,7 @@ TypeScript profile 也把 shared tokenizer regex、native `regExpExec`、Fortran
 
 若 A 另行获批，其实施验收必须同时满足：Decision 与 deviation ledger 明确该差异；原 reader registry/core 零 diff；共享 resolver 对安全完整 filename grammar 的 fast branch 以及其他输入的 registry fallback 建立 identity differential/property evidence，并覆盖 55 canonical suffixes / 56 declared entries、重复 precedence、mixed case、Unicode folds、line terminators、多点路径、无 suffix 和 unknown suffix；full oracle parity；以及同 manifest 的 15-block ABBA before/after。未闭合任一项时保持 fallback，不实施近似替换。
 
-1. **先开一个受约束的 façade 优化 Change：**只在手写 `port-facade.ts` seam 内研究 source-order-derived suffix fast path，不修改 `reader-registry.ts`、`CodeReader.matchFilename` 或 reader/core；Change/Decision 和 deviation ledger 必须明确它仍是 analyzer port 内的非机械差异。让两个 façade API 共用 resolver，对未被证明安全的 filename 回退原 registry；验证上述完整 filename 语义、oracle parity，以及同 manifest 的正式 15-block ABBA before/after。若语义不能闭合，则停止而不是回退成静默近似。
+1. **先开一个受约束的 façade 优化 Change：**研究表中 A，按上述完整 filename、fallback、deviation、parity 与正式 ABBA 条件验收。若语义不能闭合，则停止而不是实施静默近似。
 2. **再开独立的 core hotspot Investigation：**只研究 Fortran、ST，随后才是 Ruby/Python/GDScript。优先验证 per-reader tokenizer pattern/setup cache 是否保持完整 token stream、metrics、state-machine 和 extension lifecycle；任何实现都进入 deviation ledger，并由独立 Decision/Change 授权。
 3. **暂不投入：**文件/JSON decode、Pygments/native replacement、façade output mapping、对象冻结、通用 parser/plugin framework 或全局 state-machine 重构。当前 evidence 不支持这些方向。
 

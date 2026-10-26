@@ -4,11 +4,14 @@ id: "260811-result-and-option-libraries"
 formedAt: "2026-08-11T07:54:34Z"
 question: "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？"
 tags:
+  - "error-handling"
   - "implementation-libraries"
 relations: []
 ---
 
 ## 形成时背景
+
+本文保存本轮选型及当时采用情况；下文的“当前”和使用边界均以形成时为准，不定义今天的依赖、目录或编码规范。
 
 Vibe Check 是使用 Bun、strict TypeScript 和 NodeNext module resolution 的私有 CLI 工作区。
 编码规范需要分别表达“值存在或缺失”和“成功或带原因失败”，并避免多个 Result、Either、Maybe

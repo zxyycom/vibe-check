@@ -8,7 +8,9 @@ purpose: 让未满足成功前置的 Check 不执行作者工作，并形成完�
 background: 现有 blocked 只传播 executor failure，Product finalizer 将 blocked Check 视为 invariant failure。
 decision: 未满足 dependsOn 时，Product 将 private blocked 单次映射为 dependency-not-passed unavailable。
 tags:
+  - check-results
   - product-contract
+  - scheduler
 relations:
   - type: 修订
     target: 260815-cancel-task-admission-and-drain-started-work

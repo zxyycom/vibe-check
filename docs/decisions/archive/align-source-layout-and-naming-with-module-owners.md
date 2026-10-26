@@ -9,6 +9,8 @@ background: Product 与 scripts 存在历史包装层、职责错位和大量 in
 decision: 以 owner 层级和领域职责同时约束目录与命名，仅保留显式批准的 index 入口，移除临时 Product CLI diagnostic。
 tags:
   - configuration
+  - module-boundaries
+  - source-layout
   - workflow-policy
 relations: []
 ---

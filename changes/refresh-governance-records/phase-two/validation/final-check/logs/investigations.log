@@ -1,0 +1,2 @@
+$ bun scripts/investigation-report/command.ts
+Investigation report check passed (126 reports checked; full index current).

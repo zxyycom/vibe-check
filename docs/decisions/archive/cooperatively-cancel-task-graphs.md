@@ -8,7 +8,10 @@ purpose: 让一次 invocation 的取消由唯一 Task engine 停止新 admission
 background: Check 与 Record 在执行中逐步形成，回滚事实、强杀项目代码或把取消混同依赖阻断都会破坏可解释的终态。
 decision: Task engine 在 admission 边界观察 AbortSignal，停止新 Task、收尾已启动 Task，并将未完成 Check 关闭为 cancelled。
 tags:
+  - cancellation
   - product-contract
+  - scheduler
+  - task-graph
 relations: []
 ---
 

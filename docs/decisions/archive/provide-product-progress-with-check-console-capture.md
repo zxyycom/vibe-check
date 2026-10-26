@@ -8,7 +8,10 @@ purpose: 保持 Product-owned Check progress 的一致生命周期，同时让�
 background: Check 与 progress 在同一 runtime 中执行；禁止直接 console 只能依赖作者自律，实际调用会使 running row 被清除或留下错误状态。
 decision: 用异步上下文隔离的临时 console router 捕获 awaited Check 调用，并在 settlement 作为受管 messages 呈现和返回。
 tags:
+  - check-messages
+  - console-capture
   - product-contract
+  - progress-output
 relations:
   - type: 修订
     target: 260820-provide-product-owned-check-progress

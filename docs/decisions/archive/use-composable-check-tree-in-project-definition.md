@@ -8,7 +8,9 @@ purpose: 让项目通过嵌套、Task-like Check authoring 直接选择和组织
 background: 扁平 builtIn、selected 与完整 schedules 数组重复描述同一 Check；项目需要组合父级约束、子级覆写和任务式依赖资源语义，而不应维护内部 catalog。
 decision: Project Definition checks 使用 authoring-only tree；leaf presence 表示选择，groups 继承 context 后验证并 flatten。
 tags:
+  - check-authoring
   - configuration
+  - project-definition
 relations: []
 ---
 

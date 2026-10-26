@@ -8,7 +8,9 @@ purpose: 让递归 Check authoring 接受暂时没有 execution 或 children 的
 background: 空节点可能来自渐进配置或对象组合；把它当成无效输入会增加修改成本，静默接受又容易掩盖无意义声明。
 decision: 空 information Check 合法且不产生 runtime fact；Definition 对它给出非阻断的无意义 Check warning。
 tags:
+  - check-authoring
   - configuration
+  - definition-validation
 relations: []
 ---
 

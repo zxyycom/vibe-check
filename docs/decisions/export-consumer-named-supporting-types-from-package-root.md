@@ -9,6 +9,8 @@ background: 部分公共签名中的 supporting types 只能被推断或复制�
 decision: 只从 package root 导出具有独立消费者命名场景的公共 supporting types，并以真实 installed consumer 验收。
 tags:
   - product-contract
+  - public-api
+  - typescript
 relations: []
 ---
 

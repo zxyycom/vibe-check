@@ -9,6 +9,8 @@ background: Producing Check 必须短暂读取敏感值，但 Core Check outcome
 decision: Product-owned Check 只在调用期受限内存处理原始敏感材料；公共 Core Check outcome、minimal Record 与 output 边界只接收安全身份和脱敏证据。
 tags:
   - product-contract
+  - secret-detection
+  - security
 relations:
   - type: 修订
     target: 260804-keep-sensitive-scan-material-ephemeral

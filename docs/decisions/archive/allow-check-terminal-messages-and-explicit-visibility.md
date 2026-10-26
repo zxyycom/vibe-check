@@ -8,8 +8,11 @@ purpose: 让需要补充提示的 Check 在终态返回结构化消息，并以�
 background: 项目已有 public runtime 防护；消息必须 settlement-only、可程序化读取且由 Check 按需附带。
 decision: 采用可选结构化终态附件、RunResult readback、既有边界一致校验、attention visibility 和 fingerprint identity。
 tags:
+  - check-messages
+  - check-visibility
   - configuration
   - product-contract
+  - progress-output
 relations: []
 ---
 

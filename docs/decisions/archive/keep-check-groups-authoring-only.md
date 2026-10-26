@@ -8,7 +8,9 @@ purpose: 让 Project Definition 用可组合 Check tree 表达 leaf 选择与继
 background: Group 的组织价值属于 authoring；把它提升为运行实体会复制事实、身份和调度责任。
 decision: Check tree 只规范化 leaf；Package Run 构造私有运行准备，group 不产生 Core/Record/policy/output 实体。
 tags:
+  - check-authoring
   - configuration
+  - project-definition
 relations:
   - type: 修订
     target: 260815-use-composable-check-tree-with-run-owned-bindings

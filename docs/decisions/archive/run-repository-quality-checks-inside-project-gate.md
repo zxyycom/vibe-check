@@ -8,7 +8,10 @@ purpose: 让 Gate 直接结算仓库重复、文件指标、函数指标与 Mark
 background: 删除无感知的 repository-quality process wrapper 后，Gate 只保留了质量 Check 的实现测试，没有扫描当前仓库的同类事实。
 decision: 将四项原始 package Check 直接纳入 Gate Definition 和 aggregate，并由正式 Gate 入口显式绑定仓库锁定的 scanner 工具。
 tags:
+  - aggregation
   - configuration
+  - finding-policy
+  - project-gate
   - workflow-policy
 relations: []
 ---

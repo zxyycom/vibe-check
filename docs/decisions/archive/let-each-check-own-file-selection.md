@@ -9,7 +9,9 @@ background: 全局 quality scope 使随包 Check 依赖 hidden context，但既�
 decision: Definition/context 不提供全局 file/code-area policy；每个 Check 拥有 selection，project-files 只提供共同机制。
 tags:
   - configuration
+  - markdown-link-validation
   - product-contract
+  - project-files
 relations:
   - type: 归并
     target: 260822-use-check-owned-file-overrides

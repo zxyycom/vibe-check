@@ -8,8 +8,12 @@ purpose: 让 Gate 的输入闭合材料 Checks 共享保守的变更选择边界
 background: 材料生成会读取 Product 与 shared scripts，但默认 required 仍静态执行
 decision: 用覆盖 src 和 scripts 的 repository-material region 选择闭合 Check，并让 links 保持全量
 tags:
+  - change-flags
+  - change-selection
   - configuration
+  - project-gate
   - repository-automation
+  - repository-materials
   - workflow-policy
 relations: []
 ---

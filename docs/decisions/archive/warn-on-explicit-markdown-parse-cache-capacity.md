@@ -8,7 +8,10 @@ purpose: 让调用方发现过大的 Markdown parse cache 并自行清理，保�
 background: 单一 append-only JSONL 会增长；旧封闭配置不含提醒，而自动容量管理会扩大性能状态职责。
 decision: 保留默认关闭、exact-content persistent cache 与成功 target memo，增加默认可配置的读取容量提醒。
 tags:
+  - caching
   - configuration
+  - markdown-link-validation
+  - markdown-parse-cache
   - product-contract
 relations:
   - type: 修订

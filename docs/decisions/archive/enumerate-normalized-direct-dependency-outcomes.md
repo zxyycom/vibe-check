@@ -8,8 +8,10 @@ purpose: 让 downstream Check 能稳定批量读取全部已声明直接上游�
 background: string getter 只能读取一个指定 direct dependency，消费者仍要复制自己的静态 ID 列表。
 decision: 在同一 direct-edge 授权边界提供稳定 outcome 列表，不提供全局 registry 或上游控制能力。
 tags:
+  - check-dependencies
   - configuration
   - product-contract
+  - typed-providers
 relations:
   - type: 修订
     target: 260823-read-direct-dependency-final-data-by-string

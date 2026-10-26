@@ -8,6 +8,7 @@ purpose: 让本地 package candidate 的完整 build evidence 可直接检查，
 background: 现有 cache 同时保存 staging、tarball、receipt 与编译状态，既遮蔽产物也混淆可查看 evidence 与缓存责任。
 decision: 默认将 unpacked evidence 与 versioned tarball 置于 build 下，cache 仅保存 receipt 和编译状态，并以明确命令绑定状态、构建与完整验收。
 tags:
+  - package-candidate
   - product-contract
   - workflow-policy
 relations: []
@@ -20,7 +21,7 @@ relations: []
 ## 背景
 - 本地 candidate 的 package runtime、declarations、maps、sources、docs、licenses 与 declared runtime dependencies 必须作为同一 package unit 被审计和外部 consumer 验收。
 - `.cache` 是失效和重建的状态空间；将完整 unpacked evidence 和 tarball 放在其中降低可发现性，也使缓存责任与可查看输出责任不清晰。
-- 可读 ESM layout 已由 `publish-readable-esm-package-layout.md` 确定，改变 build output location 不应改变 package 内的物理 layout、公开 exports 或宿主承诺。
+- 形成时的可读 ESM layout 已由[前序布局决策](archive/publish-readable-esm-package-layout.md)确定，改变 build output location 不应改变 package 内的物理 layout、公开 exports 或宿主承诺。
 
 ## 决策
 - 采用: 默认以 `build/package/` 作为唯一完整 unpacked package build evidence，并以 `build/artifacts/` 保存对应 versioned `.tgz`；不创建根 `dist/`，也不使用 bundle、Rollup 或第二套 runtime format。

@@ -9,6 +9,10 @@ background: Gate root 已准备 exact candidate，但 candidate test 仍 detache
 decision: Gate root 独占 candidate lifecycle；complete --all 复用其 evidence，cold integration 使用显式 target。
 tags:
   - configuration
+  - package-artifact
+  - package-candidate
+  - performance
+  - project-gate
   - testing
   - workflow-policy
 relations:

@@ -71,11 +71,11 @@ uv run --no-project --offline python \
   docs/investigations/_resources/261008-trace-typescript-metrics-upstream-origin/input-and-port-observations.json
 ```
 
-相等断言比较保留的形成时 TypeScript 结果；未来移植发生变更时，需更新当次输入与观察后重新取证。
+相等断言只复核保留的形成时 TypeScript 结果；未来移植发生变更时，应另存新轮次的输入与观察重新取证，不覆盖本轮样本，也不据其断言判断当前实现。
 
 ## 随附资源
 
-- [同输入与当前 port 观察](./_resources/261008-trace-typescript-metrics-upstream-origin/input-and-port-observations.json)
+- [同输入与形成时 port 观察](./_resources/261008-trace-typescript-metrics-upstream-origin/input-and-port-observations.json)
 - [锁定上游与 port 的来源身份](./_resources/261008-trace-typescript-metrics-upstream-origin/source-identity.json)
 - [原始 Python 上游比较入口](./_resources/261008-trace-typescript-metrics-upstream-origin/upstream-driver.py)
 - [Python 上游观察与相等检查](./_resources/261008-trace-typescript-metrics-upstream-origin/upstream-observations.json)

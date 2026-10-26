@@ -8,17 +8,20 @@ purpose: 一次性建立无底层工具字段的语义配置边界，避免双�
 background: 旧配置包含 tool-named thresholds 与 command/args；兼容读取会延长 public coupling 和 executable precedence 风险。
 decision: 新 runtime 在 scan work 前拒绝旧 shape 并提供迁移诊断，不兼容读取，也不执行旧 command/args。
 tags:
+  - config-migration
   - configuration
 relations: []
 ---
 
 ## 目的
+
 - 让 semantic project config 从首次发布开始只有一套 field tree、precedence 和 dependency
   boundary，不留下无法可靠移除的 legacy reader。
 - 确保旧 project-level executable settings 不会被静默忽略、误映射或继续参与 scanner 启动。
 - 给已有显式配置提供可行动且可恢复的一次性迁移，而不是隐藏行为变化。
 
 ## 背景
+
 - 当前 explicit complete config 包含顶层 `lizard`、`scc`、`jscpd` 和 `tools`；后者允许配置
   command/args。
 - External discovery 和 initializer 尚未发布，因此可以在生成第一份可发现配置前完成语义
@@ -27,6 +30,7 @@ relations: []
   执行调用者以为仍然有效的旧 executable settings。
 
 ## 决策
+
 - 采用: 新 runtime 识别旧 tool-shaped top-level fields 时，在 banner、scanner、baseline、
   cache 和 artifact creation 前以 config error / exit `3` 拒绝 document。
 - 采用: Diagnostic 必须给出 selected path、current version、old-to-new semantic field mapping

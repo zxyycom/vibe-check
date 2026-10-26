@@ -9,6 +9,9 @@ background: 当前 afterGate 类型可替换完整结果，但唯一实际消费
 decision: 以单一 resultContributor 替代 afterGate，由 adapter 验证并追加消息、保留初步状态且对故障 fail closed
 tags:
   - configuration
+  - gate-performance
+  - project-gate
+  - result-contribution
   - workflow-policy
 relations:
   - type: 修订

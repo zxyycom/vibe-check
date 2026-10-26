@@ -9,6 +9,9 @@ background: 先前布局决策正确移除了 product 包装层并建立 owner �
 decision: 以明确 owner 收敛 Check、Definition、Run 与 terminal facts，并将 scheduler 收入 Run。
 tags:
   - configuration
+  - module-boundaries
+  - project-run
+  - source-layout
   - workflow-policy
 relations:
   - type: 修订

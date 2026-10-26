@@ -9,6 +9,8 @@ background: Functions 已随项目 import 存在于调用方 runtime；跨进程
 decision: 每个 Check function 在调用方 runtime 中作为独立 Product Task 执行，不建立 TaskPlan 或整次运行隔离层。
 tags:
   - product-contract
+  - project-run
+  - scheduler
 relations:
   - type: 修订
     target: 260814-execute-project-functions-through-task-system-in-caller-runtime

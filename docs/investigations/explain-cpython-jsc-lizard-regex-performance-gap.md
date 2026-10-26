@@ -15,8 +15,10 @@ tags:
 relations:
   - type: "归并"
     target: "260903-diagnose-lizard-real-typescript-analyzer-hot-path"
+    summary: "合并真实TS热点证据并解释两宿主regex差距"
   - type: "归并"
     target: "260903-survey-lizard-host-acceleration-candidates"
+    summary: "合并宿主后端候选并检验regex形状与交付边界"
 ---
 
 ## 形成时背景
@@ -27,17 +29,11 @@ relations:
 
 本轮只在 `/tmp` 执行诊断 benchmark，并将最小 raw evidence 和可复跑 driver 收入随附资源；没有修改 Product runtime、port、translated core/readers/shared、依赖或 lockfile。形成时 current port 的 `CodeReader` SHA-256 为 `571bd9…ae86e`，upstream Lizard 1.24 `code_reader.py` 为 `0e7381…02cc`，254-file request 为 `71029f…0a4d`；完整 identity 和资源 hash 见 `provenance.json`。
 
-### 当前阅读导航（不属于形成时证据）
+### 结果概览与后续阅读
 
-- **本报告的 evidence owner：**同 raw-token workload 下 Bun 1.3.14 与 CPython 3.12.13 的 symmetric scan、scanner API/reuse、pattern ablation、generic-stage control、synthetic control 和 TypeScript generator control，以及结合双方引擎 source 得到的解释边界；CPython 3.14.7 仅保留一组 supporting symmetric observation。
-- **直接前序：**frontmatter 以 `归并` 连接真实 TypeScript hotspot diagnosis 与[宿主加速候选调查](survey-lizard-host-acceleration-candidates.md)：本报告将前者的热点定位、后者的 backend candidate 与新原因隔离证据综合为下一轮优先级；它不原地改写两份既有材料的形成时判断。
-- **最重要的当前事实：**254-file current façade fast path 已使 `matchFilename=0`。ordered reader dispatch 是历史路径的已修热点，不是本轮仍存在的 2.35× 差距根因。
-- **measurement layer：**8–10×只属于 raw matcher 的 `count-only`/`consume-fields` 对称扫描；2.35×属于完整 analyzer-only operation。两层的输入虽相同，driver、样本、warm/JIT/GC 状态和包含工作不同；它们不能相减为“可回收毫秒”，也不能用 raw ratio 预测 Product 加速。
-- **已排除与未排除：**当前 reader dispatch、per-file `RegExp` construction/reuse、`matchAll`/`exec` wrapper、Unicode word class 与 default token factory 没有主因信号；quoted-string branches 仍只是改变 segmentation 的次级候选，不能据此改实现。
-- **结论强度：**“两边都有 native engine”“raw output 相同而约 8–10×”“generic branch 对 Bun/JSC 特别敏感”有直接依据；“Yarr 内部哪条 codegen、回溯或字符宽度路径导致该结果”仍未知。
-- **形成时候选优先级（不是当前状态）：**先以完整 parity 重查 built-in staged-generic control；Oniguruma 是并列 backend candidate；两者不能闭合或仍有 material gap 后，才调查 quoted-string same-output control。这个顺序是调查优先级，不是采用或实现授权。
-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
-- **非授权边界：**所有 ablation/staged scanner 都是诊断反事实，不是 production implementation。任何 port 改动仍须独立 Change、Decision、全 reader/token/extension parity 和 Product delivery 验证。
+本轮确认双方均使用 native regexp engine；同 raw-output 的对称扫描中，Bun/JSC 约慢 8–10×，最强定位是 generic lookahead 与 mega-alternation 的组合。Yarr 内部具体 codegen、回溯或字符宽度机制仍未知。8–10×属于 raw matcher，2.35×属于完整 analyzer-only operation，不能相减或预测 Product 加速；当前 façade 的 `matchFilename=0`，历史 reader dispatch 热点也不能解释这项差距。
+
+**后续阅读（不属于形成时证据）：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件。本报告不拥有持续执行状态，也不自动启动调查或实施；今天是否行动由当前请求授权并由相应 Change 承接，长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。本轮 ablation/staged scanner 的诊断性质、候选优先级与采用条件见结果节。
 
 ## 调查目的
 

@@ -11,11 +11,12 @@ tags:
 relations:
   - type: "补充"
     target: "260901-compare-lizard-and-scc-typescript-port-priority"
+    summary: "补足Python与TypeScript完整语言族的性能对照"
 ---
 
 ## 形成时背景
 
-**先读结论和授权边界。** 本报告只形成性能证据，**不授权任何优化**。本 Change 不修改 source-aligned `analyzer/**` 的 core、readers、shared 或 extension protocol，也没有实施 Product 优化。当前证据不能把观察到的差异因果归属给 translated core 或 Product 外围；因此不应据此修改任一层。
+**结论概览。** 对照结果随 workload 和计时 scope 翻转；现有证据尚不能把差异因果归属给 translated core 或 Product 外围。本轮只形成性能证据，未修改 source-aligned `analyzer/**` 的 core、readers、shared 或 extension protocol，也未实施 Product 优化；后续实施边界见结果节。
 
 同一“Python 对 TypeScript”问题在不同 scope 下得到不同结果，不能合并成一个语言结论：
 
@@ -30,14 +31,9 @@ relations:
 
 A 的 mise pin 未提供 bit-for-bit Python/Pygments/PathSpec provenance。因此 A 是已核对的 historical Product + Lizard 1.23 CLI contract reconstruction，**不是**完整 historical Python environment reproduction。
 
-### 当前阅读导航（不属于形成时证据）
+### 后续阅读（不属于形成时证据）
 
-- **本报告的 evidence owner：**A historical Product、B fixed-1.24 analyzer-only、C current Product decomposition 的 workload、计时规则、output admission 与形成时解释；机器样本由本报告的随附资源拥有。
-- **直接前序：**frontmatter 的 `补充 → compare-lizard-and-scc-typescript-port-priority.md`；它只补足此前缺少的正式性能证据，并不把该前序改写为本报告的 measurement owner。
-- **已确认 / 推断 / 未知：**已确认的 output guard 与 wall-time 分类见“已确认的输出前置条件”和“wall-time 观察”；因果归属仍未知，故“后续实施边界”不是优化授权。
-- **不能比较或相减：**A、B、C 的数值不得横向相减、相加或用一层的方向解释另一层；尤其 C stage 记录有重叠，CPU/RSS 与 long-lived session 也不在可比范围。
-- **形成时建议（不是当前状态）：**若要选择优化层，先用与目标层相同的 workload/profile 取得因果证据；本报告本身只提供该调查入口，不授权改动。
-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
+本报告拥有 A historical Product、B fixed-1.24 analyzer-only、C current Product decomposition 的 workload、计时规则、output admission 与形成时解释，机器样本见随附资源。[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件。报告不拥有持续执行状态，也不自动启动调查或实施；今天是否行动由当前请求授权并由相应 Change 承接，长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 

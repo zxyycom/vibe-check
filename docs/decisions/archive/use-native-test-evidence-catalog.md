@@ -8,16 +8,19 @@ purpose: 让测试证明目标与实际 runner identity 一一对应，并通过
 background: 聚合账本和源码 marker 允许多个原生测试共享 case，难以证明目录没有遗漏或漂移。
 decision: 使用固定 test-evidence 目录维护单节点 case，并删除项目自有 marker 和双读。
 tags:
+  - test-evidence
   - testing
 relations: []
 ---
 
 ## 目的
+
 - 让每条测试证据能够精确定位一个最小原生 runner 节点及其 Contract 和 Proves。
 - 让统一 CLI 机械发现目录内的重复、格式和派生索引漂移，并让测试变更流程显式审计
   runner 与 case 的一一映射。
 
 ## 背景
+
 - 旧 `docs/testing/cases.md` 按行为链聚合 case，多个 test 节点可以共享一个编号；源码
   `@case` marker 只标记分组入口，不能独立表达每个 runner 节点。
 - 账本和 marker 形成多个人工同步点，既有 docs validator 也不能证明 runner 与 case
@@ -26,6 +29,7 @@ relations: []
   CLI / ESM API，可以由项目薄 wrapper 固定仓库根。
 
 ## 决策
+
 - 采用: `docs/test-evidence/test-evidence-topics.json` 定义稳定 topic，
   `docs/test-evidence/<topic-id>/<case>.md` 每个文件只映射一个原生 test 节点，
   `test-evidence-index.json` 只作为统一 CLI 生成的派生投影。

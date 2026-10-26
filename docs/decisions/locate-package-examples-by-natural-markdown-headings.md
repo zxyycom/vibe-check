@@ -9,6 +9,7 @@ background: 成对注释虽能限定替换范围，却会把生成机制痕迹�
 decision: 使用自然 heading path 定位 section 中唯一的 TypeScript fence，并拒绝歧义目标和旧投影标记。
 tags:
   - documentation
+  - package-artifact
   - product-contract
   - workflow-policy
 relations:

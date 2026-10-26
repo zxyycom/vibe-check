@@ -8,8 +8,11 @@ purpose: 让同一 repository quality policy 在开发与发布验收中保持�
 background: 已确认 file、function、duplicate 与 Markdown quality Finding 只提供维护提示，发布不改变其风险等级。
 decision: 发布仍要求完整 Gate 与候选证据，但 non-blocking quality Finding 不成为额外发布阻断条件。
 tags:
+  - finding-policy
+  - package-release
   - product-contract
   - product-priority
+  - project-gate
 relations:
   - type: 替代
     target: 260830-require-known-repository-quality-remediation-before-public-release

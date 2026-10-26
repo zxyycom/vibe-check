@@ -8,6 +8,8 @@ purpose: 让 Decision 与 Investigation 的稳定身份脱离文件名并直接�
 background: 上游治理契约已提供显式 ID、独立 sourcePath 与可恢复的 rename 事务。
 decision: 既有与新建治理记录统一使用由权威形成时间派生的日期前缀 ID。
 tags:
+  - decision-records
+  - investigation-report
   - workflow-policy
 relations:
   - type: 修订

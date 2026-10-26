@@ -9,6 +9,7 @@ background: 投影、链接和声明检查不能判断说明本身的质量，�
 decision: 由文档 owner 定义包消费者语义审查，每次发布必须形成绑定正式包的独立结论
 tags:
   - documentation
+  - package-release
   - workflow-policy
 relations: []
 ---

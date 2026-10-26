@@ -8,7 +8,9 @@ purpose: 让每个普通 Check 通过自己的 options 持有外部程序等执�
 background: 分离的 operational binding 会让 Run 按 Check 来源或身份重建实现，而普通 Check 已能通过完整 options 表达并原生覆盖自身配置。
 decision: Check options 拥有 Check-specific execution dependencies；Run 只传 effective options，不维护来源专属 binding。
 tags:
+  - check-authoring
   - configuration
+  - scanner-dependencies
 relations:
   - type: 替代
     target: 260814-bind-external-programs-outside-check-semantics

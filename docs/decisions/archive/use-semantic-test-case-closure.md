@@ -8,6 +8,7 @@ purpose: 让完整当前测试事实与长期证明目的分别可靠维护，�
 background: 一原生节点一 Case 会把机械身份复制成大量模板账本，却仍不能证明测试正文与行为契约语义一致。
 decision: 临时发现完整当前实体并与人工维护的语义 Case 双向闭合，允许 many-to-many 映射且不提交派生实体清单。
 tags:
+  - test-evidence
   - testing
 relations:
   - type: 修订
@@ -16,11 +17,13 @@ relations:
 ---
 
 ## 目的
+
 - 让受支持测试面的当前实体事实可以从源码与 runner report 完整恢复，不依赖人工清单。
 - 让长期 Case 只保存真实证明目的、行为 owner 和当前执行证据，不按测试函数数量机械拆分。
 - 让结构闭合与语义审查各自承担可证明的责任，避免用结构通过替代测试质量判断。
 
 ## 背景
+
 - 一原生测试节点一条 Case 将 path、suite 和 test name 重复写入大量文件，Case 往往只复述
   测试名称，增加同步成本但没有增加证明信息。
 - 静态测试声明与 Bun JUnit report 可以共同形成完整当前实体集合，并暴露 unsupported、
@@ -29,6 +32,7 @@ relations:
   可独立审查的目的；强制一对一会混淆 runner 粒度与语义粒度。
 
 ## 决策
+
 - 采用: 版本化 runner profile 定义受支持测试面；每次严格检查从完整当前树执行 static
   discovery 与 Bun JUnit runtime report，并要求两者规范化后的实体集合相等。实体只作为
   临时事实，不提交 inventory、索引或源码 marker。

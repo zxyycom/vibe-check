@@ -8,8 +8,12 @@ purpose: 让任何已接受 Record 都在默认 progress 中有受管预览，�
 background: Native Gate adapter 的预览只覆盖自身 diagnostics，且同一事实还会重复成为 Check message。
 decision: Product progress 统一预览完整 Records 与 messages，并让 Native adapter 只保留 owner-safe Record 和独立命令提示。
 tags:
+  - check-messages
   - configuration
+  - finding-presentation
   - product-contract
+  - progress-output
+  - quality-records
   - workflow-policy
 relations:
   - type: 修订

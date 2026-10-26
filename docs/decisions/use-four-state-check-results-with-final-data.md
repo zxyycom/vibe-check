@@ -8,6 +8,7 @@ purpose: 让普通直接 Check callback 用单一四态终态和 Check-owned fin
 background: 已退休的双层终态表示将一个终态拆成两层，且已无法表达通过或失败 Check 的主结构化结果。
 decision: 保留直接 execution 与最小 Record reporting，将 Check result 修订为四态终态；passed 和 failed 携带 canonical final data。
 tags:
+  - check-results
   - configuration
 relations:
   - type: 修订
@@ -32,7 +33,7 @@ relations:
 本记录拥有四态终态与主数据边界；公开字段名与精确 callback 输入分别由[命名决策](use-prepare-and-execute-check-authoring-names.md)和[context 声明决策](declare-exact-callback-contexts.md)承接。
 
 - 采用: Public direct `execute` 返回唯一 closed result union：`passed` 与 `failed` 必须各携带 object `data`，`not-applicable` 可携带受控 reason，`unavailable` 必须携带受控 reason。已退休的双层表示不再是 result grammar。
-- 采用: `passed` 或 `failed` 的 `data` 是 producing Check 的唯一 primary structured result；无领域数据的 Check 显式返回空 object。Product 在 Core settlement boundary把该data以与Record data相同的canonical JSON安全边界detached、prototype-safe并deep-freeze；需要canonical text或bytes时再显式按lexical key order序列化。
+- 采用: `passed` 或 `failed` 的 `data` 是 producing Check 的唯一 primary structured result；无领域数据的 Check 显式返回空 object。Product 在 Core settlement boundary 以与 Record data 相同的 canonical JSON 安全边界建立 detached、prototype-safe、deep-frozen data；需要 canonical text 或 bytes 时再显式按 lexical key order 序列化。
 - 采用: direct execute 的业务 input 提供 typed options；按需声明的 context 提供 Product-owned invocation facts、Check-scoped `records` 与 cancellation signal；`records.report({ id }, data)` 仍只提交 supplemental Records，callback settlement 关闭 reporter。
 - 采用: Product 将 callback throw、malformed result、invalid final data、cancellation 和协议失败收敛为 owning Check 的 unavailable outcome，并不撤销已经接受的 Records 或影响无关 Checks。
 - 不采用：execution wrapper、TaskPlan、从 Record data 推断 outcome、额外完成状态、Record catalog/generic，或为主数据引入 Product-owned domain schema、parser 或 presentation fallback。

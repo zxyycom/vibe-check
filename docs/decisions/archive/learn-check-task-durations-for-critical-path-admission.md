@@ -8,8 +8,12 @@ purpose: 让显式启用的调度策略从本地真实 Task 时长形成关键�
 background: 静态 priority 需要人工维护且不能表达完整下游路径，而 Scheduler 已能在不接管跨运行状态的前提下消费不可变预测。
 decision: 交付显式本地 learned-critical-path 能力，保持 static 默认、现有 priority 同分语义和可演进的公开模型说明。
 tags:
+  - admission-scheduling
   - configuration
+  - learned-scheduling
+  - performance
   - product-contract
+  - scheduler
   - workflow-policy
 relations: []
 ---

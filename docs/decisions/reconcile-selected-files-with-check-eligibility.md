@@ -10,6 +10,7 @@ decision: 从通用文件基线派生 Check-specific 默认范围，并让所有
 tags:
   - configuration
   - product-contract
+  - project-files
 relations:
   - type: 修订
     target: 260830-publish-composable-default-project-file-selection
@@ -30,6 +31,9 @@ relations:
 - duplicate/file metrics 会把 Product 接受的 exact paths 交给 scanner，JSON Schema files 是声明路径授权范围；scanner 是否省略 output 与 Check-owned eligibility rejection 是不同问题。
 
 ## 决策
+
+下文 `source/include/exclude` 与 `defaultProjectFileSelection` 保存形成时采用的文件选择机制；后续[统一文件选择决策](unify-file-selection-with-default-excludes.md)已演进其表达。
+本记录保留 selected paths 的 accepted/rejected 完整对账方向，当前选择及 exact-input 接线从[文件 owner](../development/project-files.md#package-provided-check-exact-inputs)读取。
 
 - 采用: 继续公开深冻结、可组合的 `defaultProjectFileSelection` 及其通用 source/include/exclude；它不是所有 Check 必须原样采用的完整 work set。package-provided Check 可以从其 source/exclude 派生与自身 eligibility 一致的默认 include，且不发布重复的公共默认对象。
 - 采用: files policy 形成 selected paths 后，任何 Check-owned supported-file filter 必须把完整集合确定性对账为 accepted 与 rejected；两者不相交且并集等于 selected，不能静默丢弃 rejected path。

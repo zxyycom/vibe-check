@@ -9,7 +9,9 @@ background: 固定总耗时硬阻断混淆反馈体验与单项架构成本，�
 decision: 按显式总耗时、Check 均值与 P95 预算告警；保留无效配置和测量的失败边界
 tags:
   - configuration
+  - gate-performance
   - performance
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

@@ -10,6 +10,9 @@ decision: 将 functionMetrics 的受支持扩展名集合对齐 Lizard 1.23.0 �
 tags:
   - configuration
   - dependency-policy
+  - function-metrics
+  - language-support
+  - lizard
   - product-contract
 relations: []
 ---

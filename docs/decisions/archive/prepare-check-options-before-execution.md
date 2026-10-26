@@ -8,8 +8,11 @@ purpose: 让普通 Check 可选地在 invocation 内准备 options，并在任�
 background: Definition validator 无法表达 fallback、准备消息与 invocation-local preparation。
 decision: Definition 只闭合 authored options；可选 preflight 以 block/continue 判别结果准备或结算 Check。
 tags:
+  - check-lifecycle
+  - check-preflight
   - configuration
   - product-contract
+  - project-run
 relations:
   - type: 替代
     target: 260826-validate-ordinary-check-options-before-execution

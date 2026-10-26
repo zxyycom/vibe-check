@@ -1,0 +1,3 @@
+$ bun .codex/skills/change-plan/scripts/change-plan.ts check changes/refresh-governance-records
+Change plan check passed (refresh-governance-records; 16/18 tasks completed; stage plan).
+自计划基线以来，未统计到 Change 目录外的项目变化。

@@ -9,7 +9,10 @@ background: 单一 external consumer 测试进程同时安装 package 并串行�
 decision: 用带进程证据和清理生命周期的 typed provider Check 产生外部安装结果，下游按行为 owner 消费；Case 语义不由执行 DAG 决定。
 tags:
   - configuration
+  - package-candidate
+  - project-gate
   - testing
+  - typed-providers
   - workflow-policy
 relations:
   - type: 修订

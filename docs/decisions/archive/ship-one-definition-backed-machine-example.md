@@ -9,6 +9,9 @@ background: 四组示例只替换 terminal outcome，却重复同一 two-file �
 decision: 只交付一组 mixed-outcomes Definition 与对应输出，并从该 Definition 生成 Check/Record facts。
 tags:
   - documentation
+  - documentation-examples
+  - machine-output
+  - package-documentation
   - product-contract
   - workflow-policy
 relations:

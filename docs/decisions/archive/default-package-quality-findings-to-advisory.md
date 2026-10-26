@@ -9,6 +9,11 @@ background: 形成决策时，四项质量 Check 默认 blocking，数值型 pac
 decision: 四项质量 Check 默认 non-blocking，三项数值阈值略宽；Project Gate 显式保留自己的严格阈值与 non-blocking policy。
 tags:
   - configuration
+  - duplicate-detection
+  - file-metrics
+  - finding-policy
+  - function-metrics
+  - markdown-link-validation
   - product-contract
 relations:
   - type: 归并

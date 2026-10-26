@@ -8,8 +8,11 @@ purpose: 让完整随包 Check 保持有效，并让调用方构造的非法 Che
 background: 运行期 invalid-options 混淆了非法 Check authoring 与合法 Check 暂时无法执行，并把 validated options 的承诺推迟到了 callback 内。
 decision: 有 options 的普通 Check 自带纯 validator；Definition 不识别 Check ID，但在 execution 前拒绝 validator 不接受的 Check。
 tags:
+  - check-authoring
   - configuration
+  - definition-validation
   - product-contract
+  - project-files
 relations:
   - type: 归并
     target: 260826-let-each-check-own-file-selection

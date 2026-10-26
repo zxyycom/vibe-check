@@ -12,6 +12,9 @@ tags:
   - dependency-policy
   - performance
   - product-contract
+  - project-files
+  - project-inputs
+  - project-run
 relations:
   - type: 替代
     target: 260910-separate-imperative-file-collection-from-declarative-snapshots

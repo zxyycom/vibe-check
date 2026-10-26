@@ -8,7 +8,9 @@ purpose: 让 Scheduler 在不放弃硬合法性和状态机责任的前提下，
 background: 静态与学习型选择都需要动态事实及后继；图外 priority 或拓扑输入会形成双重事实来源。
 decision: 私有 policy 以完整图和 inspection 选择或等待；priority 内置 Task，Scheduler guard 合法性并拥有状态机。
 tags:
+  - admission-scheduling
   - product-contract
+  - scheduler
   - workflow-policy
 relations: []
 ---

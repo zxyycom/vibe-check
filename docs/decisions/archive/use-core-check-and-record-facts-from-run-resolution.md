@@ -9,6 +9,9 @@ background: Definition 只产出 Normalized Checks；Resolved Checks 归 Run pre
 decision: Run pre-work 形成 Resolved Checks，Core 为每项关闭一个 Check；Record 绑定 checkId，snapshot 只含 checks 和 records。
 tags:
   - product-contract
+  - project-definition
+  - project-run
+  - quality-records
 relations:
   - type: 修订
     target: 260815-use-core-check-and-quality-record-facts

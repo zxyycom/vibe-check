@@ -8,14 +8,17 @@ purpose: 让一次 Scheduler 运行提供安全、可解释的性能汇总，而
 background: 人读诊断、Check 时长、优先级与 custom policy 已各有独立边界，新的汇总必须只补充 Scheduler 自有观察。
 decision: 以 Scheduler shell 安全采样并输出一次人读 summary，保持计时失败与调度、公共结果和自动调优隔离。
 tags:
+  - diagnostic-logging
+  - performance
   - product-contract
+  - scheduler
+  - scheduler-measurement
   - workflow-policy
 relations: []
 ---
 
 ## 目的
 
-- 本记录保留基础 Scheduler summary 的形成时判断；它现已由 `extend-invocation-local-scheduler-performance-summary.md` 修订并归档，不再作为当前长期依据。当前 runtime 事实仍由稳定 owner、源码与测试承接。
 - 让维护者在同一次 invocation 的既有人读 diagnostic 中检查 Scheduler control path、Task slot/capacity 积分、准入等待和 drain tail，而不从逐次 decision 手工重建这些有界观察。
 - 保持该 summary 只服务人工诊断：不成为 public `RunResult`、Core/Check/Record facts、machine publication、progress、warning、autotune 或跨 invocation telemetry。
 
@@ -26,6 +29,7 @@ relations: []
 - `configure-project-gate-admission-priority-by-repeated-comparative-evidence.md` 继续要求任何 Gate priority 来自匹配 workload 的重复对照证据；summary 只帮助解释样本，不能从单次 invocation 反推或自动调整 priority/capacity。
 - `expose-stateless-custom-admission-policy-to-callers.md` 保持 custom callback 是同步 pure policy。clock access 是 imperative side effect，只允许 Scheduler shell 的 diagnostic accumulator 安全采样；pure decide、policy 和 hard guard 均不接收或读取 clock，且不建立 per-policy timing。
 - 现有 shared invocation clock 的失败语义不因诊断改变。sampler throw、非有限值、倒退、负区间或无法证明的 integral 只使本次 summary 的 timing projection unavailable，不影响 admission、settlement、cancellation、policy fault drain 或既有 clock owner 的失败处理。
+- 此基础 Scheduler summary 判断后来由 `extend-invocation-local-scheduler-performance-summary.md` 修订并归档；它只用于恢复形成时依据，不代表当前 runtime 契约。
 
 ## 决策
 

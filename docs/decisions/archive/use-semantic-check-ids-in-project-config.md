@@ -9,16 +9,19 @@ background: 当前 acceptedWarnings 使用含 tool name 的 ruleId 和 sourceToo
 decision: Public acceptedWarnings 使用 closed checkId；内部映射 current warning identity，machine fields 保持不变。
 tags:
   - configuration
+  - finding-waivers
 relations: []
 ---
 
 ## 目的
+
 - 让项目维护者按稳定的 Vibe Check check 语义接受 warning，不需要知道当前由哪个 scanner
   产生 metric 或 warning。
 - 隔离 project config identity 与现有 machine-output identity，使 backend replacement 不再
   改动 accepted-warning config，同时避免把 output-contract 重命名塞进本次配置变更。
 
 ## 背景
+
 - 当前 `acceptedWarnings[]` 要求 `ruleId`，这些 IDs 包含 `lizard`、`scc` 或 `jscpd`；optional
   `sourceTool` matcher 进一步暴露 backend。
 - Machine warning v1、human output、artifact examples 和下游消费者仍使用 current `ruleId` /
@@ -27,6 +30,7 @@ relations: []
   function code lines、function parameter count 和 duplicate code。
 
 ## 决策
+
 - 采用: Public `acceptedWarnings[]` 使用 required `checkId`，closed values 为
   `file-code-lines`、`function-cyclomatic-complexity`、`function-code-lines`、
   `function-parameter-count` 和 `duplicate-code`。

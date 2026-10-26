@@ -9,6 +9,9 @@ background: 本 Decision 形成时，direct quality Checks 需要 Records，但 
 decision: 在 Gate invocation directory 发布既有标准 machine fact set，并把它限定为本次运行的临时本地证据。
 tags:
   - configuration
+  - gate-diagnostics
+  - machine-output
+  - project-gate
   - workflow-policy
 relations: []
 ---
@@ -24,7 +27,6 @@ relations: []
 - package-provided quality Checks 的 actionable terminal message 只给出 finding count，并要求消费其 Records 取得路径、位置和测量值。
 - 本 Decision 形成时，Gate 只把 core diagnostic log 写入 invocation directory，并关闭 machine publication；进程结束后没有稳定的 Record readback file。
 - 现有 machine v4 已投影所有 selected/raw Check facts 和 Records。Gate 的 prepared candidate data 包含 invocation-local 绝对路径，因此这些 bytes 只适合作为本地短期 evidence，不是发布 artifact。
-- 本记录当前为 `aligned`：完整方向已成为当前稳定基线并完成核对；后续局部接线、测试或文档修改不单独改变这一对齐状态。
 
 ## 决策
 

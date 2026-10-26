@@ -9,6 +9,8 @@ background: 项目运行脚本已经绑定配置；再次传入 source selection
 decision: Package Run 接收 Project Definition 值和少量 Run Controls，并由该定义驱动完整 Task 执行与效果。
 tags:
   - configuration
+  - project-definition
+  - project-run
 relations:
   - type: 修订
     target: 260812-drive-product-execution-from-project-definition

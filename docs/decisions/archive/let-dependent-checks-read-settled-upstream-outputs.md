@@ -8,8 +8,10 @@ purpose: 让静态 Check dependency 同时提供顺序和可审计的上游结�
 background: 多个 Check 需要复用前置数据，但纯调度 dependsOn 无法传递上游 outcome、Records 或领域类型。
 decision: Declared direct dependency 在上游 settled 后提供其 Check outcome 与 Records；Check-owned parser恢复领域类型。
 tags:
+  - check-dependencies
   - configuration
   - product-contract
+  - typed-providers
 relations:
   - type: 修订
     target: 260817-project-executable-checks-into-validated-task-graph

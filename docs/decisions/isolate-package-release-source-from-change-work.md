@@ -8,6 +8,7 @@ purpose: 让正式包保持精确源码身份，同时允许发布计划与证�
 background: 发布校验要求同一干净提交，计划更新与构建共用工作区会制造不必要的源码漂移
 decision: main 保持集成主线，发布 Change 独立推进，冻结工作区绑定源码提交并在发布验证后合回
 tags:
+  - package-release
   - workflow-policy
 relations: []
 ---

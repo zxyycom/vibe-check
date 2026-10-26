@@ -8,6 +8,8 @@ purpose: 让普通 Check 用一个直接 callback 读取当前配置和运行输
 background: passed 和 failed 是完成后的质量 verdict，not-applicable 与 unavailable 是不同执行状态；把它们压入一个 verdict 会丢失原因和恢复语义。
 decision: execution 返回三类结构化结果；Check 可主动 unavailable，Product failures 保留独立 typed reasons。
 tags:
+  - check-authoring
+  - check-lifecycle
   - configuration
 relations: []
 ---

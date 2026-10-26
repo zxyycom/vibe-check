@@ -8,8 +8,10 @@ purpose: 让 custom 准入作者以 simple 或 prepared 两种明确形态表达
 background: 本记录建立前，public callback 只有 proposeAdmission；private lifecycle 与 terminal output 各由独立 Decision 承接。
 decision: 采用 simple/prepared authoring，由 Invocation 拥有准备与终态 effect，不保留兼容形态。
 tags:
+  - admission-scheduling
   - configuration
   - product-contract
+  - scheduler
   - workflow-policy
 relations:
   - type: 拆分

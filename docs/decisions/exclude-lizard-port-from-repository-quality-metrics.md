@@ -9,8 +9,11 @@ background: 精确 translated-path 例外仍让同一 upstream-sync 目录中的
 decision: 保持私有 port 边界，并将 analyzer 整目录排除出仓库 duplicate、file 与 function metrics，同时保留其它验证。
 tags:
   - dependency-policy
+  - function-metrics
   - product-contract
+  - project-gate
   - repository-automation
+  - source-alignment
   - workflow-policy
 relations:
   - type: 修订

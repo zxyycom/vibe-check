@@ -9,7 +9,9 @@ background: 用户重新选择现场阻断，要求三个现有阈值不变且�
 decision: 总耗时、均值或P95任一超标使Gate失败，沿用统计口径并留存同次安全事实
 tags:
   - configuration
+  - gate-performance
   - performance
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

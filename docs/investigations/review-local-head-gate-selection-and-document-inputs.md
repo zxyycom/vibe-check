@@ -38,7 +38,19 @@ relations:
 
 **输入收窄。** 路径矩阵证明调查/决策 Markdown 不再选择 package supporting 或 Semantic Case 测试；注册 package Markdown/机器材料与所有当前 Case Owner 仍命中；`docs/package-documents.json` 和 `docs/testing/cases/**` 变化会启动闭包测试，避免未来登记新路径后静默漏选。此测试只证明声明的路径→region 关系和当前登记闭合，不取代 Product Git snapshot 测试，也不证明每个 test 文件都已最小化或所有潜在跨文件依赖都已建模。`markdown-link-validation` 仍因任意变更运行，覆盖未建模的链接 target 反向依赖。
 
-公开入口的顺序观察：修改前在上一阶段工作树的 required 为 **21 passed / 22 N/A、15.547s**；修改并手工匹配本地声明指纹后的 required 为 **20 passed / 23 N/A、11.249s**（Product Run 10.662s），`--all` 为 **43/43 passed、30.118s**。最后一次闭包触发 region 小补丁后重新运行：required **20 passed / 23 N/A、10.0s**，`--all` **43/43 passed、28.2s**。前后三组日志分别在 `.log/project-gate/2026-09-24T09-27-51.310Z-2398114-f7bcd8c3-6ff5-4e71-8849-a9b341b353fa/`、`2026-09-24T09-51-17.829Z-2412305-33b6398a-f4f5-4327-9088-8436acbd5218/`、`2026-09-24T09-51-38.573Z-2412988-58fe5e89-8b18-44fa-95fb-e8180818d236/`、`2026-09-24T09-55-56.387Z-2421177-8321271a-d48c-42a5-abc0-147f656a1916/` 与 `2026-09-24T09-56-09.844Z-2421819-f6c1ed39-a30f-466b-9e9f-120242178679/`。这些都是热候选且工作树、选择规则与环境负载未严格配对；总耗时差不能全归因于本轮选择改变。
+### 顺序运行观察与验证
+
+以下均经公开入口运行，现场目录位于 `.log/project-gate/` 下；三阶段、五次运行按取得顺序列出。
+
+| 阶段 / 模式 | 结果 | 耗时 | 现场目录 |
+| --- | --- | --- | --- |
+| 修改前，上一阶段工作树 / required | 21 passed / 22 N/A | 15.547s | `2026-09-24T09-27-51.310Z-2398114-f7bcd8c3-6ff5-4e71-8849-a9b341b353fa/` |
+| 修改并手工匹配本地声明指纹 / required | 20 passed / 23 N/A | 11.249s；Product Run 10.662s | `2026-09-24T09-51-17.829Z-2412305-33b6398a-f4f5-4327-9088-8436acbd5218/` |
+| 同阶段 / `--all` | 43/43 passed | 30.118s | `2026-09-24T09-51-38.573Z-2412988-58fe5e89-8b18-44fa-95fb-e8180818d236/` |
+| 闭包触发 region 小补丁后 / required | 20 passed / 23 N/A | 10.0s | `2026-09-24T09-55-56.387Z-2421177-8321271a-d48c-42a5-abc0-147f656a1916/` |
+| 同阶段 / `--all` | 43/43 passed | 28.2s | `2026-09-24T09-56-09.844Z-2421819-f6c1ed39-a30f-466b-9e9f-120242178679/` |
+
+这些都是热候选且工作树、选择规则与环境负载未严格配对；总耗时差不能全归因于本轮选择改变。
 
 本机忽略 Git 的 performance baseline 只手工更新声明指纹，required **20,000ms**、`--all` **60,000ms** 硬阈值保持不变；指纹未匹配的中间 Run 即使 20 项 Check 都通过，Gate 仍按规则失败，不能算通过。`mise exec -- bun test scripts/project/gate/runtime/eligibility.test.ts scripts/project/gate/definition.test.ts` 的 12 项通过；两项新增实体纳入原 `AUX-PROJECT-GATE-SELECTION-001`，Test Evidence 现为 652/652 实体、155 Cases。脚本 typecheck、lint、format、`bun run validate`、Decision 与 Investigation 索引检查均通过。未测的独立“仅决策/调查文档”真实 Git fixture 不由路径矩阵冒充。
 

@@ -9,6 +9,9 @@ background: 本 Decision 形成时，原始 policy 会产生 blocking Check stat
 decision: 四项原始质量 Checks 在同一 Gate Run 中直接运行并保留真实事实，但不进入 assurance aggregate。
 tags:
   - configuration
+  - finding-policy
+  - gate-selection
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订
@@ -29,7 +32,6 @@ relations:
 - 本 Decision 形成时，Gate 的同领域 test lanes 只证明 package Check 实现，不扫描当前仓库。按旧 repository policy 直接探测时，file metrics 与 Markdown links 会形成 failed 终态，function metrics 会形成大量 non-blocking findings。
 - 用户确认需要恢复原始质量工具并删除包装，同时此前已明确该质量报告是非阻断的。是否把某类 finding 升级为硬 Gate policy 是独立决定，不能由接线方式暗中产生。
 - SCC 与 Lizard 由仓库 mise 配置锁定。正式 Gate 不能退回 ambient PATH，也不能把工具绑定提升为 Product-wide scanner registry。
-- 本记录当前为 `aligned`：完整方向已成为当前稳定基线并完成核对；后续局部接线、测试或文档修改不单独改变这一对齐状态。
 
 ## 决策
 

@@ -10,6 +10,7 @@ decision: 将真实 ?? 识别为单一 token，每项 CCN +1 并保留完整贡�
 tags:
   - function-metrics
   - product-contract
+  - source-alignment
   - source-fidelity
 relations: []
 ---

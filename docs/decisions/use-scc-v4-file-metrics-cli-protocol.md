@@ -9,7 +9,9 @@ background: SCC v4 改变安装 module、Go 基线和部分计量实现，并支
 decision: fileMetrics 只公开 executable；adapter 固定 SCC 4.0.0 和 --no-config，不保留 v3 fallback 或 public config。
 tags:
   - configuration
+  - file-metrics
   - product-contract
+  - scc
 relations:
   - type: 修订
     target: 260828-let-file-metrics-adapter-own-cli-protocol

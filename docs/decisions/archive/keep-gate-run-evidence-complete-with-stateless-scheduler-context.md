@@ -9,6 +9,10 @@ background: reservation 已从 Scheduler Core 移除；诊断必须解释本轮�
 decision: 保留单核心诊断边界，修订 Scheduler evidence 为无状态 hard-guard context。
 tags:
   - configuration
+  - diagnostic-logging
+  - gate-diagnostics
+  - project-gate
+  - scheduler
   - testing
   - workflow-policy
 relations:

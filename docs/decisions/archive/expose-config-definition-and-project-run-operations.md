@@ -9,6 +9,9 @@ background: 配置 authoring 与一次运行是两个稳定角色；文件生成
 decision: Package 公开配置定义函数与 Package Run 两个 callable operations；项目运行脚本绑定配置并向其他调用方暴露项目 Run。
 tags:
   - product-contract
+  - project-definition
+  - project-run
+  - public-api
 relations:
   - type: 修订
     target: 260812-expose-two-public-operations

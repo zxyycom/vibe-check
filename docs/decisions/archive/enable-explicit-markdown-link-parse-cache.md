@@ -8,7 +8,11 @@ purpose: 让大型 Markdown corpus 以显式选项复用 parse facts，并保持
 background: 私有 workload 不可运行；唯一可复现 corpus 的历史组合证据支持采用。当前严格串行临时复测未通过原 cold gate，非当前验收通过证据。
 decision: 采用默认关闭、调用方指定目录的 best-effort persistent parse cache 与 invocation-local target memo。
 tags:
+  - caching
   - configuration
+  - markdown-link-validation
+  - markdown-parse-cache
+  - performance
   - product-contract
 relations: []
 ---

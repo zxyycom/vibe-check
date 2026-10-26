@@ -8,6 +8,8 @@ purpose: 让项目子代理模型选择遵循用户明确偏好
 background: 用户要求常规子代理使用 Terra，仅明确需要高智能时使用 Sol，并排除 Astra
 decision: 默认 Terra，明确高智能任务才用 Sol，项目子代理不用 Astra
 tags:
+  - model-selection
+  - subagent-orchestration
   - workflow-policy
 relations: []
 ---

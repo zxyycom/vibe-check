@@ -10,6 +10,7 @@ decision: 新增独立 markdownLint，固定九项规则与私有 backend，并�
 tags:
   - configuration
   - dependency-policy
+  - markdown-lint
   - product-contract
   - product-priority
 relations: []

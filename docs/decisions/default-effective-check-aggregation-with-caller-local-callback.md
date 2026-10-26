@@ -8,8 +8,10 @@ purpose: 让每次完成结算的 Run 无需 policy 即得到严格默认聚合�
 background: 现有有效选择已统一 flag、依赖启动与 aggregation 输入，却仍要求闭合 policy 并默认 aggregate 为 null。
 decision: 以默认 strict-all 和 caller-local 同步 callback 直接替换旧 policy，保留完整 snapshot 与 Run 生命周期责任。
 tags:
+  - check-results
   - configuration
   - product-contract
+  - project-run
   - workflow-policy
 relations:
   - type: 修订
@@ -41,4 +43,4 @@ relations:
 - 采用: callback 抛错、非 Error throwable、Promise 或其他非法返回均使 `run` Promise 拒绝；原 Error 保持其身份，其它故障转为可定位 Error。拒绝路径关闭 invocation-owned diagnostics 与 progress writer，且不呈现正常成功 summary 或发布伪造 RunResult；清理错误不得掩盖 callback 原错误。普通配置、planning、Check callback、execution 和 output 故障继续由原有 RunResult 分支结算。
 - 采用: Project Gate 省略 `checkAggregation` 并消费默认严格聚合；它继续拥有将 bound Run 的正常 aggregate 或 Promise rejection 映射为报告和 process exit 的责任。此变更不改变有效选择、dependsOn / observes、Check outcome、candidate binding、scheduler 或 machine facts。
 - 采用: Gate 的 required、full 与 local partial selection 都消费同次 Product effective selection 的全部 settled facts，不以 quality 标签、entry metadata、Records、messages、findings 或呈现重算或排除 outcome。非阻断 finding 必须由 producing Check 的 `findingPolicy` 返回 `passed`、完整 final data/Records 和 actionable warning；blocking finding 返回 `failed`。scanner、source、parse 等不可用仍为 ordinary `unavailable`，不能伪造为 advisory finding 或成功。Gate 使用默认严格折叠，因此任何有效非 passed 终态都影响结论。
-- 不采用: 继续要求 caller 配置 `"effective"` 或其它 selector、为 default 建立可配置空集合例外、保留旧 policy 兼容、将 callback 设计为 async，或让 callback 接收全量 snapshot、控制执行、修改 facts 或替代 Gate 映射。
+- 不采用: 为默认聚合建立可配置空集合例外，或将全量 snapshot 作为 callback 输入。

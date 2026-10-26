@@ -8,6 +8,7 @@ purpose: 让 docs、package 与 candidate tooling 共用 public-root inventory�
 background: public materials inventory 服务交付与消费者验证，不属于任一 runtime Check 的领域事实。
 decision: 项目 tooling 拥有 public inventory；Product Checks 只通过正式契约处理自己的输入。
 tags:
+  - package-artifact
   - workflow-policy
 relations:
   - type: 拆分

@@ -8,8 +8,11 @@ purpose: 让 Check 用一个闭合声明表达全部、任一、全无或非全�
 background: 单 token presence 无法承接多个 flag 的四种常见集合判断，继续放在 callback 会恢复重复控制逻辑。
 decision: executable Check 使用 enabledByFlags 的非空 flags 集合与四态 mode，在 author work 前统一判定是否启用。
 tags:
+  - check-authoring
   - configuration
+  - flags
   - product-contract
+  - run-controls
 relations:
   - type: 修订
     target: 260820-use-string-flags-for-project-run-controls

@@ -4,7 +4,7 @@ id: "261012-audit-function-metrics-pathological-input-cost"
 formedAt: "2026-10-12T09:44:01Z"
 question: "在当前源码公开 API 中，极小未闭合模板和重复注释起点为何产生显著耗时增长，现有输入上限与取消机制分别能约束什么？"
 tags:
-  - "algorithm-complexity"
+  - "algorithmic-complexity"
   - "cancellation"
   - "function-metrics"
   - "performance"

@@ -8,7 +8,11 @@ purpose: 让调用方在不复制 Scheduler 生命周期的前提下消费安全
 background: 现有 Scheduler summary 是启用日志时的私有人读投影，不能支持调用方的二级测量。
 decision: Scheduler 保留一阶测量并在 terminal drain 后交给有序 Hook，内置 summary 作为其中一个副作用。
 tags:
+  - measurement-hooks
   - product-contract
+  - run-outputs
+  - scheduler
+  - scheduler-measurement
   - workflow-policy
 relations:
   - type: 修订

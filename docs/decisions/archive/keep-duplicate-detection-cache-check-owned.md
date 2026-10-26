@@ -8,7 +8,9 @@ purpose: 让 cache 配置、读写、失效与失败只服务实际需要它的 
 background: 当前没有其它 Check 共享该 cache，把它放在 Project Run 会制造不存在的全局 lifecycle。
 decision: duplicate-detection 独占 cache owner；Project Run 不建立通用 cache capability。
 tags:
+  - caching
   - configuration
+  - duplicate-detection
 relations:
   - type: 拆分
     target: 260826-refine-project-run-and-settlement-owners

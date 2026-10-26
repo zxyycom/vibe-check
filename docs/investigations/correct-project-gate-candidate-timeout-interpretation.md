@@ -11,6 +11,7 @@ tags:
 relations:
   - type: "修正"
     target: "260904-diagnose-project-gate-candidate-timeout-under-contention"
+    summary: "按用户确认纠正假失败解释，保留20秒预算与并发3"
 ---
 
 ## 形成时背景

@@ -10,8 +10,13 @@ decision: 以固定 Lizard 1.24.0 为当前 oracle，维持 source-aligned analy
 tags:
   - configuration
   - dependency-policy
+  - function-metrics
+  - lizard
   - product-contract
   - product-priority
+  - source-alignment
+  - source-fidelity
+  - typescript
 relations:
   - type: 归并
     target: 260805-defer-lizard-until-after-check-foundations

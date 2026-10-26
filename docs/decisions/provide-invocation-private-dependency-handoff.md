@@ -9,8 +9,10 @@ background: canonical data 无法承载 Map、文件字节及其它需原样复�
 decision: 为直接依赖增加与 canonical facts 分离的 typed ephemeral handoff
 tags:
   - configuration
+  - data-boundary
   - dependency-policy
   - product-contract
+  - project-run
 relations: []
 ---
 
@@ -28,9 +30,14 @@ relations: []
 
 ## 决策
 
+### 两种数据与 provider 声明
+
 - 采用: direct dependency 支持两种并列语义：`data` 继续是 canonical、detached、deep-frozen 的可发布事实；可选 `handoff` 是 Product 不 clone、freeze、serialize、fingerprint 或 publish 的原始运行时引用。
 - 采用: API 可以通过一次 typed provider read 同时返回两个命名字段，但 Product 必须在 Core facts store 与 invocation-private handoff store 中分别保持它们。现有 string `get(checkId)` 的 canonical-only 行为保持兼容。
 - 采用: author 只通过 `defineCheck({ handoff: true, ... })` 声明 provider capability；`true` 是最小 runtime declaration，不公开 marker、factory、placeholder 或专用 handoff type。Product 用内部 WeakMap identity 连接已定义 provider、Definition 与 invocation store；该 identity 不属于 package API、Definition facts 或跨 package-instance compatibility contract。
+
+### 可见性、验证与共享责任
+
 - 采用: handoff 只在 provider `passed`、canonical data 已成功结算且 consumer 声明 direct `dependsOn` 时可见；provider failed、unavailable、not-applicable、取消或非法结算都不发布 handoff。
 - 采用: handoff 不设立与 `parseData` 对称的必填 parser。`parseData` 用于从 detached/cross-version canonical facts 恢复业务类型；handoff 没有序列化往返，其类型从 `defineCheck({ handoff: true })` 的 execution result 自动推断，并由 producing owner 在发布前完成领域验证。
 - 采用: Product 只验证 handoff 的 lifecycle 与授权，不声称验证其不透明内容。需要运行时 domain guard 的 consumer 可调用 provider-owned assertion，但该 assertion 不是 Product 恢复或复制 handoff 的 parser。

@@ -9,6 +9,8 @@ background: 使用方需要把产品组合进自己的工具与流程；正式 C
 decision: 版本化 package 只以 public package API 提供正式执行入口；产品不发布 CLI 或 bin，并提供可直接使用的默认 runtime。
 tags:
   - product-contract
+  - project-run
+  - public-api
 relations:
   - type: 拆分
     target: 260806-use-versioned-npm-package-release-unit

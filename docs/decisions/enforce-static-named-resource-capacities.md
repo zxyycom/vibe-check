@@ -8,8 +8,11 @@ purpose: 让一次 Run 在 root 并行预算之外安全共享可计数资源，
 background: mutex 只能表达单 holder，root 与 scoped 并行预算不能区分浏览器、设备或内存等独立资源，也无法表达不同 Check 的加权消耗。
 decision: 采用 Definition-owned 静态资源总量与可继承的 Check claims，并由共享 admission core 原子取得、持有和释放全部 units。
 tags:
+  - admission-scheduling
   - configuration
   - product-contract
+  - resource-boundaries
+  - scheduler
 relations: []
 ---
 

@@ -9,6 +9,8 @@ background: Product test/test-support 显著增加 analyzer 时间；测试函�
 decision: Function metrics 不分析 Product test/test-support，duplicate detection 与 file metrics 继续覆盖测试代码。
 tags:
   - configuration
+  - function-metrics
+  - project-gate
   - testing
   - workflow-policy
 relations: []

@@ -8,11 +8,13 @@ purpose: 让 Check 的集合型调度字段通过固定的 inherit 表达式继�
 background: 集合继承语义已经确定，但未固定 public spelling 会让实现与示例继续在 helper、raw object 和隐式数组追加之间漂移。
 decision: dependsOn 与 mutex 使用字段缺失、精确数组或 inherit({ add?, remove? }) 三种输入，不提供同义的 parent-relative 编辑写法。
 tags:
+  - check-authoring
+  - check-dependencies
   - configuration
 relations:
   - type: 修订
     target: 260815-use-closed-inheritable-check-collection-expressions
-    summary: 使用 inherit 编辑可继承 Check 集合
+    summary: 固定 inherit 语法并改为 add wins
 ---
 
 ## 目的

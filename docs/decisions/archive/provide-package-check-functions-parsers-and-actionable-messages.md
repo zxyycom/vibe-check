@@ -8,8 +8,12 @@ purpose: 让每项随包 Check 都通过类型化函数构造，并为其最终�
 background: 当前公共表面混合 constructor 与完整 value，最终数据只能以通用对象读取，随包失败也不总是附带可行动消息。
 decision: 七项随包 Check 均由领域函数构造并补齐默认值，提供最终数据解析器与辅助类型，并为 Check 自有问题附带安全消息。
 tags:
+  - check-constructors
+  - check-messages
   - configuration
   - product-contract
+  - public-api
+  - typed-providers
 relations:
   - type: 修订
     target: 260824-complete-first-release-check-set-with-specialized-maintenance-reminder

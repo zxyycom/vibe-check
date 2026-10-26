@@ -8,7 +8,9 @@ purpose: 让项目直接组合 Vibe Check 提供的三个内置 Check，而不�
 background: 内置 Check 是稳定的项目 authoring 起点；仅公开配置定义函数和运行函数会迫使项目以字符串目录再次声明同一能力。
 decision: 目标 Package 保留两个 callable operations，并额外导出三个 frozen non-callable built-in Check descriptor values。
 tags:
+  - check-authoring
   - product-contract
+  - public-api
 relations:
   - type: 修订
     target: 260814-expose-config-definition-and-project-run-operations

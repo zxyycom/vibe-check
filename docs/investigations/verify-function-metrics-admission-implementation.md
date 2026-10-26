@@ -116,8 +116,7 @@ OS、CPU、Node、三处同 `/dev/sdd` ext4 storage、temperature、cache、完�
 该分包没有删字段、样本或改动统计，完整语义摘要不是单个资源文件的字节 hash。
 
 原大文件留在自有 `/tmp/vibe-check-admission-85776a7c/preliminary-performance.json` 作重构对照，
-不作为仓库交付物。正式保留的是上述 summary 与有序 Records 资源；临时目录按已有 artifact note
-保留至最终证据复制并经 root 接纳，由 root 收尾，不依赖临时文件读取正式调查结论。
+不作为仓库交付物。正式保留的是上述 summary 与有序 Records 资源，读取正式调查结论不依赖临时文件。
 
 非实施 reviewer 另以 Node24.18 一次性私有 seam 探针观察真正 EOF 后外层 checkpoint：
 yield 中双层 queueMicrotask 延后 abort、返回 Promise.resolve，并通过委托原 aborted getter 记录首次 true 的调用栈。
@@ -150,7 +149,6 @@ Gate保留原有non-blocking诊断/waiver，未改变门限或为本项新增wai
 真实Worker和once cleanup调用层级分别核对。稳定实现说明和版本净变化分别交给 scanner-dependencies 与 changelog，
 公开指南原“可观察边界取消”承诺不变，没有新增配置或毫秒响应保证。
 最终资源与完整命令/exit记录见acceptance；报告与本地候选不是正式包发布或用户环境应用证据。
-Git提交、临时snapshots收尾与Change finalize由root按授权另行完成。
 
 ### 未覆盖范围与交接
 

@@ -8,6 +8,7 @@ purpose: 让消费者从发布者可控制的个人 npm namespace 安装公开�
 background: unscoped vibe-check 因 npm 近似名称保护被拒绝，而 zxyycom 个人 scope 可承接同一公开产品身份。
 decision: 使用公开的 @zxyycom/vibe-check 作为 registry identifier，并让 manifest、文档与验收共享这一身份。
 tags:
+  - package-release
   - product-contract
 relations:
   - type: 替代

@@ -8,7 +8,9 @@ purpose: 让文件与区域关系统一构造、共享并从两个方向定位
 background: 区域文件集合与各处反向索引重复处理成员关系，而数据获取和领域策略仍有各自职责
 decision: 多来源合并为只读双向关系；显式追加来源合并已有值后重建，新旧视图独立且无 I/O
 tags:
+  - data-boundary
   - product-contract
+  - project-files
 relations: []
 ---
 

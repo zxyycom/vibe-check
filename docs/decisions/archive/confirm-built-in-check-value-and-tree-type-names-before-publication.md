@@ -8,7 +8,10 @@ purpose: 防止内置 Check value 与 Check tree 类型偶然成为首个 npm �
 background: descriptor value、类型与项目文件路径的兼容成本不同；前者是 package surface，后者不是。
 decision: 发布候选前确认三项 built-in values、必要 Check tree types 及其 exports，并由 current public-contract source 单一拥有。
 tags:
+  - check-authoring
   - product-contract
+  - public-api
+  - public-naming
 relations:
   - type: 修订
     target: 260814-confirm-config-run-and-package-names-before-publication

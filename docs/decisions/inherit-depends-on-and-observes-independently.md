@@ -9,6 +9,8 @@ background: dependsOn 已有 inherit collection grammar，新增 observes 必须
 decision: dependsOn、observes 与 mutex 都使用唯一 inherit grammar；两个有向 relation 分别 canonicalize 并在 effective 层拒绝重叠。
 tags:
   - configuration
+  - project-definition
+  - scheduler
 relations:
   - type: 修订
     target: 260817-use-inherit-for-check-collection-edits

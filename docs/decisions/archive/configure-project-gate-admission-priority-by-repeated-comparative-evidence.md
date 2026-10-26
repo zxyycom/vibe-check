@@ -8,7 +8,11 @@ purpose: 让 Gate 的 test partition、容量、mutex 与任何非零 admission 
 background: 资源互斥与 root capacity 已有实测依据，但静态 priority 可能改善或伤害不同 Gate profile 的关键路径。
 decision: 保留 Gate 的实测资源调度；仅以重复对照证据配置非零 admission priority。
 tags:
+  - admission-scheduling
   - configuration
+  - gate-performance
+  - project-gate
+  - scheduler
   - testing
   - workflow-policy
 relations:

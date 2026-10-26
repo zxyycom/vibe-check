@@ -13,17 +13,17 @@ tags:
 relations:
   - type: "补充"
     target: "260903-diagnose-lizard-real-typescript-analyzer-hot-path"
+    summary: "围绕已定位热点补足宿主加速后端与交付候选"
 ---
 
 ## 形成时背景
 
 ### 形成时使用方式与结论
 
-**本文是候选调查，不是采用或安装授权。**它回答“下一轮应验证什么”，不改变当前已对齐的 built-in `RegExp` port，也不授权修改 Product runtime、公开 API、Worker protocol、依赖或锁文件。
+**本轮建议验证 Oniguruma 私有 tokenizer spike，并以 built-in sticky/multi-pattern scanner 为无依赖 control。** 这是下一轮验证的候选排序，不是采用或安装授权；当前已对齐的 built-in `RegExp` port 保持不变。
 
 - **已确认的瓶颈范围：**在 254 个真实仓库 `.ts` 文件的 _analyzer-only_ workload 中，当前 reader path matching 不是主要根因；source-aligned combined-regex tokenization 是首要热点。这不能外推为 Product 端到端瓶颈，也不代表 sampling 百分比可直接回收。
 - **形成时最小下一步：**在独立 Change 中，将 **VS Code Oniguruma WASM** 限于 `CodeReader` 内部 tokenizer 实现的受控 spike；若测试需要 seam，它必须是非导出、仅测试构建可用的临时注入点，最终实现直接替换内部执行而不保留可配置 backend interface。先闭合 token stream 与 27-reader parity，再测 full analyzer 与 Product workload。built-in sticky/multi-pattern scanner 是必须并行比较的无依赖 control。
-- **当前不应做：**不因本报告直接采用任何库；不以 parser/AST、Worker pool 或通用 lexer framework 替换 Lizard analyzer；不把 TypeScript-only probe 当作 27-reader 或 Product 结论。
 
 下文中的“已确认、推断与未知”是本调查的证据分层；[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)拥有未来采用 host primitive 的约束和验收门槛。
 
@@ -33,14 +33,11 @@ relations:
 
 本轮只在 `/tmp` 安装候选并运行最小 compile/API/raw-scan probes；没有改 Product runtime、依赖、锁文件、Worker protocol 或 investigation index。形成时 checkout 是 `49b57cbf99747d516c4d95390b5d01ffb2f2b40d`；完整 input SHA-256 由直接前序报告的随附资源保存；本报告核对的实际 source hash 分别为 `CodeReader` `571bd…ae86e`、TypeScriptReader `340ec…bcbe0`、PHPReader `7e771…a1db4`、ErlangReader `5af0c…4a165`、FortranReader `9dd16…1c6b0`、StReader `14a6a…2671`，254-file request `71029…90a4d`。
 
-### 当前阅读导航（不属于形成时证据）
+### 后续阅读（不属于形成时证据）
 
-- **本报告的 evidence owner：**27-reader regex/lexer capability inventory、候选 API/compile probes 与真实 TypeScript raw-scan spike；候选版本、原始 rows、feature inventory 和 guards 由本报告资源拥有。
-- **直接前序：**frontmatter 的 `补充 → diagnose-lizard-real-typescript-analyzer-hot-path.md`；先从该报告恢复真实 TypeScript analyzer-only hotspot、profile 解释边界和其两份直接前序，而不是把本报告的候选判断当成 root-cause profile。
-- **已确认 / 推断 / 未知：**“证据状态”是唯一的强度地图：Oniguruma 的 raw-match/offset parity 与 isolated signal 已确认；它值得 full-token experiment 是推断；all-reader semantics、Product lifecycle、delivery 和稳定 full-pipeline 收益仍未知。
-- **不能比较或相减：**Oniguruma/native raw-scan 数字仅覆盖 raw tokens/digest，且两侧缓存/构造形态不同；不得换算为 analyzer 或 Product 加速，也不得与 profile 百分比、27-language 或完整 Product timing 相减。
-- **后继的当前结论：**[CPython 与 JavaScriptCore 性能差距解释](explain-cpython-jsc-lizard-regex-performance-gap.md)新增 same-output built-in staged-generic signal；它把 built-in staged-generic 提升为先于或不低于 Oniguruma 的调查候选。该后继拥有其 raw/full measurement layer、已排除项和引擎机制未知项，本报告的形成时 probe 不被回写为该结论的证据。
-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
+[CPython 与 JavaScriptCore 性能差距解释](explain-cpython-jsc-lizard-regex-performance-gap.md)新增 same-output built-in staged-generic signal，将它提升为先于或不低于 Oniguruma 的调查候选。该后继拥有其 raw/full measurement layer、已排除项和引擎机制未知项；本报告仍保存形成时的 27-reader capability inventory、API/compile probes 与真实 TS raw-scan spike，不回填后继结论。
+
+[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件。报告不拥有持续执行状态，也不自动启动调查或实施；今天是否行动由当前请求授权并由相应 Change 承接，长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。本轮已确认、推断与未知的强度地图及候选采用条件见结果节。
 
 ## 调查目的
 

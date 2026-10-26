@@ -9,6 +9,9 @@ background: 本 Decision 建立前，旧入口名称冗长，profile 与正反 t
 decision: 采用唯一 check 根命令、required 默认、显式 all 和少量闭合 preset，并由组合配置引用各 owner 的 Check 对象。
 tags:
   - configuration
+  - gate-selection
+  - project-gate
+  - repository-tooling
   - workflow-policy
 relations: []
 ---

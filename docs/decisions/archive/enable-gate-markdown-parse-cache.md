@@ -8,8 +8,12 @@ purpose: 减少完整文档验收的重复解析，同时保留当前输入与�
 background: 完整 Gate 中 Markdown 解析成本较高，用户已允许保存可删除的本地解析材料。
 decision: 仅 Gate 显式启用现有 parse-facts cache，公共默认关闭与完整验收保持。
 tags:
+  - caching
   - configuration
+  - markdown-link-validation
+  - markdown-parse-cache
   - performance
+  - project-gate
   - workflow-policy
 relations: []
 ---

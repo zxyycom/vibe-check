@@ -8,8 +8,11 @@ purpose: 让 preflight 与 execution 同受每个 Check 的调度、依赖和取
 background: 全局 preflight barrier 会在 dependency readiness 前启动 dependent author work，并隐含 Definition 顺序。
 decision: 每个 Check 在自身获准入后顺序执行 preflight 和 execution，不再建立全局 preflight barrier。
 tags:
+  - check-lifecycle
+  - check-preflight
   - configuration
   - product-contract
+  - scheduler
 relations:
   - type: 替代
     target: 260826-prepare-check-options-before-execution

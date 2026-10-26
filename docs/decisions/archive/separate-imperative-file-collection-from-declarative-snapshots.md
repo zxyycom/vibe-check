@@ -12,6 +12,9 @@ tags:
   - dependency-policy
   - performance
   - product-contract
+  - project-files
+  - project-inputs
+  - typed-providers
 relations:
   - type: 替代
     target: 260910-model-project-file-refresh-as-immutable-generations

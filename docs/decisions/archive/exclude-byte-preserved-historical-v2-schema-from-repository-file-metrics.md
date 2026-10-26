@@ -9,6 +9,9 @@ background: v2 run schema 的历史 identity 与 bytes 必须保留，而 curren
 decision: 仅从 Gate 的 schemas-examples file-metrics 输入排除该 v2 run schema，并继续保留其严格 schema 校验与其余当前材料的指标检查。
 tags:
   - configuration
+  - file-metrics
+  - historical-schemas
+  - project-gate
   - workflow-policy
 relations: []
 ---

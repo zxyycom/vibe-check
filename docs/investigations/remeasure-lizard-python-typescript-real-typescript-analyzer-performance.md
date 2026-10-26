@@ -12,6 +12,7 @@ tags:
 relations:
   - type: "复查"
     target: "260903-compare-lizard-python-typescript-performance"
+    summary: "改用真实TS analyzer复测原完整语言族性能差距"
 ---
 
 ## 形成时背景
@@ -22,10 +23,8 @@ relations:
 
 ### 当前阅读导航（不属于形成时证据）
 
-- **本报告的 evidence owner：**254-file 真实 TypeScript 的 Python/TypeScript canonical-metrics equality 与 analyzer-only warmed-operation ABBA/BAAB 对照；request、preflight 和 raw samples 由本报告资源拥有。
 - **直接前序：**frontmatter 的 `复查 → compare-lizard-python-typescript-performance.md`；本报告复查的是其跨语言 analyzer 问题，但以不同真实 TypeScript workload 回答，不能覆盖或替代前序的 historical Product、tiny 或 27-family batch。
 - **已确认 / 推断 / 未知：**本工作负载上的跨实现 wall-time 差异及 output equality 已确认；它不解释根因，Product、consumer workload、其他语言、session 与 runtime 版本的适用性仍未知。
-- **不能比较或相减：**本报告 analyzer-only 数字不能与完整 Product fast-path 复测或 historical Product 数字相减；三者输入、计时边界和运行模型不同，即使量级相近也不代表层级成本相同。
 - **形成时建议（不是当前状态）：**保持实现不变，另做同一 request 的 root-cause profile/隔离调查；任何 translated core 或 runtime 改动都需独立授权。
 - **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 

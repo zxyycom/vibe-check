@@ -8,8 +8,11 @@ purpose: 让 standalone 与 callback 共用 immutable 调度状态协议而不�
 background: 现有 callback 缺少可分支完整状态；重建 relation/capacity/transition 会复制语义，而 real Scheduler 必须保留 control boundary。
 decision: 采用同型双 seed 的 immutable graph/state、shared reducer/effects 与 successor-only non-control boundary。
 tags:
+  - admission-scheduling
   - configuration
+  - immutable-state
   - product-contract
+  - scheduler
 relations: []
 ---
 

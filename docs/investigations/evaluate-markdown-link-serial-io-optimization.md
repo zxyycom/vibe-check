@@ -10,6 +10,7 @@ tags:
 relations:
   - type: "复查"
     target: "260903-measure-markdown-link-serial-cache-overhead"
+    summary: "在同一串行边界复测UTF8与hit路径收益及cold代价"
 ---
 
 ## 形成时背景

@@ -1,0 +1,56 @@
+{
+  "purpose": "Presentation-only replacement of concatenated evidence patch; no formal knowledge source, ledger row, lifecycle, metadata, or source hash changed.",
+  "preCorrectionConcatenatedPatchSha256": "dee6b21ea81313276d2c00f71fa395833703df9780952dea36b35b4cded54c4a",
+  "preCorrectionConcatenatedPatchBytes": 339485,
+  "sourcePatchesRemainUnchanged": true,
+  "sourceGroups": [
+    {
+      "owner": "active-decisions",
+      "sourcePatchPath": "active/stage.patch",
+      "sourcePatchSha256": "9e859b1a583a59faee40e20581c32fb6f65bafdfaf6ce5c0fd73d9f73ace0be6",
+      "uniquePaths": 22
+    },
+    {
+      "owner": "archived-decisions",
+      "sourcePatchPath": "archive/stage.patch",
+      "sourcePatchSha256": "d65905843aca047a4731090d63f61ff6f29293060c8f800ec261984acb558eaa",
+      "uniquePaths": 80
+    },
+    {
+      "owner": "investigation-a",
+      "sourcePatchPath": "investigations/phase-a.patch",
+      "sourcePatchSha256": "86450211f7c7ca417fa8957e5bd9f502350642033afdbfd879d4da845b99f91e",
+      "uniquePaths": 6
+    },
+    {
+      "owner": "investigation-b",
+      "sourcePatchPath": "investigations-b/stage.patch",
+      "sourcePatchSha256": "6f95e7215a741f470607559046c9fcbcb8cd6a4a004b2dbb93136c8a7e43cb78",
+      "uniquePaths": 11
+    },
+    {
+      "owner": "investigation-c",
+      "sourcePatchPath": "investigations-c/stage.patch",
+      "sourcePatchSha256": "d558479f299c9157c2f9ff1abee59908624bcac905ea491361d22fcd675a1777",
+      "uniquePaths": 13
+    }
+  ],
+  "replacementPatchSha256": "4209a527e26a6f00078439c3829dab624d3d8cd73017d957944aaa4cf8964f00",
+  "replacementPatchBytes": 146216,
+  "format": "unified zero-context diff, a/<path> and b/<path> headers",
+  "changedUniquePaths": 132,
+  "zeroContextOnly": true,
+  "trailingWhitespaceInArtifact": 0,
+  "finalSourceHashesMatchedBeforeGeneration": true,
+  "originalBeforeHashesMatchedBeforeGeneration": true,
+  "reverseApply": {
+    "command": "git apply --unidiff-zero --reverse",
+    "scope": "temporary tree only",
+    "checkExitCode": 0,
+    "applyExitCode": 0,
+    "restoredOriginalBeforeFiles": 504,
+    "restoredByteIdentically": true
+  },
+  "formalSourcesChangedByVerification": false,
+  "originalConcatenationPreservedAt": "tmp/governance-ai-ready/integration/phase-two-stage.patch.concat-original"
+}

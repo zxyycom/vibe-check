@@ -13,6 +13,8 @@ relations: []
 
 ## 形成时背景
 
+**阅读提示（非形成时结论）：** 本篇保留当轮对“假失败”和 timeout 的解释；同日[修正报告](./correct-project-gate-candidate-timeout-interpretation.md)依据用户确认撤回该解释，测量数值保持原样。后续使用应区分原观察与已修正判断。
+
 2026-09-04 在干净工作树运行正式根入口
 `bun run verify:vibe-check-workspace:full`。运行环境为 Linux x64、Bun 1.3.14；容器
 `cpu.max` 为 `400000 100000`，`nproc` 返回 4，Gate Definition 的 root

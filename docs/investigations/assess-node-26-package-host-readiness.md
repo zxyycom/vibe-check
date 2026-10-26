@@ -12,8 +12,8 @@ relations: []
 
 ## 形成时背景
 
-- 本报告形成时，公开 package 的 Product host 与仓库的 build/test/Gate tooling 已明确分离：Product candidate 从 src/index.ts 和一个内部 function-metrics Worker root 生成 dist/esm 下的 mjs modules，而 repository scripts 仍由 Bun 启动。这个报告不授权把后者迁移到 Node。
-- 工作区的 package-candidate contract 正在从带有未验证最高边界的 Node 24.18 range 调整为最低版本 >=24.18；这次调查不修改该 contract、Product、scripts、Decision 或 Change。它只评估用户拟将 consumer 验收基线切到 Node 26 时的准备度。
+- 本报告形成时，公开 package 的 Product host 与仓库的 build/test/Gate tooling 已明确分离：Product candidate 从 `src/index.ts` 和一个内部 function-metrics Worker root 生成 `dist/esm` 下的 mjs modules，而 repository scripts 仍由 Bun 启动。Bun tooling 迁移不在本轮授权内。
+- 工作区的 package-candidate contract 正在从带有未验证最高边界的 Node 24.18 range 调整为最低版本 `>=24.18`；本轮只评估 consumer 验收基线切到 Node 26 的准备度，保持该 contract、Product、scripts、Decision 和 Change 不变。
 - Node 官方下载页在本报告调查时点列出 v26.8.1 为 Current；本机可用的 mise Node 是 v26.7.0。官方 Release Working Group schedule 预计 v26 在 2026-10-28 转为 LTS，故本报告时点的 Node 26 仍是 Current，而非 LTS。
 
 ## 调查目的
@@ -30,12 +30,12 @@ relations: []
 
 ### 仓库形成时证据
 
-- docs/development/architecture.md 规定 src/index.ts 是唯一 public entry；docs/tooling/package-lifecycle.md 规定 candidate 逐模块交付 mjs，并把内部 Worker URL 精确改写为 shipped analyzer-worker.mjs。候选包只公开 root export，物理 dist、types 与 src 不是 consumer subpath。
-- src/package-checks/function-metrics/analyzer-worker-port.ts 通过 new Worker(new URL(..., import.meta.url)) 使用 node:worker_threads；Worker root 使用 parentPort。scripts/package/candidate/external-consumer/runtime-evidence/run.ts 会在隔离安装中核对 parent-to-Worker URL、实际启动依赖的 jscpd，并运行 representative Product fixture。
-- scripts/package/candidate/external-consumer/documentation.ts 用真实 Node 子进程 import runtime documentation examples 和 package-shipped machine Definition。README 的最小示例也声明 node quality.ts，因此 Node 的 TypeScript execution 对文档承诺实际相关；已发布 Product entry 本身是 mjs，不依赖 Node 直接执行 package 的 ts 源码。
+- `docs/development/architecture.md` 规定 `src/index.ts` 是唯一 public entry；`docs/tooling/package-lifecycle.md` 规定 candidate 逐模块交付 mjs，并把内部 Worker URL 精确改写为 shipped `analyzer-worker.mjs`。候选包只公开 root export，物理 `dist`、`types` 与 `src` 不是 consumer subpath。
+- `src/package-checks/function-metrics/analyzer-worker-port.ts` 通过 `new Worker(new URL(..., import.meta.url))` 使用 `node:worker_threads`；Worker root 使用 `parentPort`。`scripts/package/candidate/external-consumer/runtime-evidence/run.ts` 会在隔离安装中核对 parent-to-Worker URL、实际启动依赖的 jscpd，并运行 representative Product fixture。
+- `scripts/package/candidate/external-consumer/documentation.ts` 用真实 Node 子进程 import runtime documentation examples 和 package-shipped machine Definition。README 的最小示例也声明 `node quality.ts`，因此 Node 的 TypeScript execution 对文档承诺实际相关；已发布 Product entry 本身是 mjs，不依赖 Node 直接执行 package 的 ts 源码。
 - 实际执行（Linux，mise Node v26.7.0，Bun v1.3.14 仅作 test launcher）：
-  - VIBE_CHECK_NODE_CMD=/home/dev/.local/share/mise/installs/node/26.7.0/bin/node bun test scripts/package/candidate/external-consumer/runtime.test.ts：通过。该测试在隔离安装的 candidate 下以 Node v26.7.0 执行 root import、representative Run、function-metrics Worker、runtime dependency resolution/execution 与 machine output assertions。
-  - VIBE_CHECK_NODE_CMD=/home/dev/.local/share/mise/installs/node/26.7.0/bin/node bun test scripts/package/candidate/external-consumer/documentation.test.ts：通过。它以 Node v26.7.0 实际 import 受管 runtime ts documentation examples 和 machine Definition。
+  - `VIBE_CHECK_NODE_CMD=/home/dev/.local/share/mise/installs/node/26.7.0/bin/node bun test scripts/package/candidate/external-consumer/runtime.test.ts`：通过。该测试在隔离安装的 candidate 下以 Node v26.7.0 执行 root import、representative Run、function-metrics Worker、runtime dependency resolution/execution 与 machine output assertions。
+  - `VIBE_CHECK_NODE_CMD=/home/dev/.local/share/mise/installs/node/26.7.0/bin/node bun test scripts/package/candidate/external-consumer/documentation.test.ts`：通过。它以 Node v26.7.0 实际 import 受管 runtime ts documentation examples 和 machine Definition。
 - 同一 runtime test 的首次探测发生在并行 engine-contract 改动尚未完成时，且只被旧的 major 必须为 24 的验收断言拒绝；重新以当前 >=24.18 断言执行后通过。这个先后关系证明旧验收门禁会阻止 Node 26 证据，不是 Node 26 Product execution 失败的证据。
 
 ### Node 官方依据（2026-09-06 获取）

@@ -9,6 +9,8 @@ background: 顶层文件选择与全局阈值使不同文件无法采用不同�
 decision: 每个 fileMetrics code area 直接拥有 files 与 codeLines，一次扫描区域并集并按文件涉及区域的最严格上限结算。
 tags:
   - configuration
+  - file-metrics
+  - metric-policy
   - product-contract
 relations: []
 ---

@@ -12,20 +12,14 @@ tags:
 relations:
   - type: "补充"
     target: "260903-diagnose-lizard-typescript-port-performance-gap"
+    summary: "补充Fortran预解析reader路径的独立热点归因"
 ---
 
 ## 形成时背景
 
 用户确认 ST 与 Ruby 暂不调查，并明确 Fortran 也不是主要优化目标；本轮因此不扩展 tokenizer、逐 regex 或反事实实现，只把已有性能调查中的 Fortran 观察收敛为一个可复核的轻量结论。调查形成时仓库为 `dd9635d05ddb`；没有修改 Product、port façade、reader registry、translated core/readers/shared 或测试。
 
-### 当前阅读导航（不属于形成时证据）
-
-- **本报告的 evidence owner：**fixed Lizard 1.24 Fortran normal/edge fixture 的 pre-resolved direct in-memory reader/core 观察，以及它对可修改层级的轻量判断；输入与摘录由本报告资源拥有。
-- **直接前序：**frontmatter 的 `补充 → diagnose-lizard-typescript-port-performance-gap.md`；该前序拥有 27-family 的筛选和 profile 排序，本报告只缩小到 Fortran，不复写其整体语言结论。
-- **已确认 / 推断 / 未知：**Fortran slice 的 direct-core 差距和不存在 façade-only 修复点已确认；tokenizer/setup 是后续检查顺序只是有限推断；各 core 阶段的可回收比例仍未知。
-- **不能比较或相减：**该 128-file、顺序 warmed、pre-resolved reader 观察不是跨 runtime ABBA，不能与 27-family totals、真实 TypeScript、raw-scan 或 Product 数字相加、相减或外推。
-- **形成时建议（不是当前状态）：**当前不实施；仅在出现 Fortran-heavy consumer workload、明确 budget 或新的 source-alignment 授权后，以 token stream 和同一 corpus 重开 scoped core Investigation。
-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
+后续阅读：[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续轮次的证据与当轮停止事件；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。这些阅读指引不属于本轮形成时证据，也不授权今天继续执行；当前行动由用户请求与相应 Change 承接。
 
 ## 调查目的
 
@@ -47,7 +41,7 @@ relations:
 
 **建议（非实施授权）。** 现在不实施、不建 Change/Decision，也不扩展 core 调查。理由是：用户已把 Fortran 定位为少用语言；没有真实 consumer corpus、Fortran latency budget 或 Product-level regression；现有数字是小型固定 fixture 的非 ABBA hotspot ranking，而非 Product performance evidence。只有出现 Fortran-heavy consumer workload、明确 budget，或 source-alignment 边界另获授权时，才应以 token stream、metrics/output equality guard 和同一 fixed corpus 重开 scoped core investigation。
 
-**不适用范围。** 本结论不评价 ST、Ruby 或其他 reader，不证明 Python 与 Bun 任一 runtime 更适合 Product，也不授权改变 Lizard 1.24 source alignment。
+**不适用范围。** 本结论不评价 ST、Ruby 或其他 reader，不证明 Python 与 Bun 任一 runtime 更适合 Product，也不授权改变 Lizard 1.24 source alignment。该 slice 的数值不能与前序 27-family totals、真实 TypeScript、raw-scan 或 Product 数字相加、相减或外推。
 
 ## 随附资源
 

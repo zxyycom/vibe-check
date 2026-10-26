@@ -8,7 +8,11 @@ purpose: 使默认 Gate 只执行与当前变更相关的检查并保留完整�
 background: 原 changeFlag 只覆盖少数材料和 Product runtime 检查，日常 required 仍执行大多数耗时检查
 decision: 以单次可信 Git 变更证据映射保守输入 region 到 required Checks；focused 与 all 强制选择且 Git 不可用时保守运行
 tags:
+  - change-flags
+  - change-selection
+  - gate-selection
   - performance
+  - project-gate
   - repository-automation
   - workflow-policy
 relations:

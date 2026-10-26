@@ -8,7 +8,10 @@ purpose: 让调用方观察逐 Check 生命周期且不取得执行控制权
 background: 私有 progress 生命周期混合全局 barrier 与 Check 事件而调度 Hook 只覆盖终态测量
 decision: 独立提供只读 Check 生命周期观察并由后续 Change 收敛具体 effect 契约
 tags:
+  - check-lifecycle
+  - lifecycle-hooks
   - product-contract
+  - project-run
   - workflow-policy
 relations:
   - type: 修订

@@ -8,6 +8,7 @@ purpose: 让仓库只保留当前 Change，并由稳定 owner 承接完成后的
 background: Change Plan 以 finalize 删除结项目录，用户也明确要求清除既有 Change 与 OpenSpec 归档。
 decision: 完成 Change 不保留目录，既有 Change archive 与 OpenSpec 历史树一次性删除。
 tags:
+  - change-plan
   - workflow-policy
 relations:
   - type: 修订
@@ -31,4 +32,4 @@ relations:
 - 采用: 当前 Change 继续在 `changes/<change>/` 使用规范 `draft` / `plan` artifacts；暂停原因和恢复条件写入该 Change 的 design、tasks 与相关实施说明，不增加自定义 metadata 状态。
 - 采用: Change 满足成功标准、稳定 owner 已接管结果、全部任务与验证有证据且取得当次删除授权后，使用上游 `finalize` 删除整个目录；不再创建或保留 `changes/archive/`。
 - 采用: 一次性删除既有 `changes/archive/` 和仅承载历史 OpenSpec 的 `archive/` 树；当前说明移除对这些路径的依赖，不建立替代历史目录、索引或内容副本。
-- 采用: Git 历史可以在明确历史审计时提供版本控制证据，但不充当当前规范、计划、调查或长期判断 owner；后续工作从当前 owner、活动 Decision / Investigation 和当前 Change 恢复。
+- 采用: Git 历史可以在明确历史审计时提供版本控制证据，但不充当当前规范、计划、调查或长期判断 owner；后续工作从当前 owner、活动 Decision 和当前 Change 恢复；Investigation 只补充形成时依据，不证明今天的事实或继承实施授权。

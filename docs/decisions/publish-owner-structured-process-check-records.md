@@ -9,6 +9,9 @@ background: 通用失败 Record 缺少逐问题定位，直接传播 child text 
 decision: 仅让工具 owner 投影经完整验证的 safe Records；不能证明的输出继续保留 transcript 与通用 failure。
 tags:
   - configuration
+  - diagnostics
+  - process-boundaries
+  - project-gate
   - workflow-policy
 relations: []
 ---
@@ -23,6 +26,10 @@ relations: []
 - supplemental Record 会进入 machine artifacts 与 Core human output，因此 raw message、help、snippet、absolute path、args 与 stdout/stderr 不能成为 Record 或 message 内容。
 
 ## 决策
+
+下文保留形成时的 Core presentation 措辞；现行 preview 的职责入口是后续[受管 preview 决策](configure-progress-previews-and-quiet-pass-presentation.md)及[人读输出 owner](../development/human-output.md#preview-pipeline)。
+本记录保留工具 owner 验证安全投影、工具 adapter 不复制或拥有 preview 的主旨。
+
 - 采用: 只允许明确的工具 owner 选择并完整验证自己的 structured failure protocol。当前实现范围仅有 oxlint JSON diagnostics 与 oxfmt list-different paths；其它 Gate process Check 没有由本 Decision 授权的 structured projection。
 - 采用: owner Record 的 identity 与 data 只能使用固定 `kind`、closed severity、validated location、occurrence、owner-approved canonical relative path 和 rule。path 只允许 ASCII 字母、数字、`.`、`_`、`-`、`/`；rule 只允许 lowercase identifier、最多一段 `/` 与一层 parenthesized identifier。`:`、`@`、`?`、`#`、`=` 等 free-text 或 credential 风险字符必须拒绝。
 - 采用: shared process base 始终先建立 settled transcript。只有 nonzero exit 的**整个** owner projection 都能通过验证时，才发布逐项 Records；任一 parse、schema、path、identity 或 safety boundary 失败时不得发布 partial owner Records，而是保留唯一 generic `command-failure` Record。

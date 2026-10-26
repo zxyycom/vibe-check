@@ -5,10 +5,15 @@ formedAt: "2026-08-11T07:54:34Z"
 question: "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？"
 tags:
   - "implementation-libraries"
+  - "mnemonist"
+  - "remeda"
+  - "utility-libraries"
 relations: []
 ---
 
 ## 形成时背景
+
+本文保存本轮选型及当时采用情况；下文的“当前”和使用边界均以形成时为准，不定义今天的依赖、目录或编码规范。
 
 Vibe Check 是 Bun/Node TypeScript 工具工作区。编码规范需要支持连续无状态数据转换，也需要在
 真实复杂度或访问模式出现时使用可靠的专用数据结构；与此同时，简单集合处理仍应保持原生，

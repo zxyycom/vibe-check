@@ -9,6 +9,8 @@ background: 现有 docs preset 与 docs-* identity 无法表达 JSON、schema、
 decision: 将当前材料入口切换为 materials，并以 materials-* identity 承接直接材料 Check；历史记录保持形成时语义。
 tags:
   - documentation
+  - json-validation
+  - project-gate
   - repository-automation
   - workflow-policy
 relations:

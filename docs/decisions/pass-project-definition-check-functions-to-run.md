@@ -9,6 +9,8 @@ background: 项目已经负责加载配置 module；Product 无需重新发现�
 decision: 项目运行脚本把完整 definition value 传给 Run；Product 验证数据并在调用方 runtime 执行其中的 Check functions。
 tags:
   - configuration
+  - project-definition
+  - project-run
 relations:
   - type: 修订
     target: 260814-pass-project-definition-value-to-run

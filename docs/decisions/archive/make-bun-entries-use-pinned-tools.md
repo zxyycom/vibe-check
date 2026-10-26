@@ -8,17 +8,22 @@ purpose: 让正式 Bun 命令可复现地使用仓库锁定工具，并拒绝执
 background: 项目虽用 mise 锁定 Lizard 与 scc，但普通 Bun 入口曾依赖调用 shell 注入 binding，缺失时 Product 会退回全局命令。
 decision: 消费锁定外部工具的正式 Bun package entry 自行进入 mise；Product dependency boundary 要求显式 binding，缺失时在 work 前失败。
 tags:
+  - bun
   - dependency-policy
+  - mise
+  - scanner-dependencies
   - workflow-policy
 relations: []
 ---
 
 ## 目的
+
 - 让开发者直接运行项目声明的 `bun run` 入口即可获得与 CI、Project Gate 相同的
   scanner 版本和执行路径，不依赖 shell 激活状态或机器上的全局工具。
 - 防止版本漂移、同名命令劫持和局部环境偶然可用掩盖缺失的项目依赖。
 
 ## 背景
+
 - `mise.toml` 与 `mise.lock` 已固定 Lizard、scc 和其它开发工具，但只有进入 mise 环境后才会
   生成其绝对路径和 operational binding。
 - 普通 `bun run quality:check` 曾在未激活 mise 的 shell 中让 Product 回退到 `python3 -m
@@ -27,6 +32,7 @@ relations: []
   不应进入 public project config 或 machine output。
 
 ## 决策
+
 - 采用: 会启动 Product scanner 的正式 Bun package entry 自行通过 repository-pinned mise
   environment 运行；调用方不需要预先激活 mise，也不需要手工拼接 scanner 路径。
 - 采用: mise 环境通过 package-private binding 名把锁定的 Lizard virtualenv Python 与 scc

@@ -8,7 +8,11 @@ purpose: 让 Gate 的 preset 只表达 direct intent，并由 Product 统一补�
 background: Gate 曾为每个 preset 手工维护依赖闭包和 aggregate IDs，现已具备同源 Product effective selection。
 decision: Gate 继续拥有命令、preset 与 observes 可读性，但用 authoring propagation 和 effective aggregation 委托 dependsOn 选择。
 tags:
+  - aggregation
   - configuration
+  - flags
+  - gate-selection
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

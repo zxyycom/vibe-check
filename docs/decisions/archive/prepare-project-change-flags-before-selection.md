@@ -8,9 +8,12 @@ purpose: 以文件区域派生受保护的 change flags，并通过统一 DSL �
 background: caller flags 不能表达项目文件区域变化，provider Check 或 execution 内跳过也无法缩小调度前工作集
 decision: 根 changes 配置一次匹配 Git changed paths、派生受保护 flags，并以统一 DSL 和可判别 context 驱动安全选择
 tags:
+  - change-flags
   - configuration
+  - flags
   - performance
   - product-contract
+  - project-run
 relations:
   - type: 修订
     target: 260828-drive-run-from-check-owned-inputs-and-explicit-providers

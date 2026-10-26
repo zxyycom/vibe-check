@@ -10,6 +10,8 @@ decision: secretDetection 要求显式 files、固定高置信规则和受限本
 tags:
   - configuration
   - product-contract
+  - secret-detection
+  - secretlint
 relations:
   - type: 修订
     target: 260828-provide-package-check-functions-parsers-and-actionable-messages

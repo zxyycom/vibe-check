@@ -9,6 +9,9 @@ background: 非阻断 repository-quality 嵌套 Run 只贡献 process completed�
 decision: 删除无结论贡献的 Gate quality wrapper 与短命令，并按测试 owner 收敛单核心 diagnostic evidence。
 tags:
   - configuration
+  - diagnostic-logging
+  - gate-diagnostics
+  - project-gate
   - testing
   - workflow-policy
 relations:

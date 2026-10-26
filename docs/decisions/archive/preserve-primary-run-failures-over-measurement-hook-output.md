@@ -8,7 +8,10 @@ purpose: 让 measurement Hook 副作用可见而不掩盖已形成的主 Run fai
 background: Hook failure 已有 output status，但 cancellation 和 admission-policy failure 需要保留其主语义。
 decision: 只让正常完成升级为 Hook output failure，主 execution failure 保持原 result。
 tags:
+  - measurement-hooks
   - product-contract
+  - project-run
+  - run-outputs
   - workflow-policy
 relations:
   - type: 修订

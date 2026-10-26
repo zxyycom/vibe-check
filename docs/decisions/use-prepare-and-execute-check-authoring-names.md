@@ -10,6 +10,8 @@ decision: 将字段直接改为 prepare 与 execute，保留 task-local 时序�
 tags:
   - configuration
   - product-contract
+  - project-definition
+  - project-run
 relations:
   - type: 修订
     target: 260901-run-check-preflight-with-task-admission

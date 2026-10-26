@@ -10,6 +10,8 @@ decision: 共享源码 soundness 规则，保留独立 consumer profile，拒绝
 tags:
   - configuration
   - testing
+  - type-safety
+  - typescript
   - workflow-policy
 relations: []
 ---

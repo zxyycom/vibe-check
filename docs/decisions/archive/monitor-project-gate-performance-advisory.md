@@ -9,6 +9,9 @@ background: 本 Decision 形成时，Gate 已有 afterGate context，但没有�
 decision: 以 afterGate 对匹配基线的标准 workload 做 advisory 比较，超界只警告且不改变 Gate status；硬门禁留待受控环境和明确预算。
 tags:
   - configuration
+  - gate-performance
+  - performance
+  - project-gate
   - workflow-policy
 relations: []
 ---
@@ -24,7 +27,6 @@ relations: []
 - Project Gate 的唯一私有 `afterGate` 已取得 normalized selection、prepared candidate、原始 RunResult、invocation logs 和 `elapsedToInitialResultMs`；不需要扩展 Product public lifecycle API。
 - 现有 process timeout 用于中止卡死 child，不是吞吐或 wall-time budget；并行 Check duration 也不能机械求和得到 Gate wall time。
 - 当前调度方向明确反对未经同机测量的跨主机硬 timing 门禁。质量 Checks 直接加入 Gate 后，旧 timing observation 也不能作为新 workload baseline。
-- 本记录当前为 `aligned`：完整方向已成为当前稳定基线并完成核对；后续局部接线、测试或文档修改不单独改变这一对齐状态。
 
 ## 决策
 

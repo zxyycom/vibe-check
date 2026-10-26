@@ -9,6 +9,9 @@ background: 现有 lint 已拒绝 warning，但规则集与 suppression 仍未�
 decision: 按错误风险与优化建议分级报告，统一使用 Oxlint 原生 suppression 并拒绝 ESLint directive
 tags:
   - configuration
+  - lint
+  - oxlint
+  - type-aware-lint
   - workflow-policy
 relations: []
 ---
@@ -32,10 +35,18 @@ relations: []
 
 ## 决策
 
+### 分级规则与统一阻断
+
 - 采用: 保留 Product/scripts 的 `--deny-warnings`，不建立非阻断 lint profile。`.oxlintrc.json` 中的 `error` 表示直接防止不可信语义的规则，`warn` 表示要求显式处理的优化、惯用表达或控制流建议；两者在正式 lint 和 Gate 中都阻断。
 - 采用: 首批以 `error` 开启 `typescript/strict-boolean-expressions`、`typescript/only-throw-error`、`typescript/no-confusing-void-expression` 和 `typescript/use-unknown-in-catch-callback-variable`。`typescript/only-throw-error` 承接并取代现有范围更窄的 `no-throw-literal`，避免同一问题重复报告。
 - 采用: 首批以 `warn` 开启 `typescript/prefer-nullish-coalescing`、`typescript/prefer-optional-chain`、`typescript/prefer-readonly` 和 `no-promise-executor-return`。所有已选规则按正式 inventory 分批闭合；`use-unknown-in-catch-callback-variable` 在开启后防止新增退化，Promise executor 的正式重跑保持 0 并以目标测试证明语义未回归。
+
+### 未采用的规则与理由
+
 - 采用: 不整类开启 `perf`、`pedantic`、`style`、`nursery` 或 Unicorn correctness；不采用当前与有意顺序 await、parser test string、loop closure 或 source-aligned dynamic call 冲突的 `no-await-in-loop`、`no-template-curly-in-string`、`no-loop-func` 与 `no-useless-call`；`typescript/no-unnecessary-condition` 在 nursery 阶段也不进入正式 profile。也不加载 Unicorn plugin 或采用 `unicorn/no-useless-promise-resolve-reject`：用 13 条 `off` workaround 抵消其 14 条隐式 correctness 规则会把当前版本细节固化为升级脆弱配置，观察到的 2 个位置不构成迁移义务。
+
+### 原生 suppression 与 owner
+
 - 采用: 将两处 ESLint-spelled suppression 改为范围最小、指定 exact rule 且带可复核理由的 `oxlint-disable-next-line`；删除多余 enable，并设置 `options.respectEslintDisableDirectives: false`。Oxlint 自身在 JSON `code` 中使用的 `eslint(<rule>)` 兼容命名是上游诊断协议，不表示仓库使用 ESLint，不在 project adapter 中重命名。
 - 采用: 设置 `options.reportUnusedDisableDirectives: "warn"`；由现有 `--deny-warnings` 使失效 suppression 阻断验收。单个有事实依据的例外使用 Oxlint 原生 next-line directive，稳定文件类别的例外使用窄范围 `.oxlintrc.json` override；只有根本不应进入 lint 的生成或非拥有输入才使用 ignore pattern。
 - 采用: 不在 Gate adapter 或 Vibe Check Finding waiver 中二次过滤 Oxlint 诊断。规则选择、severity、scoped override、directive audit 和忽略输入继续由 `.oxlintrc.json` 与 Oxlint invocation 拥有，Gate 只投影已验证的工具诊断。

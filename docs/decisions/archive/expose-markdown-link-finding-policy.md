@@ -9,6 +9,8 @@ background: area quality Checks 已有 findingPolicy；Markdown Link 仍不能�
 decision: Link 公开默认 blocking 的 findingPolicy；非阻断保留 passed、完整 facts/warning，unavailable 不受影响。
 tags:
   - configuration
+  - finding-policy
+  - markdown-link-validation
   - product-contract
 relations: []
 ---

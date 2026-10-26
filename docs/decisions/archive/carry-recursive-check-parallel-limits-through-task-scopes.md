@@ -9,6 +9,9 @@ background: recursive Check 让每个 parent 和 child 都可执行，现有 Tas
 decision: 每个 applicable Check 以现有 Task scope 承载 inherited maxParallel；递归 containment 不改变 scope 或 cap。
 tags:
   - configuration
+  - parallel-limits
+  - scheduler
+  - task-graph
 relations:
   - type: 修订
     target: 260815-carry-check-parallel-limit-in-task-scope

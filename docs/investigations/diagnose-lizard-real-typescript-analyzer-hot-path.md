@@ -4,17 +4,19 @@ id: "260903-diagnose-lizard-real-typescript-analyzer-hot-path"
 formedAt: "2026-09-03T08:48:45+00:00"
 question: "在真实仓库 TypeScript Product source 上，当前 TypeScript Lizard port 相对 upstream Python 仍约慢 2.35 倍，原因是否仍是此前的 reader 路径匹配，下一步可证实的热点和实施边界是什么？"
 tags:
+  - "cpu-profiling"
   - "function-metrics"
   - "lizard"
   - "performance"
-  - "profiling"
   - "source-alignment"
   - "typescript"
 relations:
   - type: "归并"
     target: "260903-diagnose-lizard-typescript-port-performance-gap"
+    summary: "合并既有dispatch归因以区分真实TS内核热点"
   - type: "归并"
     target: "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance"
+    summary: "合并真实TS重测结果并定位regex等内核成本"
 ---
 
 ## 形成时背景
@@ -28,9 +30,7 @@ relations:
 ### 当前阅读导航（不属于形成时证据）
 
 - **本报告的 evidence owner：**同一真实 TypeScript analyzer-only request 上的 resolver 计数、受限反事实、regex 构造计数和 sampling profile 的形成时解释；输入与 canonical metrics 的字节证据仍由 real-TypeScript 复测报告资源拥有。
-- **直接前序：**frontmatter 的两个 `归并` 前序分别拥有 27-family 的早期差距诊断与真实 TypeScript 的跨实现复测；本报告只在它们交集的真实 `.ts` analyzer layer 定位候选热点。
 - **已确认 / 推断 / 未知：**“已确认事实”只确认 current fast path 未走 ordered resolver、以及 profile/计数所示热点排序；“推断与未闭合环节”明确保留 regex 可回收比例、跨 runtime 原因及 full pipeline/Product 效果为未知。
-- **不能比较或相减：**direct/current/ordered 受限反事实、stage observations 和 sampling percentages 不构成同一正式 ABBA；不得将它们相减为 resolver 或 tokenizer 的精确 wall-time 份额，也不得与 Python profile 直接比较。
 - **形成时建议（不是当前状态）：**先在独立 core Investigation 中对 combined-regex tokenizer 取得完整 token-stream parity 和同 workload before/after；不从 sampling 百分比直接修改实现。
 - **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 

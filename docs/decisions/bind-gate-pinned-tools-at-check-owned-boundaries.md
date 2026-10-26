@@ -9,6 +9,8 @@ background: 外置 Lizard 已退场；Gate 仅需 SCC binding，旧全局缺 bin
 decision: Gate 自行进入 mise 且只注入绝对 SCC command；缺失时由 fileMetrics unavailable，函数指标使用内置 analyzer。
 tags:
   - dependency-policy
+  - file-metrics
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

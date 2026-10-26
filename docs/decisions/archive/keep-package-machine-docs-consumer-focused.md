@@ -9,6 +9,8 @@ background: Output guide 的仓库维护章节和四份重复示例 README 增�
 decision: 将 machine consumer 契约与仓库维护说明分开，package 示例只交付每组完整 publication bytes。
 tags:
   - documentation
+  - machine-output
+  - package-documentation
   - product-contract
   - workflow-policy
 relations:

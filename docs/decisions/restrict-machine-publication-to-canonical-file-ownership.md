@@ -8,6 +8,7 @@ purpose: 让显式 machine target 中调用方已有的 legacy-named 文件不�
 background: root 外或 absolute target 是可信调用方选择，runtime 删除旧人读文件会越过 v4 的 canonical two-file ownership。
 decision: publisher 只替换或失败清理 run.json、records.ndjson 和私有 temp；不删除 legacy-named 或其它调用方文件。
 tags:
+  - machine-output
   - product-contract
 relations:
   - type: 修订

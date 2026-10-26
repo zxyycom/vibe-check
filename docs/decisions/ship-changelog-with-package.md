@@ -9,6 +9,7 @@ background: Change 草稿不随包提供且会在交接后清理，升级用户�
 decision: 以 docs/changelog.md 承接版本变更日志并纳入随包材料，按实际阅读负担再评估版本目录
 tags:
   - documentation
+  - package-release
   - product-contract
 relations: []
 ---

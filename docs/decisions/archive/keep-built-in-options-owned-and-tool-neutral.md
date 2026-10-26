@@ -8,7 +8,9 @@ purpose: 让 exported built-in Check descriptor 支持可类型化的项目级�
 background: 内置 Check 的可调整语义因能力不同；任意 options record 或 generic deep merge 会让未知字段、数组和工具参数在没有 owner 的情况下进入长期配置契约。
 decision: 内置 descriptor 提供完整 typed defaults；项目显式 spread，project-wide quality 留在顶层。
 tags:
+  - check-authoring
   - configuration
+  - scanner-dependencies
 relations: []
 ---
 

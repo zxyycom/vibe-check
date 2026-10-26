@@ -9,7 +9,10 @@ background: 原 advisory observer 与仅消息贡献无法阻断已超过用户�
 decision: 以本机只读基线和单一受限 resultContributor 阻断标准 workload 的超时、缺失或不可比较状态
 tags:
   - configuration
+  - gate-performance
   - performance
+  - project-gate
+  - result-contribution
   - workflow-policy
 relations:
   - type: 归并

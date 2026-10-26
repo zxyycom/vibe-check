@@ -8,6 +8,7 @@ purpose: 让 arbitrary custom Check 通过最小 Record contract 提交自己的
 background: Built-in finding/metric fields 不是所有 custom Checks 的共同义务，Product 只需 identity、canonical data 与生命周期边界。
 decision: Check 提交 closed local ID 与 custom data；Core Record 只保留 checkId、id 和 data。
 tags:
+  - check-results
   - configuration
   - product-contract
 relations:

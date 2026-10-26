@@ -8,7 +8,10 @@ purpose: 让维护者无需断点调试即可恢复 Project Run core 的详细�
 background: 最终 Run facts、progress 与 Gate transcripts 无法共同还原 Product 编排过程。
 decision: 增加外部默认关闭、仓库消费者默认开启的一次性人读 diagnostic logging output。
 tags:
+  - diagnostic-logging
   - product-contract
+  - project-run
+  - run-outputs
 relations:
   - type: 修订
     target: 260826-replace-global-tool-effects-with-run-outputs

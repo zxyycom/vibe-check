@@ -8,7 +8,10 @@ purpose: 让单一 package 材料目录与安装时依赖许可审计分别承�
 background: 现有两个第三方目录来自功能分批引入，三个手工镜像文本既不是完整依赖清单，也没有形成稳定选择规则。
 decision: 除自有 LICENSE 和顶层 notices 外统一使用 licenses 目录，并对每次 exact candidate 的完整安装包集合执行 fail-closed 许可声明审计。
 tags:
+  - dependency-audit
   - dependency-policy
+  - licensing
+  - package-artifact
   - product-contract
   - workflow-policy
 relations: []

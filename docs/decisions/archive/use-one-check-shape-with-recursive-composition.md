@@ -8,7 +8,9 @@ purpose: 让 Project Definition 只用一种可执行 Check 表达 Product 预�
 background: 专门 group 与按来源拆分的 authoring model 把来源、结构和运行身份拆成多个模型，导致父节点不能作为普通 Check 执行。
 decision: 所有 authoring 节点都是同一种 Check；checks 只表达递归选择和继承上下文，不产生运行顺序、聚合或另一类实体。
 tags:
+  - check-authoring
   - configuration
+  - project-definition
 relations:
   - type: 替代
     target: 260815-keep-check-groups-authoring-only

@@ -11,6 +11,7 @@ tags:
 relations:
   - type: "补充"
     target: "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation"
+    summary: "将分析器分层成本补充到Gate Check与Worker路径"
 ---
 
 ## 形成时背景
@@ -62,9 +63,13 @@ Gate 将 Function metrics 测试 lane 精确映射为 32 个 `src/package-checks
 | 同 direct Check | 2 | 3.739 | 2.749 | 1.931 | Product execution 3,163.912 ms |
 | 同 direct Check | 3 | 3.917 | 2.000（Bash 格式显示为 `2.:00`） | 1.728 | Product execution 3,129.021 ms |
 
+#### 测试 lane：resource boundary 与让步控制
+
 一次 console lane 的最慢两个测试是 `measurement.resource.test.ts`：8 MiB single-file boundary 为 986.56 ms，64 MiB aggregate boundary 为 2,590.43 ms，合计 3.577 s；该 lane 的其它 94 个测试大多低于 160 ms。其余显著测试为 source identity 156.52 ms、port facade resolver 87.45 ms、area findings 70.00 ms；它们不是 5 秒主因。
 
 为区分真实 resource 语义与 timer 调度成本，本轮仅以 `/tmp` preload 将测试中的 `setTimeout(0)` 临时替换为 microtask，且只选择上述两个 boundary tests；临时文件已删除、未修改工作区。原测试为 3.728 s（Bun 3.71 s），控制为 0.658 s（Bun 635 ms），两项分别从 986.56/2,590.43 ms 降为 339.94/132.50 ms。该控制**不**证明可以改变生产让步语义；它只证明这些 test workload 的大部分 wall 是 `measurement.ts` 每个 32 KiB chunk 的定时器让步，而非 resource-limit 判定、磁盘读取或测试 runner 启动。
+
+#### Direct Check：输入、Worker、analyzer 与 scope 对照
 
 当前 direct Check 选择 395 个 `product-source` 文件（1,809,305 bytes）和 151 个 `script-tooling` 文件（约 707 KB），共 546 个 accepted TypeScript files、2,516,211 bytes；没有 rejected input。三次单独 selection walk 为 156.015、184.802、260.222 ms（另一次受并行负载影响为 483.902 ms）。在 direct Check 内的临时 Worker 观测为：Worker 构造前 874.112–900.499 ms，构造至 postMessage 的同步段仅 0.152–0.219 ms，postMessage 至 terminate/完成 2,156.071–2,492.612 ms。最后一段包含 Worker 真正启动/import、structured-clone、analyzer、response 和 result handling，不能把它全部归因为启动。
 

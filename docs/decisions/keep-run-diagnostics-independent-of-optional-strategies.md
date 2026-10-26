@@ -9,7 +9,9 @@ background: 专用 learned-admission channel 要求 Product 识别一种普通�
 decision: 保留 Gate、progress、Core 和 Scheduler 的职责隔离，移除 Product 专属学习诊断通道。
 tags:
   - configuration
+  - diagnostics
   - product-contract
+  - project-run
   - workflow-policy
 relations:
   - type: 修订
@@ -33,4 +35,4 @@ relations:
 - 采用: Product diagnostic router 继续分配 invocation-global sequence 与 monotonic elapsed，并按 Core/Scheduler owner 路由；readback 保留 aggregate 和 per-channel status，setup/write/close failure 归因到实际 channel。
 - 采用: 删除 Product-owned learned-admission channel 及 disabled 空壳。可选策略以自己的普通 public observation/caller closure 解释模型与存储状态；Product 不为某个 helper 注入 sink 或 admission observer。
 - 采用: 关联依靠 exact invocation grouping、Product identity、sequence、elapsed 和 phase boundary；人读 diagnostics 保持私有格式，不升级为公共解析协议。
-- 采用: 保持 machine run.json/records.ndjson 原子对和多个 Check-local artifact 的独立事实，不机械要求一个 owner 一个文件。此决策不改变日志文件名、Gate/Product identity 或目录命名规则。
+- 采用: 保持 machine run.json/records.ndjson 指纹绑定双文件集合和多个 Check-local artifact 的独立事实，不机械要求一个 owner 一个文件。此决策不改变日志文件名、Gate/Product identity 或目录命名规则。

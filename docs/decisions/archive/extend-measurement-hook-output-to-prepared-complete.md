@@ -8,7 +8,10 @@ purpose: 让 generic Hooks 与 prepared complete 共用 terminal pipeline，并�
 background: 本 Decision 建立前，output 只覆盖 generic Hook；complete 必须纳入同一 failure 语义而不改名。
 decision: 保留 outputs.measurementHooks 和现有 diagnostic，并将 prepared complete 纳入 aggregate。
 tags:
+  - admission-scheduling
+  - measurement-hooks
   - product-contract
+  - run-outputs
   - workflow-policy
 relations:
   - type: 修订

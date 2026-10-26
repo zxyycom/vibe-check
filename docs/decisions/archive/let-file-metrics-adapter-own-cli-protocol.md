@@ -9,7 +9,9 @@ background: 当前公共 scanner options 暴露 args 与 availabilityArgs，允�
 decision: fileMetrics scanner policy 只保留 executable，版本探测、CSV 参数、exact paths 与 timeout 全由 SCC adapter 固定。
 tags:
   - configuration
+  - file-metrics
   - product-contract
+  - scanner-dependencies
 relations: []
 ---
 

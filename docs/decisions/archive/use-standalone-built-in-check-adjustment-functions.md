@@ -8,7 +8,9 @@ purpose: 让项目从普通内置 Check 默认值出发，以字段感知函数�
 background: 对象方法把 Product 提供默认值误塑成特殊 carrier，且扩大了复制、校验和公开 API 责任。
 decision: 内置 Check 使用普通数据契约，顶层 replace 与 append 返回非突变的新值并保持各字段的 owner 语义。
 tags:
+  - check-authoring
   - configuration
+  - public-api
 relations:
   - type: 修订
     target: 260814-use-field-aware-built-in-check-adjustments

@@ -1,0 +1,57 @@
+{
+  "baseline": "9a5be25bf02886e5271b96b31da35ae98c3ca680",
+  "note": "Per-record identity, review level, source hashes and final readback are in ../review-ledger.json; this summary avoids a duplicate catalogue.",
+  "groups": {
+    "investigations": 126,
+    "active-decisions": 127,
+    "archived-decisions": 250
+  },
+  "scopeCounts": {
+    "originalRecords": 503,
+    "newSuccessor": 1,
+    "independentFullBodyOriginalActive": 31,
+    "independentFullBodyOriginalArchived": 18,
+    "independentFullBodyInvestigation": 31,
+    "investigationRelationEndpoints": 28,
+    "approvedExistingEdgeSummaries": 27,
+    "rejectedNewTopologyEdges": 1,
+    "ordinaryReferenceSources": 8,
+    "ordinaryReferenceLinks": 16
+  },
+  "independentReviewLevels": {
+    "investigations": {
+      "full-report-body-and-relation-endpoint": 31,
+      "inventory-only": 86,
+      "changed-metadata-and-relevant-body-sections": 9
+    },
+    "active-decisions": {
+      "full-body": 31,
+      "actual-tag-diff-and-purpose/adoption-excerpts": 89,
+      "inventory-only": 7
+    },
+    "archived-decisions": {
+      "actual-tag-diff-only": 232,
+      "full-body": 18
+    }
+  },
+  "supplement": [
+    {
+      "id": "261026-maintain-distinct-project-skills-with-test-design",
+      "path": "docs/decisions/261026-maintain-distinct-project-skills-with-test-design.md",
+      "independentReviewLevel": "full-candidate-body-and-predecessor-closure",
+      "sha256AtLatestReview": "22d7169e3f93f16866ae49f04ac93da7afe0979cb59ce1727242b98d4437251c",
+      "statusAtReview": "active",
+      "alignmentAtReview": "aligned",
+      "lifecycleReadbackPending": false,
+      "createdAtAtReview": "2026-10-26T06:54:25Z",
+      "lifecycleReview": "pass: successor active/aligned and canonical full body unchanged except lifecycle fields; predecessor archived/aligned with exact existing body preserved"
+    }
+  ],
+  "finalLifecycleReadback": {
+    "successor": "261026-maintain-distinct-project-skills-with-test-design",
+    "predecessor": "260812-keep-seven-distinct-project-skills",
+    "result": "pass",
+    "bodyBytesPreservedBeyondLifecycleFields": true,
+    "predecessorActivePathAbsent": true
+  }
+}

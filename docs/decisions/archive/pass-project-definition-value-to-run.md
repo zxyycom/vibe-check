@@ -9,6 +9,8 @@ background: 项目已经拥有配置文件和运行脚本；Product 无需再次
 decision: 项目运行脚本导入唯一 Project Definition 并把该值传给 Package Run；Product 验证定义但不拥有配置文件发现或加载。
 tags:
   - configuration
+  - project-definition
+  - project-run
 relations:
   - type: 修订
     target: 260812-use-single-typescript-project-definition

@@ -8,7 +8,10 @@ purpose: 防止 repository、源码或示例中的现有名称未经产品判断
 background: Product name、registry identity、import specifier、固定项目路径与公共 symbol 会先于行为细节成为消费者发现和依赖产品的稳定入口。
 decision: 所有 package 与配置 publication 名称必须在发布前逐项确认；现有内部名称不提供默认值，本决策本身不选择任何具体名称。
 tags:
+  - package-release
   - product-contract
+  - public-api
+  - public-naming
 relations:
   - type: 拆分
     target: 260806-use-versioned-npm-package-release-unit
@@ -16,15 +19,18 @@ relations:
 ---
 
 ## 目的
+
 - 让每个公开名称都由其面向的消费者、语义范围、registry 归属和长期演进成本支持，而不是从当前 repository 或实现布局偶然继承。
 - 让后续 agent 能区分内部定位名称、计划中的角色名称、尚未确认的候选和已经建立的公共身份，避免把示例文本误当成发布授权。
 
 ## 背景
+
 - Public product/display name、registry package name、import specifier、公共 symbol、固定项目路径与资源名称是消费者发现、安装、配置、引用和讨论产品的第一层契约；名称一旦公开就会进入项目目录、代码、lockfile、文档和生态索引。
 - Repository 名称、root manifest、source file、Change directory 与对话示例服务当前开发上下文，不证明相同文字适合未来公开产品。
 - `0.0.x` 允许相邻版本发生破坏式变化，但不会让未经选择的名称失去即时契约影响；预稳定版本策略不能替代首次命名判断。
 
 ## 决策
+
 - 采用: Publication surface 中的public product/display name、registry package name、export/import specifier、公共API与类型symbol、固定project discovery path、明确导出的资源名称，以及受支持的operational environment名称，都必须在进入publishable candidate前逐项获得明确产品确认。
 - 采用: 当前 repository、product、package、source、Change 或示例中的名称只拥有其当前内部定位作用；构建、计划和 agent 不得把它们作为未来公共名称的默认值、兼容证据或占位批准。
 - 采用: 公共名称确认必须同时核对目标消费者、名称表达的能力范围、registry ownership 或 collision、与其它 surface 的关系，以及未来并存、迁移或退役成本；只验证字符串合法或 registry 当前可用不足以完成命名判断。

@@ -4,6 +4,7 @@ id: "261008-assess-lizard-1-24-1-upgrade"
 formedAt: "2026-10-08T04:05:12Z"
 question: "相对当前 1.24.0 源码基线，Lizard 1.24.1 更新了什么，哪些变化对 Vibe Check 有实际价值，应如何选择跟进范围和验收条件？"
 tags:
+  - "dependency-upgrades"
   - "function-metrics"
   - "lizard"
   - "source-alignment"

@@ -9,7 +9,10 @@ background: 形成决策时，constructor 共用 package-private files defaults�
 decision: Package root 公开深冻结的 defaultProjectFileSelection；显式数组仍完整替换，consumer 通过普通 TypeScript composition 扩展。
 tags:
   - configuration
+  - file-selection
   - product-contract
+  - project-files
+  - public-api
 relations: []
 ---
 

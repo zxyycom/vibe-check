@@ -8,7 +8,9 @@ purpose: 让 package 以同一种 Check value 暴露 Product 预先提供和项�
 background: 来源专属 helper、固定 exports 和 checkId lookup 会把 value source 变成 public/runtime variant。
 decision: package 公开单一 Check surface 与 Product 预先提供的 values；派生 names/inventory 待确认，runtime 不按来源选择 binding。
 tags:
+  - check-authoring
   - product-contract
+  - public-api
 relations:
   - type: 替代
     target: 260815-expose-built-in-check-values-and-adjustment-functions

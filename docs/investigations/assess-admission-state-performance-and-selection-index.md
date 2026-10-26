@@ -14,14 +14,12 @@ relations: []
 ## 形成时背景
 
 本报告保存 `2026-09-03T11:15:08+00:00` 时对 Admission state 性能的调查认识，供后续性能 Change
-恢复问题、证据强度、候选方向与验证缺口。它不是实施授权、性能预算、public contract 或长期技术决定：
-当前行为由源码、测试和稳定行为文档 owner 承接；本报告的 Markdown 是本轮调查认识的语义 owner，
-`investigation-index.json` 只是它的派生发现索引。
+恢复问题、证据强度、候选方向与验证缺口；实施授权、性能预算、public contract 和长期技术决定由相应 owner 承接。
 
 历史 Change `provide-admission-strategy-simulation` 已交付，形成时目录现已按完成态策略删除。它引入 private parent+delta state，
 让 standalone `AdmissionGraph`、callback-bound `AdmissionState` 和真实 Scheduler 共用 legality、transition、
 forced-block 与 effect 语义，同时让 successor 保留 predecessor reference 而不复制完整动态状态。该已完成 Change
-提供本轮的形成时 benchmark 材料；它不是当前实现或下一轮优化方案的 owner。
+提供本轮的形成时 benchmark 材料。
 
 形成时的性能问题来自两个已观察到的事实：完整 Scheduler real-run 相对实施前同机记录变慢，以及当前实现会在
 state 查询、candidate 枚举、capacity/mutex/scope 判断和 forced-block closure 中重复扫描 graph 或 delta chain。

@@ -9,6 +9,7 @@ background: 既有方向提前采用 public Check lifecycle observation，但整
 decision: 采用完整逻辑位置、保持当前内部契约并推迟公开接口，由未来 Change 基于实际消费者重新设计
 tags:
   - product-contract
+  - project-run
   - workflow-policy
 relations:
   - type: 修订

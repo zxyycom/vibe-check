@@ -2,13 +2,14 @@
 title: "Momoa 选型确认与 Bun/candidate 闭合 spike"
 id: "260824-confirm-momoa-with-bun-and-candidate-spike"
 formedAt: "2026-08-24T14:28:56Z"
-question: "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
+question: "用户选定 Momoa 后，Bun 严格语义、重复键与位置单位及外部 candidate 依赖闭合已验证到哪一步，仍缺哪些材料和产品验收？"
 tags:
   - "implementation-libraries"
   - "json-validation"
 relations:
   - type: "补充"
     target: "260824-compare-minimal-json-duplicate-key-candidates"
+    summary: "补足已选Momoa的Bun语义与candidate依赖证据"
 ---
 
 ## 形成时背景
@@ -33,10 +34,23 @@ relations:
 
 ## 调查结果与边界
 
-**已确认和已执行。** 用户选择已写入 active/unaligned Decision 和 active Change；Momoa 现在是 root 与 candidate manifest 的精确 production dependency。Bun 实测 ESM import 成功，strict matrix 中六种合法 root 都成功、上述七种非严格输入都抛错。Momoa 不把 duplicate 视为 parse error，而是保留每个 `Object.members` 的 decoded name，因此 owning adapter 可以在 materialization 前将 direct 与 nested escaped duplicate 归一化为 Check-owned issue。候选 tarball 在临时外部 Bun consumer 中携带并解析了相同版本，证明 source workspace 的 ambient installation 不是这项结论的依据。
+### 已确认和已执行
 
-**位置语义。** emoji 样本中第二个 member 的 source UTF-16 index、Momoa `loc.start.offset` 与 `range[0]` 都是 `10`，而其前缀 UTF-8 bytes 是 `12`。因此若首版公开位置，必须明确为 UTF-16 code-unit offset，或在 Change 的 open question 中选择不公开位置；不能把 Momoa offset 标成 byte offset。
+用户选择已写入 active/unaligned Decision 和 active Change；形成时 Momoa 已成为 root 与 candidate manifest 的精确 production dependency。Bun 实测 ESM import 成功，strict matrix 中六种合法 root 都成功、上述七种非严格输入都抛错。Momoa 不把 duplicate 视为 parse error，而是保留每个 `Object.members` 的 decoded name，因此 owning adapter 可以在 materialization 前将 direct 与 nested escaped duplicate 归一化为 Check-owned issue。候选 tarball 在临时外部 Bun consumer 中携带并解析了相同版本，证明 source workspace 的 ambient installation 不是这项结论的依据。
 
-**license/material 结果。** `Apache-2.0` manifest 是可复核的 package metadata，足以进入后续 license review；但已安装 tarball 不包含 separate license text，且本项目尚未把该 third-party material 纳入 candidate legal inventory。故不能把 SPDX metadata 说成完整 license/material closure，也不能把 Decision 标为 aligned。
+### 位置语义
 
-**仍未验证与不应外推。** 本轮没有实现 private strict-document helper、bounded read、safe Record/final data、four-state settlement、issue cap/pointer semantics 或 public `jsonValidation`；未修改 Product semantic Cases；未跑完整 `typecheck`、`lint`、required/full Gate 或 benchmark Momoa 的 AST memory/throughput。严格 parser 的 direct behavior 不能替代最终 Check contract。库选型调查本身到此结束；上述 implementation/contract work 由 Change 和 Decision owner 继续承接，若 Momoa 版本、Bun compatibility 或内存预算改变，需要重新调查。
+emoji 样本中第二个 member 的 source UTF-16 index、Momoa `loc.start.offset` 与 `range[0]` 都是 `10`，而其前缀 UTF-8 bytes 是 `12`。因此若首版公开位置，必须明确为 UTF-16 code-unit offset，或在 Change 的 open question 中选择不公开位置；不能把 Momoa offset 标成 byte offset。
+
+### License/material 结果
+
+`Apache-2.0` manifest 是可复核的 package metadata，足以进入后续 license review；但已安装 tarball 不包含 separate license text，且本项目尚未把该 third-party material 纳入 candidate legal inventory。故不能把 SPDX metadata 说成完整 license/material closure，也不能把 Decision 标为 aligned。
+
+### 未覆盖的产品与工程验收
+
+本轮范围止于选型和 dependency/spike 闭合，后续 implementation/contract work 由 Change 和 Decision owner 承接：
+
+- 产品：private strict-document helper、bounded read、safe Record/final data、four-state settlement、issue cap/pointer semantics 和 public `jsonValidation` 均未实现；Product semantic Cases 未修改。
+- 工程与性能：完整 `typecheck`、`lint`、required/full Gate，以及 Momoa AST memory/throughput benchmark 均未运行。
+
+严格 parser 的 direct behavior 不能替代最终 Check contract。若 Momoa 版本、Bun compatibility 或内存预算改变，需要重新调查。

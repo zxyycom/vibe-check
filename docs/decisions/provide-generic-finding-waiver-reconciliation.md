@@ -9,6 +9,8 @@ background: 扫描前排除会丢失证据，Record ID 又不是所有 Check 都
 decision: public helper 对 caller-defined identity 批量对账 zero、one 与 many matches。
 tags:
   - configuration
+  - finding-waivers
+  - package-tools
   - product-contract
 relations:
   - type: 拆分

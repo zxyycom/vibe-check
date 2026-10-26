@@ -8,7 +8,10 @@ purpose: 让内置 Check values、独立调整 functions 和 Check tree types �
 background: value-owned methods 退出目标 API，BuiltInCheckDescriptor 也不再准确表达普通内置 Check 数据契约。
 decision: 公开契约统一拥有 replace、append、三个内置 value names 与 BuiltInCheck 等类型名称。
 tags:
+  - check-authoring
   - product-contract
+  - public-api
+  - public-naming
 relations:
   - type: 修订
     target: 260814-confirm-built-in-check-value-and-tree-type-names-before-publication

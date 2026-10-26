@@ -8,8 +8,10 @@ purpose: 让 downstream Check 安全复用 upstream canonical final data，而�
 background: 决策形成前，direct dependency 已提供顺序，Core 已保存 final data，但 callback 尚无 runtime read capability。
 decision: 用 non-generic string getter 授权 direct read，并由 producer-owned parser 恢复同一个 data contract。
 tags:
+  - check-dependencies
   - configuration
   - product-contract
+  - typed-providers
 relations:
   - type: 修订
     target: 260821-let-dependent-checks-read-settled-upstream-outputs

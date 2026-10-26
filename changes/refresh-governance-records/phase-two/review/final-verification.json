@@ -1,0 +1,45 @@
+{
+  "counts": {
+    "unchanged": 372,
+    "blank-lines-only": 71,
+    "semantic-or-heading": 61
+  },
+  "uniqueObjects": 504,
+  "allBeforeAndCurrentHashesVerified": true,
+  "allStagePatchesAppliedInMemoryToBeforeMatchCurrent": true,
+  "groups": [
+    {
+      "scope": "active",
+      "patchSha256": "9e859b1a583a59faee40e20581c32fb6f65bafdfaf6ce5c0fd73d9f73ace0be6",
+      "changedFiles": 22,
+      "appliedInMemoryToBeforeMatchesCurrent": true
+    },
+    {
+      "scope": "archive",
+      "patchSha256": "d65905843aca047a4731090d63f61ff6f29293060c8f800ec261984acb558eaa",
+      "changedFiles": 80,
+      "appliedInMemoryToBeforeMatchesCurrent": true
+    },
+    {
+      "scope": "investigations",
+      "patchSha256": "86450211f7c7ca417fa8957e5bd9f502350642033afdbfd879d4da845b99f91e",
+      "changedFiles": 6,
+      "appliedInMemoryToBeforeMatchesCurrent": true
+    },
+    {
+      "scope": "investigations-b",
+      "patchSha256": "6f95e7215a741f470607559046c9fcbcb8cd6a4a004b2dbb93136c8a7e43cb78",
+      "changedFiles": 11,
+      "appliedInMemoryToBeforeMatchesCurrent": true
+    },
+    {
+      "scope": "investigations-c",
+      "patchSha256": "d558479f299c9157c2f9ff1abee59908624bcac905ea491361d22fcd675a1777",
+      "changedFiles": 13,
+      "appliedInMemoryToBeforeMatchesCurrent": true
+    }
+  ],
+  "BExplicitFiveDimensions": 43,
+  "openFindings": [],
+  "scope": "Read-only document fidelity review; no historical execution, product tests, network, index/Change/Git writes."
+}

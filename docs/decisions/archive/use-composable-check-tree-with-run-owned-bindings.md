@@ -8,7 +8,10 @@ purpose: 让项目通过可组合 Check tree 选择和组织 Checks，同时让�
 background: Check tree 需要在 work 前形成稳定声明式模型，而内置 binding 依赖当次运行输入，不应成为 normalization 产物。
 decision: 使用 authoring-only Check tree；normalization flatten 声明式数据，Package Run 构造内置 binding。
 tags:
+  - check-authoring
   - configuration
+  - project-definition
+  - project-run
 relations:
   - type: 修订
     target: 260814-use-composable-check-tree-in-project-definition

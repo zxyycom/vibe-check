@@ -2,7 +2,7 @@
 title: "新 Package Tools Core 边界校验器的闭包漏检调查"
 id: "260912-investigate-core-package-tools-boundary-validation-gap"
 formedAt: "2026-09-12T08:12:45Z"
-question: "在本轮尚未提交的 Package Tools 边界校验器候选中，Core 依赖闭包为何会漏掉绝对 workspace literal import，动态 literal import 的处理又是否符合预定边界；在修复与正反证据尚未完成时，Project Gate 能形成何种可信结论？"
+question: "Package Tools 边界校验器候选为何漏掉绝对 workspace literal import、误拒绝 Core literal dynamic import，定向修复与正反验证能支持何种 Core 独立性结论？"
 tags:
   - "core-boundary"
   - "package-tools"
@@ -40,9 +40,13 @@ relations: []
 
 ## 调查结果与边界
 
+### 漏检机理
+
 **已确认的形成时结论：**候选早期 Core 闭包的相对路径前置筛选会漏掉一个可由当前 TypeScript 配置解析为 `src/package-tools/` 的绝对 workspace literal import。若把该实现接入 Project Gate，Gate 的“Core 不依赖工具”成功结果不能覆盖该类边，因而不能作为完整独立性结论。该结论属于本次候选的仓库校验可信度问题；它不涉及历史发布或发布包。
 
 **根因：**闭包遍历把 specifier 的书写形式（是否 `.` 开头）误作“是否应解析的仓库边”的判据；正确判据应是按当前 tsconfig/TypeScript resolution 得到的目标是否位于 workspace，以及目标的生产材料与 Core/工具分类。对可解析的绝对或 alias workspace literal 边，跳过 resolution 会丢失分类信息。
+
+### 定向修复与验证演进
 
 **修复后的本轮证据（已由独立审查复核）：**修复方已将所有 literal specifier 交给 TypeScript resolution；resolver 读取 root `tsconfig.json` 的 parsed options，只有无 config 的 fixture 才使用 fallback。解析到 workspace 的 relative、绝对和 `paths` alias edge 都进入 Core 闭包；Node/npm 是外部叶子，未知目标仍拒绝。Core literal dynamic import 会被收集、解析和遍历，工具 literal dynamic import 仍拒绝；nonliteral dynamic import 与直接 `require(...)` 继续 fail closed。实现方向不再以 specifier 是否 `.` 开头决定是否检查，而由实际解析目标和生产/Core/工具分类决定。
 
@@ -50,6 +54,8 @@ relations: []
 
 新增 fixture 覆盖绝对 workspace import、`@workspace` alias、literal dynamic import、nonliteral dynamic import 与 Core `import = require(...)`；其中 Core → Core 为正例，Core → tool 为负例。Core-only no-emit 已从一次性命令接入 layout characterization test，当前仍为 121 files、0 diagnostics。最终子 review 已复核新增 fixture 与局部 diff，并验证 target/scripts typecheck。此前修复方报告的 layout test、scripts lint/typecheck、Test Evidence 603/138 和局部 diff 是本轮较早阶段的证据；它们不单独证明后来发现的 import-equals 语法已覆盖。本报告未自行重跑这些命令，也未将临时 fixture 或日志作为随附资源保存。
 
-**独立复核与当前结论：**实施外 reviewer 已基于实际 diff 重跑并确认 layout test、Core no-emit（121 files）以及 absolute、`paths` alias、Core literal dynamic import 和 Core `import = require(...)` 的正反 fixture均符合预期。reviewer 还确认 `node:fs`、`immutable`、`typebox` 和绝对 `node_modules` 路径均正确归为 external，未发现新的当前可利用绕过。故本轮已证实的漏检及其后来发现的 import-equals 漏检均已由实际 resolution/classification 与 fail-closed 语法处理修复，且目标边界验证可再次支持该类 Core 独立性判断。
+### 独立复核与覆盖边界
+
+实施外 reviewer 已基于实际 diff 重跑并确认 layout test、Core no-emit（121 files）以及 absolute、`paths` alias、Core literal dynamic import 和 Core `import = require(...)` 的正反 fixture均符合预期。reviewer 还确认 `node:fs`、`immutable`、`typebox` 和绝对 `node_modules` 路径均正确归为 external，未发现新的当前可利用绕过。故本轮已证实的漏检及其后来发现的 import-equals 漏检均已由实际 resolution/classification 与 fail-closed 语法处理修复，且目标边界验证可再次支持该类 Core 独立性判断。
 
 这一结论只覆盖本轮未提交 candidate 的定向修复与证据。完整 Project Gate、Change 验收、包 candidate 和发布验收仍由主线在同一 candidate 上完成；本报告不替代这些交付，也不将当前观察外推到历史发布。任一 root 集合、tsconfig resolution、加载语法策略或工具目录分类改变后，应重新调查或补充本轮认识。

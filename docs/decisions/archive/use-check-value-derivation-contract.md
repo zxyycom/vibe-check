@@ -8,7 +8,9 @@ purpose: 让所有 Check 都能从明确 base Check 值以字段 owner 规则派
 background: 来源专属 helper 和 checkId lookup 把 Product 预先提供的 defaults 误塑成另一种 Check，无法承载统一 composition。
 decision: 所有 Check 共享 base-value derivation 与 binding-preservation；字段闭合且各自 owner，helper 名称留待 publication 前确认。
 tags:
+  - check-authoring
   - configuration
+  - public-api
 relations:
   - type: 替代
     target: 260815-use-standalone-built-in-check-adjustment-functions

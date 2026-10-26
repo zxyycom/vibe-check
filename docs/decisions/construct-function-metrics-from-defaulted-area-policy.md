@@ -9,6 +9,8 @@ background: 完整默认 Check value 混合扫描范围、阈值和无实际分�
 decision: functionMetrics 使用默认化 constructor 和区域政策，完整记录 findings 后按 effective blocking policy 结算。
 tags:
   - configuration
+  - function-metrics
+  - metric-policy
   - product-contract
 relations: []
 ---

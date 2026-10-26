@@ -8,7 +8,10 @@ purpose: 在每个 Check Task 的运行期容量上限不变时，让作者能�
 background: 容量收紧 reservation 保证局部上限可达，而 Definition 顺序不能可靠表达 ready Task 的启动偏好。
 decision: maxParallel 继续限制 admission 与运行期总并发；静态 priority 只在现有准入层级内打破 ready Task 的选择顺序，且不得抢占 reservation 或容量规则。
 tags:
+  - admission-scheduling
   - configuration
+  - parallel-limits
+  - scheduler
 relations:
   - type: 修订
     target: 260817-apply-check-parallel-limit-while-task-runs

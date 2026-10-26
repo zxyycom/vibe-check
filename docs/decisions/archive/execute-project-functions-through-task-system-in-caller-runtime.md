@@ -8,7 +8,11 @@ purpose: 让 Package Run 直接消费项目配置函数，并由既有 Task 系�
 background: 项目运行脚本已普通导入配置；整次运行再跨 worker 或进程会重复加载并阻断函数与 closure 的直接调用。
 decision: Package Run 在调用方 Bun runtime 中调用配置函数并提交 TaskPlan；不为整次 invocation 强制建立 Product-owned 隔离进程。
 tags:
+  - bun
   - product-contract
+  - project-run
+  - scheduler
+  - task-graph
 relations:
   - type: 替代
     target: 260812-contain-project-code-behind-private-runtime-boundary

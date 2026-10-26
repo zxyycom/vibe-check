@@ -8,6 +8,10 @@ purpose: 让首次公开 package 同时交付确定性格式检查与低样板�
 background: 四项离线格式 Check 已进入首版计划，用户进一步确认 maintenance reminders 也应提前，而高风险能力继续后置。
 decision: 首版前完成四项离线格式 Checks 与 ordinary maintenanceReminders value，并重新闭合 package 和 Gate 证据。
 tags:
+  - json-validation
+  - maintenance-reminders
+  - markdown-link-validation
+  - package-release
   - product-contract
   - product-priority
 relations: []

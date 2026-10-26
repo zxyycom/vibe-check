@@ -8,7 +8,10 @@ purpose: 让一次 invocation 的取消在唯一 Task engine 停止新 admission
 background: 同 runtime 项目函数无法被安全抢占，也没有可靠通用方式从抛错判断它是否“主动取消”；新增 running-cancelled settlement 会制造未定义协议。
 decision: engine 观察 AbortSignal 后停止新 admission、drain 已启动 Tasks，并按普通 settlement 闭合 Check；不推断 running-cancelled。
 tags:
+  - cancellation
   - product-contract
+  - scheduler
+  - task-graph
 relations:
   - type: 修订
     target: 260815-cooperatively-cancel-task-graphs

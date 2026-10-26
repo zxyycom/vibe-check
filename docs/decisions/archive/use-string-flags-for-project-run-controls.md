@@ -9,6 +9,9 @@ background: value payload 或 Product 对 token 的解释会扩大 Run Controls 
 decision: RunControls 使用可选字符串 flags；callback 获得规范化的必需 flag 集合，Product 只传递而不解释 token。
 tags:
   - configuration
+  - flags
+  - project-run
+  - run-controls
 relations: []
 ---
 

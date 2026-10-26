@@ -8,7 +8,9 @@ purpose: 让单次命令 Check 在受控进程结果后执行调用方领域结�
 background: 退出码模式无法复用 Product 进程边界完成 typed data、Records 与依赖派生环境。
 decision: 增加闭合环境解析与 afterCommand 完成阶段，同时保留默认退出码模式和输出边界。
 tags:
+  - command-check
   - configuration
+  - process-boundaries
   - product-contract
 relations: []
 ---

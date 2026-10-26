@@ -8,6 +8,9 @@ purpose: 先交付稳定的公共配置和用户可感知工作流，再处理�
 background: Lizard TypeScript port 收益与风险都高但用户感知有限；公共配置改为 scanner-tool 中立后，也不再需要为未来 port 预留一次配置迁移。
 decision: 先完成语义配置与外部项目工作流，再把 Lizard port 作为最终内部提升项，且 port 不得改变公共配置契约。
 tags:
+  - configuration
+  - function-metrics
+  - lizard
   - product-priority
 relations:
   - type: 修订
@@ -16,11 +19,13 @@ relations:
 ---
 
 ## 目的
+
 - 让后续路线建议先按用户价值和产品体验排序，不把技术依赖图或运行时统一误当成默认下一步。
 - 让外部项目从第一份可发现配置开始就使用稳定产品语义，不因未来 scanner backend 替换再次迁移。
 - 保留统一 TypeScript/Bun 运行时的长期方向，同时把高风险翻译和 parity 工作留到产品向结果之后。
 
 ## 背景
+
 - Lizard TypeScript port 可以删除 Python/Lizard process、private CSV protocol 和相关内部依赖，
   对运行时统一、依赖闭包与开发维护有明显收益，但保持现有 function-metrics 产品行为，用户
   直接感知有限。
@@ -33,6 +38,7 @@ relations:
   架构前置、产品交付顺序和最终内部优化。
 
 ## 决策
+
 - 采用: 先完成 scanner-tool-neutral semantic config change，再让
   `add-external-project-config-workflow` 直接生成、发现和 dogfood 最终 semantic config；不得
   为了提前推进 workflow 而暂时公开底层 scanner field。

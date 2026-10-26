@@ -8,7 +8,9 @@ purpose: 让项目直接用 TypeScript 对象展开、解构和数组操作修�
 background: Product 默认 Check 已是完整普通对象；partial parser 和派生 helper 会为语言已有的对象组合能力增加第二套语义。
 decision: Product 只提供完整默认 Check；项目用原生对象操作形成另一个完整 Check，Definition 只验证最终对象，不补全 partial override。
 tags:
+  - check-authoring
   - configuration
+  - public-api
 relations:
   - type: 替代
     target: 260815-use-check-value-derivation-contract

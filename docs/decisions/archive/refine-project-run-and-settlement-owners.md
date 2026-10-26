@@ -8,7 +8,11 @@ purpose: 让结算、项目运行、progress rendering、JSON document 与 packa
 background: 第二轮审计发现先前的 Check facts、Run output/cache、JSON document 与 public inventory 路径保留过渡命名或错误共享边界。
 decision: 采用 Check settlement、Project Run、Check-owned cache 和明确 package/tooling owner，删除泛化 effect 语义。
 tags:
+  - caching
   - configuration
+  - module-boundaries
+  - project-run
+  - source-layout
   - workflow-policy
 relations:
   - type: 修订

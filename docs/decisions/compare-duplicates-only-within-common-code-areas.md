@@ -9,6 +9,7 @@ background: 当前实现会把互斥 area 的文件合并比较，使独立 Prod
 decision: scanner 继续扫描 exact-input 并集，但只有全部 location 共享至少一个 area 时才形成 Finding。
 tags:
   - configuration
+  - duplicate-detection
   - product-contract
 relations:
   - type: 修订

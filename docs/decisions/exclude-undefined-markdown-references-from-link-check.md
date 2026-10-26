@@ -8,6 +8,7 @@ purpose: 让离线 Link Check 只验证可解析的本地引用完整性，不�
 background: 用户取消通用 Markdown Structure Check；parser audit 确认未定义 reference 不会成为 AST link occurrence。
 decision: Link 只处理 parser 产出的已解析 occurrence，未定义 reference 保持不报告，未来 syntax lint 需要独立消费者与 Change。
 tags:
+  - markdown-link-validation
   - product-contract
 relations: []
 ---

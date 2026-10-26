@@ -8,7 +8,10 @@ purpose: 让 Gate 保持 direct preset intent 与 Product 依赖选择的统一�
 background: Gate 已不再传入 effective selector 或 all policy；这些已由 Product 的默认有效列表折叠取代。
 decision: 保留 Gate direct presets 和 dependsOn propagation，省略 aggregation controls 并消费 Product 默认严格结果。
 tags:
+  - aggregation
   - configuration
+  - gate-selection
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

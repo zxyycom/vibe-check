@@ -8,7 +8,10 @@ purpose: 为 progress 与最终 RunResult 提供 monotonic duration，同时保�
 background: 消费者需要执行耗时反馈，但时长不是 terminal status、Record identity 或领域结算输入。
 decision: Project Run 报告 per-Check durationMs，不发布 wall-clock chronology 或独立 telemetry。
 tags:
+  - invocation-timing
   - product-contract
+  - progress-output
+  - project-run
 relations:
   - type: 拆分
     target: 260830-preserve-release-gate-readiness-with-invocation-creation-time

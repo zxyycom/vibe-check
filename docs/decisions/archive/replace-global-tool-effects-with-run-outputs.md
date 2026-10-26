@@ -8,7 +8,10 @@ purpose: 让 Run 只拥有 machine publication 与 progress rendering，并让 c
 background: 先前的全局 effects/cache 模型把不同 owner 的 IO 生命周期误当成同一产品能力。
 decision: 弃用全局 cache/effect；以 ProjectOutputs 与 duplicate options 表达各自 owner。
 tags:
+  - caching
   - product-contract
+  - project-run
+  - run-outputs
 relations:
   - type: 替代
     target: 260812-enable-tool-effects-by-default

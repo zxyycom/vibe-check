@@ -9,6 +9,8 @@ background: Policy 必须可验证和确定性复核，不能通过执行函数�
 decision: Run pre-work 以唯一 Resolved Check 集合验证政策；evaluator 只读取 Core Check、Record 与 reference facts。
 tags:
   - configuration
+  - decision-policy
+  - project-run
 relations:
   - type: 修订
     target: 260805-keep-decision-policies-closed-and-declarative

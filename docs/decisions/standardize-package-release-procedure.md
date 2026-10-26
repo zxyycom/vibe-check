@@ -8,6 +8,7 @@ purpose: 让后续发布复用同一套执行规则而不是重复选择流程
 background: 发布 tag、认证机制和证据位置反复作为临时输入，增加交接成本并容易漂移
 decision: 由 Package release 固定 latest、本地交互式 2FA 和公共 Git 目录中的证据归档，保留当次事实核验与授权
 tags:
+  - package-release
   - workflow-policy
 relations: []
 ---

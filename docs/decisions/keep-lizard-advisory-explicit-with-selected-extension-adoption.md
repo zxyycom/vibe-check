@@ -10,7 +10,10 @@ decision: advisory 继续 explicit-only 且不自动采用；仅 complextags+ND 
 tags:
   - configuration
   - dependency-policy
+  - function-metrics
+  - lizard
   - product-contract
+  - upstream-maintenance
   - workflow-policy
 relations:
   - type: 修订

@@ -8,6 +8,7 @@ purpose: 让决策分类脱离目录和集中注册表，并在稳定 Decision I
 background: 当前上游契约以 tags 和稳定 basename 管理决策，旧 domain 目录及 catalog 已阻断最新 CLI 校验。
 decision: 旧 domain 值一对一成为记录 tags；以根目录和 archive 表达位置，不保留 domain catalog。
 tags:
+  - decision-records
   - workflow-policy
 relations: []
 ---
@@ -19,11 +20,15 @@ relations: []
 
 ## 背景
 
-- 更新后的 `decision-records` Skill 已以 Markdown basename 作为稳定 ID，以 root/`archive/` 位置表达 lifecycle，并以 tags 生成查询索引。
+- 形成此决策时，更新后的 `decision-records` Skill 以 Markdown basename 作为稳定 ID，以 root/`archive/` 位置表达 lifecycle，并以 tags 生成查询索引。
 - 项目原有五个 domain 目录能提供单一分类，但会把位置、分类和注册表耦合，且不再满足当前上游契约。
 - 本次迁移已核对所有既有记录 basename 唯一；每条原有记录的 domain 可以无歧义地保留为一个 tag。
 
 ## 决策
+
+本记录保存从 domain 目录迁移到 tags 的分类选择；现行显式 ID 与 sourcePath 分离由
+[日期身份决策](use-dated-governance-record-identities.md)及[记录规则](../../.codex/skills/decision-records/references/decision-record-rules.md#记录身份与集合)拥有，
+不再从 basename 推断身份。原五项 tag 是迁移基线，不是封闭词表。
 
 - 采用: 既有 `configuration`、`product-contract`、`product-priority`、`testing` 与 `workflow-policy` domain 值一对一成为各自记录的 tag。
 - 采用: active 决策直接放在 `docs/decisions/`，archived 决策放在 `docs/decisions/archive/`；关系只引用稳定 Decision ID，不引用 source path。

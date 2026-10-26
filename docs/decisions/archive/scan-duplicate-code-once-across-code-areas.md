@@ -9,7 +9,9 @@ background: package marker 与 per-area 进程把启动细节、并发和质量�
 decision: 使用 Check-owned package/custom command，一次扫描全部 exact inputs，并以所涉及 area 中最严格的阈值过滤 finding。
 tags:
   - configuration
+  - duplicate-detection
   - product-contract
+  - scanner-dependencies
 relations: []
 ---
 

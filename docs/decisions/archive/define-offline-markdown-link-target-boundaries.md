@@ -9,7 +9,10 @@ background: 用户确认 Link 应内置、离线，并需要可选验证 project
 decision: Link 自己拥有 source scope 外与 project root 外本机目标的受控授权；默认不读取 root 外路径，网络与 raw path 仍不进入公共边界。
 tags:
   - configuration
+  - markdown-link-validation
   - product-contract
+  - project-files
+  - security
 relations: []
 ---
 

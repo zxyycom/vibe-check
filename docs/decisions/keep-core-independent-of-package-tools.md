@@ -8,7 +8,9 @@ purpose: 让 Core 独立于可选工具成立，并让目录自动约束工具�
 background: 分散工具容易混淆公开身份、Core 必需能力与可选实现，仅检查工具出向依赖不足以证明独立性。
 decision: 采用统一 Non-core 工具目录与两向门禁，Core tools 留在实际机制 owner，保持公共入口和单一实现。
 tags:
+  - architecture
   - dependency-policy
+  - package-tools
   - product-contract
 relations: []
 ---

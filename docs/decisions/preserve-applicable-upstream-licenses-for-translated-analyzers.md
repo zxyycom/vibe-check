@@ -9,7 +9,9 @@ background: 产品 owner 允许直接翻译；Lizard 1.24/Pygments provenance �
 decision: 原创部分继续使用 MIT，翻译或衍生 analyzer 按逐文件 provenance 保留 upstream 条款并进入独立 legal inventory。
 tags:
   - dependency-policy
+  - licensing
   - product-contract
+  - source-alignment
   - workflow-policy
 relations:
   - type: 修订

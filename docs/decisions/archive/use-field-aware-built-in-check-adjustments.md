@@ -8,7 +8,9 @@ purpose: 让项目从内置 Check 默认值声明式地覆写或追加所需字�
 background: 手写多层 object spread 暴露 descriptor 表示细节，通用 deep merge 又无法可靠区分字段覆写与 collection 追加。
 decision: 内置 descriptor 提供字段感知的 replace 与 append 方法，返回保持稳定身份的新 frozen descriptor。
 tags:
+  - check-authoring
   - configuration
+  - public-api
 relations:
   - type: 修订
     target: 260814-keep-built-in-options-owned-and-tool-neutral

@@ -9,7 +9,10 @@ background: 双来源各自获取候选，范围提前生效不一致；叠加 i
 decision: 收集只使用 filesystem 和 include/exclude，移除 source 与 Git 枚举，不解释 ignore；保留同步工具和 Check 输入边界
 tags:
   - configuration
+  - file-selection
+  - filesystem
   - product-contract
+  - project-files
 relations:
   - type: 归并
     target: 260828-select-check-files-from-explicit-sources

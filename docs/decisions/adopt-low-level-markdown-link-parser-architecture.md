@@ -9,6 +9,7 @@ background: 用户在审阅库调查后确认采用现成 parser/slug 加 Link-o
 decision: Link 以低层 parser/slugger 生成私有 facts，target authorization 与安全语义仍由 Check 自己拥有。
 tags:
   - dependency-policy
+  - markdown-link-validation
   - product-contract
 relations: []
 ---

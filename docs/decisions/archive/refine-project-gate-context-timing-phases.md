@@ -9,6 +9,9 @@ background: 既有 afterGate context 只列举 startedAt、initialResultAt 与 t
 decision: 保留一个 Gate-owned afterGate context 和总 elapsed，并增加三段只读 phase timing；observer 仍只输出 advisory。
 tags:
   - configuration
+  - gate-diagnostics
+  - gate-performance
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

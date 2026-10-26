@@ -9,7 +9,9 @@ background: 顶层 files、默认阈值和 area override map 把同一策略拆�
 decision: 每个 area 直接拥有完整 files 与 line/token 阈值，scanner 扫描各区域输入的去重并集并按最严格涉及区域策略过滤。
 tags:
   - configuration
+  - duplicate-detection
   - product-contract
+  - project-files
 relations:
   - type: 修订
     target: 260828-scan-duplicate-code-once-across-code-areas

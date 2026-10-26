@@ -9,7 +9,10 @@ background: 固定数量与长度不能满足不同终端摘要需求，而 rend
 decision: 由 progress output 配置独立限制和同步文本 formatter，回调结果继续转义限长且不进入事实或指纹。
 tags:
   - configuration
+  - finding-presentation
   - product-contract
+  - progress-output
+  - public-api
   - workflow-policy
 relations:
   - type: 修订

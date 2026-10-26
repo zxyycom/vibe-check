@@ -12,6 +12,7 @@ tags:
 relations:
   - type: "复查"
     target: "260901-diagnose-bun-cold-project-gate-candidate-import"
+    summary: "在新bootstrap与冷场景复查并收窄模块缓存归因"
 ---
 
 ## 形成时背景
@@ -29,7 +30,7 @@ relations:
 3. 显式 physical integration target 的 outer 30 秒/inner 20 秒预算是否会掩盖或复现该 Gate bound-run 导入边界？
 4. 已观察结果支持什么程度的 Gate adapter/module-resolution 判断，仍有哪些不能归因或外推？
 
-调查不修改 Product、package candidate、manifest、lockfile、timeout、环境脚本或测试；不安装新的工具链或根开发依赖，不发布或提交。正式 Gate/candidate 入口仍会按其既有 lifecycle build/install private candidate 及其依赖，这正是本轮要观察的 candidate 事实。**执行边界例外：**形成此报告时，一次未引号 shell heredoc 使 Markdown backtick 被 shell substitution 解释；可由 main `.log/project-gate` 目录确认它意外运行了三次 root typecheck Gate，receipt/build/private-consumer mtime 同处该窗口，且 shell output 确认至少一次 root `package:status`。报告写入后已核对没有存活的 Bun/mise/pnpm/candidate process，停止所有新增实验与主 Gate 操作。没有该事故前的紧邻主 candidate identity snapshot，不能将先前获得的 version 与这次写入严格比较；本报告不把主工作区称为未触及。
+调查不修改 Product、package candidate、manifest、lockfile、timeout、环境脚本或测试；不安装新的工具链或根开发依赖，不发布或提交。正式 Gate/candidate 入口仍会按其既有 lifecycle build/install private candidate 及其依赖，这正是本轮要观察的 candidate 事实。
 
 ## 调查范围与依据
 
@@ -45,6 +46,10 @@ relations:
 2. 第一个 cold snapshot 在 candidate 已留下后，以新进程再次运行相同正式 Gate，作为 warm/current reuse 对照。
 3. 独立 snapshot 运行 `TMPDIR=<case>/tmp bun run package:candidate:integration`；入口本身的 outer process timeout 为 30 秒，`candidate.integration.ts` suite 和 cold build/install/reuse test 均为 20 秒。
 4. 在 primary Gate 已指向 prepare 后 load 边界后，运行两个 temporary-only observer：一个从 `runProjectGate(["--typecheck"])` 调用正式 adapter API，另一个仅执行 `preparePackageCandidate()` 后在同一进程 dynamic import `bound-run.ts`，都不调用 Product Run 或改动被调查 source。
+
+### 实际执行中的边界例外
+
+形成此报告时，一次未引号 shell heredoc 使 Markdown backtick 被 shell substitution 解释；可由 main `.log/project-gate` 目录确认它意外运行了三次 root typecheck Gate，receipt/build/private-consumer mtime 同处该窗口，且 shell output 确认至少一次 root `package:status`。报告写入后已核对没有存活的 Bun/mise/pnpm/candidate process，停止所有新增实验与主 Gate 操作。没有该事故前的紧邻主 candidate identity snapshot，不能将先前获得的 version 与这次写入严格比较；本报告不把主工作区称为未触及。
 
 ## 调查结果与边界
 

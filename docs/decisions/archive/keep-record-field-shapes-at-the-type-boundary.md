@@ -9,7 +9,10 @@ background: Record field descriptor 重复表达 TypeScript shape，现有 Produ
 decision: Record field shape 只由 Check-owned TypeScript generic 表达；runtime 与 machine 仅接收 canonical JSON。
 tags:
   - configuration
+  - json-validation
   - product-contract
+  - quality-records
+  - typescript
 relations: []
 ---
 

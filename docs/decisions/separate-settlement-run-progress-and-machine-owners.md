@@ -9,6 +9,8 @@ background: 泛化 Run effect 路径会把领域结算、presentation 与 public
 decision: settlement 关闭 Check facts；Project Run 编排 invocation；progress 与 machine 各自拥有输出语义。
 tags:
   - configuration
+  - machine-output
+  - project-run
   - workflow-policy
 relations:
   - type: 拆分

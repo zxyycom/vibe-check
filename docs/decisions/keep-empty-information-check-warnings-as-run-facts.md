@@ -9,6 +9,8 @@ background: 空 Check warning 已由 Definition normalization 形成；Product �
 decision: 空 Check warning 通过 definitionWarnings；Product 不恢复 logs 或 warning renderer。
 tags:
   - configuration
+  - project-definition
+  - project-run
 relations:
   - type: 修订
     target: 260817-allow-empty-information-checks-with-warning

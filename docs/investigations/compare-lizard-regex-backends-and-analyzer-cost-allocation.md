@@ -15,6 +15,7 @@ tags:
 relations:
   - type: "补充"
     target: "260903-explain-cpython-jsc-lizard-regex-performance-gap"
+    summary: "补充分层成本、正则后端交付与Node对照"
 ---
 
 ## 形成时背景
@@ -48,7 +49,7 @@ relations:
 
 - 输入是前序保存的 request：254 个真实 `.ts` source、1,138,778 UTF-8 bytes。完整 analyzer guard 为 2,222 条 canonical metrics，digest `29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6`。
 - raw TypeScriptReader guard 在两侧相同：295,156 tokens、token text/position accumulation digest `a3a71bd5022b4d6b9f15d2bd24b4947ff9e3c61d7395794be82042b3635fff98`。现有 matcher-level guard 则是 296,074 matches、matched text/UTF-16 start digest `47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e`。
-- 正式 Python/TS measurement runtime 为 Bun 1.3.14、CPython 3.12.13、upstream Lizard 1.24.0 commit `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`；主 Node control 为项目 engines `>=24 <25` 内的 Node 24.18.0 / V8 13.6.233.17-node.50（由 CPython 3.14.7 controller 经 `mise exec -- python3 ...` 启动，child identity 已记录）；host 为 Linux WSL2 / AMD Ryzen AI 7 H 450。`provenance.json` 分别记录 measurement runtimes 与 synthesis host，并保存完整 inputs、resource hashes 和 temporary-source hashes。它是 runtime diagnostic 与后续 go/no-go 输入，**不是** Product runtime 采用建议。
+- 正式 Python/TS measurement runtime 为 Bun 1.3.14、CPython 3.12.13、upstream Lizard 1.24.0 commit `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`；主 Node control 为项目 engines `>=24 <25` 内的 Node 24.18.0 / V8 13.6.233.17-node.50（由 CPython 3.14.7 controller 经 `mise exec -- python3 ...` 启动，child identity 已记录）；host 为 Linux WSL2 / AMD Ryzen AI 7 H 450。`provenance.json` 分别记录 measurement runtimes 与 synthesis host，并保存完整 inputs、resource hashes 和 temporary-source hashes。它保存 runtime diagnostic 与后续 go/no-go 输入。
 
 ### Python/TypeScript 分层协议与可相加边界
 
@@ -80,19 +81,19 @@ relations:
 
 **本轮答案：**`vscode-oniguruma@2.0.1` 是**中等**接入成本，而非一行替换：需要随包 WASM artifact、realm-global async init、capture-range/flag adapter、显式 dispose，以及 Worker cancel/RSS、external-consumer artifact 验证。
 
-**证据强度与非授权边界：**有真实 TS raw token text/UTF-16 offset parity 与 raw speed signal；尚无全 reader、full analyzer、Product 或 resource gate 证据，故不采用、不安装、不增加 runtime switch/fallback。
+**证据边界：**有真实 TS raw token text/UTF-16 offset parity 与 raw speed signal；尚无全 reader、full analyzer、Product 或 resource gate 证据，采用前仍须闭合这些证据。
 
 #### 正则是否是主卡点、占多少？
 
 **本轮答案：**在这个 real-TS analyzer-only workload 中，token path 是**最强的主要候选**：TS isolated token/full median scale 约 **71.4%**，Python 为约 **32.8%**；token-generation gap **410.68 ms** 与 formal full gap **410.90 ms**量级近乎相同。regex-only 的直接热点证据是 combined native `RegExp` **68.0% self samples**。
 
-**证据强度与非授权边界：**71.4%/32.8% 与“gap≈full gap”来自不同 driver、样本和嵌套 pipeline 的比例观察；68% 是 sampling self。它们支持优先级，**不**证明 regex 精确占比、100% 因果归属或可回收毫秒。
+**证据边界：**71.4%/32.8% 与“gap≈full gap”来自不同 driver、样本和嵌套 pipeline 的比例观察；68% 是 sampling self。它们支持优先级，**不**证明 regex 精确占比、100% 因果归属或可回收毫秒。
 
 #### npm/native/CLI 还有候选吗？
 
 **本轮答案：**有真正的现代 npm PCRE2-WASM engine，但兼容不等于高效或可交付：`pcre2-wasm@10.47.5` 通过 exact stream guard，却在**同 raw corpus/guard/字段消费协议**的 warm `matchAll` 为 2,842.38 ms、native 为 666.94 ms（**4.26×慢**）。`onigasm@2.2.5` 也通过 exact guard；其 own raw driver 为 465.82 ms、生命周期较弱，因而不是第二 engine candidate（不把该数与 VS Code Oniguruma driver 直接比较）。其它 PCRE2 wrapper 分别 import 或 mandatory property 失败，RE2 variants 因 `(?=`拒绝。**在 Bun 内 regex-backend 筛选中**唯一仍值得继续的候选是 Oniguruma WASM；native/Node-API 是远期交付项目，CLI 不应产品化或继续 benchmark full pipeline。独立于 backend，Node 24 runtime-support/migration 是应先做 go/no-go 的路径。
 
-**证据强度与非授权边界：**PCRE2 只可与同协议 native control 比较，且仅属于 raw scanner；不得与 Onig 的其他 raw driver、token/full driver 相减。CLI 的 **38.70 ms**只是预写文件后的 child+scan+JSON parse；纳入 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 后为 **306.24 ms**，其中 16.05 MB stdout 和 **291.80 ms** scan+decode/parse+mapping+digest 吞没 raw-engine signal。
+**证据边界：**PCRE2 只可与同协议 native control 比较，且仅属于 raw scanner；不得与 Onig 的其他 raw driver、token/full driver 相减。CLI 的 **38.70 ms**只是预写文件后的 child+scan+JSON parse；纳入 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 后为 **306.24 ms**，其中 16.05 MB stdout 和 **291.80 ms** scan+decode/parse+mapping+digest 吞没 raw-engine signal。
 
 ### 数字阅读顺序与不可相减边界
 
@@ -105,13 +106,13 @@ relations:
 
 ### 可声称的性能分配观察
 
-| 观察                                         |                                                                             数值 | 可支持的结论                                                                                                      | 不可支持的结论                                                            |
+| 观察 | 数值 | 可支持的结论 | 不可支持的结论 |
 | -------------------------------------------- | -------------------------------------------------------------------------------: | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| formal complete analyzer median              | Python 304.21 ms；TS 715.11 ms；paired Python/TS 0.4264，95% CI [0.3978, 0.4388] | 当前 real-TS analyzer-only scope 下 TS 约 2.35× Python                                                            | Product、consumer 或 cold Worker 性能                                     |
-| raw TypeScriptReader token generation median | Python 99.84 ms；TS 510.52 ms；paired Python/TS 0.1943（8 blocks 0.1889–0.1987） | 相同 token stream 的 isolated token generation 在 TS 约 5.15× Python，故是最强的当前 gap candidate                | regex engine 单独就是 5.15×；该数字还含 wrapper/template/array allocation |
-| TS token/full median scale                   |                                                   510.52 / 715.11 = **约 71.4%** | 在两个有相同 corpus/output 但不同 driver 的 median scale 上，TS token generation 与完整 analyzer 同量级且占大部分 | “TS regex 精确占 full 的 71.4%”或可回收 71.4%                             |
-| Python token/full median scale               |                                                    99.84 / 304.21 = **约 32.8%** | Python full pipeline 中相同 isolated token stage 的相对量级较小                                                   | 两侧 processor/state 的精确差值                                           |
-| 两侧 token-generation gap 与 formal full gap |                  510.52 − 99.84 = **410.68 ms**；715.11 − 304.21 = **410.90 ms** | 两个差值量级近乎相同，进一步加强“token path 是主要候选”的优先级                                                   | “100% full gap 已由 regex 证明”或可直接相减的因果 allocation              |
+| formal complete analyzer median | Python 304.21 ms；TS 715.11 ms；paired Python/TS 0.4264，95% CI [0.3978, 0.4388] | 当前 real-TS analyzer-only scope 下 TS 约 2.35× Python | Product、consumer 或 cold Worker 性能 |
+| raw TypeScriptReader token generation median | Python 99.84 ms；TS 510.52 ms；paired Python/TS 0.1943（8 blocks 0.1889–0.1987） | 相同 token stream 的 isolated token generation 在 TS 约 5.15× Python，故是最强的当前 gap candidate | regex engine 单独就是 5.15×；该数字还含 wrapper/template/array allocation |
+| TS token/full median scale | 510.52 / 715.11 = **约 71.4%** | 在两个有相同 corpus/output 但不同 driver 的 median scale 上，TS token generation 与完整 analyzer 同量级且占大部分 | “TS regex 精确占 full 的 71.4%”或可回收 71.4% |
+| Python token/full median scale | 99.84 / 304.21 = **约 32.8%** | Python full pipeline 中相同 isolated token stage 的相对量级较小 | 两侧 processor/state 的精确差值 |
+| 两侧 token-generation gap 与 formal full gap | 510.52 − 99.84 = **410.68 ms**；715.11 − 304.21 = **410.90 ms** | 两个差值量级近乎相同，进一步加强“token path 是主要候选”的优先级 | “100% full gap 已由 regex 证明”或可直接相减的因果 allocation |
 
 这三条比例观察的共同限制是：raw control 与 formal full analyzer 的 driver、sample count、child/JIT/GC 状态和包含工作不同。它们是**比例/量级 evidence**，不是完整 analyzer 的严格 mutually-exclusive profile。regex-only 的最佳直接证据仍是前序 Bun sampling 中 combined native `RegExp` **68.0% self samples**，以及同 raw matcher 的 symmetric 8–10× control；sampling self 仍是热点排序，不是可回收 wall percent。
 
@@ -123,11 +124,11 @@ relations:
 
 matcher 的计时体**只**读取 `text.length + match.index`，完全不含 SHA digest；精确 `(matched text, UTF-16 start)` SHA-256 guard 在计时**前** preflight，并在每次 warm/timed operation 后于计时**外**重跑。token/full mode 的 digest guard 同样在计时外。因此 `operationMs` 可比较 engine execution，但不能伪装成含 guard 的 end-to-end child latency。
 
-| 同一 TS port 的 operation                          | Node 24/V8 median（p10–p90） | Bun/JSC median（p10–p90） | paired Node/Bun median | guard                                                                          |
+| 同一 TS port 的 operation | Node 24/V8 median（p10–p90） | Bun/JSC median（p10–p90） | paired Node/Bun median | guard |
 | -------------------------------------------------- | ---------------------------: | ------------------------: | ---------------------: | ------------------------------------------------------------------------------ |
-| raw native `RegExp` fields (`text.length + index`) |       12.58 ms (12.35–13.37) | 439.38 ms (431.48–445.13) |  0.0285（Bun约 35.1×） | 296,074 raw text + UTF-16 starts exact SHA pre/post；每 sample count/field-sum |
-| raw TypeScriptReader token materialization         |       69.27 ms (66.10–74.04) | 489.32 ms (476.55–504.23) |  0.1419（Bun约 7.05×） | 295,156 token text/position digest                                             |
-| complete analyzer + Product-field projection       |    128.79 ms (123.67–133.47) | 636.85 ms (625.63–664.68) |  0.1994（Bun约 5.02×） | 2,222 canonical metrics digest                                                 |
+| raw native `RegExp` fields (`text.length + index`) | 12.58 ms (12.35–13.37) | 439.38 ms (431.48–445.13) | 0.0285（Bun约 35.1×） | 296,074 raw text + UTF-16 starts exact SHA pre/post；每 sample count/field-sum |
+| raw TypeScriptReader token materialization | 69.27 ms (66.10–74.04) | 489.32 ms (476.55–504.23) | 0.1419（Bun约 7.05×） | 295,156 token text/position digest |
+| complete analyzer + Product-field projection | 128.79 ms (123.67–133.47) | 636.85 ms (625.63–664.68) | 0.1994（Bun约 5.02×） | 2,222 canonical metrics digest |
 
 这在此 workload 上把当前差距强烈定位到 **runtime engine/execution**，而非 TypeScript translation 有无运行或 reader semantic drift；它仍不能拆分为 V8 regexp JIT、JS object/generator execution、GC 或其他 runtime internals 的精确因果份额，也不代表其它 V8、Bun upgrade 或 Product latency。
 
@@ -139,12 +140,12 @@ matcher 的计时体**只**读取 `text.length + match.index`，完全不含 SHA
 
 `vscode-oniguruma@2.0.1` 是本轮 **Bun 内 regex backend** 筛选中唯一有真实 TS raw-token text/UTF-16 offset parity 和 speed signal 的外部 backend，但接入不是一行 `matchAll` 替换：
 
-| 项目             | 已测事实 / 所需工作                                                                                                                                                                   | 结论边界                                                                                                                  |
+| 项目 | 已测事实 / 所需工作 | 结论边界 |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| artifact/init    | package 约 507 KB，`onig.wasm` 473,151 bytes；`loadWASM` 异步且为 realm-global single init                                                                                            | one-shot Worker 每次承担 init；必须随 artifact 分发、不得 runtime download                                                |
-| matching adapter | scanner 返回 capture range而非 token text；binding 已将内部 UTF-8 range 转为 `captureIndices` 的 JS UTF-16 offset，adapter 必须 source slice、用 full capture range，并显式映射 flags | 需覆盖 astral、malformed source、26 shared readers、PHP outer/inner named semantics；Erlang local lexer不应被强行迁移     |
-| resources/cancel | `OnigScanner` 与 `OnigString` 必须 `dispose()`；正常处理要 `finally`，terminate 只能依赖 realm teardown                                                                               | 10 次 Worker load/terminate 后 parent RSS 41.32→71.72 MiB 是未解释 risk signal，不是已证明 leak，也尚未满足 resource gate |
-| raw timing       | 同字段 254-file warm raw：native 557.84 ms，Onig 98.91 ms；fresh cold total 187.40 ms                                                                                                 | 都是 raw scanner，非 full analyzer/Product；cold cost会削弱 one-shot Worker 收益                                          |
+| artifact/init | package 约 507 KB，`onig.wasm` 473,151 bytes；`loadWASM` 异步且为 realm-global single init | one-shot Worker 每次承担 init；必须随 artifact 分发、不得 runtime download |
+| matching adapter | scanner 返回 capture range而非 token text；binding 已将内部 UTF-8 range 转为 `captureIndices` 的 JS UTF-16 offset，adapter 必须 source slice、用 full capture range，并显式映射 flags | 需覆盖 astral、malformed source、26 shared readers、PHP outer/inner named semantics；Erlang local lexer不应被强行迁移 |
+| resources/cancel | `OnigScanner` 与 `OnigString` 必须 `dispose()`；正常处理要 `finally`，terminate 只能依赖 realm teardown | 10 次 Worker load/terminate 后 parent RSS 41.32→71.72 MiB 是未解释 risk signal，不是已证明 leak，也尚未满足 resource gate |
+| raw timing | 同字段 254-file warm raw：native 557.84 ms，Onig 98.91 ms；fresh cold total 187.40 ms | 都是 raw scanner，非 full analyzer/Product；cold cost会削弱 one-shot Worker 收益 |
 
 WASM 比自建 Node-API addon 避免每 OS/arch prebuild、native binary 供应链和 CLI subprocess protocol，因此是**中等而非极高**接入成本；但它仍触及 private tokenizer、Worker async initialization、package asset/legal inventory、resource/cancellation tests与 external-consumer artifact acceptance。不能把它描述成零成本“后端优化”。
 
@@ -156,22 +157,22 @@ WASM 比自建 Node-API addon 避免每 OS/arch prebuild、native binary 供应�
 
 ### npm/native/CLI 矩阵
 
-| 候选                              | contract / evidence                                                                                                                                                                | delivery judgment                                                                                                                                                             |
+| 候选 | contract / evidence | delivery judgment |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`vscode-oniguruma@2.0.1` WASM** | current TS raw parity与 speed signal；26 shared patterns和 PHP outer 曾 compile                                                                                                    | **形成时 Bun 内 backend 路径的唯一继续候选**：先 all-reader token parity、full analyzer/Product ABBA、Worker RSS/cancel、exact artifact；不采用、不加 runtime switch/fallback |
-| Shiki Oniguruma / `onigasm@2.2.5` | 前者只通过 local Bun smoke；后者通过 exact raw `(text, UTF-16 start)` guard，warm raw 465.82 ms，但 release旧且无 public deterministic scanner/string dispose（module-global LRU） | 不如已有 `vscode-oniguruma` speed signal且 lifecycle较弱；不是第二 engine candidate                                                                                           |
-| **`pcre2-wasm@10.47.5`**          | 现代 embedded-binary PCRE2 WASM；通过 296,074 exact raw text/UTF-16 guard，wrapper index 已是 JS UTF-16 character index                                                            | **性能排除**：same-harness native `matchAll` 2,842.38 ms vs native 666.94 ms（4.26×慢）；iterator 7,757.13 ms。不能与其他 harness 或 full analyzer相减                        |
-| other PCRE2 WASM wrappers         | `@ofjansen/pcre2-wasm@1.4.0` 在 Bun import 直接 `document is not defined`；universal fork init后因 mandatory `\p{White_Space}` compile fail                                        | 这些是 exact wrapper/delivery/grammar exclusion，不是对 PCRE2 engine 的普遍速度结论                                                                                           |
-| RE2 / Rust regex / Hyperscan      | 新 `@adguard/re2-wasm@1.2.1` 与 pure-JS `re2js@2.8.6`仍因 mandatory `(?=`拒绝；当前 26 shared patterns还需要 lookahead，PHP另有 named backreference/capture                        | direct replacement 不兼容；重写 pattern 是 tokenizer redesign，不作 backend optimization                                                                                      |
-| PCRE2 native / Node-API           | 可表达 feature且可选择 16-bit code units/JIT                                                                                                                                       | 没有 Bun-proven full-corpus binding；需要 prebuild、ownership、Worker, SBOM/CVE/license与平台策略，是远期 native-backend project                                              |
-| `rg --pcre2` / other CLI          | 预写 files 的 child+scan+JSON parse 38.70 ms；包含 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 的 bounded control 为 **306.24 ms**               | 不是 Product CLI，PATH/build/JIT不受控；16.05 MB stdout以及 scan+decode/parse+mapping+digest 的 291.80 ms 计时吞没 raw engine signal；不产品化、不再 benchmark full pipeline  |
-| Moo/Chevrotain/parser             | built-in JS RegExp 或不同 token/AST contract                                                                                                                                       | 没有 exact stream 的替代引擎或已证收益，排除                                                                                                                                  |
+| **`vscode-oniguruma@2.0.1` WASM** | current TS raw parity与 speed signal；26 shared patterns和 PHP outer 曾 compile | **形成时 Bun 内 backend 路径的唯一继续候选**：先 all-reader token parity、full analyzer/Product ABBA、Worker RSS/cancel、exact artifact；不采用、不加 runtime switch/fallback |
+| Shiki Oniguruma / `onigasm@2.2.5` | 前者只通过 local Bun smoke；后者通过 exact raw `(text, UTF-16 start)` guard，warm raw 465.82 ms，但 release旧且无 public deterministic scanner/string dispose（module-global LRU） | 不如已有 `vscode-oniguruma` speed signal且 lifecycle较弱；不是第二 engine candidate |
+| **`pcre2-wasm@10.47.5`** | 现代 embedded-binary PCRE2 WASM；通过 296,074 exact raw text/UTF-16 guard，wrapper index 已是 JS UTF-16 character index | **性能排除**：same-harness native `matchAll` 2,842.38 ms vs native 666.94 ms（4.26×慢）；iterator 7,757.13 ms。不能与其他 harness 或 full analyzer相减 |
+| other PCRE2 WASM wrappers | `@ofjansen/pcre2-wasm@1.4.0` 在 Bun import 直接 `document is not defined`；universal fork init后因 mandatory `\p{White_Space}` compile fail | 这些是 exact wrapper/delivery/grammar exclusion，不是对 PCRE2 engine 的普遍速度结论 |
+| RE2 / Rust regex / Hyperscan | 新 `@adguard/re2-wasm@1.2.1` 与 pure-JS `re2js@2.8.6`仍因 mandatory `(?=`拒绝；当前 26 shared patterns还需要 lookahead，PHP另有 named backreference/capture | direct replacement 不兼容；重写 pattern 是 tokenizer redesign，不作 backend optimization |
+| PCRE2 native / Node-API | 可表达 feature且可选择 16-bit code units/JIT | 没有 Bun-proven full-corpus binding；需要 prebuild、ownership、Worker, SBOM/CVE/license与平台策略，是远期 native-backend project |
+| `rg --pcre2` / other CLI | 预写 files 的 child+scan+JSON parse 38.70 ms；包含 materialize、scan、decode/parse、UTF-8-byte→UTF-16 mapping、digest 与 cleanup 的 bounded control 为 **306.24 ms** | 不是 Product CLI，PATH/build/JIT不受控；16.05 MB stdout以及 scan+decode/parse+mapping+digest 的 291.80 ms 计时吞没 raw engine signal；不产品化、不再 benchmark full pipeline |
+| Moo/Chevrotain/parser | built-in JS RegExp 或不同 token/AST contract | 没有 exact stream 的替代引擎或已证收益，排除 |
 
 ### 建议、停止条件与未知
 
-**形成时第一优先级、独立的 Investigation 是 Node 24 runtime-support/migration go/no-go，而不是采用授权。**在项目 engines `>=24 <25` 内，Node 24 的同-port control 仍显示 matcher、token、full operation 的 material speedup；这条路径不要求重写 translated core，却不能凭 benchmark 直接改变 Product runtime。它必须验证：正式 Product API 与 error contract、Worker creation/cancel/termination、package/packed artifact、external Node consumer、现有 Bun support/consumer compatibility、Project Gate 与 cold/warm representative workload。任一支持、语义、交付或端到端收益 gate 不闭合即停止；本报告不授权更改官方 runtime、依赖或 package contract。当轮停止时未启动此 Investigation；本报告不定义今天是否行动。
+**形成时第一优先级、独立的 Investigation 是 Node 24 runtime-support/migration go/no-go。**在项目 engines `>=24 <25` 内，Node 24 的同-port control 仍显示 matcher、token、full operation 的 material speedup；这条路径不要求重写 translated core，却不能凭 benchmark 直接改变 Product runtime。它必须验证：正式 Product API 与 error contract、Worker creation/cancel/termination、package/packed artifact、external Node consumer、现有 Bun support/consumer compatibility、Project Gate 与 cold/warm representative workload。任一支持、语义、交付或端到端收益 gate 不闭合即停止。当轮停止时未启动此 Investigation。
 
-**形成时仅在 Bun 仍被选择或必须支持的前提下，Bun 内 regex-backend 路径唯一值得继续的是 `vscode-oniguruma`。**第二轮实测确认“有真正 npm engine”不代表它在 required stream 上快或易交付；`pcre2-wasm@10.47.5` 已因 same-harness 4.26× 的 raw slowdown 排除。Onig spike 仍先闭合：每 token text/UTF-16 offset/progress、26 shared readers + PHP、现有 27-reader oracle、macro/template/processor/extensions、Worker cancellation/error/RSS、no-download packed artifact/external Bun consumer；之后才在同 runner 比较 raw、full analyzer与 Product cold/warm。任一语义、resource、delivery或稳定收益门槛失败即停止，保留 built-in baseline。它不是依赖、runtime switch/fallback 或 WASM adoption 授权；当轮停止时未启动该 spike。
+**形成时仅在 Bun 仍被选择或必须支持的前提下，Bun 内 regex-backend 路径唯一值得继续的是 `vscode-oniguruma`。**第二轮实测确认“有真正 npm engine”不代表它在 required stream 上快或易交付；`pcre2-wasm@10.47.5` 已因 same-harness 4.26× 的 raw slowdown 排除。Onig spike 仍先闭合：每 token text/UTF-16 offset/progress、26 shared readers + PHP、现有 27-reader oracle、macro/template/processor/extensions、Worker cancellation/error/RSS、no-download packed artifact/external Bun consumer；之后才在同 runner 比较 raw、full analyzer与 Product cold/warm。任一语义、resource、delivery或稳定收益门槛失败即停止，保留 built-in baseline。当轮停止时未启动该 spike。
 
 built-in staged-generic仍是无依赖 same-output control，但它会改 translated tokenizer execution shape；quoted-string staging因语义难度已明确不在当前路径。不得以 RE2/Rust/Hyperscan 的 feature限制反向驱动 regex rewrite，也不得以 CLI、Worker pooling或 Product adapter 重构绕过 tokenizer gate。
 

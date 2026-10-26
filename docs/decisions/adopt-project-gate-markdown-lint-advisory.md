@@ -9,6 +9,8 @@ background: 首次接入时公开 lint 尚未用于本仓，docs/changes corpus 
 decision: Gate 以完整材料范围和 advisory policy 采用独立 markdown-lint。
 tags:
   - configuration
+  - markdown-lint
+  - project-gate
   - repository-automation
   - workflow-policy
 relations: []
@@ -27,6 +29,10 @@ relations: []
 - Project Gate 已有保守的 `repository-material` change region，覆盖全部 lint source 及其声明/实现输入；Markdown link validation 仍因未建模的反向 target 依赖而必须全量运行。
 
 ## 决策
+
+下文 required 与 `repository-material` 保存形成时的选择机制，后续由[逐 Check 输入决策](select-gate-check-specific-change-regions.md)及[Gate 义务分层决策](separate-routine-release-and-explicit-gate-selection.md)承接。
+“不在首次接入时改变 cache”限定本轮变更，不是永久禁止缓存；现行缓存边界从[Markdown lint owner](../checks/markdown-lint.md#逐文件-findings-缓存)读取。
+本记录保留完整 corpus 与 advisory 的采用主旨，原样本数量和耗时仅说明形成时证据。
 
 - 采用: Project Gate 增加独立 `markdown-lint` identity，固定完整 `docs/**/*.md` 与 `changes/**/*.md` selection 以及当前八项默认规则；不启用 `link-fragments`，不改变 package backend、公共默认值、rules 或 cache。
 - 采用: 此 repository Check 显式保持 `non-blocking`。lint Finding 以 owning Check 的 Records、消息和 final data 输出，但不使 Check 或 default strict aggregate failed；empty 与 unavailable 继续使用 Product-owned terminal semantics。

@@ -9,8 +9,10 @@ background: Gate 已移除显式 effective/all aggregation policy，但质量 Ch
 decision: 保留 Package advisory 与 Gate blocking，使用默认有效列表的 strict-all 聚合而非 Gate policy。
 tags:
   - configuration
+  - metric-policy
   - product-contract
   - product-priority
+  - project-gate
   - repository-automation
   - workflow-policy
 relations:
@@ -32,6 +34,9 @@ relations:
 - 因此旧记录中“既有 all aggregation”这一机制说明不再是当前事实，但 Package advisory、Gate blocking、quality selection 与 owning-Check 结算的长期取舍仍须独立恢复。
 
 ## 决策
+
+下文 required 与“不改变 required 配置”描述形成时的选择层和本轮变更边界；后续[Gate 义务分层决策](separate-routine-release-and-explicit-gate-selection.md)已区分 fast、changed 与 all，现行选择从[Gate owner](../tooling/project-gate.md#selection-presets-and-scheduling)读取。
+本记录保留 Package advisory、四项 Gate blocking 与默认严格聚合的主旨，不冻结后续选择频率。
 
 - 采用: package-provided duplicate、file metrics、function metrics 与 Markdown link Check 的 constructor 默认 `findingPolicy` 继续为 `non-blocking`；不改变 defaults、公开契约、阈值、scope、exclusion、waiver、flag、required 配置、Check outcome 或 Record shape。
 - 采用: Project Gate 对同四项 repository-quality Check 的顶层显式 `findingPolicy` 统一为 `blocking`。在既有 Gate selection 内，未被该 Check 的 waiver/exclusion 语义消除的 normal Finding 令 owning Check failed；zero Finding 令它 passed。

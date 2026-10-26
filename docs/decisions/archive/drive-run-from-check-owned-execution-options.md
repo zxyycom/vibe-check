@@ -9,6 +9,8 @@ background: executable Check 已拥有 execution 和依赖配置；Run dependenc
 decision: Run 执行 definition 中的 Check values；options 拥有执行依赖，Run Controls 只提供共享 invocation 输入。
 tags:
   - configuration
+  - project-definition
+  - project-run
 relations:
   - type: 修订
     target: 260814-drive-run-from-project-definition-value

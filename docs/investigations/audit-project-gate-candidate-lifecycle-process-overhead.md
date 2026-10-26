@@ -11,6 +11,7 @@ tags:
 relations:
   - type: "复查"
     target: "260904-correct-project-gate-candidate-timeout-interpretation"
+    summary: "保留20秒预算前提并分解candidate重复物理工作"
 ---
 
 ## 形成时背景

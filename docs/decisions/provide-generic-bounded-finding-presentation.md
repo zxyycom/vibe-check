@@ -8,6 +8,8 @@ purpose: 让内置与自定义 Check 共用有界 Finding 摘要机制，同时�
 background: Finding 没有统一数据形状或明细位置，固定在内置 Check 的私有机制又使自定义 Check 重复实现相同的有界投影。
 decision: 提供公共纯函数接收 Check-owned 上限、单条格式化与超限 hook，只生成 messages，不拥有或截断完整 Finding facts。
 tags:
+  - finding-presentation
+  - package-tools
   - product-contract
 relations:
   - type: 修订
@@ -34,5 +36,5 @@ relations:
 - 采用: helper 只调用前 `limit` 项的单条 hook；超限时向 overflow hook 提供 omitted references、omitted/presented/total counts，由 Check 决定省略项等级和完整明细的真实读取位置。
 - 采用: helper 只返回冻结的 Check messages，不读取 Records、不发布 artifact、不保存或截断完整 Finding facts，也不改变 terminal status、aggregation 或 machine output。
 - 采用: producing Check 对每条 message 的安全字段、code、level、文字和完整 Finding 存储负责；不得因为存在 generic helper 而建立统一 Finding schema 或默认输出路径。
-- 采用: 四项随包质量 Check 继续各自选择十条上限与安全字段，并迁移到公共 helper；十条不是 custom Check 的 Product default。
+- 采用: 四项随包质量 Check 共用公共 helper，并继续各自选择十条上限与安全字段；十条不是 custom Check 的 Product default。
 - 不采用: 自动把任意 Record 当作 Finding、由 renderer 猜测深入查看位置、把完整 Finding 复制到 messages，或提供不可移植的交互式终端展开。

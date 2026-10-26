@@ -8,8 +8,11 @@ purpose: 让公开 package 由普通 Node consumer 直接运行，同时保持�
 background: Bun-only 产品宿主阻止 Node consumer 使用完整公开能力，而迁移仓库脚本不会改善已发布 Product 的运行边界。
 decision: 公开 package 只承诺 Node 24.18 至 24.x 宿主；Bun 继续作为仓库 tooling，但不再是 Product runtime contract。
 tags:
+  - node
+  - package-release
   - product-contract
   - product-priority
+  - runtime-support
 relations:
   - type: 替代
     target: 260812-support-bun-as-the-package-host

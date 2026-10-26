@@ -8,7 +8,9 @@ purpose: 统一 Gate 单命令的 Product 进程生命周期与证据边界。
 background: Gate 私有 adapter 与 Product commandCheck 重复维护单命令执行。
 decision: 单命令使用 Product commandCheck，Gate 保留领域结算；多步骤 workflow 保留专有实现。
 tags:
+  - command-check
   - configuration
+  - project-gate
   - repository-automation
   - workflow-policy
 relations: []

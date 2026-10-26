@@ -8,8 +8,10 @@ purpose: 以字符串 AST 和同一 effective flags 统一 change preparation、
 background: 旧 condition 分层、caller-only context 与单值 Git kind 增加无能力收益的契约
 decision: change token 只在注入和保护时特殊，之后作为普通 effective flag 使用
 tags:
+  - change-selection
   - configuration
   - product-contract
+  - project-run
 relations:
   - type: 修订
     target: 260909-prepare-project-change-flags-before-selection
@@ -33,11 +35,16 @@ relations:
 
 ## 决策
 
+### 唯一 AST 与有效 flags
+
 - 采用: `CheckFlagCondition` 使用非空字符串作为唯一 leaf，并只保留 `all`、`any`、`none`、`not-all`、`exactly-one` 与 unary `not` operator node。删除 `{ kind: "flag" }` 与 `CheckFlagConditionInput`；builder 直接返回该正式 AST，Definition 只复制、验证、冻结并保留 child 顺序与 multiplicity。
 - 采用: `enabledByFlags` 只接受 `{ when, propagateDependsOn? }`。删除 `{ flags, mode }` shorthand 与 `CheckFlagEnablementMode`；Run Controls 的 caller `flags` 和 Project changes 的 region `flags` mapping 不受此删除影响。
 - 采用: change preparation 在 selection 前形成唯一 canonical `effectiveFlags = callerFlags ∪ derivedFlags`。同一冻结集合同时驱动 predicate evaluation，并作为 `project.flags` 传给 `prepare` 与 `execute`；callback 不获得 caller-only 第二集合。
 - 采用: AST parser 与 evaluator 不识别 change flag 类型。Controls owner 拒绝 caller 提供受保护前缀；Definition 的 project-change reference check 确认受保护 token 有同一 Definition 声明的 producer；Git preparation 负责正常或 unavailable conservative injection。
 - 采用: `project.changes` 继续独立提供可信 files 或 unavailable reason，只解释 derived token 的 evidence，不改变 token 注入后的普通 flag 语义。
+
+### Git acquisition 与失败回退
+
 - 采用: `ProjectDefinition.changes` 继续由根配置一次 Git comparison 和 change flag regions。`source` 收敛为 `{ compareWith }`，删除没有分派行为的 `kind: "git"`；Git 解析 branch/ref、commit hash、`HEAD~N` 等 relative revision 与 tag，Definition 只拒绝 empty、leading-dash、U+0000 和 unknown fields。
 - 采用: Product 在完整 input/graph validation 后、effective selection 和 Scheduler admission 前至多准备一次 change snapshot。committed `<revision>...HEAD`、staged、unstaged、untracked、rename 与 deletion paths 继续参与 project-root-relative region matching；嵌套 root、exclude-first glob、一个 path 命中多个 flags 和 shared data-boundary matcher 保持不变。
 - 采用: Git/repository/revision/path evidence 不可用时，`project.changes` 返回 reason 而不伪造 files，并将全部 declared change tokens 注入 effective flags；可信零命中返回空 files 且不注入 derived token。`prepare` 与 `execute` 读取同一冻结 context。

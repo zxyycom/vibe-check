@@ -10,6 +10,9 @@ decision: 增加兼容的阶段需求声明，以需求并集构建共享冻结�
 tags:
   - performance
   - product-contract
+  - scheduler
+  - scheduler-context-demand
+  - scheduler-measurement
 relations: []
 ---
 

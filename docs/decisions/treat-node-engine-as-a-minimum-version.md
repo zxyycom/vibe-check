@@ -8,8 +8,10 @@ purpose: 让 package 声明最低 Node 能力要求，不以未经证实的主�
 background: 实际验收版本与兼容范围是不同事实；现有 Node 25 上限没有已确认的不兼容依据。
 decision: Node-only package 使用 `>=24.18`；验收单独记录实际 runtime，版本排除必须依据兼容证据。
 tags:
+  - node
   - product-contract
   - product-priority
+  - runtime-compatibility
 relations:
   - type: 修订
     target: 260906-support-node-as-the-package-host

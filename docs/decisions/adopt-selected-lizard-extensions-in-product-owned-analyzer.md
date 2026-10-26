@@ -10,8 +10,11 @@ decision: 1.24 仅私有采用 complextags+ND；其余 17 项和 Halstead 继续
 tags:
   - configuration
   - dependency-policy
+  - function-metrics
+  - lizard
   - product-contract
   - product-priority
+  - source-alignment
 relations:
   - type: 修订
     target: 260902-replace-lizard-runtime-with-product-owned-typescript-analyzers
@@ -31,6 +34,9 @@ relations:
 - 已授权 Change `adopt-selected-lizard-extensions` 选择 `lizardcomplextags` 与 `lizardnd`。该 Change 的 implementation、Product docs、tests、oracle、performance 与 required/complete `--all` acceptance 已闭合；本方向已成为 current fact，并由本 active + aligned Decision 承接。
 
 ## 决策
+
+下文 `1.24.0`、corpus 与计数保存本轮 selected pair 的形成时采用范围；后续源码基线、来源映射及持续证据从[分析器 owner](../development/scanner-dependencies.md#verification)读取。
+固定来源、完整 mapping 与独立采用取证的要求不等于永久禁止 patch 同步；本记录保留 selected pair、计量与私有边界，调查建议本身不构成采用授权。
 
 - 采用: 保留 Product-owned TypeScript hard cut 与固定 1.24 source identity。每个 enabled reader 继续维护 upstream tokenization、function boundary/name/range、NLOC、standard CCN 与 parameter-count semantics；每个 source/range 必须有 `translated`、`deferred-extension-body` 或 `excluded-entry-surface` mapping，必要 host difference 进入 deviation evidence 并有 differential proof。
 - 采用: 仅在独立 Change 完成 source-range/hash/SPDX/provenance、translated target、processor/lifecycle、27-reader/55-suffix oracle、resource/performance、Product docs/tests 与 workspace acceptance 后，私有采用 `complextags` 与 ND。

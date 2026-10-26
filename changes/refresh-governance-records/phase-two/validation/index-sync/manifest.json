@@ -1,0 +1,59 @@
+{
+  "scope": "index synchronization and full strict checks only",
+  "commands": [
+    {
+      "name": "decision-sync",
+      "command": "bun run decisions -- sync-index",
+      "exitCode": 0,
+      "stdoutSha256": "faea7da1a84cc3f38e3226e8e5220e945c7ef37be4e32f4b8af15f777d5787ab",
+      "stdoutBytes": 126
+    },
+    {
+      "name": "investigation-sync",
+      "command": "bun run investigations -- sync-index",
+      "exitCode": 0,
+      "stdoutSha256": "b65fa31397a304f0d83fdc7af606b3807d61c4d49732f7de32d8bba5d1dfa7dd",
+      "stdoutBytes": 105
+    },
+    {
+      "name": "decision-check",
+      "command": "bun run decisions -- check",
+      "exitCode": 0,
+      "stdoutSha256": "f8fc33b75edbae969d4cd9a9e5f40d498865da13b2395860f985a71f35fe1d64",
+      "stdoutBytes": 195
+    },
+    {
+      "name": "investigation-check",
+      "command": "bun run investigations",
+      "exitCode": 0,
+      "stdoutSha256": "0cecebf00745fa3386eab216283e0ac43f57aa489dd1e7b0a78f97a00f84300a",
+      "stdoutBytes": 123
+    }
+  ],
+  "publishedIndexes": [
+    {
+      "path": "docs/decisions/decision-index.json",
+      "sha256": "2a251988b1f49c102b72878fa6cf5fd9b135e60a3ec435b11072af2610434e9b",
+      "bytes": 474515,
+      "entries": 378
+    },
+    {
+      "path": "docs/investigations/investigation-index.json",
+      "sha256": "d8d7680ca4f300ab673caff5b31acc59d433da009b3af46507862645fc8c0415",
+      "bytes": 189060,
+      "entries": 126
+    }
+  ],
+  "preflight": [
+    {
+      "command": "bun run decisions -- sync-index --preflight",
+      "exitCode": 0,
+      "result": "passed; complete projection not published"
+    },
+    {
+      "command": "bun run investigations -- sync-index --preflight",
+      "exitCode": 0,
+      "result": "passed; 126 reports; complete projection not published"
+    }
+  ]
+}

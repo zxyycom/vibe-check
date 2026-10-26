@@ -8,6 +8,8 @@ purpose: 让递归 Check composition 中真正可集合化的公共字段具有�
 background: 简单追加继承无法表达清空、精确替换或从 parent 基础删除；通用对象 merge 又会把不同 Check 的 options 和 composition 错误混合。
 decision: 可继承的 set-like 公共字段使用 closed expression 区分继承、精确替换和 parent-based add/remove；其它字段保留各自 owner，不参与泛化继承。
 tags:
+  - check-authoring
+  - check-dependencies
   - configuration
 relations: []
 ---

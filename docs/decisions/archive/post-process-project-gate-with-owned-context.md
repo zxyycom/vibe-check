@@ -9,6 +9,8 @@ background: 只为性能暴露 RunResult、elapsed 和日志路径会把通用�
 decision: Project Gate 以私有 afterGate 阶段和完整 Gate-owned invocation context 转换初步结果，对外仍只提供一个最终结果。
 tags:
   - configuration
+  - gate-diagnostics
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

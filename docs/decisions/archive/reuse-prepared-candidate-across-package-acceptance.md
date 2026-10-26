@@ -9,7 +9,10 @@ background: Gate 已拥有 exact artifact、staging 与安装结果；重复 bui
 decision: 扩展 typed provider data，由下游按需消费，并把 staging 内容验收留给 artifact acceptance。
 tags:
   - configuration
+  - package-candidate
+  - project-gate
   - testing
+  - typed-providers
   - workflow-policy
 relations:
   - type: 修订

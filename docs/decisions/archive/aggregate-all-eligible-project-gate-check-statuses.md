@@ -8,7 +8,10 @@ purpose: 让 Project Gate 的调用级结论只由同次 selection 的全部 eli
 background: 旧 Gate 以 quality entry 排除 raw failed；用户确认非阻断应由 producing Check policy 表达。
 decision: 以 all 聚合全部 eligible statuses；非阻断由 producing Check policy 形成，Records/messages/findings 不参与。
 tags:
+  - aggregation
   - configuration
+  - finding-policy
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

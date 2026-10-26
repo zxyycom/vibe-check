@@ -9,6 +9,9 @@ background: scoped cap 行为已成立，但 keyed task-to-Check metadata 与 ca
 decision: 保留 active-span 最小 cap 与 reservation/drain，并由 planned Task scope 直接拥有 validated cap metadata。
 tags:
   - configuration
+  - parallel-limits
+  - scheduler
+  - task-graph
 relations:
   - type: 修订
     target: 260814-use-check-scoped-invocation-wide-parallel-limits
@@ -16,15 +19,18 @@ relations:
 ---
 
 ## 目的
+
 - 让单个 Check 在自己的执行 span 内收紧整次 invocation 的 Product Task slots，同时保持 dependency、mutex、admission 和 settlement 由唯一 Task engine 协作。
 - 让 cap ownership 成为 canonical Check Task scope 的结构化属性，不再通过第二个 keyed map 重建。
 
 ## 背景
+
 - Check tree 已允许 group/leaf 声明并继承 `maxParallel`；shared scheduler 已实现 active cap、non-preemptive reservation/drain 和 deterministic admission。
 - 旧 handoff 将 cap metadata 放在独立 task-to-Check map，因为当时 TaskDefinition 不拥有 Check scope；目标 Task graph 已直接表达该 scope 和 terminal relation。
 - 保留 side map 会让 `checkId`、task identity、cap owner 与 terminal span 在 graph 之外再次关联，削弱单一 planning truth source。
 
 ## 决策
+
 - 采用: Check tree 的 group/leaf `maxParallel` 继续按最近声明继承，child scalar 覆写 parent；全部缺席时使用 top-level scheduler limit。值必须为不大于 root limit 的正安全整数，并在任何 work 前 fail closed。
 - 采用: canonical Resolved Check 将 effective cap 投影到 planned Task graph 的 Check scope metadata。Task engine 从同一 graph 读取 scope、首个 executable Task、terminal Task 与 cap，不接收 keyed task-to-Check side map。
 - 采用: Check active span 从首个 executable Task admitted 开始，到 terminal Task settled 结束；direct root 同时是首个和 terminal，TaskPlan completion 是 terminal，没有 executable work 的 Check 不激活 cap。

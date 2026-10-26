@@ -9,6 +9,9 @@ background: 前序 docs-material mutex 修订只保留新增文档竞争边界�
 decision: 保留实测 partition/容量/package mutex，并为 schema/example 读写竞争增加最小 docs-materials mutex。
 tags:
   - configuration
+  - project-gate
+  - resource-ownership
+  - scheduler
   - testing
   - workflow-policy
 relations:

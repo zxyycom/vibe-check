@@ -9,6 +9,9 @@ background: validation test 的 drift evidence 临时改写发布 schema/example
 decision: 保留 package lifecycle mutex；仅让 validation lane 与 schema/example readers 共享 docs-materials mutex。
 tags:
   - configuration
+  - documentation-validation
+  - project-gate
+  - resource-ownership
   - testing
   - workflow-policy
 relations:

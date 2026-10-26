@@ -8,8 +8,11 @@ purpose: 让 machine invocation timestamp 可靠表示一次 Run 创建时刻，
 background: 前序排除 wall-clock start/end；现在既有 invocation timestamp 已明确为 Run creation instant，需演进边界。
 decision: 发布 invocation creation timestamp；继续排除 per-Check start/end、Record report time 与独立 telemetry。
 tags:
+  - invocation-timing
+  - machine-output
   - product-contract
   - product-priority
+  - project-gate
 relations:
   - type: 修订
     target: 260819-complete-project-gate-before-public-package-release

@@ -10,6 +10,7 @@ decision: 固定身份构造器以顶层选项接收共享声明字段，并保�
 tags:
   - configuration
   - product-contract
+  - project-definition
 relations: []
 ---
 

@@ -8,7 +8,10 @@ purpose: 防止 package、配置定义函数、Package Run、类型和运行标�
 background: 产品显示名与 npm 安装名、两个 API roles 和 operational identifiers 承担不同兼容承诺。
 decision: 发布候选前逐项确认 package、配置定义函数、Package Run、必要类型与运行标识的公共名称。
 tags:
+  - package-release
   - product-contract
+  - public-api
+  - public-naming
 relations:
   - type: 修订
     target: 260812-confirm-package-contract-names-before-publication

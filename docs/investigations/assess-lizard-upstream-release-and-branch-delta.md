@@ -12,6 +12,7 @@ tags:
 relations:
   - type: "补充"
     target: "260901-compare-lizard-and-scc-typescript-port-priority"
+    summary: "补足精确release身份与master差异的来源证据"
 ---
 
 ## 形成时背景

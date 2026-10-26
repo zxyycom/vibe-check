@@ -9,6 +9,10 @@ background: 该历史文件必须保持 bytes 与 URN，不应通过扫描前 gl
 decision: fileMetrics 保留该 Finding，并用 exact path 与 metric waiver 使例外可审计。
 tags:
   - configuration
+  - file-metrics
+  - finding-waivers
+  - historical-schemas
+  - project-gate
   - workflow-policy
 relations:
   - type: 拆分

@@ -8,8 +8,11 @@ purpose: 让 static、custom 与 learned 准入策略在 Invocation 内完成私
 background: private lifecycle、measurement demand 与 Scheduler execution boundary 需要共同 owner。
 decision: 保留 private provider lifecycle、measurement demand、learned state 与 Scheduler hard guards。
 tags:
+  - admission-scheduling
   - configuration
+  - learned-scheduling
   - product-contract
+  - scheduler
   - workflow-policy
 relations:
   - type: 拆分

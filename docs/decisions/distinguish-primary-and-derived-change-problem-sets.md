@@ -8,6 +8,7 @@ purpose: 让一个或多个主要问题不被其它主要问题或内容更多�
 background: Change 可以有多个并列主要结果，强制只选一个会把真实主要问题误降为衍生问题并扭曲验收。
 decision: 显式恢复主要问题集合，再按目标、因果和完成责任区分衍生问题，并分别保持主要结果可见。
 tags:
+  - change-plan
   - workflow-policy
 relations:
   - type: 修订

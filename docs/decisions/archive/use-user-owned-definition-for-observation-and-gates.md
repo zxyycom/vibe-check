@@ -9,6 +9,9 @@ background: 项目同时持有配置文件和运行脚本；无配置发现与 P
 decision: 每次项目运行都传入使用者持有的 Project Definition；观察可采用中性配置，gate 必须选择其中的 named policy。
 tags:
   - configuration
+  - project-definition
+  - project-run
+  - quality-gates
 relations:
   - type: 修订
     target: 260805-use-neutral-observation-and-project-definition-gates

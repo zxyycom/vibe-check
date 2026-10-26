@@ -8,8 +8,11 @@ purpose: 让调用方以最小 trusted synchronous callback 表达无状态准�
 background: 完整 Graph 与无状态 select/wait 已是 private policy 边界；公开契约必须投影所需事实并明确 trusted callback 的故障收束。
 decision: 采用 closed static/custom、冻结 context 与 select/wait；非法 policy 以 fatal fault 收束。
 tags:
+  - admission-scheduling
   - configuration
   - product-contract
+  - public-api
+  - scheduler
 relations: []
 ---
 

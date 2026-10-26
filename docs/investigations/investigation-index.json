@@ -9,7 +9,10 @@
       "resourceIds": [],
       "sourcePath": "functional-utilities-and-data-structures.md",
       "tags": [
-        "implementation-libraries"
+        "implementation-libraries",
+        "mnemonist",
+        "remeda",
+        "utility-libraries"
       ],
       "title": "采用 Remeda 与 Mnemonist，保留原生集合默认"
     },
@@ -21,7 +24,9 @@
       "resourceIds": [],
       "sourcePath": "pattern-matching-and-state-modeling-libraries.md",
       "tags": [
-        "implementation-libraries"
+        "implementation-libraries",
+        "ts-pattern",
+        "utility-libraries"
       ],
       "title": "采用 ts-pattern，状态机保持按需调查"
     },
@@ -33,6 +38,7 @@
       "resourceIds": [],
       "sourcePath": "result-and-option-libraries.md",
       "tags": [
+        "error-handling",
         "implementation-libraries"
       ],
       "title": "采用 neverthrow 与项目自有 Option"
@@ -45,7 +51,9 @@
       "resourceIds": [],
       "sourcePath": "schema-validation-and-static-inference.md",
       "tags": [
-        "implementation-libraries"
+        "implementation-libraries",
+        "type-safety",
+        "typebox"
       ],
       "title": "Record schema authoring 的框架选择、替代项与互操作边界"
     },
@@ -65,9 +73,10 @@
     "260824-compare-minimal-json-duplicate-key-candidates": {
       "formedAt": "2026-08-24T13:59:46Z",
       "name": "compare-minimal-json-duplicate-key-candidates",
-      "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+      "question": "保留所有 decoded duplicate-key 拒绝语义时，哪些极简库或原生组合可行，其体积、正确性与接入代价如何取舍？",
       "relations": [
         {
+          "summary": "补足保留全部重复键拒绝语义的极简候选比较",
           "target": "260824-recheck-json-dependency-and-zero-dependency-path",
           "type": "补充"
         }
@@ -83,9 +92,10 @@
     "260824-confirm-momoa-with-bun-and-candidate-spike": {
       "formedAt": "2026-08-24T14:28:56Z",
       "name": "confirm-momoa-with-bun-and-candidate-spike",
-      "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+      "question": "用户选定 Momoa 后，Bun 严格语义、重复键与位置单位及外部 candidate 依赖闭合已验证到哪一步，仍缺哪些材料和产品验收？",
       "relations": [
         {
+          "summary": "补足已选Momoa的Bun语义与candidate依赖证据",
           "target": "260824-compare-minimal-json-duplicate-key-candidates",
           "type": "补充"
         }
@@ -101,9 +111,10 @@
     "260824-recheck-json-dependency-and-zero-dependency-path": {
       "formedAt": "2026-08-24T13:38:49Z",
       "name": "recheck-json-dependency-and-zero-dependency-path",
-      "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+      "question": "Momoa 等候选的整包大小与实际加载面有何区别，仅校验严格 JSON 有效性时能否零依赖，保留重复键语义又需要什么？",
       "relations": [
         {
+          "summary": "纠正整包体积含义并区分零依赖grammar与重复键要求",
           "target": "260824-choose-minimal-library-for-strict-json-and-duplicate-keys",
           "type": "修正"
         }
@@ -124,7 +135,8 @@
       "resourceIds": [],
       "sourcePath": "markdown-link-validation-library-strategy.md",
       "tags": [
-        "implementation-libraries"
+        "implementation-libraries",
+        "markdown-link-validation"
       ],
       "title": "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
     },
@@ -179,9 +191,10 @@
     "260903-analyze-markdown-link-cache-packing": {
       "formedAt": "2026-09-03T08:18:29+00:00",
       "name": "analyze-markdown-link-cache-packing",
-      "question": "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？",
+      "question": "在保持形成时 Markdown Link cache 语义与严格串行约束下，直接 API profile 与 storage-mechanics microbenchmark 是否支持进入有限 shard packing 的正式 runtime 评估？",
       "relations": [
         {
+          "summary": "补充cache API与分片存储微基准，不代替正式Check",
           "target": "260903-evaluate-markdown-link-serial-io-optimization",
           "type": "补充"
         }
@@ -224,6 +237,7 @@
       "question": "当前被裁切或延期的 Lizard optional extensions 中，哪些有加回 Vibe Check 的意义，哪些不应恢复，以及为什么？",
       "relations": [
         {
+          "summary": "补足已确认上游版本中各扩展的消费价值与边界",
           "target": "260903-assess-lizard-upstream-release-and-branch-delta",
           "type": "补充"
         }
@@ -247,6 +261,7 @@
       "question": "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？",
       "relations": [
         {
+          "summary": "补足精确release身份与master差异的来源证据",
           "target": "260901-compare-lizard-and-scc-typescript-port-priority",
           "type": "补充"
         }
@@ -268,6 +283,7 @@
       "question": "固定 Lizard 1.24、输出相等和已声明 Linux scope 下的 Python/Lizard、TypeScript port 与 historical Product 性能证据是否授权优化？",
       "relations": [
         {
+          "summary": "补足Python与TypeScript完整语言族的性能对照",
           "target": "260901-compare-lizard-and-scc-typescript-port-priority",
           "type": "补充"
         }
@@ -306,6 +322,7 @@
       "question": "在真实 TypeScript Lizard workload 上，正则/token generation 对 Python 与 TypeScript 性能差距可作何种有边界的比例判断；WASM、npm/native 和 CLI regex 后端分别有什么实际接入成本与继续调查价值？",
       "relations": [
         {
+          "summary": "补充分层成本、正则后端交付与Node对照",
           "target": "260903-explain-cpython-jsc-lizard-regex-performance-gap",
           "type": "补充"
         }
@@ -354,10 +371,12 @@
       "question": "在真实仓库 TypeScript Product source 上，当前 TypeScript Lizard port 相对 upstream Python 仍约慢 2.35 倍，原因是否仍是此前的 reader 路径匹配，下一步可证实的热点和实施边界是什么？",
       "relations": [
         {
+          "summary": "合并既有dispatch归因以区分真实TS内核热点",
           "target": "260903-diagnose-lizard-typescript-port-performance-gap",
           "type": "归并"
         },
         {
+          "summary": "合并真实TS重测结果并定位regex等内核成本",
           "target": "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance",
           "type": "归并"
         }
@@ -390,10 +409,10 @@
       ],
       "sourcePath": "diagnose-lizard-real-typescript-analyzer-hot-path.md",
       "tags": [
+        "cpu-profiling",
         "function-metrics",
         "lizard",
         "performance",
-        "profiling",
         "source-alignment",
         "typescript"
       ],
@@ -405,6 +424,7 @@
       "question": "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？",
       "relations": [
         {
+          "summary": "为既有性能差距补足decode与dispatch分层归因",
           "target": "260903-compare-lizard-python-typescript-performance",
           "type": "补充"
         }
@@ -433,10 +453,10 @@
       ],
       "sourcePath": "diagnose-lizard-typescript-port-performance-gap.md",
       "tags": [
+        "cpu-profiling",
         "function-metrics",
         "lizard",
         "performance",
-        "profiling",
         "source-alignment"
       ],
       "title": "TypeScript Lizard port 性能差距根因"
@@ -447,6 +467,7 @@
       "question": "在相同 1,000 source / 160 target 严格串行 workload 中，最终的 Markdown Link parse-facts cache 优化相对 cfe715d 基线实际改变了什么；是否通过 cold gate，并保持了哪些语义边界？",
       "relations": [
         {
+          "summary": "在同一串行边界复测UTF8与hit路径收益及cold代价",
           "target": "260903-measure-markdown-link-serial-cache-overhead",
           "type": "复查"
         }
@@ -470,6 +491,7 @@
       "question": "在 optimize-admission-core-selection-index 的 immutable admission state 中，成熟库能否替代 persistent indexed vector、max-priority frontier 与密集 reverse-index/counter，且是否值得进入 Vibe Check 的 public runtime candidate？",
       "relations": [
         {
+          "summary": "补足可变集合选型未覆盖的持久化前驱状态需求",
           "target": "260811-functional-utilities-and-data-structures",
           "type": "补充"
         }
@@ -510,10 +532,12 @@
       "question": "在真实 TypeScript source 产生相同 raw token 与 UTF-16 offset 的前提下，为什么 upstream Python Lizard 的正则扫描明显快于 Bun 上的 TypeScript port，当前证据能把原因定位到哪一层？",
       "relations": [
         {
+          "summary": "合并真实TS热点证据并解释两宿主regex差距",
           "target": "260903-diagnose-lizard-real-typescript-analyzer-hot-path",
           "type": "归并"
         },
         {
+          "summary": "合并宿主后端候选并检验regex形状与交付边界",
           "target": "260903-survey-lizard-host-acceleration-candidates",
           "type": "归并"
         }
@@ -552,6 +576,7 @@
       "question": "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？",
       "relations": [
         {
+          "summary": "补充Fortran预解析reader路径的独立热点归因",
           "target": "260903-diagnose-lizard-typescript-port-performance-gap",
           "type": "补充"
         }
@@ -589,6 +614,7 @@
       "question": "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？",
       "relations": [
         {
+          "summary": "以完整Product真实TS路径复查reader fast-path收益",
           "target": "260903-verify-lizard-reader-resolution-fast-path",
           "type": "复查"
         }
@@ -616,6 +642,7 @@
       "question": "在同一批真实仓库 TypeScript Product 源、同一已解码 source 和相同 canonical 输出前置条件下，当前 TypeScript Lizard port 与 upstream Python Lizard 1.24 的 analyzer-only warmed-operation 性能如何比较，历史 Product 与 analyzer 数值为何同量级？",
       "relations": [
         {
+          "summary": "改用真实TS analyzer复测原完整语言族性能差距",
           "target": "260903-compare-lizard-python-typescript-performance",
           "type": "复查"
         }
@@ -643,6 +670,7 @@
       "question": "在 source alignment 约束可观察 Lizard analyzer 语义、而非 JavaScript 原语的前提下，哪些 regex/lexer 与其它宿主实现候选值得继续验证；它们在 27-reader 覆盖、Bun Worker、打包和性能证据上分别处于什么状态？",
       "relations": [
         {
+          "summary": "围绕已定位热点补足宿主加速后端与交付候选",
           "target": "260903-diagnose-lizard-real-typescript-analyzer-hot-path",
           "type": "补充"
         }
@@ -670,6 +698,7 @@
       "question": "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？",
       "relations": [
         {
+          "summary": "补充reader解析快路径的代表性样本与正确性证据",
           "target": "260903-diagnose-lizard-typescript-port-performance-gap",
           "type": "补充"
         }
@@ -694,6 +723,7 @@
       "question": "为何 full Project Gate 的 tests-package-candidate 反复超过 5 秒，以及在保持 root maxParallel=3、20 秒 case/30 秒 lane 硬门禁不变时，怎样以可验证的架构变更使该 Check 稳定低于 5 秒？",
       "relations": [
         {
+          "summary": "保留20秒预算前提并分解candidate重复物理工作",
           "target": "260904-correct-project-gate-candidate-timeout-interpretation",
           "type": "复查"
         }
@@ -714,6 +744,7 @@
       "question": "full Project Gate 中的 Bun Product function metrics tests（近期 6.3 秒、曾 8.9 秒）与 direct Function metrics Check（曾 5.3 秒）为什么超过 5 秒；是否存在重复扫描、Worker/child-process 启动或测试矩阵重复执行，以及在不提高 root 并发度、不放宽 timeout 下怎样使每个 Check 的普通负载低于 5 秒？",
       "relations": [
         {
+          "summary": "将分析器分层成本补充到Gate Check与Worker路径",
           "target": "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation",
           "type": "补充"
         }
@@ -749,6 +780,7 @@
       "question": "20 秒 candidate case timeout 应如何解释，后续优化是否应改变 Gate 全局并发或改为慢 Check 的局部并发约束？",
       "relations": [
         {
+          "summary": "按用户确认纠正假失败解释，保留20秒预算与并发3",
           "target": "260904-diagnose-project-gate-candidate-timeout-under-contention",
           "type": "修正"
         }
@@ -798,6 +830,7 @@
       "question": "在提交 bb33371c 的隔离 candidate 冷态下，正式 typecheck Gate 是否仍会在 candidate 已成功准备后失败于 bound-run 导入；现有 evidence 能否区分 candidate lifecycle、Gate adapter 与未证实的 Bun resolver 假设？",
       "relations": [
         {
+          "summary": "在新bootstrap与冷场景复查并收窄模块缓存归因",
           "target": "260901-diagnose-bun-cold-project-gate-candidate-import",
           "type": "复查"
         }
@@ -953,7 +986,7 @@
     "260912-investigate-core-package-tools-boundary-validation-gap": {
       "formedAt": "2026-09-12T08:12:45Z",
       "name": "investigate-core-package-tools-boundary-validation-gap",
-      "question": "在本轮尚未提交的 Package Tools 边界校验器候选中，Core 依赖闭包为何会漏掉绝对 workspace literal import，动态 literal import 的处理又是否符合预定边界；在修复与正反证据尚未完成时，Project Gate 能形成何种可信结论？",
+      "question": "Package Tools 边界校验器候选为何漏掉绝对 workspace literal import、误拒绝 Core literal dynamic import，定向修复与正反验证能支持何种 Core 独立性结论？",
       "relations": [],
       "resourceIds": [],
       "sourcePath": "investigate-core-package-tools-boundary-validation-gap.md",
@@ -1142,7 +1175,7 @@
       "tags": [
         "dependency-policy",
         "file-collection",
-        "nodejs",
+        "node",
         "software-selection"
       ],
       "title": "Node 文件收集后端选型：社区、依赖体积与失败边界"
@@ -1167,6 +1200,7 @@
       ],
       "sourcePath": "assess-lizard-1-24-1-upgrade.md",
       "tags": [
+        "dependency-upgrades",
         "function-metrics",
         "lizard",
         "source-alignment",
@@ -1382,7 +1416,7 @@
       "tags": [
         "file-collection",
         "glob",
-        "nodejs",
+        "node",
         "performance"
       ],
       "title": "项目文件收集后端接入与迁移准备"
@@ -1399,8 +1433,9 @@
       ],
       "sourcePath": "project-file-region-index-readiness.md",
       "tags": [
-        "files",
-        "product-contract"
+        "core",
+        "product-contract",
+        "project-files"
       ],
       "title": "文件—区域索引 API、消费与重建准备"
     },
@@ -1589,7 +1624,7 @@
       ],
       "sourcePath": "audit-function-metrics-pathological-input-cost.md",
       "tags": [
-        "algorithm-complexity",
+        "algorithmic-complexity",
         "cancellation",
         "function-metrics",
         "performance",
@@ -2868,7 +2903,7 @@
       "resourceIds": [],
       "sourcePath": "diagnose-markdownlint-core-instance-mismatch.md",
       "tags": [
-        "dependency-upgrade",
+        "dependency-upgrades",
         "markdown-lint",
         "micromark",
         "module-identity"
@@ -2888,10 +2923,10 @@
       ],
       "sourcePath": "profile-markdown-link-consumer-workload.md",
       "tags": [
+        "algorithmic-complexity",
         "buffer-allocation",
         "bun",
         "cancellation",
-        "complexity",
         "cpu-profiling",
         "file-collection",
         "filesystem",
@@ -3197,75 +3232,75 @@
   "schemaVersion": 4,
   "sourceRevision": {
     "entries": {
-      "260811-functional-utilities-and-data-structures": "sha256:d59ca11e90cea5f6391291e97cd5a6a59efcdb062e8d7a581abdd81abba7b490",
-      "260811-pattern-matching-and-state-modeling-libraries": "sha256:5e7b7d85620f6bf7ae19e3b20bedd16d53f2b2ea656d9c945968a0337fedb4e4",
-      "260811-result-and-option-libraries": "sha256:5e15282cc7fde6187f4c89825e97060e0e4904b9bcabca415681a8cc33e9f3d6",
-      "260821-schema-validation-and-static-inference": "sha256:97f6088a2bf38634c4b86ecd2368a5fba268422581f57647dea2fdf1787b4742",
+      "260811-functional-utilities-and-data-structures": "sha256:26a6c3d276541624b7c1dfaa80d9177b2e37742e558b1da64db7518750d2fc6c",
+      "260811-pattern-matching-and-state-modeling-libraries": "sha256:82211ee3b9b53034b104d3c8f86a834c917d5b80d3c1b0570bdc42896a672a8d",
+      "260811-result-and-option-libraries": "sha256:329bdb18a351e65766b39700f5453789c20f35f14a3f6980a35d4feb14733a29",
+      "260821-schema-validation-and-static-inference": "sha256:3101fc5bbfa621f3be570692c693bfdf6c3d291e6db10608730a752539440099",
       "260824-choose-minimal-library-for-strict-json-and-duplicate-keys": "sha256:0f3054e4ed712051825a056ed1165ca99a62af22aa27246df8932d946248d3c0",
-      "260824-compare-minimal-json-duplicate-key-candidates": "sha256:ad1a6410819f41de22e3b13dda9d53a6fcc176f7473ea9f6f452b09102226132",
-      "260824-confirm-momoa-with-bun-and-candidate-spike": "sha256:64bb0bee6f5644b6aec6274167def58afdcbd32ca920670f2d04afec10db7bfe",
-      "260824-recheck-json-dependency-and-zero-dependency-path": "sha256:9670ed4d32ca3b858a2230ee826f704ca928586b6caa7fe673f19bf0d8c133b9",
-      "260825-markdown-link-validation-library-strategy": "sha256:d1dd059a512a52799bfd4af0a65bf962a69df7374b616944cffb1404b88d59c9",
-      "260901-assess-scc-and-jscpd-upgrade-readiness": "sha256:c88e48ebb22b74a900d83a16783be2410ffcd2c56609a3ec61a5dc3bf0fdd57a",
+      "260824-compare-minimal-json-duplicate-key-candidates": "sha256:78c3500b4a74968079c7749b74d4ed3d03543930409b08101da10296a1d8c96a",
+      "260824-confirm-momoa-with-bun-and-candidate-spike": "sha256:bcd1ff1e9c64f7de52a34902903a0b5d28bc77128e731412b010ca5e3e7548e6",
+      "260824-recheck-json-dependency-and-zero-dependency-path": "sha256:78e4d00f66e9edfa1d8433815cc7c2e90b0fd2d222df12ec9e98e829a7e2f984",
+      "260825-markdown-link-validation-library-strategy": "sha256:e96d0574455b4c02fad854bb581e56a626ab71222aeb0856e16d0f5ed64063d3",
+      "260901-assess-scc-and-jscpd-upgrade-readiness": "sha256:37034480957dbeb59d6b2d42a7e134ca5de532752945c0fdc88f7e27fe20640f",
       "260901-compare-lizard-and-scc-typescript-port-priority": "sha256:59066393f6fef3c15fceb28661b4333de6639e51f1421b80762ea26e8b2d5824",
       "260901-diagnose-bun-cold-project-gate-candidate-import": "sha256:c420429a2356f21f1c33d984a476618eb78543dc3064500638f548419342ec7c",
-      "260903-analyze-markdown-link-cache-packing": "sha256:20a41eee5e11b6f087b79d9de3833946a04f418ba66a76059431d1085ddb09d8",
-      "260903-assess-admission-state-performance-and-selection-index": "sha256:817d197469f6e76279fe2ce7c08c90691e71d2788bb4312ed7af668256e60db2",
-      "260903-assess-lizard-extension-adoption-value": "sha256:26243220f4ff343de4662aaf40017893269c62b1a056de0f46c1d3c95ae4f9a0",
-      "260903-assess-lizard-upstream-release-and-branch-delta": "sha256:07943bd5f7dc954bb99080b6c384d106868d2a9eba3fbc9d4e795615f0dd8bd1",
-      "260903-compare-lizard-python-typescript-performance": "sha256:61c459c797fdedd729a1ca0a2b0b9d15e2968061e6765c658b705466d76a39b9",
-      "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation": "sha256:85665799cba479f4fc0558aad9ed6363c4bcc7295b9bf2da7c9417fb82f02e03",
-      "260903-diagnose-lizard-real-typescript-analyzer-hot-path": "sha256:4b1adc38692c128d06faa37b752297a8c1992a0571f1ec37bb270bfbd6264efe",
-      "260903-diagnose-lizard-typescript-port-performance-gap": "sha256:bdd75edcfc46cebc047b43dd2ed37591e610a054eb1819c2508a60de77b229d6",
-      "260903-evaluate-markdown-link-serial-io-optimization": "sha256:c82b418bd7769228faf18adbb7866b7c586061f978ebbe22819fcf153b32bd74",
-      "260903-evaluate-persistent-data-structure-libraries-for-admission-core": "sha256:2abc3a6258cf15ae021fa780b7c5017e4d1d09cce7b39593c7b830ee1c560c2e",
+      "260903-analyze-markdown-link-cache-packing": "sha256:2eff7a645c0745529046b8c2fbd5b97c28c60b96c8303d3c0557ee423f127b19",
+      "260903-assess-admission-state-performance-and-selection-index": "sha256:309f038d6905c864b0341c379ef09cac812c5b9a21d7f43bb113f140e55719e5",
+      "260903-assess-lizard-extension-adoption-value": "sha256:c5fed141ec23bc08bc50a976e93590b00b777f7821371964426f953b42293a0c",
+      "260903-assess-lizard-upstream-release-and-branch-delta": "sha256:f38d649b2e912df97b2cd1a63c829d5e1f84fdb751973adeadcee2a2e33d46a3",
+      "260903-compare-lizard-python-typescript-performance": "sha256:68170a72e8d61e9e4490c5a6d7cf9b55f578b2e66128bc2090f809a3c28b628c",
+      "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation": "sha256:d6d41e7cb49f31f091e16533e30ed195dc305f6d02ba08e0cc6e5860628b43ab",
+      "260903-diagnose-lizard-real-typescript-analyzer-hot-path": "sha256:fa494acda3a05918e0d8ed45f5d0b59e7401b719dde0e8e3a0382825ec3be88f",
+      "260903-diagnose-lizard-typescript-port-performance-gap": "sha256:16288e5878458d938c5d7573aad0e160f643e5312cdb1c3f44e78ac9e8e6335f",
+      "260903-evaluate-markdown-link-serial-io-optimization": "sha256:8e3ef2f83634458761275eda7fd7b7bb30323163f6d36b09ac48571708168298",
+      "260903-evaluate-persistent-data-structure-libraries-for-admission-core": "sha256:5b1dbb517ab3891b13aab0d202a77f8fa21ca01d4f596e786544d9332a630dfa",
       "260903-evaluate-secret-detection-library-candidates": "sha256:6d503ae80445e3cce252c701d6d42b75f0fd3e0df17672bdfcbeb32c3c4d821e",
-      "260903-explain-cpython-jsc-lizard-regex-performance-gap": "sha256:2bc6967144c22216d2a86a8c18f9733bfe57692a74e1f443941c3625e6f7e2b0",
-      "260903-investigate-fortran-lizard-performance-hotspot": "sha256:3d1d2c0d1073a50f33aa55948e882f0a3fb78523583db17ad89e4efad21dd28d",
+      "260903-explain-cpython-jsc-lizard-regex-performance-gap": "sha256:414b26f0b9451009a55b0814749f67ad61ba6a114b64e5f31d27b64ed272c60f",
+      "260903-investigate-fortran-lizard-performance-hotspot": "sha256:7f81be61253c4bc7f3e2947a8736fb49dda3287286aedeb1e5596f3343ef4f26",
       "260903-measure-markdown-link-serial-cache-overhead": "sha256:ebad174e0762b3a6b05561b6cfb3b75efbee37036855979a6fed4fd670de4fdc",
-      "260903-remeasure-function-metrics-product-reader-fast-path": "sha256:9fb920f8fe989b438962608935ee0d7ee410e09971a1336c86d8adc3abe78932",
-      "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance": "sha256:e4b5b2e02e2724817dc1753172e19a4023ccf0320d62732f2c4ac4cbddd9c914",
-      "260903-survey-lizard-host-acceleration-candidates": "sha256:008b30cb8069c678f359166b13d8cbc2cd81b78c8b844f4132758abe85c3046b",
-      "260903-verify-lizard-reader-resolution-fast-path": "sha256:e76df3965988d78ab6fd05b62c49466d43b6c0d68d63bf5b9e509fe9331d19b2",
-      "260904-audit-project-gate-candidate-lifecycle-process-overhead": "sha256:b56cfcb05f1fdefc21147feb6e00faa651faa12f7fa313758b6cbd2493713b0f",
-      "260904-audit-project-gate-function-metrics-check-overhead": "sha256:84e75049b40ccbd794d5b146fadb189a9e005e49262062c171587df6206136b6",
+      "260903-remeasure-function-metrics-product-reader-fast-path": "sha256:6df671fffee71ac7a50b771edf3efdd7cca08ffbed948d6edadb930ee6c8c65c",
+      "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance": "sha256:3054a12519db074de8d7daf5717bedc7fe6cd59b4b6b7bf595b52aa4ab94ab24",
+      "260903-survey-lizard-host-acceleration-candidates": "sha256:1086c18963e8d5c8adcece6ceeaa31c8c1f3f77d3be5a32d8ffc86850ca54fec",
+      "260903-verify-lizard-reader-resolution-fast-path": "sha256:dcaf6126a40b60c148db626726a27a028069ecb1c3ac62df3a2c274680fff1d5",
+      "260904-audit-project-gate-candidate-lifecycle-process-overhead": "sha256:5c19c67de8dd3cc25c34dfccf74ace9d835340f4d598d8942b5598545413e051",
+      "260904-audit-project-gate-function-metrics-check-overhead": "sha256:e8a60cae1c422420ce66334f29cdd4e5bba7e5b8a823022899a3ba36831456fa",
       "260904-audit-project-gate-validation-and-type-acceptance-overhead": "sha256:482bca32d786f3ee7506522e2a27460d572477105c652409ca8982a29bca6951",
-      "260904-correct-project-gate-candidate-timeout-interpretation": "sha256:5ecaa7d34cd644c1602d23aea069dd910d24a10be897c2978b5e4c50240832d4",
-      "260904-diagnose-project-gate-candidate-timeout-under-contention": "sha256:7dc4a90e12ff2ec382f4d786617b760f8cc04037f84ad574b776699be445cfb7",
-      "260906-assess-node-26-package-host-readiness": "sha256:b01bedac42300965c3a8fcf131deb26f3c3ecb92f3a9f629fadbe6164b842f09",
-      "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:dbb9ee37650b6ef4b6d33a82a668855dc585491b83667d6dba52949e71fe2c82",
+      "260904-correct-project-gate-candidate-timeout-interpretation": "sha256:8a76ed9172a4f255c8157509f724da52d07dc15604002151639582e9d24d8260",
+      "260904-diagnose-project-gate-candidate-timeout-under-contention": "sha256:5c0219695d149c79bfffbfb139f013431024301c76d74140a83b141b94e6bd00",
+      "260906-assess-node-26-package-host-readiness": "sha256:5c919eb8ab66ad29140f62fcbe7ab77eaa34e7d24a0379ff5c4c74df8e03f6c8",
+      "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:e65a09057019ac296448fa425310b942c1ac45addf1fa180649ea6fe479397d9",
       "260908-audit-0-0-2-upgrade-differences": "sha256:10a9074c71bfb647b32f2cc4178d4b83203b6b65fb93292b7e81ac32fa7f10d2",
       "260908-calibrate-gate-duration-variation": "sha256:2e0faa746b5bb2329146abf1812ca0a4b1ec0b4b5f736fbe312705e9c25e3f80",
-      "260908-compare-simple-admission-algorithms": "sha256:89cb8a95c76631a571705afa56b7e9750d61166159da37bbc24488eaa85b0b98",
+      "260908-compare-simple-admission-algorithms": "sha256:402de5148598ade34dd83ce1380a61eeda8175c3f5cd1852638029b00d5f3fc5",
       "260908-explain-learned-heuristic-rejection": "sha256:a04de964e64bbc9c12e807e02e5d43df5b87fb8ae04de01c93e6df988d5665ea",
       "260910-diagnose-deep-readonly-option-type-erasure": "sha256:184ed071bd20597468622bd209d3e1d046119a41a0281c565867359a35f83a9e",
       "260911-survey-markdown-lint-tools": "sha256:7334f26051fa650c7129934177117f31fe72ba9c96c6f9872374f086c1d942fe",
       "260912-diagnose-file-metrics-scc-windows-argument-limit": "sha256:8d07bdbeec3e3531069ff58665aa66dd1f73e63f8dbcbfdfafeffd4d7ee505d0",
-      "260912-investigate-core-package-tools-boundary-validation-gap": "sha256:7b281ffa269cc03017bd93b1d55bab1ab6d40326f9a71c1be7330c804734e614",
-      "260914-measure-scc-file-batch-transport-performance": "sha256:ac5735aa2a9e437e43273458626dd46f546d216d804ddb92666b4262abf7852b",
-      "260924-audit-incremental-project-gate-selection-and-cold-cost": "sha256:6a9a97f68d85469707fc51f6345b60c775dcf664d92c0d002e302b10867904f3",
-      "260924-measure-and-cache-markdown-lint-findings": "sha256:c0ac9ca787dff1112b69dcb8a9b538094b50bd0c90f571cdbd3ec89b2f7c55fe",
+      "260912-investigate-core-package-tools-boundary-validation-gap": "sha256:306915d6143ef8610cd3333d6d56536c14a9ee8ef5c8d085f464d57cddc82c62",
+      "260914-measure-scc-file-batch-transport-performance": "sha256:10b115a0f38b7a6ba9563b07d09bc9ba408e20544338acc3d2557a16fa07734a",
+      "260924-audit-incremental-project-gate-selection-and-cold-cost": "sha256:a9149a4a49f6b5de0d83780e5e8b3c762a5ba39da006123845cacc55b238e24c",
+      "260924-measure-and-cache-markdown-lint-findings": "sha256:43e6b07624325ca2f6d541be31cc72156bcfb49705708e474c975ef97ee40482",
       "260924-review-cold-candidate-variance-and-compiler-cache": "sha256:8e7b4db4231fc01d0761c12d023343c4f1542dedd38243721a3a0cf9db16f48b",
-      "260924-review-local-head-gate-selection-and-document-inputs": "sha256:2b7551926dd9784a1c52187904acf9ebca82e3b0cd53d00d351e8b6a87a9e150",
-      "260926-diagnose-required-gate-head-of-line-wait": "sha256:9629e7657bfff16a33d4e8e63ab36d6015f98f07a3e40ee140520a1482081653",
+      "260924-review-local-head-gate-selection-and-document-inputs": "sha256:11637cf0200a287824c37b5b0f826fab3ad9c7fb7ef53b798b46993319a7962b",
+      "260926-diagnose-required-gate-head-of-line-wait": "sha256:6c2b1c9124c1c718295ffef6bb1dbf57aec2457245a3ae3b5e0115093d7631ff",
       "261005-derive-gate-guide-scenarios-from-history": "sha256:11dbe03e16a6ac99704b11d4b56619f8547417561a8667b9fb1dae22e2d88fe7",
-      "261006-compare-node-file-collection-backends": "sha256:7ec4e86892c76278ea1f821931155d218310a9243693ae40f1e1b97fbb00b4f9",
-      "261008-assess-lizard-1-24-1-upgrade": "sha256:e051d2ef0eeb9bb1e3bc65ff3c75599b797a3ef16547b743d3b7879ace943293",
+      "261006-compare-node-file-collection-backends": "sha256:29b70e7ca7106f78d4cde472e475ddaf83200180caa1619f7d22b88e1f3b2d52",
+      "261008-assess-lizard-1-24-1-upgrade": "sha256:e0cc1e0a7c35519d7a77366b9b91646cc799cef1407738f2bfde4d9c028a3a92",
       "261008-fast-glob-git-collection-boundaries": "sha256:58c5cb1dd4c4488e10edb816a8697b964cc49e48d14c15f2e98a7b657dbb88b1",
       "261008-function-metrics-admission-yield": "sha256:1230189edd9b43da77bca687d38e385f45ad656e8a932308d109237f7ad7dc15",
-      "261008-trace-typescript-metrics-upstream-origin": "sha256:50ff372cfd91c4ecee8f6c3e5fc4c11b775bdcb48e414db9ac8de8c072d0649b",
+      "261008-trace-typescript-metrics-upstream-origin": "sha256:90b8b63d2c3227197d6a5229c86855eda6d600504067d82aefee31248c2d93de",
       "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
       "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d",
       "261011-change-flag-debugging-readiness": "sha256:90b06843ccba3deaf1c1de108e4cbc54aa1c7174046cbaaee60f11e35284716a",
       "261011-diagnose-investigation-pending-mode-conflict": "sha256:d373ce2000e94f934dca2e0894e7dde7e5fc5452acfa0dbc1fc18e70b1e92ff2",
       "261011-prepare-function-metrics-change-plans": "sha256:7534553a4eda133dd5bf47e5c850412904ba9789ca25809a0ab504dc21ef1755",
-      "261011-project-file-collection-readiness": "sha256:5b24bc7039c102534880329a4b8e8518057747d6eabe5acbd4b298e31ae79a94",
-      "261011-project-file-region-index-readiness": "sha256:eec8745461486fb48b36858697b7bcb2402912af4bcb98803b48174a331c3859",
-      "261011-verify-function-metrics-admission-implementation": "sha256:23fb194a518a0a626a30ffd432810c9de17407abe7846dd10a6779da1094bfab",
+      "261011-project-file-collection-readiness": "sha256:6ad994031c365052eaa2a4d5611cfa6ef4a78754ca930c1e7c5ae03da8912e95",
+      "261011-project-file-region-index-readiness": "sha256:1f90f340de059f45c5496f36d04e379aa0911783c33ed18d9545ee867472c93f",
+      "261011-verify-function-metrics-admission-implementation": "sha256:d4196a38e74b29adfdafd3e11532172c47a068a0c29f2367162d17ec375f310e",
       "261011-verify-lizard-1-24-1-implementation": "sha256:0ccbf36d3dd6432d94bb9826e50943b325987b57b8ceeff5c4c4fe70dfac559a",
       "261011-verify-typescript-metrics-implementation": "sha256:43f33409310f08d0c99ea9b02e318692073c9dd1796739fe760a2e53d7a9509d",
       "261012-audit-checks-core-algorithmic-complexity": "sha256:cca0cbdee4d833369c2d84c0309aeeb08f743a5c594ec16594d8b629d254029a",
-      "261012-audit-function-metrics-pathological-input-cost": "sha256:25531da916fe75b83789364206943c9c58a08839cdaf1708c338920b42141673",
+      "261012-audit-function-metrics-pathological-input-cost": "sha256:373fd1b00268f9684d519c4de89025911cff0185777da4b67a347258dd77457a",
       "261012-evaluate-bounded-tokenizer-optimization": "sha256:7616a14f9f228d3c06c1c993631e593483dcf42249d8ed2ffb583fd46f07c223",
       "261012-evaluate-project-file-selection-optimization": "sha256:92c1822cef3d3d62d5464dbce0d872ce4636bef3ac33381aacdfbe6e8c94858e",
       "261012-evaluate-run-projection-optimization": "sha256:135c267c50cb0532280f0e0a0ab77b4b2330ea21185842fb5e615fe2a636dd34",
@@ -3308,16 +3343,16 @@
       "261021-assess-types-node-upgrade": "sha256:4aa5f26b50b9f2dc75630c6fe74559aa2420af763ce7916493fdcd72cf796cd0",
       "261021-assess-typescript-native-preview-upgrade": "sha256:c9952ad48f2da8dadd4207808e11f409d672f328642fc55b717dad311c513e36",
       "261021-assess-typescript-upgrade": "sha256:783598bf7a31c9ef8bcf33712383d5613ceb7bec2a4fba3ab4e4d857e7e59051",
-      "261021-diagnose-markdownlint-core-instance-mismatch": "sha256:e4479a42d88203188c0394fba110e0ba45965f2f4d6f8d6b4376d628919488cf",
-      "261021-profile-markdown-link-consumer-workload": "sha256:964bafc9ad98422c3b61a37b96893e1f925f602d8b964095031e2136de2bfb82",
+      "261021-diagnose-markdownlint-core-instance-mismatch": "sha256:da63ab15e4cba4cfcfe937997c737665496a08d0eb7b6ac4cdeb6fea558910ae",
+      "261021-profile-markdown-link-consumer-workload": "sha256:3bc5988ab2a34bf48229406ee444477a5858ee8f8fd9cf4303a1472c8a4bb4a7",
       "261021-verify-upgraded-command-result-integrity": "sha256:4d6eef0e21ad37c8dccdd0b208884f3901b0b576290bb1756ea0f8d22f740698",
-      "261023-compare-gate-runtime-install-and-fixtures": "sha256:faacd530386fb1d50973f2ab21c23402456badf45733bbd96a6f4fe74185aafb",
+      "261023-compare-gate-runtime-install-and-fixtures": "sha256:a3e0087818b168ecbd160a2dfa6252d1b83eded19c18e44b80b08768e96c28e5",
       "261023-diagnose-fast-gate-lint-amplification": "sha256:1cdea925598ffbd8e567b81235ed182cf3e36029823209d3e63a68e8dbfcbe92",
       "261023-diagnose-heavy-check-contention": "sha256:77c0cbf46e3eda113327fa10ef8801b0135ba9f610026f8c1ccf6ab785e91882",
       "261023-evaluate-markdown-link-fusion-and-restore": "sha256:03f0a5ef4860d5bff594f8a934ff87d008e590bdc491069c20420ffdc3b54f82",
       "261023-measure-complete-gate-without-competing-runs": "sha256:511b15391919aa5e305a9cbeb18140fb4d7ca2ec0e89547b65d188c0b9a5f70c",
       "261024-diagnose-bun-strict-assertion-compatibility": "sha256:065d055c171c5c5aeedbea33f5b4ff8a0db64f375470359836ca656d2be9183f",
-      "261024-diagnose-gate-p95-test-discovery": "sha256:9447ad89daa293d502f3bd02161cd88e5f311472dafea893c9a3e0d5ef904874",
+      "261024-diagnose-gate-p95-test-discovery": "sha256:541af92438041af0e1e6102c5d1bd273e3fee7d56eeda8ce318db69b74b8b921",
       "261024-measure-gate-test-boundary-simplification": "sha256:6499c5bf6519d048a4a890092e1721033d892b4f4cb547594d7014578cf6470e",
       "261024-profile-markdown-link-fused-path-loop": "sha256:3025903c3332cdfc1cff6f02436f1233347f1affe2ef64051bfb1d7c301ed827",
       "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf",

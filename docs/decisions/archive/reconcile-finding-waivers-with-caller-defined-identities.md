@@ -9,6 +9,8 @@ background: 决策形成前的路径 glob 排除会在扫描前抹去 Finding，
 decision: 提供独立泛型 helper，按调用方从完整 Finding 投影出的结构化身份批量对账 waiver，并由采用它的 Check 自行发布和结算结果。
 tags:
   - configuration
+  - file-metrics
+  - finding-waivers
   - product-contract
 relations:
   - type: 修订

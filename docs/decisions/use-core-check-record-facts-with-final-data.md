@@ -8,7 +8,9 @@ purpose: 让 Run resolution 形成只包含四态 Check final facts 与 minimal 
 background: Core 的 Check outcome 仍使用已退休的双层终态表示，且 Record 保留了不属于最小 Check-local contract 的类型与字段模型。
 decision: 保留 Run resolution 与 two-entity Core，修订 Check 为四态 final data、Record 为 checkId/id/data。
 tags:
+  - check-results
   - product-contract
+  - project-run
 relations:
   - type: 修订
     target: 260815-use-core-check-and-record-facts-from-run-resolution

@@ -38,8 +38,6 @@ Vibe Check 将 external scanner 作为 producing Check 的私有实现，不是�
 
 “更新 repository baseline”与“已经由 published `^5.0.11` 自动解析到的 consumer version 能否工作”是两件不同的事。scanner 成功解析不证明 finding/metric 不变；candidate 的实际安装版本和真实 Run 仍是独立证据。
 
-预期使用结果是明确恢复三项动作边界：哪个工具可进入近期升级候选、哪个工具不能直接改 pin/version gate，以及各自开始实施前必须取得什么证据。本报告不要求也不授权立即修改依赖。
-
 ## 调查范围与依据
 
 **仓库依据（实际读取）。** 读取根 `AGENTS.md`、investigation-report 固定契约、`docs/scanner-dependencies.md`、两项 Check guide、SCC/jscpd Decisions、`mise.toml`/lock、`package.json`/lock、SCC/jscpd adapters 与相邻 tests、measurement/execution/cache identity、candidate install 与 external-consumer runtime evidence。关键位置包括：

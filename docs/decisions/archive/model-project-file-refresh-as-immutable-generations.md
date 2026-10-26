@@ -12,6 +12,9 @@ tags:
   - dependency-policy
   - performance
   - product-contract
+  - project-files
+  - project-inputs
+  - typed-providers
 relations:
   - type: 修订
     target: 260910-separate-live-file-collection-from-shared-snapshots

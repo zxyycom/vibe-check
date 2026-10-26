@@ -8,7 +8,10 @@ purpose: 让 package 只公开一种递归 Check authoring model、三个普通�
 background: 已确认 authoring helpers；来源、TaskPlan 或 adjustment inventory 会把已取消的模型带入 package。
 decision: 固定四个 runtime functions、三个普通默认 Check values，以及单一 Check/Result/Record/Project/Run type roots。
 tags:
+  - check-authoring
   - product-contract
+  - public-api
+  - public-naming
 relations:
   - type: 替代
     target: 260815-confirm-single-check-authoring-and-derivation-names-before-publication

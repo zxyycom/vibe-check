@@ -9,7 +9,9 @@ background: 原匹配把固定耗时上限与历史 workload 可比性混为一�
 decision: 按 profile/runtime 唯一选择本机预算；指纹仅保留为可选元数据，超时与无效测量仍阻断
 tags:
   - configuration
+  - gate-performance
   - performance
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

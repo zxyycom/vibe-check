@@ -9,6 +9,8 @@ background: 当前 Project Definition 只拥有 scope fields；不同领域 Chec
 decision: 文件级差异留在 producing Check 的 closed options；它只作用于该 Check 的 eligible inputs，Check 以四态 result 表达结论。
 tags:
   - configuration
+  - file-policy
+  - project-files
 relations:
   - type: 修订
     target: 260804-use-file-policy-overrides

@@ -8,7 +8,10 @@ purpose: 保留普通 Check 的 direct callback 和 structured result，同时�
 background: Direct execution 与三类 result 适用于 custom Check；comparison 和 finding assumptions 不属于共同 context。
 decision: Check 继续直接执行并返回 structured result；records 只提交 Check-local identity 与 custom data。
 tags:
+  - check-authoring
+  - check-lifecycle
   - configuration
+  - quality-records
 relations:
   - type: 修订
     target: 260817-use-direct-check-execution-with-structured-results

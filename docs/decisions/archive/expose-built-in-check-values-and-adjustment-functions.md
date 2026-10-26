@@ -8,7 +8,9 @@ purpose: 让 package 同时提供 Project Definition 构造、Product Run 和普
 background: 内置 Check 不再携带调整 methods，原有 exactly-two-callable surface 无法交付独立 replace 与 append。
 decision: 目标 package 导出四个职责明确的 functions 和三个 non-callable 内置 Check values，不公开第二执行入口或内部 runtime surface。
 tags:
+  - check-authoring
   - product-contract
+  - public-api
 relations:
   - type: 修订
     target: 260814-expose-built-in-check-values-alongside-config-and-run

@@ -8,6 +8,9 @@ purpose: 固定首发四项已选能力，并让 Markdown Structure 只在出现
 background: 既有记录对首发 Check 数量互相冲突，并把已取消与已实现方向混在同一生命周期中。
 decision: 首发只要求 JSON、JSON Schema、Markdown Link 与 maintenance reminders 四项能力。
 tags:
+  - maintenance-reminders
+  - markdown-link-validation
+  - package-release
   - product-contract
   - product-priority
 relations:

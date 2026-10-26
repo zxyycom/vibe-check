@@ -1,0 +1,2 @@
+$ bun .codex/skills/change-plan/scripts/change-plan.ts check-all changes
+Change plan collection check passed (/workspace/vibe-check/changes; 14/14 changes valid).

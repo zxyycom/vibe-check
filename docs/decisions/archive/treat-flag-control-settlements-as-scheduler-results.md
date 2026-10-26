@@ -8,9 +8,12 @@ purpose: 保留统一 flag 判定的同时，让未启用 Check 遵守 passed pr
 background: 多 flag 决策形成时所有已结算上游都会放行 dependent；dependsOn 后来收敛为必须 passed，旧的放行结论已与当前图契约冲突。
 decision: flag 条件未匹配继续在 author work 前结算，并作为同一张 Scheduler 图的准入前非通过结果阻断 dependsOn、放行 observes。
 tags:
+  - check-dependencies
   - configuration
   - dependency-policy
+  - flags
   - product-contract
+  - scheduler
 relations:
   - type: 修订
     target: 260901-support-multi-flag-check-enablement-strategies

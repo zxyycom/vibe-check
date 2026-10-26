@@ -8,7 +8,9 @@ purpose: 让开发者与使用者以同一公开接口显式接入和配置学�
 background: 内置 learned kind 使历史输入和诊断拥有普通策略作者没有的特权，无法体现同层扩展。
 decision: 删除专用 learned kind，以公开策略工厂和调用方配置承接学习、选择与终态记录。
 tags:
+  - admission-scheduling
   - configuration
+  - package-tools
   - product-contract
   - workflow-policy
 relations:

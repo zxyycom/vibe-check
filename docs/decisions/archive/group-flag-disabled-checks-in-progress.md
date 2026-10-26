@@ -8,8 +8,11 @@ purpose: 保留终态消息和 visibility 的同时，集中呈现因 flag 条�
 background: 逐项输出相同的未运行状态会放大可预期控制结果，并掩盖真正执行或需要关注的 Check。
 decision: 终态消息和 attention visibility 保持独立；progress 在 invocation flag control 完成时按名称分组明确的 flag 条件未匹配结果。
 tags:
+  - check-visibility
   - configuration
+  - flags
   - product-contract
+  - progress-output
 relations:
   - type: 修订
     target: 260822-allow-check-terminal-messages-and-explicit-visibility

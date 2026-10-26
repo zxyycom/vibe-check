@@ -8,7 +8,10 @@ purpose: 让 Check 只声明 Task 输入，由唯一静态 Task graph 负责依�
 background: Information-only Check 不形成 Task；在 Check traversal 中展开依赖目标会复制并扭曲 generic Task graph 的责任。
 decision: 每个 executable Check 投影一个 Task 并透传调度字段；Task graph 在执行前统一拒绝缺失依赖、环和其它非法结构。
 tags:
+  - check-dependencies
   - product-contract
+  - scheduler
+  - task-graph
 relations:
   - type: 修订
     target: 260815-execute-recursive-checks-through-one-task-graph

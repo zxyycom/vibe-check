@@ -8,7 +8,10 @@ purpose: 让 package 公开唯一递归 Check/Run model 和实际 consumer 所�
 background: 单一普通 Check 和唯一 Run 仍是边界；旧 evaluation 与 Record catalog roots 已退出 Product contract。
 decision: 保留唯一 Check/Run 与四态 result/minimal Record types，删除 retired evaluation/gate/catalog roots。
 tags:
+  - check-authoring
   - product-contract
+  - public-api
+  - quality-records
 relations:
   - type: 修订
     target: 260817-expose-recursive-check-authoring-and-run-surface

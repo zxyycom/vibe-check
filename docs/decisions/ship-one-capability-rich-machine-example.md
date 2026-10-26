@@ -8,6 +8,8 @@ purpose: 让 package consumer 从一组可执行材料同时理解内置 Check�
 background: 只有四个直接返回终态的自定义 Check 虽能覆盖 wire grammar，却不能展示真实 Definition 如何组合公共能力或使用随包 Check。
 decision: 保留唯一 mixed-outcomes 示例，以一个真实内置 Check 和一条自定义依赖工作流形成代表性结果，并由完整 public Run 生成输出。
 tags:
+  - documentation
+  - machine-output
   - product-contract
   - workflow-policy
 relations:

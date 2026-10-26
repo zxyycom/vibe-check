@@ -8,6 +8,8 @@ purpose: 让 Change 的主目标不被篇幅更多或实现更复杂的衍生问
 background: 同一 Change 可能同时处理核心结果及其兼容、迁移、风险和验收影响，而内容多少不能可靠表达主次。
 decision: 按目标、因果和完成责任区分主要问题与衍生问题，并让主要问题持续主导 Change 的入口与验收。
 tags:
+  - change-plan
+  - scope-management
   - workflow-policy
 relations: []
 ---

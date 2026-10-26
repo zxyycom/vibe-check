@@ -6,7 +6,7 @@ question: "在不绑定 Bun、允许破坏性变更且不能静默漏检的约�
 tags:
   - "dependency-policy"
   - "file-collection"
-  - "nodejs"
+  - "node"
   - "software-selection"
 relations: []
 ---

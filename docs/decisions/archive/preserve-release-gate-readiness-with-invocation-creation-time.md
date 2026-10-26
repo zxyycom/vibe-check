@@ -8,8 +8,12 @@ purpose: 让首次公开 package 继续先满足完整 Gate consumer 证据，�
 background: 旧 timestamp 修订遗漏了更宽 release-Gate Decision 的部分当前义务。
 decision: 保留完整 Gate 发布顺序与最小 timing 边界；timestamp 仅表示 Run 创建 instant。
 tags:
+  - invocation-timing
+  - machine-output
+  - package-release
   - product-contract
   - product-priority
+  - project-gate
 relations:
   - type: 修订
     target: 260830-publish-invocation-creation-time-without-execution-telemetry

@@ -9,6 +9,7 @@ background: 两宿主原型已证明局部收益，用户确认由项目维护�
 decision: 采用原生 JSON.parse 完整语法验收、私有解码键查重与迭代安全值投影，移除 Momoa
 tags:
   - dependency-policy
+  - json-validation
   - performance
   - product-contract
 relations:

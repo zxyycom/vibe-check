@@ -43,9 +43,13 @@ relations:
 
 ## 调查结果与边界
 
-**初始输出等价已确认。** 初始轮的 34 次 warm-up 和 170 次计数 logical scans 均通过 initial harness 的 CSV header、batch-local exact-path、无重复和 normalized digest guard；full-scope baseline、全部 batch-size 与全部 ceiling conditions 的 digest 均为 `f4afbe623636ffdf7a4dde158cc723dace0ac5e4a2861324910602a3b4dfc7a8`。single-file cold-start 的独立 scope digest 是 `481ad69433ed818fe82844494a57428ad5ac256d3332976318ff11394e7b913a`。这只证明 stock SCC 对此 generated corpus 的 by-file CSV output 在不同分批方式下等价；它不证明未来 adapter 的 CSV parser、failure handling、deadline、output accounting 或 final Product result merge。
+### 初始输出等价
 
-**冷启动与 batch-size 曲线（ms，10 rounds）。** 当前单进程 baseline 的 median/p95 是 `19.087/28.992`，single-file fresh-process cold start 是 `9.881/11.492`。显式 batch sizes 的完整 logical scan 如下：
+初始轮的 34 次 warm-up 和 170 次计数 logical scans 均通过 initial harness 的 CSV header、batch-local exact-path、无重复和 normalized digest guard；full-scope baseline、全部 batch-size 与全部 ceiling conditions 的 digest 均为 `f4afbe623636ffdf7a4dde158cc723dace0ac5e4a2861324910602a3b4dfc7a8`。single-file cold-start 的独立 scope digest 是 `481ad69433ed818fe82844494a57428ad5ac256d3332976318ff11394e7b913a`。这只证明 stock SCC 对此 generated corpus 的 by-file CSV output 在不同分批方式下等价；它不证明未来 adapter 的 CSV parser、failure handling、deadline、output accounting 或 final Product result merge。
+
+### 冷启动与 batch-size 曲线（ms，10 rounds）
+
+当前单进程 baseline 的 median/p95 是 `19.087/28.992`，single-file fresh-process cold start 是 `9.881/11.492`。显式 batch sizes 的完整 logical scan 如下：
 
 | batch size | invocations | median | p95 |
 | ---: | ---: | ---: | ---: |
@@ -61,7 +65,9 @@ relations:
 
 曲线显示进程数主导这个 small-file workload；620 one-file processes 的 median 约为单进程 batch-size-620 的 351 倍。batch-size-310 的 argv 估算已是 `36,277/35,835`，超过 Windows limit，所以它只说明 Linux process-cost 曲线，不能作为 Windows-safe configuration。
 
-**ceiling 曲线与选择。** 所有 ceiling condition 都保持 full-scope digest；batch count 与 wall time 为：
+### ceiling 曲线与选择
+
+所有 ceiling condition 都保持 full-scope digest；batch count 与 wall time 为：
 
 | ceiling | invocations | median | p95 | 结论 |
 | ---: | ---: | ---: | ---: | --- |
@@ -74,9 +80,13 @@ relations:
 
 最快 candidate 是 `28,000`（median `29.149`、p95 `30.601`）；因此门槛分别是 `32.064 ms` 和 `35.191 ms`。只有 `28,000` 同时合格，故按预先声明的“合格者中最小”规则，production private ceiling 应为 **`28,000` UTF-16 code units**。这不是“因性能而取消安全留白”：`28,000` 仍是 Change 已固定的 hard maximum，并相对于 32,767 command-line ceiling 留出 4,767 code units；结果只说明在此特定 host/corpus 上，较小 candidates 的额外 SCC cold-start 成本超过既定门槛。
 
-**最终 runtime 复测。** 后续 runtime harness 在同一 host、Bun、mise-resolved stock SCC、620-file corpus、fixed protocol、2 次 warm-up 与 10 个计数 rounds 上运行唯一的第 18 条 `runtime-production-ceiling-28000` condition，直接调用最终 `scanWithScc`。它以同一 private `28,000` planner 得到 `3` 个 batches（`238/241/141` paths；估算 `27,997/27,900/16,400`），并对 scanner 返回的按 path、code lines、decision tokens 归一 payload digest 做完整 expected-value guard。10 个 runtime rounds 的 median/p95 是 **`37.585/45.186 ms`**，payload digest 为 `b4abd7f5703bae07fee30b88fc2fec20027b3bb78b90c11b0f5fc9d20f86f037`。这个 digest 的字段形状不同于初始 direct-CSV guard `f4af…`，但它验证了同一 620 path 的 `code=1`、`decisionTokens=0` 结果；三次调用、path coverage 和 `28,000` partition 与已选择 ceiling 一致。runtime condition 包含 production parser、batch-local scope acceptance、aggregate uniqueness/sort、shared resource accounting 与 process runner，故 wall time 不与仅直接 spawn/CSV-normalize 的初始 ceiling timing 逐毫秒等同；它不重新定义已经按 predeclared six-ceiling curve 得出的 `28,000` 选择。
+### 最终 runtime 复测
 
-**未验证边界。** 没有 Windows runner；因此不证明 Windows executable/path quoting、`CreateProcessW` 或真实 consumer file mix。当前 Linux runtime、fake-SCC adapter tests 与 stock-SCC performance data 不能替代真实 Windows acceptance。真实 Windows stock-SCC 超预算 exact-path acceptance 仍是非阻断但必须明示的未验证边界。
+后续 runtime harness 在同一 host、Bun、mise-resolved stock SCC、620-file corpus、fixed protocol、2 次 warm-up 与 10 个计数 rounds 上运行唯一的第 18 条 `runtime-production-ceiling-28000` condition，直接调用最终 `scanWithScc`。它以同一 private `28,000` planner 得到 `3` 个 batches（`238/241/141` paths；估算 `27,997/27,900/16,400`），并对 scanner 返回的按 path、code lines、decision tokens 归一 payload digest 做完整 expected-value guard。10 个 runtime rounds 的 median/p95 是 **`37.585/45.186 ms`**，payload digest 为 `b4abd7f5703bae07fee30b88fc2fec20027b3bb78b90c11b0f5fc9d20f86f037`。这个 digest 的字段形状不同于初始 direct-CSV guard `f4af…`，但它验证了同一 620 path 的 `code=1`、`decisionTokens=0` 结果；三次调用、path coverage 和 `28,000` partition 与已选择 ceiling 一致。runtime condition 包含 production parser、batch-local scope acceptance、aggregate uniqueness/sort、shared resource accounting 与 process runner，故 wall time 不与仅直接 spawn/CSV-normalize 的初始 ceiling timing 逐毫秒等同；它不重新定义已经按 predeclared six-ceiling curve 得出的 `28,000` 选择。
+
+### 未验证边界
+
+没有 Windows runner；因此不证明 Windows executable/path quoting、`CreateProcessW` 或真实 consumer file mix。当前 Linux runtime、fake-SCC adapter tests 与 stock-SCC performance data 不能替代真实 Windows acceptance。真实 Windows stock-SCC 超预算 exact-path acceptance 仍是非阻断但必须明示的未验证边界。
 
 ## 随附资源
 

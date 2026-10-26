@@ -8,7 +8,9 @@ purpose: 让产品描述准确表达工具用途，而不把 Node 运行宿主�
 background: 既有描述使用“面向 Node 项目”，会让非 Node 项目的使用者误以为 Vibe Check 不适用。
 decision: 将 Vibe Check 定位为通用 TypeScript 质量门禁工具，并把 Node 仅作为 package 运行环境约束表达。
 tags:
+  - node
   - product-contract
+  - public-api
 relations:
   - type: 修订
     target: 260906-describe-vibe-check-as-a-general-project-quality-gate

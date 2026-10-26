@@ -8,8 +8,12 @@ purpose: 让可复用的 exact package candidate 成为可验证、可依赖并�
 background: Gate 在 Run 前必须准备并加载 candidate，但后续 consumer acceptance 仍从 receipt 状态重新恢复同一 artifact。
 decision: 用 required typed provider Check 保留 prepared candidate，consumer Check 通过 direct dependency 消费。
 tags:
+  - check-dependencies
   - configuration
+  - package-candidate
+  - project-gate
   - testing
+  - typed-providers
   - workflow-policy
 relations: []
 ---

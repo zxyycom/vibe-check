@@ -8,8 +8,11 @@ purpose: 让日常完整验收与发布、手动诊断各自具有明确范围
 background: 完整manifest把consumer types与workbench自动带入日常all及保守回退
 decision: 保留fast与受影响验收，将types设为发布前或显式、workbench仅显式
 tags:
+  - change-selection
   - configuration
+  - gate-selection
   - performance
+  - project-gate
   - workflow-policy
 relations:
   - type: 修订

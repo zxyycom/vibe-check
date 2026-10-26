@@ -2,13 +2,14 @@
 title: "依赖实际加载面与零依赖严格 grammar 路径"
 id: "260824-recheck-json-dependency-and-zero-dependency-path"
 formedAt: "2026-08-24T13:38:49Z"
-question: "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
+question: "Momoa 等候选的整包大小与实际加载面有何区别，仅校验严格 JSON 有效性时能否零依赖，保留重复键语义又需要什么？"
 tags:
   - "implementation-libraries"
   - "json-validation"
 relations:
   - type: "修正"
     target: "260824-choose-minimal-library-for-strict-json-and-duplicate-keys"
+    summary: "纠正整包体积含义并区分零依赖grammar与重复键要求"
 ---
 
 ## 形成时背景

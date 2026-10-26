@@ -8,6 +8,9 @@ purpose: 让首次公开 package 交付可验证的本地引用完整性与其�
 background: 用户已明确取消 Markdown Structure Check；保留 Link、JSON、JSON Schema 与 maintenance reminders 的首版方向。
 decision: 首次公开发布前完成四项独立 ordinary Checks，Markdown Link 独立拥有最小 private parser adapter，Structure 不再是发布前置。
 tags:
+  - maintenance-reminders
+  - markdown-link-validation
+  - package-release
   - product-contract
   - product-priority
 relations:

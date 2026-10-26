@@ -9,7 +9,9 @@ background: 当前三字段选择重复表达排除语义，Git 成功与失败�
 decision: 文件选择使用 source/include/exclude；filesystem 与 git-worktree 均为显式来源且失败时停止，同一 Check 对每种来源至多枚举一次。
 tags:
   - configuration
+  - file-selection
   - product-contract
+  - project-files
 relations:
   - type: 修订
     target: 260826-let-each-check-own-file-selection

@@ -9,8 +9,12 @@ background: Package 默认已改为 advisory，而 Gate 仍显式使用严格阈
 decision: 保留 Package 默认 advisory；将 Gate 四项质量 Check 显式改为 blocking，并由现有 all aggregate 自然失败。
 tags:
   - configuration
+  - finding-policy
+  - finding-remediation
+  - package-release
   - product-contract
   - product-priority
+  - project-gate
   - repository-automation
   - workflow-policy
 relations:

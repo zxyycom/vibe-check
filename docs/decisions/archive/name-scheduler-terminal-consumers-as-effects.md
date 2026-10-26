@@ -9,6 +9,9 @@ background: 现有 measurement Hooks 与 prepared complete 已共享终态流水
 decision: 直接切换为 terminalEffects 与 terminalEffect，保留 sealed measurement、顺序交付、故障聚合和主结果优先级
 tags:
   - product-contract
+  - run-outputs
+  - scheduler
+  - terminal-effects
   - workflow-policy
 relations:
   - type: 修订

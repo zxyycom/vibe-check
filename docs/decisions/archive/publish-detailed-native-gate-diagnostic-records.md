@@ -9,7 +9,11 @@ background: aggregate native failure 丢失 docs、Decision Records、Test Evide
 decision: Native adapter 只转交逐项 Record 与有界预览；每个诊断 owner 继续拥有安全字段、局部 ID、排序和展示文本，外部命令原始输出仍只留私有 transcript。
 tags:
   - configuration
+  - finding-presentation
+  - gate-diagnostics
   - product-contract
+  - project-gate
+  - quality-records
   - workflow-policy
 relations: []
 ---

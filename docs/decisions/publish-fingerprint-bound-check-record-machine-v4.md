@@ -8,6 +8,7 @@ purpose: 让 current machine publication 用 v4 Check final data 与 minimal Rec
 background: v3 Check/Record/evidence shape 已过时，但双文件 complete-set fingerprint 仍是必要 trust boundary。
 decision: 保留双文件与 records fingerprint，硬切 v4 Check/Record shape 和 validators，并拒绝 v3 与全部兼容路径。
 tags:
+  - machine-output
   - product-contract
 relations:
   - type: 修订

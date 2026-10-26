@@ -8,7 +8,9 @@ purpose: 让外部用户与随包工具通过同一公开数据契约复用单�
 background: 可选工具仍使用 Core 私有数据能力，目录迁移不能靠私有例外或复制算法完成。
 decision: 公开最小可独立使用的数据能力，保留 Core owner，并将三个可选工具纳入统一边界。
 tags:
+  - data-boundary
   - dependency-policy
+  - package-tools
   - product-contract
 relations: []
 ---

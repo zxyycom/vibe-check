@@ -9,7 +9,10 @@ background: public args 和 availabilityArgs 可以改变 adapter 的可信 meas
 decision: functionMetrics 只选择 executable，Lizard adapter 固定 version probe、CSV 调用与私有执行参数。
 tags:
   - configuration
+  - function-metrics
+  - lizard
   - product-contract
+  - scanner-dependencies
 relations: []
 ---
 

@@ -8,8 +8,12 @@ purpose: 让 flag 选择可按 Check authoring 启动其 dependsOn 闭包，并�
 background: 现有 flag control 独立结算未匹配 Check，调用方须重复维护依赖闭包和 aggregate IDs。
 decision: enabledByFlags 的显式 opt-in 形成一次私有有效选择；它只传播 dependsOn，并由显式 aggregation selector 同源消费。
 tags:
+  - aggregation
+  - check-dependencies
   - configuration
   - dependency-policy
+  - flags
+  - gate-selection
   - product-contract
   - workflow-policy
 relations:

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: "复查"
     target: "260903-verify-lizard-reader-resolution-fast-path"
+    summary: "以完整Product真实TS路径复查reader fast-path收益"
 ---
 
 ## 形成时背景
@@ -20,14 +21,9 @@ relations:
 
 被比较的 before 是 `e2bad655dde89d07c48413fae4c6167746e10708`；after 是其直接子提交 `dd9635d05ddbeb7b0c821ded527b43e298648a38`。该实现变化只在 hand-written `analyzer/port-facade.ts` 引入安全 filename 的 reader-resolution fast path；本轮未修改 Product runtime、未切换工作区 revision，也未修改任何 analyzer core/readers/shared/protocol。
 
-### 当前阅读导航（不属于形成时证据）
+### 后续阅读（不属于形成时证据）
 
-- **本报告的 evidence owner：**两相邻 revision 在真实仓库 TypeScript corpus 上，从 public `src/index.ts` 发起的完整 `functionMetrics` warmed-operation Product 测量，以及 snapshot equality guard；raw rows/manifest 由本报告资源拥有。
-- **直接前序：**frontmatter 的 `复查 → verify-lizard-reader-resolution-fast-path.md`；该前序是 fixed synthetic analyzer scope 的验收，本报告只复查其变更在完整 Product layer 的表现。
-- **已确认 / 推断 / 未知：**所有计数样本 output 等价和本轮 wall observations 已确认；小幅下降是否是稳定实现收益仍是推断未闭合，Product stage 的因果占比未知。
-- **不能比较或相减：**本报告完整 Product time 不可与 direct analyzer、tokenizer 或旧 synthetic batch 的时间相减；它包含 read/decode、Worker、adapter、Records 与 settlement，且本轮不证明 cold/session/resource 指标。
-- **形成时建议（不是当前状态）：**若要据此作性能决策，需在明确 consumer corpus、稳定 host 条件和预定义统计阈值下复查；本报告不授权继续改 core、Worker、I/O 或 settlement。
-- **后续阅读与授权边界：**[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件；本报告不拥有持续执行状态，也不自动启动调查或实施。今天是否行动由当前请求授权并由相应 Change 承接；长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
+本报告拥有两相邻 revision 在真实 TypeScript corpus 上的完整 `functionMetrics` warmed-operation 测量与 snapshot equality guard，raw rows/manifest 见随附资源。[综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)保存后续形成时证据及当轮停止事件。报告不拥有持续执行状态，也不自动启动调查或实施；今天是否行动由当前请求授权并由相应 Change 承接，长期采用门槛见[对应 Decision](../decisions/permit-evidence-backed-host-primitive-optimization-in-lizard-port.md)。
 
 ## 调查目的
 
@@ -57,7 +53,7 @@ after 的 unpaired median 低 **3.39%**。按 15 个 ABBA/BAAB block 中每侧�
 
 **推断。** 在这份真实 Product runtime corpus 中，测量与小幅 after 下降方向一致，但幅度接近本轮配对噪声：5/15 block 方向相反，且没有为本轮定义或计算稳定性 CI。因此本轮**不能证明** reader fast path 对完整 Product path 有可区分、可推广的稳定加速；更不能以 fixed analyzer batch 的约 45% operation 降幅外推完整 Product latency。完整路径中的 read/decode、Worker 生命周期、Record/settlement 和 host load 均会稀释或掩盖 façade-only 成本。
 
-**边界与未获授权项。** 这不是 cold-start、long-lived session、CPU/RSS、consumer workload、跨主机/运行时或多语言 reader corpus 测量，也没有 isolate 各 Product stage 的因果占比。相同 snapshot 只证明本 corpus 和该公开配置的输出等价，不能替代 filename differential/oracle。该调查不授权进一步优化 translated core、reader、tokenizer、Worker、I/O 或 Product settlement；若需要作性能决策，应在明确 consumer corpus、稳定 host 条件和预定义统计阈值下重新调查。
+**边界与未获授权项。** 这不是 cold-start、long-lived session、CPU/RSS、consumer workload、跨主机/运行时或多语言 reader corpus 测量，也没有 isolate 各 Product stage 的因果占比。本报告的完整 Product time 不可与 direct analyzer、tokenizer 或旧 synthetic batch 的时间跨层相减。相同 snapshot 只证明本 corpus 和该公开配置的输出等价，不能替代 filename differential/oracle。该调查不授权进一步优化 translated core、reader、tokenizer、Worker、I/O 或 Product settlement；若需要作性能决策，应在明确 consumer corpus、稳定 host 条件和预定义统计阈值下重新调查。
 
 ## 随附资源
 

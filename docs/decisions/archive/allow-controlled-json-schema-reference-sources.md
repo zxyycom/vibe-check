@@ -8,8 +8,12 @@ purpose: 让首次公开 package 交付五项默认 Check，并以默认离线�
 background: 首发 Check 集已确定，但纯离线 registry 不能覆盖常见已知 schema 引用；任意网络 loader 又会越过安全边界。
 decision: 首发完成五项 default Checks；jsonSchemaValidation 以 closed policy 解析 local、bundled 与 allowlisted HTTPS 引用。
 tags:
+  - json-schema-validation
+  - package-release
   - product-contract
   - product-priority
+  - schema-references
+  - security
 relations:
   - type: 修订
     target: 260824-complete-first-release-check-set-before-publication

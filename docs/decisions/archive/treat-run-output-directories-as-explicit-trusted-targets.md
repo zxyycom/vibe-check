@@ -10,6 +10,8 @@ decision: 两项 output 允许非空且无 U+0000 的相对或绝对目录；相
 tags:
   - configuration
   - product-contract
+  - run-outputs
+  - security
 relations: []
 ---
 

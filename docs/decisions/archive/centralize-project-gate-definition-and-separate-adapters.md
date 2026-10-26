@@ -9,6 +9,9 @@ background: Gate 的 test 与 repository-quality 配置分散在构造模块中�
 decision: 由根级 definition.ts 集中拥有全部 Gate Check 配置，保留 run.ts 作为唯一进程入口，并将实现分别归入 checks 与 runtime 子目录。
 tags:
   - configuration
+  - module-boundaries
+  - project-definition
+  - project-gate
   - workflow-policy
 relations: []
 ---

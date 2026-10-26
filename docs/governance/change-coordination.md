@@ -29,6 +29,10 @@ artifacts 决定。
 | --- | --- | --- |
 | P1 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
 
+### 知识记录专项维护
+
+[`refresh-governance-records`](../../changes/refresh-governance-records/proposal.md) 维护既有 Decision 与 Investigation 知识记录，以及当前任务明确授权的后继；不改变其它 Change 的主队列优先级。审阅可按互不重叠的记录集合并行；若与其它 Change 共享记录 owner，相关记录写入串行。关系与派生索引统一由协调阶段串行维护。
+
 ### 并行与提交边界
 
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享

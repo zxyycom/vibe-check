@@ -73,10 +73,14 @@ relations: []
 
 ## 调查结果与边界
 
+### 已实施优化与保留语义
+
 已实施两个局部动作：同次发现复用编译后的 Minimatch；惰性遍历只在所有 include 都有真实文件见证、且 ignore 以终止 `/**` 确定排除整个目录子树时剪枝。
 保持 include 先于 ignore 的存在性判断、过滤后空集合诊断、显式 source root/supplemental 验证、符号链接边界、唯一且排序的输出，以及每次重新发现当前树。
 
 不缓存文件集合，不以 node_modules 名称无条件排除；普通文件级 ignore 不能剪掉其未匹配后代。剪枝后不再观察已排除子树内部的读取错误，这是不读取排除材料的明确边界；include 尚无见证时仍可能需要遍历它。
+
+### 局部验证与归因边界
 
 目标及相邻 7 tests、整个 Test Evidence 18 tests、Gate tooling 51 tests、scripts typecheck/lint、format（1,028 文件）和全树 789 entities / 192 Cases / 17 topics 通过。
 三个私有变异分别取消剪枝、忽略 include 见证条件、把普通文件 ignore 也当作整树规则；新增测试均让 runner exit 1，并定位对应断言。

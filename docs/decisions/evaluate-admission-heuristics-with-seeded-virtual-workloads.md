@@ -8,8 +8,10 @@ purpose: 让简单准入算法低成本覆盖常见极端场景，并以真实�
 background: 频繁真实执行成本高，固定任务时长又不能表达共享资源竞争造成的效率变化。
 decision: 采用复用公开准入状态的虚拟时间模型，以总完成时间优先、资源占用其次进行场景化比较。
 tags:
+  - admission-scheduling
   - performance
   - testing
+  - virtual-admission
   - workflow-policy
 relations: []
 ---

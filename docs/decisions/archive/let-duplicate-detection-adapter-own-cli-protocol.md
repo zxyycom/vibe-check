@@ -9,7 +9,9 @@ background: public workers 虽是合法 jscpd 参数，但没有产品行为需�
 decision: duplicateDetection 只暴露区域政策和 executable；adapter 固定版本探测、exact-input JSON 协议与自动 worker policy。
 tags:
   - configuration
+  - duplicate-detection
   - product-contract
+  - scanner-dependencies
 relations:
   - type: 修订
     target: 260828-construct-duplicate-detection-from-defaulted-policy

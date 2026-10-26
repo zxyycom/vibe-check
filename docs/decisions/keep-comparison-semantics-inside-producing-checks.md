@@ -8,8 +8,10 @@ purpose: 防止特定 built-in 的 baseline 和 regression 模型成为所有 cu
 background: Baseline input、matching 与 relation meaning 随 Check domain 变化，不存在所有 Checks 共享的稳定 semantics。
 decision: baseline/reference behavior 由 Check 自己解释；Product 不提供 shared reference facts 或 Record relations。
 tags:
+  - check-results
   - configuration
   - product-contract
+  - project-run
 relations:
   - type: 替代
     target: 260805-require-explicit-named-comparison-references

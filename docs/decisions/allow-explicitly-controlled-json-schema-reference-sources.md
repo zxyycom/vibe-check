@@ -9,7 +9,10 @@ background: 常见 Schema 会引用外部资源，但任意 loader、ambient cre
 decision: jsonSchemaValidation 只按 closed policy 解析 local、bundled 与 allowlisted HTTPS 引用。
 tags:
   - configuration
+  - json-validation
+  - network
   - product-contract
+  - security
 relations:
   - type: 重划
     target: 260825-allow-controlled-json-schema-reference-sources

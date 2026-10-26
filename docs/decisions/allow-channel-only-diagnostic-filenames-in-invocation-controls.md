@@ -9,7 +9,9 @@ background: 已独占的 invocation 目录重复携带时间和 UUID 后缀，�
 decision: 通过单次 RunControls 选择 unique 或 channel 文件名，默认不变，Gate 显式使用固定 channel 名。
 tags:
   - configuration
+  - diagnostics
   - product-contract
+  - project-run
   - workflow-policy
 relations: []
 ---
@@ -32,4 +34,4 @@ relations: []
 - 采用: 同名文件保持 exclusive-create failure，不覆盖、追加或自动回退唯一名；channel 独立创建与结算，不引入整组原子 claim、锁或回滚。调用方对独占目录和其它外部修改负责。
 - 采用: 该字段属于 RunControls path choice，不进入 Definition、outputs merge 或 declarative fingerprint。非法值在 author work 前以既有 invalid-run-controls 失败；禁用 diagnostic 时不创建文件。
 - 采用: 保持 per-channel readback 为真实预计算 target，并沿现有 setup/write/close failure、其它输出与最终结果优先级结算。Product invocation identity、timestamp、global sequence 与 monotonic elapsed 不变。
-- 不采用: 全局固定文件名、Product 统一目录布局、Gate 绕过公共 API、writer/readback 之后重命名或通用日志配置框架。
+- 不采用: 将这项命名选择扩张为通用日志配置框架。

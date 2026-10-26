@@ -9,6 +9,8 @@ background: 形成此 Decision 时，无参 Gate 默认 full；移除遗留 Foun
 decision: 默认 Gate 选择 required；显式 full 选择当前全部 Checks，但不为维持差异创造虚假 full-only Checks。
 tags:
   - configuration
+  - gate-selection
+  - project-gate
   - workflow-policy
 relations: []
 ---

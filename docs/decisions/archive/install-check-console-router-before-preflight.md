@@ -8,7 +8,10 @@ purpose: 让一轮 resolved Check execution 在任何 author work 前建立唯�
 background: 按单个 callback 获取和释放全局路由会在 preflight 与 execution 之间反复改写 console，无法直接呈现整轮执行的资源生命周期。
 decision: 静态 graph 校验后、任何 author preflight 或 execution 前安装一次路由，全部 Check 闭合后恢复，并用独立异步 context 隔离每项调用。
 tags:
+  - check-preflight
+  - console-capture
   - product-contract
+  - progress-output
 relations:
   - type: 修订
     target: 260831-provide-product-progress-with-check-console-capture

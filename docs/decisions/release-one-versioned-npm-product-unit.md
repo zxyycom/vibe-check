@@ -8,6 +8,7 @@ purpose: 让消费者从一个明确版本获得彼此匹配的执行实现、�
 background: 产品执行、类型化 authoring 与必要 package materials 需要统一版本边界，而源码树入口不能证明可安装产物完整。
 decision: 使用一个版本化 npm package 作为产品发布单元；同版本交付全部已承诺材料，具体公共 surface 与名称由各自决策承接。
 tags:
+  - package-artifact
   - product-contract
 relations:
   - type: 拆分

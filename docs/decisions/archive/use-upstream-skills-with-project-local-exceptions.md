@@ -8,6 +8,8 @@ purpose: 保持 Skill 来源和升级边界可审计，同时允许项目特有�
 background: 完整替换上游包适合通用方法，但携带固定账本 runtime 的版本不能表达本项目的语义 Case 与全树闭合边界。
 decision: 通用 Skill 默认按完整上游包维护；只有项目 owner 与验证入口已明确时，才登记并维护最小项目本地例外。
 tags:
+  - skills
+  - test-evidence
   - workflow-policy
 relations:
   - type: 修订
@@ -16,12 +18,14 @@ relations:
 ---
 
 ## 目的
+
 - 让通用工程判断 Skill 可以持续从上游完整升级，不产生难以追踪的局部混合。
 - 让必须读取项目能力、且实现契约由本仓库拥有的方法层 Skill 不被不兼容的上游 runtime
   覆盖。
 - 让每个项目本地例外都有明确理由、owner、文件边界和升级审查要求。
 
 ## 背景
+
 - OpenSpec、架构边界、共同分母、最小实现和调查报告等通用方法适合作为完整上游分发单元。
 - 测试实体发现、runner profile、Case 存储和闭合语义是 Vibe Check 项目契约；把固定路径、
   parser、schema 和索引 runtime 随通用 Skill 安装会形成第二个 owner。
@@ -29,6 +33,7 @@ relations:
   能力时仍应直接审查测试，而不能推定一套持久化机制。
 
 ## 决策
+
 - 采用: `openspec-apply-change`、`openspec-archive-change`、`openspec-explore`、
   `openspec-propose`、`product-architecture-judgment`、`dependency-boundary-design`、
   `common-denominator-design`、`minimal-implementation` 与 `investigation-report` 继续按

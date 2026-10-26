@@ -8,20 +8,25 @@ purpose: 让 `0.0.x` patch 递增不被误解为已经提供 package-level 兼�
 background: 产品的公共 API、声明文件与资源仍在形成，当前阶段的大多数相邻 package versions 可能包含破坏式更新。
 decision: 稳定承诺前，Vibe Check package version 保持 `0.0.x`；跨 patch 不承诺包级兼容，进入非零 minor 版本线须由产品 owner 明确确认。
 tags:
+  - package-release
   - product-contract
+  - versioning
 relations: []
 ---
 
 ## 目的
+
 - 让 package version 诚实表达 Vibe Check 仍处于可以频繁调整公共边界的产品形成阶段。
 - 把开始提供稳定版本与兼容承诺保留为一次显式产品决定，而不是由里程碑、功能数量或当前 manifest 自动触发。
 
 ## 背景
+
 - npm package 发布单元将共同承接 CLI、TypeScript declarations、schemas、templates、built-in identities 与其它产品资源，其中多数公共 shape 和访问方式尚未完成首轮稳定化。
 - 当前阶段需要允许相邻 package versions 包含破坏式 API、声明文件或资源调整；本项目将非零 minor 版本线保留为产品 owner 明确开始稳定承诺的信号。
 - 个别 surface 可以由自己的 identity、schema version 或兼容决策提供更强承诺；包级预稳定策略不应静默撤销这些具体契约。
 
 ## 决策
+
 - 采用: 在产品 owner 明确确认开始提供稳定版本前，所有 Vibe Check package versions 保持为 `0.0.<patch>`；每次发布只推进唯一且递增的 patch 值。
 - 采用: 任意两个 `0.0.x` package versions 之间都可能包含破坏式变化，patch 增长本身不构成 package-level API、CLI、声明文件、schema、模板、资源路径或运行行为兼容承诺。发布材料和安装建议必须诚实表达该风险，消费者应精确锁定所使用的版本。
 - 采用: 破坏式更新仍须按对应 owner 同步代码、声明、schema、文档、examples、migration diagnostic 与验证材料；预稳定版本线只移除默认的跨版本兼容推断，不豁免具体 contract 和变更治理。
