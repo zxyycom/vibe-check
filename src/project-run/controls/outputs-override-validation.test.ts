@@ -11,6 +11,7 @@ describe("Package Run output overrides", () => {
     const definition = defineConfig({
       outputs: {
         progressRendering: {
+          flagMismatchPreviewLimit: 2,
           formatter,
           messagePreviewLimit: 3,
           recordPreviewLimit: 2,
@@ -21,6 +22,7 @@ describe("Package Run output overrides", () => {
     const callerControls = {
       outputs: {
         progressRendering: {
+          flagMismatchPreviewLimit: 0,
           formatter: null,
           messagePreviewLimit: 0,
           recordPreviewLimit: undefined,
@@ -34,6 +36,7 @@ describe("Package Run output overrides", () => {
     const effective = effectiveOutputs(definition, validated.value);
     assert.deepEqual(effective.progressRendering, {
       enabled: true,
+      flagMismatchPreviewLimit: 0,
       formatter: null,
       messagePreviewLimit: 0,
       recordPreviewLimit: 2,
@@ -44,6 +47,16 @@ describe("Package Run output overrides", () => {
       false
     );
     assert.equal(definition.outputs.progressRendering.formatter, formatter);
+    assert.equal(definition.outputs.progressRendering.flagMismatchPreviewLimit, 2);
+    const omitted = validateRunControls({
+      outputs: { progressRendering: { flagMismatchPreviewLimit: undefined } }
+    });
+    assert(omitted.ok);
+    assert.equal(
+      effectiveOutputs(definition, omitted.value).progressRendering.flagMismatchPreviewLimit,
+      2
+    );
+    assert.equal(Object.isFrozen(effective.progressRendering), true);
     assert.equal(Object.isFrozen(validated.value.outputs?.progressRendering), true);
   });
 
@@ -57,6 +70,13 @@ describe("Package Run output overrides", () => {
       }
     });
     const invalidValues = [
+      ...[-1, 1.5, Number.NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, "1", null].map(
+        (flagMismatchPreviewLimit) => ({
+          outputs: { progressRendering: { enabled: false, flagMismatchPreviewLimit } },
+          path: "controls.outputs.progressRendering.flagMismatchPreviewLimit",
+          expected: "non-negative-safe-integer"
+        })
+      ),
       { outputs: null, path: "controls.outputs", expected: "plain-data-object" },
       { outputs: [], path: "controls.outputs", expected: "plain-data-object" },
       {

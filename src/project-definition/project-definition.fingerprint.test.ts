@@ -178,6 +178,7 @@ describe("Project Definition", () => {
     const explicitDefaultProgress = defineConfig({
       outputs: {
         progressRendering: {
+          flagMismatchPreviewLimit: 0,
           formatter: null,
           messagePreviewLimit: 5,
           recordPreviewLimit: 5,
@@ -193,6 +194,9 @@ describe("Project Definition", () => {
     });
     const changedProgressLimit = defineConfig({
       outputs: { progressRendering: { recordPreviewLimit: 6 } }
+    });
+    const changedFlagMismatchLimit = defineConfig({
+      outputs: { progressRendering: { flagMismatchPreviewLimit: 2 } }
     });
     assert.equal(
       createDeclarativeFingerprint(normalizeProjectDefinition(defaultProgress).declarative),
@@ -210,10 +214,15 @@ describe("Project Definition", () => {
       createDeclarativeFingerprint(normalizeProjectDefinition(defaultProgress).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(changedProgressLimit).declarative)
     );
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(defaultProgress).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(changedFlagMismatchLimit).declarative)
+    );
     assert.deepEqual(
       normalizeProjectDefinition(firstFormatter).declarative.outputs.progressRendering,
       {
         enabled: true,
+        flagMismatchPreviewLimit: 0,
         formatter: "custom",
         messagePreviewLimit: 5,
         recordPreviewLimit: 5,

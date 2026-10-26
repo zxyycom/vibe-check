@@ -13,6 +13,7 @@
 | 想做什么 | 设置什么 | 得到什么 |
 | --- | --- | --- |
 | 开关终端进度 | `outputs.progressRendering.enabled` | `true` 显示人读 lifecycle；`false` 关闭呈现，Check 仍正常执行与结算。 |
+| 预览 flag 未命中的 Check 名称 | `outputs.progressRendering.flagMismatchPreviewLimit` | 默认 `0`，只显示数量和原因；正数预览前 N 个名称，并在截断时提示剩余数量。 |
 | 调整每项明细数量 | `outputs.progressRendering.recordPreviewLimit`、`messagePreviewLimit` | 每个 settled row 默认分别最多显示 5 条；`0` 隐藏该类明细并保留省略数量。 |
 | 调整单条预览长度 | `outputs.progressRendering.textPreviewCodePointLimit` | 默认最多 240 个 Unicode code points；数值边界和 formatter 用法见下文。 |
 | 保存机器结果 | `outputs.machinePublication.enabled`、`directory` | terminal snapshot 形成后写入 machine files；稳定消费格式见[机器输出契约](../output.md)。 |
@@ -22,7 +23,7 @@
 
 ## Check messages 与受管 progress
 
-Check terminal `messages` 是有序的人读补充信息；consumer 仍按 outcome 处理 final data 和 Records。表中的两项 preview 数量必须为非负 safe integer，文本预算必须为正 safe integer；短预算时 `… [truncated]` 只保留放得下的 marker 前缀。accepted Records 与 final data 按各自的 `RunResult` / machine contract 保留，messages 保留在 `RunResult.checkMessages`；截断、formatter 或关闭呈现均不改写它们。
+Check terminal `messages` 是有序的人读补充信息；consumer 仍按 outcome 处理 final data 和 Records。Record/message 两项 preview 数量必须为非负 safe integer，文本预算必须为正 safe integer；短预算时 `… [truncated]` 只保留放得下的 marker 前缀。accepted Records 与 final data 按各自的 `RunResult` / machine contract 保留，messages 保留在 `RunResult.checkMessages`；截断、formatter 或关闭呈现均不改写它们。
 
 在 callback 已等待的异步工作中通过全局 `console.*` 发出的文本，会作为该 Check 的 `console-<method>` messages 呈现。它适合短的人读诊断：不要向 console 写入 secret，也不要依赖 progress 文本保存完整事实。`process.stdout.write`、`process.stderr.write`、流式或 child-process 输出应写入 Check-owned file、transcript 或独立 logger；这些输出不具有可靠的 Check 归属，直接写入受管 terminal 也可能与 progress 交错。需要稳定补充说明时，在 terminal result 返回结构化 `messages`；从 Finding 生成有限摘要可用[呈现工具](presenting-findings.md)。
 
@@ -80,6 +81,31 @@ TTY 使用可更新的 running region；plain output 与 `TERM=dumb` 从不输�
 settled presentation。每个可见 settled row 保留 measured duration 或 `not run`；完整、
 canonical-ordered `RunResult.checkDurations` 仍保留所有 Check，未执行项为 `null`。
 
+配置 `progressLogFile` 时，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 使 progress output failed，
+terminal presentation 继续保留。
+
+### Flag 未命中摘要
+
+flag control barrier 结束后，因 `enabledByFlags` 未匹配而未启动的 Checks 合并为一行数量与原因：
+
+```text
+  287 checks not selected: flag conditions not matched.
+```
+
+需要排查名称时，设置 `outputs.progressRendering.flagMismatchPreviewLimit` 为非负 safe integer：
+
+- 默认 `0`：只显示摘要；没有未匹配项时省略整个原因块。
+- 正数 N：按 Definition 顺序预览前 N 个名称，截断时提示剩余数量；N 不小于该组数量时展示全部名称。
+
+该字段按[默认输出与本次覆盖](#默认输出与本次覆盖)配置；RunControls 可显式传 `0` 恢复摘要。
+名称经过终端转义，使用独立的数量限制；Record/message formatter 只处理对应的明细正文。
+
+分组仅包含 flag 未命中的未启动项；依赖传播带入的 Check 和执行中返回的各终态继续使用普通 lifecycle row。
+分组先于 quiet-pass 判定，计入全局 completion accounting；完整 Check facts 与结果保留在
+`RunResult.snapshot.checks` 和已启用的[机器输出](../output.md)中。
+
+### 省略安静通过行
+
 在 [Check 声明](extending-check-lifecycle.md#省略安静通过行)中启用 `omitQuietPassedRow: true` 后，该 executable Check 在 TTY 中运行时仍可见，但 running row 与
 所有保留的 settled row 都使用无编号的 `· <name>` 格式。它安静通过时不写 settled row；安静
 通过是 `passed` 且 accepted Records/messages 均为空，final data、preview limit、formatter 文本和
@@ -88,8 +114,7 @@ canonical-ordered `RunResult.checkDurations` 仍保留所有 Check，未执行�
 
 没有该策略的 row 继续显示 `[n/total]`。`n` 是全部 executable Checks 的全局 completion
 accounting：每次 settlement 都推进，即使对应 quiet-pass row 被省略，因此保留的普通 row 可以跳号；
-它不是可见结果行的 ID。flag-condition-not-matched 按 Definition 顺序进入原因聚合块，
-不形成 running row；该聚合优先于 quiet-pass 省略。
+它不是可见结果行的 ID。
 
 至少一个 normalized executable Check 启用该策略时，header 精确追加
 `· <configured> configured for quiet-pass omission`，例如 `total 12 checks · 3 configured for quiet-pass omission`。
@@ -97,10 +122,6 @@ accounting：每次 settlement 都推进，即使对应 quiet-pass row 被省略
 `elapsed` 前精确追加 `quiet-pass rows omitted: <actual>`；`actual` 只计 renderer 实际省略的
 quiet pass，不计 flag mismatch、未完成的潜在省略或任一保留 row。因此两个数可以不同。没有
 configured Check 时，header 与 final summary 不追加这些 quiet-pass 字段。
-
-flag control barrier 结束后，因 `enabledByFlags` 未匹配而未启动的 Checks 以一个原因块分组呈现，而非逐项 settled row；dependency activation 带入的 Check 不在该组。两种显示压缩都只改变人读 row 的保留和编号格式，不改变 Check facts、accounting、`RunResult` 或 machine schema。
-
-配置 `progressLogFile` 时，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 使 progress output failed，但不吞掉 terminal presentation。
 
 ## 日志与输出目标
 

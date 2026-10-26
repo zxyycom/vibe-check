@@ -153,10 +153,10 @@ export class ProgressRendererController implements ProgressRenderer {
     const firstDisplayName = this.flagConditionNotMatchedDisplayNames[0];
     if (firstDisplayName === undefined) return;
     this.writer.write(
-      formatFlagConditionNotMatchedBlock([
-        firstDisplayName,
-        ...this.flagConditionNotMatchedDisplayNames.slice(1)
-      ])
+      formatFlagConditionNotMatchedBlock({
+        displayNames: [firstDisplayName, ...this.flagConditionNotMatchedDisplayNames.slice(1)],
+        previewLimit: this.progressRendering.flagMismatchPreviewLimit
+      })
     );
     this.flagConditionNotMatchedDisplayNames.length = 0;
   }

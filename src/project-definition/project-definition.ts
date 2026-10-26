@@ -68,6 +68,7 @@ export interface ResolvedProjectOutputs extends Omit<ProjectOutputs, "progressRe
 export interface DeclarativeProjectOutputs extends Omit<ProjectOutputs, "progressRendering"> {
   readonly progressRendering: Readonly<{
     readonly enabled: boolean;
+    readonly flagMismatchPreviewLimit: number;
     readonly formatter: "custom" | "default";
     readonly messagePreviewLimit: number;
     readonly recordPreviewLimit: number;

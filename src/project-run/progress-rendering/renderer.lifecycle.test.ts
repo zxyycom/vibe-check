@@ -2,11 +2,73 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
+import { resolveProgressRenderingOutput } from "../../project-definition/output-defaults.ts";
 import { FLAG_CONDITION_NOT_MATCHED_CODE } from "../check-execution/flag-controls.ts";
 import { createProgressRenderer } from "./renderer.ts";
 import { COUNTS, createWriter, settled } from "./renderer.test-support.ts";
 
 describe("Package Run progress lifecycle presentation", () => {
+  it("bounds large flag-mismatch groups across terminal capabilities without losing completion accounting", () => {
+    for (const writerOptions of [
+      { isTTY: false },
+      { isTTY: true },
+      { isTTY: true, term: "dumb" }
+    ]) {
+      for (const flagMismatchPreviewLimit of [0, 2]) {
+        const output = createWriter(writerOptions);
+        let formatterCalls = 0;
+        const renderer = createProgressRenderer(
+          output.writer,
+          undefined,
+          resolveProgressRenderingOutput({
+            flagMismatchPreviewLimit,
+            formatter: () => {
+              formatterCalls += 1;
+              return "Record/message formatter";
+            }
+          })
+        );
+        renderer.render({
+          kind: "prepared",
+          quietPassOmissionConfiguredCount: 0,
+          totalChecks: 288
+        });
+        for (let index = 0; index < 287; index += 1) {
+          renderer.render(
+            settled(
+              `flagged-${index}`,
+              `Flagged ${index}`,
+              {
+                status: "not-applicable",
+                reason: { code: FLAG_CONDITION_NOT_MATCHED_CODE }
+              },
+              null
+            )
+          );
+        }
+        assert.equal(output.writes.length, 1);
+        renderer.render({ kind: "flag-control-completed" });
+        renderer.render({ kind: "flag-control-completed" });
+        assert.deepEqual(output.writes.slice(1), [
+          "  287 checks not selected: flag conditions not matched.\n" +
+            (flagMismatchPreviewLimit === 0
+              ? ""
+              : "    - Flagged 0\n    - Flagged 1\n    285 additional check name(s) were omitted from terminal preview.\n")
+        ]);
+        renderer.render(settled("ordinary", "Ordinary", { status: "passed", data: {} }, 1));
+        renderer.render({
+          kind: "final",
+          counts: { failed: 0, notApplicable: 287, passed: 1, unavailable: 0 },
+          elapsedMs: 1,
+          execution: "completed"
+        });
+        assert.equal(output.writes[2], "  [288/288] Ordinary | passed | 1ms\n");
+        assert.equal(output.writes.length, 4);
+        assert.equal(output.writes[3]?.includes("  not applicable: 287\n"), true);
+        assert.equal(formatterCalls, 0);
+      }
+    }
+  });
   it("maintains a TTY-only running region and assigns completion ordinals by settlement order", () => {
     const output = createWriter({ isTTY: true });
     let nowMs = 0;
@@ -267,7 +329,7 @@ describe("Package Run progress lifecycle presentation", () => {
 
     assert.deepEqual(output.writes, [
       "Vibe Check\ntotal 3 checks · 2 configured for quiet-pass omission\n\nChecks:\n",
-      "  The following check did not run because the run flags did not match its condition:\n    - Flagged\n",
+      "  1 check not selected: flag condition not matched.\n",
       "  [3/3] Ordinary | passed | 1ms\n",
       "\nExecution summary:\n  execution: completed\n  total checks: 3\n  passed: 2\n  failed: 0\n  not applicable: 1\n  unavailable: 0\n  quiet-pass rows omitted: 1\n  elapsed: 3ms\n"
     ]);

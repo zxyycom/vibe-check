@@ -80,8 +80,10 @@ settled block 原子写入；level label 按 terminal capability 着色，正文
 readback 而非终端正文。final summary 展示 execution、counts 和 elapsed。
 
 flag-control barrier 后，renderer 将 Product-created `not-applicable / flag-condition-not-matched`、null duration
-且无 Records/messages 的 Checks 合并为一个原因块，按 Definition 顺序列出 escaped display names；dependency-activated
-Check 保持 ordinary lifecycle row。该分组与 quiet-pass omission 都只压缩展示，保持所有 terminal facts 和计数。
+且无 Records/messages 的 Checks 按 Definition 顺序交给原因块 formatter。formatter 根据 effective
+`flagMismatchPreviewLimit` 生成摘要和所选名称，名称使用 terminal escaping；名单独立于 Record/message
+preview pipeline。空分组省略，dependency-activated Check 保持 ordinary lifecycle row；全部 settlement
+继续推进计数。展示规则由[Flag 未命中摘要](../guides/run-outputs.md#flag-未命中摘要)拥有。
 
 可选 progress tee 将同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 标记 progress
 output failed，同时保持 terminal delivery。writer failure 必须可观察，失败后的 writer 不再接收后续 writes。

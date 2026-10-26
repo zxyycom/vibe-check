@@ -6,9 +6,13 @@ Definition 仅含 ordinary Check tree、可选 changes、scheduler 与默认 out
 
 ## Progress preview 配置
 
-公开 defaults、数值范围、formatter 输入与失败语义由[输出指南](../guides/run-outputs.md#check-messages-与受管-progress)定义。Definition validation 在 progress disabled 时仍验证所有字段；normalization 为省略字段补齐同一默认值，renderer 只消费 effective policy。
+公开输出配置由[输出指南](../guides/run-outputs.md#常用配置)定义。Definition 与 Controls 复用同一 closed field specification；
+validation 在 progress disabled 时仍验证全部字段，normalization 补齐默认值，renderer 消费冻结的 effective policy。
+`flagMismatchPreviewLimit` 承接独立的[未选名称预览](../guides/run-outputs.md#flag-未命中摘要)，与 Record/message 明细配置共同经过这条解析路径。
 
-数值和 formatter 的 `default`/`custom` 种类进入 declarative snapshot；函数 identity/source/closure 和 RunControls 均不进入 fingerprint。字段变动可能改变版本间 fingerprint，不承诺跨版本字符串稳定；维护时同时核对 authoring defaults、direct Definition normalization 与输出消费。
+所有规范化数值和 formatter 的 `default`/`custom` 种类进入 declarative snapshot；函数 identity/source/closure
+和 RunControls 留在 invocation/runtime 边界。维护时同时核对 authoring defaults、direct Definition normalization
+与输出消费；fingerprint 的跨版本字符串可随字段演进而变化。
 
 ## Public authoring surface
 

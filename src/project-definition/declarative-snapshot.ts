@@ -48,6 +48,7 @@ function declarativeOutputs(
     machinePublication: definition.outputs.machinePublication,
     progressRendering: Object.freeze({
       enabled: progressRendering.enabled,
+      flagMismatchPreviewLimit: progressRendering.flagMismatchPreviewLimit,
       formatter: progressRendering.formatter === null ? "default" : "custom",
       messagePreviewLimit: progressRendering.messagePreviewLimit,
       recordPreviewLimit: progressRendering.recordPreviewLimit,

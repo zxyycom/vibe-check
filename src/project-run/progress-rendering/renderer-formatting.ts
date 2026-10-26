@@ -60,15 +60,25 @@ export function isFlagConditionNotMatchedFeedback(
 }
 
 export function formatFlagConditionNotMatchedBlock(
-  displayNames: readonly [string, ...string[]]
+  input: Readonly<{
+    readonly displayNames: readonly [string, ...string[]];
+    readonly previewLimit: number;
+  }>
 ): string {
-  const subject =
-    displayNames.length === 1
-      ? "The following check did not run because the run flags did not match its condition:"
-      : `The following ${displayNames.length} checks did not run because the run flags did not match their conditions:`;
-  return `  ${subject}\n${displayNames
-    .map((displayName) => `    - ${escapeTerminalText(displayName)}\n`)
-    .join("")}`;
+  const count = input.displayNames.length;
+  const summary =
+    count === 1
+      ? "  1 check not selected: flag condition not matched.\n"
+      : `  ${count} checks not selected: flag conditions not matched.\n`;
+  if (input.previewLimit === 0) return summary;
+  const preview = input.displayNames.slice(0, input.previewLimit);
+  const omittedCount = count - preview.length;
+  const names = preview.map((displayName) => `    - ${escapeTerminalText(displayName)}\n`).join("");
+  const omission =
+    omittedCount === 0
+      ? ""
+      : `    ${omittedCount} additional check name(s) were omitted from terminal preview.\n`;
+  return `${summary}${names}${omission}`;
 }
 
 export function formatSettledBlock(

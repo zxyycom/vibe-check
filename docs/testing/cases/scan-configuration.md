@@ -141,10 +141,11 @@ Owner: `docs/development/project-definition.md#progress-preview-配置`
 Entities:
 
 - `bun|src/project-definition/project-definition.authoring-defaults.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
+- `bun|src/project-definition/progress-rendering-output.test.ts|Project Definition > validates progress presentation defaults and closed authoring`
 - `bun|src/project-definition/project-definition.fingerprint.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
   Proves:
 
-- Definition defaults Record/message preview limits to `5`/`5`, text budget to `240`, and formatter to `null`; compatible direct `{ enabled }` input receives the same frozen resolved policy. Closed validation rejects invalid limits, formatter values and unknown fields even when progress is disabled.
+- Definition defaults flag-mismatch name previews to `0`, Record/message preview limits to `5`/`5`, text budget to `240`, and formatter to `null`; compatible direct `{ enabled }` input receives the same frozen resolved policy. Closed validation rejects invalid limits, formatter values and unknown fields even when progress is disabled.
 - Normalized numeric policy and formatter `default`/`custom` kind enter declarative identity. Omission and explicit defaults share a fingerprint; distinct callback identities share the `custom` projection, while a policy value or formatter kind change does not.
 
 ## Case WB-PROGRESS-PREVIEW-OVERRIDE-001: RunControls override progress preview fields without changing Definition policy
@@ -155,7 +156,7 @@ Entities:
 - `bun|src/project-run/controls/outputs-override-validation.test.ts|Package Run output overrides > merges bounded progress previews field by field and clears a Definition formatter`
   Proves:
 
-- RunControls applies only explicit preview fields: `0` is an effective count, `undefined` preserves the Definition field, and `formatter: null` clears the authored callback without mutating it. The accepted override remains frozen.
+- RunControls applies only explicit preview fields, including `flagMismatchPreviewLimit`: `0` is an effective count, `undefined` preserves the Definition field, and `formatter: null` clears the authored callback without mutating it. The accepted override and effective policy remain frozen.
 
 ## Case WB-OUTPUT-OVERRIDE-DIAGNOSTIC-001: 输出覆盖值错误可定位且不执行作者代码
 

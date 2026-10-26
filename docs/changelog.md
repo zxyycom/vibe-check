@@ -7,6 +7,11 @@
 本节记录 `0.0.4` 相对 `0.0.3`（源码边界为 `v0.0.3` tag `4a830ef3`）的净变化与升级影响。
 Node `>=24.18` 与包根程序化入口保持不变；纯说明补全和不改变公开行为的内部重构不单列为新 API。
 
+### Flag 未命中展示
+
+flag 未命中的 Check 改为默认显示数量与原因摘要。新增 `outputs.progressRendering.flagMismatchPreviewLimit`，
+可按需预览前 N 个名称；完整结果与汇总计数保持。配置及 RunControls 覆盖见[Flag 未命中摘要](./guides/run-outputs.md#flag-未命中摘要)。
+
 ### 声明式 callback context 迁移
 
 本次是一次 breaking 切换，不保留旧 helper、旧字段或运行时兼容层。

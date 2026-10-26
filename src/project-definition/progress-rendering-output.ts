@@ -20,6 +20,11 @@ export type ProgressPreviewFormatter = (
 export interface ProgressRenderingOutput {
   /** 默认 `true`；`false` 时不构造或写入 progress writer。 */
   readonly enabled: boolean;
+  /**
+   * flag 未命中分组最多预览的 Check 名称数；非负 safe integer，默认 `0` 只显示数量与原因。
+   * 正数按 Definition 顺序显示前 N 个名称，截断时提示剩余数量。
+   */
+  readonly flagMismatchPreviewLimit?: number;
   /** 每个 settled block 预览的 Record 数量；非负 safe integer，默认 `5`，`0` 只隐藏 detail。 */
   readonly recordPreviewLimit?: number;
   /** 每个 settled block 预览的 message 数量；非负 safe integer，默认 `5`，`0` 只隐藏 detail。 */
@@ -33,6 +38,7 @@ export interface ProgressRenderingOutput {
 /** 已补齐 defaults、可直接交给 progress renderer 的配置。 */
 export interface ResolvedProgressRenderingOutput {
   readonly enabled: boolean;
+  readonly flagMismatchPreviewLimit: number;
   readonly formatter: ProgressPreviewFormatter | null;
   readonly messagePreviewLimit: number;
   readonly recordPreviewLimit: number;
@@ -65,6 +71,11 @@ type ProgressRenderingFieldsResult = Readonly<
 
 const PROGRESS_RENDERING_FIELD_SPECS = Object.freeze([
   { key: "enabled", accepts: isBoolean, expected: "boolean" },
+  {
+    key: "flagMismatchPreviewLimit",
+    accepts: isNonNegativeSafeInteger,
+    expected: "non-negative-safe-integer"
+  },
   { key: "formatter", accepts: isProgressPreviewFormatterOrNull, expected: "function-or-null" },
   {
     key: "messagePreviewLimit",

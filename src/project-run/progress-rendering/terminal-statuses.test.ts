@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { Check } from "../../check/check.ts";
-import type { ProgressWriter } from "./renderer.ts";
+import { capturedProgressWriter } from "./invocation.test-support.ts";
 import { executeValidatedRun } from "../invocation/run.ts";
 
 function check(
@@ -26,25 +29,6 @@ function check(
   };
 }
 
-function checkDisabledByMissingFlag(
-  input: Readonly<{
-    readonly checkId: string;
-    readonly displayName: string;
-    readonly flag: string;
-    readonly onUnexpectedExecution: () => void;
-  }>
-): Check {
-  return check({
-    checkId: input.checkId,
-    displayName: input.displayName,
-    enabledByFlags: { when: input.flag },
-    execute: () => {
-      input.onUnexpectedExecution();
-      return { status: "passed", data: {} };
-    }
-  });
-}
-
 function progressDefinition(checks: readonly Check[], maxParallel?: number) {
   return defineConfig({
     checks,
@@ -54,19 +38,6 @@ function progressDefinition(checks: readonly Check[], maxParallel?: number) {
     },
     ...(maxParallel === undefined ? {} : { scheduler: { maxParallel } })
   });
-}
-
-function capturedProgressWriter() {
-  const writes: string[] = [];
-  const writer: ProgressWriter = {
-    color: false,
-    isTTY: false,
-    term: undefined,
-    write: (content: string): void => {
-      writes.push(content);
-    }
-  };
-  return { writes, writer };
 }
 
 function assertFlagDisabledFacts(result: Awaited<ReturnType<typeof executeValidatedRun>>): void {
@@ -98,49 +69,100 @@ function assertFlagDisabledFacts(result: Awaited<ReturnType<typeof executeValida
 }
 
 describe("Package Run progress terminal statuses", () => {
-  it("groups flag-disabled Check names before execute while preserving their terminal facts", async () => {
-    const output = capturedProgressWriter();
+  it("bounds flag-disabled Check names before execute while preserving their terminal facts", async () => {
+    const directory = mkdtempSync(join(tmpdir(), "vibe-check-flag-preview-"));
     let disabledCalls = 0;
-    const result = await executeValidatedRun(
-      progressDefinition([
-        checkDisabledByMissingFlag({
-          checkId: "z-deep-audit",
-          displayName: "Deep audit",
-          flag: "deep-audit",
-          onUnexpectedExecution: () => {
-            disabledCalls += 1;
-          }
-        }),
-        checkDisabledByMissingFlag({
-          checkId: "a-dependency-audit",
-          displayName: "Dependency audit",
-          flag: "dependency-audit",
-          onUnexpectedExecution: () => {
-            disabledCalls += 1;
-          }
-        }),
-        check({
-          checkId: "always-on",
-          displayName: "Always on",
-          execute: () => ({ status: "passed", data: {} })
-        })
-      ]),
-      {},
-      [],
-      { progressWriterFactory: () => output.writer }
+    const flaggedChecks = [
+      { checkId: "z-deep-audit", displayName: "Deep audit", flag: "deep-audit" },
+      { checkId: "a-dependency-audit", displayName: "Dependency audit", flag: "dependency-audit" }
+    ].map(({ checkId, displayName, flag }) =>
+      check({
+        checkId,
+        displayName,
+        enabledByFlags: { when: flag },
+        execute: () => {
+          disabledCalls += 1;
+          return { status: "passed", data: {} };
+        }
+      })
     );
-
-    assertFlagDisabledFacts(result);
-    assert.equal(disabledCalls, 0);
-    assert.equal(
-      output.writes[1],
-      "  The following 2 checks did not run because the run flags did not match their conditions:\n" +
-        "    - Deep audit\n" +
-        "    - Dependency audit\n"
-    );
-    assert.match(output.writes[2] ?? "", /^ {2}\[3\/3] Always on \| passed \| \d+(?:\.\d+)?ms\n$/);
-    assert.equal(output.writes.join("").includes("flag-condition-not-matched"), false);
-    assert.equal(output.writes.at(-1)?.includes("not applicable: 2"), true);
+    const summary = "  2 checks not selected: flag conditions not matched.\n";
+    const partial =
+      summary +
+      "    - Deep audit\n    1 additional check name(s) were omitted from terminal preview.\n";
+    try {
+      for (const { definitionLimit, override, expected } of [
+        { definitionLimit: undefined, override: undefined, expected: summary },
+        { definitionLimit: 1, override: undefined, expected: partial },
+        { definitionLimit: 2, override: 0, expected: summary },
+        { definitionLimit: 0, override: 1, expected: partial },
+        {
+          definitionLimit: 0,
+          override: 2,
+          expected: summary + "    - Deep audit\n    - Dependency audit\n"
+        }
+      ]) {
+        const output = capturedProgressWriter();
+        const progressLogFile = join(directory, `progress-${definitionLimit}-${override}.log`);
+        let flagGroupAtExecution: string | undefined;
+        const configured = defineConfig({
+          checks: [
+            ...flaggedChecks,
+            check({
+              checkId: "always-on",
+              displayName: "Always on",
+              execute: () => {
+                flagGroupAtExecution = output.writes[1];
+                return { status: "passed", data: {} };
+              }
+            })
+          ],
+          outputs: {
+            machinePublication: { enabled: false },
+            progressRendering: {
+              enabled: true,
+              ...(definitionLimit === undefined
+                ? {}
+                : { flagMismatchPreviewLimit: definitionLimit })
+            }
+          }
+        });
+        const result = await executeValidatedRun(
+          configured,
+          {
+            progressLogFile,
+            ...(override === undefined
+              ? {}
+              : {
+                  outputs: { progressRendering: { flagMismatchPreviewLimit: override } }
+                })
+          },
+          [],
+          { progressWriterFactory: () => output.writer }
+        );
+        assertFlagDisabledFacts(result);
+        assert(result.kind === "completed");
+        assert.equal(result.aggregate, "passed");
+        assert.deepEqual(
+          result.checkDurations.filter(({ durationMs }) => durationMs === null),
+          [
+            { checkId: "a-dependency-audit", durationMs: null },
+            { checkId: "z-deep-audit", durationMs: null }
+          ]
+        );
+        assert.equal(flagGroupAtExecution, expected);
+        assert.equal(output.writes[1], expected);
+        assert.match(
+          output.writes[2] ?? "",
+          /^ {2}\[3\/3] Always on \| passed \| \d+(?:\.\d+)?(?:ms|s)\n$/
+        );
+        assert.equal(output.writes.at(-1)?.includes("not applicable: 2"), true);
+        assert.equal(readFileSync(progressLogFile, "utf8"), output.writes.join(""));
+      }
+      assert.equal(disabledCalls, 0);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 
   it("groups only flag-disabled Checks outside an activated dependency closure", async () => {
@@ -179,7 +201,7 @@ describe("Package Run progress terminal statuses", () => {
           }
         })
       ]),
-      { flags: ["root"] },
+      { flags: ["root"], outputs: { progressRendering: { flagMismatchPreviewLimit: 1 } } },
       [],
       { progressWriterFactory: () => output.writer }
     );
@@ -195,11 +217,10 @@ describe("Package Run progress terminal statuses", () => {
     );
     assert.equal(
       output.writes[1],
-      "  The following check did not run because the run flags did not match its condition:\n" +
-        "    - Deferred\n"
+      "  1 check not selected: flag condition not matched.\n    - Deferred\n"
     );
-    assert.equal(output.writes.join("").includes("    - Provider\n"), false);
-    assert.equal(output.writes.join("").includes("    - Root\n"), false);
+    assert.match(output.writes[2] ?? "", /^ {2}\[2\/3] Provider \| passed \| /);
+    assert.match(output.writes[3] ?? "", /^ {2}\[3\/3] Root \| passed \| /);
   });
 
   it("renders a duration-bearing row for an executed not-applicable Check without a reason", async () => {

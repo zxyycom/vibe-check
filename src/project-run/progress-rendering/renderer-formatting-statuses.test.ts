@@ -6,12 +6,38 @@ import { createProgressRenderer } from "./renderer.ts";
 import { createWriter, settled } from "./renderer.test-support.ts";
 
 describe("Package Run progress terminal formatting", () => {
-  it("formats a singular flag-condition group with a terminal-safe Check name", () => {
+  it("formats bounded flag-condition groups with exact counts and terminal-safe Check names", () => {
     assert.equal(
-      formatFlagConditionNotMatchedBlock(["Deep\naudit\u001B[31m"]),
-      "  The following check did not run because the run flags did not match its condition:\n" +
-        "    - Deep\\naudit\\u001B[31m\n"
+      formatFlagConditionNotMatchedBlock({
+        displayNames: ["Deep\naudit\u001B[31m"],
+        previewLimit: 1
+      }),
+      "  1 check not selected: flag condition not matched.\n" + "    - Deep\\naudit\\u001B[31m\n"
     );
+    const displayNames = ["Z first", "A second", "M third"] as const;
+    const summary = "  3 checks not selected: flag conditions not matched.\n";
+    for (const { previewLimit, expected } of [
+      { previewLimit: 0, expected: summary },
+      {
+        previewLimit: 1,
+        expected:
+          summary +
+          "    - Z first\n    2 additional check name(s) were omitted from terminal preview.\n"
+      },
+      {
+        previewLimit: 2,
+        expected:
+          summary +
+          "    - Z first\n    - A second\n    1 additional check name(s) were omitted from terminal preview.\n"
+      },
+      { previewLimit: 3, expected: summary + "    - Z first\n    - A second\n    - M third\n" },
+      {
+        previewLimit: Number.MAX_SAFE_INTEGER,
+        expected: summary + "    - Z first\n    - A second\n    - M third\n"
+      }
+    ]) {
+      assert.equal(formatFlagConditionNotMatchedBlock({ displayNames, previewLimit }), expected);
+    }
   });
 
   it("formats every terminal status with measured duration or not run and only the safe reason code", () => {

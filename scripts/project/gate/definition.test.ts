@@ -240,6 +240,7 @@ describe("Project Gate Definition", () => {
       machinePublication: { directory: "artifacts/vibe-check", enabled: false },
       progressRendering: {
         enabled: true,
+        flagMismatchPreviewLimit: 0,
         formatter: null,
         messagePreviewLimit: 5,
         recordPreviewLimit: 5,

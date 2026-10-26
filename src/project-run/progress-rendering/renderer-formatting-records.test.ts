@@ -91,6 +91,7 @@ describe("Package Run progress Record and message previews", () => {
     }> = [];
     const formattedRenderer = createProgressRenderer(formattedOutput.writer, undefined, {
       enabled: true,
+      flagMismatchPreviewLimit: 0,
       formatter: (context) => {
         formatterContexts.push(context);
         assert.equal(Object.isFrozen(context), true);

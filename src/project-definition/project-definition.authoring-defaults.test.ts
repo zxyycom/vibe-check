@@ -24,6 +24,7 @@ function assertDefinitionDefaults(definition: ProjectDefinition): void {
     machinePublication: { directory: "artifacts/vibe-check", enabled: true },
     progressRendering: {
       enabled: true,
+      flagMismatchPreviewLimit: 0,
       formatter: null,
       messagePreviewLimit: 5,
       recordPreviewLimit: 5,
@@ -37,7 +38,6 @@ function assertDefinitionDefaults(definition: ProjectDefinition): void {
   assert.deepEqual(definition.scheduler.terminalEffects, []);
   assert.deepEqual(definition.scheduler.resourceCapacities, {});
   assert.equal(Object.isFrozen(definition.scheduler.resourceCapacities), true);
-  assertProgressRenderingValidation(definition);
   assert.deepEqual(
     normalizeProjectDefinition(defineConfig({})).declarative.scheduler,
     normalizeProjectDefinition(defineConfig({ scheduler: { admissionPolicy: { kind: "static" } } }))
@@ -75,60 +75,6 @@ function assertLegacyLifecycleAuthoringRejected(definition: ProjectDefinition): 
     }).ok,
     false
   );
-}
-function assertProgressRenderingValidation(definition: ProjectDefinition): void {
-  const directDefinition: ProjectDefinition = {
-    ...definition,
-    outputs: { ...definition.outputs, progressRendering: { enabled: false } }
-  };
-  const validated = validateProjectDefinition(directDefinition);
-  assert.equal(validated.ok, true);
-  if (validated.ok) {
-    assert.deepEqual(validated.value.outputs.progressRendering, {
-      enabled: false,
-      formatter: null,
-      messagePreviewLimit: 5,
-      recordPreviewLimit: 5,
-      textPreviewCodePointLimit: 240
-    });
-    assert.equal(Object.isFrozen(validated.value.outputs.progressRendering), true);
-  }
-  const formatter = () => "formatted";
-  const configured = validateProjectDefinition({
-    ...definition,
-    outputs: {
-      ...definition.outputs,
-      progressRendering: {
-        enabled: false,
-        formatter,
-        messagePreviewLimit: 0,
-        recordPreviewLimit: 1,
-        textPreviewCodePointLimit: 2
-      }
-    }
-  });
-  assert.equal(configured.ok, true);
-  if (configured.ok) assert.equal(configured.value.outputs.progressRendering.formatter, formatter);
-  for (const progressRendering of [
-    { enabled: false, recordPreviewLimit: -1 },
-    { enabled: false, messagePreviewLimit: 1.5 },
-    { enabled: false, textPreviewCodePointLimit: 0 },
-    { enabled: false, formatter: {} },
-    { enabled: false, unexpected: true }
-  ]) {
-    const rejected = validateProjectDefinition({
-      ...definition,
-      outputs: { ...definition.outputs, progressRendering }
-    });
-    assert.equal(rejected.ok, false);
-    if (!rejected.ok) {
-      assert.deepEqual(rejected.error, {
-        kind: "invalid-project-definition",
-        path: "definition.outputs",
-        reason: "invalid-value"
-      });
-    }
-  }
 }
 function assertCustomAdmissionPolicy(): void {
   const policy = defineAdmissionPolicy({

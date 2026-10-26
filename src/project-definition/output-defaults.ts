@@ -8,6 +8,7 @@ export const DEFAULT_PROJECT_OUTPUTS = Object.freeze({
   machinePublication: Object.freeze({ directory: "artifacts/vibe-check", enabled: true }),
   progressRendering: Object.freeze({
     enabled: true,
+    flagMismatchPreviewLimit: 0,
     formatter: null,
     messagePreviewLimit: 5,
     recordPreviewLimit: 5,
@@ -22,6 +23,7 @@ export function resolveProgressRenderingOutput(
 ): ResolvedProgressRenderingOutput {
   const {
     enabled = DEFAULT_PROJECT_OUTPUTS.progressRendering.enabled,
+    flagMismatchPreviewLimit = DEFAULT_PROJECT_OUTPUTS.progressRendering.flagMismatchPreviewLimit,
     formatter = DEFAULT_PROJECT_OUTPUTS.progressRendering.formatter,
     messagePreviewLimit = DEFAULT_PROJECT_OUTPUTS.progressRendering.messagePreviewLimit,
     recordPreviewLimit = DEFAULT_PROJECT_OUTPUTS.progressRendering.recordPreviewLimit,
@@ -29,6 +31,7 @@ export function resolveProgressRenderingOutput(
   } = output;
   return Object.freeze({
     enabled,
+    flagMismatchPreviewLimit,
     formatter,
     messagePreviewLimit,
     recordPreviewLimit,
