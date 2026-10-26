@@ -7,7 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { collectValidatedInvestigationCollection } from "./validation.ts";
+import type { InvestigationPreparation } from "./strict-preparation.ts";
+import { readLocalPublication } from "./local-publication.ts";
 import { sameInvestigationSources } from "./investigation-index-source.ts";
 import {
   diagnosticFromError,
@@ -31,9 +32,23 @@ export async function discardProtectionFailure(
   collection: ValidatedInvestigationCollection,
   originalIndexText: string
 ): Promise<InvestigationReportDiscardResult | null> {
-  const protectedCollection = await collectValidatedInvestigationCollection(
-    options.root
-  );
+  let protectedCollection: Awaited<ReturnType<typeof readLocalPublication>>;
+  try {
+    protectedCollection = await readLocalPublication(
+      options.root,
+      collection.sources.map((source) => source.id)
+    );
+  } catch (error) {
+    return result(
+      options,
+      false,
+      [],
+      [
+        "investigation collection changed after discard validation; no files were written",
+        errorText(error)
+      ]
+    );
+  }
   if (
     protectedCollection.errors.length > 0 ||
     protectedCollection.snapshot === null ||
@@ -126,7 +141,10 @@ export async function publishPreparedDiscard(
   options: DiscardCollectionOptions,
   prepared: Readonly<{
     indexText: string;
+    preparation?: InvestigationPreparation;
     originalIndexText: string;
+    originalSources: readonly import("./types.ts").InvestigationSource[];
+    resourceProgress: import("./rename-contract.ts").ResourceMoveProgress;
     ownedResources: ResourceTreeScan;
     reportPath: string;
     resourceOwnerPath: string;
@@ -134,9 +152,12 @@ export async function publishPreparedDiscard(
 ): Promise<InvestigationReportDiscardResult> {
   const publication = await publishDiscard({
     afterResourceTombstone: options.afterResourceTombstone,
+    preparation: prepared.preparation,
     indexPath: options.indexPath,
     indexText: prepared.indexText,
     originalIndexText: prepared.originalIndexText,
+    originalSources: prepared.originalSources,
+    resourceProgress: prepared.resourceProgress,
     reportPath: prepared.reportPath,
     resourceOwnerPath: prepared.resourceOwnerPath,
     resourceSnapshot: prepared.ownedResources,

@@ -7,6 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
+import { loadCandidateIdentityContext } from "./decision-candidate-discovery.ts";
+import type { DecisionSourceCapture } from "./decision-strict-preparation.ts";
 import {
   decisionAttention,
   decisionDiagnostic,
@@ -17,10 +19,17 @@ import {
   DecisionCollectionLockError,
   withDecisionCollectionMutationLock
 } from "./decision-collection-mutation-lock.ts";
+import path from "node:path";
+import { canonicalRecordCollection } from "../../record-operations/src/source.ts";
+import { tryNoopDecisionRename } from "./decision-rename-noop.ts";
+import { decisionTransactionLockFailure } from "./decision-transaction-outcome.ts";
+import type { DecisionMutationOutcome } from "./application-result.ts";
 import { applyLockedDecisionChanges } from "./decision-transaction.ts";
-import { loadDecisionValidationContext } from "./index.ts";
-import { scanDecisionRecords } from "./scan.ts";
-import { type DecisionScanOptions } from "./types.ts";
+import { loadDecisionMaintenanceContext } from "./decision-maintenance-context.ts";
+import {
+  type DecisionPreparationContext,
+  type DecisionScanOptions
+} from "./types.ts";
 import {
   prepareDecisionRename,
   type PreparedRenameStep
@@ -75,7 +84,10 @@ export type DecisionRenameFailure = Readonly<{
   diagnostics: DecisionRenameDiagnostic[];
   errors: string[];
   exitCode: 1 | 2;
-  plan: null;
+  plan: DecisionRenamePlan | null;
+  changed?: boolean;
+  committed?: boolean;
+  verification?: "passed" | "failed-or-unknown" | "not-run";
   presentation: "command" | "plain";
   status: "error";
 }>;
@@ -119,121 +131,104 @@ const decisionRenameScope =
 export async function renameDecisionRecord(
   options: DecisionRenameOptions
 ): Promise<DecisionRenameResult> {
-  if (options.preflight === true) {
-    const prepared = await prepareDecisionRenameAtCurrentState(options, false);
-    if (prepared.status !== "ready") return prepared;
-    return {
-      changed: false,
-      diagnostics: [],
-      errors: [],
-      outcome: "preflight",
-      plan: { ...prepared.value.plan, outcome: "preflight" },
-      status: "ok"
-    };
-  }
-  const initial = await scanDecisionRecords(options);
+  let operation: DecisionRenameResult | null = null;
   try {
+    if (options.preflight === true) {
+      const noop = await tryNoopDecisionRename(options);
+      if (noop !== null) return noop;
+      const prepared = await prepareDecisionRenameAtCurrentState(
+        options,
+        false
+      );
+      if (prepared.status !== "ready") return prepared;
+      return {
+        changed: false,
+        diagnostics: [],
+        errors: [],
+        outcome: "preflight",
+        plan: { ...prepared.value.plan, outcome: "preflight" },
+        status: "ok"
+      };
+    }
+    const canonical = await canonicalRecordCollection(
+      options.workspaceRoot ?? process.cwd(),
+      options.decisionsDir ?? "docs/decisions"
+    );
     return await withDecisionCollectionMutationLock(
-      initial.indexPath,
-      async () => await applyDecisionRenameWithinLock(options)
+      path.join(canonical.collectionRoot, "decision-index.json"),
+      async () => {
+        operation = await applyDecisionRenameWithinLock(options);
+        return operation;
+      }
     );
   } catch (error) {
-    const completed = completedDecisionRenameWithLockCleanup(error);
-    if (completed !== null) return completed;
-    return {
-      ...decisionFailure([
-        decisionDiagnostic({
-          code: "decision-records.rename-lock-failed",
-          outcome: "no-change",
-          reason: "Decision rename could not acquire its collection lock.",
-          recovery:
-            "Wait for the active transaction or inspect the collection lock before retrying rename.",
-          scope: decisionRenameScope,
-          target: "Decision collection mutation lock"
-        })
-      ]),
-      plan: null
-    };
+    return renameLockFailure(error, operation);
   }
 }
 
-function completedDecisionRenameWithLockCleanup(
-  error: unknown
-): DecisionRenameCommittedCleanup | null {
-  const plan = releasedRenamePlan(error);
-  if (plan === null) return null;
-  const diagnostic = renameLockCleanupDiagnostic();
+function renameLockFailure(
+  error: unknown,
+  operation: DecisionRenameResult | null
+): DecisionRenameResult {
+  if (
+    !(error instanceof DecisionCollectionLockError) ||
+    error.kind !== "release-failed" ||
+    operation === null
+  ) {
+    const failed = decisionTransactionLockFailure(error);
+    return { ...decisionFailure(failed.diagnostics), plan: null };
+  }
+  const diagnostic = renameReleaseDiagnostic(operation);
+  if (operation.status === "error")
+    return {
+      ...operation,
+      diagnostics: [...operation.diagnostics, diagnostic],
+      errors: [...operation.errors, diagnostic.reason]
+    };
+  if (operation.status === "attention")
+    return {
+      ...operation,
+      diagnostics: [...operation.diagnostics, diagnostic],
+      warnings: [...operation.warnings, diagnostic.reason]
+    };
+  if (operation.changed)
+    return {
+      changed: true,
+      diagnostics: [diagnostic],
+      errors: [],
+      exitCode: 1,
+      outcome: "committed-cleanup-pending",
+      plan: operation.plan,
+      status: "attention",
+      warnings: [diagnostic.reason]
+    };
   return {
-    changed: true,
-    diagnostics: [diagnostic],
-    errors: [],
-    exitCode: 1,
-    outcome: "committed-cleanup-pending",
-    plan,
-    status: "attention",
-    warnings: [diagnostic.reason]
+    ...decisionFailure([diagnostic]),
+    changed: false,
+    committed: false,
+    plan: operation.plan
   };
 }
 
-function releasedRenamePlan(error: unknown): DecisionRenamePlan | null {
-  if (!(error instanceof DecisionCollectionLockError)) return null;
-  if (error.kind !== "release-failed") return null;
-  return committedRenamePlan(error.operationResult);
-}
-
-function committedRenamePlan(value: unknown): DecisionRenamePlan | null {
-  if (!isCommittedRenameResult(value)) return null;
-  return hasRenamePlanIdentity(value.plan)
-    ? (value.plan as DecisionRenamePlan)
-    : null;
-}
-
-function isCommittedRenameResult(value: unknown): value is {
-  changed: true;
-  outcome: "committed";
-  plan: unknown;
-  status: "ok";
-} {
-  return (
-    isObjectRecord(value) &&
-    propertyEquals(value, "status", "ok") &&
-    propertyEquals(value, "changed", true) &&
-    propertyEquals(value, "outcome", "committed") &&
-    "plan" in value
-  );
-}
-
-function isObjectRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object";
-}
-
-function propertyEquals(
-  value: Record<string, unknown>,
-  key: string,
-  expected: unknown
-): boolean {
-  return value[key] === expected;
-}
-
-function hasRenamePlanIdentity(
-  value: unknown
-): value is Record<string, unknown> {
-  return (
-    value !== null &&
-    typeof value === "object" &&
-    "oldId" in value &&
-    "newId" in value
-  );
-}
-
-function renameLockCleanupDiagnostic() {
+/** 完成结果的 mutation 事实优先于随后发生的解锁失败。 */
+function renameReleaseDiagnostic(
+  operation: DecisionRenameResult
+): ReturnType<typeof decisionDiagnostic> {
+  const outcome: DecisionMutationOutcome =
+    operation.status === "ok"
+      ? operation.changed
+        ? "committed-cleanup-pending"
+        : "no-change"
+      : (operation.diagnostics.find(
+          (diagnostic) => diagnostic.outcome !== undefined
+        )?.outcome ?? "no-change");
   return decisionDiagnostic({
     code: "decision-records.collection-lock-release-failed",
-    outcome: "committed-cleanup-pending",
+    outcome,
     reason:
-      "Decision rename committed, but its collection lock could not be released.",
+      "Decision rename finished but its collection lock could not be released.",
     recovery:
-      "Verify the renamed Decision collection, then inspect the remaining lock before running another mutation.",
+      "Inspect the actual rename result and remaining lock before running another mutation.",
     scope: decisionRenameScope,
     target: "Decision collection mutation lock"
   });
@@ -242,16 +237,33 @@ function renameLockCleanupDiagnostic() {
 async function applyDecisionRenameWithinLock(
   options: DecisionRenameOptions
 ): Promise<DecisionRenameResult> {
+  const noop = await tryNoopDecisionRename(options);
+  if (noop !== null) return noop;
   const prepared = await prepareDecisionRenameAtCurrentState(options, true);
   if (prepared.status !== "ready") return prepared;
-  const current = await scanDecisionRecords(options);
+  if (prepared.value.changes.length === 0) {
+    return {
+      changed: false,
+      diagnostics: [],
+      errors: [],
+      outcome: "committed",
+      plan: prepared.value.plan,
+      status: "ok"
+    };
+  }
   const transaction = await applyLockedDecisionChanges({
     changes: prepared.value.changes,
-    originalScan: current,
-    scanOptions: options
+    originalScan: prepared.scan,
+    sourceCapture: prepared.sourceCapture
   });
   if (transaction.status === "error") {
-    return { ...decisionFailure(transaction.diagnostics), plan: null };
+    return {
+      ...decisionFailure(transaction.diagnostics),
+      changed: transaction.changed,
+      committed: transaction.committed,
+      verification: transaction.verification,
+      plan: transaction.changed === true ? prepared.value.plan : null
+    };
   }
   return {
     changed: transaction.changed,
@@ -263,38 +275,83 @@ async function applyDecisionRenameWithinLock(
   };
 }
 
+type LockedRenamePreparation = Extract<
+  PreparedRenameStep,
+  { status: "ready" }
+> & {
+  scan: DecisionPreparationContext;
+  sourceCapture?: DecisionSourceCapture;
+};
+
 async function prepareDecisionRenameAtCurrentState(
   options: DecisionRenameOptions,
   requireConfirmation: boolean
-): Promise<
-  DecisionRenameResult | Extract<PreparedRenameStep, { status: "ready" }>
-> {
-  const { result } = await loadDecisionValidationContext(options, {
-    allowEmptyDecisionSet: true
-  });
-  if (result.errors.length > 0) {
+): Promise<DecisionRenameResult | LockedRenamePreparation> {
+  let scan: DecisionPreparationContext;
+  try {
+    scan = await loadDecisionMaintenanceContext(
+      options,
+      {
+        action: "discard",
+        decisionId: options.source as import("./types.ts").DecisionId,
+        deleteRecorded: true
+      },
+      true
+    );
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
     return {
-      ...decisionFailure(
-        result.errors.map((reason) =>
-          decisionDiagnostic({
-            code: "decision-records.rename-collection-invalid",
-            outcome: "no-change",
-            reason,
-            recovery:
-              "Correct the Decision collection and derived index before retrying rename.",
-            scope: decisionRenameScope,
-            target: "Decision rename"
-          })
-        )
-      ),
+      ...decisionFailure([
+        decisionDiagnostic({
+          code: /name is ambiguous/.test(reason)
+            ? "decision-records.rename-source-ambiguous"
+            : "decision-records.rename-collection-invalid",
+          reason,
+          outcome: "no-change",
+          target: options.source,
+          recovery:
+            "Inspect the selected source and published index; use a complete ID or explicitly recover the index before retrying."
+        })
+      ]),
       plan: null
     };
   }
-  const prepared = prepareDecisionRename(result.scan, options);
+  const prepared = prepareDecisionRename(scan, options);
   if (prepared.status !== "ready") return { ...prepared, plan: null };
-  const history = await loadDecisionHistoryBaseline(result.scan);
+  if (prepared.value.plan.newId !== prepared.value.plan.oldId) {
+    const targetIdentity = await loadCandidateIdentityContext(
+      scan.decisionsDirectory,
+      [prepared.value.plan.newId]
+    );
+    const collision = targetIdentity.collection.candidateById.get(
+      prepared.value.plan.newId
+    );
+    if (
+      collision !== undefined &&
+      collision.sourcePath !== prepared.value.source.sourcePath
+    )
+      return {
+        ...decisionFailure([
+          decisionDiagnostic({
+            code: "decision-records.rename-id-conflict",
+            outcome: "no-change",
+            reason:
+              "Target Decision ID already exists: " + prepared.value.plan.newId,
+            recovery:
+              "Choose an unused complete Decision ID; an existing candidate must not be overwritten or duplicated.",
+            target: prepared.value.plan.newId
+          })
+        ]),
+        plan: null
+      };
+  }
+  const ready = { ...prepared, scan };
+  if (prepared.value.changes.length === 0) return ready;
+  const history = await loadDecisionHistoryBaseline(scan, [
+    prepared.value.source.decisionId
+  ]);
   if (history.status === "error") return { ...history, plan: null };
-  const pending = await pendingDecisionRenameFailure(result.scan);
+  const pending = await pendingDecisionRenameFailure(scan);
   if (pending !== null) return { ...pending, plan: null };
   const recorded =
     history.baseline.kind === "git-head" &&
@@ -322,5 +379,5 @@ async function prepareDecisionRenameAtCurrentState(
       plan: prepared.value.plan
     };
   }
-  return prepared;
+  return ready;
 }

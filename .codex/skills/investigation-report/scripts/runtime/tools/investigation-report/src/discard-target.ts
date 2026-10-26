@@ -7,7 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import { inspectInvestigationCollectionLayout } from "./investigation-index-source.ts";
+import { discoverInvestigationCandidates } from "./candidate-discovery.ts";
+import { type InvestigationCollectionLayout } from "./investigation-index-source.ts";
 import {
   investigationSelectorEntries,
   resolveInvestigationSelector
@@ -24,11 +25,12 @@ export type InvestigationDiscardTarget =
  */
 export async function identifyInvestigationDiscardTarget(
   investigationsDirectory: string,
-  selector: string
+  selector: string,
+  acquiredLayout?: InvestigationCollectionLayout
 ): Promise<InvestigationDiscardTarget> {
-  const layout = await inspectInvestigationCollectionLayout(
-    investigationsDirectory
-  );
+  const layout =
+    acquiredLayout ??
+    (await discoverInvestigationCandidates(investigationsDirectory));
   if (layout.errors.length > 0)
     return { errors: layout.errors, status: "error" };
   const candidate = resolveInvestigationSelector(

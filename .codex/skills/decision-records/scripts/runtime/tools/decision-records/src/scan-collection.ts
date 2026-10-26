@@ -8,8 +8,13 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 import fs from "node:fs/promises";
+import {
+  forEachRecordText,
+  recordReaderWorkerThreshold
+} from "../../record-operations/src/reader-batch.ts";
+import { readRecordText } from "../../record-operations/src/source.ts";
 import path from "node:path";
-import { decisionIdFromMarkdown } from "./decision-metadata.ts";
+import { DecisionMarkdownSource } from "./decision-metadata.ts";
 import { decisionIndexFileName } from "./decision-state-index.ts";
 import { addCollectionError, errorText } from "./scan-support.ts";
 import type { SourceFile, SourceFileMembers } from "./scan-contracts.ts";
@@ -139,18 +144,14 @@ export async function validateSourceMembership(
   collectionErrors: string[],
   sourceErrors: string[]
 ): Promise<ReadonlySet<DecisionId>> {
-  const sourceFilesById = new Map<string, SourceFileMembers>();
+  await acquireCollectionText(sourceFiles, sourceErrors);
+  const sourceFilesById = new Map<DecisionId, SourceFileMembers>();
   for (const sourceFile of sourceFiles) {
     let decisionId: DecisionId | null = null;
-    try {
-      sourceFile.sourceText = await fs.readFile(
-        sourceFile.decisionPath,
-        "utf8"
-      );
-      decisionId = decisionIdFromMarkdown(sourceFile.sourceText);
-      sourceFile.decisionId = decisionId;
-    } catch {
-      // Full source scanning reports the filesystem failure with its path.
+    const text = await readSourceText(sourceFile, sourceErrors);
+    if (text !== null) {
+      sourceFile.markdownSource = new DecisionMarkdownSource(text);
+      decisionId = sourceFile.markdownSource.identity().decisionId;
     }
     if (decisionId === null) continue;
     const members = sourceFilesById.get(decisionId);
@@ -164,7 +165,7 @@ export async function validateSourceMembership(
   const availableDecisionIds = new Set<DecisionId>();
   for (const [decisionId, members] of sourceFilesById) {
     if (members.length === 1) {
-      availableDecisionIds.add(decisionId as DecisionId);
+      availableDecisionIds.add(decisionId);
     }
     if (members.length > 1) {
       addCollectionError(
@@ -179,4 +180,59 @@ export async function validateSourceMembership(
     }
   }
   return availableDecisionIds;
+}
+
+export async function readSourceText(
+  sourceFile: SourceFile,
+  sourceErrors: string[]
+): Promise<string | null> {
+  if (sourceFile.sourceReadFailed === true) {
+    return null;
+  }
+  if (sourceFile.sourceText !== undefined) {
+    return sourceFile.sourceText;
+  }
+  try {
+    const directory = sourceFile.sourcePath.startsWith("archive/")
+      ? path.dirname(path.dirname(sourceFile.decisionPath))
+      : path.dirname(sourceFile.decisionPath);
+    const text = await readRecordText(directory, sourceFile.sourcePath);
+    sourceFile.sourceText = text;
+    return text;
+  } catch (error) {
+    sourceFile.sourceReadFailed = true;
+    sourceErrors.push(
+      sourceFile.sourcePath + " could not be read: " + errorText(error)
+    );
+    return null;
+  }
+}
+
+async function acquireCollectionText(
+  sourceFiles: readonly SourceFile[],
+  sourceErrors: string[]
+): Promise<void> {
+  const pending = sourceFiles.filter(
+    (source) =>
+      source.sourceText === undefined && source.sourceReadFailed !== true
+  );
+  if (pending.length < recordReaderWorkerThreshold) return;
+  const first = pending[0]!;
+  const directory = first.sourcePath.startsWith("archive/")
+    ? path.dirname(path.dirname(first.decisionPath))
+    : path.dirname(first.decisionPath);
+  await forEachRecordText(
+    directory,
+    pending.map((source) => source.sourcePath),
+    (result, index) => {
+      const source = pending[index]!;
+      if (result.ok) source.sourceText = result.value;
+      else {
+        source.sourceReadFailed = true;
+        sourceErrors.push(
+          source.sourcePath + " could not be read: " + errorText(result.error)
+        );
+      }
+    }
+  );
 }

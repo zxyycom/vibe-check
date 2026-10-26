@@ -5,7 +5,7 @@ description: >-
   以一份可独立复核的报告保存一轮形成时的背景、依据、结果和边界，
   并用稳定 Investigation ID、tags 和直接前序关系维护分类与认识演进。
 metadata:
-  version: "77"
+  version: "87"
 ---
 
 # Investigation Report
@@ -27,7 +27,7 @@ metadata:
 | 查找、阅读或内容审阅 | 按下方查询表选择入口；使用查询前读 [CLI 查询与结果解释](references/cli-operations.md#查询与结果解释)，以实际来源和覆盖解释结果。 |
 | 创建、编辑或结构审阅 | 先读固定契约的[身份与集合](references/investigation-report-contract.md#身份与集合)、[报告边界与有效演进](references/investigation-report-contract.md#报告边界与有效演进)、[报告正文与候选准备](references/investigation-report-contract.md#报告正文与候选准备)。涉及关系或资源时，再读该契约对应章节。 |
 | 创建候选、发布、同步、调整关系、删除、更正身份或暂存 | 先读 [CLI 操作前提](references/cli-operations.md#操作前提)，再读所选操作章节及其链接的领域规则；命令参数用 `help <command>` 获取。 |
-| 工具、索引或中断写入异常 | 按[维护恢复](references/maintenance-recovery.md)的实际状态分流，只处理诊断声明的范围。 |
+| 首次候选集合、工具或索引异常、写入中断 | 按[维护恢复](references/maintenance-recovery.md)的实际状态分流，只处理诊断声明的范围。 |
 | 修改 CLI、SDK 或测试实现 | 从源码项目的维护入口读取实现与验证约束，再读取所改公开行为对应的契约；这些实现材料不是普通记录维护的前置。 |
 
 索引精确机器结构由 [Schema](references/investigation-index.schema.json) 承接。整体审阅某一层契约时完整读取该层；普通任务沿上述路径按需展开。
@@ -109,7 +109,7 @@ agent 在当前授权范围内，自行审查证据、报告边界、资源与�
 
 1. 用 `show-candidate` 核对结构、正文与资源 readiness，再独立完成语义审查和 publish 授权判断。
 2. 按[候选创建与发布](references/cli-operations.md#候选创建与发布)执行；需要写前审阅预计影响时单独预检。正式编辑、关系维护、身份更正或删除按对应契约执行。
-3. 已知合法正式来源手改先 `sync-index`；普通维护按本次来源、依赖和最终发布图交付。任务要求当前全集健康时，在维护批次验收运行全量 `check`；删除、身份更正和恢复保持各自严格验收。未解释的索引异常先检查诊断，只读审阅保持集合状态不变。
+3. 已知合法正式来源手改先 `sync-index`。普通维护（含删除、身份更正）按发布索引、所选及实际改写来源和最终组合图交付；未选正文或候选引用不作当前性证明。任务要求当前全集健康时，在维护批次验收运行全量 `check`。索引异常与恢复按[维护恢复](references/maintenance-recovery.md)处理；只读审阅保持集合状态不变。
 4. 任务要求 Git 待提交快照时，再按[暂存操作](references/cli-operations.md#待提交快照)执行 `stage`。commit 与 push 分别服从当前授权。
 
 ## 完成标准

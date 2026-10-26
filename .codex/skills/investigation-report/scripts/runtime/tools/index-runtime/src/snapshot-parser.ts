@@ -7,16 +7,17 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { MaterializedStateIndexEntry } from "./query-fields.ts";
 import { expectationOf, validateStateIndexDefinition } from "./definition.ts";
 import { canonicalizeStateIndex } from "./canonicalization.ts";
 import { diagnostic, errorText } from "./diagnostics.ts";
-import { cloneAndFreezeTypedJsonObject } from "./frozen-json.ts";
 import {
   normalizeStateIndex,
   validateCompleteStateIndex
 } from "./projection.ts";
 import type {
   JsonObject,
+  JsonValue,
   StateIndex,
   StateIndexDefinition,
   StateIndexExpectation,
@@ -29,6 +30,7 @@ export function parseStateIndex<
   Metadata extends JsonObject
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
+  materializedEntries?: MaterializedStateIndexEntry<State>[];
   expectation?: StateIndexExpectation;
   sourcePath: string;
   text: string;
@@ -74,7 +76,8 @@ export function parseStateIndex<
   const normalized = normalizeStateIndex(
     envelope.value,
     options.definition,
-    options.sourcePath
+    options.sourcePath,
+    options.materializedEntries
   );
   if (normalized.status === "error") return normalized;
   return validateCompleteStateIndex(
@@ -117,8 +120,18 @@ export function parseStateIndexEnvelope(options: {
   return {
     diagnostics: [],
     status: "ok",
-    value: cloneAndFreezeTypedJsonObject(validated.index, false)
+    value: freezeOwnedEnvelope(validated.index)
   };
+}
+
+// 固定 schema 已验证本次文本解码产生的 JSON，并且未引入外部引用。
+// 此处在领域 callback 前原地冻结；callback 的返回对象仍由归一化层复制隔离。
+function freezeOwnedEnvelope<Value extends JsonValue>(value: Value): Value {
+  if (value !== null && typeof value === "object") {
+    for (const child of Object.values(value)) freezeOwnedEnvelope(child);
+    Object.freeze(value);
+  }
+  return value;
 }
 
 export function serializeStateIndex<

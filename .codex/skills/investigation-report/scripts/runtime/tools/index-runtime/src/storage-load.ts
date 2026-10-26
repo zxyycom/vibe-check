@@ -7,6 +7,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { MaterializedStateIndexEntry } from "./query-fields.ts";
 import fs from "node:fs/promises";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import { sameStateSourceRevision } from "./canonicalization.ts";
@@ -38,6 +39,7 @@ export async function loadStateIndex<
 >(options: {
   context: StateIndexContext;
   definition: StateIndexDefinition<State, Metadata>;
+  materializedEntries?: MaterializedStateIndexEntry<State>[];
   expectation?: StateIndexExpectation;
   indexPath: string;
 }): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
@@ -48,6 +50,7 @@ export async function loadStateIndex<
   if (resolved.status === "error") return resolved;
   return await loadStateIndexAtResolvedPath({
     definition: options.definition,
+    materializedEntries: options.materializedEntries,
     expectation: options.expectation ?? expectationOf(options.definition),
     indexPath: options.indexPath,
     resolved: resolved.value
@@ -59,6 +62,7 @@ export async function loadStateIndexAtResolvedPath<
   Metadata extends JsonObject
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
+  materializedEntries?: MaterializedStateIndexEntry<State>[];
   expectation: StateIndexExpectation;
   indexPath: string;
   resolved: ResolvedIndexPath;
@@ -67,6 +71,7 @@ export async function loadStateIndexAtResolvedPath<
   if (text.status === "error") return text;
   return parseStateIndex({
     definition: options.definition,
+    materializedEntries: options.materializedEntries,
     expectation: options.expectation,
     sourcePath: options.indexPath,
     text: text.value
@@ -95,10 +100,11 @@ export async function loadStateIndexEnvelope(options: {
   });
 }
 
-export async function readIndexTextAtResolvedPath(options: {
+/** Internal raw source evidence for operations that independently reacquire identical input. */
+export async function readIndexSourceAtResolvedPath(options: {
   indexPath: string;
   resolved: ResolvedIndexPath;
-}): Promise<StateIndexResult<string>> {
+}): Promise<StateIndexResult<Readonly<{ bytes: Uint8Array; text: string }>>> {
   let data: Buffer;
   try {
     data = await fs.readFile(options.resolved.targetPath);
@@ -119,7 +125,11 @@ export async function readIndexTextAtResolvedPath(options: {
     );
   }
   try {
-    return { diagnostics: [], status: "ok", value: decodeUtf8Text(data) };
+    return {
+      diagnostics: [],
+      status: "ok",
+      value: { bytes: data, text: decodeUtf8Text(data) }
+    };
   } catch {
     return failure(
       "state-index.index-encoding-invalid",
@@ -129,12 +139,23 @@ export async function readIndexTextAtResolvedPath(options: {
   }
 }
 
+export async function readIndexTextAtResolvedPath(options: {
+  indexPath: string;
+  resolved: ResolvedIndexPath;
+}): Promise<StateIndexResult<string>> {
+  const source = await readIndexSourceAtResolvedPath(options);
+  return source.status === "error"
+    ? source
+    : { ...source, value: source.value.text };
+}
+
 export async function loadCurrentStateIndex<
   State extends object,
   Metadata extends JsonObject
 >(options: {
   context: StateIndexContext;
   definition: StateIndexDefinition<State, Metadata>;
+  materializedEntries?: MaterializedStateIndexEntry<State>[];
   indexPath: string;
 }): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
   const definitionErrors = validateStateIndexDefinition(options.definition);
@@ -171,7 +192,8 @@ export async function loadCurrentStateIndex<
   const normalized = normalizeStateIndex(
     loaded.value,
     options.definition,
-    options.indexPath
+    options.indexPath,
+    options.materializedEntries
   );
   if (normalized.status === "error") return normalized;
   return validateCompleteStateIndex(

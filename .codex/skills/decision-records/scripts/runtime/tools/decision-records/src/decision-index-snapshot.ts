@@ -8,6 +8,10 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 import {
+  loadRecordQuery,
+  recordGraphProof
+} from "../../record-operations/src/query.ts";
+import {
   createDecisionRelationGraphProvider,
   decisionRelationConsistencyIssues,
   type DecisionRelationGraphProvider
@@ -15,7 +19,6 @@ import {
 import { isDecisionId } from "./decision-path.ts";
 import {
   loadCurrentStateIndexReader,
-  loadStateIndexReader,
   parseStateIndex,
   queryStateIndex,
   type ReadonlyStateIndex,
@@ -39,19 +42,21 @@ export type DecisionIndexSnapshot = Readonly<{
   index: DecisionIndex;
   entries: readonly Readonly<{ id: string; state: DecisionIndexState }>[];
   getRelationGraph: DecisionRelationGraphProvider;
+  relationErrors: () => readonly string[];
 }>;
 
 type DecisionIndexLoadOptions = {
   decisionsDirectory: string;
   indexPath?: string;
   signal?: AbortSignal;
+  queryOnly?: boolean;
 };
 
 export async function loadDecisionIndexSnapshot(
   options: DecisionIndexLoadOptions
 ): Promise<StateIndexResult<DecisionIndexSnapshot>> {
   const indexPath = options.indexPath ?? decisionIndexFileName;
-  const loaded = await loadStateIndexReader({
+  return await loadRecordQuery({
     context: {
       root: options.decisionsDirectory,
       ...(options.signal === undefined ? {} : { signal: options.signal })
@@ -61,11 +66,13 @@ export async function loadDecisionIndexSnapshot(
       definitionVersion: decisionIndexDefinitionVersion,
       namespace: decisionIndexNamespace
     },
-    indexPath
+    indexPath,
+    project: (reader) =>
+      decisionIndexSnapshotFromValidatedIndex(reader.index, indexPath, true),
+    requiresRelations: options.queryOnly !== true,
+    relationErrors: (snapshot) => snapshot.relationErrors(),
+    relationFailureCode: "decision-index.relation-invalid"
   });
-  return loaded.status === "error"
-    ? loaded
-    : decisionIndexSnapshotFromValidatedIndex(loaded.value.index, indexPath);
 }
 
 type CurrentDecisionIndexLoadOptions = DecisionIndexLoadOptions & {
@@ -190,12 +197,14 @@ export function parseDecisionIndexSnapshot(
     : decisionIndexSnapshotFromValidatedIndex(parsed.value, sourcePath);
 }
 
-function decisionIndexSnapshotFromValidatedIndex(
+// 内部接点：输入须已在同阶段通过结构、metadata/state、查询字段及 definition 验收。
+// 默认验收完整领域关系图；queryOnly 将验收留给 relationErrors 的消费者。
+export function decisionIndexSnapshotFromValidatedIndex(
   validatedIndex: ReadonlyStateIndex<DecisionIndexState, DecisionIndexMetadata>,
-  sourcePath: string
+  sourcePath: string,
+  queryOnly = false
 ): StateIndexResult<DecisionIndexSnapshot> {
-  // The strict parser/loader proved this domain shape. Existing query DTOs use
-  // mutable array types, while the snapshot's actual values stay frozen.
+  // 适配只读输入以兼容现有 Decision DTO 的可变数组类型；不改变输入的对象或冻结状态。
   const index = validatedIndex as StateIndex<
     DecisionIndexState,
     DecisionIndexMetadata
@@ -216,21 +225,24 @@ function decisionIndexSnapshotFromValidatedIndex(
       };
     })
   );
-  const relationIssues = decisionRelationConsistencyIssues(getRelationGraph);
-  if (relationIssues.length > 0)
+  const relationErrors = recordGraphProof(getRelationGraph, (graph) =>
+    decisionRelationConsistencyIssues(() => graph).map((issue) => issue.message)
+  );
+  const errors = queryOnly ? [] : relationErrors();
+  if (errors.length > 0)
     return failure(
       "decision-index.relation-invalid",
-      relationIssues.map((issue) => issue.message).join("; "),
+      errors.join("; "),
       sourcePath
     );
   return {
     diagnostics: [],
     status: "ok",
-    // The state-index parser and decision definition have validated this exact
-    // schema and key projection before it crosses the public decision boundary.
+    // definition 已验收 state 与 ID；此处将索引身份收窄为本领域固定的 namespace/definitionVersion。
     value: {
       entries,
       getRelationGraph,
+      relationErrors,
       index: {
         ...index,
         definitionVersion: decisionIndexDefinitionVersion,

@@ -17,7 +17,6 @@ import {
 } from "./investigation-state-index.ts";
 import type { InvestigationRelationSummaryInput } from "./relation-summary.ts";
 import {
-  publicationDependencyIds,
   publishedGraphErrors,
   readPublishedInvestigationDependencies,
   type PublishedInvestigationIndex,
@@ -26,16 +25,8 @@ import {
 import type {
   InvestigationIndexState,
   InvestigationRelationReplacement,
-  InvestigationRelationSetResult,
   InvestigationSource
 } from "./types.ts";
-import {
-  protectRelationCollection,
-  verifyRelationIndexBytes,
-  verifyRelationSourceBytes
-} from "./relation-transaction-protection.ts";
-import { publishRelationCandidate } from "./relation-transaction-publication.ts";
-import { buildRelationCandidate } from "./relation-transaction-candidate.ts";
 import { diagnosticFromError } from "./diagnostics.ts";
 import {
   errorText,
@@ -74,43 +65,7 @@ export type LoadedRelationContext = Readonly<{
   sourceIds: string[];
 }>;
 
-export async function applyRelationReplacements(
-  options: RelationTransactionOptions
-): Promise<InvestigationRelationSetResult> {
-  const loaded = await loadRelationTransaction(options);
-  if (loaded.status === "result") return loaded.result;
-  const candidate = await buildRelationCandidate(options, loaded.value);
-  if (candidate.status === "result") return candidate.result;
-  if (options.preflight)
-    return relationResult(
-      false,
-      candidate.value.sourceIds,
-      options.indexPath,
-      [],
-      {
-        preflight: true,
-        relationReview: candidate.value.relationReview
-      }
-    );
-  await options.beforePublish();
-  const protectedCollection = await protectRelationCollection(
-    options,
-    candidate.value
-  );
-  if (protectedCollection.status === "result")
-    return protectedCollection.result;
-  const sourceBytes = await verifyRelationSourceBytes(options, candidate.value);
-  if (sourceBytes.status === "result") return sourceBytes.result;
-  const indexFailure = await verifyRelationIndexBytes(options, candidate.value);
-  if (indexFailure !== null) return indexFailure;
-  return await publishRelationCandidate(
-    options,
-    candidate.value,
-    sourceBytes.value
-  );
-}
-
-async function loadRelationTransaction(
+export async function loadRelationTransaction(
   options: RelationTransactionOptions
 ): Promise<RelationPhase<LoadedRelationContext>> {
   const originalIndex = await readOriginalRelationIndex(options, []);
@@ -255,13 +210,7 @@ async function readRelationDependencies(
   const selectedIds = new Set(
     replacements.map((replacement) => replacement.source)
   );
-  const nextStates = replacementRelationStates(collection.states, replacements);
-  const dependencies = [
-    ...new Set([
-      ...publicationDependencyIds(collection.states, selectedIds),
-      ...publicationDependencyIds(nextStates, selectedIds)
-    ])
-  ].sort();
+  const dependencies = [...selectedIds].sort();
   let sources: InvestigationSource[];
   try {
     sources = await readPublishedInvestigationDependencies(
@@ -273,22 +222,6 @@ async function readRelationDependencies(
     return relationDependencyFailure(options, selectedIds, error);
   }
   return { status: "ready", value: sources };
-}
-
-function replacementRelationStates(
-  states: ReadonlyMap<string, InvestigationIndexState>,
-  replacements: readonly InvestigationRelationReplacement[]
-): Map<string, InvestigationIndexState> {
-  const nextStates = new Map(states);
-  for (const replacement of replacements) {
-    const state = nextStates.get(replacement.source);
-    if (state !== undefined)
-      nextStates.set(replacement.source, {
-        ...state,
-        relations: [...replacement.relations]
-      });
-  }
-  return nextStates;
 }
 
 function relationDependencyFailure(

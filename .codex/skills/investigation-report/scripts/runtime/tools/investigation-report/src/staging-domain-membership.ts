@@ -7,9 +7,10 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
+import type { PendingSnapshot } from "../../shared/src/version-control/pending-snapshot.ts";
+import { readRecordStagePending } from "../../index-runtime/src/record-staging.ts";
 import path from "node:path";
 import { hasEntry } from "../../index-runtime/src/index.ts";
-import { readPendingSnapshot } from "../../shared/src/version-control/pending-snapshot.ts";
 import { investigationIndexFileName } from "./investigation-state-index.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
@@ -23,7 +24,8 @@ import type {
 
 /** Membership and complete pending facts are fresh before any phase source bytes are read. */
 export async function acquireDomainPhase(
-  request: DomainAcquisitionRequest
+  request: DomainAcquisitionRequest,
+  captured?: PendingSnapshot
 ): Promise<DomainPhaseResult> {
   let resources: DomainResourcePaths;
   try {
@@ -42,16 +44,14 @@ export async function acquireDomainPhase(
   const baselinePaths = selectedBaselinePaths(request);
   try {
     validateSelectedPathOwnership(request, baselinePaths);
-    const pending = await readPendingSnapshot(request.repository, {
-      pathScope: request.investigationsScope,
-      payloadScope: request.scope === "index" ? "content-paths" : "scope",
-      contentPaths: selectedPendingContentPaths(
-        request,
-        reportPaths,
-        baselinePaths,
-        resources.paths
-      )
-    });
+    const contentPaths = selectedPendingContentPaths(
+      request,
+      reportPaths,
+      baselinePaths,
+      resources.paths,
+      captured
+    );
+    const pending = await captureDomainPending(request, contentPaths, captured);
     return {
       status: "ok",
       value: { resources, reportPaths, baselinePaths, pending }
@@ -61,19 +61,52 @@ export async function acquireDomainPhase(
   }
 }
 
+/** Reuse this phase's capture only when all consumed payloads were retained. */
+async function captureDomainPending(
+  request: DomainAcquisitionRequest,
+  contentPaths: readonly string[],
+  _captured?: PendingSnapshot
+): Promise<PendingSnapshot> {
+  return await readRecordStagePending(request.repository, {
+    scope: request.scope,
+    indexPath: path.posix.join(
+      request.investigationsScope,
+      investigationIndexFileName
+    ),
+    pathScope: request.investigationsScope,
+    contentPaths
+  });
+}
+
 /** Retain only index content for index scope, or the sources consumed by domain validation. */
 function selectedPendingContentPaths(
   request: DomainAcquisitionRequest,
   reportPaths: ReadonlySet<string>,
   baselinePaths: ReadonlySet<string>,
-  resourcePaths: readonly string[]
+  resourcePaths: readonly string[],
+  captured?: PendingSnapshot
 ): readonly string[] {
   if (request.scope === "index")
     return [
       path.posix.join(request.investigationsScope, investigationIndexFileName)
     ];
   return [
+    ...(request.scope === "domain" &&
+    request.pendingIndex === null &&
+    !captured?.files.some(
+      (file) =>
+        file.path ===
+        path.posix.join(request.investigationsScope, investigationIndexFileName)
+    )
+      ? []
+      : [
+          path.posix.join(
+            request.investigationsScope,
+            investigationIndexFileName
+          )
+        ]),
     ...reportPaths,
+    ...[...request.pendingReportPaths.values()].flat(),
     ...baselinePaths,
     ...resourcePaths,
     ...selectedReportPaths(

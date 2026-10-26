@@ -7,12 +7,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import path from "node:path";
 import { err, ok, type Result } from "neverthrow";
-import {
-  candidatePathForInvestigationId,
-  candidatePathForInvestigationLocator
-} from "./candidate-path.ts";
+import { candidatePathForInvestigationId } from "./candidate-path.ts";
 import { parseInvestigationCandidateCreateOptions } from "./options.ts";
 import {
   datedInvestigationIdForName,
@@ -117,11 +113,10 @@ function resolveCandidateRelationSelector(
   label: "relation" | "relation-summary"
 ): { id: string } | { error: string } {
   const dated = parseDatedInvestigationId(selector);
-  const matches = (
-    dated === null
-      ? availableIds.filter((id) => investigationNameFromId(id) === selector)
-      : availableIds.filter((id) => id === dated.id)
-  ).sort(compareText);
+  if (dated !== null) return { id: dated.id };
+  const matches = availableIds
+    .filter((id) => investigationNameFromId(id) === selector)
+    .sort(compareText);
   return matches.length === 1
     ? { id: matches[0]! }
     : {
@@ -172,70 +167,81 @@ export async function allocateCandidatePath(
   investigationsDirectory: string,
   id: string
 ): Promise<string> {
-  const name = investigationNameFromId(id);
-  const candidateNamePath = candidatePathForInvestigationLocator(
-    investigationsDirectory,
-    name
-  );
-  const formalNamePath = path.join(investigationsDirectory, `${name}.md`);
-  const [candidateExists, formalExists] = await Promise.all([
-    pathExists(candidateNamePath),
-    pathExists(formalNamePath)
-  ]);
-  return candidateExists || formalExists
-    ? candidatePathForInvestigationId(investigationsDirectory, id)
-    : candidateNamePath;
-}
-async function pathExists(target: string): Promise<boolean> {
-  try {
-    await import("node:fs/promises").then(({ default: fs }) =>
-      fs.lstat(target)
-    );
-    return true;
-  } catch {
-    return false;
-  }
+  return candidatePathForInvestigationId(investigationsDirectory, id);
 }
 export function validateCandidateCreateOptions(
   candidate: PreparedInvestigationCandidateCreateOptions
 ): string[] {
+  return uniqueSorted([
+    ...candidateIdentityErrors(candidate),
+    ...candidateTagErrors(candidate.tags),
+    ...candidateRelationErrors(candidate.id, candidate.relations)
+  ]);
+}
+
+function candidateIdentityErrors(
+  candidate: PreparedInvestigationCandidateCreateOptions
+): string[] {
   const errors: string[] = [];
-  if (!isInvestigationId(candidate.id))
+  if (!isInvestigationId(candidate.id)) {
     errors.push(`${candidate.id || "<empty>"} must use an Investigation ID`);
+  }
   for (const [name, value] of [
     ["title", candidate.title],
     ["question", candidate.question]
-  ] as const)
-    if (!isNonEmptySingleLineText(value))
+  ] as const) {
+    if (!isNonEmptySingleLineText(value)) {
       errors.push(`${name} must be a non-empty single-line string`);
-  if (investigationTimestampMilliseconds(candidate.formedAt) === null)
+    }
+  }
+  if (investigationTimestampMilliseconds(candidate.formedAt) === null) {
     errors.push(
       "formedAt must use an RFC 3339 timestamp with timezone and second precision"
     );
-  if (candidate.tags.length === 0)
+  }
+  return errors;
+}
+
+function candidateTagErrors(tags: readonly string[]): string[] {
+  const errors: string[] = [];
+  if (tags.length === 0) {
     errors.push("tags must contain at least one tag");
-  if (candidate.tags.some((tag) => !isInvestigationTag(tag)))
+  }
+  if (tags.some((tag) => !isInvestigationTag(tag))) {
     errors.push("tags must contain valid kebab-case tokens");
-  if (new Set(candidate.tags).size !== candidate.tags.length)
+  }
+  if (new Set(tags).size !== tags.length) {
     errors.push("tags must not repeat a tag");
+  }
+  return errors;
+}
+
+function candidateRelationErrors(
+  id: string,
+  relations: readonly InvestigationRelation[]
+): string[] {
+  const errors: string[] = [];
   if (
-    candidate.relations.some(
+    relations.some(
       (relation) =>
         !isInvestigationRelationType(relation.type) ||
         !isInvestigationId(relation.target)
     )
-  )
+  ) {
     errors.push(
       "relations must use known types and valid Investigation ID targets"
     );
-  if (candidate.relations.some((relation) => relation.target === candidate.id))
+  }
+  if (relations.some((relation) => relation.target === id)) {
     errors.push("relations must not target the candidate itself");
+  }
   if (
-    new Set(candidate.relations.map((relation) => relation.target)).size !==
-    candidate.relations.length
-  )
+    new Set(relations.map((relation) => relation.target)).size !==
+    relations.length
+  ) {
     errors.push("relations must not repeat a target");
-  return uniqueSorted(errors);
+  }
+  return errors;
 }
 function isNonEmptySingleLineText(value: string): boolean {
   return (

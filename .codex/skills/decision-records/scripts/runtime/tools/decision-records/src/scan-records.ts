@@ -7,19 +7,21 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-import fs from "node:fs/promises";
 import {
-  decisionIdFromMarkdown,
+  DecisionMarkdownSource,
   establishedDecisionMetadataFromSource
 } from "./decision-metadata.ts";
 import { isDecisionSourcePath } from "./decision-path.ts";
-import { validateDecisionBody, type ValidatedDecisionBody } from "./record.ts";
+import {
+  validateDecisionMarkdownSource,
+  type ValidatedDecisionBody
+} from "./record.ts";
 import {
   emptyDecisionProjection,
   selectProjection,
   unindexedDecisionError
 } from "./scan-relations.ts";
-import { errorText } from "./scan-support.ts";
+import { readSourceText } from "./scan-collection.ts";
 import type {
   CandidateSourceState,
   DecisionStoredIndexEntry,
@@ -30,7 +32,7 @@ import type {
 import type { DecisionId, DecisionIndex, DecisionRecord } from "./types.ts";
 
 type ScanSourceContext = {
-  availableDecisionIds: ReadonlySet<DecisionId>;
+  targetExists: (id: DecisionId) => boolean;
   index: DecisionIndex | null;
   indexErrors: string[];
   indexRelativePath: string;
@@ -46,10 +48,29 @@ export async function scanSourceFiles(options: {
   sourceFiles: readonly SourceFile[];
 }): Promise<DecisionRecord[]> {
   const records: DecisionRecord[] = [];
+  const context = {
+    ...options,
+    targetExists: (id: DecisionId) => options.availableDecisionIds.has(id)
+  };
   for (const sourceFile of options.sourceFiles) {
-    records.push(await scanSourceFile(sourceFile, options));
+    records.push(await scanSourceFile(sourceFile, context));
   }
   return records;
+}
+
+/** 候选 scaffold 验自身语法与结构；引用是否建立不属于该证明。正式 scan 保持完整存在性门槛。 */
+export async function scanDecisionCandidateScaffold(options: {
+  sourceFile: SourceFile;
+  indexRelativePath: string;
+  sourceErrors: string[];
+}): Promise<DecisionRecord> {
+  return await scanSourceFile(options.sourceFile, {
+    targetExists: () => true,
+    index: null,
+    indexErrors: [],
+    indexRelativePath: options.indexRelativePath,
+    sourceErrors: options.sourceErrors
+  });
 }
 
 async function scanSourceFile(
@@ -62,43 +83,24 @@ async function scanSourceFile(
     : scanReadableSourceFile(sourceFile, sourceText, context);
 }
 
-async function readSourceText(
-  sourceFile: SourceFile,
-  sourceErrors: string[]
-): Promise<string | null> {
-  try {
-    return (
-      sourceFile.sourceText ??
-      (await fs.readFile(sourceFile.decisionPath, "utf8"))
-    );
-  } catch (error) {
-    sourceErrors.push(
-      sourceFile.sourcePath + " could not be read: " + errorText(error)
-    );
-    return null;
-  }
-}
-
 async function scanReadableSourceFile(
   sourceFile: SourceFile,
   sourceText: string,
   context: ScanSourceContext
 ): Promise<DecisionRecord> {
-  const decisionId =
-    sourceFile.decisionId === undefined
-      ? decisionIdFromMarkdown(sourceText)
-      : sourceFile.decisionId;
+  const source =
+    sourceFile.markdownSource ?? new DecisionMarkdownSource(sourceText);
+  const decisionId = source.identity().decisionId;
   const indexEntry = indexedSourceEntry(context.index, decisionId);
   const recordErrors: string[] = [];
-  const sourceDocument = await validateDecisionBody({
-    body: sourceText,
+  const sourceDocument = await validateDecisionMarkdownSource(source, {
     errors: recordErrors,
     sourcePath: sourceFile.sourcePath,
-    targetExists: (targetId) => context.availableDecisionIds.has(targetId)
+    targetExists: context.targetExists
   });
   const sourceState = scannedSourceState(
     sourceFile,
-    sourceText,
+    source.text,
     sourceDocument,
     indexEntry,
     recordErrors

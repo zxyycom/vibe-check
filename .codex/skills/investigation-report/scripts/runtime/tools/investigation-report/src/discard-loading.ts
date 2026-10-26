@@ -7,18 +7,15 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/investigation-report
  * Rebuild: bun run sync:investigation-report-check
  */
-import {
-  buildStateIndex,
-  serializeStateIndex
-} from "../../index-runtime/src/index.ts";
-import { readCandidateAuthoringResourceReferences } from "./candidate.ts";
+import { readLocalPublication } from "./local-publication.ts";
+import { validatePublishedDependency } from "./published-preparation.ts";
+import { InvestigationPreparation } from "./strict-preparation.ts";
+import path from "node:path";
+import { buildDiscardIndexText } from "./discard-index-projection.ts";
+import { prepareResourceSourceProof } from "./rename-resource-proof.ts";
+
+import type { ResourceMoveProgress } from "./rename-contract.ts";
 import { genericInvestigationDiagnostic } from "./diagnostics.ts";
-import { createInvestigationStateSnapshot } from "./investigation-index-source.ts";
-import {
-  createInvestigationStateIndexDefinition,
-  investigationIndexDiagnosticMessages,
-  syncInvestigationStateIndex
-} from "./investigation-state-index.ts";
 import { resolveInvestigationSelector } from "./investigation-selector.ts";
 import { validateInvestigationRelationGraph } from "./relation-validation.ts";
 import { createInvestigationRelationContext } from "./relation-context.ts";
@@ -33,7 +30,6 @@ import {
   result,
   type DiscardCollectionOptions,
   type DiscardStep,
-  type InvestigationCollectionSource,
   type ValidatedInvestigationCollection
 } from "./discard.ts";
 import {
@@ -48,13 +44,13 @@ import {
   sharedOwnerResourceReferences,
   type ResourceTreeScan
 } from "./discard-history.ts";
-import { readRegularText } from "./discard-files.ts";
 import { discardIndexReadFailure } from "./discard-loading-diagnostics.ts";
 import { publishLoadedDiscard } from "./discard-loading-publication.ts";
 
 type LoadedDiscardCollection = Readonly<{
   collection: ValidatedInvestigationCollection;
   originalIndexText: string;
+  preparation: InvestigationPreparation;
 }>;
 
 export function requiredReportSourcePath(
@@ -69,43 +65,56 @@ export function requiredReportSourcePath(
 }
 
 export async function discardFromCollection(
-  options: DiscardCollectionOptions
-): Promise<InvestigationReportDiscardResult> {
-  const current = await collectValidatedInvestigationCollection(options.root);
-  if (current.errors.length > 0 || current.snapshot === null) {
-    return result(options, false, [], current.errors);
-  }
-  const selected = resolveInvestigationSelector(
-    [...current.states.entries()].map(([id, state]) => ({
-      id,
-      name: state.name
-    })),
-    options.id
-  );
-  if (selected.status === "error") {
-    return result(options, false, [], selected.errors);
-  }
-  options = { ...options, id: selected.id };
-  const loaded = await loadDiscardCollection(options);
-  if (!loaded.ok) return loaded.result;
-  return await discardLoadedCollection(options, loaded.value);
-}
-
-async function discardLoadedCollection(
   options: DiscardCollectionOptions,
-  loaded: LoadedDiscardCollection
+  acquisition?: Readonly<{
+    preparation: InvestigationPreparation;
+  }>
 ): Promise<InvestigationReportDiscardResult> {
-  const collection = loaded.collection;
-  const freshnessFailure = await discardFreshnessFailure(options, collection);
-  if (freshnessFailure !== null) return freshnessFailure;
-  return await prepareLoadedDiscard(options, loaded, collection);
+  const preparation =
+    acquisition?.preparation ??
+    new InvestigationPreparation(path.dirname(options.root), options.root);
+  let current: Awaited<ReturnType<typeof readLocalPublication>>;
+  try {
+    const baseline = await readLocalPublication(options.root, [], preparation);
+    const selected = resolveInvestigationSelector(
+      [...baseline.states].map(([id, state]) => ({ id, name: state.name })),
+      options.id
+    );
+    if (selected.status === "error")
+      return result(options, false, [], selected.errors);
+    options = { ...options, id: selected.id };
+    const state = baseline.states.get(selected.id)!;
+    const source = {
+      id: selected.id,
+      sourcePath: state.sourcePath,
+      text: await preparation.read(path.join(options.root, state.sourcePath))
+    };
+    validatePublishedDependency(baseline.index, state, source);
+    current = { ...baseline, sources: [source] };
+  } catch (error) {
+    return result(
+      options,
+      false,
+      [],
+      [
+        error instanceof Error
+          ? error.message
+          : "published index or selected report could not be read"
+      ]
+    );
+  }
+  const loaded = await loadDiscardCollection(options, current, {
+    preparation
+  });
+  if (!loaded.ok) return loaded.result;
+  return await prepareLoadedDiscard(options, loaded.value);
 }
 
 async function prepareLoadedDiscard(
   options: DiscardCollectionOptions,
-  loaded: LoadedDiscardCollection,
-  collection: ValidatedInvestigationCollection
+  loaded: LoadedDiscardCollection
 ): Promise<InvestigationReportDiscardResult> {
+  const collection = loaded.collection;
   const ownership = await prepareDiscardOwnership(options, collection);
   if (!ownership.ok) return ownership.result;
   const candidate = prepareDiscardCandidate(options, collection);
@@ -118,7 +127,10 @@ async function prepareLoadedDiscard(
     ownedResources.resourceIds
   );
   if (historyFailure !== null) return historyFailure;
-  const indexText = await buildDiscardIndexText(options, candidate.value);
+  const indexText = await buildDiscardIndexText(options, {
+    ...candidate.value,
+    baseline: collection.snapshot
+  });
   if (!indexText.ok) return indexText.result;
   return await commitLoadedDiscard(
     options,
@@ -148,11 +160,12 @@ async function commitLoadedDiscard(
 }
 
 async function loadDiscardCollection(
-  options: DiscardCollectionOptions
+  options: DiscardCollectionOptions,
+  collection: Awaited<
+    ReturnType<typeof collectValidatedInvestigationCollection>
+  >,
+  facts: Pick<LoadedDiscardCollection, "preparation">
 ): Promise<DiscardStep<LoadedDiscardCollection>> {
-  const collection = await collectValidatedInvestigationCollection(
-    options.root
-  );
   if (collection.errors.length > 0 || collection.snapshot === null) {
     return discardStepFailure(result(options, false, [], collection.errors));
   }
@@ -173,33 +186,14 @@ async function loadDiscardCollection(
   try {
     return discardStepValue({
       collection: validatedCollection,
-      originalIndexText: await readRegularText(options.indexPath)
+      ...facts,
+      originalIndexText: await facts.preparation.readOrCaptured(
+        options.indexPath
+      )
     });
   } catch (error) {
     return discardStepFailure(discardIndexReadFailure(options, error));
   }
-}
-
-async function discardFreshnessFailure(
-  options: DiscardCollectionOptions,
-  collection: ValidatedInvestigationCollection
-): Promise<InvestigationReportDiscardResult | null> {
-  const freshness = await syncInvestigationStateIndex({
-    investigationsDirectory: options.root,
-    mode: "check",
-    snapshot: collection.snapshot
-  });
-  return freshness.status === "error"
-    ? result(
-        options,
-        false,
-        [],
-        investigationIndexDiagnosticMessages(
-          freshness.diagnostics,
-          options.indexPath
-        )
-      )
-    : null;
 }
 
 async function prepareDiscardOwnership(
@@ -210,6 +204,7 @@ async function prepareDiscardOwnership(
     ownedResources: ResourceTreeScan;
     reportPath: string;
     resourceOwnerPath: string;
+    resourceProgress: ResourceMoveProgress;
   }>
 > {
   const resourceOwnerPath = path.join(
@@ -226,11 +221,15 @@ async function prepareDiscardOwnership(
       result(options, false, [], ownedResources.errors)
     );
   }
-  const errors = await discardOwnershipErrors(
-    options,
-    collection,
-    ownedResources
-  );
+  const errors = discardOwnershipErrors(options, collection, ownedResources);
+  const resourceProgress = await prepareResourceSourceProof({
+    root: path.dirname(options.root),
+    owner: resourceOwnerPath,
+    files: ownedResources.resourceIds.map((resourceId) => ({
+      path: resourceId.slice(options.id.length + 1)
+    })),
+    directories: ownedResources.directories
+  });
   return errors.length > 0
     ? discardStepFailure(result(options, false, [], errors))
     : discardStepValue({
@@ -239,20 +238,24 @@ async function prepareDiscardOwnership(
           options.root,
           requiredReportSourcePath(collection, options.id)
         ),
-        resourceOwnerPath
+        resourceOwnerPath,
+        resourceProgress
       });
 }
 
-async function discardOwnershipErrors(
+function discardOwnershipErrors(
   options: DiscardCollectionOptions,
   collection: ValidatedInvestigationCollection,
   ownedResources: ResourceTreeScan
-): Promise<string[]> {
+): string[] {
   const relationshipErrors = referencesToTarget(collection.states, options.id);
   const resourceErrors = sharedOwnerResourceReferences(
-    await readCandidateAuthoringResourceReferences(options.root, {
-      failOnInvalidSources: true
-    }),
+    new Map(
+      [...collection.states].map(([id, state]) => [
+        id,
+        new Set(state.resourceIds)
+      ])
+    ),
     options.id
   );
   const deletionErrors =
@@ -268,12 +271,8 @@ function prepareDiscardCandidate(
   options: DiscardCollectionOptions,
   collection: ValidatedInvestigationCollection
 ): DiscardStep<{
-  sources: InvestigationCollectionSource[];
   states: Map<string, InvestigationIndexState>;
 }> {
-  const sources = collection.sources.filter(
-    (source) => source.id !== options.id
-  );
   const states = new Map(
     [...collection.states].filter(([id]) => id !== options.id)
   );
@@ -282,7 +281,7 @@ function prepareDiscardCandidate(
   );
   return relationErrors.length > 0
     ? discardStepFailure(result(options, false, [], relationErrors))
-    : discardStepValue({ sources, states });
+    : discardStepValue({ states });
 }
 
 async function discardHistoryFailure(
@@ -334,47 +333,3 @@ function discardHistoryCheckFailure(
     mutation: discardMutation("no-change")
   });
 }
-
-async function buildDiscardIndexText(
-  options: DiscardCollectionOptions,
-  candidate: Readonly<{
-    sources: InvestigationCollectionSource[];
-    states: Map<string, InvestigationIndexState>;
-  }>
-): Promise<DiscardStep<string>> {
-  const snapshot = createInvestigationStateSnapshot(
-    candidate.sources,
-    candidate.sources.map((source) =>
-      requiredInvestigationState(candidate.states, source.id)
-    )
-  );
-  const definition = createInvestigationStateIndexDefinition({ snapshot });
-  const builtIndex = await buildStateIndex(definition, { root: options.root });
-  return builtIndex.status === "error"
-    ? discardStepFailure(
-        result(
-          options,
-          false,
-          [],
-          investigationIndexDiagnosticMessages(
-            builtIndex.diagnostics,
-            options.indexPath
-          )
-        )
-      )
-    : discardStepValue(serializeStateIndex(builtIndex.value, definition));
-}
-
-function requiredInvestigationState(
-  states: ReadonlyMap<string, InvestigationIndexState>,
-  investigationId: string
-): InvestigationIndexState {
-  const state = states.get(investigationId);
-  if (state === undefined) {
-    throw new Error(
-      `validated investigation collection is missing state for ${investigationId}`
-    );
-  }
-  return state;
-}
-import path from "node:path";

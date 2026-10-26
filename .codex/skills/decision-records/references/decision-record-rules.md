@@ -22,7 +22,9 @@ docs/decisions/
     └── <name-or-decision-id>.md    # archived
 ```
 
-同一集合内 ID 和 sourcePath 分别唯一，状态与目录位置一致；受管记录均为上述目录的直属 Markdown。生命周期移动保留 basename。关系、索引和单项回读使用 frontmatter ID，索引负责定位而不是反向定义记录事实。无日期旧 ID 继续可读，身份更正使用 `rename`。
+同一集合内 ID 和 sourcePath 分别唯一，状态与目录位置一致；受管记录均为上述目录的直属 Markdown。生命周期移动保留 basename。关系、索引和单项回读使用 frontmatter ID，索引负责定位而不是反向定义记录事实。
+
+新建默认完整 ID basename，候选转正保留 ID 与 basename。跨日或 legacy 同名允许，name 可重复；选择日期对象时可用完整日期 ID 消歧。无日期旧 ID 与既有语义 basename 继续可读，但 legacy 字面 selector 仍按 name 解析，可能歧义，处理见 [CLI 定位与选择](cli-operations.md#定位与选择)。身份更正使用 `rename`。
 
 ## 正文与候选准备
 
@@ -112,7 +114,10 @@ relations:
     summary: 将查询投影移出持久索引
 ```
 
-每个 target 是合法 Decision ID，在同一来源记录中唯一，完整图无自环、无环。候选关系先检查类型、ID、重复、自环和目标可解析性；候选建立前留在正式图外，活动前序也无需提前归档。
+每个 target 是合法 Decision ID，在同一来源记录中唯一，完整图无自环、无环。按阶段核对：
+
+- **候选起草**：检查类型、ID、重复与自环。`new`、`candidates` 和 `show-candidate` 的完整 target ID 只验语法，目标可以后创建；未建立 target 不降低 scaffoldValid 或隐藏候选。name 按[创建操作的选择集合](cli-operations.md#创建与继续候选)唯一解析。
+- **正式发布**：独立验证 target 存在及最终完整图。候选建立前留在正式图外，活动前序也无需提前归档。
 
 可选 summary 从来源记录视角说明该边：输入 trim 后为空则省略，非空须为单行且最多 40 个 Unicode 码点，超限拒绝。它补充边的说明，边身份、排序、去重和拓扑继续由 type、target 及领域图规则决定。
 
@@ -142,6 +147,10 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 
 `list`、`trace` 与 metadata 搜索使用已发布快照；`show` 读取所选当前正文，默认 content 搜索发现当前文本。结果只证明实际来源与覆盖，索引不能反向定义记录事实。具体查询选择和完整性解释见 [CLI 查询契约](cli-operations.md#查询与结果解释)。
 
-已知合法来源变化先 `sync-index` 再严格 `check`；未解释的索引异常先检查诊断。严格检查验证来源、状态位置、关系与索引一致性，agent 另行核对记录门槛、正文与摘要、真实前序、后继承接和 alignment 依据。
+已知合法正式来源变化先 `sync-index`；任务要求当前全集结论或正在恢复集合时再严格 `check`，未解释的索引异常先检查诊断。严格检查验证本次采集的来源、状态位置、关系与索引一致性，agent 另行核对记录门槛、正文与摘要、真实前序、后继承接和 alignment 依据。首次采集与同步 fresh 的边界见 [CLI 检查与同步](cli-operations.md#检查与同步)。
 
 Git 待提交快照与领域状态分别维护：`stage` 只构造所选正式记录的 pending 内容，commit 与 push 另按授权执行。同步与暂存前提分别见 [CLI 检查与同步](cli-operations.md#检查与同步)和[待提交快照](cli-operations.md#待提交快照)。
+
+## 事务边界与零写动作
+
+普通维护以合法发布索引提供身份、关系、状态和正式引用发现，只读取所选与实际改写正文并验证最终领域图；删除、更名及带删除 evolve 同样遵守局部范围。未选候选不自动维护关系，未来发布时重新验证。全量 check／sync 与内容发现承担各自明确的非局部读取责任，历史门禁只读取可定位的必要对象。提交事实与写后验收见 [CLI 结果与恢复](cli-operations.md#结果与恢复)，真零写 rename、末条删除及候选索引边界见[身份更正与删除](cli-operations.md#身份更正与删除)；失败后的对账与 CAS 范围见[中断写入](maintenance-recovery.md#中断写入)。
