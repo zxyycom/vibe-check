@@ -63,6 +63,11 @@ Scheduler 的当前行为由 runtime、Architecture、API mechanics、
 pending outcome、observer 与 drain 语义后才能激活。若它先激活，应在新的 Scheduler corpus、terminal evidence
 与 timing baseline 冻结前完成，因为这些结果会成为后续比较的新输入。
 
+### 条件复用文档
+
+[`document-reusable-flag-conditions`](../../changes/document-reusable-flag-conditions/proposal.md)按已授权范围补齐现有 flag DSL 的命名与复用指导，不依赖派生 flag 能力。
+本轮与 waiver 结果示例、JSON Schema 前提说明共用文档投影和包验收入口；registry、投影与验收写入串行进行。
+
 ### 等待恢复条件
 
 下列 Change 当前只进行解除恢复条件所需的有界调查：
