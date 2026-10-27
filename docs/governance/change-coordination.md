@@ -63,6 +63,11 @@ Scheduler 的当前行为由 runtime、Architecture、API mechanics、
 pending outcome、observer 与 drain 语义后才能激活。若它先激活，应在新的 Scheduler corpus、terminal evidence
 与 timing baseline 冻结前完成，因为这些结果会成为后续比较的新输入。
 
+### 文档路由修订
+
+[`refine-agent-document-routing`](../../changes/refine-agent-document-routing/proposal.md)已获授权按 AI-ready 审查发现实施局部修订。
+保留现有分层，共享文档 owner 的写入互斥，受管示例与投影串行同步，再做独立语义复核和材料/包验收。
+
 ### 等待恢复条件
 
 下列 Change 当前只进行解除恢复条件所需的有界调查：
@@ -72,7 +77,6 @@ pending outcome、observer 与 drain 语义后才能激活。若它先激活，�
 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 命名 consumer 与 corpus 已明确 source kinds、supported attributes、parser 和本地 target 语义。 |
 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 命名 consumer、安全 input acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据齐备；恢复时重新形成 Plan。 |
 | [`decide-file-metrics-public-scc-expansion`](../../changes/decide-file-metrics-public-scc-expansion/proposal.md) | 出现当前 executable-only contract 无法满足的具体 consumer outcome，再评审独立 public contract。 |
-| [`refine-agent-document-routing`](../../changes/refine-agent-document-routing/proposal.md) | 用户明确恢复后，以代表性任务重新评估 AGENTS、导航和领域 owner 的路由边界。 |
 
 ## Worktree 与合入规则
 
