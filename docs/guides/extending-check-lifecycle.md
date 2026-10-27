@@ -16,11 +16,11 @@
 
 ## 定义 Check
 
-下例同时展示 options 验证、取消、Record、message 和 terminal data。例子的固定输入只为独立运行；接入项目时应以自己拥有的读取或测量逻辑替换它。
+下例包含 Check 定义、一次 Run 和结果读取，同时展示 options 验证、取消、Record、message 和 terminal data。
+固定输入故意产生一个 `failed` Check，示例检查该预期结果，并关闭文件输出和进度呈现；接入项目时应以自己拥有的读取或测量逻辑替换固定输入。
 
 ```ts
-import { defineContextCallback } from "@zxyycom/vibe-check";
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { defineCheck, defineConfig, defineContextCallback, run } from "@zxyycom/vibe-check";
 
 function hasValidLicensePolicyOptions(options: object): boolean {
   const denied: unknown = Reflect.get(options, "denied");
@@ -42,21 +42,43 @@ const licensePolicy = defineCheck({
       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
   },
   omitQuietPassedRow: true,
-  execute: defineContextCallback("check.execute", { contextNeeds: ["records","signal"], callback: (options: { readonly denied: readonly string[] }, { records, signal }) => {
-    if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["records", "signal"],
+    callback: (options: { readonly denied: readonly string[] }, { records, signal }) => {
+      if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
 
-    const deniedCount = options.denied.length;
-    if (deniedCount > 0) {
-      records.report({ id: "denied-license" }, { count: deniedCount });
-      return {
-        status: "failed",
-        data: { deniedCount },
-        messages: [{ level: "warning", code: "denied-license", message: "Denied licenses found." }]
-      };
+      const deniedCount = options.denied.length;
+      if (deniedCount > 0) {
+        records.report({ id: "denied-license" }, { count: deniedCount });
+        return {
+          status: "failed",
+          data: { deniedCount },
+          messages: [{ level: "warning", code: "denied-license", message: "Denied licenses found." }]
+        };
+      }
+      return { status: "passed", data: { deniedCount: 0 } };
     }
-    return { status: "passed", data: { deniedCount: 0 } };
-  } })
+  })
 });
+
+const definition = defineConfig({
+  checks: [licensePolicy],
+  outputs: {
+    diagnosticLogging: { enabled: false },
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
+  }
+});
+
+const result = await run(definition);
+if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
+if (result.aggregate !== "failed") throw new Error("Expected the selected Checks to fail");
+const outcome = result.snapshot.checks.find(
+  ({ checkId }) => checkId === licensePolicy.checkId
+)?.outcome;
+if (outcome?.status !== "failed" || outcome.data.deniedCount !== 1) {
+  throw new Error("License policy did not produce the expected failed outcome");
+}
 ```
 
 ### 省略安静通过行

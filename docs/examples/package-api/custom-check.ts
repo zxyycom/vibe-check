@@ -1,6 +1,5 @@
 // #region package-api-example:custom-check-definition
-import { defineContextCallback } from "@zxyycom/vibe-check";
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { defineCheck, defineConfig, defineContextCallback, run } from "@zxyycom/vibe-check";
 
 function hasValidLicensePolicyOptions(options: object): boolean {
   const denied: unknown = Reflect.get(options, "denied");
@@ -22,22 +21,24 @@ const licensePolicy = defineCheck({
       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
   },
   omitQuietPassedRow: true,
-  execute: defineContextCallback("check.execute", { contextNeeds: ["records","signal"], callback: (options: { readonly denied: readonly string[] }, { records, signal }) => {
-    if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["records", "signal"],
+    callback: (options: { readonly denied: readonly string[] }, { records, signal }) => {
+      if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
 
-    const deniedCount = options.denied.length;
-    if (deniedCount > 0) {
-      records.report({ id: "denied-license" }, { count: deniedCount });
-      return {
-        status: "failed",
-        data: { deniedCount },
-        messages: [{ level: "warning", code: "denied-license", message: "Denied licenses found." }]
-      };
+      const deniedCount = options.denied.length;
+      if (deniedCount > 0) {
+        records.report({ id: "denied-license" }, { count: deniedCount });
+        return {
+          status: "failed",
+          data: { deniedCount },
+          messages: [{ level: "warning", code: "denied-license", message: "Denied licenses found." }]
+        };
+      }
+      return { status: "passed", data: { deniedCount: 0 } };
     }
-    return { status: "passed", data: { deniedCount: 0 } };
-  } })
+  })
 });
-// #endregion package-api-example:custom-check-definition
 
 const definition = defineConfig({
   checks: [licensePolicy],
@@ -48,11 +49,7 @@ const definition = defineConfig({
   }
 });
 
-const result = await run(definition, {
-  // 只接收本次有效、已结算的 Check；这里按领域只把 failed 视为失败。
-  checkAggregation: (checks) =>
-    checks.some((check) => check.outcome.status === "failed") ? "failed" : "passed"
-});
+const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 if (result.aggregate !== "failed") throw new Error("Expected the selected Checks to fail");
 const outcome = result.snapshot.checks.find(
@@ -61,3 +58,4 @@ const outcome = result.snapshot.checks.find(
 if (outcome?.status !== "failed" || outcome.data.deniedCount !== 1) {
   throw new Error("License policy did not produce the expected failed outcome");
 }
+// #endregion package-api-example:custom-check-definition
