@@ -29,7 +29,26 @@ const apiSchema = jsonSchemaValidation({
 
 ## 最小用法
 
-示例保留终端进度，不写 machine files。
+在项目根目录准备以下两个文件。本例使用默认 `require-match` 模式，schema 根 `$id` 与 `schemas[].id` 均为 `urn:example:config`；完整规则见[根身份规则](#schemaidentity-根身份规则)。
+
+`schema/config.json`：
+
+```json
+{
+  "$id": "urn:example:config",
+  "type": "object",
+  "required": ["name"],
+  "properties": { "name": { "type": "string" } }
+}
+```
+
+`config.json`：
+
+```json
+{ "name": "demo" }
+```
+
+从该目录运行下面的 TypeScript。文件路径相对于本次 `projectRoot`，省略它时使用当前运行目录；示例保留终端进度并关闭 machine files。
 
 ```ts
 import { defineConfig, jsonSchemaValidation, run } from "@zxyycom/vibe-check";
