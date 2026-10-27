@@ -9,6 +9,7 @@
     { "id": "run-outputs", "sourcePath": "docs/guides/run-outputs.md", "packagePath": "docs/guides/run-outputs.md" },
     { "id": "check-dependencies", "sourcePath": "docs/guides/check-dependencies.md", "packagePath": "docs/guides/check-dependencies.md" },
     { "id": "learned-scheduling", "sourcePath": "docs/guides/learned-scheduling.md", "packagePath": "docs/guides/learned-scheduling.md" },
+    { "id": "callback-context", "sourcePath": "docs/guides/callback-context.md", "packagePath": "docs/guides/callback-context.md" },
     { "id": "callbacks", "sourcePath": "docs/guides/callbacks.md", "packagePath": "docs/guides/callbacks.md" },
     { "id": "extending-check-lifecycle", "sourcePath": "docs/guides/extending-check-lifecycle.md", "packagePath": "docs/guides/extending-check-lifecycle.md" },
     { "id": "command-check", "sourcePath": "docs/guides/command-check.md", "packagePath": "docs/guides/command-check.md" },

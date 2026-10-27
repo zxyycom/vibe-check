@@ -131,6 +131,7 @@ Check：项目字段成为 Check 声明，领域字段才形成 `.options` 和 e
 - [API 机制](./docs/api-mechanics.md)：Run 生命周期、组合继承、结果与 aggregation。
 - [按 Git 文件变化选择 Check](./docs/guides/selecting-checks-by-git-changes.md)：真实 Git evidence、change flags 与保守回退。
 - [选择回调位置](./docs/guides/callbacks.md)：确定执行前、检查中、显示时或结束后的接入点。
+- [声明 callback context](./docs/guides/callback-context.md)：声明框架字段、类型推导和精确交付。
 - [自定义 Check](./docs/guides/extending-check-lifecycle.md)：options 准备、callback context、Records 与协作取消。
 - [执行外部命令的 Check](./docs/guides/command-check.md)：以单一 executable 和独立 arguments 接入 exit-status command，配置 environment、输出与终态边界。
 - [Check 依赖与类型化数据](./docs/guides/check-dependencies.md)：`dependsOn` / `observes`、读取授权与 provider parser。

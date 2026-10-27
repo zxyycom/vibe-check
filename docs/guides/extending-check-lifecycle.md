@@ -193,7 +193,7 @@ effective selection 和 callback projection。
 
 ## Callback 声明与字段
 
-共同 descriptor、类型推导、验证与精确视图规则见[声明式 callback context](../api-mechanics.md#声明式-callback-context)。
+共同 descriptor、类型推导、验证与精确视图规则见[声明式 callback context](callback-context.md)。
 Check 的 `prepare` 与 `execute` 都以 options 为第一业务参数，普通 function 默认没有框架字段。
 需要字段时使用 `defineContextCallback`；options 是业务输入，signal/project 等框架字段属于 context。
 

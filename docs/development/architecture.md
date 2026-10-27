@@ -49,7 +49,7 @@ Core 通过公共 Check/strategy 协议调用项目注入的能力，与依赖�
 
 共同 callback descriptor、需求 snapshot 与精确投影归现有 Core 数据边界；Check、Scheduler、command 各自拥有合法字段、
 业务参数、生产依赖和失败时点。`defineContextCallback` 是只引用公开类型的可移除 authoring 工具，Core 不依赖它；
-command 仍经普通 Check 协议接入，不增加 callback registry 或 Scheduler I/O 责任。公开规则见[声明式 context](../api-mechanics.md#声明式-callback-context)。
+command 仍经普通 Check 协议接入，不增加 callback registry 或 Scheduler I/O 责任。公开规则见[声明式 context](../guides/callback-context.md)。
 
 共同能力的归属由它维护的不变量决定。工具需要 Core-private 能力时，应先审查真实耦合；只有能力对外部调用方也有
 可用契约时，才在原 Core owner 公开并复用单份实现。复制核心算法、增加私有例外或机械导出私有模块都不能替代边界设计。

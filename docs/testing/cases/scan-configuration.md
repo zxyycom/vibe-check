@@ -304,7 +304,7 @@ Proves:
 
 ## Case API-CONTEXT-CALLBACK-AUTHORING-001: Context declarations preserve phase-selected business callback types
 
-Owner: `docs/api-mechanics.md#声明与类型`
+Owner: `docs/guides/callback-context.md#声明与类型`
 Entities:
 
 - `bun|src/package-tools/context-callback/define-context-callback.test.ts|preserves business input and selected context types across callback phases`

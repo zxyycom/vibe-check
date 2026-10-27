@@ -41,10 +41,11 @@ signal 已取消时，Run 在静态 graph validation 和 Git acquisition 前以 
 | project flags                                                            | caller `RunControls.flags`，以及配置 changes 后的 Product-derived flags | 去重、排序、冻结的唯一 effective set；未配置 changes 时等于 canonical caller flags           | `project.flags`                                                        |
 | project changes                                                          | Definition 的可选 `changes`                                             | 冻结的成功 file evidence 或 unavailable reason；不配置时不运行 Git             | 配置时的 `project.changes`；prepare 与 execute 请求时共享同一 project 值 |
 | Check artifact base                                                      | 仅 `RunControls.checkArtifactBaseDirectory`                             | absolute base 或 `null`，不进入 Definition fingerprint                                    | 当前 Check 的 `artifactDirectory` 或 `null`                            |
-| Gate exact Check base                                                    | Gate 选择 exact absolute `<invocation>/checks/` 后作为同一 control 传入 | Product 直接使用该 base，不创建另一层 invocation directory                                | 当前 Check 仍只见自己的 directory                                      |
 | machine / diagnostic target                                              | Definition defaults 加对应 output override                              | owner-private absolute target；diagnostic 按 owner-channel `RunResult` file readback 投影 | 不可见                                                                 |
 | progress transcript target                                               | 仅 `RunControls.progressLogFile`                                        | current-Run absolute target 或 `null`；terminal 仍为 primary presentation                 | 不可见                                                                 |
 | scheduler history、Check cache、candidate state、external-tool workspace | 各自 owner 的 options / lifecycle                                       | 不属于 invocation path representation                                                     | 不可见                                                                 |
+
+Gate 传入的 exact Check base 由 [Project Gate](../tooling/project-gate.md) 拥有，Product 仍按同一 control 投影。
 
 callback capability 按上表投影；合法字段与精确交付由[Check authoring 指南](../guides/extending-check-lifecycle.md)定义。Check artifactDirectory 从 stable Check ID 确定性派生，采用 bounded filesystem-safe encoding，避免 traversal、component-length 和直接 sanitize collision；raw ID 留在 Check facts。
 

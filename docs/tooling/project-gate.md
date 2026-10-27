@@ -93,11 +93,7 @@ fast 与 changed 使用同一保守输入 region，fast 另外要求资格；cha
 
 `prepared-package-candidate`、Git diff whitespace 在 fast/changed 固定选择；repository material links 在 changed 任意文件变更时选择。changed 的 package artifact、external-consumer provider 与 installed docs/runtime consumer 共用完整 package 输入 region，包含 Product、注册随包材料、构建脚本与依赖配置；不以“只改正文”漏掉真实发布输入。Markdown link validation 在 changed 任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。对应 scope、focused preset 和 `--all` 可不依赖 change flag 强制选择其成员。
 
-Markdown lint 保持完整 corpus 与现有 non-blocking policy；Gate 显式启用 Product 的逐文件 findings 缓存，目录为本地可删除的 `.cache/vibe-check/markdown-lint-findings/`。当前 bytes、选择与终态每次重新核对；冷态可能增加缓存写入成本，缓存命中不是跳过 Check 的依据。
-
-Markdown Link 显式启用[parse-facts cache](../checks/markdown-link-validation.md#parse-facts-cache)，目录为
-`.cache/vibe-check/markdown-link-parse-facts/`。每次仍读取当前源文件、核对内容 identity 并验证链接目标；
-命中只省去重复解析。缓存可能保存链接地址、标题 slug 和位置，由本地维护者管理或删除，默认 16 MiB 容量提醒沿用 Product 配置。
+Markdown lint 与 Markdown Link 保持完整 corpus，并使用各自缓存；具体配置及安全边界见 [Gate repository quality](gate-repository-quality.md#仓库选择范围)。
 
 材料 JSON、Schema、Schema publication 与 machine example Checks 各自按 changed 与其输入 region 选择，也可由对应 scope、materials preset 或 all 强制选择。`markdown-lint` 使用自己的 docs/changes Markdown input，并属于 `quality` preset。schema-publication 的输入包含发布 schema 与 v4 schema source；machine example 的生成读取完整 Product 执行与输出模型，因此它保守覆盖 Product 非测试 `src/**`，但普通 scripts 或无关 docs 不会命中其 region。具体映射由 `runtime/change-regions.ts` 声明；可信零匹配不触发 change 条件，Git unavailable 时 changed 保守执行全部 routine，scoped 仍保持 fast 加指定范围的边界。
 
@@ -190,100 +186,11 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 
 ## Test execution partition
 
-`checks/test-execution/lanes.ts` 将 Test Evidence 已知的 Bun test files 投影为互斥且非空的 execution lanes；每个文件必须恰好属于一个 lane，未知 Product owner 在启动测试前失败。`checks/test-execution/checks.ts` 拥有 lane 到 Check ID、显示名、candidate input、mutex、timeout 与 Gate selection metadata 的闭合对象组；`definition.ts` 显式引用该组并把它放入完整 Gate manifest，避免复制 identity 或执行配置。
-
-测试按证明责任分别结算：package tooling/artifact/installed-consumer、各 Product Check owner 与 Core/package-tools、Project Gate selection 与其余 tooling、admission workbench、Test Evidence、repository layout、package-tools/Core 闭包、machine artifacts、其余 material validation，以及 ordinary scripts。拆分依据是各 lane 的输入和证明义务，不是增加并行度。
-
-仓库扫描的 displayName 明确标记 `Repository scan`，与 `tests-product-*` 功能测试及 `acceptance-installed-package-*` 安装验收区分。Markdown 功能 lane 同时拥有 lint 与 links；Core-and-tools lane 包含 Core 与 package-tools；package-tooling lane 是仓库包工具测试，不是 installed acceptance。Gate 私有 ID 也是本地 learned-history 的 task identity；更名后旧缓存不迁移，历史 workbench fixture 保留形成时 identity。
-
-几项容易混淆的 test lane 各有自己的输入和证明边界：
-
-- **Project Gate selection：** 对 Gate region 数据运行轻量路径矩阵，使用与 Product config-glob 相同的 `micromatch` 完整列表选项；选择规则、Definition、lane registry 或 Product 变更选择机制变化时运行。真实 Git changed-path、rename 和 unavailable fallback 由 Product tests 证明。
-- **Repository layout：** 扫描当前 `src/**` / `scripts/**` 源文件的结构、import 与 package-tools 边界；任何源码变化均选择它。
-- **Package-tools/Core 闭包：** 使用独立 fixture；验证器、共享 fixture、依赖或运行配置变化时选择。
-- **Machine artifacts：** 实际材料、生成器、validator、Product Definition 输入或该 lane 测试文件变化时选择；其测试文件变化不启动其余 material tests。
-
-Product test lanes 的 changed 输入由 `runtime/product-test-regions.ts` 声明，从完整 Product source 与 runner/工具链输入出发，按实际消费者收窄已知私有输入：
-
-| 输入 | 选择边界 |
-| --- | --- |
-| 已知 Check 私有实现、helper、fixture | 选择所属组。file metrics 还消费 JSON validation/document 的实现、helper 和 fixture；Markdown lint 与 links 同组。 |
-| 已知 owner 的 `*.test.ts` 正文 | 选择自身 Product lane 及扫描其正文的组。host-environment/project-files 测试属于 supporting Checks；Core/package-tools 测试正文由 Core-and-tools lane 承接。 |
-| 根导出、Core/runtime、package tools、共用 Check helper、project-files、host-environment 的实现与 helper | 保守选择全部七个 Check 组。 |
-| 尚未分类的新模块，包括测试正文 | 保持共享输入回退，直到确认消费者。 |
-
-function metrics 的 source-identity 审计与行为测试仍在同一 lane。审计读取全部 `src/**` 与 Lizard provenance，因此该组保留完整输入范围。
-
-package tooling、Gate 本体与普通 tooling 三个 routine 脚本组依赖 Product 实现、helper、fixture 和未知 owner 路径；已知 Product 测试正文由其 owning lane 承接。包源码/JSDoc 扫描本身排除测试正文，Gate 读取的完整测试文件清单则由每次启动的 lane 分区校验承接。layout、质量扫描与 Test Evidence 按各自实际的正文输入选择。
-
-维护 region 时同时核对 import 和直接文件读取，并同步新增消费者。路径矩阵验证跨 owner 输入、正文/helper 区别及删除或重命名后的路径；完整 lane 清单验证每个测试文件触发自身。Git evidence 不可用时保守选择，显式 preset 提供强制路径。
-
-各 lane 按[选择参数](#选择参数)进入本次 Run。两组材料测试与 schema/example validators 共享 repository-material mutex；machine drift 测试使用私有材料，隔离与证明分工见[输出维护](../development/output-maintenance.md#package-材料的维护与验证)。快速 candidate contract 属于 package tooling；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
+测试按证明责任划分为互斥、非空 lanes，每个测试文件恰好属于一条；未知 Product owner 在测试启动前失败。各 lane 随 Gate selection 进入 Run，完整分区、输入消费者、region 矩阵和验证见 [Gate test execution](gate-test-execution.md#test-execution-partition)。
 
 ## Direct repository-quality Checks
 
-`checks/repository-quality.ts` 拥有 `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-lint` 与
-`markdown-link-validation` 的 repository-private options，并向 `definition.ts` 返回一个具名对象组。它们是同一 Project Definition 中可逐项审阅和选择的普通 package Checks，没有独立 quality command 或嵌套 Run。
-
-### Finding 与状态
-
-Gate 对 duplicate/file/function/Markdown Link 四项显式使用 `blocking` finding policy：
-
-- 未被 owning Check 既有 waiver 或 selection exclusion 消除的 normal Finding 保留完整 final data / Records，并令 owning Check `failed`。
-- zero Finding 仍令 Check `passed`。
-- external-command、source、parse、内置分析或资源上限 failure 仍结算为 `unavailable`。
-
-安全摘要由 owning Check 有上限地输出，超过摘要上限时只追加精确 omitted count。完整 Finding facts 以 machine Records 为准。
-
-这四项按 changed 输入选择，也属于 `quality` preset，故其未豁免 normal Finding 会由 owning Check 结算为 failed，并通过默认 strict-all aggregate 阻断已选择它们的 invocation；`markdown-link-validation` 还是 `materials` preset 成员，因此同样阻断 `--materials`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private blocking policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
-
-`markdown-lint` 是第五个、独立的 docs/changes Check，按 changed 输入选择，并属于 `materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：lint Finding 以 owning Check 的 Records、消息和 final data 输出，不使 owning Check 或 aggregate failed。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算。
-
-将 `markdown-lint` 改为 blocking 前，须按届时的仓库 Markdown corpus 审查其 Finding 与 rejected input；当前配置保持 non-blocking。
-
-同一 `blocking` policy 适用于 changed、`--all` 和正式 release receipt 验证；它不新增 release-only reducer 或 waiver，既有 waiver/exclusion 仍只由 owning Check 解释。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自 owner 阻断。
-
-### 精确 Finding waiver
-
-**Gate manifest 的函数行数。**
-
-`createProjectGateEntries` 保持一份顺序完整的声明清单，使 Check 顺序、selection metadata 和资源声明可以沿同一阅读路径恢复。该函数的 `function-code-density` Finding 来自清单行数，而非条件分支或失败恢复；把清单拆成组装函数会遮蔽这些关系。
-
-`scripts/project/gate/checks/repository-quality.ts` 为这一 Finding 配置精确 waiver，identity 限定路径、函数名、起始行和指标。`functionMetrics` 仍发布原 Finding Record，并标记为非阻断；其它函数和指标继续按 `blocking` policy 结算。起始行变化或 Finding 消失时，Check 会发布 unused-waiver audit Record 和 warning，维护者据此重审 identity 与理由；该 audit 本身不使 Check 失败。
-
-**单页 Gate 指南的文件行数。**
-
-用户确认将[构建项目 Gate](../guides/building-project-gate.md)保留为单页九场景教程；十个独立受管片段与相邻的适用条件、预期结果和安全边界共同承接阅读路径，不为满足行数门限而压缩代码或删减说明。
-
-`fileMetrics` 只为 `docs/guides/building-project-gate.md` 的 `code-lines` 配置一项精确 waiver，不排除该文件，也不提高全仓阈值。Check 继续发布实际行数、上限与原 Finding，并标记为非阻断；其它文件或指标仍按原 policy 结算。该例外不授权其它长文档自动豁免；后续扩展仍需审查是否保持同一任务边界。
-
-### 仓库选择范围
-
-repository-private scope 只让 TypeScript、current Schemas 和 examples 进入 `duplicate-detection`；Markdown 由 file metrics
-与 Markdown link validation 观察，不进入重复检测。`docs/schemas/historical/**` 不进入 duplicate/file maintainability
-metrics，但仍由显式 documentation contract 严格验证。repository defaults 还排除 `**/archive/**`；这是本项目配置，不是
-package 的公共默认值。
-
-Markdown Link 保留完整的 `docs/**/*.md` / `changes/**/*.md` 正/负选择与既有安全边界；Gate 显式将
-`limits.maxOccurrences` 和 `limits.maxTargetReads` 设为 `false`，不以总量预算阻断增长的完整文档。
-节点观察在本次引用图内复用，每条引用仍独立判断与计数；Product 默认总量预算与单文件字节边界不变。
-关闭总量预算不提供进程级资源隔离，源/目标失败与协作取消仍 unavailable，不降级放行。
-
-三个 metrics Check 的 `product-source` area 具有一个共同排除范围和一项差异：
-
-- **共同排除：** `src/package-checks/function-metrics/analyzer/**` 由 source-aligned port owner 整体维护，不生成 repository duplicate、file 或 function-metric Finding。
-- **Function metrics 额外排除：** Product `*.test.ts` 与 `*.test-support.ts`。这只移除测试函数的复杂度与密度 Finding；duplicate detection 和 file metrics 仍选择这些文件，保留重复代码和超长文件的证据。
-
-配置测试必须同时证明上述差异、共同 analyzer exclusion，以及目录外 Product implementation 仍被三项选择。
-该范围不从 provenance ledger 动态生成，也不改变 package Check 的公共默认 selection。
-
-### 分析器与环境绑定
-
-Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。
-`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。
-
-整目录 metrics 排除不影响 analyzer 的 lint、format、typecheck、source identity、oracle/parity、deviation、provenance/license、
-import-boundary 或行为测试。边界见 [Check-owned scanner dependencies](../development/scanner-dependencies.md)。
+五项直接仓库质量 Check 是同一 Definition 中独立选择和结算的普通 Check。duplicate、file、function 和 Markdown Link 的未豁免 normal Finding 为 blocking，经默认 strict-all aggregate 阻断所选 invocation；Markdown lint 保持 non-blocking。完整 policy、精确 waiver、选择排除和 scanner failure 见 [Gate repository quality](gate-repository-quality.md#direct-repository-quality-checks)。
 
 ## Process evidence
 

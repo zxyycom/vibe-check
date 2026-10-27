@@ -183,7 +183,7 @@ const definition = defineConfig({
 
 **预期结果：** provider 成功后，两项消费者各自运行。把 `totalBytes` 改成 `120_000`，大小检查失败，但文件数量检查仍可通过；它们不共享判决。provider 失败则阻断两项消费者。
 
-本例的 provider 只准备材料，安静通过后无需占一行结果，因此设置 `omitQuietPassedRow: true`。只有 `passed` 且没有 Records/messages 时才省略完成行；有 data 不影响省略，失败或带诊断时仍显示。它仍参与依赖、聚合和完整结果，TTY 中的运行状态也仍可见。需要保留成功行时，省略此字段即可。见[省略安静通过行](./extending-check-lifecycle.md#省略安静通过行)。
+本例的 provider 只准备材料，安静通过后无需占一行结果，因此设置 `omitQuietPassedRow: true`；失败或带诊断时仍显示。完整条件见[省略安静通过行](./extending-check-lifecycle.md#省略安静通过行)。
 
 真实 provider 若创建临时目录，应由资源 owner 在最后一个消费者结束后清理；例如用 Run 外层的 `try/finally` 管理生命周期。破坏性或失败注入测试使用独立材料，避免污染共享只读输入。
 
@@ -350,7 +350,7 @@ if (import.meta.main) await runGate();
 
 上例的日常调用需要 `daily`，改用 `["force"]` 可强制选择三项。schema 文件中的根 `$id` 应为 `urn:example:config`，实例是 `config/app.json`；这是本例显式声明的材料结构。
 
-`changes.flags.*` 的 region 要求提供完整 `patterns` 列表。负规则和正规则使用共同原生 matcher；扫描默认排除只作用于 Check files，不缩减 Git changed paths。显式同步两侧的业务规则，并在需要扫描默认排除目录时设置 `useDefaultExcludes: false`。
+region 与实际文件选择需要显式同步业务规则；需要扫描默认排除目录时设置 `useDefaultExcludes: false`。完整规则见[文件变化选择](./selecting-checks-by-git-changes.md)。
 
 本例约定 `config/scratch/**` 是不被正式实例或 schema 引用的草稿，只检查 JSON 语法，不参与 schema 验收。因此 schema 的变化 region 与实际文件选择都排除它；如果草稿后来成为正式输入，两处都需调整。
 
@@ -703,5 +703,3 @@ const definition = defineConfig({
 2. 写出一组成功与失败对照，再选择 Check、关系和约束。
 3. 只加入这次确实需要的能力。
 4. 运行后核对单项 outcome、aggregate 和调用入口退出码；涉及性能时另做可比较测量。
-
-将各场景的判断顺序用于自己的项目，选择适合当前目标的组合。精确契约由各专题拥有，按节内链接继续阅读。

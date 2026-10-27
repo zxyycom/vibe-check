@@ -70,6 +70,7 @@ type OtherResultByPhase = {
  *
  * @remarks 省略需求、undefined 或 [] 均为空。宽化数组和 union 只保证共同确定字段。
  * Definition、command constructor 或 prepared-result 边界负责验证、复制与固定声明。
+ * @see [声明 callback context](../../../docs/guides/callback-context.md)
  */
 export function defineContextCallback<
   P extends CheckPhase,

@@ -15,7 +15,7 @@
 - `context-callback/define-context-callback.ts` 拥有 `defineContextCallback(...)` 的 phase-specific literal tuple / selected fields
   inference、业务参数和结果贯通，不执行 callback。工具只引用公开契约，Core 不依赖它。
   descriptor snapshot/精确投影归 Core 数据边界；合法字段和运行边界分别由 Check、Definition/Scheduler、command 拥有。
-  公开规则见[声明式 callback context](../api-mechanics.md#声明式-callback-context)，生产需求并集不等同于交付字段并集。
+  公开规则见[声明式 callback context](../guides/callback-context.md)，生产需求并集不等同于交付字段并集。
 - `cache/cache-json-by-key.ts` 拥有 caller-keyed JSON 的本地缓存机制，见[缓存边界](#caller-keyed-cache-boundary)。
 - `finding-waivers/reconciliation.ts` 拥有按调用方语义 identity 对账 Finding waiver 的纯函数，使用公开 Core 数据工具
   规范化和比较身份；Record 发布和 Check outcome 由采用方负责，工具不拥有 Run 或 Gate 生命周期。

@@ -93,7 +93,7 @@ identity/source/closure 不进入。closed validation 拒绝 unknown fields；�
 async/thenable。prepare failure 由 Invocation 在 Scheduler 启动前映射，不是 Definition validation 执行 callback。维护时
 同时核对 helper authoring types、direct-value validation 和 [Scheduler handoff](scheduler.md)。
 
-共同 descriptor grammar 与默认空需求见[公开契约](../api-mechanics.md#声明式-callback-context)。
+共同 descriptor grammar 与默认空需求见[公开契约](../guides/callback-context.md)。
 Definition 使用 Core 数据边界 snapshot 固定 Check prepare/execute、simple decide、strategy prepare 和 Definition terminal effects，
 在任何 author work 前拒绝非法声明。Invocation 在 prepared result 返回后验证并固定 decide/terminalEffect，
 失败映射为 `admission-strategy-preparation-failed`。两个边界均复制、去重、按阶段字段顺序冻结需求，

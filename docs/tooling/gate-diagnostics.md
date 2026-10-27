@@ -11,14 +11,8 @@ Native docs、Decision Records 与 semantic Test Evidence Checks 不创建单进
 它们只把 producing owner 已批准、已排序的 typed safe diagnostics 投影为 Gate native Check 所需的 `{ id, data }`；每项诊断成为一个完整的 Check-local Record。
 
 Gate 不从 Record data 推断 ID、字段、顺序或 presentation，只保留独立的 focused command message。
-Product progress 拥有默认 terminal preview：
-
-- 每个 settled block 最多五条 Record，按该 Check 的 canonical local Record ID 排序。
-- 每条 Record 行显示 local ID 与 canonical JSON data。
-- terminal-control escaping 后，每条最多 240 个 Unicode code points，包含 `… [truncated]` marker。
-- 余项以准确 omitted count 指向完整 Records。
-
-预览不改变 Check data、status、aggregate 或 machine Record set。
+Product progress 沿用默认 Record 预览；展示、排序与截断规则见[公开输出指南](../guides/run-outputs.md)和
+[人读输出实现](../development/human-output.md)。预览不改变 Check data、status、aggregate 或 machine Record set。
 
 native Check 收到空、重复或不安全的 `{ id, data }` diagnostics，或 native operation 抛错时，必须 fail closed 为 `unavailable`。此时不发布 synthetic failed Record，也不创建 transcript。
 

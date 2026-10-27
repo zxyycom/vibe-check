@@ -450,7 +450,7 @@ Entities:
 
 ## Case API-CONTEXT-CALLBACK-SNAPSHOT-001: Static declarations close before precise lazy delivery
 
-Owner: `docs/api-mechanics.md#固定生产与精确交付`
+Owner: `docs/guides/callback-context.md#固定生产与精确交付`
 Entities:
 
 - `bun|src/data-boundary/context-callback.test.ts|snapshots closed static callback demand and delivers exact frozen views without unused reads`

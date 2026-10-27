@@ -29,7 +29,7 @@ Check `prepare` 只对通过选择、依赖与准入的本项运行，preparatio
 所有 Check 完整结算后，Run 才汇总有效 Check；需要最终 RunResult 的代码应留在调用方。
 
 Check prepare/execute、Scheduler prepare/decide/terminal 与 command environment/complete 都接受
-[声明式 callback context](../api-mechanics.md#声明式-callback-context)：业务 input 独立，普通 function 默认零需求，
+[声明式 callback context](callback-context.md)：业务 input 独立，普通 function 默认零需求，
 需要框架字段时用对应 helper 声明；各 phase 的合法字段由其专题定义。回调是受信任宿主代码，声明需求不是 sandbox。
 
 Scheduler terminal effects 按配置顺序逐个 await，之后才交付 prepared strategy 的 terminalEffect；任一失败不阻止后续 effect，

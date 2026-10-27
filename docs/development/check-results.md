@@ -11,13 +11,13 @@ generic scheduler 或 human presentation grammar。
 
 package-private settled Check seam 与冻结快照复用同一 canonical final-data 引用，供运行时依赖读取使用，不建立第二份事实来源。
 
-Session 在构造时从已校验的注册快照建立私有 `checkId → slot` 索引与完整 known-checkId 集合，后续读取和
-reason ownership 校验复用它们；这些集合不对外暴露，也不随 settlement 改变成员。规范排序的 slot 数组继续
-拥有 cancellation closure 与最终 Check facts 的枚举顺序，索引指向同一份 slot 生命周期。
+settlement 保持已校验注册集合的高效身份与 reason ownership 查询，并以稳定 canonical 顺序枚举 cancellation closure
+与最终 Check facts；索引不得形成第二份生命周期或事实来源。
 
 Definition 先 flatten canonical executable catalog，`check-settlement/**` 为每项保存一个 terminal fact。公开[四态与 data grammar](../api-mechanics.md#terminal-resultrecords-与-messages)在这里闭合：passed/failed 必须有 canonical final data；not-applicable/unavailable 不伪造 data。
 
-Scheduler 将 observes 的任意终态与 dependsOn 的 all-passed prerequisite 区分处理。prerequisite-blocked settlement 必须保留 direct non-passed checkIds、null duration，且没有 author work；dependency view 的 string read/list 只从已冻结 facts 读可用 final data，不制造 provider 结果。invocation-private handoff 不写入这些 facts：它只在 accepted passed settlement 后由 execution seam 暂存，供同一 graph 的 direct `dependsOn` `handoff: true` provider-object read 使用。
+Scheduler 区分 `observes` 终态等待与 `dependsOn` passed prerequisite；prerequisite-blocked settlement 保留 direct non-passed checkIds、null duration 且不运行 author work。dependency readback 与不进入 Check facts 的
+invocation-private handoff 由 [Project Run](project-run.md#依赖读取与引用生命周期) 完整拥有。
 
 callback 通过 Check-owned reporter 报告零个或多个 supplemental facts：
 
@@ -54,7 +54,8 @@ aggregation 是 invocation-derived result，不是 Check-facts status 或隐式�
 
 默认折叠只在有效列表非空且全部为 `passed` 时返回 `passed`，其余情况返回 `failed`。提供的 caller-local 同步函数可返回任一四态；它读取完整的 selected `CoreCheck`（包括 passed/failed final data），却不能复制或改写 final data、Records、messages、definition warnings、output statuses、progress presentation 或任何原始 facts。函数错误或非法返回拒绝整个 `run` Promise，而不伪造有 aggregate 的 RunResult。
 
-repository Gate 负责绑定 flags，并从 Product 默认严格 `RunResult.aggregate` 映射 process result。Product 因而从同一次私有选择获得已选 `dependsOn` prerequisite 与 aggregate membership；Gate 只保留 `observes` 的本地 selection-closure 校验。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写 Product Check outcomes。当前 fast/changed/all/focused selection、`resultContributor` hook、transcript 与 exit mapping 只见[脚本工具的 Project Gate](../tooling/project-gate.md)。
+repository Gate 绑定选择并消费 Product aggregate，不重建或改写 Check facts；其选择闭包、resultContributor 与
+exit 映射由 [Project Gate](../tooling/project-gate.md) 拥有。
 
 ## Verification
 

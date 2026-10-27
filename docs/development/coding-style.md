@@ -1,6 +1,6 @@
 # 编码规范
 
-本文拥有通用实现质量和 package 对外说明的中文主叙述规则，供实现者与 reviewer 配合行为 owner、目标代码和相邻测试使用。
+本文拥有通用实现质量规则，供实现者与 reviewer 配合行为 owner、目标代码和相邻测试使用。
 具体产品契约、架构和文档投影流程仍由对应 owner 定义。本文区分阻断性要求、推荐路径与审查信号，不以语法偏好或复杂度数值代替语义判断。
 
 ## 1. 使用顺序与裁决
@@ -10,12 +10,12 @@
 按以下顺序使用本文：
 
 1. 从[文档导航](../navigation.md)选择目标的行为或流程 owner，确认稳定契约、编辑归属和受影响边界。
-2. 修改实现代码时，读取目标代码、相邻类型和测试，恢复当前调用与集成事实；修改 package 对外说明时，读取 [6.4](#64-package-对外说明含显式随包用户-markdown-与任务专题以中文叙述为主) 与[脚本工具](../tooling/documentation.md)。
-3. 对实现代码使用本文选择实现模型、检查局部表达并确定验证层级；对 package 对外说明使用 6.4 判断适用范围、中文主叙述和例外。
+2. 修改实现代码时，读取目标代码、相邻类型和测试，恢复当前调用与集成事实；修改 package 对外说明时，读取并遵守[中文主叙述规则](../tooling/documentation.md#package-对外说明的中文主叙述)和文档流程。
+3. 对实现代码使用本文选择实现模型、检查局部表达并确定验证层级。
 4. 运行与改动相称的行为或文档验证入口；TypeScript、Oxlint 和 Oxfmt 继续只覆盖适用的实现改动。
 
 行为 owner 拥有具体命令行为、输出字段、schema、指标和测试语义；本文拥有实现这些契约时的
-通用代码质量，以及 package 对外说明的语言规则。项目工具配置与脚本 owner 拥有可机械
+通用代码质量；package 对外说明的语言规则由[文档材料](../tooling/documentation.md#package-对外说明的中文主叙述)拥有。项目工具配置与脚本 owner 拥有可机械
 执行的 lint、format、文档投影和验证，当前入口见[脚本工具](../tooling/workspace.md)。行为 owner 与本文发生
 直接冲突时，行为 owner 优先；没有直接冲突的通用质量要求仍然适用。
 
@@ -180,28 +180,8 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 
 ### 6.4 package 对外说明（含显式随包用户 Markdown 与任务专题）以中文叙述为主
 
-本节是项目拥有的 package 对外说明（含显式随包用户 Markdown 与任务专题）的稳定语言规则 owner。修改这类材料或审查其改动时使用本节；产品契约仍由行为 owner 定义，package Markdown/JSDoc 的受管投影与验证机械流程仍由[脚本工具](../tooling/documentation.md)拥有。
-
-#### 适用范围
-
-- 显式随包用户 Markdown：README、API 机制、任务专题、Check 与输出指南；精确发布项见[文档材料](../tooling/documentation.md#documentation-validation-and-package-material)。
-- package entry 说明、public root JSDoc，以及 consumer 为正确使用 public API 必须读取的 supporting declaration 或字段 JSDoc。
-
-#### 判断标准
-
-- 说明以连续、可理解的中文叙述承载用途、正确使用方式和边界。reader 无需依赖另一段英文说明，即可从当前中文叙述恢复这些主要含义。
-- “中文为主”是编辑判断，不按字符比例计算，也不要求逐字翻译或双语镜像。
-- 现有 public-root JSDoc 中文检查只提供局部证据；它不是对全部对外材料的语言门禁，也不应被扩展为全面 gate。
-
-#### 可保留原文与排除范围
-
-- API identifier、代码与 code block、字面量、schema/协议字段、命令、路径、专有名、互操作材料和法律惯例材料可以保留原语言；需要时由周围中文说明其语义和边界。
-- 内部实现注释、历史 provenance/归档材料、机器契约的 Schema/协议字段与数据文件，以及其它不面向 package consumer 的文档不在本节的机械整改范围；人读用法说明不因涉及机器输出而排除。
-
-#### 修改与验收路径
-
-1. 在[脚本工具](../tooling/documentation.md)指定的内容 owner 中修改正文或示例，不把受管投影当作新的说明事实源。
-2. 运行脚本工具 owner 指定的投影与验证；审查时确认范围内说明满足本节判断标准，且没有把该规则误实现为全量字符检测或无差别翻译。
+修改或审查 package 对外说明时，必须遵守[中文主叙述规则](../tooling/documentation.md#package-对外说明的中文主叙述)，
+包括其适用范围、例外与验收。
 
 ## 7. 错误处理与结果模型
 
@@ -303,12 +283,7 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 稳定规则必须由对应 owner 完整表达。代码和验证脚本负责实现或校验规则，示例负责证明语义和
 字段形状；这些消费材料只引用 owner，不建立第二规则来源。
 
-当实现发现规则缺失、冲突或过期时，必须先判断 owner：
-
-1. 行为、失败语义和输出责任回到[文档导航](../navigation.md)指向的行为 owner。
-2. 稳定序列化字段和兼容边界回到对应 schema 或协议 owner。
-3. 测试层级、fixture 和验证入口回到测试策略 owner。
-4. 目录、入口、依赖方向和组件责任回到架构或工具链 owner。
+当实现发现规则缺失、冲突或过期时，必须先通过[文档导航](../navigation.md)确定行为、schema、测试或架构等对应 owner。
 
 ## 11. 验证按风险选择层级
 

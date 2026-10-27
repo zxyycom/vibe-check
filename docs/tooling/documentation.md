@@ -1,6 +1,6 @@
 # 文档与包材料
 
-维护或审查 package 对外说明时，从本文确定编辑位置、开展使用者审查并核对实际包材料。本文拥有审查方法；各专题仍拥有行为契约。实现校验器时另见[仓库材料验证](repository-material-validation.md)。
+维护或审查 package 对外说明时，从本文确定编辑位置、开展使用者审查并核对实际包材料。本文拥有中文主叙述规则与审查方法；各专题仍拥有行为契约。实现校验器时另见[仓库材料验证](repository-material-validation.md)。
 
 ## 修改文档与示例
 
@@ -33,6 +33,31 @@ README、API 专题与 Check 指南都发布 checked-in Markdown。文件映射�
 
 新增、移动或改变发布项时，还需同步核对导航、README 和发布清单，并通过 package material / consumer 验收。
 [文档导航](../navigation.md#读者发布范围与规则归属)映射读者和规则责任，不决定发布范围。
+
+## package 对外说明的中文主叙述
+
+本节是项目拥有、直接服务 package consumer 的人读说明的稳定语言规则 owner。修改或审查这些材料时必须适用；
+产品契约仍由行为 owner 定义，受管投影和验证按本文执行。
+
+### 适用范围
+
+- 显式随包用户 Markdown：README、API 机制、任务专题、Check 与输出指南；精确发布项见[文档材料](#documentation-validation-and-package-material)。
+- package entry 说明、public root JSDoc，以及 consumer 为正确使用 public API 必须读取的 supporting declaration 或字段 JSDoc。
+
+### 判断标准
+
+- 说明以连续、可理解的中文叙述承载用途、正确使用方式和边界。reader 无需依赖另一段英文说明，即可从当前中文叙述恢复这些主要含义。
+- “中文为主”是编辑判断，不按字符比例计算，也不要求逐字翻译或双语镜像。
+- 现有 public-root JSDoc 中文检查只提供局部证据；它不是对全部对外材料的语言门禁，也不应被扩展为全面 gate。
+
+### 可保留原文与排除范围
+
+- API identifier、代码与 code block、字面量、schema/协议字段、命令、路径、专有名、互操作材料和法律惯例材料可以保留原语言；需要时由周围中文说明其语义和边界。
+- 内部实现注释、历史 provenance/归档材料、机器契约的 Schema/协议字段与数据文件，以及其它不面向 package consumer 的文档不在本节的机械整改范围；人读用法说明不因涉及机器输出而排除。
+
+### 修改与验收路径
+
+按[修改与验证步骤](#修改与验证步骤)处理正文、示例和投影；审查时确认适用材料满足本节判断标准，且未把语言规则误实现为全量字符检测或无差别翻译。
 
 ## 对外文档使用者审查
 

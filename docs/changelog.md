@@ -39,7 +39,7 @@ terminal effect 在 sealed terminal boundary 交付，零需求 effect 到达该
 运行项目类型检查及实际安装包的 TS/JS consumer，并执行代表性 Run，特别核对旧 closure 的隐式字段读取；
 TypeScript 无法发现全部 JavaScript/closure 依赖。顺序、取消、direct dependency/artifact 权限、终态失败优先级和旧快照隔离保持。
 需要恢复旧版本时，同时恢复旧包和匹配的调用方代码/声明；不要把新 helper/签名与旧包混用。
-完整规则见[共同声明](./api-mechanics.md#声明式-callback-context)、[Check](./guides/extending-check-lifecycle.md)、
+完整规则见[共同声明](./guides/callback-context.md)、[Check](./guides/extending-check-lifecycle.md)、
 [Scheduler](./guides/scheduling.md)与[command](./guides/command-check.md)。
 
 ### 文件收集范围迁移

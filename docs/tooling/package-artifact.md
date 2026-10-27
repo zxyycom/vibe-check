@@ -68,7 +68,7 @@ artifact audit 在 pack 前验证根入口、公开运行时导出、可解析�
 
 每次 ESM 范围提取或 Worker URL 处理只解析当前原文一次，语法诊断与结构遍历复用该 AST；诊断阶段只检查语法。
 exact public surface 由最终产物证明：declaration export graph 与独立 type 清单精确比对，runtime 在 ancestry-external Node runner 中比较真实 namespace keys 与独立 runtime 清单。source 侧证明 API authoring/default 行为与唯一相邻 JSDoc owner。
-公开声明验收按文件收集相邻中文 JSDoc，再完整核验公开清单；语言要求由[编码规范](../development/coding-style.md#64-package-对外说明含显式随包用户-markdown-与任务专题以中文叙述为主)拥有。
+公开声明验收按文件收集相邻中文 JSDoc，再完整核验公开清单；语言要求由[文档材料](documentation.md#package-对外说明的中文主叙述)拥有。
 
 真实安装验收从 exact tarball 在 ancestry-external consumer 中运行受支持 Node，观察 Markdown Link 实际 `.mjs` Worker
 加载、成功与协作取消后的退出，并保留 function-metrics Worker 的分析验收。源码/Bun 测试、路径模拟或 staging audit

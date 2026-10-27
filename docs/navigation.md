@@ -22,6 +22,7 @@
 | [按 Git 文件变化选择 Check](guides/selecting-checks-by-git-changes.md) | 真实 Git evidence、change flags 与保守选择。 |
 | [Core 数据工具](guides/data-boundaries.md) | JSON 规范化副本与确定性序列化；另提供可保留回调和嵌套引用的外层结构快照。 |
 | [回调位置](guides/callbacks.md) | 按任务选扩展点；具体契约引用对应专题。 |
+| [声明 callback context](guides/callback-context.md) | 共同 descriptor、类型推导、固定与精确交付。 |
 | [自定义 Check](guides/extending-check-lifecycle.md) | `prepare`/`execute` authoring、callback context、flags 与协作取消。 |
 | [执行外部命令的 Check](guides/command-check.md) | `commandCheck` 的 input、environment/output policy、terminal mapping 与安全边界。 |
 | [依赖与类型化数据](guides/check-dependencies.md) | direct relations、get/list 授权、typed provider 与 parser。 |
@@ -79,13 +80,13 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | Git 提交、hook 与自动推送 | [Git hook 边界](tooling/workspace.md#local-post-commit-auto-push)：提交前核对启用状态；普通 commit 授权可能包含限域 push，不得仅为避免 push 绕过，例外见完整规则。 |
 | 环境自举、检查或破坏性 clear | [环境与 Git hook](tooling/workspace-environment.md#environment-setup-and-destructive-boundary)：clear 丢弃目标 worktree 改动须明确授权。 |
 | compiler、依赖兼容或 package-tools layout gate | [工具链与依赖边界](tooling/workspace-dependencies.md)。 |
-| Gate selection、candidate binding、resultContributor、exit | [Project Gate](tooling/project-gate.md)、[性能预算](tooling/gate-performance.md)与 adapter tests |
+| Gate selection、candidate binding、resultContributor、exit | [Project Gate](tooling/project-gate.md)、[测试执行分区](tooling/gate-test-execution.md)、[仓库质量配置](tooling/gate-repository-quality.md)、[性能预算](tooling/gate-performance.md)与 adapter tests |
 | Gate native/process diagnostics、Record 投影 | [Gate diagnostics](tooling/gate-diagnostics.md)与各 producing owner tests |
 | 本地候选包状态、准备、安装与 external consumer | [Package lifecycle](tooling/package-lifecycle.md)与 candidate / consumer acceptance |
 | package 构建、manifest、ESM 布局与随包法律材料 | [Package artifact](tooling/package-artifact.md)与 artifact acceptance |
 | 正式发布、冻结 source、receipt 与发布后交接 | [Package release](tooling/package-release.md)、必需的[对外文档复核](tooling/package-release.md#发布前对外文档复核)与同产物完整 Gate |
 | translated source inventory、identity 与派生 pin | [来源映射维护](tooling/source-mapping.md)与 source identity audit |
-| 随包 Markdown 正文、Check 指南、可执行示例 | [Documentation](tooling/documentation.md)、目标正文与示例源 |
+| 随包 Markdown 正文、Check 指南、可执行示例 | [Documentation](tooling/documentation.md)（含强制适用的中文主叙述规则）、目标正文与示例源 |
 | AGENTS、导航或内部 owner 文档 | [开发者文档维护](governance/knowledge-maintenance.md#开发者文档的维护方式)、目标 owner；领域规则在 owner 完整定义，入口维护任务与引用。 |
 | 从包使用者视角审查文档与对外 JSDoc | [对外文档使用者审查](tooling/documentation.md#对外文档使用者审查)：实际包范围、阅读任务与完成条件 |
 | 示例投影器、repository-material 校验器或材料验收 | [Repository material validation](tooling/repository-material-validation.md)、provider/validator 与测试 |

@@ -126,7 +126,7 @@ if (executionOrder.join(",") !== "publish,compile") {
 ### 声明 callback 的 context 需求
 
 simple `decide`、prepared `prepare`、返回的 `decide` / `terminalEffect` 和 `scheduler.terminalEffects[]`
-均接受[共同 callback 声明](../api-mechanics.md#声明式-callback-context)。普通 function 或省略 needs 都是零需求；
+均接受[共同 callback 声明](callback-context.md)。普通 function 或省略 needs 都是零需求；
 需要字段时用 `defineContextCallback(phase, descriptor)`。
 
 | helper phase | 可声明的完整顶层字段 |
@@ -135,7 +135,7 @@ simple `decide`、prepared `prepare`、返回的 `decide` / `terminalEffect` 和
 | `scheduler.decide` | `graph`、`admissionState`、`candidates`、`capacity`、`activeScopeIds`、`runningTaskIds`、`settledTaskIds`、`cumulative`、`actionHistory`、`runtime` |
 | `scheduler.terminal` | `graph`、`execution`、`runMeasurement`、`taskTimings` |
 
-descriptor 的 TypeScript 推导、调用和宽化边界见[共同类型规则](../api-mechanics.md#声明与类型)。Definition 在 author work 前固定 simple/prepare/Definition effects；prepared 返回的 decide/effect 在 Scheduler 启动前固定，非法结果形成 `admission-strategy-preparation-failed`。每个 callback 只取得自己声明的字段；原声明后续 mutation 不影响本 Run。没有需求不妨碍 terminal 调用，未 seal 的早期失败不调用 effects。
+descriptor 的 TypeScript 推导、调用和宽化边界见[共同类型规则](callback-context.md#声明与类型)。Definition 在 author work 前固定 simple/prepare/Definition effects；prepared 返回的 decide/effect 在 Scheduler 启动前固定，非法结果形成 `admission-strategy-preparation-failed`。每个 callback 只取得自己声明的字段；原声明后续 mutation 不影响本 Run。没有需求不妨碍 terminal 调用，未 seal 的早期失败不调用 effects。
 
 按实际消费选择字段：当前候选和取消状态可声明 `candidates`、`runtime`；累计统计请求 `cumulative`，观察前缀增加 `actionHistory`；终态汇总与逐 Task 数据分别请求 `runMeasurement`、`taskTimings`。不请求 timing 且无诊断义务时不采集额外 measurement clock；需求不改变准入 hard guards、取消或错误规则。
 

@@ -61,7 +61,7 @@ command 由 executable 和独立 arguments 表示，不是 shell string、pipeli
 
 ## Callback 声明与输入
 
-两个扩展点接受[共同 descriptor](../api-mechanics.md#声明式-callback-context)，普通 function、缺省/undefined needs 或 []
+两个扩展点接受[共同 descriptor](callback-context.md)，普通 function、缺省/undefined needs 或 []
 均为零需求。TypeScript 需要框架字段时使用 `defineContextCallback`，其 phase 与字段如下：
 
 | helper phase | 第一业务参数 | 可声明的完整顶层字段 |
