@@ -30,7 +30,7 @@ relations: []
 
 ## 决策
 
-下文 required 与 `repository-material` 保存形成时的选择机制，后续由[逐 Check 输入决策](select-gate-check-specific-change-regions.md)及[Gate 义务分层决策](separate-routine-release-and-explicit-gate-selection.md)承接。
+下文 required 与 `repository-material` 保存形成时的选择机制，后续由[逐 Check 输入决策](select-gate-check-specific-change-regions.md)及[Gate 义务分层决策](archive/separate-routine-release-and-explicit-gate-selection.md)承接。
 “不在首次接入时改变 cache”限定本轮变更，不是永久禁止缓存；现行缓存边界从[Markdown lint owner](../checks/markdown-lint.md#逐文件-findings-缓存)读取。
 本记录保留完整 corpus 与 advisory 的采用主旨，原样本数量和耗时仅说明形成时证据。
 

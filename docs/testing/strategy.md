@@ -46,43 +46,26 @@ module 共同契约的测试保留在拥有该契约的最近父 owner；专属 
 `docs/testing/cases/**` 连接当前行为承诺与直接测试。每个 Case 按 owner 契约和可观察结果划分，
 命名当前 owner、Bun entity 与可证伪的 `Proves`；存储、粒度、修改和全树闭合规则由[测试证据维护](case-maintenance.md)完整定义。
 
-新增、删除、重命名、移动测试节点，修改测试正文或 Case Owner / Proves 前后，均运行：
+仅修改断言或输入、测试身份与映射未变时，重读相关 Case 和行为 owner，运行目标测试即可，不默认加载全树。
+新增、删除、重命名、移动测试实体，或修改 Case、owner 引用、runner profile、发现/身份规则时，修改后运行完整账本闭合：
 
 ```bash
 bun run test-evidence -- check --root .
 ```
 
-该命令加载完整清单并注册测试，核对 static/JUnit identity 与 Case 映射，但**不执行测试正文**。
-还需运行最窄目标测试，或由 Gate 对应 behavior Check 执行。provider setup 的执行复用不产生新的测试目的或 Case。
+该命令加载完整清单并注册测试，核对 static/JUnit identity 与 Case 映射，但**不执行测试正文**。需要区分既有阻断时可先运行起点检查，不把前后各跑一次作为固定步骤。
+还需运行最窄目标测试，或由 Gate 对应 behavior Check 执行；定向证据不证明全树闭合。provider setup 的执行复用不产生新的测试目的或 Case。
 
 Scheduler 的 scripted-clock、queue/delay/tail、history 和资源核算证明要求见[调度器验证边界](../development/scheduler.md#验证边界)。
 这些域特定要求不改变通用 Case 粒度，也不扩张 Check/Record/machine/progress/RunResult 契约。
 
 ## 验证入口
 
-文档、schema、example 或 Case 改动按[交付验证](../navigation.md#交付验证)运行材料校验与 Test Evidence；后者还核对 Case 的 owner 引用：
+验证以本次任务的改动和真实依赖为范围，按[交付验证](../navigation.md#交付验证)选择入口。普通文档和身份未变的测试正文改动不自动运行 Test Evidence；触及实体、Case 或其引用时按上方[Case 账本](#case-账本)完成闭合。
 
-```bash
-bun run validate
-bun run test-evidence -- check --root .
-```
+产品或 scripts 改动先运行最窄 Bun test，再按证据需要补相应 owner 的 typecheck/lint。需要 Gate 快速反馈时默认运行 `bun run check`；额外验证优先选目标测试或相关 preset，不因跨 owner、交付阶段或他人的大量改动自动扩大到 changed/all。
 
-产品或 scripts 改动先运行最窄 Bun test，再按 owner 运行 typecheck/lint。Project Gate 将 Test Evidence entity
-closure 与按稳定 owner 分区的 behavior execution 分别结算。默认 fast 只提供快速工程反馈；`--test` 强制执行 routine
-测试 lanes，package artifact 与 installed acceptance 由相应验收入口承接。精确选择、保守回退与性能策略由
-[Project Gate](../tooling/project-gate.md#selection-presets-and-scheduling)拥有。
-
-跨 owner、Gate 或 output contract 的日常交付运行：
-
-```bash
-bun run check -- --changed
-```
-
-涉及 package artifact、candidate 或 installed docs/runtime 时显式运行 complete routine Gate：
-
-```bash
-bun run check -- --all
-```
+Project Gate 将 Test Evidence entity closure 与 behavior execution 分别结算；`--test` 强制执行全部 routine 测试 lanes，不是本任务目标测试的默认入口。package artifact 与 installed acceptance 按实际受影响边界选择，要求真实安装证明时不能以源码测试冒充。精确选择、保守回退与性能策略由 [Project Gate](../tooling/project-gate.md#selection-presets-and-scheduling)拥有。
 
 发布验收使用 `bun run package:release:verify -- --receipt <path>`，将包含 types 的完整验收绑定到同一正式 tarball；不以日常 all 成功替代。未选择的 types/workbench 仍保留完整实体与 Case 映射。
 

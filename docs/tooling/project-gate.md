@@ -27,8 +27,8 @@ selection 参数包含 `--changed`、`--all`，以及 focused presets：`--typec
 | 调用 | 用途与选择 |
 | --- | --- |
 | `bun run check` | 默认 fast：快速工程反馈，仅选择有 fast 资格且受输入变化影响的 Check，加上固定 provider/whitespace。 |
-| `bun run check -- --changed` | 交付前的受影响验收：按完整输入 region 选择全部相关 routine 行为、质量、材料与 artifact / installed docs/runtime acceptance。 |
-| `bun run check -- --all` | 日常完整验收：不依赖变更命中选择全部 routine Checks，保留大范围变更与选择规则兜底。 |
+| `bun run check -- --changed` | 工作区整体受影响验收：按完整输入 region 选择全部相关 routine 行为、质量、材料与 artifact / installed docs/runtime acceptance；不识别任务归属。 |
+| `bun run check -- --all` | 显式完整 routine 验收：不依赖变更命中选择全部 routine Checks，用于需要整体证据的任务及选择规则兜底。 |
 | `bun run check -- --all --release-receipt <path>` | 同一正式 tarball 的完整发布验收：routine 全集加 installed consumer types，不选 workbench。 |
 | `bun run check -- --test` | 强制执行全部 routine test lanes；不含 package artifact、installed acceptance 或 workbench。 |
 | `bun run check -- --consumer-types` | 明确的 installed types 诊断，依赖传播带入 external consumer 与 prepared candidate provider。 |
@@ -49,7 +49,7 @@ Gate 私有 manifest 的 `selectionPolicy` 定义自动选择的范围：
 
 fast 资格固定为 Product/scripts 两 scope 的 typecheck 与 lint、format、prepared candidate、Project Gate selection 与 package-tools/Core 闭包两条现有测试 lane，以及 Git diff whitespace。其中 candidate 与 whitespace 固定选择，其余按各自输入 region；资格来自明确工程职责，不从单次运行快慢自动推断。全仓指标扫描、完整 Markdown 引用图、Case 审计、其余 routine 行为测试与安装后 docs/runtime 由 changed/all 承接。
 
-**fast 通过仅表示快速反馈通过。** 需要 Gate 交付验收时运行 changed，大范围变更运行 all，发布走正式 receipt+all；局部改动的最低验证由[交付验证](../navigation.md#交付验证)路由。启动摘要区分反馈档位和验收范围。focused preset 只选择相应闭合集，不替代完整验收。
+**fast 通过仅表示快速反馈通过。** 日常任务优先按本次改动选择定向证据，何时扩到 changed/all 由[交付验证](../navigation.md#交付验证)定义，不因进入交付阶段自动升级。当前 preset 按类别选择且可组合，不提供任意 Check ID 或任务归属 selector；过宽时优先使用 owner 的最窄独立入口。启动摘要区分反馈档位和验收范围；定向通过不替代明确要求的完整验收，发布仍走正式 receipt+all。
 
 #### 依赖选择与关系闭合
 

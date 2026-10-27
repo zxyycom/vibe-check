@@ -74,7 +74,7 @@ exact public surface 由最终产物证明：declaration export graph 与独立 
 加载、成功与协作取消后的退出，并保留 function-metrics Worker 的分析验收。源码/Bun 测试、路径模拟或 staging audit
 不能替代这项安装证据；未执行的平台或 Node 版本不因路径检查通过而成为已验证环境。
 
-文档内容与随包范围由[文档材料 registries](documentation.md#documentation-validation-and-package-material)拥有，不由 artifact audit 另建清单。修改 artifact 后先运行相邻测试，再用 `bun run check -- --all` 验证同一产物及 installed consumer。
+文档内容与随包范围由[文档材料 registries](documentation.md#documentation-validation-and-package-material)拥有，不由 artifact audit 另建清单。修改 artifact 时先运行相邻目标测试，再按本次实际影响补足同一产物及 installed consumer 的真实证据；不因触及 package 路径自动运行 all。定向入口不能覆盖所需证据时，按[交付验证](../navigation.md#交付验证)说明原因后扩大；正式发布仍执行同一 receipt 的完整验收。
 
 ### 分支测试与真实验收的分工
 

@@ -33,7 +33,7 @@ relations:
 
 ## 决策
 
-下文 required 属于形成时的选择层；后续[Gate 义务分层决策](separate-routine-release-and-explicit-gate-selection.md)与[Gate owner](../tooling/project-gate.md#selection-presets-and-scheduling)区分 fast、changed 与 all，不能由原“无条件 required”推断今日默认 fast 成员。
+下文 required 属于形成时的选择层；后续[Gate 义务分层决策](archive/separate-routine-release-and-explicit-gate-selection.md)与[Gate owner](../tooling/project-gate.md#selection-presets-and-scheduling)区分 fast、changed 与 all，不能由原“无条件 required”推断今日默认 fast 成员。
 本记录保留逐 Check 真实输入、共享依赖保守闭合及不可用 Git evidence 回退的方向。
 
 - 采用: required 的材料、Markdown lint、质量扫描和 ast-grep rule tests 分别声明由 owner 的实际 corpus、实现入口和已知生成依赖确定的 change region。材料 Check 不再共用 `repository-material`，质量扫描不再共用 `quality-input`；共用的 project-files、data-boundary、Check/runtime 与脚本 helper 等依赖仍须保守纳入每个受影响的 region。

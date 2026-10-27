@@ -153,8 +153,8 @@ owner 或删除。
 
 | 改动范围                                    | 验证入口                                                                   |
 | ------------------------------------------- | -------------------------------------------------------------------------- |
-| 本文档、标题、路径或文档路由                | `bun run validate -- materials`                                                 |
+| 本文档、标题、路径或文档路由                | 按实际影响选择材料 task；链接/标题变化用 `bun run validate -- materials links`，纯措辞可只检查局部 diff 与语义。 |
 | Investigation Report 正文、资源、关系或索引 | `bun run investigations`                                                   |
 | Decision Markdown、生命周期、关系或索引     | `bun run decisions -- check`                                               |
 | Change Plan                                 | `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证 |
-| 同时改变多个工作流边界                      | `bun run check -- --changed`                                               |
+| 同时改变多个工作流边界                      | 按[交付验证](../navigation.md#交付验证)选择本次任务相关的目标检查，不自动升级 changed/all。 |

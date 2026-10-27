@@ -344,18 +344,18 @@
       "260914-use-prepare-and-execute-check-authoring-names": "sha256:0f3293e5dc7478c4db11e93322219fa5b099491539cc185f1bd12f7988635ade",
       "260915-default-effective-check-aggregation-with-caller-local-callback": "sha256:dc4e2803c9516d6f2e47e9268eb639f3cab2d33279ab24b45540dbc5f5ae2149",
       "260915-delegate-project-gate-direct-presets-to-effective-selection": "sha256:5876ce30b377811c0563e54ae6103e322694a3a1f60c242ac2b8c9b2f7bc1853",
-      "260915-keep-package-quality-advisory-with-default-gate-aggregation": "sha256:ac6a3072e8b48d3b8f6672572f241c9ebc18798f3dabdea6c5dfd22b13809063",
+      "260915-keep-package-quality-advisory-with-default-gate-aggregation": "sha256:752d7355d9194f70909237aa042dd279ccc41fbd00344cd7b07513ffed296464",
       "260915-provide-bounded-markdown-lint-check": "sha256:700f5bbe6be74423a5781b3bfedb16a58dec9f5fd8ee2be77c1e4e4b6053e2ea",
       "260915-retain-on-demand-project-file-collection": "sha256:6b4b8e5e4233944ad689f36033ef38a24cf4662dbac970cf089140bc59b41463",
       "260920-configure-package-checks-through-constructor-options": "sha256:98167993bf37d3d93dfb0de6330f88d6c7d4472683e48d2b781390d4d3a2067e",
       "260920-extend-command-check-with-caller-owned-completion": "sha256:522781a71f7c071be0f32b93e092a2f453f548544933702ea5987c104749c575",
-      "260922-adopt-project-gate-markdown-lint-advisory": "sha256:e603cdf97f3b77745c2c2f11d1761899bce6a3b5b98caeb8b148f46e8d198594",
+      "260922-adopt-project-gate-markdown-lint-advisory": "sha256:4cf1b1f862aa82a0fd4e030cc2207020739cf1df04c2525480e9c0c4f45aee8b",
       "260922-adopt-repository-material-change-selection": "sha256:2c56fcdab6ad40f827e67a3eab6e14258fc2d7a68c111671512ab622bf85d8e0",
       "260922-migrate-project-gate-process-checks-to-command-check": "sha256:19ed22eaeecb23a01ea52e1e512e294131038dc320c2352174a0f998f851cd11",
       "260922-reorganize-project-gate-material-selection": "sha256:8c19b8122abe9504a213d9dcf93e20d674cc3d4b2025b37a9ad9c104f892a6c1",
       "260923-enforce-manual-local-project-gate-time-budget": "sha256:bdf311b3158dc80053f119cebf74fde6741fd940598f03d8cde10fe80ed489b4",
       "260923-select-project-gate-required-checks-by-change": "sha256:995b9181f86dc8fbf1d4c2e8ff5be5be80e0cb891c7bc71fd14017a8a420b5f0",
-      "260924-select-gate-check-specific-change-regions": "sha256:1df111052ec9bce460659901356e79126a457caa1db39ff38154aa393e0078d9",
+      "260924-select-gate-check-specific-change-regions": "sha256:c90450529200f11e728e54f08a0a050272c465e2bc18e6001943b71a67924ff5",
       "260926-apply-gate-time-budgets-without-fingerprint-gating": "sha256:31e6a05b26021fa7426472c8cee9bbc05052ef0d5c2c611a55f5301004d3493c",
       "260926-warn-on-gate-and-check-duration-budgets": "sha256:6cb82ffa76aa9c7dfc70234450e8a599c095d8cf9c4584a85d405d6eb5fc08b6",
       "261010-collect-project-files-only-from-filesystem": "sha256:798ac657af424176995737ecfbd50a56a3d26b409daa581295fd9561103d541c",
@@ -381,8 +381,9 @@
       "261022-tier-gate-validation": "sha256:b9f02e2f076ec25348e7e57ef8e9d2d0c5cdb7806a632ebf97c776680cb0fa54",
       "261022-version-gate-performance-policy": "sha256:f096d45f47817e3bfe14063f3083516183f0a55af088d4da05e310c812fe6313",
       "261024-reuse-exact-candidate-across-gate-acceptance": "sha256:2cadd5f1c7656489e1e28f4c94bd3defcc2944cfe4c5a507525188c48f84c02e",
-      "261024-separate-routine-release-and-explicit-gate-selection": "sha256:d3d9b324f5c840ac83aa67d3495f819c1894537fd68f5e8b3a24088c122fde89",
-      "261026-maintain-distinct-project-skills-with-test-design": "sha256:706042e677a897b44705a0028a7accaf8f0d00ed23105311cb2907d57b45cb59"
+      "261024-separate-routine-release-and-explicit-gate-selection": "sha256:4f7616fa32ae6c8ae529edc903e78eabdba8e84522e94d499cdd7b01d62749fb",
+      "261026-maintain-distinct-project-skills-with-test-design": "sha256:706042e677a897b44705a0028a7accaf8f0d00ed23105311cb2907d57b45cb59",
+      "261027-prefer-task-owned-targeted-validation": "sha256:966daae77ef848a19fdd1803f8920dd8c7ef3bae98183361bd79389c57fa6800"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -8803,9 +8804,9 @@
     },
     "261024-separate-routine-release-and-explicit-gate-selection": {
       "name": "separate-routine-release-and-explicit-gate-selection",
-      "sourcePath": "separate-routine-release-and-explicit-gate-selection.md",
+      "sourcePath": "archive/separate-routine-release-and-explicit-gate-selection.md",
       "title": "分离日常、发布与显式 Gate 义务",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-10-24T04:05:40Z",
       "purpose": "让日常完整验收与发布、手动诊断各自具有明确范围",
@@ -8848,6 +8849,31 @@
           "type": "修订",
           "target": "260812-keep-seven-distinct-project-skills",
           "summary": "保留独立职责边界并纳入测试设计"
+        }
+      ]
+    },
+    "261027-prefer-task-owned-targeted-validation": {
+      "name": "prefer-task-owned-targeted-validation",
+      "sourcePath": "261027-prefer-task-owned-targeted-validation.md",
+      "title": "按任务归属优先定向验证并保留快速默认",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-10-27T03:51:25Z",
+      "purpose": "让日常任务只取得自身改动及真实依赖所需的验证证据",
+      "background": "交付自动升级和共享工作区的大量他人改动导致过度执行Gate",
+      "decision": "默认fast按需反馈，补证据先选相关目标，整体与发布验收显式升级",
+      "tags": [
+        "change-selection",
+        "gate-selection",
+        "project-gate",
+        "testing",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261024-separate-routine-release-and-explicit-gate-selection",
+          "summary": "保留选择机制与发布义务，改为按任务归属选择日常验证"
         }
       ]
     }

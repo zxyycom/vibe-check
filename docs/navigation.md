@@ -116,19 +116,26 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 
 ## 交付验证
 
-先选最窄覆盖边界的命令，跨边界再升级；同一改动命中多行时叠加验证，相同命令只需运行一次：
+验证按**本次任务的改动归属及真实依赖**选择，不按整个工作区的 diff 大小选择。日常任务按以下顺序取得所需证据：
+
+1. 先检查自己的局部 diff；需要 Gate 快速反馈时默认运行 `bun run check`，不把运行 Gate 作为每次编辑的固定步骤。
+2. 对本次确实受影响的行为或材料，优先使用最窄目标测试、owner 独立命令；已有 focused preset 与所需范围吻合时再选用。下表是入口，不是每次交付必须叠加的清单；已有证据覆盖同一边界时不重复运行。
+3. 其他任务的大量改动不扩大本任务的验证义务。共享代码或配置确实影响本任务时纳入依赖边界；命令无法隔离或遇到范围外失败时说明影响，不擅自清理他人改动或扩展修复。
+4. `--changed` 用于明确需要工作区整体受影响验收的任务；`--all` 用于明确要求的完整 routine 验收，或已有证据表明定向检查不足以覆盖的整体回归风险。调用前说明需要补足的证据，不因跨文件、跨 owner、交付阶段或他人改动自动升级。正式发布仍执行同一 receipt 的完整验收。
 
 | 改动面 | 验证入口 |
 | --- | --- |
-| 文档、schema 或 examples | `bun run validate`，并运行 `bun run test-evidence -- check --root .`；局部材料可先运行 `bun run validate -- materials` |
-| 仅 whitespace 的其它文件 | `bun run validate`；若还触及其它行，叠加其验证 |
+| 文档正文、标题或链接 | 按实际变更选择 `bun run validate -- materials links`、`bun run docs:api`；纯措辞且未改链接/投影时可只检查局部 diff 并语义复核，不默认运行全量材料或 Test Evidence。影响 Case owner 引用时按账本行处理。 |
+| schema、JSON 或 examples | 选择相关 `bun run validate -- materials <task>` 与目标示例执行；task 入口见 Workspace tooling，不自动带入其它材料任务。 |
+| 仅 whitespace | `git diff --check -- <本次路径>`；不因 whitespace 运行整个 Gate。 |
 | Decision | `bun run decisions -- check` |
 | Change | `bun run change-plan -- check changes/<change>` |
 | Investigation | `bun run investigations` |
-| 测试或 Case | 最窄目标测试，再运行 `bun run test-evidence -- check --root .`；Case 文档同时适用文档行 |
-| 产品或脚本 | owner 的 test、typecheck、lint、dependency 与入口检查 |
-| 跨产品行为、Change、schema、示例、输出或多个包 | `bun run check -- --changed`；默认 `bun run check` 仅提供快速反馈，不代替交付验收 |
-| 大范围重构或 package 交付 | `bun run check -- --all`，包含 artifact / installed docs/runtime；types 兼容诊断显式 `--consumer-types` |
+| 测试、Case 或其身份/映射 | 先运行最窄目标测试并审查相关 Case；仅断言/输入变化不默认加载全树，实体、Case/owner 引用或发现规则变化按[测试策略](testing/strategy.md#case-账本)运行完整 Test Evidence。 |
+| 产品或脚本 | 先运行受影响 owner 的最窄测试，再按证据需要补相应 scope 的 typecheck、lint、dependency 或入口检查；不默认执行全部测试 lanes。 |
+| package 构建、公开声明或安装后行为 | 按实际受影响边界选择 artifact、installed docs/runtime 或 `--consumer-types` 证据；定向证据不足时说明原因再扩大，不因修改随包正文自动运行完整 Gate。 |
+| 明确的整体集成或完整 routine 验收 | 分别选择 `bun run check -- --changed` 或 `bun run check -- --all`；前者按整个 Git snapshot 选取，均不识别改动归属。 |
 | 正式发布前 | `bun run package:release:verify -- --receipt <path>`，同一正式 tarball 的 all + types 完整发布验收 |
 
+默认 fast 和定向检查分别只证明实际覆盖的范围，不能表述成完整 Gate 或发布验收通过。当前 Gate 没有任意 Check ID selector；preset 过宽时优先使用 owner 已有的最窄入口，不编造参数。
 报告实际执行、未执行项及影响；工具细分命令见[Workspace verification](tooling/workspace.md#verification)。

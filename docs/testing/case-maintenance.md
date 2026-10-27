@@ -97,13 +97,13 @@ Gate 拥有 membership、provider dependency、tag 与 scheduling。正文即使
 
 ## 修改流程
 
-测试新增、正文修改、删除、rename/move、split/merge，或 runner profile、静态规则、JUnit report、身份归一变化时：
+测试新增、正文修改、删除、rename/move、split/merge，或 Case、owner 引用、runner profile、静态规则、JUnit report、身份归一变化时：
 
 1. 从[导航](../navigation.md#如何阅读这些文档)读取策略、行为 owner 和本文，需要时读评审 skill。
-2. 先运行完整 `check`；既有阻断须按事实源定位，不归因于本次 diff。
+2. 判断本次是否改变实体身份、Case/映射或发现规则。仅断言/输入变化且身份与映射保持时，采用相关 Case 查询和目标测试；需定位既有阻断或专门审计起点完整性时才先运行完整 `check`。
 3. 用 `topics`、有界 `list`、`show` 定位 Case；按实体使用 `list --entity-key`。
 4. 写清“owner 承诺 → 可观察结果”，再复用、修改或新增 Case；只有出现稳定新查询分类才扩展 topic。
-5. 修改测试与映射，运行最窄目标测试，再运行完整 `check` 和范围匹配的 workspace verification。
+5. 修改测试与必要映射，运行最窄目标测试；触及实体、Case/owner 引用、runner profile 或发现/身份规则时，再运行完整 `check`。正文局部变化不自动触发全树闭合，命令一旦选用仍按完整当前面检查，不用 Git diff 缩小其内部范围；既有阻断按事实源定位，不归因于本次 diff。
 
 结构变化按语义连续性处理：
 
@@ -145,5 +145,5 @@ bun run test-evidence -- check --root .
 
 ## 交付审计
 
-确认全树闭合、Case 目的与真实断言一致、结构变化保持语义连续，且最窄行为测试与范围匹配的 Gate 通过。
+确认 Case 目的与真实断言一致、结构变化保持语义连续，且目标行为测试与必要的定向验证通过；触及身份、映射等闭合边界时另确认全树检查通过。只完成局部审查时明确全局完整性未证明，不要求每次再跑 Gate。
 账本不增加 Entry、Contract、Status、marker、committed inventory/index 或兼容双读；机械通过不能代替语义审查。

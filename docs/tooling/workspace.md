@@ -164,14 +164,14 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 
 来源映射维护使用 `bun run source-mapping [-- check | sync]`，由 `scripts/package/legal-materials/source-mapping.ts` 拥有；默认只读检查，写入边界见[来源映射维护](source-mapping.md#检查与同步)。
 
-`bun run check` 默认 fast，提供快速工程反馈。需要 Gate 交付验收时执行 `bun run check -- --changed`，大范围变更执行 `--all`，发布使用同一正式 receipt 的 all 验收；局部改动按[交付验证](../navigation.md#交付验证)选择入口。focused preset 可组合并替换默认选择；`--changed`、`--all` 各自独占选择。精确清单、保守回退与性能阻断由 [Project Gate](project-gate.md#selection-presets-and-scheduling) 拥有。`.codex/environments/*.toml` 也直接调用正式名称。scope、action 和子命令作为同一 workflow 的参数传入，不为内部 owner 建立同义 root alias。
+`bun run check` 默认 fast，提供快速工程反馈；补充验证按[交付验证](../navigation.md#交付验证)优先选择本次任务相关的最窄入口，不因工作区变更量自动运行 changed/all。focused preset 可组合并替换默认选择；`--changed`、`--all` 各自独占选择，也不识别任务归属。精确清单、保守回退与性能阻断由 [Project Gate](project-gate.md#selection-presets-and-scheduling) 拥有。`.codex/environments/*.toml` 也直接调用正式名称。scope、action 和子命令作为同一 workflow 的参数传入，不为内部 owner 建立同义 root alias。
 
 ## Development tooling
 
 根目录 `.oxlintrc.json` 是可机械执行的 TypeScript lint rule set 的唯一 owner，`.oxfmtrc.json` 拥有 format 选项，`scripts/development/format-targets.ts` 拥有显式 format target。
 
 `bun run test` 只运行 Product 的 `src/**` 测试，不覆盖 scripts 测试。
-需要按证明责任运行 Product 与 scripts 的 routine 测试 lanes 时，使用 `bun run check -- --test`；日常完整验收使用 `bun run check -- --all`。consumer types 与 workbench 的明确入口及发布选择见 [Project Gate](project-gate.md#选择参数)。
+本次只涉及局部行为时优先使用 `bun test <目标文件或目录>`。明确需要全部 Product 与 scripts routine 测试 lanes 时才使用 `bun run check -- --test`；它不是单个 Check 的 selector。consumer types、完整 routine 与 workbench 的入口及发布选择见 [Project Gate](project-gate.md#选择参数)。
 
 `lint.ts` 与 `typecheck.ts` 只拥有 `product` / `scripts` scope 到路径或 tsconfig 的映射。根 `tsconfig.json` 是 Product 与 scripts 共享的 source compiler profile：`strict`、`noUncheckedIndexedAccess`、`exactOptionalPropertyTypes`、`noImplicitOverride`、`noImplicitReturns` 与 `allowUnreachableCode: false`；`tsconfig.product.json` 只继承该 profile 并定义 Product roots/cache。因 artifact emit 使用 `--ignoreConfig`，它在自己的 CLI 中镜像这六项实现语义；这是[产物契约](package-artifact.md#构建输入与包接口边界)的同步义务，不是第二份 source profile。external-consumer 的 types fixture 则以自己的严格 profile 验收 installed declarations；其范围与不继承的 implementation-only 规则见[候选包安装与外部使用方验收](package-lifecycle.md#候选包安装与外部使用方验收)。
 
@@ -268,21 +268,10 @@ Product Check 的 scanner command、availability command 和 unavailable behavio
 
 ## Verification
 
-修改脚本 owner 时，先运行其最窄 test 或 command，再按影响范围运行：
-
-```bash
-bun run typecheck -- scripts
-bun run lint -- scripts
-bun run validate -- materials
-bun run test-evidence -- check --root .
-```
-
-日常用默认 fast 获取快速反馈；涉及 Gate 或多个 owner 的交付至少运行 changed，涉及 package artifact、candidate、外部 consumer 或大范围变更时运行完整 all：
+修改脚本 owner 时，先运行其最窄 test 或 command，再按本次真实影响选择必要的补充入口，例如相应 scope 的 typecheck/lint、某一材料 task 或发生实体/Case 变化时的 Test Evidence。以下默认 Gate 仅用于需要的快速反馈，不是每次交付的固定前置：
 
 ```bash
 bun run check
-bun run check -- --changed
-bun run check -- --all
 ```
 
-报告实际运行的检查及未运行项。
+扩到 changed/all 的条件统一见[交付验证](../navigation.md#交付验证)，不以其它任务的 diff 作为扩大依据。正式发布保留同一 receipt 的完整验收；报告实际运行的检查及未运行项。
