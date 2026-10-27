@@ -28,7 +28,7 @@ export interface RunControls {
   /**
    * 本次 Run 的非空普通 caller tokens；Product 去重排序后用于 selection 与 callback project context。
    * 禁止传入保留的 `vibe-check:change:` 前缀；change flags 由 Product 根据 Git evidence 派生。
-   * @see [按文件变化选择 Check](../../../docs/api-mechanics.md#按文件变化选择-check)
+   * @see [按文件变化选择 Check](../../../docs/guides/selecting-checks-by-git-changes.md#按文件变化选择-check)
    */
   readonly flags?: readonly string[];
   /** 项目相对输入与 output target 的解析根；省略时使用调用进程的当前工作目录。 */

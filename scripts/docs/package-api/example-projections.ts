@@ -95,7 +95,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/project-changes.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "api-mechanics",
+        documentId: "selecting-checks-by-git-changes",
         headingPath: Object.freeze(["按文件变化选择 Check"]),
         kind: "markdown"
       })

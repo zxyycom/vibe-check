@@ -7,27 +7,6 @@
 运行宿主须允许创建 `node:worker_threads` Worker。Check 在首次需要本地路径或正文 I/O 时惰性启动一个私有 Worker，
 并在本次调用结束前关闭它；禁止 Worker 的宿主不受支持，创建失败不会回退到主线程 I/O。
 
-## 构造器项目声明
-
-`markdownLinkValidation` 有三类 overload：
-`markdownLinkValidation(options?: MarkdownLinkValidationOptions<"markdown-link-validation">)` 保留默认 literal；
-`markdownLinkValidation<Id>(options: MarkdownLinkValidationOptions<Id> & { checkId: Id })` 保留 custom literal；
-已宽化为 `MarkdownLinkValidationOptions` 的变量返回 `string` identity。默认 `checkId` 是 `markdown-link-validation`，默认 `displayName` 是 `Markdown link validation`；`files`、
-`findingPolicy`、target policy、`cache` 与 `limits` 仍是本 Check 的领域 options。
-
-例如，让文档链接检查观察生成文档并使用独立 identity：
-
-```ts
-const docsLinks = markdownLinkValidation({
-  checkId: "documentation-links",
-  observes: ["generate-docs"],
-  files: { patterns: ["docs/**/*.md"] }
-});
-```
-
-返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的业务 options 参数；
-完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
-
 ## 最小用法
 
 示例保留终端进度，不写 machine files。
@@ -52,6 +31,24 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 示例显式使用 `findingPolicy: "blocking"`，让普通链接 Finding 导致失败；默认 `non-blocking` 只警告，不因 Finding 退出非零。
 
 本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。多个有效 Check 的调用级结论可读取默认严格 `aggregate`；需要不同领域解释时，提供同步 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation) 函数。`run(...)` 返回本身不表示通过。
+
+## 构造器项目声明
+
+默认 `checkId` 是 `markdown-link-validation`，默认 `displayName` 是 `Markdown link validation`；`files`、
+`findingPolicy`、target policy、`cache` 与 `limits` 仍是本 Check 的领域 options。
+
+例如，让文档链接检查观察生成文档并使用独立 identity：
+
+```ts
+const docsLinks = markdownLinkValidation({
+  checkId: "documentation-links",
+  observes: ["generate-docs"],
+  files: { patterns: ["docs/**/*.md"] }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的业务 options 参数；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
 
 ## 参数与默认配置
 
@@ -153,7 +150,7 @@ const cachedLinks = markdownLinkValidation({
 
 每次 invocation 至多提醒一次，沿普通 Check messages 输出，不加入 Findings、Records、final data 或计数，也不改变
 terminal status 或 finding policy。missing/read-failed cache 不提醒；已成功读到的超阈值无效内容仍可提醒并按原规则 fresh-parse。
-容量判断只使用该次已读 bytes，不额外扫描、stat 或读取。未用到 cache（关闭、无输入、首个 parse 前错误/取消或源 bytes
+容量判断只使用该次已读 bytes。未用到 cache（关闭、无输入、首个 parse 前错误/取消或源 bytes
 非 UTF-8）不访问 cache 文件，也不提醒。read 返回时已经取消不提醒；已产生的提醒随后续正常返回的
 `unavailable` result 保留，原错误优先级不变。
 
@@ -166,40 +163,17 @@ publication 开始前取消不会启动写入；append 开始后会等待完成�
 Check 先验证 options，按本页 suffix 规则完整分类 selected paths，为 rejected paths 发布 Records，再解析 accepted sources。
 对 file、directory 与 GitHub-priority heading anchor 按 policy 做 bounded validation；每个普通链接 Finding 另发 Record。
 
-### 执行阶段与节点观察
+### 执行阶段、计费与首错
 
-一次 invocation 建立私有引用图，依次完成：
+Check 先读取全部选中的 Markdown 并登记 occurrences，再分类目的地、按首次引用顺序观察目标，最后按 source / occurrence 顺序判断每条引用。一次 invocation 内相同授权域的目标首次观察固定，包括缺失和目录结果；后续替换或创建留到下次观察，不构成全文件系统原子快照。纯目标的链接不扩展 source selection；不同逻辑别名与授权域独立观察。每条引用仍有独立位置、Finding 和计数。
 
-1. 完整读取全部所选 Markdown，解析并累计 occurrences。
-2. 独立分类每条目的地，建立引用边并聚合目标需求。
-3. 按首次引用顺序取得各目标节点所需事实。
-4. 按 source / occurrence 顺序逐边判断，完成末次取消检查后发布普通链接 Records 与 final data。
+`targetReadCount` 与 `maxTargetReads` 按进入 direct endpoint validation 的 logical occurrence 计费，即使复用目标事实也计费，不等于 physical read 或 syscall 数量；同文档、远程、外部 ignore/report 不计 target work。节点的计费引用整批预检，超限时不读取该节点额外内容，也不继续后续节点。occurrence 预算在源阶段登记时检查。
 
-源与目标角色可重叠，同一授权域内已加载的源事实无需再次作为目标读取；纯目标的链接不扩展 source selection。
-节点身份由归一化逻辑路径和授权域组成，不同逻辑别名各自观察；显式 absolute / root-external validate 与 root-contained 分域。
-
-同一节点首次取得的事实固定，包括缺失和目录单 entry 结果；本次后续替换或创建不会重查，下次 invocation 才观察新状态。
-这不是全文件系统原子快照。每条引用仍保留独立位置、Finding 和计数，不因共享节点而合并错误。
-
-### 预算计费与失败顺序
-
-`targetReadCount` 与 `maxTargetReads` 仍按进入 direct endpoint validation 的 logical occurrence 计费，包含节点事实复用，
-不等于 physical read 或 syscall 数量；同文档、远程、外部 ignore/report 不计 target work。
-必要授权分类/containment probe 后、读取额外正文或目录 entry 前，节点全部计费边整批预检；超限不读取该节点额外内容，
-也不继续后续节点。occurrence 预算在源阶段登记引用时检查。
-
-多故障首错顺序固定为 options / root / 输入分类 → 全部源读取及 occurrence 预算 → 目的地分类与建图 →
-按首次引用顺序的目标观察及节点批次预算 → 逐边结算。取消在每个检查点优先；因此较晚源错误可能先于较早引用的目标错误，
-节点批次预算也可能先于该节点的内容错误。授权、读取、解码或解析失败立即 unavailable，不形成部分正常结果。
+多故障首错顺序为 options / root / 输入分类 → 全部源读取及 occurrence 预算 → 目的地分类 → 按首次引用顺序的目标观察及节点批次预算 → 逐引用结算。取消在检查点优先；较晚源错误可能先于较早引用的目标错误，节点批次预算也可能先于该节点内容错误。授权、读取、解码或解析失败立即 unavailable，不形成部分正常结果。
 
 ### 协作取消与完整发布
 
-阶段边界、每个源/目标节点完成后、每 256 条边处理后，以真实事件循环让步检查 timer / I/O 触发的协作取消。
-节点 I/O 串行；Worker 在 native filesystem 操作前后检查共享取消标记，已进入的系统调用须等待返回。
-同步单文档解析仍受单文件 bytes 边界保护，不提供抢占式实时取消或固定取消延迟保证。
-取消时等待在途工作尝试关闭文件并退出 Worker，不强杀在途读取。
-普通链接 Records 的完整发布区间不插入让步；Worker 与 cache 收束、最后取消检查完成前，不发布普通链接 Records 或 final data。
-已有 traversal unavailable 保留首错；只有收束失败时返回 `target-unavailable`，不发布原本的普通成功或 Finding 结果。
+执行过程中协作检查取消，不提供抢占式实时取消或固定延迟保证；已进入的系统调用须等待返回。取消时等待在途工作尝试关闭文件并退出，不强杀在途读取。收束与最后取消检查完成前，不发布普通链接 Records 或 final data；普通链接 Records 完整发布。已有 traversal unavailable 保留首错；只有收束失败时返回 `target-unavailable`，不发布原本的普通成功或 Finding 结果。
 
 ### 识别的引用
 

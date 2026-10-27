@@ -54,7 +54,7 @@ export default defineConfig({
 
 ## 自定义准入 policy
 
-声明对应字段的 `decide` 读取 frozen 的 graph、候选和 immutable `admissionState`，只返回 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`。Scheduler 独占 readiness、mutex、容量、Task 启动与结算；策略只能提出 proposal，不能保证 proposal 会被接受。
+声明对应字段的 `decide` 读取 frozen 的 graph、候选和 immutable `admissionState`，只返回 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`。Scheduler 独占 readiness、mutex、容量、Task 启动与结算；策略只能提出 proposal，不能保证 proposal 会被接受。下面两个独立 Check 同时 ready，且只有一个槽位；policy 优先选择静态优先级较低的 `publish`，因此观察到 `publish,compile`。实际有依赖的工作仍须声明关系，policy 不能绕过它。
 
 ```ts
 import { defineContextCallback, defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
@@ -71,9 +71,8 @@ const compile = defineCheck({
 });
 
 const publish = defineCheck({
-  admissionPriority: 10,
+  admissionPriority: -10,
   checkId: "publish",
-  dependsOn: [compile.checkId],
   displayName: "Publish",
   execute() {
     executionOrder.push("publish");
@@ -90,7 +89,7 @@ const preferPublish = defineAdmissionPolicy({
       const publishCandidate = context.candidates.find(
         (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
       );
-      if (publishTask?.admissionPriority === 10 && publishCandidate !== undefined) {
+      if (publishTask?.admissionPriority === -10 && publishCandidate !== undefined) {
         return { kind: "select", taskId: publishCandidate.taskId };
       }
 
@@ -117,7 +116,7 @@ const definition = defineConfig({
 
 const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
-if (executionOrder.join(",") !== "compile,publish") {
+if (executionOrder.join(",") !== "publish,compile") {
   throw new Error(`Unexpected execution order: ${executionOrder.join(",")}`);
 }
 ```
@@ -136,31 +135,9 @@ simple `decide`、prepared `prepare`、返回的 `decide` / `terminalEffect` 和
 | `scheduler.decide` | `graph`、`admissionState`、`candidates`、`capacity`、`activeScopeIds`、`runningTaskIds`、`settledTaskIds`、`cumulative`、`actionHistory`、`runtime` |
 | `scheduler.terminal` | `graph`、`execution`、`runMeasurement`、`taskTimings` |
 
-#### TypeScript 编写与槽位消费
+descriptor 的 TypeScript 推导、调用和宽化边界见[共同类型规则](../api-mechanics.md#声明与类型)。Definition 在 author work 前固定 simple/prepare/Definition effects；prepared 返回的 decide/effect 在 Scheduler 启动前固定，非法结果形成 `admission-strategy-preparation-failed`。每个 callback 只取得自己声明的字段；原声明后续 mutation 不影响本 Run。没有需求不妨碍 terminal 调用，未 seal 的早期失败不调用 effects。
 
-helper 保留阶段参数、结果和 literal needs 的只读字段推导；具体 descriptor 直接调用 `.callback(context)`。
-广义 function/descriptor 槽位须先收窄；直接调用须自行提供符合类型的 context，不自动构造 Scheduler 能力。
-`createLearnedCriticalPathStrategy` 返回具体 descriptor callbacks，按其类型提供 context 后调用 `.callback`。
-宽化/union needs 与 raw descriptor 的安全边界见[共同类型规则](../api-mechanics.md#声明与类型)。
-
-#### 运行时验证与精确视图
-
-Definition 在 author work 前验证和固定 simple/prepare/Definition effects；prepared 返回后的 decide/effect 在
-Scheduler 启动前固定，非法结果形成 `admission-strategy-preparation-failed`。原声明后续 mutation 不影响本 Run。
-所有需求及内部执行/诊断义务只合并为生产配置，**每个 callback 仅含自身声明字段**。
-外层冻结，不保证不同 consumers 的 identity 相同；同 Run graph 与同 boundary 的不可变底层事实可以共享。
-没有需求不影响 terminal 调用；未 seal 的早期失败仍不调用 effects。
-
-#### 选择需求与采集成本
-
-- 只需当前候选和取消状态时，decision 声明 `["candidates", "runtime"]`；只需累计统计请求 `cumulative`，需要观察前缀才增加 `actionHistory`。
-- terminal 按任务请求 `graph` / `execution`、Run 汇总 `runMeasurement` 或逐 Task 的 `taskTimings`；没有字段也可保留 effect 的副作用。
-- 仅 `cumulative` 不维护 action history、逐 Task delay/chronology；仅 `taskTimings` 不维护 history、Run tail 或无人消费的 aggregate DTO。
-  只有真实生产依赖才共享中间量，不先 full 再裁剪。
-- 无 timing 需求且无诊断义务时不创建 timing collector、不读额外 measurement clock；terminal 仍正常交付。
-  已启用 diagnostics 保持其自身完整证据，但不为此无条件维护无人使用的 action history。
-
-需求只改变可选事实生产；selection proposal、准入 hard guards、取消和错误规则仍完整执行。
+按实际消费选择字段：当前候选和取消状态可声明 `candidates`、`runtime`；累计统计请求 `cumulative`，观察前缀增加 `actionHistory`；终态汇总与逐 Task 数据分别请求 `runMeasurement`、`taskTimings`。不请求 timing 且无诊断义务时不采集额外 measurement clock；需求不改变准入 hard guards、取消或错误规则。
 
 ### 在线选择时读取 observation prefix
 
@@ -200,12 +177,16 @@ import {
 } from "@zxyycom/vibe-check";
 
 let settledTaskCount: number | null = null;
+const executionOrder: string[] = [];
 
 function scheduledCheck(checkId: string) {
   return defineCheck({
     checkId,
     displayName: checkId,
-    execute: () => ({ status: "passed" as const, data: {} })
+    execute: () => {
+      executionOrder.push(checkId);
+      return { status: "passed" as const, data: {} };
+    }
   });
 }
 
@@ -252,11 +233,11 @@ const definition = defineConfig({
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   },
-  scheduler: { admissionPolicy: strategy }
+  scheduler: { admissionPolicy: strategy, maxParallel: 1 }
 });
 
 const result = await run(definition);
-if (result.kind !== "completed" || settledTaskCount !== 2) {
+if (result.kind !== "completed" || settledTaskCount !== 2 || executionOrder.join(",") !== "second,first") {
   throw new Error("Expected a completed Run and terminal execution facts for both Checks");
 }
 ```

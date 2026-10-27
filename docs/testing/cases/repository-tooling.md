@@ -2,7 +2,7 @@
 
 ## Case AUX-TYPESCRIPT-TOOLCHAIN-001: Stable native compiler coexists with the retained TS6 API
 
-Owner: `docs/tooling/workspace.md#typescript-工具链`
+Owner: `docs/tooling/workspace-dependencies.md#typescript-工具链`
 Entities:
 
 - `bun|scripts/package/compiler-toolchain.test.ts|stable native compiler and compatibility API retain distinct installed entrypoints`

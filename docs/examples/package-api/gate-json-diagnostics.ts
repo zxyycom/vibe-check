@@ -1,12 +1,11 @@
 import { assertConfigurationDiagnostics } from "../package-api-support/gate-example-acceptance.ts";
 
 // #region package-api-example:gate-json-diagnostics
-import { defineContextCallback } from "@zxyycom/vibe-check";
 import {
   commandCheck,
   defineConfig,
-  type CheckResult,
-  type AfterCommandContext
+  defineContextCallback,
+  type CheckResult
 } from "@zxyycom/vibe-check";
 
 type DiagnosticData = { exitCode: number; diagnosticsAvailable?: boolean };

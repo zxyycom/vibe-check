@@ -1,7 +1,7 @@
 /**
  * 已配置的 project change preparation 产生的 Git 文件证据。
  * 按 `ok` 分支判断证据是否可用；失败时全部声明的 change flags 保守地参与选择，Check 获选本身不证明 Git 命中。
- * @see [按文件变化选择 Check](../../docs/api-mechanics.md#按文件变化选择-check)
+ * @see [按文件变化选择 Check](../../docs/guides/selecting-checks-by-git-changes.md#按文件变化选择-check)
  */
 export type ProjectChanges = Readonly<
   | {

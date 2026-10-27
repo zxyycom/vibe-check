@@ -541,12 +541,11 @@ const definition = defineConfig({
 假设现有工具约定每行输出 `config/app.json:<行号>: MISSING_NAME`，退出 `0` 表示通过，普通非零退出表示检查失败。下面固定输出一行模拟它，按[公共运行约定](#运行本页示例)执行；替换成真实命令时，parser 也要遵循真实协议。
 
 ```ts
-import { defineContextCallback } from "@zxyycom/vibe-check";
 import {
   commandCheck,
   defineConfig,
-  type CheckResult,
-  type AfterCommandContext
+  defineContextCallback,
+  type CheckResult
 } from "@zxyycom/vibe-check";
 
 type DiagnosticData = { exitCode: number; diagnosticsAvailable?: boolean };
@@ -610,12 +609,11 @@ const definition = defineConfig({
 另一个工具输出 `{ errors: [...] }`，使用 `filename`、`location.row` 和工具错误码 `CFG001`；项目则需要 `path`、`line` 和 `missing-name`。先验证源结构，再做字段、错误码和公开范围的转换，而不是把 JSON 原样塞进 Record。此片段独立使用[公共运行约定](#运行本页示例)。
 
 ```ts
-import { defineContextCallback } from "@zxyycom/vibe-check";
 import {
   commandCheck,
   defineConfig,
-  type CheckResult,
-  type AfterCommandContext
+  defineContextCallback,
+  type CheckResult
 } from "@zxyycom/vibe-check";
 
 type DiagnosticData = { exitCode: number; diagnosticsAvailable?: boolean };

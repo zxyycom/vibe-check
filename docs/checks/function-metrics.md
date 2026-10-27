@@ -5,26 +5,6 @@
 `functionMetrics` 是普通 Check，评估每个函数的 NLOC、cyclomatic complexity（CCN）、最大 nesting depth 与 parameter count。
 它使用以 TypeScript 实现的随包 analyzer 分析多种语言；可选文件的语言与 suffix 范围见[支持的源文件](#支持的源文件)，并非只分析 TypeScript。
 
-## 构造器项目声明
-
-`functionMetrics` 有三类 overload：`functionMetrics(options?: FunctionMetricsOptions<"function-metrics">)`
-保留默认 literal；`functionMetrics<Id>(options: FunctionMetricsOptions<Id> & { checkId: Id })` 保留 custom literal；
-已宽化为 `FunctionMetricsOptions` 的变量返回 `string` identity。默认 `checkId` 是 `function-metrics`，默认 `displayName` 是 `Function metrics`；`codeAreas`、
-`findingPolicy` 与 `findingWaivers` 仍是本 Check 的领域 options。
-
-例如，按关系等待生成步骤后执行一个独立的函数指标实例：
-
-```ts
-const generatedFunctionMetrics = functionMetrics({
-  checkId: "generated-function-metrics",
-  dependsOn: ["generate-sources"],
-  codeAreas: { generated: { files: { patterns: ["generated/**/*.ts"], useDefaultExcludes: false } } }
-});
-```
-
-返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的业务 options 参数；
-完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
-
 ## 最小用法
 
 示例保留终端进度，不写 machine files。
@@ -49,6 +29,24 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 示例显式使用 `findingPolicy: "blocking"`，让未豁免的普通 Finding 导致失败；默认 `non-blocking` 只警告，不因 Finding 退出非零。
 
 本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。多个有效 Check 的调用级结论可读取默认严格 `aggregate`；需要不同领域解释时，提供同步 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation) 函数。`run(...)` 返回本身不表示通过。
+
+## 构造器项目声明
+
+默认 `checkId` 是 `function-metrics`，默认 `displayName` 是 `Function metrics`；`codeAreas`、
+`findingPolicy` 与 `findingWaivers` 仍是本 Check 的领域 options。
+
+例如，按关系等待生成步骤后执行一个独立的函数指标实例：
+
+```ts
+const generatedFunctionMetrics = functionMetrics({
+  checkId: "generated-function-metrics",
+  dependsOn: ["generate-sources"],
+  codeAreas: { generated: { files: { patterns: ["generated/**/*.ts"], useDefaultExcludes: false } } }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的业务 options 参数；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
 
 ## 参数与默认配置
 

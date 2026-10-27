@@ -18,11 +18,7 @@ function analyzer 的唯一目录外生产入口是 `analyzer/port-facade.ts`，
 
 translated core/readers/shared/extensions 以 source fidelity 为先；手写 façade、adapter、Worker、Check/tests 仍按普通项目规则。façade 的 host-only reader-resolution seam 供 capability/analysis 共用，保持 registry selection、unsupported-input boundary 与 root provenance/source identity；未覆盖输入交由 source-aligned registry。所有 internals 仍私有，不形成 public plugin、可替换 backend 或 command protocol。
 
-shared tokenizer 对独立 addition 分支采用私有尾部成本防护：普通输入保持原生迭代，
-风险输入仅在完整 source 游标进入确定不能闭合的注释或固定 TS/TSX 模板尾部时惰性省略对应分支。
-完整 token、factory、模板拆分及 Worker 取消契约保持；该机制不是语法判定或任意 malformed 的线性保证。
-采用取舍见[局部决策](../decisions/bound-unclosable-tokenizer-tail-cost.md)，精确资格、来源同步与持续测试由
-[当前偏差说明](../../src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/source-alignment-deviations.md#私有-tokenizer-的不可闭合尾部成本防护)拥有。
+shared tokenizer 的私有不可闭合尾部成本防护不改变完整 token 或 Worker 取消契约，也不保证任意 malformed 输入的线性成本。采用取舍见[局部决策](../decisions/bound-unclosable-tokenizer-tail-cost.md)，精确资格、来源同步与测试由[当前偏差说明](../../src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/source-alignment-deviations.md#私有-tokenizer-的不可闭合尾部成本防护)拥有。
 
 ## Product-private process capability
 
@@ -153,14 +149,4 @@ Product runtime 与 package payload 只使用随包材料，不以归档、临�
 
 ### TypeScript 函数指标的有界偏差
 
-共享 `CodeStateMachine.consume` 在完成时先释放旧 callback 槽，再以原 receiver 调用一次；
-重入 token replay 安装的新槽保留，`lastToken`/`toExit` 生命周期不变，继续使用单 callback 槽。
-TypeScript-local addition 单 token 识别 `??`，可选标识符规则不吞其首个问号；TSX 的独立 addition 同步。
-TypeScript `logicalOperators` 由现有 `conditionCounter`/`complextags` 提供每 token CCN +1 和真实 source-order line。
-JavaScript、TSX/JSX、Vue 的继承影响属于同一偏差；其他 reader 不获得新的操作符计量。
-
-`lizardnd` 仅为 `logicalOperators` 已声明 `??` 的 reader 复用现有 `&&`/`||` 路径，全语言 `DEFAULT_LOOPS` 保持不变。
-每次打开括号重置首项标记，condition 内只处理当前标记下的首个短路运算符，condition 外逐项处理；
-hidden bracket、分号和函数 reset 继续由既有状态机维护。公开 ND 解释与数值示例见[指南](../checks/function-metrics.md#参数与默认配置)；直接矩阵、
-27-reader/55-suffix oracle、malformed/extension lifecycle、真实 Worker 和 installed consumer 分别验收相应边界。
-原始固定 oracle 保留不改，产品修正期望独立声明；source inventory 的 upstream hash 指向来源字节，与本地 patch 分开。
+TypeScript callback 与空值合并的受控偏差、受影响 reader、原始 oracle 与修正期望的分离及真实 Worker / installed 验证，由[当前源码偏差说明](../../src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/source-alignment-deviations.md#typescript-callback-与空值合并的受控偏差)完整定义。

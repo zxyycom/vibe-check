@@ -5,28 +5,6 @@
 `jsonSchemaValidation(options?)` 构造普通 Check，使用显式 schema registry 与 instance bindings 验证 JSON instances。
 先声明 schema 与 binding；无参调用不发现 schema，并结算为 `not-applicable / no-bindings`。
 
-## 构造器项目声明
-
-`jsonSchemaValidation` 有三类 overload：
-`jsonSchemaValidation(options?: JsonSchemaValidationOptions<"json-schema-validation">)` 保留默认 literal；
-`jsonSchemaValidation<Id>(options: JsonSchemaValidationOptions<Id> & { checkId: Id })` 保留 custom literal；
-已宽化为 `JsonSchemaValidationOptions` 的变量返回 `string` identity。默认 `checkId` 是 `json-schema-validation`，默认 `displayName` 是 `JSON Schema validation`；`files`、
-`maximumBytes`、`schemaIdentity`、`referenceResolution`、`schemas` 与 `bindings` 仍是本 Check 的领域 options。
-
-例如，将 API schema 校验声明为只在 API 变更时选择的独立 Check：
-
-```ts
-const apiSchema = jsonSchemaValidation({
-  checkId: "api-schema",
-  enabledByFlags: { when: "api-changed" },
-  schemas: [{ id: "urn:example:api", path: "schema/api.json" }],
-  bindings: [{ id: "api", instancePath: "fixtures/api.json", schemaId: "urn:example:api" }]
-});
-```
-
-返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的业务 options 参数；
-完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
-
 ## 最小用法
 
 在项目根目录准备以下两个文件。本例使用默认 `require-match` 模式，schema 根 `$id` 与 `schemas[].id` 均为 `urn:example:config`；完整规则见[根身份规则](#schemaidentity-根身份规则)。
@@ -74,6 +52,25 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 ```
 
 本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。多个有效 Check 的调用级结论可读取默认严格 `aggregate`；需要不同领域解释时，提供同步 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation) 函数。`run(...)` 返回本身不表示通过。
+
+## 构造器项目声明
+
+默认 `checkId` 是 `json-schema-validation`，默认 `displayName` 是 `JSON Schema validation`；`files`、
+`maximumBytes`、`schemaIdentity`、`referenceResolution`、`schemas` 与 `bindings` 仍是本 Check 的领域 options。
+
+例如，将 API schema 校验声明为只在 API 变更时选择的独立 Check：
+
+```ts
+const apiSchema = jsonSchemaValidation({
+  checkId: "api-schema",
+  enabledByFlags: { when: "api-changed" },
+  schemas: [{ id: "urn:example:api", path: "schema/api.json" }],
+  bindings: [{ id: "api", instancePath: "fixtures/api.json", schemaId: "urn:example:api" }]
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的业务 options 参数；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
 
 ## 参数与默认配置
 

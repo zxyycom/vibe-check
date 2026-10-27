@@ -19,6 +19,7 @@
 | [变更日志](changelog.md) | 版本净变化、升级影响与提交追溯；具体行为规范由对应专题拥有。 |
 | [构建项目 Gate](guides/building-project-gate.md) | 从质量目标选择 Check、关系、选择、缓存与诊断的任务路径；精确规则引用各专题。 |
 | [API 机制](api-mechanics.md) | Run 生命周期、Definition/Controls、组合、aggregation 和结果分支。 |
+| [按 Git 文件变化选择 Check](guides/selecting-checks-by-git-changes.md) | 真实 Git evidence、change flags 与保守选择。 |
 | [Core 数据工具](guides/data-boundaries.md) | JSON 规范化副本与确定性序列化；另提供可保留回调和嵌套引用的外层结构快照。 |
 | [回调位置](guides/callbacks.md) | 按任务选扩展点；具体契约引用对应专题。 |
 | [自定义 Check](guides/extending-check-lifecycle.md) | `prepare`/`execute` authoring、callback context、flags 与协作取消。 |
@@ -64,7 +65,8 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | Check 状态、Record facts 与 aggregation | [Check results](development/check-results.md)与 settlement tests |
 | 文件收集、默认排除与 exact inputs | [Project files](development/project-files.md)与 selection/collection tests |
 | Markdown occurrence、direct target 与 cache | [Markdown 链接解析](development/markdown-link-resolution.md)与相邻 adapter tests |
-| 调度 reducer、资源、shell 与 measurement | [Scheduler](development/scheduler.md)与 scheduler/simulation tests |
+| 调度准入、资源与执行 | [Scheduler](development/scheduler.md)与 scheduler/simulation tests |
+| 调度观察、统计与终态效果 | [调度观察与终态交付](development/scheduler-observation.md)；数值目标、公式与 oracle 见[测量精度](development/scheduler-measurement-precision.md) |
 | Check scanner、工具替换、availability 与 cache identity | [Scanner dependencies](development/scanner-dependencies.md)及对应 Check guide / adapter tests |
 | console、progress、diagnostic 实现 | [Human output](development/human-output.md)与 output tests |
 | machine schema、serialization、publication 或 artifact | [Output maintenance](development/output-maintenance.md)、[公开契约](output.md)及独立 schema/example 验收 |
@@ -74,8 +76,10 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 修改对象 | owner / 验证入口 |
 | --- | --- |
 | 根命令、脚本目录、共享 capability、环境 | [Workspace tooling](tooling/workspace.md)与 scripts tests |
-| Git 提交、hook 与自动推送 | [Git hook 边界](tooling/workspace.md#local-post-commit-auto-push)：提交前核对 checkout 启用状态、外部副作用与授权例外。 |
-| Gate selection、candidate binding、resultContributor、exit | [Project Gate](tooling/project-gate.md)与 adapter tests |
+| Git 提交、hook 与自动推送 | [Git hook 边界](tooling/workspace.md#local-post-commit-auto-push)：提交前核对启用状态；普通 commit 授权可能包含限域 push，不得仅为避免 push 绕过，例外见完整规则。 |
+| 环境自举、检查或破坏性 clear | [环境与 Git hook](tooling/workspace-environment.md#environment-setup-and-destructive-boundary)：clear 丢弃目标 worktree 改动须明确授权。 |
+| compiler、依赖兼容或 package-tools layout gate | [工具链与依赖边界](tooling/workspace-dependencies.md)。 |
+| Gate selection、candidate binding、resultContributor、exit | [Project Gate](tooling/project-gate.md)、[性能预算](tooling/gate-performance.md)与 adapter tests |
 | Gate native/process diagnostics、Record 投影 | [Gate diagnostics](tooling/gate-diagnostics.md)与各 producing owner tests |
 | 本地候选包状态、准备、安装与 external consumer | [Package lifecycle](tooling/package-lifecycle.md)与 candidate / consumer acceptance |
 | package 构建、manifest、ESM 布局与随包法律材料 | [Package artifact](tooling/package-artifact.md)与 artifact acceptance |

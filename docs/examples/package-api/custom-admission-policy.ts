@@ -13,9 +13,8 @@ const compile = defineCheck({
 });
 
 const publish = defineCheck({
-  admissionPriority: 10,
+  admissionPriority: -10,
   checkId: "publish",
-  dependsOn: [compile.checkId],
   displayName: "Publish",
   execute() {
     executionOrder.push("publish");
@@ -32,7 +31,7 @@ const preferPublish = defineAdmissionPolicy({
       const publishCandidate = context.candidates.find(
         (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
       );
-      if (publishTask?.admissionPriority === 10 && publishCandidate !== undefined) {
+      if (publishTask?.admissionPriority === -10 && publishCandidate !== undefined) {
         return { kind: "select", taskId: publishCandidate.taskId };
       }
 
@@ -59,7 +58,7 @@ const definition = defineConfig({
 
 const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
-if (executionOrder.join(",") !== "compile,publish") {
+if (executionOrder.join(",") !== "publish,compile") {
   throw new Error(`Unexpected execution order: ${executionOrder.join(",")}`);
 }
 // #endregion package-api-example:custom-admission-policy

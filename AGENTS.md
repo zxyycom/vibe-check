@@ -13,7 +13,7 @@
 - 修改前核对当前分支、工作区及暂存区已有改动，限定本次任务范围并保留其它工作。
 - 日常开发与提交只在 `main` 进行；其它分支须有明确授权。发布分支按已确认的
   [发布流程](docs/tooling/package-release.md)处理，工作区协调见[Change 协调](docs/governance/change-coordination.md)。
-- 提交前按 [Git hook 边界](docs/tooling/workspace.md#local-post-commit-auto-push)核对当前 checkout 的启用状态、潜在自动推送及授权例外。
+- 提交前按 [Git hook 边界](docs/tooling/workspace.md#local-post-commit-auto-push)核对当前 checkout 的启用状态；启用时普通 commit 授权包含限域 auto-push，不得仅为避免 push 绕过，明确本地提交或故障后获授权除外。
 - 理解调用关系优先使用可用的 CodeGraph MCP；不可用、索引不足或结果不足时，使用带路径过滤的
   `rg` / `rg --files`。
 - 新增 Node/TypeScript 依赖使用 `pnpm`，运行项目脚本使用 `bun run`，Python 工具使用 `uv`。

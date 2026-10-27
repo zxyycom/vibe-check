@@ -8,12 +8,16 @@ import {
 } from "@zxyycom/vibe-check";
 
 let settledTaskCount: number | null = null;
+const executionOrder: string[] = [];
 
 function scheduledCheck(checkId: string) {
   return defineCheck({
     checkId,
     displayName: checkId,
-    execute: () => ({ status: "passed" as const, data: {} })
+    execute: () => {
+      executionOrder.push(checkId);
+      return { status: "passed" as const, data: {} };
+    }
   });
 }
 
@@ -60,11 +64,11 @@ const definition = defineConfig({
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   },
-  scheduler: { admissionPolicy: strategy }
+  scheduler: { admissionPolicy: strategy, maxParallel: 1 }
 });
 
 const result = await run(definition);
-if (result.kind !== "completed" || settledTaskCount !== 2) {
+if (result.kind !== "completed" || settledTaskCount !== 2 || executionOrder.join(",") !== "second,first") {
   throw new Error("Expected a completed Run and terminal execution facts for both Checks");
 }
 // #endregion package-api-example:prepared-custom-admission-policy

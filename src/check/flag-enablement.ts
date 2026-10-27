@@ -56,7 +56,7 @@ export function not(condition: CheckFlagCondition): CheckFlagNegation {
 /**
  * 为已声明的 project change ID 构造 `enabledByFlags.when` 使用的保留 token。
  * 此函数只构造条件引用；有效 change flags 由 Product 根据 Git evidence 派生，不能手动传入 `RunControls.flags`。
- * @see [按文件变化选择 Check](../../docs/api-mechanics.md#按文件变化选择-check)
+ * @see [按文件变化选择 Check](../../docs/guides/selecting-checks-by-git-changes.md#按文件变化选择-check)
  */
 export function changeFlag<const Id extends string>(id: Id): `vibe-check:change:${Id}` {
   return `vibe-check:change:${id}`;

@@ -27,7 +27,37 @@ Run 先验证 Definition 和 closed Controls，再生成 invocation-private inpu
 
 caller flags 在进入 control barrier 前复制、去重、排序并冻结；省略/undefined/空数组形成同一空集合，malformed dense-token input 形成 invalid-run-controls。caller 不得提供 `vibe-check:change:` 保留前缀；它在任何 author work 前同样形成 closed Controls failure。
 
-`checkAggregation` 是可选的 caller-local 同步函数 `(checks: readonly CoreCheck[]) => CheckAggregate`。Controls parser 只接受 function，并保留其 identity；它不进入 Definition fingerprint。完整结算后，Run 从唯一 private flag-and-`dependsOn` effective selection 按 canonical Check order 投影同一份 settled `CoreCheck[]` 给默认或定制折叠，不公开 selection resolver。省略函数时，非空且全部 `passed` 为 `passed`，空列表或任一其它终态为 `failed`。signal 已取消时，Run 在静态 graph validation 和 Git acquisition 前以 pre-work cancellation 结束；若在 graph validation 期间取消，后续 pre-work check 同样阻止 Git acquisition。
+signal 已取消时，Run 在静态 graph validation 和 Git acquisition 前以 pre-work cancellation 结束；若在 graph validation 期间取消，后续 pre-work check 同样阻止 Git acquisition。
+
+无效 Definition 或 Controls 在 author work 前返回 configuration result。
+
+### 调用路径与回调投影
+
+调用路径在 callback 前解析并冻结为绝对路径，后续不再次解释调用方文本。Check artifact base 与其它目录目标共用可信路径规则，不提供目录包含保证、清理或跨 Run 状态；省略 base 时 callback 的 artifactDirectory 为 null。
+
+| Fact                                                                     | Authoring authority                                                     | Frozen invocation projection                                                              | Check callback visibility                                              |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| project root                                                             | `RunControls.projectRoot`，省略时为 Product current working directory   | absolute effective root                                                                   | `project.root`                                                         |
+| project flags                                                            | caller `RunControls.flags`，以及配置 changes 后的 Product-derived flags | 去重、排序、冻结的唯一 effective set；未配置 changes 时等于 canonical caller flags           | `project.flags`                                                        |
+| project changes                                                          | Definition 的可选 `changes`                                             | 冻结的成功 file evidence 或 unavailable reason；不配置时不运行 Git             | 配置时的 `project.changes`；prepare 与 execute 请求时共享同一 project 值 |
+| Check artifact base                                                      | 仅 `RunControls.checkArtifactBaseDirectory`                             | absolute base 或 `null`，不进入 Definition fingerprint                                    | 当前 Check 的 `artifactDirectory` 或 `null`                            |
+| Gate exact Check base                                                    | Gate 选择 exact absolute `<invocation>/checks/` 后作为同一 control 传入 | Product 直接使用该 base，不创建另一层 invocation directory                                | 当前 Check 仍只见自己的 directory                                      |
+| machine / diagnostic target                                              | Definition defaults 加对应 output override                              | owner-private absolute target；diagnostic 按 owner-channel `RunResult` file readback 投影 | 不可见                                                                 |
+| progress transcript target                                               | 仅 `RunControls.progressLogFile`                                        | current-Run absolute target 或 `null`；terminal 仍为 primary presentation                 | 不可见                                                                 |
+| scheduler history、Check cache、candidate state、external-tool workspace | 各自 owner 的 options / lifecycle                                       | 不属于 invocation path representation                                                     | 不可见                                                                 |
+
+callback capability 按上表投影；合法字段与精确交付由[Check authoring 指南](../guides/extending-check-lifecycle.md)定义。Check artifactDirectory 从 stable Check ID 确定性派生，采用 bounded filesystem-safe encoding，避免 traversal、component-length 和直接 sanitize collision；raw ID 留在 Check facts。
+
+options 作为第一业务参数，是 canonical authored snapshot 或 invocation-local prepared/fallback；file selection、领域 policy 与 cache 留在 owning options。
+dependencies 的授权与引用生命周期见[依赖交接](#依赖读取与引用生命周期)。artifact base、sibling namespace、output target 和 scheduler/cross-Run state 不进入 callback context。
+
+### 静态执行计划
+
+pre-work cancellation 之后、Git acquisition 之前，`check-execution/static-execution-plan.ts` 的
+`createStaticCheckExecutionPlan` 将 normalized Checks、validated static graph 与 root maxParallel 绑定为
+同一个 invocation-local `StaticCheckExecutionPlan` capability。strategy preparation、Check execution 与 Scheduler 复用该成果；
+flags 和 pre-admission settlements 仍在静态图之外形成本次动态 seed。独立 raw execution 入口先准备并验证自己的输入；
+`executeStaticCheckPlan` 入口只接受已绑定事实来源的静态计划；该计划不表示 task-local Check preparation 已运行。
 
 ### Change preparation and flag projection
 
@@ -53,35 +83,9 @@ unstaged 与 untracked paths 合并，rename 的 old/new 和 delete 的 old path
 [Core 文件—区域索引](../guides/file-region-index.md)。Core 只计算关系，Run 从全部 region IDs 映射 protected tokens；
 零命中文件不发布为 change evidence，获取不可用仍走上述保守分支，不应用扫描默认排除。
 
-所有 invocation path facts 在 callback 前冻结，后续只消费其 absolute representation，不再次解释 caller directory text。Check artifact base 与其它 directory target 使用同一 trusted grammar，不提供 containment、cleanup 或跨 Run state capability；省略时 callback artifactDirectory 为 null。
-
-| Fact                                                                     | Authoring authority                                                     | Frozen invocation projection                                                              | Check callback visibility                                              |
-| ------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| project root                                                             | `RunControls.projectRoot`，省略时为 Product current working directory   | absolute effective root                                                                   | `project.root`                                                         |
-| project flags                                                            | caller `RunControls.flags`，以及配置 changes 后的 Product-derived flags | 去重、排序、冻结的唯一 effective set；未配置 changes 时等于 canonical caller flags           | `project.flags`                                                        |
-| project changes                                                          | Definition 的可选 `changes`                                             | 冻结的成功 file evidence 或 unavailable reason；不配置时不运行 Git             | 配置时的 `project.changes`；prepare 与 execute 请求时共享同一 project 值 |
-| Check artifact base                                                      | 仅 `RunControls.checkArtifactBaseDirectory`                             | absolute base 或 `null`，不进入 Definition fingerprint                                    | 当前 Check 的 `artifactDirectory` 或 `null`                            |
-| Gate exact Check base                                                    | Gate 选择 exact absolute `<invocation>/checks/` 后作为同一 control 传入 | Product 直接使用该 base，不创建另一层 invocation directory                                | 当前 Check 仍只见自己的 directory                                      |
-| machine / diagnostic target                                              | Definition defaults 加对应 output override                              | owner-private absolute target；diagnostic 按 owner-channel `RunResult` file readback 投影 | 不可见                                                                 |
-| progress transcript target                                               | 仅 `RunControls.progressLogFile`                                        | current-Run absolute target 或 `null`；terminal 仍为 primary presentation                 | 不可见                                                                 |
-| scheduler history、Check cache、candidate state、external-tool workspace | 各自 owner 的 options / lifecycle                                       | 不属于 invocation path representation                                                     | 不可见                                                                 |
-
-callback capability 按上表投影；合法字段与精确交付由[Check authoring 指南](../guides/extending-check-lifecycle.md)定义。Check artifactDirectory 从 stable Check ID 确定性派生，采用 bounded filesystem-safe encoding，避免 traversal、component-length 和直接 sanitize collision；raw ID 留在 Check facts。
-
-options 作为第一业务参数，是 canonical authored snapshot 或 invocation-local prepared/fallback；file selection、领域 policy 与 cache 留在 owning options。
-dependencies 的授权与引用生命周期见[依赖交接](#依赖读取与引用生命周期)。artifact base、sibling namespace、output target 和 scheduler/cross-Run state 不进入 callback context。
-
-invalid Definition 或 Controls 在 author work 前返回 configuration result。aggregation 函数只在完整 settlement 后执行；抛错、非 `Error` throwable、Promise/thenable 或非法四态返回会越过普通 Run catch，使 `run` Promise 拒绝。拒绝路径关闭 invocation-owned diagnostics 和 progress writer，且不让清理错误掩盖原 aggregation error。ordinary callback throw、malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，output failure priority 和 readback 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
-
 ## Check 执行与依赖交接
 
 Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution；独立 ready preparation 可并行，不能形成全局 barrier。每项 `prepare(options, context)` 和后续 `execute(options, context)` 独立获得精确声明视图；双方请求 project 时共享冻结 project 值。change flag flow 见[Change preparation and flag projection](#change-preparation-and-flag-projection)，preparation snapshot 与 Definition grammar 见[Project Definition](project-definition.md)。
-
-pre-work cancellation 之后、Git acquisition 之前，`check-execution/static-execution-plan.ts` 的
-`createStaticCheckExecutionPlan` 将 normalized Checks、validated static graph 与 root maxParallel 绑定为
-同一个 invocation-local `StaticCheckExecutionPlan` capability。strategy preparation、Check execution 与 Scheduler 复用该成果；
-flags 和 pre-admission settlements 仍在静态图之外形成本次动态 seed。独立 raw execution 入口先准备并验证自己的输入；
-`executeStaticCheckPlan` 入口只接受已绑定事实来源的静态计划；该计划不表示 task-local Check preparation 已运行。
 
 `invocation/early-return-results.ts` 构造未经过正常执行结果映射的取消、静态图拒绝、strategy 准备失败与 task-engine 异常结果；
 其中 task-engine 异常也可能发生在 Scheduler 执行期间。Definition / Controls configuration result 由公开 Run 校验边界处理。
@@ -120,7 +124,7 @@ ordinary throw、malformed result、Record misuse 和 cancellation 在 owning ex
 - `InvocationLifecycle.selectionSettled()` 在全部 flag-control settlements 被接受后、Scheduler graph run 前一次；它与逐项 lifecycle 分离。
 
 progress 等消费者只投影已接受事实，不能通过反馈回写 Check、改变选择或取得 callback 执行权限。
-策略 terminal effects 的 sealed 时序与 summary containment 由[Scheduler](scheduler.md#terminal-effects-与-delivery)拥有；
+策略 terminal effects 的 sealed 时序与 summary containment 由[调度观察与终态交付](scheduler-observation.md#terminal-effects-与-delivery)拥有；
 Gate 的 resultContributor、exit 与 transcript 由[Project Gate](../tooling/project-gate.md#gate-result-post-processing-and-exits)拥有，不属于这些私有反馈或公开回调。
 
 ### 依赖读取与引用生命周期
@@ -137,6 +141,12 @@ invocation-private handoff 的 provider identity、value 和 presence metadata �
 execution owner 在 graph close 的 `finally` 中清空 private store，覆盖 completed、cancelled、admission-policy 和 invariant exit。
 清空只释放 Product reference，不处置 producer/caller 资源。该 store 只承接调用内引用，不形成第二套 Check facts。
 
+## 聚合已结算结果
+
+`checkAggregation` 是可选的调用方同步函数；Controls 只接受 function 并保留其 identity，不将它纳入 Definition fingerprint。完整结算后，Run 从唯一的 flag 与 `dependsOn` 有效选择按 Check 标准顺序投影同一份已结算 `CoreCheck[]`，交给默认或自定义聚合；选择解析器不公开。默认聚合及返回类型的精确契约见 [API 机制](../api-mechanics.md)。
+
+聚合抛错、返回 Promise/thenable 或非法结果会使 `run` Promise 拒绝，而不是将普通 Check 结算为 unavailable。此路径关闭 invocation-owned diagnostics 和 progress writer，清理错误不能掩盖原聚合错误；拒绝发生在最终呈现和发布之前，不形成 `RunResult`。
+
 ## Run outputs and compatibility boundary
 
 公开的三项 output defaults 与逐字段覆盖由[输出指南](../guides/run-outputs.md#默认输出与本次覆盖)定义；Run 先合成并冻结有效配置，再分别初始化输出，不能从一项 output 开关推断其它输出。以下是维护解析与接线必须保持的约束。
@@ -150,7 +160,7 @@ Controls output parser 保留各 output object / leaf 的 typed failure，并将
 `expected` 提示，不读取 accessor 或回显原值。Definition 使用同一 progress grammar，但仍把 failure 折叠为
 既有 `definition.outputs` 诊断，不依赖 Controls error type。消费者的定位方式与提示值由[输出配置诊断](../guides/run-outputs.md#排查输出配置错误)拥有。
 
-Definition 或 Controls 无效时尚无可信 effective output configuration，因此不会创建 output。aggregation rejection 则发生在完整 facts 后、正常 final presentation/publication 前：它关闭 writer 而不形成 `RunResult`。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由输出指南完整表达。
+Definition 或 Controls 无效时尚无可信有效输出配置，因此不会创建 output。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由输出指南完整表达。
 
 项目可以绑定 Definition/固定 Controls，向自己的调用方只暴露必要输入；这不新增 Product 配置层。Product 不发现配置文件或提供 CLI/bin，领域 baseline/comparison 由 producing Check 的 options/composition 承接。Gate resultContributor 位于 Product RunResult 之后，其配置和失败规则仅见 [Project Gate](../tooling/project-gate.md#gate-result-post-processing-and-exits)，不是 Definition/Controls hook。
 

@@ -29,23 +29,7 @@ Product 与仓库工作流的责任划分见[系统边界](../development/archit
 
 #### package-tools 依赖边界
 
-`scripts/validation/package-tools-boundary.ts` 是 repository layout validation 的一部分。受检对象是
-`src/package-tools/**` 与 [Architecture 所列 Core roots](../development/architecture.md#source-module-boundaries)中的生产
-TypeScript 模块；`.test.ts`、`.type-test.ts`、`.test-support.ts`、`test-support/` 与 `fixtures/` 不属于生产集合，生产边
-指向这些材料仍是违规。它检查两个方向：
-
-1. Core roots `src/check/**`、`src/check-settlement/**`、`src/data-boundary/**`、`src/machine-output/**`、
-   `src/project-definition/**` 与 `src/project-run/**` 不得直接或经仓库内中间模块依赖 package tools。
-2. package tool 只可使用目录内实现和按 value/type 符号身份确认的公开 Product symbol；Core-private、test、fixture 与
-   `scripts/**` material 均不允许。
-
-Core 闭包按 root `tsconfig.json` 的 TypeScript resolution 处理所有 literal specifier：解析到 workspace 的 relative、绝对
-和 `paths` alias edge 都继续分类和遍历；Core literal dynamic import 同样继续遍历。工具侧 dynamic import 则不允许，
-nonliteral loading、`require`、`import = require(...)`、解析失败和未知 workspace 目标均 fail closed。工具生产模块的唯一
-允许宿主外部叶子是 `node:crypto`、`node:fs` 与 `node:path`；不允许 npm 或其它 Node specifier。
-
-本节拥有受检生产材料和 fail-closed 规则；`package-tools-boundary.ts` 与其边界测试只实现并验证这些规则，不是第二
-规则来源。新增工具成员或改变 Architecture 的模块分类后，必须重新通过该 layout validation。
+Core 与 package tools 的受检范围、依赖方向和 fail-closed 规则见[工具链与依赖边界](workspace-dependencies.md#package-tools-依赖边界)；新增工具成员或改变 Core 分类后重跑 layout validation。
 
 ### Repository validation 共享扫描政策
 
@@ -73,31 +57,11 @@ candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 
 #### TypeScript 工具链
 
-编译执行与程序化解析使用两个明确的依赖角色，精确接线由根 manifest 与 lockfile 保存：
-
-| 角色 | 依赖与使用入口 |
-| --- | --- |
-| typecheck / emit | `@typescript/native` 是官方 `typescript` 稳定 TS7 的 alias。`scripts/package/compiler-toolchain.ts` 从其 manifest 解析声明的 `tsc` bin，供 development typecheck、artifact emit 与 isolated consumer typecheck 共用。 |
-| compiler API | 根 `typescript` 是官方 `@typescript/typescript6` compatibility alias，保留 `import ts from "typescript"` 的 TS6 程序化 API；其 `tsc6` 与稳定 compiler 的 `tsc` 名称不同。 |
-
-当前锁图中，稳定 compiler 为 `7.0.2`，compatibility wrapper 为 `6.0.2`，wrapper 实际重导出的 TS6 API 为 `6.0.3`。
-维护时分别核对 wrapper 与 API implementation，不能只据 wrapper 版本判断解析器身份。
-编译命令只使用 resolver 返回的路径；官方 launcher 按 OS/architecture 选择平台包，缺失本平台 optional package 时明确失败，不从 PATH、preview 或远端安装补足。
-工具链的完整指纹范围由[产物契约](package-artifact.md#构建输入与包接口边界)定义。
+编译使用 TS7，compiler API 使用 TS6 compatibility alias；精确版本、解析与补丁维护见[工具链与依赖边界](workspace-dependencies.md#typescript-工具链)。
 
 #### 工作区依赖兼容
 
-根 manifest、lockfile 与 `pnpm-workspace.yaml` 保存下列兼容措施；candidate fingerprint 和 compiler cache 均绑定这些配置及精确补丁的 bytes。
-
-| 措施 | 用途与边界 |
-| --- | --- |
-| `markdown-it@15.0.2` devDependency | 提供 markdownlint `0.42.0` 声明引用的内置类型，仅供工作区类型检查。 |
-| `micromark@4.0.3` 的精确 override | 使它与 markdownlint 共用 `micromark-core-commonmark@2.0.4`，满足 MD052 shim 的同实例要求；保留其它 micromark 版本的依赖图。 |
-| `patches/execa@10.2.0.patch` | pnpm 登记的本地声明补丁：约束内部 combined-output 泛型，并将缺省 buffer 类型归一为实际默认值。runtime、公开 Options 与 declaration checking policy 保持。 |
-
-Execa 补丁由 `scripts/package/execa-type-compatibility.type-test.ts` 的 TS6/TS7 正向输出推断与拒绝矩阵约束。
-上游版本在无补丁时通过同一矩阵后，才移除对应登记与材料；该补丁不代表官方修复。
-隔离 consumer 不继承 repository patch、override 或 dev-only `markdown-it`，须分别以公开声明验收和真实 undefined-reference Run 验证安装后的依赖图。
+补丁、override 与隔离 consumer 的验证边界见[工作区依赖兼容](workspace-dependencies.md#工作区依赖兼容)。
 
 ### 共享能力与治理责任方
 
@@ -186,23 +150,7 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 
 ### Local post-commit auto-push
 
-#### 启用与授权
-
-`.githooks/post-commit` 是仓库拥有的 Git `post-commit` 入口。Git 不会在 clone 后自动启用版本化 hook；需要该行为的 checkout 必须显式运行 `git config --local core.hooksPath .githooks`，只修改当前 checkout 的本地 Git 配置。使用 `git config --local --unset core.hooksPath` 可以停用它。
-
-在本仓库中，`core.hooksPath=.githooks` 表示当前 checkout 已显式选择该 hook 及其下述受限 push 行为。该配置存在时，任务对普通 `git commit` 的授权同时覆盖 hook 按本节契约发起的 push，无需另行确认；执行者不得仅为避免 auto-push 而临时覆盖 `core.hooksPath` 或以其他方式绕过 hook。只有任务明确要求仅创建本地提交，或 hook 故障后另行取得绕过授权时，才能在该次提交中绕过 hook。
-
-#### 推送范围与失败行为
-
-启用后，hook 只在当前分支精确为 `main` 时处理提交，并且：
-
-- 每 3,600 秒最多执行一次真实 push 尝试；attempt time 保存在 Git-local state 中，失败的尝试同样占用该窗口，避免在网络、鉴权或远端状态持续失败时由每次 commit 重复触发。
-- 只向 `origin` 推送显式 refspec `refs/heads/main:refs/heads/main`，同时关闭 force 与 follow-tags；远端包含本地没有的提交时，普通 non-fast-forward 保护会拒绝 push。
-- 远端、时间或 state 不可用以及 push 被拒绝时只输出诊断并返回成功，不改变 commit 结果，也不自动 fetch、pull、rebase、merge、创建或推送 tag。
-
-每次调用都会先输出 `policy`，说明显式启用的受限 auto-push 属于普通 `git commit` 授权的预期行为、执行者不应仅为避免该 push 而绕过 hook，并直接给出 `260831-rate-limit-non-force-main-auto-push-after-commit` 的稳定 Decision ID 与仓库相对路径。随后输出 `commit`、`branch`、`target` 和 `action`。跳过时还会输出 `reason`；真实 push 完成后会输出 `result`，失败时另输出不会执行的恢复动作和 retry 边界。因此从 commit transcript 可以区分“分支不适用”“cooldown 内未发起请求”“正在执行安全 push”“成功”和“提交仍留在本地”。这些内容写到 hook 的 stdout/stderr；图形化 Git client 是否展示 hook transcript 仍由该 client 决定。
-
-该 hook 只同步开发分支，不发布 npm package，也不创建 GitHub Release。npm package 仍是产品发布单元。
+提交前核对当前 checkout 的 `core.hooksPath`。显式启用 `.githooks` 时，普通 commit 授权包含受限 auto-push，不得仅为避免 push 绕过；仅明确要求本地提交或故障后获绕过授权例外适用。只对 `main` 向 `origin` 非强制推送，完整启用、频率、失败和恢复边界见[环境与 Git hook](workspace-environment.md#local-post-commit-auto-push)。
 
 ## Environment and shared script boundaries
 
@@ -228,29 +176,7 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 
 ### Environment setup and destructive boundary
 
-#### 自举前提与效果
-
-首次检出、工具 pin 变更或环境缺失时运行 `bun run env:setup`。成功返回表示 checkout 已按以下顺序完成标准自举：
-
-1. trust 当前 `mise.toml`，按锁定结果安装工具和根 Node dependencies，再按环境脚本列出的五项上游 Skill 各自的 manifest/锁文件安装隔离的生产依赖，禁用依赖安装脚本；
-2. 初始化并同步当前 checkout 的 CodeGraph；
-3. 显式运行 `bun run package:cache:prepare` 准备安装缓存，再通过 `bun run package:build` 离线准备 exact local package candidate。
-
-标准开发与验证命令以 `env:setup` 成功返回为前置条件；项目不承诺未自举的 cold checkout 可以直接运行 Project Gate。后续独立启动的 Gate 从已自举的 private consumer 解析 candidate，并由自己的 preparation assessment 重验 exact installation 后复用；`package:build` 不建立第二套 package acceptance。
-
-首次自举会写入 user-level mise trust/tool state、checkout 与上游 Skill 各自的 `node_modules`、Bun 安装缓存、`.codegraph`、candidate build/cache evidence 和 `scripts/project/node_modules`。后续执行按各 owner 的 reuse 规则更新或复用这些状态。
-
-该 bootstrap 入口只依赖 Node/Bun 内置能力与根级错误映射，不能在依赖安装前加载 `process-execution` 的第三方 runner；`package:build` 只在 frozen dependency install 和 CodeGraph setup 成功后运行，失败会使 `env:setup` 失败。
-
-#### 检查与破坏性环境
-
-执行前审阅 `mise.toml`。`bun run env:check` 只检查已安装 tools、jscpd 和 CodeGraph 状态，不检查或准备 candidate，也不执行 trust、安装或索引同步；检查失败后再运行 setup。两个命令以 `MISE_GLOBAL_CONFIG_FILE` 隔离用户全局 mise 配置。
-
-`.codex/environments/environment.toml` 在 setup 后运行默认 Project Gate，不清理 worktree。
-
-`.codex/environments/environment-2.toml` 的 `clear` 环境会在同一 setup 前对 `CODEX_WORKTREE_PATH` 执行 `git restore --staged --worktree -- .` 与 `git clean -fd -- .`；这会不可恢复地删除 tracked 改动和未跟踪、非 ignored 文件。只有明确授权丢弃目标 worktree 内容时才能选择它。
-
-Product Check 的 scanner command、availability command 和 unavailable behavior 仍由[Check-owned scanner dependencies](../development/scanner-dependencies.md)所列的各 Check owner 定义；Gate 不创建第二套 scanner workflow。
+首次检出、工具 pin 变更或环境缺失时先阅读[环境自举与破坏性边界](workspace-environment.md#environment-setup-and-destructive-boundary)：setup 会联网安装并写入本地工具、依赖、索引和 candidate；`env:check` 只检查，不准备 candidate。`environment-2.toml` 的 clear 会丢弃目标 worktree 的 tracked 改动及未跟踪非 ignored 文件，只有明确授权丢弃时可用。
 
 ## Governance and Test Evidence adapters
 

@@ -56,7 +56,7 @@ bun run test-evidence -- check --root .
 该命令加载完整清单并注册测试，核对 static/JUnit identity 与 Case 映射，但**不执行测试正文**。需要区分既有阻断时可先运行起点检查，不把前后各跑一次作为固定步骤。
 还需运行最窄目标测试，或由 Gate 对应 behavior Check 执行；定向证据不证明全树闭合。provider setup 的执行复用不产生新的测试目的或 Case。
 
-Scheduler 的 scripted-clock、queue/delay/tail、history 和资源核算证明要求见[调度器验证边界](../development/scheduler.md#验证边界)。
+Scheduler 的 scripted-clock、queue/delay/tail、history 和资源核算证明要求见[调度器验证边界](../development/scheduler-observation.md#验证边界)。
 这些域特定要求不改变通用 Case 粒度，也不扩张 Check/Record/machine/progress/RunResult 契约。
 
 ## 验证入口

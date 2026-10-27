@@ -7,26 +7,6 @@
 
 默认使用随 package 安装的 jscpd v5（manifest 范围 `^5.4.2`），无需另配 executable。
 
-## 构造器项目声明
-
-`duplicateDetection` 有三类 overload：`duplicateDetection(options?: DuplicateDetectionOptions<"duplicate-detection">)`
-保留默认 literal；`duplicateDetection<Id>(options: DuplicateDetectionOptions<Id> & { checkId: Id })` 保留 custom literal；
-已宽化为 `DuplicateDetectionOptions` 的变量返回 `string` identity。默认 `checkId` 是 `duplicate-detection`，默认 `displayName` 是 `Duplicate detection`；`codeAreas`、
-`findingPolicy`、`findingWaivers`、`cache` 与 `scanner` 仍是本 Check 的领域 options。
-
-例如，为较昂贵的扫描声明较低并行度和独立 identity：
-
-```ts
-const duplicateScan = duplicateDetection({
-  checkId: "source-duplicate-scan",
-  maxParallel: 1,
-  codeAreas: { source: { files: { patterns: ["src/**/*.ts"] } } }
-});
-```
-
-返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的业务 options 参数；
-完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
-
 ## 最小用法
 
 示例保留终端进度，不写 machine files。
@@ -51,6 +31,24 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 示例显式使用 `findingPolicy: "blocking"`，让未豁免的普通 Finding 导致失败；默认 `non-blocking` 只警告，不因 Finding 退出非零。
 
 本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。多个有效 Check 的调用级结论可读取默认严格 `aggregate`；需要不同领域解释时，提供同步 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation) 函数。`run(...)` 返回本身不表示通过。
+
+## 构造器项目声明
+
+默认 `checkId` 是 `duplicate-detection`，默认 `displayName` 是 `Duplicate detection`；`codeAreas`、
+`findingPolicy`、`findingWaivers`、`cache` 与 `scanner` 仍是本 Check 的领域 options。
+
+例如，为较昂贵的扫描声明较低并行度和独立 identity：
+
+```ts
+const duplicateScan = duplicateDetection({
+  checkId: "source-duplicate-scan",
+  maxParallel: 1,
+  codeAreas: { source: { files: { patterns: ["src/**/*.ts"] } } }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的业务 options 参数；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
 
 ## 参数与默认配置
 

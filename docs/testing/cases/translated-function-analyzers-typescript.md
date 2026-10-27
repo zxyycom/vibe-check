@@ -18,7 +18,7 @@ Proves:
 
 ## Case FM-TYPESCRIPT-FUNCTION-BOUNDARIES-001: 显式返回类型和推断声明保留真实函数边界
 
-Owner: `docs/development/scanner-dependencies.md#typescript-函数指标的有界偏差`
+Owner: `src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/source-alignment-deviations.md#typescript-callback-与空值合并的受控偏差`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/typescript-metrics.test.ts|TypeScript function boundaries exclude trailing blocks for typed and inferred declarations and arrows`

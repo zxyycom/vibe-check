@@ -16,67 +16,7 @@ validation 在 progress disabled 时仍验证全部字段，normalization 补齐
 
 ## Public authoring surface
 
-`defineCheck`/`defineConfig` 等 authoring helper 与随包 constructors 通过同一 ordinary Check tree 集成，不建立第二 execution model。public export inventory 由 `src/index.ts` 和[API 机制](../api-mechanics.md)维护；下例说明 authoring 形状，不是[仓库 Gate Definition](../../scripts/project/gate/definition.ts)的副本。
-
-```ts
-import {
-  defineCheck,
-  defineConfig,
-  defineContextCallback,
-  duplicateDetection,
-  fileMetrics,
-  functionMetrics,
-  jsonSchemaValidation,
-  jsonValidation,
-  markdownLinkValidation,
-} from "@zxyycom/vibe-check";
-
-const licenses = defineCheck({
-  checkId: "licenses",
-  displayName: "Dependency licenses",
-  execute: defineContextCallback("check.execute", {
-    contextNeeds: ["records", "signal"],
-    async callback(_options, { records, signal }) {
-      if (signal.aborted)
-        return { status: "unavailable", reason: { code: "cancelled" } };
-
-      const disallowed = await inspectDependencyLicenses();
-      for (const dependency of disallowed) {
-        records.report(
-          { id: `dependency:${dependency.name}` },
-          { license: dependency.license, name: dependency.name },
-        );
-      }
-      return disallowed.length === 0
-        ? { status: "passed", data: { disallowedCount: 0 } }
-        : { status: "failed", data: { disallowedCount: disallowed.length } };
-    }
-  }),
-});
-
-export default defineConfig({
-  checks: [
-    {
-      checkId: "repository-checks",
-      displayName: "Repository checks",
-      maxParallel: 2,
-      checks: [
-        duplicateDetection(),
-        fileMetrics(),
-        functionMetrics(),
-        jsonValidation(),
-        jsonSchemaValidation(),
-        markdownLinkValidation(),
-        licenses,
-      ],
-    },
-  ],
-  scheduler: {
-    maxParallel: 4,
-    resourceCapacities: { browser: 2 },
-  },
-});
-```
+`defineCheck`/`defineConfig` 与随包 constructors 通过同一 ordinary Check tree 集成，不建立第二 execution model。公开 authoring 用法与 exports 见[API 机制](../api-mechanics.md)，具体执行示例见[自定义 Check](../guides/extending-check-lifecycle.md)。
 
 `defineCheck` 只改善 TypeScript inference。Definition validation 负责关闭 ordinary Check grammar、拒绝 unknown Check keys 或 malformed declarative fields，并把 authored `options` snapshot 为 canonical immutable JSON；它不解释 options 的领域 shape。没有 `execute` 的 Check 是 container，只能携带递归 `checks` 和 scheduling fields；空 container 会产生 definition warning，而不会被静默当作 executable Check。
 
@@ -129,7 +69,7 @@ container/executable 形状、children、flag condition、direct relations、mut
 
 - `source` 是仅含 `compareWith` 的 closed `{ compareWith: string }` object。`compareWith` 非空、不含 U+0000、
   且不以 `-` 开头。
-- `flags` 至少声明一个非空 ID 到 closed `{ patterns }` region；patterns 必填、dense 且每项为非空 string，旧 include/exclude 明确拒绝。
+- `flags` 至少声明一个非空 ID 到 closed `{ patterns }` region；patterns 必填、dense 且每项为非空 string。
   共同原生列表、slash、dot 与正负规则语义由[文件选择](../guides/collecting-project-files.md#共享的-files-选择语义)拥有，不应用扫描默认排除。
 - normalizer 复制并冻结 source、mapping、regions 与数组，将完整规范配置纳入 snapshot/fingerprint。递归 `when` 中的
   `vibe-check:change:<id>` 必须引用同一 `changes.flags` 已声明的 ID；未配置 changes 或未知 ID 都是 Definition failure。
@@ -171,11 +111,11 @@ caller identity projection 与 model controls。调用方提供的配置和 clos
 
 `scheduler.terminalEffects` 是 Definition-owned runtime consumer array，entry 为普通 function 或 terminal descriptor。normalization 复制、冻结列表与需求，省略时为空。callback identity/source/closure 和 contextNeeds 不进入 snapshot/fingerprint，RunControls.outputs 不能注入或覆盖它。
 
-context、ordered delivery 和 prepared `terminalEffect` 的接线见 [Scheduler terminal-effect delivery](scheduler.md#terminal-effects-与-delivery)；公开 status 与 failure priority 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
+context、ordered delivery 和 prepared `terminalEffect` 的接线见 [Scheduler terminal-effect delivery](scheduler-observation.md#terminal-effects-与-delivery)；公开 status 与 failure priority 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
 
 ### Admission policy context
 
-Definition 只提供 normalized static graph metadata，不能给 callback 暴露 authored options/functions/data。Invocation 内唯一 frozen graph DTO、按 phase 需求构建的 detached dynamic context、lazy admissionState 和 captured-prefix measurement 由[Scheduler owner](scheduler.md#measurement-collector-与-immutable-context)生产；collector 只承担 measurement，不拥有全部 context。字段、inspection 与 proposal 的公开使用规则由[调度指南](../guides/scheduling.md#自定义准入-policy)定义。
+Definition 只提供 normalized static graph metadata，不能给 callback 暴露 authored options/functions/data。Invocation 内唯一 frozen graph DTO、按 phase 需求构建的 detached dynamic context、lazy admissionState 和 captured-prefix measurement 由[调度观察 owner](scheduler-observation.md#measurement-collector-与-immutable-context)生产；collector 只承担 measurement，不拥有全部 context。字段、inspection 与 proposal 的公开使用规则由[调度指南](../guides/scheduling.md#自定义准入-policy)定义。
 
 ### Check options preparation
 
@@ -219,32 +159,10 @@ resolver 在单次 traversal 内用可回滚集合承担实际 add/remove，exac
 
 effective priority/claims 是 immutable graph metadata；admission 时原子取得全部 claims，贯穿 preparation/execution，任意 settlement 一起释放。declaration order 不代替 execution order，也不绕过 prerequisite、mutex、capacity 或 cancellation。
 
-The following field fragments are the only three collection forms. They belong on an ordinary Check; they are not a second configuration format. Use Check IDs that are executable in the same Definition.
-
-```ts
-import { inherit } from "@zxyycom/vibe-check";
-
-const inheritedScheduling = {
-  // Omit collections or `resourceClaims` to retain the parent's value.
-};
-
-const exactScheduling = {
-  dependsOn: ["compile"], // Replace the inherited dependencies.
-  observes: ["publish-summary"], // Replace the inherited terminal observations.
-  mutex: [], // Deliberately clear inherited mutexes.
-  resourceClaims: {}, // Deliberately clear the inherited complete mapping.
-};
-
-const editedScheduling = {
-  dependsOn: inherit({ add: ["test"], remove: ["lint"] }),
-  observes: inherit({ add: ["report"] }),
-  mutex: inherit({ add: ["network"] }),
-};
-```
+公开的继承、替换与清空用法见[调度指南](../guides/scheduling.md)。
 
 `omitQuietPassedRow` 只允许 executable 声明，不继承给 children。closed validator 接受字段省略、自有
-`undefined` 或字面量 `true`：前两者归一为 `false`，`true` 归一为 `true`；container、`false`、旧
-`visibility` 字段和其它值都失败。调用方需要条件启用时以对象组合加入或省略
+`undefined` 或字面量 `true`：前两者归一为 `false`，`true` 归一为 `true`；container、`false` 和其它未知字段或非法值都失败。调用方需要条件启用时以对象组合加入或省略
 `{ omitQuietPassedRow: true }`，不传入计算出的 boolean。
 
 每个 normalized executable declaration 始终携带这个 boolean presentation fact；默认与 authoring

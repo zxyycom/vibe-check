@@ -55,7 +55,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-PERFORMANCE-DIAGNOSTICS-001: Enabled Scheduler diagnostics retain bounded honest timing projections
 
-Owner: `docs/development/scheduler.md#measurement-collector-与-immutable-context`
+Owner: `docs/development/scheduler-observation.md#调度观察与终态交付`
 Entities:
 
 - `bun|src/project-run/task-scheduler/measurement/diagnostics.test.ts|Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots`
@@ -184,7 +184,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-CONTEXT-DELIVERY-001: Terminal demand projects exact consumer views from one sealed boundary
 
-Owner: `docs/development/scheduler.md#terminal-effects-与-delivery`
+Owner: `docs/development/scheduler-observation.md#terminal-effects-与-delivery`
 Entities:
 
 - `bun|src/project-run/task-scheduler/scheduler-context-needs.test.ts|Scheduler context demand > projects exact graph/execution/none terminal views from one sealed boundary`
@@ -228,7 +228,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-MEASUREMENT-DEMAND-001: Scheduler measurement groups have independent production and shared validity
 
-Owner: `docs/development/scheduler.md#measurement-collector-与-immutable-context`
+Owner: `docs/development/scheduler-observation.md#调度观察与终态交付`
 Entities:
 
 - `bun|src/project-run/task-scheduler/measurement/demand.test.ts|Scheduler grouped measurement production > starts only declared producers and never materializes aggregate views for task-only consumers`

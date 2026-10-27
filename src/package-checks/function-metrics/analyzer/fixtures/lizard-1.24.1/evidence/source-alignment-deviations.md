@@ -90,7 +90,7 @@ protocol 或 consumer setting，且不改变 root provenance inventory 或 sourc
   TSX 直接使用 CodeReader，因而独立 addition 同步；TypeScript logicalOperators 新增 `??`，
   CCN 与 complextags 沿原 processor 每个真实 token 增加一并保留真实 source line。
 - ND 仅在 reader 已声明 `??` 为 logical operator 时复用现有 `&&`/`||` 分支。
-  condition 内外、打开括号重置首项标记、hidden bracket、分号和函数 reset 均不重写；
+  condition 内仅处理当前标记下的首个短路运算符，condition 外逐项处理；打开括号重置首项标记，hidden bracket、分号和函数 reset 继续由既有状态机维护；
   不把 `??` 加到 DEFAULT_LOOPS 或授权其他语言的新口径。JS、JSX/TSX 与 Vue 的继承属于必要影响。
 
 `typescript-metrics.test.ts` 保存独立边界、七操作符与实际 ND 状态矩阵，`source-baseline-upgrade.test.ts`

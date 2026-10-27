@@ -34,9 +34,7 @@ if (outcome.status === "not-applicable") console.warn("No Markdown input selecte
 
 ## 构造器项目声明
 
-`markdownLint` 有三类 overload：`markdownLint(options?: MarkdownLintOptions<"markdown-lint">)` 保留默认 literal；
-`markdownLint<Id>(options: MarkdownLintOptions<Id> & { checkId: Id })` 保留 custom literal；已宽化为
-`MarkdownLintOptions` 的变量返回 `string` identity。默认 `checkId` 是 `markdown-lint`，默认 `displayName` 是 `Markdown lint`。
+默认 `checkId` 是 `markdown-lint`，默认 `displayName` 是 `Markdown lint`。
 `files`、`findingPolicy`、`findingWaivers`、`rules`、`limits` 与 `cache` 是本 Check 的领域 options，不属于项目展示字段。
 
 例如，为文档 lint 声明项目展示和进度呈现策略：

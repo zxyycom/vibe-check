@@ -157,84 +157,14 @@ object input；`maintenanceReminders` 支持 `maintenanceReminders(entries)` 和
 构造器 input 是 closed top-level object：它只接受所属 Check 的领域字段和这组项目字段。构造器负责安全快照、
 默认 identity/display name、可在本地判断的字段 shape，以及两类字段的分流。默认 overload 返回该 Check 的默认 literal；
 custom overload 要求 input 的静态类型含必填 `{ checkId: Id }`，并返回同一 `Id`；已宽化为通用 options 类型的变量使用
-broad overload，返回 `string` identity。各 Check guide 给出本 Check 的三个签名、默认 identity/display name 与领域字段。
+broad overload，返回 `string` identity。各 Check guide 给出本 Check 的默认 identity/display name 与领域字段；精确签名以安装包声明为准。
 
 项目字段投影到最终 Check 声明；它们不进入 resolved `.options`、`prepare`、`execute` 或 execution 的业务 options 参数。随包构造器仍拥有 `prepare`、`execute`、`parseData` 与 handoff 行为，不能通过这些 options 覆盖。
 `defineConfig`/`run` 随后负责完整 tree 的语义校验、normalization 与运行。
 
 ## 按文件变化选择 Check
 
-`changes` 让 Definition 从一次 Git comparison 派生选择用的 change flags。`source` 的完整形状是
-`{ compareWith: string }`；`compareWith` 是 Git revision。`flags` 把非空 region ID 映射到 project-root-relative、
-原生完整列表 glob region。region 仅接受必填 `patterns` 字符串数组，负规则也写在该列表中；扫描默认排除不作用于 Git changed-path facts。
-有效 `projectRoot` 可以嵌套在 repository 内；Git paths 与 region matching 都相对这个 root。
-
-一次 invocation 的数据流固定如下：
-
-```text
-caller flags ─────────────────────────────┐
-Git snapshot → matched change flags ──────┼→ canonical effective flags → selection and project.flags
-Git snapshot ─────────────────────────────└→ project.changes (files or unavailable reason)
-```
-
-可信 snapshot 只发布命中至少一个 region 的稳定 `{ path, flags }` records；一个 path 可命中多个 regions。可信零命中为
-`{ ok: true, files: [] }`，因此不派生 change flag。Git revision、repository 或 path evidence 不可信时为
-`{ ok: false, reason }`，不带 `files`，但会把全部声明的 change flags 加入 effective flags，以保守选择可能依赖它们的 Check。
-Controls 只能传普通 caller flags，不能传入 `vibe-check:change:` prefix。
-
-```ts
-import { defineContextCallback } from "@zxyycom/vibe-check";
-import { changeFlag, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
-
-const sourceChanged = defineCheck({
-  checkId: "source-changed",
-  displayName: "Source changed",
-  enabledByFlags: { when: changeFlag("source") },
-  execute: defineContextCallback("check.execute", { contextNeeds: ["project"], callback: (options, { project }) => {
-    const changes = project.changes;
-    if (changes === undefined) {
-      return { status: "unavailable", reason: { code: "changes-not-configured" } };
-    }
-    return {
-      status: "passed",
-      data: {
-        evidence: changes.ok ? "matched" : "unavailable-conservative",
-        effectiveFlags: project.flags,
-        matchedPaths: changes.ok ? changes.files.map(({ path }) => path) : []
-      }
-    };
-  } })
-});
-
-const definition = defineConfig({
-  changes: {
-    source: { compareWith: "origin/main" },
-    flags: {
-      source: { patterns: ["src/**", "!src/generated/**"] }
-    }
-  },
-  checks: [sourceChanged],
-  outputs: {
-    diagnosticLogging: { enabled: false },
-    machinePublication: { enabled: false },
-    progressRendering: { enabled: false }
-  }
-});
-
-const result = await run(definition);
-if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
-const outcome = result.snapshot.checks.find(({ checkId }) => checkId === sourceChanged.checkId)
-  ?.outcome;
-if (outcome?.status !== "passed" && outcome?.status !== "not-applicable") {
-  throw new Error("Change-aware Check did not settle successfully");
-}
-```
-
-这个示例的 Check 由 `changeFlag("source")` 选择：命中时读取可信 paths，可信零命中时结算为
-`not-applicable`，unavailable evidence 时仍运行但以 `changes.ok === false` 区分结果。`project.flags` 始终是上图的 canonical effective set；`project.changes` 才是 files 或 unavailable reason 的
-evidence channel。要编写 condition、`prepare` 或 `execute`，继续阅读[Check lifecycle](guides/extending-check-lifecycle.md)。
-
-要审视未变更文件、零命中或重叠范围，可显式调用[change flag 调试工具](guides/debugging-change-flags.md)；它不替代本节的实际 Git evidence 或 effective flags。
+Definition 的 `changes` 在 selection 前获取一次 Git snapshot 并派生受保护 flags；可信零命中不派生 flags，evidence 不可用则保守提供全部声明的 flags。Controls 不能伪造该前缀。[按 Git 文件变化选择 Check](guides/selecting-checks-by-git-changes.md)拥有完整配置、evidence 与示例；[调试工具](guides/debugging-change-flags.md)只模拟假想映射，不代替真实 Git evidence。
 
 ## options preparation 与 execution
 

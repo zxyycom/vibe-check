@@ -1,6 +1,6 @@
-# Scheduler admission 与终态交付
+# Scheduler 准入与执行
 
-本文拥有 `src/project-run/task-scheduler/**` 的 admission reducer、real shell、measurement collector 与终态 handoff 不变量；[Architecture](architecture.md#组件如何协作)说明它在 Run 中的位置。公开配置、custom callback 和 measurement 语义由[调度指南](../guides/scheduling.md)定义，独立模拟见[模拟调度分支](../guides/simulating-admission.md)，用户输出状态由[输出指南](../guides/run-outputs.md#输出状态与失败处理)定义。
+本文拥有 `src/project-run/task-scheduler/**` 的 admission reducer、real shell 与策略交接不变量；观察和终态交付由[观察专题](scheduler-observation.md)拥有；[Architecture](architecture.md#组件如何协作)说明它在 Run 中的位置。公开配置、custom callback 和 measurement 语义由[调度指南](../guides/scheduling.md)定义，独立模拟见[模拟调度分支](../guides/simulating-admission.md)，用户输出状态由[输出指南](../guides/run-outputs.md#输出状态与失败处理)定义。
 
 ## Admission state 与 real shell
 
@@ -121,101 +121,15 @@ custom throw、thenable、malformed proposal、illegal select 或不可 drain wa
 
 ## Measurement collector 与 immutable context
 
-消费者需求按所属边界验证和固定，在 Scheduler 启动前收齐并汇总真实依赖及执行/诊断义务，形成不可变生产配置。
-function、缺省/undefined needs 和 [] 均为零需求；生产并集不作为交付字段集合。
-每个消费者只取得自己声明的 own data fields，外层冻结且不保证跨消费者 identity 相同。
-同 Run graph 按需构造一次并复用，同 boundary 不可变投影可共享；旧 state/fork/reader 不随后续执行改变。
-
-存在 cumulative、actionHistory、runMeasurement、taskTimings 或 effective diagnostics 的真实依赖时才创建
-invocation-local timing collector，通过 private handoff 接收 clock 与既有 declarative fingerprint。
-仅 execution/state 或零需求且无诊断义务时，不创建 collector、不读额外 measurement clock；Check duration clock 属既有结算义务。
-
-| 启用组 | 维护与物化边界 |
-| --- | --- |
-| cumulative | 保持 bounded counters/peaks、accepted wait 与 slot/capacity integrals；decision 前 flush、固定 view；不维护 history、逐 Task delay/chronology 或 Run tail。 |
-| actionHistory | 首个 accepted action 前启用 sequence/effects/post-state interval；下一实际 callback 前 append frozen observation，交付 captured end-count reader；不建逐 Task delay 表。 |
-| runMeasurement | 保持 Run counters/peaks、Run timing、control/diagnostic timing 与 tail，seal 时物化；不含 admissions，也不启用 history 或逐 Task delay 表。 |
-| taskTimings | 从首个采样前启用 admission-viable 分类 delay 与 admission/settlement chronology；seal 时按原顺序物化；不启用 history、Run tail 或无消费者 aggregate DTO。 |
-
-组间只因真实生产依赖共享中间量，不能先 full 后裁剪。diagnostics 的完整 decision/summary 证据是独立固定义务，
-但不无条件启用无人使用的 actionHistory。字段与统计公开含义由[调度指南](../guides/scheduling.md#在线选择时读取-observation-prefix)定义。
-
-每次实际 custom callback 前，启用的 history flush open interval、append 已完成 action observation，再创建固定 prefix reader。
-它从 accepted select/wait 的 post-state 延续到下次实际 callback 前，包含期间 admitted/settled effects，不宣称 action causality。
-blocked/cancel/settlement 不创建 callback，只有 pending action 才形成 since-action effect；policy fault 不形成有效 action。
-
-所有启用 timing 组共享唯一 collector clock、原采样边界与 first-fault validity。clock throw/non-finite/backward 或
-启用计算的 invalid interval/integral 使后续 timing 不可用；关闭组不为发现 fault 而计算。合法 zero span 仍有效。
-cumulative/runMeasurement 保留离散事实和 peaks，taskTimings 不交付伪造数值，history 保留离散 action/effects 并以不可用 interval 继续。
-每个 reader 固定自身边界的 availability、数值与 prefix，之后 fault/append 不回写旧 view。保持原单位、采样边界与 interval 归属；
-累加算法与最后几位舍入可变化，精度及检查点由下节定义。getter 不推进 clock，也不通过读取顺序改变 availability。
-
-shell 继续拥有真实执行离散事实，collector 独占 clock、interval、积分和 history，不创建第二 Scheduler state 或 admissions truth。
-可选 ShellAdmissionFacts 在成功 pending-to-running 且安装 running entry 后记录 first-admission 顺序；pre-admission、blocked、
-pending cancellation 不算 admitted，settled projection 只消费既有 settlements。只有 execution 或其它真实顺序依赖才建此 ledger。
-
-terminal runMeasurement 保留 fingerprint、离散 lifecycle、queue peaks 和可用时的 Run timing；taskTimings 单独交付
-closed timing union 与可用时的 admissions。Task value/error/callback、clock、mutable collections 和 human summary projection 不进入观察 facts。
-summary 的 top-N、ratio、queue total 与 tail contributor 由[人读输出 owner](human-output.md#scheduler-summary-projections)推导。
-
-### 增量分类与惰性等待
-
-`measurement/queue.ts` 拥有分类聚合与惰性等待，协同 `measurement/queue-constraints.ts` 仅在 collector 已启用时建立
-measurement-only 反向索引。后者只编译索引并定位 delta 影响的组，分类与合法性判断仍由 Core 查询拥有。
-分组复用 Core constraint groups 的等价关系：
-完整 mutex-ID 集合、canonical resource claims（含 units）以及 tighter-scope/activation 维度。异量 claims 不能仅按 resource ID 合组。
-分类顺序仍为 mutex-blocked → capacity-blocked → admissible-pending；admission-viable 与分类含义见
-[summary owner](human-output.md#scheduler-summary-projections)。
-
-组保存成员数与 local kind，root/当前 active-scope capacity 用一个共享 global gate 表达。mutex 只在 holders 跨零时定位相关组，
-resource 与 inactive activation cap 用有序 threshold 索引定位实际跨越阈值的组；membership 直接消费 Core delta。
-shared gate 翻转只改变全局 open/closed 时钟与计数解释，不给所有组或 pending Tasks 重新打标签，多来源 blocker 仍由 Core 完整 accounting。
-
-逐 Task delay 以组类别累计时钟与进入标记惰性结算：组 local kind 改变时先结清该组时钟，成员离开、admission 或终态物化时
-减去自己的精确进入标记。每个 interval 只推进共享 elapsed/open/closed 时钟，不逐 pending Task 累加。
-只请求 peaks/counts 时不建立逐 Task delay marks；无 collector 时不维护这些观察专用索引。
+按需采集、固定 reader 与 availability 的职责见[调度观察与终态交付](scheduler-observation.md#measurement-collector-与-immutable-context)。观察消费同源 Core facts 和 delta，不成为第二状态真相或回写执行；精度及 oracle 由[测量精度](scheduler-measurement-precision.md)拥有。
 
 ### 精确计算、精度与 availability
 
-`measurement/exact-time.ts` 以 BigInt 保存 Run-local 二进制时间单位。首次有效 sample 为 positive normal 时，
-由 DataView 的 binary64 exponent bits 取其 binade exponent E，固定单位为 `2^(E-52)`；首 sample 非正或 subnormal 时使用 `2^-1074`。
-单位只从既有首个 clock call 选择，随后保持不变；不得用有舍入的 `Math.log2` 推断。
-clock guard 保证后续有效 sample 不小于首值，因此所有 sample 都可在该单位精确表示，不发生采样量化。
-该表示不是新公开时间分辨率；独立 Run 不共享单位。
-
-对有限 binary64 sample 的精确实值做差、乘非负整数 count/capacity、累计与 prefix subtraction，全部采用精确整数运算。
-每个被交付结果完成本地运算后一次 round-to-nearest/ties-to-even 转回 Number；巨大共享 prefix 不吞掉微小局部区间，
-private prefix 即使超出 Number range，也不决定真实有限差值的 availability。summary 的精确合计、跨度与商同样在最终结果处一次舍入，
-而非把已舍入的 DTO 再相加或相除；投影含义由[人读输出](human-output.md#scheduler-summary-projections)拥有。
-
-采用门禁以每个结果自己的贡献区间为准：令 `S = Σ wᵢ(bᵢ-aᵢ)`，n 为该结果的非零贡献数，
-与直接非负逐项 Number 累加 `fl(Σ fl(wᵢ fl(bᵢ-aᵢ)))` 比较。
-在有限且无中间 overflow、`(n+2)u < 1`（`u = 2^-53`）时，直接基准前向误差不超过 `γ_(n+2) S`，
-其中 `γ_k = ku/(1-ku)`；精确累计后一次舍入的 normal 结果误差不超过 `uS`，subnormal 积分/等待结果精确。
-空结果精确为零。由于整数权重与 sample 均为 `2^-1074` 的整数倍，这些运算的 subnormal 精确结果不会另有下溢损失。
-超出该相对误差域时，仍以精确目标的正确舍入和可表示性判定，不放宽经验容差，也不按全 Run 的巨大累计量放宽局部 delay 误差。
-
-utilization 的精确分子/分母先形成有理商，再用整数 div/rem 与 ties-even 舍入；normal 商误差不超过 `uR`，
-subnormal 商的绝对误差不超过 `2^-1075`。零分母或数学比值不在 `[0,1]` 内仍投影为 null。
-若直接累计分子/分母的相对误差界分别为 `γ_a`、`γ_b`，且 `γ_b < 1`，再做一次 normal Number 除法的保守相对界为
-`(1+γ_a)(1+u)/(1-γ_b)-1`；subnormal 商还须计入绝对半个最小单位的舍入项。
-精确商的一次舍入不劣于该基准；零分子精确为零，不能假设比值也是时间单位的整数倍。
-
-availability 在实际请求的生产检查点确定：state/online checkpoint 验证所需 aggregate，action observation append 前验证该局部 interval，
-terminal seal 前验证逐 Task 及实际启用 summary 的全部派生结果（含 control/wait/span）。available 的时长、等待与积分均为 finite、non-negative；
-无法有效表示使用既有 `integral-invalid`，clock throw/non-finite/backward 与非法 interval 保留各自首次已确定原因。
-全部 terminal 数值先统一验证，再交付任一字段或 effect；getter 只读已固定事实，后续 fault 不回写旧 reader。
+数值目标、有效域和检查点见[测量精度](scheduler-measurement-precision.md)。
 
 ## Terminal effects 与 delivery
 
-停止 admission 且全部 started work drain 后，Scheduler seal 同一终态事实边界，按需要生产 graph、admitted/settled kind-only execution、Run measurement 与逐 Task timings，再为每个消费者分别投影精确冻结视图。交付与 collector 是否存在分离，none/graph/execution-only effect 仍取得 sealed context；没有 collector 不能作为跳过 effect 的条件。diagnostic-enabled internal summary wrapper 与 caller terminal effects 使用同一 ordered runner，不保证外层 context identity 相同，prepared effect 也按自己的需求取得精确视图；summary wrapper 包含 projection/writer failure，runner 只执行各 wrapper 的 failure policy，不识别 summary identity。
-
-ordered runner 先交付 internal summary wrapper，再按声明顺序交付 caller terminal effects。
-sync/async terminal effects 逐个 await，effect elapsed 不计已 seal 的 measurement；一个 caller terminal effect throw/reject 不阻止后续 terminal effect，也不改写 sealed facts。Scheduler 返回完成 delivery 的 sealed terminal facts 后，Invocation 才交付 `terminalEffect`；成功 terminalEffect 不能覆盖已记录的 generic terminal effect failure。
-
-nonempty caller terminal effects 或 successful prepared result 实际含 terminalEffect 才启用 terminalEffects output；无 sealed context 时 enabled output 保持 not-run。所有实际 participants 成功才 succeeded，任一失败即 failed。无 primary failure 时按输出指南形成保留完整 facts 的 output failure；已有 cancellation、policy fault 或其它 primary failure 时只记录 terminal effect status，不覆盖 primary kind/diagnostic。pre-work/planning 没有 context，不交付 terminal effects；summary writer failure 属于 diagnostic writer containment，不是 caller terminal effect failure。
-
-terminal effect identity/source/closure 与 contextNeeds 不进入 fingerprint；该 seam 不创建 effect registry、machine/progress/Check facts 或自动学习。修改此链路时核对相邻 scheduler、invocation 与 output tests；capacity/hard-guard 变动还须同步审查[summary denominator、queue 分类与 boundary](human-output.md#scheduler-summary-projections)。
+停止 admission、drain 后 seal，先交付内部 summary 与 Definition effects，再返回 Invocation 交付 prepared `terminalEffect`；没有 collector 也不能跳过 effects。完整按需投影、顺序与失败隔离见[调度观察与终态交付](scheduler-observation.md#terminal-effects-与-delivery)。
 
 ## 准入索引实现细节
 
@@ -230,39 +144,13 @@ tighter-than-root 指 scope 的 maxParallel 小于 root maxParallel：
 | Resource | canonical resource claims 相同。 |
 | Scope | tighter-than-root scope ID 与 activation 标记相同；non-tighter scope 可合组，实际 activation/close effects 仍按被选 Task 产生。 |
 
-每组 frontier 保存 relation-ready 成员的 ordinary/constrained 两种 persistent priority 顺序：priority 从高到低，随后分别按 declaration
-slot 或 lexical Task ID；相同顺序的 backing 可共享。tighter scope 的 non-activation Task 在 inactive 时走 ordinary，
-active 后走 continuation，故两类 tie order 必须分别维护。static layer 读取当前 active roots；真实 activation 读取
-inactive/active/closed lifecycle。
+frontier 维护 relation-ready 成员的 ordinary 与 constrained 顺序，并消费同一 transition 的 membership 变化；它不拥有独立 readiness 或 legality。任意 selection、forced settlement 和 cancellation 都可移除非 head；旧 state 与 fork 保持独立且合法。static selection 按前文三层顺序查询同源 mutex/capacity，动态阻塞的前缀仍需逐项判断。
 
-frontier 与 memberships 在同一 seed/transition owner 中维护，不拥有另一套 readiness 或 legality。任意 custom selection、forced
-settlement 与 cancellation 可移除非 head 成员；transition 当场推进受影响组的 live heads，延后留存的非 head tombstone 以后
-只在 transition 中弹出，query 不重复从旧 head 扫描。每条单调分支中，每个 Task 至多进入 relation-ready frontier 一次，各排序
-heap 中的对应节点至多弹出一次；旧 state/fork 保持自己的 persistent 分支。
-
-`static-frontier.ts` 为 tightening、continuation、ordinary 各保存一条全局有序 group-head queue。
-`selection-frontiers.ts` 消费实际 membership delta 更新受影响组，static frontier 在实际 active-root 变化时重分类该 scope 的组；
-当前 active roots 由 lifecycle facts 与有序 slot 视图承接，不另维护同内容的 active-root Set。
-每次 head 或 layer 改变推进 group revision，旧节点即使再次成为同一 Task head 也不能复活；transition 清理失效 roots，
-query 在跳过动态阻塞 head 时只处理所需有序前缀，保留旧 state/fork。
-`static-selection-query.ts` 首先检查 persistent queue 的首节点；只有需要继续遍历时才建立 query-local Mnemonist Heap，
-保存不可变节点引用，按 preference rank best-first 取下一节点、按 revision 排除 stale entry，再查询同源 mutex/capacity。
-读取不通过 persistent merge 生成 successor copies，不修改 frontier；查询局部的 mutable heap 不进入 retained state 或 fork。
-
-ready、static 和 forced frontier 共用 Scheduler-private persistent Task queue 的不可变 backing。
-ready/static preference 来自 compiled 全局 ranks，仍保留每组相同的 ordinary/constrained 内部顺序；
-forced 保留 descending task-slot 顺序，并在 transition 清理已不再 pending 的 stale root，避免取消后再次 forced settlement。
-revision 是 entry identity，不是 Task priority 或另一套 legality。
+索引采用 persistent backing；更新与查询不得修改既有快照，forced 队列也不得重复结算已取消 Task。具体 queue、revision 和清理机制以相邻源码为准，其成本边界见下文。
 
 ## 验证边界
 
-Scheduler diagnostic Case 只证明 shell-owned human observation。scripted clock 分别证明 timing unavailable 与有效 zero span、single terminal summary attempt、writer containment、declarative-configuration matching、离散 facts，以及 capacity/wait/queue/delay/tail 投影。
-独立低优化 trace oracle 核对 action/rejection/effect、seed viability、取消单次结算及 fork；独立数值 oracle 不复用 Product 的
-DataView decode/rounding，而以二进制有理数及相邻 Number 距离/tie parity 验证精度、极值、局部消减和读取顺序。
-
-queue evidence 使用同一 admission-viable pending 集合，证明 mutex/capacity/admissible 三类互斥 task·ms 与各自 peaks；named shortage 与 root/scoped shortage 共用 capacity 分类。graph/core/shell evidence 另证明 claims validation、atomic accounting、无关 work 可填充 root slot 和 settlement release。delay 三类 breakdown 必须完整组成 delay；tail 证明 last-admission post-state active count 与有界 contributors，不把结果解释为 policy 原因或 critical path。
-
-formula/state-boundary tests 属于 Scheduler；logger formatting tests 只证明 bounded safe rendering，machine/public/progress tests 证明 summary 不扩张原契约。future fail-fast 或 capacity/hard-guard 变化后，须重审 denominator、queue classification、boundary 和 wait evidence。
+独立低优化 trace oracle 核对 action/rejection/effect、seed viability、取消单次结算及 fork。graph/core/shell evidence 证明 claims validation、atomic accounting、无关 work 可填充 root slot 和 settlement release。观察、queue/delay 与终态交付的证据见[观察专题](scheduler-observation.md#验证边界)。
 
 learned helper 的 history/model tests 单独证明 local-state read、closed parser、prediction、record/atomic write 的 empty-model 与 persistence-failure 边界；无法预测时单次 static fallback 以[helper owner](package-tools.md#learned-critical-path-helper-owner)及公开指南为准。模型参数不因此变成稳定 API，也不扩张 Check/Record/machine/progress/RunResult 契约。
 
@@ -280,7 +168,7 @@ query-local heap 仅在继续遍历时分配，但其合法 root ESM `Heap` impo
 仍需计入整体成本，不能把按需构造误写成按需加载依赖。
 custom/public/diagnostic 完整读取另承担 relation-ready 遍历、mutex 筛选、排序、member DTO/freeze 与 catalog reason 物化；
 measurement 与 Shell payload 的成本独立保留。结构证据只证明这些访问与更新路径；具体 workload 的 wall-clock 或内存收益需要对应测量。
-collector 的 clock、integrals、history、delay 与 Shell 的执行 payload 按上文职责独立维护。
+collector 的 clock、integrals、history、delay 与 Shell 的执行 payload 按[观察专题](scheduler-observation.md)独立维护。
 
 ### 静态图校验
 
@@ -292,16 +180,9 @@ singleton terminal scope 不遍历关系。若 scope 可达子图为 Vₛ/Eₛ�
 ### Shell 与状态更新
 
 Shell 通过 pending Map 按 ID 查找/删除被准入、forced-block 或 pre-admission 的 Task；取消以剩余 declaration
-顺序逐个移除和结算。该 Map 只拥有 payload，不替代 Core membership。active-root 数组未变化时，transition 不重新搜索 active
-membership；关闭一个 inactive terminal 也不复制数组。真正 activation/active terminal closure 仍维护原有有序数组，动态 blocked
-head 前缀仍在查询时重新判断；它们的成本没有由本次局部消重消除。
+顺序逐个移除和结算。该 Map 只拥有 payload，不替代 Core membership。active-root 变化需要维护有序视图；动态 blocked head 前缀仍在查询时重新判断，并计入实际成本。
 
-### Measurement 与完成顺序
-
-collector seed 与索引建立保留按 Task/constraint 的必要工作；每个 interval 的 count/integral 更新不再扫描 pending，
-局部分类变化按实际受影响组、阈值跨越及 membership 计成本。完整 terminal per-Task 表仍需枚举并按公开顺序排序；
-启用 summary 才在该必要输出工作中形成精确 queue/delay 合计。BigInt 的位宽与 prefix 增长影响运算及 retained memory，
-不能把常数次精确算术称为与位宽无关的 O(1)，也不能据此声称所有 demand/workload 都更快。
+### 完成顺序
 
 running completion 仍逐 wait 使用 Promise.race：多个 completion 已 resolved 时，按当前 running Map 的注册顺序取首；
 completion FIFO 不能替代这一行为。
