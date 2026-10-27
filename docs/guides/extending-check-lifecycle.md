@@ -120,6 +120,49 @@ const sourceAware = defineCheck({
 });
 ```
 
+### 命名与复用条件
+
+固定组合先提取为 `CheckFlagCondition` 常量，再给多个 Check 的 `when` 复用。下例的 `build` 和 `lint` 都在本次 flags 包含 `ci` 或 `manual` 时参与选择：
+
+```ts
+import { any, defineCheck, type CheckFlagCondition } from "@zxyycom/vibe-check";
+
+const ciOrManual: CheckFlagCondition = any("ci", "manual");
+
+const build = defineCheck({
+  checkId: "build",
+  displayName: "Build",
+  enabledByFlags: { when: ciOrManual },
+  execute: () => ({ status: "passed", data: {} })
+});
+const lint = defineCheck({
+  checkId: "lint",
+  displayName: "Lint",
+  enabledByFlags: { when: ciOrManual },
+  execute: () => ({ status: "passed", data: {} })
+});
+```
+
+`when: ciOrManual` 使用变量中的条件 AST；`when: "ciOrManual"` 只检查这个字符串 token。以 `{ flags: ["ci"] }` 调用 `run` 会命中上面的两个 Check，仅传 `"ciOrManual"` 则不会。条件名称留在源码中，`project.flags` 仍由本次调用输入与已配置的 change flags 形成。
+
+需要共享完整声明时，也可从包根导入 `CheckFlagEnablement` 类型，将同一个声明对象赋给多个 Check 的 `enabledByFlags`。只有这些消费 Check 都需要启动其 `dependsOn` 前置时才共享 `propagateDependsOn: true`；只复用选择条件时，共享 `when` 即可。
+
+### 输入变化时使用 helper
+
+在上例基础上，输入条件随场景变化时使用普通函数组合 AST。它接收并返回 `CheckFlagCondition`，因此仍可与其它 builder 嵌套：
+
+```ts
+import { all } from "@zxyycom/vibe-check";
+
+function inCi(condition: CheckFlagCondition): CheckFlagCondition {
+  return all("ci", condition);
+}
+
+const releaseInCi = inCi(any("release", "deploy"));
+```
+
+将 `releaseInCi` 传给某个 Check 的 `when`，要求同时具备 `ci` 和 `release` / `deploy` 中的任一 token。helper 在声明阶段构造 AST，Run 再按本次 tokens 计算选择结果。涉及 `changeFlag(id)` 时，仍须遵循下方同一 Definition 声明 region 的要求。
+
 ### Condition grammar
 
 `CheckFlagCondition` 是 builder、raw JSON、Definition snapshot 与 evaluator 共用的唯一递归 AST；非空字符串

@@ -277,6 +277,34 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "reusable-flag-conditions",
+    regionId: "reusable-flag-conditions",
+    sourcePath: "docs/examples/package-api/reusable-flag-conditions.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "extending-check-lifecycle",
+        headingPath: Object.freeze(["按 flag 选择 Check", "命名与复用条件"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "在多个 Check 中复用命名条件"
+  }),
+  Object.freeze({
+    evidence: "runtime",
+    id: "flag-condition-helper",
+    regionId: "flag-condition-helper",
+    sourcePath: "docs/examples/package-api/reusable-flag-conditions.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "extending-check-lifecycle",
+        headingPath: Object.freeze(["按 flag 选择 Check", "输入变化时使用 helper"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "以普通 helper 组合条件 AST"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "custom-admission-policy",
     regionId: "custom-admission-policy",
     sourcePath: "docs/examples/package-api/custom-admission-policy.ts",
