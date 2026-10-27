@@ -216,6 +216,34 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "finding-waiver-results",
+    regionId: "finding-waiver-results",
+    sourcePath: "docs/examples/package-api/finding-waivers.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "finding-waivers",
+        headingPath: Object.freeze(["最小用法"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "读取 Finding disposition 与完整 waiver audit"
+  }),
+  Object.freeze({
+    evidence: "runtime",
+    id: "finding-waiver-overmatched",
+    regionId: "finding-waiver-overmatched",
+    sourcePath: "docs/examples/package-api/finding-waivers.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "finding-waivers",
+        headingPath: Object.freeze(["识别过宽配置"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "识别匹配多项而未应用的 waiver"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "markdown-lint-waivers",
     regionId: "markdown-lint-waivers",
     sourcePath: "docs/examples/package-api/markdown-lint.ts",

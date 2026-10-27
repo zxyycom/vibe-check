@@ -1,25 +1,83 @@
 # 对账 Finding waiver
 
-`reconcileFindingWaivers({ findings, identify, waivers })` 是 package 预提供的可选工具：当 custom Check 或其它 Finding
-producer 已形成**完整** Finding 候选集合，并需要保留原始证据地审计 waiver 时调用它。它不会按
-message 过滤、在扫描前排除输入或删除 Finding；采用方仍拥有 Records、messages 和 terminal outcome。
+`reconcileFindingWaivers({ findings, identify, waivers })` 在 custom Check 或其它 producer 形成**完整** Finding 集合后，
+按稳定 identity 对账，返回每项 Finding 的处置和每项 waiver 的匹配审计，并保留原始证据。
+采用方负责发布 Records、messages 和 terminal outcome；waiver 只解释已形成的 Finding，不缩小扫描输入或删除原始 Finding。
 
 ## 最小用法
+
+下例用 `path` 与 `symbol` 共同识别 Finding，读取待处理项、已豁免原因和需要复核的配置。identity 应按领域选择足够精确的稳定字段。
 
 ```ts
 import { reconcileFindingWaivers } from "@zxyycom/vibe-check";
 
 const reconciled = reconcileFindingWaivers({
-  findings: [{ metric: "api-compatibility", symbol: "createClient" }],
-  identify: ({ metric, symbol }) => ({ metric, symbol }),
+  findings: [
+    { path: "src/client.ts", symbol: "createClient" },
+    { path: "src/client.ts", symbol: "removeClient" }
+  ],
+  identify: ({ path, symbol }) => ({ path, symbol }),
   waivers: [
     {
-      identity: { metric: "api-compatibility", symbol: "createClient" },
-      reason: "兼容窗口保留到下一个 major release。"
+      identity: { path: "src/client.ts", symbol: "createClient" },
+      reason: "兼容窗口内保留此项。"
+    },
+    {
+      identity: { path: "src/client.ts", symbol: "legacyCall" },
+      reason: "待复核的既有配置。"
     }
   ]
 });
+
+// overmatched 仍需处理，只有 waived 可以从待处理集合中移出。
+const pendingFindings = reconciled.findings
+  .filter(({ disposition }) => disposition !== "waived")
+  .map(({ finding }) => finding);
+const waivedReasons = reconciled.findings.flatMap((result) =>
+  result.disposition === "waived" ? [result.waiver.reason] : []
+);
+const waiversToReview = reconciled.waiverAudits
+  .filter(({ status }) => status !== "applied")
+  .map(({ waiver, matchCount, status }) => ({
+    identity: waiver.identity,
+    matchCount,
+    status
+  }));
 ```
+
+这里仅 `removeClient` 仍待处理；`createClient` 已豁免，`legacyCall` 配置因匹配零项进入 `waiversToReview`。
+该筛选也会保留[过宽配置](#识别过宽配置)及其未豁免 Finding，供采用方修订配置或呈现审计。
+
+## 读取结果
+
+| 字段 | 消费方式 |
+| --- | --- |
+| `findings[].finding` | 原始 Finding reference；顺序与输入一致。 |
+| `findings[].disposition` | `actionable` 没有匹配的 waiver；`waived` 恰好匹配；`overmatched` 的 waiver 匹配多项，该 Finding 仍需处理。 |
+| `findings[].waiver` | 只在 `disposition === "waived"` 分支存在，包含 canonical `identity` 和 `reason`。 |
+| `waiverAudits[]` | 每项配置各有一条 `{ waiver, matchCount, status }`，顺序与输入 waivers 一致；status 为 `unused`、`applied` 或 `overmatched`。 |
+
+## 识别过宽配置
+
+沿用上例导入的 helper。下面故意只用 `symbol` 识别两个不同路径的 Finding，展示一个 waiver 匹配多项时的结果：
+
+```ts
+const broad = reconcileFindingWaivers({
+  findings: [
+    { path: "src/json.ts", symbol: "parse" },
+    { path: "src/text.ts", symbol: "parse" }
+  ],
+  identify: ({ symbol }) => ({ symbol }),
+  waivers: [
+    { identity: { symbol: "parse" }, reason: "演示缺少 path 的过宽 identity。" }
+  ]
+});
+const broadAudit = broad.waiverAudits[0];
+const stillPending = broad.findings.filter(({ disposition }) => disposition !== "waived");
+```
+
+`broadAudit.status` 为 `overmatched`、`matchCount` 为 `2`；两项 Finding 的 disposition 都是 `overmatched`，因此 `stillPending` 保留两项。
+人工复核后应修订 identity，使配置精确指向接受的例外，而不是把过宽项当作正常豁免。
 
 ## 输入与默认值
 
