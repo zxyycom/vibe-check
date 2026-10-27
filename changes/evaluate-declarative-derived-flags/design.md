@@ -17,7 +17,7 @@
 ## Goals / Non-Goals
 
 - 目标：明确内置派生相较手动声明的独立收益，以及重新评估所需的消费者证据。
-- 范围外：Product 实现与用户指南补写；后者由独立的文档 Change 承接。
+- 范围外：Product 实现与用户指南维护；现有条件复用由 Check authoring 指南解释。
 
 ## Decisions
 
@@ -31,7 +31,7 @@
 1. 消费者需要用字符串引用语义，或回调需要读取统一物化的结果。
 2. 手动接线产生可观察的维护、发现或一致性成本。
 
-命名复用的文档可发现性由 `document-reusable-flag-conditions` 独立处理。
+命名与复用指导见[现有指南](../../docs/guides/extending-check-lifecycle.md#命名与复用条件)，不作为引入派生机制的理由。
 
 ### Resulting Impacts
 

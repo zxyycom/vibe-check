@@ -14,4 +14,4 @@
 
 保存暂不实现的判断及其适用边界。后续以真实消费者场景比较手动方案和内置派生的收益、成本，再决定是否进入 Plan。
 
-命名条件的用户指导由独立的 `document-reusable-flag-conditions` Change 承接；用法可发现性与派生机制评估分别推进。
+命名条件的用法见[条件复用指南](../../docs/guides/extending-check-lifecycle.md#命名与复用条件)；本 Draft 仅评估运行时派生机制。
