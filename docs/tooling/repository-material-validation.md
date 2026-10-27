@@ -104,10 +104,11 @@ file-collection/data-boundary、JSON 字节上限配置及 provider 的 reposito
 `scripts/project/gate/runtime/eligibility.ts` 拥有。committed、staged、unstaged、untracked、rename 和 deletion
 仍由同一 Git snapshot 判断；Git evidence unavailable 时 Product 保守注入相关 flags。
 
-它们仅在 required 且各自 region changed 时增量执行；`--materials` 和 `--all` 始终强制执行，
+四项材料 Checks 与 `markdown-lint` 在 `--changed` 下按各自 region 的变化选择；`--materials` 和 `--all` 强制执行，
 `markdown-lint` 还由 `--quality` 强制执行，已选 Check 的 `dependsOn` closure 仍由 Product 处理。
 `materials-links-validator` 不采用该条件：Markdown source 对 repository 内任意 target 的反向依赖尚未建模，
-所以 required、`--materials` 与 `--all` 继续完整运行它。此限制同样避免 `--quality` 的质量 Check 因材料零变化被抑制。
+所以 `--changed` 在任意文件变化时选择它，`--materials` 与 `--all` 强制执行它。Git evidence 不可用或未分类根路径变化时，
+`--changed` 保守选择全部 routine Checks；更完整的选择与回退边界见 [Project Gate](project-gate.md#依赖选择与关系闭合)。
 
 ### 调用方如何呈现结果
 

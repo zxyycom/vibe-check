@@ -74,13 +74,15 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 修改对象 | owner / 验证入口 |
 | --- | --- |
 | 根命令、脚本目录、共享 capability、环境 | [Workspace tooling](tooling/workspace.md)与 scripts tests |
+| Git 提交、hook 与自动推送 | [Git hook 边界](tooling/workspace.md#local-post-commit-auto-push)：提交前核对 checkout 启用状态、外部副作用与授权例外。 |
 | Gate selection、candidate binding、resultContributor、exit | [Project Gate](tooling/project-gate.md)与 adapter tests |
 | Gate native/process diagnostics、Record 投影 | [Gate diagnostics](tooling/gate-diagnostics.md)与各 producing owner tests |
 | 本地候选包状态、准备、安装与 external consumer | [Package lifecycle](tooling/package-lifecycle.md)与 candidate / consumer acceptance |
 | package 构建、manifest、ESM 布局与随包法律材料 | [Package artifact](tooling/package-artifact.md)与 artifact acceptance |
 | 正式发布、冻结 source、receipt 与发布后交接 | [Package release](tooling/package-release.md)、必需的[对外文档复核](tooling/package-release.md#发布前对外文档复核)与同产物完整 Gate |
 | translated source inventory、identity 与派生 pin | [来源映射维护](tooling/source-mapping.md)与 source identity audit |
-| Markdown 正文、Check 指南、可执行示例 | [Documentation](tooling/documentation.md)、目标正文与示例源 |
+| 随包 Markdown 正文、Check 指南、可执行示例 | [Documentation](tooling/documentation.md)、目标正文与示例源 |
+| AGENTS、导航或内部 owner 文档 | [开发者文档维护](governance/knowledge-maintenance.md#开发者文档的维护方式)、目标 owner；领域规则在 owner 完整定义，入口维护任务与引用。 |
 | 从包使用者视角审查文档与对外 JSDoc | [对外文档使用者审查](tooling/documentation.md#对外文档使用者审查)：实际包范围、阅读任务与完成条件 |
 | 示例投影器、repository-material 校验器或材料验收 | [Repository material validation](tooling/repository-material-validation.md)、provider/validator 与测试 |
 | 虚拟 admission 模拟、heuristic 双 artifact 对照 | [Admission workbench](tooling/admission-workbench.md)与 workbench tests |
@@ -93,7 +95,7 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 任务 | 先做什么 |
 | --- | --- |
 | 形成、恢复、审阅或维护长期判断 | `decision-records` skill；`bun run decisions -- list` |
-| 需跨文件、owner 或验证阶段持久交接的变更 | `change-plan` skill；`bun run change-plan -- list changes`，再读目标 artifacts |
+| 需跨文件、owner 或验证阶段持久交接的变更 | 先按 [Decision 与 Change 交接](governance/knowledge-maintenance.md#decision-与-change-交接)恢复活动判断；使用 `change-plan` skill 查询目标 artifacts，并按 [Change 协调](governance/change-coordination.md#使用步骤)核对执行边界。 |
 | 协调 Change 依赖、合入或 worktree | [Change 协调](governance/change-coordination.md)与目标 artifacts |
 | 复杂/严重 Bug 或用户明确要求持久报告 | [自动沉淀条件](governance/knowledge-maintenance.md#复杂或严重-bug-的自动调查沉淀)与 `investigation-report` skill |
 

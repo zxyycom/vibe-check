@@ -47,41 +47,6 @@ root count、active/activating scope 与 resource units 也在查询时动态判
 保留 relation-ready membership，因此 release 后直接重判 readiness/capacity，无需广播 mutex cohort 或恢复成员。
 persistent successor 不改旧 state 或另一个 fork。
 
-### Constraint groups 与静态 frontier
-
-compiled graph 将动态 mutex/resource fit 和静态 scope layer 相同的 Task 编入同一 constraint group；
-tighter-than-root 指 scope 的 maxParallel 小于 root maxParallel：
-
-| 分组维度 | 等价条件 |
-| --- | --- |
-| Mutex | mutex ID 集合相同；occurrence 数量仍由 occupancy 和公开 rejection 各自保留。 |
-| Resource | canonical resource claims 相同。 |
-| Scope | tighter-than-root scope ID 与 activation 标记相同；non-tighter scope 可合组，实际 activation/close effects 仍按被选 Task 产生。 |
-
-每组 frontier 保存 relation-ready 成员的 ordinary/constrained 两种 persistent priority 顺序：priority 从高到低，随后分别按 declaration
-slot 或 lexical Task ID；相同顺序的 backing 可共享。tighter scope 的 non-activation Task 在 inactive 时走 ordinary，
-active 后走 continuation，故两类 tie order 必须分别维护。static layer 读取当前 active roots；真实 activation 读取
-inactive/active/closed lifecycle。
-
-frontier 与 memberships 在同一 seed/transition owner 中维护，不拥有另一套 readiness 或 legality。任意 custom selection、forced
-settlement 与 cancellation 可移除非 head 成员；transition 当场推进受影响组的 live heads，延后留存的非 head tombstone 以后
-只在 transition 中弹出，query 不重复从旧 head 扫描。每条单调分支中，每个 Task 至多进入 relation-ready frontier 一次，各排序
-heap 中的对应节点至多弹出一次；旧 state/fork 保持自己的 persistent 分支。
-
-`static-frontier.ts` 为 tightening、continuation、ordinary 各保存一条全局有序 group-head queue。
-`selection-frontiers.ts` 消费实际 membership delta 更新受影响组，static frontier 在实际 active-root 变化时重分类该 scope 的组；
-当前 active roots 由 lifecycle facts 与有序 slot 视图承接，不另维护同内容的 active-root Set。
-每次 head 或 layer 改变推进 group revision，旧节点即使再次成为同一 Task head 也不能复活；transition 清理失效 roots，
-query 在跳过动态阻塞 head 时只处理所需有序前缀，保留旧 state/fork。
-`static-selection-query.ts` 首先检查 persistent queue 的首节点；只有需要继续遍历时才建立 query-local Mnemonist Heap，
-保存不可变节点引用，按 preference rank best-first 取下一节点、按 revision 排除 stale entry，再查询同源 mutex/capacity。
-读取不通过 persistent merge 生成 successor copies，不修改 frontier；查询局部的 mutable heap 不进入 retained state 或 fork。
-
-ready、static 和 forced frontier 共用 Scheduler-private persistent Task queue 的不可变 backing。
-ready/static preference 来自 compiled 全局 ranks，仍保留每组相同的 ordinary/constrained 内部顺序；
-forced 保留 descending task-slot 顺序，并在 transition 清理已不再 pending 的 stale root，避免取消后再次 forced settlement。
-revision 是 entry identity，不是 Task priority 或另一套 legality。
-
 ### Shell 执行与准入边界
 
 real shell 以 declaration-order `Map<TaskId, Task>` 拥有实际 pending payload，另拥有 runningById 的 Task/Promise、settlement value/error、signal、diagnostic、
@@ -251,6 +216,43 @@ sync/async terminal effects 逐个 await，effect elapsed 不计已 seal 的 mea
 nonempty caller terminal effects 或 successful prepared result 实际含 terminalEffect 才启用 terminalEffects output；无 sealed context 时 enabled output 保持 not-run。所有实际 participants 成功才 succeeded，任一失败即 failed。无 primary failure 时按输出指南形成保留完整 facts 的 output failure；已有 cancellation、policy fault 或其它 primary failure 时只记录 terminal effect status，不覆盖 primary kind/diagnostic。pre-work/planning 没有 context，不交付 terminal effects；summary writer failure 属于 diagnostic writer containment，不是 caller terminal effect failure。
 
 terminal effect identity/source/closure 与 contextNeeds 不进入 fingerprint；该 seam 不创建 effect registry、machine/progress/Check facts 或自动学习。修改此链路时核对相邻 scheduler、invocation 与 output tests；capacity/hard-guard 变动还须同步审查[summary denominator、queue 分类与 boundary](human-output.md#scheduler-summary-projections)。
+
+## 准入索引实现细节
+
+### Constraint groups 与静态 frontier
+
+compiled graph 将动态 mutex/resource fit 和静态 scope layer 相同的 Task 编入同一 constraint group；
+tighter-than-root 指 scope 的 maxParallel 小于 root maxParallel：
+
+| 分组维度 | 等价条件 |
+| --- | --- |
+| Mutex | mutex ID 集合相同；occurrence 数量仍由 occupancy 和公开 rejection 各自保留。 |
+| Resource | canonical resource claims 相同。 |
+| Scope | tighter-than-root scope ID 与 activation 标记相同；non-tighter scope 可合组，实际 activation/close effects 仍按被选 Task 产生。 |
+
+每组 frontier 保存 relation-ready 成员的 ordinary/constrained 两种 persistent priority 顺序：priority 从高到低，随后分别按 declaration
+slot 或 lexical Task ID；相同顺序的 backing 可共享。tighter scope 的 non-activation Task 在 inactive 时走 ordinary，
+active 后走 continuation，故两类 tie order 必须分别维护。static layer 读取当前 active roots；真实 activation 读取
+inactive/active/closed lifecycle。
+
+frontier 与 memberships 在同一 seed/transition owner 中维护，不拥有另一套 readiness 或 legality。任意 custom selection、forced
+settlement 与 cancellation 可移除非 head 成员；transition 当场推进受影响组的 live heads，延后留存的非 head tombstone 以后
+只在 transition 中弹出，query 不重复从旧 head 扫描。每条单调分支中，每个 Task 至多进入 relation-ready frontier 一次，各排序
+heap 中的对应节点至多弹出一次；旧 state/fork 保持自己的 persistent 分支。
+
+`static-frontier.ts` 为 tightening、continuation、ordinary 各保存一条全局有序 group-head queue。
+`selection-frontiers.ts` 消费实际 membership delta 更新受影响组，static frontier 在实际 active-root 变化时重分类该 scope 的组；
+当前 active roots 由 lifecycle facts 与有序 slot 视图承接，不另维护同内容的 active-root Set。
+每次 head 或 layer 改变推进 group revision，旧节点即使再次成为同一 Task head 也不能复活；transition 清理失效 roots，
+query 在跳过动态阻塞 head 时只处理所需有序前缀，保留旧 state/fork。
+`static-selection-query.ts` 首先检查 persistent queue 的首节点；只有需要继续遍历时才建立 query-local Mnemonist Heap，
+保存不可变节点引用，按 preference rank best-first 取下一节点、按 revision 排除 stale entry，再查询同源 mutex/capacity。
+读取不通过 persistent merge 生成 successor copies，不修改 frontier；查询局部的 mutable heap 不进入 retained state 或 fork。
+
+ready、static 和 forced frontier 共用 Scheduler-private persistent Task queue 的不可变 backing。
+ready/static preference 来自 compiled 全局 ranks，仍保留每组相同的 ordinary/constrained 内部顺序；
+forced 保留 descending task-slot 顺序，并在 transition 清理已不再 pending 的 stale root，避免取消后再次 forced settlement。
+revision 是 entry identity，不是 Task priority 或另一套 legality。
 
 ## 验证边界
 

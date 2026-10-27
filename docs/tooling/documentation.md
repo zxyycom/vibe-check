@@ -27,9 +27,9 @@ README、API 专题与 Check 指南都发布 checked-in Markdown。文件映射�
 ### 修改与验证步骤
 
 1. 修改正文或链接时，直接编辑最终 Markdown；修改 Check 指南时，直接编辑对应指南。
-2. 修改受管示例时，编辑白名单内的 TypeScript 源文件。新增、移动或重命名目标章节时，同时更新 registry 的 heading path 或源码 JSDoc 目标。
-3. 运行 `bun run docs:api:write`，更新 Markdown 示例代码块和 JSDoc 示例尾部。
-4. 运行 `bun run docs:api`。默认 check mode 不写文件；任一 checked-in 投影过期都会失败。目标章节的精确语法与失败条件见[示例投影规则](repository-material-validation.md#示例投影规则)。
+2. 修改受管示例时，编辑白名单内的 TypeScript 源文件。新增、移动或重命名投影目标章节时，同时更新 registry 的 heading path 或源码 JSDoc 目标。
+3. 仅当受管示例或投影目标变化时，运行 `bun run docs:api:write`，更新 Markdown 示例代码块和 JSDoc 示例尾部；纯正文或链接修改无需运行写入模式。
+4. 运行 `bun run docs:api`。默认 check mode 不写文件；任一 checked-in 投影过期都会失败。目标章节的精确语法与失败条件见[示例投影规则](repository-material-validation.md#示例投影规则)。再按[交付验证](../navigation.md#交付验证)运行适用检查。
 
 新增、移动或改变发布项时，还需同步核对导航、README 和发布清单，并通过 package material / consumer 验收。
 [文档导航](../navigation.md#读者发布范围与规则归属)映射读者和规则责任，不决定发布范围。

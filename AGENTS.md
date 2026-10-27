@@ -13,6 +13,7 @@
 
 - 日常开发与提交只在 `main` 进行；其它分支须有明确授权。发布分支按已确认的
   [发布流程](docs/tooling/package-release.md)处理，工作区协调见[Change 协调](docs/governance/change-coordination.md)。
+- 提交前按 [Git hook 边界](docs/tooling/workspace.md#local-post-commit-auto-push)核对当前 checkout 的启用状态、潜在自动推送及授权例外。
 - 缺少 owner 文档时，以近邻代码、测试、示例和当前请求为依据，并说明会影响结果的假设。
 - 理解调用关系优先使用可用的 CodeGraph MCP；不可用、索引不足或结果不足时，使用带路径过滤的
   `rg` / `rg --files`。

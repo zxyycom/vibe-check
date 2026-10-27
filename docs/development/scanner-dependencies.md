@@ -1,6 +1,6 @@
 # Check-owned scanner dependencies
 
-本文拥有 package-provided Check 的外部命令边界。`duplicateDetection` 与 `fileMetrics` 分别拥有
+本文拥有 package-provided Check 的 scanner 依赖与实现边界，包括外部命令、内置 analyzer、Markdown lint cache 和 Secretlint 依赖维护。`duplicateDetection` 与 `fileMetrics` 分别拥有
 自己的 jscpd、SCC command；`functionMetrics` 使用产品内置 TypeScript analyzer，不依赖可执行文件、环境变量或
 `PATH`。这些能力不是集中 scanner subsystem，也不形成公共的 scanner resolution API。
 
@@ -143,7 +143,7 @@ seam 只隔离资源矩阵的调度成本，不能证明生产默认让步。ear
 `src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/`；
 `licenses/lizard-1.24.1-provenance.json` 拥有 source/range、hash、SPDX 与 translated-target mapping。
 源码忠实翻译之外，Rust 实际 match arm CCN 增量的 `=>` tags 与 Kotlin expression/when 的函数行/NLOC 边界具有两项局部偏差；
-具体机制、原始 oracle 与修正期望的分离见该目录的 `source-alignment-deviations.md` 和 `README.md`。
+具体机制、原始 oracle 与修正期望的分离见该目录的 [source-alignment-deviations.md](../../src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/source-alignment-deviations.md) 和 [README.md](../../src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/README.md)。
 公开 contributors 的语义由 [Check 指南](../checks/function-metrics.md#效果与结果)拥有，不等同全部内部 CCN 事件。
 上游 Cognitive Complexity body 在 inventory 中归为 deferred，不注册可执行 processor 或公共 metric。
 identity tests 从该 mapping 验证上述 source/target/symbol 闭合；测试 evidence 不参与 Product runtime 或 package payload。

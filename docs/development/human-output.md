@@ -1,7 +1,7 @@
 # Run 人读输出实现
 
 本文拥有 Check console capture、progress presentation 与 diagnostic logging 的内部实现约束，以及 Scheduler summary 的投影定义。
-用户配置、公开 readback、输出失败优先级和结果读取由[API 机制](../guides/run-outputs.md#输出状态与失败处理)拥有；
+用户配置、公开 readback、输出失败优先级和结果读取由[Run 输出与诊断](../guides/run-outputs.md#输出状态与失败处理)拥有；
 机器文件的生成与验证由[机器输出维护](output-maintenance.md)拥有。修改这些内部组件时，先按下列职责定位对应规则。
 
 | 组件 | 职责 |
@@ -71,7 +71,7 @@ terminal 或 tee bytes。此策略只影响 renderer；Check lifecycle facts、p
 formatter throw 或非字符串返回使 progress output failed，随后停写，但不改写已接受 facts/Check settlement。
 真实 Promise 的 rejection 被观察，任意 thenable 不会被读取或调用。禁用 progress 时不创建 writer、tee、refresh
 或 preview，也不调用 formatter。formatter 是 trusted caller code，不是 secret redaction 或 I/O sandbox；
-调用方可依赖的输出与敏感信息边界见 [API 机制](../guides/run-outputs.md#check-messages-与受管-progress)。
+调用方可依赖的输出与敏感信息边界见 [Run 输出与诊断](../guides/run-outputs.md#check-messages-与受管-progress)。
 
 ### Lifecycle 与写入
 
@@ -108,7 +108,7 @@ cyclic、过深、过宽和超大值保持有界。policy fault 只记录类别�
 每个 non-configuration result path 至多关闭每个 enabled channel 一次；最后的 `run.terminal-before-log-close` 只表明
 terminal fact 已写入，随后才尝试 close。先尝试全部 diagnostic closes，再关闭尚未关闭的 progress writer。
 channel setup/write/close failure 分别收敛，完整 facts 与其它输出继续闭合；aggregate/per-channel readback 和多 output
-失败优先级由[API 机制](../guides/run-outputs.md#输出状态与失败处理)拥有。这些人读行不建立机器 parser 或格式版本契约。
+失败优先级由[Run 输出与诊断](../guides/run-outputs.md#输出状态与失败处理)拥有。这些人读行不建立机器 parser 或格式版本契约。
 
 ## Scheduler summary projections
 
