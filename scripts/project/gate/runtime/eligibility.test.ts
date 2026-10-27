@@ -7,7 +7,7 @@ import micromatch from "micromatch";
 import { loadPackageDocuments } from "../../../docs/package-documents.ts";
 import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "../../../docs/package-api/example-projections.ts";
 import { resolveProjectGateTestLanes } from "../checks/test-execution/lanes.ts";
-import { PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS } from "./eligibility.ts";
+import { PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS } from "./change-regions.ts";
 
 type RegionName = keyof typeof PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS;
 

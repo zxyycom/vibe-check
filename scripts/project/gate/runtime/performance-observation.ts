@@ -48,6 +48,14 @@ export function evaluateProjectGatePerformance(
   runtime: ProjectGatePerformanceRuntime = currentProjectGatePerformanceRuntime()
 ): ProjectGateResultContribution {
   const profile = context.selection.kind;
+  if (profile === "scoped") {
+    return contribution({
+      blocks: false,
+      level: "info",
+      code: "project-gate-performance-scoped-selection",
+      message: "fast plus explicit scopes has no standard-profile performance budget evaluation"
+    });
+  }
   if (profile === "focused") {
     return contribution({
       blocks: false,

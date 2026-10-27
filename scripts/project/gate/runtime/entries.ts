@@ -114,13 +114,25 @@ function validateProjectGateObservationSelection(
       `Project Gate observes relation is not selection-policy closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
     );
   }
+  if (policy === "routine") validateRoutineObservationSelection(entry, observedEntry);
+  if (entry.presets.some((preset) => !observedEntry.presets.includes(preset))) {
+    throw new TypeError(
+      `Project Gate observes relation is not preset-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
+    );
+  }
+}
+
+/** Routine observers must be closed under both incremental input and explicit scope selection. */
+function validateRoutineObservationSelection(
+  entry: ProjectGateEntry,
+  observedEntry: ProjectGateEntry
+): void {
   if (entry.fast && !observedEntry.fast) {
     throw new TypeError(
       `Project Gate observes relation is not fast-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
     );
   }
   if (
-    policy === "routine" &&
     observedEntry.changeRegion !== undefined &&
     entry.changeRegion !== observedEntry.changeRegion
   ) {
@@ -128,9 +140,13 @@ function validateProjectGateObservationSelection(
       `Project Gate observes relation is not changed-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
     );
   }
-  if (entry.presets.some((preset) => !observedEntry.presets.includes(preset))) {
+  if (
+    entry.changeRegion !== undefined &&
+    observedEntry.changeRegion === undefined &&
+    !observedEntry.fast
+  ) {
     throw new TypeError(
-      `Project Gate observes relation is not preset-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
+      `Project Gate observes relation is not scope-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
     );
   }
 }

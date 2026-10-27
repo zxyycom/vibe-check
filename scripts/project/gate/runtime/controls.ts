@@ -1,14 +1,28 @@
 import { PROJECT_GATE_PRESETS, PROJECT_GATE_SELECTION, type ProjectGatePreset } from "./catalog.ts";
+import {
+  isProjectGateScope,
+  PROJECT_GATE_SCOPES,
+  type ProjectGateScope
+} from "./change-regions.ts";
 
 export const PROJECT_GATE_ALL_FLAG = "project-gate:all";
 export const PROJECT_GATE_FAST_FLAG = "project-gate:fast";
 export const PROJECT_GATE_CHANGED_FLAG = "project-gate:changed";
 export const PROJECT_GATE_RELEASE_FLAG = "project-gate:release";
 const PROJECT_GATE_PRESET_FLAG_PREFIX = "project-gate:preset=";
+const PROJECT_GATE_SCOPE_FLAG_PREFIX = "project-gate:scope=";
+
+const canonicalScopedSelectionBrand = Symbol("canonical-scoped-selection");
+type ScopedProjectGateSelection = Readonly<{
+  readonly kind: "scoped";
+  readonly scopes: readonly ProjectGateScope[];
+  readonly [canonicalScopedSelectionBrand]: true;
+}>;
 
 export type ProjectGateSelection =
   | Readonly<{ readonly kind: "all"; readonly release?: true }>
   | Readonly<{ readonly kind: "focused"; readonly presets: readonly ProjectGatePreset[] }>
+  | ScopedProjectGateSelection
   | Readonly<{ readonly kind: "fast" | "changed" }>;
 
 export type ProjectGateArgumentParseResult =
@@ -22,7 +36,7 @@ export type ProjectGateArgumentParseResult =
 
 type ProjectGateArgumentFailure = Readonly<{ readonly ok: false; readonly error: string }>;
 
-/** Parses the adapter's deliberately small public preset grammar. */
+/** Parses the adapter's closed scope, preset and whole-workspace selection grammar. */
 export function parseProjectGateArguments(
   arguments_: readonly string[]
 ): ProjectGateArgumentParseResult {
@@ -40,6 +54,11 @@ export function parseProjectGateArguments(
       : parseFailure(`--${exclusive} must be used without other selection arguments`);
   }
 
+  if (arguments_.includes("--scope")) return parseScopedArguments(arguments_);
+  return parseFocusedArguments(arguments_);
+}
+
+function parseFocusedArguments(arguments_: readonly string[]): ProjectGateArgumentParseResult {
   const presets: ProjectGatePreset[] = [];
   for (const argument of arguments_) {
     const preset = presetForArgument(argument);
@@ -49,12 +68,53 @@ export function parseProjectGateArguments(
   return runSelection(Object.freeze({ kind: "focused", presets: canonicalPresets(presets) }));
 }
 
-/** Describes the complete adapter-owned preset grammar. */
+function parseScopedArguments(arguments_: readonly string[]): ProjectGateArgumentParseResult {
+  const scopes: ProjectGateScope[] = [];
+  for (let index = 0; index < arguments_.length; index += 2) {
+    const argument = arguments_[index];
+    if (argument !== "--scope") {
+      return parseFailure(
+        `--scope cannot be combined with selection argument: ${JSON.stringify(argument)}`
+      );
+    }
+    const scope = arguments_[index + 1];
+    if (scope === undefined || scope.startsWith("--")) {
+      return parseFailure("--scope requires a scope name; see --help for available scopes");
+    }
+    if (!isProjectGateScope(scope)) {
+      return parseFailure(
+        `unknown Project Gate scope: ${JSON.stringify(scope)}; see --help for available scopes`
+      );
+    }
+    scopes.push(scope);
+  }
+  return runSelection(createScopedProjectGateSelection(scopes));
+}
+
+/** Owns the nonempty, known, sorted and unique scope invariant for every internal caller. */
+export function createScopedProjectGateSelection(
+  scopes: readonly string[]
+): ScopedProjectGateSelection {
+  if (scopes.length === 0 || !scopes.every(isProjectGateScope)) {
+    throw new TypeError("Project Gate scoped selection requires at least one known scope");
+  }
+  const selection = {
+    kind: "scoped" as const,
+    scopes: Object.freeze([...new Set(scopes)].sort()),
+    [canonicalScopedSelectionBrand]: true as const
+  };
+  // The construction proof stays private and out of serialized selection data.
+  Object.defineProperty(selection, canonicalScopedSelectionBrand, { enumerable: false });
+  return Object.freeze(selection);
+}
+
+/** Describes the complete adapter-owned selection grammar. */
 export function projectGateHelp(): string {
   return [
     "Usage: bun run check -- [options]",
     "",
     "Options:",
+    "  --scope <name>            Add this routine scope to default fast; repeat for a union.",
     "  --typecheck               Run product and script typechecks.",
     "  --lint                    Run product and script lint.",
     "  --test                    Run routine tests without package acceptance or workbench.",
@@ -71,8 +131,13 @@ export function projectGateHelp(): string {
     "Focused presets can be combined and replace the default fast selection; only --all",
     "is complete routine acceptance independent of changed-path evidence.",
     "Consumer types run only explicitly or with --all --release-receipt; workbench is explicit-only.",
+    "Scopes force named routine regions, not Git change evidence; do not mix with other selections.",
+    "Available scopes:",
+    ...PROJECT_GATE_SCOPES.map((scope) => `  ${scope}`),
     "",
     "Examples:",
+    "  bun run check -- --scope project-selection-tests",
+    "  bun run check -- --scope product-markdown-tests --scope any-change",
     "  bun run check -- --typecheck --lint",
     "  bun run check -- --consumer-types",
     "  bun run check -- --admission-workbench",
@@ -86,6 +151,8 @@ export function projectGateHelp(): string {
 /** Summarizes the effective selection before Check output begins. */
 export function projectGateSelectionSummary(selection: ProjectGateSelection): string {
   switch (selection.kind) {
+    case "scoped":
+      return `selection=scoped; base=fast; scopes=${selection.scopes.join(",")}; acceptance=partial; package-acceptance=scope-dependent`;
     case "fast":
       return "selection=fast; acceptance=partial; package-acceptance=not-selected";
     case "changed":
@@ -100,6 +167,8 @@ export function projectGateSelectionSummary(selection: ProjectGateSelection): st
 /** Encodes one normalized project selection as Product Run flag tokens. */
 export function selectionFlags(selection: ProjectGateSelection): readonly string[] {
   switch (selection.kind) {
+    case "scoped":
+      return Object.freeze([PROJECT_GATE_FAST_FLAG, ...selection.scopes.map(projectGateScopeFlag)]);
     case "fast":
       return Object.freeze([PROJECT_GATE_FAST_FLAG]);
     case "changed":
@@ -118,9 +187,23 @@ export function selectionFlags(selection: ProjectGateSelection): readonly string
 export function selectionFromFlags(flags: readonly string[]): ProjectGateSelection | undefined {
   const exclusiveSelection = selectionForExclusiveFlag(flags);
   if (exclusiveSelection !== undefined) return exclusiveSelection;
+  if (flags[0] === PROJECT_GATE_FAST_FLAG) return scopedSelectionFromFlags(flags.slice(1));
   if (!hasDistinctFocusedFlags(flags)) return undefined;
 
   return focusedSelectionFromFlags(flags);
+}
+
+function scopedSelectionFromFlags(flags: readonly string[]): ProjectGateSelection | undefined {
+  const scopes: ProjectGateScope[] = [];
+  for (const flag of flags) {
+    if (!flag.startsWith(PROJECT_GATE_SCOPE_FLAG_PREFIX)) return undefined;
+    const scope = flag.slice(PROJECT_GATE_SCOPE_FLAG_PREFIX.length);
+    if (!isProjectGateScope(scope)) return undefined;
+    const previous = scopes.at(-1);
+    if (previous !== undefined && scope <= previous) return undefined;
+    scopes.push(scope);
+  }
+  return scopes.length === 0 ? undefined : createScopedProjectGateSelection(scopes);
 }
 
 function selectionForExclusiveFlag(flags: readonly string[]): ProjectGateSelection | undefined {
@@ -158,6 +241,10 @@ export function projectGatePresetFlag(preset: ProjectGatePreset): string {
   return `${PROJECT_GATE_PRESET_FLAG_PREFIX}${preset}`;
 }
 
+export function projectGateScopeFlag(scope: ProjectGateScope): string {
+  return `${PROJECT_GATE_SCOPE_FLAG_PREFIX}${scope}`;
+}
+
 export function isProjectGatePreset(value: unknown): value is ProjectGatePreset {
   return typeof value === "string" && PROJECT_GATE_PRESETS.some((preset) => preset === value);
 }
@@ -169,7 +256,7 @@ export function isCompleteProjectGateSelection(selection: ProjectGateSelection):
 export function projectGateStandardProfile(
   selection: ProjectGateSelection
 ): "all" | "fast" | "changed" | undefined {
-  return selection.kind === "focused" ? undefined : selection.kind;
+  return selection.kind === "focused" || selection.kind === "scoped" ? undefined : selection.kind;
 }
 
 function presetForArgument(argument: string): ProjectGatePreset | undefined {

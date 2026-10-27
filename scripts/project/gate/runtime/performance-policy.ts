@@ -2,7 +2,10 @@ import { isNonArrayRecord } from "../../../value-guards.ts";
 
 import type { ProjectGateSelection } from "./controls.ts";
 
-export type ProjectGatePerformanceProfile = Exclude<ProjectGateSelection["kind"], "focused">;
+export type ProjectGatePerformanceProfile = Exclude<
+  ProjectGateSelection["kind"],
+  "focused" | "scoped"
+>;
 
 export interface ProjectGatePerformanceBudget {
   readonly maxElapsedMs: number;
@@ -21,12 +24,13 @@ export const PROJECT_GATE_PERFORMANCE_POLICY: ProjectGatePerformancePolicy = Obj
   all: Object.freeze({ maxElapsedMs: 90000, maxMeanCheckMs: 2000, maxP95CheckMs: 5000 })
 });
 
-/** Rejects invalid project policy before candidate preparation; focused runs are not acceptance. */
+/** Rejects invalid standard-profile policy before candidate preparation; partial selections use no standard budget. */
 export function preflightPerformancePolicy(
   selection: ProjectGateSelection,
   load: () => unknown
 ): ProjectGatePerformancePolicy | undefined {
-  if (selection.kind === "focused") return PROJECT_GATE_PERFORMANCE_POLICY;
+  if (selection.kind === "focused" || selection.kind === "scoped")
+    return PROJECT_GATE_PERFORMANCE_POLICY;
   try {
     const policy = load();
     if (isPerformancePolicy(policy)) return policy;

@@ -11,6 +11,7 @@ import {
   type ProjectGatePerformanceBudget
 } from "./performance-policy.ts";
 import { evaluateProjectGatePerformance } from "./performance-observation.ts";
+import { createScopedProjectGateSelection } from "./controls.ts";
 
 const runtime = Object.freeze({ architecture: "x64", bunVersion: "1.3.14", platform: "linux" });
 const budget = Object.freeze({
@@ -22,6 +23,16 @@ const performancePolicy = Object.freeze({ fast: budget, changed: budget, all: bu
 
 describe("Project Gate performance budgets", () => {
   it("blocks exceeded budgets or invalid measurements and retains failure context", () => {
+    const scoped = evaluateProjectGatePerformance(
+      {
+        ...context(999999),
+        initialResult: createProjectGateResult("passed"),
+        selection: createScopedProjectGateSelection(["project-tests"])
+      },
+      runtime
+    );
+    assert.equal(scoped.blocks, false);
+    assert.equal(scoped.messages[0]?.code, "project-gate-performance-scoped-selection");
     const initialResult = createProjectGateResult("passed", [
       { code: "existing", level: "info", message: "kept" }
     ]);

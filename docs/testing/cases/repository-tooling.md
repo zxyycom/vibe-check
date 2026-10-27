@@ -96,12 +96,13 @@ Entities:
 - 三项 metrics 的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；function metrics 额外排除 Product test/test-support，duplicate/file 仍选择这些测试文件。Duplicate detection 不选择 Markdown；duplicate/file metrics 不选择 historical Schemas，但继续选择 current Schemas。两个 Markdown Check 的范围均限于 `docs/**/*.md` 与 `changes/**/*.md`。
 - Artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共五个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。显式 `package:candidate:integration` 另有 30 秒进程硬限制，但不属于 routine `--test` preset。
 
-## Case AUX-PROJECT-GATE-SELECTION-001: Project Gate 按输入变更选择闭合 Checks
+## Case AUX-PROJECT-GATE-SELECTION-001: Project Gate 的快速、范围与变更选择闭合
 
 Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to fast and normalizes combinable focused presets into opaque flags`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > adds named routine scopes to fast with closed canonical flags`
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps fast, changed, all, and focused membership golden while aggregation uses Product selection`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects independent script test lanes from their changed inputs`
@@ -112,10 +113,13 @@ Entities:
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects package and Case checks only for their documented source boundaries`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > covers every registered package source and current Case owner`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities`
+- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > adds routine scopes to fast without selecting unrelated slow work`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection`
   Proves:
 
 - 无 selection 参数时采用 fast 快速反馈，只运行有资格且命中输入的工程基础与两条快速测试 lane，加上固定 candidate/whitespace；不能替代验收。`--changed` 选择全部受影响 routine 验收，`--all` 不依赖变更命中选择完整 routine manifest；二者各自独占。focused preset 可重复、组合并替换默认选择，receipt 只与 all 同用，摘要反映实际范围。
+- `--scope` 的构造边界验证非空及已知范围，固定去重、排序、独立冻结且可往返编码的选择状态；非法或混用输入、非规范 flags 及 scoped receipt 均被拒绝，非法 scope 不准备 candidate。
+- 实际 Product Run 在正常 Git 零命中、无 Git 回退与无关工作区变更下，均选择 fast 加指定 routine 范围及必要依赖，不带入无关慢项或 non-routine 项；零命中不执行无关 fast，范围并集只追加指定工作。scoped golden 保留 manifest 顺序，观察关系须闭合。
 - changed 通过 Gate 的 region 数据与 Product 所用的 `micromatch` 完整列表选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；未分类根路径也保守扩大至全部 routine 验收，已知家族下的新脚本模块则由所属保守 region 承接。Product Core-and-tools lane 的 region 覆盖其完整 test 分区及相关源码。
 - 已登记的 `docs/examples/package-api-support/**` 验收支持源变化会选择 package tooling lane，避免只修改共享验收逻辑时漏掉复制与 fingerprint 回归；支持源仍不是发布材料。
 - 七个 Product Check test lane 分别绑定自己的 change flag：私有实现与 fixture 触发所属组，已知 owner 的测试正文触发自身 Product lane 及扫描其正文的组。host-environment/project-files 测试属于 supporting Checks。file metrics 另消费 JSON validation/document 的实现、helper 和 fixture；function metrics 的 source-identity 审计覆盖全部 Product source。
@@ -249,7 +253,7 @@ Entities:
   Proves:
 
 - fast/changed/all 使用同一版本化策略：总预算为 30000/30000/90000ms，均值 2000ms、P95 5000ms；receipt 的 all+release 仍使用原 all 预算，不增加发布档。完整三档策略在 candidate preparation 前校验；非法或 loader 抛错失败，不读取本机配置或按 runtime/指纹改变门限。
-- `elapsed-to-initial-result` 包括三个连续阶段；等于预算为 info，总耗时、均值或 P95 任一独立超标即 error / blocks。无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 不加载策略或评估正式预算。
+- `elapsed-to-initial-result` 包括三个连续阶段；等于预算为 info，总耗时、均值或 P95 任一独立超标即 error / blocks。无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 和 scoped 局部选择不加载策略或评估标准预算；scoped 明确返回未套标准预算的诊断。
 - Check 分布不计 null，但计入真实零值；输出执行数量、累计执行耗时和独立判断的均值/P95，累计值明确不等于墙钟。nearest-rank 对小集合、20 项和 34 项具有确定结果，空集合显示 n/a，最慢三项按耗时及 ID 确定排序。重复 ID、非法耗时和累计溢出不产生伪统计。
 - 领域 API 覆盖三档总耗时、均值、P95 独立及组合超标的 blocks 与消息；adapter 分别以总耗时、Check 分布超标代表用例证明默认 contributor 返回 exit 1，error、唯一 failed / exit 1 与安全现场实际落入 gate.log，终端只显示超标和日志入口。准备、load、Run 各执行一次，预算对象与 Product facts 不改写；现场保留完整 duration facts、实际测量、candidate 身份/准备动作及 runtime，未超标时无失败现场。现场只投影授权字段，控制字符转义后仍通过 contribution 校验，JSON 读回保留原值。
 

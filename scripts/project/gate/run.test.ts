@@ -19,6 +19,7 @@ import { isNonArrayRecord } from "../../value-guards.ts";
 import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
 
 import {
+  createScopedProjectGateSelection,
   parseProjectGateArguments,
   projectGateHelp,
   projectGateSelectionSummary,
@@ -219,6 +220,108 @@ describe("Project Gate entries, root binding, and controls", () => {
       parseProjectGateInvocationArguments(["--changed", "--release-receipt", "receipt.json"]).ok,
       false
     );
+  });
+
+  it("adds named routine scopes to fast with closed canonical flags", async () => {
+    const selectionInput = [
+      "product-markdown-tests",
+      "material-json-input",
+      "product-markdown-tests"
+    ];
+    const canonical = createScopedProjectGateSelection(selectionInput);
+    assert.deepEqual(canonical, {
+      kind: "scoped",
+      scopes: ["material-json-input", "product-markdown-tests"]
+    });
+    assert.deepEqual(selectionFromFlags(selectionFlags(canonical)), canonical);
+    assert.equal(Object.isFrozen(canonical), true);
+    assert.equal(Object.isFrozen(canonical.scopes), true);
+    selectionInput.push("project-tests");
+    assert.deepEqual(canonical.scopes, ["material-json-input", "product-markdown-tests"]);
+    for (const invalidScopes of [[], ["unknown"], ["unclassified-input"]]) {
+      assert.throws(
+        () => createScopedProjectGateSelection(invalidScopes),
+        /requires at least one known scope/
+      );
+    }
+    const parsed = parseProjectGateArguments([
+      "--scope",
+      "product-markdown-tests",
+      "--scope",
+      "material-json-input",
+      "--scope",
+      "product-markdown-tests"
+    ]);
+    assert.deepEqual(parsed, {
+      ok: true,
+      action: "run",
+      value: { kind: "scoped", scopes: ["material-json-input", "product-markdown-tests"] }
+    });
+    if (!parsed.ok || parsed.action !== "run") return;
+    const flags = selectionFlags(parsed.value);
+    assert.deepEqual(flags, [
+      "project-gate:fast",
+      "project-gate:scope=material-json-input",
+      "project-gate:scope=product-markdown-tests"
+    ]);
+    assert.deepEqual(selectionFromFlags(flags), parsed.value);
+    assert.match(
+      projectGateSelectionSummary(parsed.value),
+      /selection=scoped; base=fast;.*acceptance=partial/
+    );
+    assert.match(projectGateHelp(), /--scope <name>/);
+    for (const arguments_ of [
+      ["--scope"],
+      ["--scope", "unknown"],
+      ["--scope", "unclassified-input"],
+      ["--scope", "__proto__"],
+      ["--scope", "--all"],
+      ["--scope", "project-tests", "--materials"],
+      ["--test", "--scope", "project-tests"],
+      ["--all", "--scope", "project-tests"],
+      ["--changed", "--scope", "project-tests"],
+      ["--help", "--scope", "project-tests"]
+    ])
+      assert.equal(parseProjectGateArguments(arguments_).ok, false, arguments_.join(" "));
+    assert.equal(
+      parseProjectGateInvocationArguments([
+        "--scope",
+        "project-tests",
+        "--release-receipt",
+        "receipt.json"
+      ]).ok,
+      false
+    );
+    for (const invalid of [
+      flags.slice(1),
+      [...flags, "project-gate:scope=product-markdown-tests"],
+      [
+        "project-gate:fast",
+        "project-gate:scope=product-markdown-tests",
+        "project-gate:scope=material-json-input"
+      ],
+      ["project-gate:fast", "project-gate:scope=unknown"],
+      ["project-gate:fast", "vibe-check:change:project-tests"],
+      ["project-gate:fast", "project-gate:preset=test"]
+    ])
+      assert.equal(selectionFromFlags(invalid), undefined, invalid.join(","));
+    const output = captureConsole();
+    let isCandidatePrepared = false;
+    try {
+      assert.equal(
+        await runProjectGate(["--scope", "unknown"], {
+          prepareCandidate: async () => {
+            isCandidatePrepared = true;
+            return prepared;
+          }
+        }),
+        PROJECT_GATE_EXIT_STATUS.unavailable
+      );
+      assert.equal(isCandidatePrepared, false);
+      assert.match(output.errors.join("\n"), /unknown Project Gate scope: "unknown"/);
+    } finally {
+      output.restore();
+    }
   });
 
   it("requires the complete all selection for one explicit formal release receipt", () => {

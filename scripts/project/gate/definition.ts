@@ -31,10 +31,8 @@ import {
 } from "../../validation/repository-material/workflow.ts";
 import { REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES } from "../../validation/repository-material/task-contract.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
-import {
-  PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS,
-  projectGateFlagControlledCheck
-} from "./runtime/eligibility.ts";
+import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
+import { PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS } from "./runtime/change-regions.ts";
 import { PROJECT_GATE_SELECTION } from "./runtime/catalog.ts";
 import {
   createExternalConsumerMaterialCheck,

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { createScopedProjectGateSelection } from "./controls.ts";
 
 import {
   preflightPerformancePolicy,
@@ -70,6 +71,12 @@ describe("Project Gate performance policy", () => {
         policy
       );
       assert.equal(errors.length, 0);
+      assert.equal(
+        preflightPerformancePolicy(createScopedProjectGateSelection(["project-tests"]), () => {
+          throw new Error("scoped must not load a standard-profile budget");
+        }),
+        policy
+      );
     } finally {
       console.error = originalError;
     }

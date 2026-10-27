@@ -119,7 +119,7 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 验证按**本次任务的改动归属及真实依赖**选择，不按整个工作区的 diff 大小选择。日常任务按以下顺序取得所需证据：
 
 1. 先检查自己的局部 diff；需要 Gate 快速反馈时默认运行 `bun run check`，不把运行 Gate 作为每次编辑的固定步骤。
-2. 对本次确实受影响的行为或材料，优先使用最窄目标测试、owner 独立命令；已有 focused preset 与所需范围吻合时再选用。下表是入口，不是每次交付必须叠加的清单；已有证据覆盖同一边界时不重复运行。
+2. 对本次确实受影响的行为或材料，优先使用最窄目标测试、owner 独立命令，或在同一次默认 Gate 调用中追加 `--scope <范围>`（可重复）。scope 在 fast 基线上增加指定范围，focused preset 仍替换默认选择。下表是入口，不是每次交付必须叠加的清单；已有证据覆盖同一边界时不重复运行。
 3. 其他任务的大量改动不扩大本任务的验证义务。共享代码或配置确实影响本任务时纳入依赖边界；命令无法隔离或遇到范围外失败时说明影响，不擅自清理他人改动或扩展修复。
 4. `--changed` 用于明确需要工作区整体受影响验收的任务；`--all` 用于明确要求的完整 routine 验收，或已有证据表明定向检查不足以覆盖的整体回归风险。调用前说明需要补足的证据，不因跨文件、跨 owner、交付阶段或他人改动自动升级。正式发布仍执行同一 receipt 的完整验收。
 
@@ -137,5 +137,5 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 明确的整体集成或完整 routine 验收 | 分别选择 `bun run check -- --changed` 或 `bun run check -- --all`；前者按整个 Git snapshot 选取，均不识别改动归属。 |
 | 正式发布前 | `bun run package:release:verify -- --receipt <path>`，同一正式 tarball 的 all + types 完整发布验收 |
 
-默认 fast 和定向检查分别只证明实际覆盖的范围，不能表述成完整 Gate 或发布验收通过。当前 Gate 没有任意 Check ID selector；preset 过宽时优先使用 owner 已有的最窄入口，不编造参数。
+默认 fast 和定向检查分别只证明实际覆盖的范围，不能表述成完整 Gate 或发布验收通过。[显式 scope](tooling/project-gate.md#按任务范围追加检查)复用已有范围名，不自动识别改动归属，也不是任意 Check ID selector；范围仍过宽时使用 owner 已有的最窄入口。
 报告实际执行、未执行项及影响；工具细分命令见[Workspace verification](tooling/workspace.md#verification)。

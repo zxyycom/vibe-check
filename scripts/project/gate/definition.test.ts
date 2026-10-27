@@ -1,19 +1,26 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { defineCheck, run as packageRun } from "@zxyycom/vibe-check";
 import type { CheckFlagCondition, CheckFlagEnablement } from "@zxyycom/vibe-check";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
+import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
 import {
   PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS,
-  projectGateFlagControlledCheck
-} from "./runtime/eligibility.ts";
-import { selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts";
+  PROJECT_GATE_SCOPES
+} from "./runtime/change-regions.ts";
+import {
+  createScopedProjectGateSelection,
+  selectionFlags,
+  type ProjectGateSelection
+} from "./runtime/controls.ts";
 import {
   createLintProductCheck,
   createProjectGateDefinition,
@@ -148,6 +155,22 @@ const expectedCheckIdsBySelection: readonly Readonly<{
   },
   { checkIds: expectedRoutineCheckIds, selection: { kind: "changed" } },
   { checkIds: expectedRoutineCheckIds, selection: { kind: "all" } },
+  {
+    checkIds: [
+      "typecheck-product",
+      "lint-product",
+      "typecheck-scripts",
+      "lint-scripts",
+      "format-check",
+      "prepared-package-candidate",
+      "tests-product-markdown",
+      "tests-scripts-project-selection",
+      "tests-scripts-package-tools-boundary",
+      "materials-json-validator",
+      "git-diff-whitespace"
+    ],
+    selection: createScopedProjectGateSelection(["material-json-input", "product-markdown-tests"])
+  },
   { checkIds: expectedReleaseCheckIds, selection: { kind: "all", release: true } },
   {
     checkIds: ["acceptance-installed-package-types"],
@@ -214,6 +237,13 @@ describe("Project Gate Definition", () => {
       preparedCandidate
     });
     const definition = createProjectGateDefinition(entries);
+
+    for (const scope of PROJECT_GATE_SCOPES) {
+      assert.ok(
+        entries.some(({ changeRegion }) => changeRegion === scope),
+        `Scope has no member: ${scope}`
+      );
+    }
 
     assert.deepEqual(
       new Set(entries.filter(({ fast }) => fast).map(({ check }) => check.checkId)),
@@ -605,6 +635,20 @@ describe("Project Gate Definition", () => {
     );
     assert.throws(
       () =>
+        defineProjectGateEntries([
+          { check: prerequisite, presets: [], fast: false },
+          { check: observer, presets: [], fast: false, changeRegion: "product-source" }
+        ]),
+      /observes relation is not scope-selection closed/
+    );
+    assert.doesNotThrow(() =>
+      defineProjectGateEntries([
+        { check: prerequisite, presets: [], fast: true },
+        { check: observer, presets: [], fast: false, changeRegion: "product-source" }
+      ])
+    );
+    assert.throws(
+      () =>
         createProjectGateDefinition([
           { check: prerequisite, presets: [], fast: true, changeRegion: "missing-region" }
         ]),
@@ -737,7 +781,9 @@ describe("Project Gate Definition", () => {
     for (const expectation of expectedCheckIdsBySelection) {
       const flags = new Set([
         ...selectionFlags(expectation.selection),
-        ...(["fast", "changed"].includes(expectation.selection.kind) ? allChangeFlags : [])
+        ...(["fast", "changed", "scoped"].includes(expectation.selection.kind)
+          ? allChangeFlags
+          : [])
       ]);
       assert.deepEqual(
         definition.checks
@@ -853,6 +899,51 @@ describe("Project Gate Definition", () => {
       }
     } finally {
       rmSync(projectRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("adds routine scopes to fast without selecting unrelated slow work", () => {
+    const fixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-scopes-"));
+    try {
+      const projectRoot = join(fixtureRoot, "project");
+      mkdirSync(projectRoot);
+      const configPath = join(fixtureRoot, "gitconfig");
+      writeFileSync(configPath, "");
+      const fixtureEnvironment = Object.fromEntries(
+        Object.entries(process.env).filter(([name]) => !name.startsWith("GIT_"))
+      );
+      // Isolate setup writes and Product Git reads without mutating the test process environment.
+      const result = spawnSync(
+        process.execPath,
+        [
+          fileURLToPath(new URL("./runtime/scoped-selection.test-support.ts", import.meta.url)),
+          projectRoot
+        ],
+        {
+          cwd: projectRoot,
+          encoding: "utf8",
+          env: {
+            ...fixtureEnvironment,
+            GIT_CONFIG_GLOBAL: configPath,
+            GIT_CONFIG_NOSYSTEM: "1",
+            GIT_CEILING_DIRECTORIES: fixtureRoot
+          },
+          timeout: 10000
+        }
+      );
+      assert.equal(
+        result.status,
+        0,
+        JSON.stringify({
+          status: result.status,
+          signal: result.signal,
+          error: result.error?.message ?? null,
+          stderr: result.stderr
+        })
+      );
+      assert.equal(result.stdout.trim(), "scoped-selection-fixture-passed");
+    } finally {
+      rmSync(fixtureRoot, { recursive: true, force: true });
     }
   });
 
