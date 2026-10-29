@@ -25,7 +25,7 @@ legacy ID 的字面值也是 name 查询键，与日期 ID 同名时，`foo` 和
 
 无关系条件的 list、metadata、show 和 content 只验严格索引结构、字段、definition 及实际读取的来源/直接依赖；完整关系图与资源 owner 全图不作前置。使用关系条件或 trace 时验证完整发布图，同一投影只准备和证明一次。普通发现成功不声明当前全集健康，全集体检由全量 check／sync-index 承担。
 
-show 通过安全 FileHandle 对同 inode、同一读取字节核对 frontmatter ID，并严格解码 UTF-8；越界、路径替换或非法 UTF-8 失败。返回完整正文，不受搜索/preview 预算限制。
+show 安全读取来源，核对读取内容的 frontmatter ID 与所选身份，并严格解码 UTF-8；越界、路径替换或非法 UTF-8 失败。返回完整正文，不受搜索/preview 预算限制。
 
 `list` 与 `search` 只查正式报告。按需筛选和展开列表窗口；空页只说明本次条件和窗口无结果。重复 tags 为 AND，形成时间边界包含端点。关系条件和其他筛选取交集；`--related-to` 的方向相对目标解释，type 与 target 同用时须命中同一条边。
 
@@ -33,11 +33,12 @@ show 通过安全 FileHandle 对同 inode、同一读取字节核对 frontmatter
 
 - content 匹配当前文件的物理行；metadata 匹配发布快照的 ID、name、title、question、tags 与来源关系 summary。`all`/`any` 可跨同一报告的段，`phrase` 限于单段；匹配统一 NFKC、忽略大小写并按空白处理。
 - 关系条件返回的 `filterRelations` 是导致记录命中的边；文本证据单独报告。`matchedRelations: none` 只表示没有摘要文本命中，不否定关系筛选命中。普通预览最多展示三条命中边，`list --detail` 展开当前页全部命中边；完整正文与关系用 `show`。
+- content 先校验全部显式来源路径的格式，按顺序安全打开并读取实际访问的文件，核对普通文件、路径与身份。返回上限已满后继续扫描到第一个额外命中；之后未访问的来源不作存在性、安全或内容证明，实际访问时的权限、替换、符号链接及解码错误仍失败。
 - 先读六行 `Query`、`Filters`、`Source`、`Limits`、`Counts`、`Coverage`，确认本次条件、来源、命中数及三类覆盖。content 的 source 为 `published-index+current-text / unchecked / false`：范围来自发布投影，文本是本次读取，未验证全集来源新鲜度，也不承诺跨文件原子快照。
 
 | 覆盖 | 含义 |
 | --- | --- |
-| `scanComplete` | 待匹配记录是否全部检查；未完成时 `matched` 为下界。 |
+| `scanComplete` | 是否已对筛选范围内全部记录完成匹配检查；content 指来源已实际读取并匹配。未完成时 `matched` 为下界。 |
 | `resultsComplete` | 是否已完整扫描且返回全部命中；扫描完整仍可能因 limit 少返回记录。 |
 | `previewsComplete` | 已返回记录的命中片段是否完整；metadata 不适用。仅预览受限不代表记录发现不完整。 |
 
@@ -167,7 +168,7 @@ CLI 同时说明上述覆盖边界。
 
 ### 全量检查与同步结果
 
-全量只读 `check` 用首次采集的成员身份、同份源字节、解析结果及资源事实验证完整预期索引；采集中仍拒绝不安全替换，但不结束重读全集，不承诺结束新鲜度或跨文件原子快照。`check --id` 保持局部 scope；sync 与写事务仍独立 fresh。
+全量只读 `check` 用安全取得的成员身份、来源内容及资源事实验证完整预期索引；读取中拒绝不安全替换，成功不承诺结束新鲜度或跨文件原子快照。`check --id` 保持局部 scope；sync 与写事务另行核对当前事实。
 
 `sync-index` 默认写入，`--preflight` 对同一验证与漂移保护零持久写入预演。分别解释“可重建但未发布”“索引已 current”和“实际已写入”；严格 `check` 仍拒绝未恢复的索引。
 
@@ -175,33 +176,15 @@ CLI 同时说明上述覆盖边界。
 
 ## 待提交快照
 
-先读[快照的领域边界](investigation-report-contract.md#待提交快照)。`stage <selector...> --scope ...` 显式选择即用当前完整版本刷新所选对象，未选 pending 保持；已有部分暂存会被该对象在指定 scope 内的完整版本取代。
+`stage <selector...> --scope ...` 构造 Git pending，不提交或推送；显式选择会以当前完整版本刷新所选对象的相应 scope，未选 pending 保持，所选已有部分暂存会被完整版本取代。
 
-以下 H、W、P 分别指固定 HEAD、工作区和 Git pending。从其发布投影及必要 pending 身份解析 ID／name；候选不参与。sourcePath 改变选同一 ID，删除选旧 ID，rename 同选旧、新 ID。旧位置由可信 H/W/P 索引或所选 canonical locator 定位；不会扫描全部 pending 正文恢复身份。索引不能定位的旧非 canonical pending 来源须先恢复可信定位，不保证仅换 scope 即可找回。
-
-| scope | 写入与验证范围 |
+| scope | 作用与责任 |
 | --- | --- |
-| `all`（默认） | 原子刷新所选发布投影、正式 Markdown 与完整 owner 树，未选条目沿用 pending；验证所选来源、直接资源、索引 owner 声明及合成图。 |
-| `index` | 只刷新所选发布投影及来源 revision；payload 验收限于本次消费或修改的索引文件，不读取工作区正文。调用方负责配套领域暂存与正文验证。 |
-| `domain` | 只刷新所选正式 Markdown 与完整 owner 树，保持 pending 索引原字节或缺失状态。来源验证同 all，但不证明索引已配套。 |
+| `all`（默认） | 原子刷新所选发布投影、正式 Markdown 和完整 owner 资源树。 |
+| `index` | 只刷新所选投影及来源 revision；调用方配套暂存和验证领域内容。 |
+| `domain` | 只刷新所选正式 Markdown 与完整 owner 资源树，保留 pending 索引，不证明二者配套。 |
 
-domain 的身份解析与旧位置收集分别进行：
-
-- 合法可用的 P 索引补充**所有所选 ID** 的旧 sourcePath，即使 H/W 已有该 ID；所选 canonical pending 路径始终采集并核对。
-- 仅 P 索引自身读取或解析失败可容错，且须由独立 H/W/canonical locator 足够定位所选；否则先恢复可信定位。该例外不覆盖已定位所选正文的读取、身份或路径失败。
-- 成功读取的 P 索引原始字节进入 opaque snapshot 与独立 fresh 保护，使用其定位后扩大 payload 选集也须证明扩展有效。P 索引的原字节、mode/OID 或缺失状态保持，不因定位消费而改写。
-
-HEAD 与工作区发布索引须通过字段、关系与资源 owner 声明验证；index／all 还验证 pending 索引，并要求存在的三方索引具有相同集合 metadata、sourceRevision.metadata 与 definition。HEAD 正式 namespace 真正为空且 pending 无索引时从空基底组合；已有历史正式成员却缺索引时明确恢复。已有 HEAD 索引却将 pending 索引删除时，index／all 提示先恢复该删除。损坏或不兼容走显式恢复。
-
-`all`／`domain` 的所选现存来源须符合工作区发布投影，合法手改先同步。owner 树取 HEAD、pending 与工作区的所选 owner 路径并集，包含未引用成员与待删除旧成员。引用资源须存在，全部相关路径分量须安全；空资源树仍检查根和 owner，文件表示尊重 Git `core.fileMode`。
-
-其他 owner 的正式声明只参与索引验证，所选来源的直接资源按所需字节验证；不额外读取或暂存依赖报告正文。stage 不重建全部 HEAD 正文或重新发现全部未同步工作区身份；完整索引、图及 pending 保护仍有集合级成本。
-
-准备阶段取得 scope 所需来源、成员、工作区索引、HEAD 与完整受管 pending 身份；写前独立重取可变事实，锁内执行 HEAD 与 pending 的比较并交换（CAS），写后验证目标并保护范围外状态。各阶段只验收本 scope 所需索引、所选来源和直接资源 payload；其余 pending 成员以完整路径、文件模式与对象 ID 保护身份，不读取无关 blob。所需读取失败或保护范围漂移时停止，未变化结果也须通过保护检查。
-
-原子更新保留未选领域文件的字节、表示及 staged 删除。`index` 的非索引保证限于身份保持，正文及资源的内容验证由调用方配套完成；它不证明这些 payload 即时可读或指纹有效。可连续暂存不同对象，再重复选择以刷新某一对象。索引 JSON 可规范化序列化，未选条目含义保持。
-
-结果说明写入路径、保留的 pending 和调用方责任；成功只证明 scope，stage 不提交或推送。
+位置变化选同一 ID，删除选旧 ID，身份更正同选旧、新 ID。操作基于 HEAD、工作区和 pending 的可信身份与路径；写前独立核对当前事实，写后验收实际目标并保护未选 pending。精确定位、scope 保护、失败和恢复条件见[待提交快照操作契约](stage-snapshot.md)，执行前须完整读取。
 
 ## 结果与恢复
 

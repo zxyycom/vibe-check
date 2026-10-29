@@ -1,6 +1,6 @@
-# Change Plan 固定结构与 CLI 契约
+# Change Plan 固定结构契约
 
-本文件唯一承接 Change 目录、metadata、artifact 结构、Git 距离与 CLI 机械行为。
+本文件承接 Change 目录、metadata、artifact 结构与 Git 距离；精确命令契约由 [CLI 契约](cli-contract.md)承接。
 内容判断、完成声明、执行流程与授权边界由 [`SKILL.md`](../SKILL.md) 承接。
 
 ## 状态模型
@@ -78,9 +78,7 @@ Plan：
 `baseCommit` 是不含空白的非空字符串，表示最后一次成功运行 `plan` 时读取的 `HEAD`，只作为
 后续 Git 距离起点。Artifacts 的工作树、index 和提交内容不参与设置或解释此基线。
 
-Active reader、规范 parser 与 writer 使用同一个 runtime schema。读取边界按 lstat、读取、JSON
-parse、schema parse 的顺序完成一次校验；writer 在同目录完成整个临时文件后直接发布到 metadata
-路径，不解析或写入符号链接的外部目标。Writer 属于内部持久化边界。
+Metadata 读取和写入遵守同一 schema；不解析或写入符号链接的外部目标。
 
 ## Artifact 结构
 
@@ -94,8 +92,7 @@ parse、schema parse 的顺序完成一次校验；writer 在同目录完成整�
    H3 各出现一次，并作为该 H2 内的 H3 起始序列按模板顺序排列；每节必须有非空语义内容，必需序列
    之后可以追加 H3。
 6. 固定标题使用英文，正文沿用用户输入语言或项目语言。
-7. Checker 统一换行后只解析一次 Markdown AST；HTML 注释不算语义内容，代码围栏和 HTML 注释中的
-   checklist 相似文本不算任务。
+7. HTML 注释不算语义内容，代码围栏和 HTML 注释中的 checklist 相似文本不算任务；换行形式不改变检查语义。
 
 ### Stage 与受检制品
 
@@ -233,8 +230,7 @@ Tasks 规则：
 ## Plan Git 距离
 
 需要 Git 证据时，统一使用 Change 根所属的上层项目仓库；普通仓库与 linked worktree 均可。
-`list` 与 `check-all` 在单次查询中共享仓库发现和 `HEAD`，同基线历史只读取一次，每个 Change
-仍独立排除自己的目录内变化。缓存在查询结束后退出；Draft 查询和 `list --stage draft` 不调用 Git。
+每个 Change 独立排除自己的目录内变化；Draft 查询和 `list --stage draft` 不调用 Git。
 
 Plan 使用 `baseCommit` 到当前 `HEAD` 的 first-parent Git 距离。可用时从基线到当前 `HEAD`
 逐个提交统计：
@@ -262,142 +258,24 @@ first-parent 历史上、当前仓库没有 `HEAD` 或版本控制操作失败�
 
 ## CLI
 
-脚本安装位置与 Change 路径解析基准彼此独立。保持 shell 当前工作目录在目标项目根目录，并用 skill
-的实际安装路径调用脚本；以下 `<change-plan-cli>` 表示
-`<skill-directory>/scripts/change-plan.ts`。默认根目录和所有相对路径参数都相对 shell 当前
-工作目录解析。
-
-CLI 仅提供以下六个命令：
-
-```text
-node <change-plan-cli> list [change-root] [--stage <draft|plan>] [--json]
-node <change-plan-cli> show <change-directory> [--json]
-node <change-plan-cli> check <change-directory> [--json]
-node <change-plan-cli> check-all [change-root] [--json]
-node <change-plan-cli> plan <change-directory> [--json]
-node <change-plan-cli> finalize <change-directory> [--preflight] [--json]
-```
-
-`show`、`check`、`plan` 与 `finalize` 的显式目录必须是项目约定 Change 根（未约定时
-`changes/`）的直接 active member。单目录命令从目标父目录推导该根，不进行跨根名称搜索；目标父目录
-或任一祖先是另一个 Change 的 metadata 边界时视为嵌套路径。`.change-plan-tombstones` 及其 child
-和任何嵌套路径都返回 `change-directory-not-active-member`，不会读取或写入其内容。
+六个命令的路径、参数、查询结果、写入门禁、退出码与直接导入边界见 [CLI 契约](cli-contract.md)。
 
 ### 查询命令
 
-| 命令 | 选择与机械结果 |
-| --- | --- |
-| `list` | 发现当前工作目录 `changes/` 或显式根目录的直接 Change 成员；`--stage` 只筛选规范 `draft` 或 `plan`。无效成员保持可见但没有合法 stage，不使发现操作失败。 |
-| `show` | 返回当前 Change 的检查结果和可读取 artifacts；结构无效时以领域失败退出。 |
-| `check` | 按当前 stage 检查一个显式 Change 的 metadata、artifacts、任务语法和 Plan 基线。 |
-| `check-all` | 门禁当前工作目录 `changes/` 或显式 change root 的全部直接成员。根错误或任一成员无效时集合失败；合法空集合通过。 |
-
-`list` 与 `check-all` 只发现 Change 根的直接成员，按 Change 名称排序；`.change-plan-tombstones`
-始终忽略。
+`list`、`show`、`check` 和 `check-all` 分别发现成员、读取详情、检查单项和检查集合。选择范围与机械结果见[查询命令](cli-contract.md#查询命令)。
 
 ### 结构化查询结果
 
-单项 checker 结果由 `check --json` 直接返回；`list` entry 和 `show.check` 复用同一结构：
-
-| 字段 | 含义 |
-| --- | --- |
-| `changeDirectory`、`changeName` | 规范化后的绝对目录与 Change 名称。 |
-| `stage`、`metadata` | 规范 Change 的 stage 与 metadata；metadata 无效时两者均为 `null`。 |
-| `taskCount`、`completedTaskCount`、`taskProgress` | 整体任务计数，以及 readiness、implementation、verification 三个区段各自的计数。 |
-| `distance` | 可用 Plan 的 `GitDistanceEvidence`；其他场景为 `null`。 |
-| `diagnostics`、`valid` | 稳定诊断数组；仅当数组为空时 `valid` 为 `true`。 |
-
-每个 diagnostic 固定包含 `code`、`file` 和 `message`；定位到 Markdown 行时另外包含 `line`。
-`code` 的合法值为：
-
-```text
-change-directory-not-active-member
-change-directory-not-found
-change-directory-read-failed
-change-path-not-directory
-change-root-contains-repository
-change-root-read-failed
-duplicate-section
-duplicate-task-id
-empty-introduction
-empty-section
-file-read-failed
-invalid-change-name
-invalid-h1
-invalid-metadata
-invalid-task-syntax
-missing-required-file
-missing-section
-missing-task
-base-commit-unavailable
-required-path-not-file
-section-order
-task-outside-required-section
-version-control-failed
-```
-
-`show` 返回 `changeDirectory`、`changeName`、完整 `check` 和 `artifacts`。`artifacts` 固定包含
-`proposal.md`、`design.md`、`tasks.md`；缺失、非普通文件或不可读的值为 `null`。`list` 返回
-`changeRoot`、根级 `errors` 与 `entries`；`check-all` 返回 `entries`、`changeRoot`、根级 `errors`、
-`checkedCount`、`validCount`、`invalidCount` 与集合 `valid`。
+查询结果包含 Change 身份、stage、任务进度、距离和诊断；集合及详情另有各自字段。完整字段和诊断代码见[结构化查询结果](cli-contract.md#结构化查询结果)。
 
 ### 写入命令
 
-| 命令 | 源状态与门禁 | 成功结果 |
-| --- | --- | --- |
-| `plan` | 规范 Draft 或 Plan；目标 Plan 的三个 artifacts 结构有效，当前仓库存在 `HEAD`。不以任何 checkbox 进度为门禁。 | 原子写入 `{ "stage": "plan", "baseCommit": "<当前 HEAD>" }`。 |
-| `finalize` | 结构有效、基线可用且全部 checkbox 已完成的 Plan；完整 physical tree 必须与当前 `HEAD` 的同一路径 Git tree 精确匹配。 | 删除 Change 目录；或在 cleanup 无法证明完成时保留 tombstone child。 |
-
-Git-tree 门禁确保当前 `HEAD` 保留全部任务完成的最终 Plan 与恢复所需内容；版本保存由执行者按
-当前授权和项目流程完成。
-
-对现有 Plan 运行 `plan` 前，由操作者完成语义复核；命令将调用时的 `HEAD` 记录为新基线。
-
-`finalize --preflight` 执行与实际删除相同的 Plan、任务、Git-tree、同设备、tombstone target 和
-identity 准备，零写入且不保存 receipt。实际 finalize 按以下顺序执行：
-
-1. 在 Change root 下创建私有 `.change-plan-tombstones`（如尚不存在），重新读取完整
-   Plan/任务/base/HEAD 门禁并准备；两次 lifecycle 与 HEAD snapshot 必须一致。
-2. 声明 tombstone child 前，重验 root/source/tombstone identity、当前 `HEAD`、完整 physical member
-   和 target absence。只接受 Git regular file mode `100644`、`100755`，且每个 physical file 的字节及
-   owner executable bit 一致；symlink、submodule、特殊文件、空/未知目录、已修改、未跟踪或忽略成员
-   均被拒绝。
-3. 以独占目录声明 target，逐项以不覆盖复制建立验证快照；POSIX `rename()` 不作为 no-overwrite
-   目录移动原语。
-4. 在复制快照与 source 均仍精确匹配后，unlink 已预演 files，再从深到浅 `rmdir` 已预演目录，绝不
-   递归删除。并发 target 或成员漂移均不覆盖、不删除外来内容。
-
-`finalize --json` 始终返回 `sourceDirectory`、`check`、`changed`、`outcome`、`headCommit`、
-`memberCount`、`tombstoneDirectory` 与 `error`。`outcome` 为：
-
-- `preflight`：所有门禁和删除准备通过，未写入。
-- `no-change`：任一门禁、准备、重验或 source 删除未提交，`changed: false`。若独占 target 已出现外来
-  内容，`tombstoneDirectory` 指向只可人工检查的未提交声明路径。
-- `finalized`：已验证复制且 source 与 tombstone 都已精确清理，`changed: true`、`tombstoneDirectory: null`。
-- `committed-cleanup-pending`：已建立可验证 tombstone 副本，但 source 或 tombstone 的精确清理无法完成，
-  `changed: true`，`tombstoneDirectory` 是唯一可操作的恢复位置。
-
-finalize 不 stage、commit、reset、revert 或自动 Git restore；`headCommit` 是维护者可用普通 Git
-恢复 source 的 revision。source 删除前失败不删除 source 成员；建立验证副本后失败不是 rollback 或完成，
-维护者只可检查报告的 tombstone child，或从报告的 `HEAD` 用普通 Git 恢复。
+`plan` 写入当前 HEAD 基线；`finalize` 必须通过完整 Plan、Git-tree 和身份门禁，先可用 `--preflight` 零写预检。删除和清理不覆盖或误删其他内容；失败按实际 outcome、HEAD 与 tombstone 位置恢复。完整事务和恢复条件见 [写入命令契约](cli-contract.md#写入命令)。
 
 ### 退出码与输出
 
-1. `0`：查询成功；`list` 中存在 invalid 成员不使发现操作失败；`check-all` 的合法空集合也成功；
-   `finalize` 的 `preflight`、`finalized` 或 `committed-cleanup-pending` 也成功并在文本中明确 outcome。
-2. `1`：查询根或目标不可用、结构或 Plan 基线无效、`check-all` 的任一成员无效，或 `plan` / `finalize`
-   的领域门禁、准备、重验或写入失败。
-3. `2`：CLI 参数无效，或命令不在上述六个命令中。
-
-文本模式把成功结果写入 stdout，把诊断和失败写入 stderr。`committed-cleanup-pending` 在 stdout 明确输出
-outcome、source、HEAD recovery revision、member count 与 precise tombstone，并在 stderr 输出 cleanup
-diagnostic；JSON 保留同一结构并以 0 退出。
-`--json` 把成功和领域失败的结构结果写入 stdout；非法参数始终写入 stderr。
+CLI 用退出码区分成功、领域失败和参数错误；文本及 JSON 模式的输出通道不同。具体结果见[退出码与输出](cli-contract.md#退出码与输出)。
 
 ### TS 直接导入边界
 
-`scripts/change-plan.ts` 可以作为 ESM 直接 import，当前运行时导出 list、show、单项 check、集合
-check、plan、finalize、metadata 解析与读取以及 CLI runner 对应的底层函数。该能力用于直接复用当前
-实现，不建立稳定 SDK：`change-plan.ts` 不配套生成 `.d.mts`、SDK 声明树或 metadata JSON Schema，
-也不承诺导出集合和函数签名跨版本兼容。需要稳定交互时使用本节定义的 CLI 与 JSON 输出；直接 import
-的调用方需随当前实现同步调整。
+脚本可作为 ESM 直接导入以复用当前实现，但不提供稳定 SDK 承诺。导出范围与兼容边界见 [TS 直接导入边界](cli-contract.md#ts-直接导入边界)。
