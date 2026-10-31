@@ -94,7 +94,12 @@ describe("repository quality Checks", () => {
       "reference-links-images",
       "table-column-count"
     ]);
-    assert.deepEqual(markdownLintCheck.options.files.patterns, ["docs/**/*.md", "changes/**/*.md"]);
+    assert.deepEqual(markdownLintCheck.options.files.patterns, [
+      "docs/**/*.md",
+      "changes/**/*.md",
+      "README.md",
+      "AGENTS.md"
+    ]);
     assert.equal(markdownLintCheck.options.files.useDefaultExcludes, true);
     assert.deepEqual(
       markdownLinkValidation.options.files.patterns.filter((pattern) => pattern.startsWith("!")),
@@ -104,7 +109,7 @@ describe("repository quality Checks", () => {
     );
     assert.deepEqual(
       markdownLinkValidation.options.files.patterns.filter((pattern) => !pattern.startsWith("!")),
-      ["docs/**/*.md", "changes/**/*.md"]
+      ["docs/**/*.md", "changes/**/*.md", "README.md", "AGENTS.md"]
     );
     assert.equal(markdownLinkValidation.options.files.useDefaultExcludes, true);
     assert.deepEqual(
@@ -193,7 +198,7 @@ describe("repository quality Checks", () => {
           functionName: "createProjectGateEntries",
           metric: "function-code-density",
           path: "scripts/project/gate/definition.ts",
-          startLine: 209
+          startLine: 212
         },
         reason:
           "Gate 的完整顺序 manifest 是低分支的声明清单；按行数拆分会隐藏 Check 顺序和选择，其他函数指标仍阻断。"

@@ -109,6 +109,7 @@ describe("Project Gate change regions", () => {
       "src/new-runtime-owner/implementation.ts",
       "src/new-runtime-owner/regression.test.ts",
       "scripts/project/gate/checks/test-execution/lanes.ts",
+      "scripts/project/gate/runtime/scope-files.ts",
       "scripts/test-evidence/discovery/bun-files.ts",
       "scripts/test-evidence/profile.ts",
       "scripts/test-evidence/relative-path.ts",
@@ -442,7 +443,18 @@ describe("Project Gate change regions", () => {
           "test-surface"
         ]
       },
-      { path: "README.md", selected: [] }
+      { path: "README.md", selected: ["markdown-lint-input"] },
+      { path: "AGENTS.md", selected: ["markdown-lint-input"] },
+      {
+        path: "scripts/project/gate/runtime/scope-files.ts",
+        selected: [
+          "duplicate-input",
+          "file-metrics-input",
+          "function-input",
+          "markdown-lint-input",
+          "test-surface"
+        ]
+      }
     ] as const;
     for (const { path, selected } of scenarios) {
       assert.deepEqual(matchingRegions(path, regions), selected, path);

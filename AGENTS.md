@@ -21,6 +21,6 @@
 
 ## 验证与交付
 
-- 需要 Gate 快速反馈时默认运行 `bun run check`，补充相关检查可在同一次调用追加 `--scope <范围>`；范围与示例见 [Project Gate](docs/tooling/project-gate.md#按任务范围追加检查)。最窄目标测试和 owner 命令仍可独立使用。
+- 需要 Gate 快速反馈时默认运行 `bun run check`，默认含基础 Markdown 检查；本次涉及的领域须取得对应质量证据，可在同一次调用追加 `--scope <范围>`；范围与示例见 [Project Gate](docs/tooling/project-gate.md#按任务范围追加检查)。最窄目标测试和 owner 命令仍可独立使用。
 - 验证范围以本次改动及其真实依赖为准，不因其他人的改动、整个工作区变更量或进入交付阶段自动升级到 `--changed` / `--all`；升级条件见[交付验证](docs/navigation.md#交付验证)。
 - 检查局部 diff；交付时说明实际检查范围、未运行项及其影响，不把定向通过表述为全仓或发布验收通过。

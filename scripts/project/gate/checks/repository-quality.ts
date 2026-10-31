@@ -1,3 +1,4 @@
+import { PROJECT_GATE_METRIC_FILES, PROJECT_GATE_SCOPE_FILES } from "../runtime/scope-files.ts";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -98,7 +99,11 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "product-source": {
         files: {
           useDefaultExcludes: true,
-          patterns: ["src/**/*.ts", ...repositoryExcludedPatterns, `!${lizardPortQualityExclusion}`]
+          patterns: [
+            ...PROJECT_GATE_METRIC_FILES["product-source"].patterns,
+            ...repositoryExcludedPatterns,
+            `!${lizardPortQualityExclusion}`
+          ]
         },
         minimumLines: 3,
         minimumTokens: 75
@@ -107,8 +112,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         files: {
           useDefaultExcludes: true,
           patterns: [
-            "docs/schemas/**",
-            "docs/examples/**",
+            ...PROJECT_GATE_METRIC_FILES["schemas-examples"].patterns,
             ...repositoryExcludedPatterns,
             "!docs/schemas/historical/**"
           ]
@@ -119,7 +123,10 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "script-tests": {
         files: {
           useDefaultExcludes: true,
-          patterns: ["scripts/**/*.test.ts", ...repositoryExcludedPatterns]
+          patterns: [
+            ...PROJECT_GATE_METRIC_FILES["script-tests"].patterns,
+            ...repositoryExcludedPatterns
+          ]
         },
         minimumLines: 3,
         minimumTokens: 100
@@ -127,7 +134,10 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "script-tooling": {
         files: {
           useDefaultExcludes: true,
-          patterns: ["scripts/**/*.ts", ...repositoryExcludedPatterns, "!scripts/**/*.test.ts"]
+          patterns: [
+            ...PROJECT_GATE_METRIC_FILES["script-tooling"].patterns,
+            ...repositoryExcludedPatterns
+          ]
         },
         minimumLines: 3,
         minimumTokens: 75
@@ -142,8 +152,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         files: {
           useDefaultExcludes: true,
           patterns: [
-            "docs/**/*.md",
-            "changes/**/*.md",
+            ...PROJECT_GATE_METRIC_FILES["docs-specs"].patterns,
             ...repositoryExcludedPatterns,
             "!docs/examples/**",
             "!docs/investigations/_resources/**",
@@ -155,7 +164,11 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         codeLines: repositoryFileCodeLines,
         files: {
           useDefaultExcludes: true,
-          patterns: ["src/**/*.ts", ...repositoryExcludedPatterns, `!${lizardPortQualityExclusion}`]
+          patterns: [
+            ...PROJECT_GATE_METRIC_FILES["product-source"].patterns,
+            ...repositoryExcludedPatterns,
+            `!${lizardPortQualityExclusion}`
+          ]
         }
       },
       "schemas-examples": {
@@ -163,8 +176,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         files: {
           useDefaultExcludes: true,
           patterns: [
-            "docs/schemas/**",
-            "docs/examples/**",
+            ...PROJECT_GATE_METRIC_FILES["schemas-examples"].patterns,
             ...repositoryExcludedPatterns,
             "!docs/schemas/historical/**"
           ]
@@ -174,7 +186,10 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         codeLines: repositoryFileCodeLines,
         files: {
           useDefaultExcludes: true,
-          patterns: ["scripts/**/*.ts", ...repositoryExcludedPatterns, "!scripts/**/*.test.ts"]
+          patterns: [
+            ...PROJECT_GATE_METRIC_FILES["script-tooling"].patterns,
+            ...repositoryExcludedPatterns
+          ]
         }
       }
     },
@@ -196,7 +211,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         files: {
           useDefaultExcludes: true,
           patterns: [
-            "src/**/*.ts",
+            ...PROJECT_GATE_METRIC_FILES["product-source"].patterns,
             ...repositoryExcludedPatterns,
             `!${lizardPortQualityExclusion}`,
             ...productFunctionMetricTestExclusions.map((pattern) => `!${pattern}`)
@@ -207,7 +222,10 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "script-tooling": {
         files: {
           useDefaultExcludes: true,
-          patterns: ["scripts/**/*.ts", ...repositoryExcludedPatterns, "!scripts/**/*.test.ts"]
+          patterns: [
+            ...PROJECT_GATE_METRIC_FILES["script-tooling"].patterns,
+            ...repositoryExcludedPatterns
+          ]
         },
         limits: repositoryFunctionLimits
       }
@@ -219,7 +237,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
           functionName: "createProjectGateEntries",
           metric: "function-code-density",
           path: "scripts/project/gate/definition.ts",
-          startLine: 209
+          startLine: 212
         },
         reason:
           "Gate 的完整顺序 manifest 是低分支的声明清单；按行数拆分会隐藏 Check 顺序和选择，其他函数指标仍阻断。"
@@ -228,7 +246,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
   },
   markdownLint: {
     checkId: "markdown-lint",
-    files: { patterns: ["docs/**/*.md", "changes/**/*.md"] },
+    files: PROJECT_GATE_SCOPE_FILES.documentation,
     findingPolicy: "non-blocking",
     rules: repositoryMarkdownLintRules,
     cache: {
@@ -243,7 +261,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
     },
     files: {
       useDefaultExcludes: true,
-      patterns: ["docs/**/*.md", "changes/**/*.md", ...repositoryExcludedPatterns]
+      patterns: [...PROJECT_GATE_SCOPE_FILES.documentation.patterns, ...repositoryExcludedPatterns]
     },
     findingPolicy: "blocking",
     limits: { maxOccurrences: false, maxTargetReads: false }

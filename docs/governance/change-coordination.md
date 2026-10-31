@@ -29,6 +29,8 @@ artifacts 决定。
 | --- | --- | --- |
 | P1 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
 
+当前 Gate 范围改造见 [`unify-gate-domain-scopes`](../../changes/unify-gate-domain-scopes/proposal.md)：与其它任务的 Gate、Case 和 owner 文档写入串行；不依赖 Config packages 的公共抽象。
+
 ### 并行与提交边界
 
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享

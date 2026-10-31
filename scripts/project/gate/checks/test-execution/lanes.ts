@@ -1,3 +1,4 @@
+import { PROJECT_GATE_PRODUCT_CHECK_SCOPES } from "../../runtime/scope-files.ts";
 import { resolveBunTestFiles } from "../../../../test-evidence/discovery/bun-files.ts";
 import { loadSupportedRunnerProfile } from "../../../../test-evidence/profile.ts";
 
@@ -66,51 +67,15 @@ type ProductPackageTestLaneName = Extract<
   | "productSupportingChecks"
 >;
 
-const PRODUCT_PACKAGE_TEST_LANES = Object.freeze([
-  Object.freeze({
-    lane: "productDuplicateDetection",
-    prefixes: Object.freeze(["src/package-checks/duplicate-detection/"])
-  }),
-  Object.freeze({
-    lane: "productFileMetrics",
-    prefixes: Object.freeze(["src/package-checks/file-metrics/"])
-  }),
-  Object.freeze({
-    lane: "productFunctionMetrics",
-    prefixes: Object.freeze(["src/package-checks/function-metrics/"])
-  }),
-  Object.freeze({
-    lane: "productJsonChecks",
-    prefixes: Object.freeze([
-      "src/package-checks/json-document/",
-      "src/package-checks/json-schema-validation/",
-      "src/package-checks/json-validation/"
-    ])
-  }),
-  Object.freeze({
-    lane: "productMarkdown",
-    prefixes: Object.freeze([
-      "src/package-checks/markdown-link-validation/",
-      "src/package-checks/markdown-lint/"
-    ])
-  }),
-  Object.freeze({
-    lane: "productSecretDetection",
-    prefixes: Object.freeze(["src/package-checks/secret-detection/"])
-  }),
-  Object.freeze({
-    lane: "productSupportingChecks",
-    prefixes: Object.freeze([
-      "src/package-checks/command-check/",
-      "src/package-checks/host-environment/",
-      "src/package-checks/maintenance-reminders/",
-      "src/package-checks/project-files/"
-    ])
+const PRODUCT_PACKAGE_TEST_LANES = Object.values(PROJECT_GATE_PRODUCT_CHECK_SCOPES).map(
+  ({ lane, directories }) => ({
+    lane,
+    prefixes: directories.map((directory) => `src/package-checks/${directory}/`)
   })
-] as const satisfies readonly Readonly<{
+) satisfies readonly Readonly<{
   readonly lane: ProductPackageTestLaneName;
   readonly prefixes: readonly string[];
-}>[]);
+}>[];
 
 /** Partitions the complete Test Evidence surface into stable Gate execution subchecks. */
 export function resolveProjectGateTestLanes(repositoryRoot: string): ProjectGateTestLanes {

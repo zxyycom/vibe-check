@@ -1,3 +1,4 @@
+import { PROJECT_GATE_SCOPE_FILES, isProjectGateFileScope } from "./scope-files.ts";
 import {
   PROJECT_GATE_KNOWN_PRODUCT_TEST_DIRECTORIES,
   PROJECT_GATE_PRODUCT_TEST_REGIONS
@@ -171,6 +172,8 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/project/gate/runtime/change-regions.ts",
       "scripts/project/gate/runtime/eligibility.test.ts",
       "scripts/project/gate/runtime/product-test-regions.ts",
+      "scripts/project/gate/runtime/scope-files.ts",
+      "scripts/project/gate/checks/scoped-metrics.ts",
       "scripts/project/gate/runtime/controls.ts",
       "scripts/project/gate/runtime/catalog.ts",
       "scripts/project/gate/runtime/performance-policy.ts",
@@ -207,8 +210,8 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   },
   "markdown-lint-input": {
     patterns: [
-      "docs/**/*.md",
-      "changes/**/*.md",
+      ...PROJECT_GATE_SCOPE_FILES["markdown-lint-input"].patterns,
+      "scripts/project/gate/runtime/scope-files.ts",
       "src/package-checks/markdown-lint/**",
       "src/package-checks/code-quality-findings/**",
       "src/package-checks/markdown-link-validation/filesystem-probes.ts",
@@ -416,20 +419,29 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   }
 });
 
-/** Explicit scopes reuse affected-input names, excluding the automatic fallback sentinel. */
-export type ProjectGateScope = Exclude<
-  keyof typeof PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS,
-  typeof PROJECT_GATE_UNCLASSIFIED_INPUT_REGION
->;
+/** Explicit scopes include owned file domains and affected-input names, but never fallback. */
+export type ProjectGateScope =
+  | Exclude<
+      keyof typeof PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS,
+      typeof PROJECT_GATE_UNCLASSIFIED_INPUT_REGION
+    >
+  | keyof typeof PROJECT_GATE_SCOPE_FILES;
 
 export function isProjectGateScope(value: unknown): value is ProjectGateScope {
   return (
     typeof value === "string" &&
     value !== PROJECT_GATE_UNCLASSIFIED_INPUT_REGION &&
-    Object.hasOwn(PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS, value)
+    (Object.hasOwn(PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS, value) || isProjectGateFileScope(value))
   );
 }
 
 export const PROJECT_GATE_SCOPES = Object.freeze(
-  Object.keys(PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS).filter(isProjectGateScope).sort()
+  [
+    ...new Set([
+      ...Object.keys(PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS),
+      ...Object.keys(PROJECT_GATE_SCOPE_FILES)
+    ])
+  ]
+    .filter(isProjectGateScope)
+    .sort()
 );

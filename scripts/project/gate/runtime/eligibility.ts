@@ -51,10 +51,18 @@ function projectGateEntryConditions(
   if (isProjectGateScope(entry.changeRegion)) {
     conditions.push(projectGateScopeFlag(entry.changeRegion));
   }
-  if (entry.fast) {
-    conditions.push(
-      affected === undefined ? PROJECT_GATE_FAST_FLAG : all(PROJECT_GATE_FAST_FLAG, affected)
-    );
+  conditions.push(...(entry.scopes ?? []).map(projectGateScopeFlag));
+  if (entry.fast !== false) {
+    conditions.push(projectGateFastCondition(entry, affected));
   }
   return conditions;
+}
+
+/** Fixed base checks and affected engineering checks have distinct fast obligations. */
+function projectGateFastCondition(
+  entry: ProjectGateEntry,
+  affected: CheckFlagCondition | undefined
+): CheckFlagCondition {
+  if (entry.fast === "always" || affected === undefined) return PROJECT_GATE_FAST_FLAG;
+  return all(PROJECT_GATE_FAST_FLAG, affected);
 }

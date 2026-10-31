@@ -19,7 +19,7 @@
 
 ### Product test lanes 的输入
 
-Product test lanes 的 changed 输入由 `runtime/product-test-regions.ts` 声明，从完整 Product source 与 runner/工具链输入出发，按实际消费者收窄已知私有输入：
+Product Check 的目录及其执行 lane 由 `runtime/scope-files.ts` 统一声明，并供领域指标复用。Product test lanes 的 changed 输入由 `runtime/product-test-regions.ts` 声明，从完整 Product source 与 runner/工具链输入出发，按实际消费者收窄已知私有输入：
 
 | 输入 | 选择边界 |
 | --- | --- |

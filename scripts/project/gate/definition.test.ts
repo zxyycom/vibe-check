@@ -142,6 +142,9 @@ const expectedFastCheckIds = [
   "prepared-package-candidate",
   "tests-scripts-project-selection",
   "tests-scripts-package-tools-boundary",
+  "markdown-lint",
+  "markdown-link-validation",
+  "materials-links-validator",
   "git-diff-whitespace"
 ];
 
@@ -166,7 +169,13 @@ const expectedCheckIdsBySelection: readonly Readonly<{
       "tests-product-markdown",
       "tests-scripts-project-selection",
       "tests-scripts-package-tools-boundary",
+      "duplicate-detection",
+      "file-metrics",
+      "function-metrics",
+      "markdown-lint",
+      "markdown-link-validation",
       "materials-json-validator",
+      "materials-links-validator",
       "git-diff-whitespace"
     ],
     selection: createScopedProjectGateSelection(["material-json-input", "product-markdown-tests"])
@@ -240,13 +249,44 @@ describe("Project Gate Definition", () => {
 
     for (const scope of PROJECT_GATE_SCOPES) {
       assert.ok(
-        entries.some(({ changeRegion }) => changeRegion === scope),
+        entries.some(
+          ({ changeRegion, scopes }) => changeRegion === scope || scopes?.includes(scope) === true
+        ),
         `Scope has no member: ${scope}`
       );
     }
+    const scopedEntries = createProjectGateEntries(
+      {
+        documentationInput: {
+          path: "/tmp/docs.json",
+          sha256: "c".repeat(64),
+          inputFingerprint: preparedCandidate.inputFingerprint
+        },
+        externalConsumerLease: createExternalConsumerMaterialLease(),
+        preparedCandidate
+      },
+      createScopedProjectGateSelection(["product-markdown-tests"])
+    );
+    const metric = scopedEntries.find(({ check }) => check.checkId === "file-metrics")?.check;
+    assert.ok(metric !== undefined && "options" in metric);
+    assert.ok(isNonArrayRecord(metric.options));
+    const areas = metric.options.codeAreas;
+    assert.ok(isNonArrayRecord(areas) && isNonArrayRecord(areas["product-source"]));
+    const scopedFiles = areas["product-source"].files;
+    assert.ok(isNonArrayRecord(scopedFiles) && Array.isArray(scopedFiles.patterns));
+    assert.ok(scopedFiles.patterns.length > 0);
+    assert.equal(
+      scopedFiles.patterns.every(
+        (path: unknown) =>
+          typeof path === "string" &&
+          (path.startsWith("src/package-checks/markdown-lint/") ||
+            path.startsWith("src/package-checks/markdown-link-validation/"))
+      ),
+      true
+    );
 
     assert.deepEqual(
-      new Set(entries.filter(({ fast }) => fast).map(({ check }) => check.checkId)),
+      new Set(entries.filter(({ fast }) => fast !== false).map(({ check }) => check.checkId)),
       new Set(expectedFastCheckIds)
     );
     for (const entry of entries) {
@@ -255,6 +295,7 @@ describe("Project Gate Definition", () => {
         [
           "check",
           ...(entry.changeRegion === undefined ? [] : ["changeRegion"]),
+          ...(entry.scopes === undefined ? [] : ["scopes"]),
           "fast",
           "presets",
           ...(entry.selectionPolicy === undefined ? [] : ["selectionPolicy"])
@@ -378,7 +419,7 @@ describe("Project Gate Definition", () => {
     for (const checkId of qualityCheckIds) {
       const entry = entries.find(({ check }) => check.checkId === checkId);
       assert.equal(Object.hasOwn(entry ?? {}, "contributesToAggregate"), false);
-      assert.equal(entry?.fast, false);
+      assert.equal(entry?.fast, checkId.startsWith("markdown-") ? "always" : false);
       assert.equal(entry?.presets.includes("quality"), true);
     }
     const qualityEntry = entries.find(({ check }) => check.checkId === "duplicate-detection");
@@ -617,6 +658,37 @@ describe("Project Gate Definition", () => {
       Object.defineProperty(invalidRegion, "changeRegion", { value: changeRegion });
       assert.throws(() => defineProjectGateEntries([invalidRegion]), /change region is invalid/);
     }
+    for (const scopes of [
+      ["missing-scope"],
+      ["product-source", "product-source"],
+      "product-source"
+    ]) {
+      const invalidScope: ProjectGateEntry = { check: prerequisite, presets: [], fast: false };
+      Object.defineProperty(invalidScope, "scopes", { value: scopes });
+      assert.throws(() => defineProjectGateEntries([invalidScope]), /scopes are invalid/);
+    }
+    assert.throws(
+      () =>
+        defineProjectGateEntries([
+          { check: prerequisite, presets: [], fast: true, changeRegion: "product-source" },
+          { check: observer, presets: [], fast: "always" }
+        ]),
+      /not baseline-selection closed/
+    );
+    assert.throws(
+      () =>
+        defineProjectGateEntries([
+          { check: prerequisite, presets: [], fast: false },
+          { check: observer, presets: [], fast: false, scopes: ["product-source"] }
+        ]),
+      /not domain-selection closed/
+    );
+    assert.doesNotThrow(() =>
+      defineProjectGateEntries([
+        { check: prerequisite, presets: [], fast: true },
+        { check: observer, presets: [], fast: "always", scopes: ["documentation"] }
+      ])
+    );
     assert.throws(
       () =>
         defineProjectGateEntries([
@@ -793,13 +865,41 @@ describe("Project Gate Definition", () => {
         expectation.selection.kind
       );
     }
+    for (const [scope, added] of [
+      ["documentation", ["file-metrics"]],
+      [
+        "material-schema-input",
+        ["duplicate-detection", "file-metrics", "materials-schema-validator"]
+      ],
+      ["material-examples-input", ["materials-examples-validator"]],
+      ["any-change", []]
+    ] as const) {
+      const flags = new Set([
+        ...allChangeFlags,
+        ...selectionFlags(createScopedProjectGateSelection([scope]))
+      ]);
+      const expected = new Set<string>([...expectedFastCheckIds, ...added]);
+      assert.deepEqual(
+        definition.checks
+          .filter((check) => matchesFlagEnablement(check.enabledByFlags, flags))
+          .map(({ checkId }) => checkId),
+        expectedCheckIds.filter((checkId) => expected.has(checkId)),
+        scope
+      );
+    }
     for (const kind of ["fast", "changed"] as const) {
       const flags = new Set(selectionFlags({ kind }));
       assert.deepEqual(
         definition.checks
           .filter((check) => matchesFlagEnablement(check.enabledByFlags, flags))
           .map(({ checkId }) => checkId),
-        ["prepared-package-candidate", "git-diff-whitespace"]
+        [
+          "prepared-package-candidate",
+          ...(kind === "fast"
+            ? ["markdown-lint", "markdown-link-validation", "materials-links-validator"]
+            : []),
+          "git-diff-whitespace"
+        ]
       );
     }
     // Unclassified roots cannot silently skip slow behavior or package acceptance.

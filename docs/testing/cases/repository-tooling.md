@@ -117,7 +117,7 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection`
   Proves:
 
-- 无 selection 参数时采用 fast 快速反馈，只运行有资格且命中输入的工程基础与两条快速测试 lane，加上固定 candidate/whitespace；不能替代验收。`--changed` 选择全部受影响 routine 验收，`--all` 不依赖变更命中选择完整 routine manifest；二者各自独占。focused preset 可重复、组合并替换默认选择，receipt 只与 all 同用，摘要反映实际范围。
+- 无 selection 参数时采用 fast 快速反馈，固定基础 Markdown/链接检查及 candidate/whitespace，另按输入选择有资格的工程检查与两条快速测试 lane；不能替代验收。`--changed` 选择全部受影响 routine 验收，`--all` 不依赖变更命中选择完整 routine manifest；二者各自独占。focused preset 可重复、组合并替换默认选择，receipt 只与 all 同用，摘要反映实际范围。
 - `--scope` 的构造边界验证非空及已知范围，固定去重、排序、独立冻结且可往返编码的选择状态；非法或混用输入、非规范 flags 及 scoped receipt 均被拒绝，非法 scope 不准备 candidate。
 - 实际 Product Run 在正常 Git 零命中、无 Git 回退与无关工作区变更下，均选择 fast 加指定 routine 范围及必要依赖，不带入无关慢项或 non-routine 项；零命中不执行无关 fast，范围并集只追加指定工作。scoped golden 保留 manifest 顺序，观察关系须闭合。
 - changed 通过 Gate 的 region 数据与 Product 所用的 `micromatch` 完整列表选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；未分类根路径也保守扩大至全部 routine 验收，已知家族下的新脚本模块则由所属保守 region 承接。Product Core-and-tools lane 的 region 覆盖其完整 test 分区及相关源码。
@@ -442,3 +442,17 @@ Entities:
 
 - 协议解析拒绝歧义或空的场景来源、非法整数计数和非字符串 eligible IDs，并在错误中定位对应字段；合法最小值可构成重放输入。
 - 读取现有冻结协议时保留全部场景输入，并报告原文件 bytes 的 SHA-256，验证投影不替代协议身份。
+
+## Case AUX-PROJECT-GATE-SCOPED-METRICS-001: 领域选择实际约束指标文件并保持比较语义
+
+Owner: `docs/tooling/gate-repository-quality.md#领域范围与局部指标`
+Entities:
+
+- `bun|scripts/project/gate/checks/scoped-metrics.test.ts|Gate scoped metrics > intersects domain unions with existing metric policies and escapes literal paths`
+- `bun|scripts/project/gate/checks/scoped-metrics.test.ts|Gate scoped metrics > keeps full modes and explicit metric scopes complete without an empty-scope fallback`
+- `bun|scripts/project/gate/checks/scoped-metrics.test.ts|Gate scoped metrics > retains duplicate comparison across selected domains inside the original area`
+  Proves:
+
+- 单领域与领域并集实际限制指标 files，保留 area identity、阈值、analyzer 排除与不同指标的测试文件排除；glob 特殊字符路径按字面匹配，不扩大范围。
+- 非 scoped 模式保留完整配置，显式指标 input scope 只强制对应指标完整；空领域交集不回退全仓。
+- 真实重复 scanner 检出两个已选 Product 领域之间的重复，保留原 product-source 比较 area，并排除同内容的未选领域。

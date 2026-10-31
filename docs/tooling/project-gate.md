@@ -24,7 +24,7 @@ scope 只与其它 scope 取并集，不与 preset、changed 或 all 混用。`-
 
 | 调用 | 用途与选择 |
 | --- | --- |
-| `bun run check` | 默认 fast：快速工程反馈，仅选择有 fast 资格且受输入变化影响的 Check，加上固定 provider/whitespace。 |
+| `bun run check` | 默认 fast：固定基础文档检查、provider/whitespace，加上有 fast 资格且受输入变化影响的工程 Check。 |
 | `bun run check -- --scope <范围>` | 默认 fast 加指定范围的 routine Checks 与必要依赖；范围可重复、去重并按名称排序，属于局部验收。 |
 | `bun run check -- --changed` | 工作区整体受影响验收：按完整输入 region 选择全部相关 routine 行为、质量、材料与 artifact / installed docs/runtime acceptance；不识别任务归属。 |
 | `bun run check -- --all` | 显式完整 routine 验收：不依赖变更命中选择全部 routine Checks，用于需要整体证据的任务及选择规则兜底。 |
@@ -39,24 +39,27 @@ scope 只与其它 scope 取并集，不与 preset、changed 或 all 混用。`-
 
 ```bash
 bun run check -- --scope project-tests
-bun run check -- --scope product-markdown-tests --scope any-change
+bun run check -- --scope product-markdown-tests --scope product-json-tests
 ```
 
-scope 复用 manifest 的 `changeRegion` 名称，不再维护第二套 Check 分组；完整名称由 `bun run check -- --help` 从同一数据列出。常见范围如下，具体成员仍由 manifest 拥有：
+scope 保留既有 `changeRegion` 名称，并增加 `documentation` 文档领域。`runtime/scope-files.ts` 是领域所属文件、Product Check owner 根与指标基础范围的唯一来源；变更触发依赖仍由 `runtime/change-regions.ts` 拥有，不把共享依赖误当作每个领域的扫描文件。manifest 引用范围并拥有 Check membership；完整名称由 `bun run check -- --help` 从这些数据列出。
 
 | 范围 | 追加的工作 |
 | --- | --- |
-| `product-source` / `script-source` | 对应 scope 的 typecheck 与 lint，不等于全部行为测试。 |
-| `product-markdown-tests`、`product-json-tests` 等 | 对应 Product 测试 lane。 |
-| `project-selection-tests` / `project-tests` | Gate 选择规则 / Gate 本体测试。 |
+| `product-source` / `script-source` | 对应 scope 的 typecheck、lint 和三项领域指标，不等于全部行为测试。 |
+| `product-markdown-tests`、`product-json-tests` 等 | 对应 Product 测试 lane 和三项领域指标；历史名称中的 tests 不限制指标只读测试。 |
+| `project-selection-tests` / `project-tests` | Gate 选择规则 / Gate 本体测试和对应领域指标。 |
+| `documentation` | 公共文档范围的文件指标；Markdown lint 与两项链接检查已在默认基础中。 |
 | `any-change` | 两项完整文档链接检查，不表示所有 routine Checks。 |
-| `material-json-input`、`material-schema-input` 等 | 相应材料检查。 |
-| `decision-input` / `test-surface` | Decision / 完整 Test Evidence 检查。 |
-| `package-tests` | package tooling、artifact 及 installed docs/runtime 的 routine 验收和依赖；不含 release-only types。 |
+| `material-json-input`、`material-schema-input` 等 | 相应材料检查，以及适用的重复检测与文件指标。 |
+| `decision-input` / `test-surface` | Decision 与其文档文件指标 / 完整 Test Evidence 检查。 |
+| `package-tests` | package tooling、artifact 及 installed docs/runtime 的 routine 验收、依赖及包工具领域指标；不含 release-only types。 |
 
 范围 token 是普通 `project-gate:scope=<名称>`，显式命中对应 routine Check，不需要 Git 证明该范围有变化；它不伪造受保护的 `changeFlag`，也不自动证明改动归属。未知范围（含自动回退专用的 `unclassified-input`）在 candidate preparation 前拒绝。
 
-fast 基线仍读取整个 Git snapshot，只选择 fast-qualified 项；其它人的变化可能带入基础快速检查，但不会因此额外打开未指定的慢项。Git 不可用时同样保留这个 fast 边界。所选 Check 的内部扫描范围、真实产物义务与依赖传播保持，scope 不是文件读取过滤器；Gate 的 `observes` 关系须在 scope 路径闭合，Product 仍只传播 `dependsOn`。
+fast 基线仍读取整个 Git snapshot，只选择 fast-qualified 项；其它人的变化可能带入基础快速检查，但不会因此额外打开未指定的慢项。Git 不可用时同样保留这个 fast 边界。选中领域同时带入适用指标，三个指标的实际文件取所选领域并集与原有指标 area 的交集；指标排除、阈值与比较分组保持，空交集不回退全仓。显式 `duplicate-input`、`file-metrics-input`、`function-input` 分别强制对应指标的完整范围，即使同次还选择领域。仅输入 region、没有文件领域的旧 scope 不隐式创建扫描领域。
+
+这种裁剪只适用于指标，不裁剪 typecheck、lint、行为测试 lane、材料或 package acceptance 的内部契约；完整 Markdown 引用图也保持。完整模式与跨领域重复检测边界见[质量配置](gate-repository-quality.md#领域范围与局部指标)。Gate 的 `observes` 关系须在 scope 路径闭合，Product 仍只传播 `dependsOn`。
 
 启动摘要明确标为 `selection=scoped; base=fast; scopes=…; acceptance=partial`。scoped 与 focused 一样不套 fast/changed/all 的标准 workload 性能预算；原有标准档位的预算不变。changed/all 留作明确需要整体证据时的兜底，正式发布保留同 receipt 的完整验收。
 
@@ -75,7 +78,7 @@ Gate 私有 manifest 的 `selectionPolicy` 定义自动选择的范围：
 策略只属于 Gate，不扩展 Product API 或增加 runner。types 与 workbench 的缺陷分别可能延迟至发布前或显式运行才被发现；
 这是验收频率取舍，不是同 workload 加速。
 
-fast 资格固定为 Product/scripts 两 scope 的 typecheck 与 lint、format、prepared candidate、Project Gate selection 与 package-tools/Core 闭包两条现有测试 lane，以及 Git diff whitespace。其中 candidate 与 whitespace 固定选择，其余按各自输入 region；资格来自明确工程职责，不从单次运行快慢自动推断。全仓指标扫描、完整 Markdown 引用图、Case 审计、其余 routine 行为测试与安装后 docs/runtime 可由对应 scope 或 changed/all 选择。
+fast 固定选择 prepared candidate、Git diff whitespace、Markdown lint、Markdown links 与材料链接检查；文档基础覆盖 docs/changes Markdown 及根 README/AGENTS。Product/scripts 两 scope 的 typecheck 与 lint、format、Project Gate selection 与 package-tools/Core 闭包两条快速测试 lane 仍按各自输入 region 选择。manifest 的 `fast: "always"` 表达固定基础项，`fast: true` 表达受输入变化约束的资格，不从单次耗时推断。领域指标由显式 scope 追加；全仓指标、Case 审计、其余 routine 行为测试与安装后 docs/runtime 仍由对应范围或 changed/all 选择。
 
 **fast 通过仅表示快速反馈通过。** 日常优先使用 fast 加显式 scope，或 owner 的最窄独立入口；何时扩到 changed/all 由[交付验证](../navigation.md#交付验证)定义，不因进入交付阶段自动升级。启动摘要区分反馈档位和验收范围；定向通过不替代明确要求的完整验收，发布仍走正式 receipt+all。
 
@@ -87,7 +90,7 @@ string-leaf AST，且对每个投影写入 literal `propagateDependsOn: true`，
 运行被带入的 prerequisite。公开 grammar 与默认 selection 由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
 Gate 只拥有 manifest projection 与其验证。
 
-fast 与 changed 使用同一保守输入 region，fast 另外要求资格；changed 覆盖完整 routine manifest。映射与 scope 词汇由 `runtime/change-regions.ts` 维护，manifest 声明各条目的 region，`runtime/eligibility.ts` 投影原生条件。Git snapshot 取本地 `HEAD~1...HEAD` 的最近一次提交（merge commit 的第一父链），并合并 staged、unstaged 与 untracked 变化；它不依赖远端分支同步状态。缺少可信 Git 证据时，changed 保守选择全部 routine Checks，不当作零变更；未分类根路径同样选择全部 routine Checks。已知目录家族下的新模块由其保守 owner region 承接，例如 project 新子 owner 归 ordinary scripts，validation 新实现/helper/测试归 validation lane。
+fast 的受影响项与 changed 使用同一保守输入 region，fast 另有固定基础项和资格；changed 覆盖完整 routine manifest。映射与 scope 词汇由 `runtime/change-regions.ts` 和共享领域表维护，manifest 声明各条目的 region 与显式 scopes，`runtime/eligibility.ts` 投影原生条件。Git snapshot 取本地 `HEAD~1...HEAD` 的最近一次提交（merge commit 的第一父链），并合并 staged、unstaged 与 untracked 变化；它不依赖远端分支同步状态。缺少可信 Git 证据时，changed 保守选择全部 routine Checks，不当作零变更；未分类根路径同样选择全部 routine Checks。已知目录家族下的新模块由其保守 owner region 承接，例如 project 新子 owner 归 ordinary scripts，validation 新实现/helper/测试归 validation lane。
 
 共享 material source 可选择多个实际消费者。package tooling lane 由已登记随包材料及其生成/构建输入选择，包含受管示例的 `docs/examples/package-api-support/**` 验收支持源，不由调查或决策文档选择。Test Evidence 对 Case 账本及当前行为 owner 所在的文档目录保守选择，同目录内的非 owner 文档仍可能唤起它；新增 owner 路径须由 selection 测试闭合。调查和决策文档不是行为 owner。
 
@@ -95,7 +98,7 @@ fast 与 changed 使用同一保守输入 region，fast 另外要求资格；cha
 
 Markdown lint 与 Markdown Link 保持完整 corpus，并使用各自缓存；具体配置及安全边界见 [Gate repository quality](gate-repository-quality.md#仓库选择范围)。
 
-材料 JSON、Schema、Schema publication 与 machine example Checks 各自按 changed 与其输入 region 选择，也可由对应 scope、materials preset 或 all 强制选择。`markdown-lint` 使用自己的 docs/changes Markdown input，并属于 `quality` preset。schema-publication 的输入包含发布 schema 与 v4 schema source；machine example 的生成读取完整 Product 执行与输出模型，因此它保守覆盖 Product 非测试 `src/**`，但普通 scripts 或无关 docs 不会命中其 region。具体映射由 `runtime/change-regions.ts` 声明；可信零匹配不触发 change 条件，Git unavailable 时 changed 保守执行全部 routine，scoped 仍保持 fast 加指定范围的边界。
+材料 JSON、Schema、Schema publication 与 machine example Checks 各自按 changed 与其输入 region 选择，也可由对应 scope、materials preset 或 all 强制选择。`markdown-lint` 使用共享表的文档范围 input，并属于 `quality` preset。schema-publication 的输入包含发布 schema 与 v4 schema source；machine example 的生成读取完整 Product 执行与输出模型，因此它保守覆盖 Product 非测试 `src/**`，但普通 scripts 或无关 docs 不会命中其 region。具体映射由 `runtime/change-regions.ts` 声明；可信零匹配不触发 change 条件，Git unavailable 时 changed 保守执行全部 routine，scoped 仍保持 fast 加指定范围的边界。
 
 Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 selection policy、fast 资格、适用的 change region 与
 每个 preset / scope 的选择闭合，以保证观察输入可用。`observes` 不传播选择。任一 owner 自带 `enabledByFlags` 时 Gate 拒绝组合，
@@ -138,7 +141,7 @@ options、scanner protocol、test file partition 和 execution mechanics 留在�
 
 一次运行先解析参数并准备 exact local candidate，或在 `--all --release-receipt <path>` 下重验显式 release receipt；之后才动态导入
 `runtime/bound-run.ts`。`run.ts` 必须先确定 candidate，bound Run 才能通过已解析的
-package public entry 构造 Project Definition，并验证该 entry 与 prepared candidate 相同。直接从源码静态导入
+package public entry 构造 Project Definition，并将验证过的 selection 传入指标组装，并验证该 entry 与 prepared candidate 相同。直接从源码静态导入
 package implementation 会绕过这个 candidate 边界，因此不允许。
 
 ## 每次运行的证据目录

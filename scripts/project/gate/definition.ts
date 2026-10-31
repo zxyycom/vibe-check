@@ -34,6 +34,9 @@ import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entri
 import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
 import { PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS } from "./runtime/change-regions.ts";
 import { PROJECT_GATE_SELECTION } from "./runtime/catalog.ts";
+import type { ProjectGateSelection } from "./runtime/controls.ts";
+import { projectGateMetricScopes } from "./runtime/scope-files.ts";
+import { scopedRepositoryQualityOptions } from "./checks/scoped-metrics.ts";
 import {
   createExternalConsumerMaterialCheck,
   type ExternalConsumerMaterialLease
@@ -206,10 +209,19 @@ export function createLintProductCheck(input?: LintProductCheckInput) {
 }
 
 /** Declares the complete Gate in execution-independent display order. */
-export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly ProjectGateEntry[] {
+export function createProjectGateEntries(
+  runtime: ProjectGateRuntime,
+  selection?: ProjectGateSelection
+): readonly ProjectGateEntry[] {
   const testLanes = resolveProjectGateTestLanes(repositoryRoot);
   const preparedCandidate = createPreparedCandidateCheck(runtime.preparedCandidate);
-  const repositoryQuality = createRepositoryQualityChecks(PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS);
+  const repositoryQuality = createRepositoryQualityChecks(
+    scopedRepositoryQualityOptions(
+      PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS,
+      selection,
+      repositoryRoot
+    )
+  );
   const externalConsumer = createExternalConsumerMaterialCheck({
     lease: runtime.externalConsumerLease,
     preparedCandidateCheckId: preparedCandidate.checkId,
@@ -283,6 +295,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     }),
     {
       check: repositoryQuality.duplicateDetection,
+      scopes: projectGateMetricScopes("duplicateDetection"),
       presets: ["quality"],
       fast: false,
       changeRegion: "duplicate-input",
@@ -290,6 +303,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     },
     {
       check: repositoryQuality.fileMetrics,
+      scopes: projectGateMetricScopes("fileMetrics"),
       presets: ["quality"],
       fast: false,
       changeRegion: "file-metrics-input",
@@ -297,6 +311,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     },
     {
       check: repositoryQuality.functionMetrics,
+      scopes: projectGateMetricScopes("functionMetrics"),
       presets: ["quality"],
       fast: false,
       changeRegion: "function-input",
@@ -305,14 +320,14 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     {
       check: repositoryQuality.markdownLint,
       presets: ["materials", "quality"],
-      fast: false,
+      fast: "always",
       changeRegion: "markdown-lint-input",
       resourceClaims: projectGateRepositoryScanResourceClaims
     },
     {
       check: repositoryQuality.markdownLinkValidation,
       presets: ["materials", "quality"],
-      fast: false,
+      fast: "always",
       changeRegion: "any-change",
       resourceClaims: projectGateRepositoryScanResourceClaims
     },
@@ -361,7 +376,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
         validate: validateRepositoryMaterialLinks
       }),
       presets: ["materials"],
-      fast: false,
+      fast: "always",
       changeRegion: "any-change"
     },
     {

@@ -19,7 +19,7 @@ Gate 对 duplicate/file/function/Markdown Link 四项显式使用 `blocking` fin
 
 这四项按 changed 输入选择，也属于 `quality` preset，故其未豁免 normal Finding 会由 owning Check 结算为 failed，并通过默认 strict-all aggregate 阻断已选择它们的 invocation；`markdown-link-validation` 还是 `materials` preset 成员，因此同样阻断 `--materials`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private blocking policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
 
-`markdown-lint` 是第五个、独立的 docs/changes Check，按 changed 输入选择，并属于 `materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：lint Finding 以 owning Check 的 Records、消息和 final data 输出，不使 owning Check 或 aggregate failed。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算。
+`markdown-lint` 是第五个、独立的文档 Check，在默认基础中固定选择，在 changed 中按文档输入选择，并属于 `materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：lint Finding 以 owning Check 的 Records、消息和 final data 输出，不使 owning Check 或 aggregate failed。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算。
 
 将 `markdown-lint` 改为 blocking 前，须按届时的仓库 Markdown corpus 审查其 Finding 与 rejected input；当前配置保持 non-blocking。
 
@@ -52,7 +52,7 @@ repository-private scope 只让 TypeScript、current Schemas 和 examples 进入
 metrics，但仍由显式 documentation contract 严格验证。repository defaults 还排除 `**/archive/**`；这是本项目配置，不是
 package 的公共默认值。
 
-Markdown Link 保留完整的 `docs/**/*.md` / `changes/**/*.md` 正/负选择与既有安全边界；Gate 显式将
+Markdown Link 保留完整的 docs/changes 及根 README/AGENTS 正/负选择与既有安全边界；Gate 显式将
 `limits.maxOccurrences` 和 `limits.maxTargetReads` 设为 `false`，不以总量预算阻断增长的完整文档。
 节点观察在本次引用图内复用，每条引用仍独立判断与计数；Product 默认总量预算与单文件字节边界不变。
 关闭总量预算不提供进程级资源隔离，源/目标失败与协作取消仍 unavailable，不降级放行。
@@ -64,6 +64,16 @@ Markdown Link 保留完整的 `docs/**/*.md` / `changes/**/*.md` 正/负选择�
 
 配置测试必须同时证明上述差异、共同 analyzer exclusion，以及目录外 Product implementation 仍被三项选择。
 该范围不从 provenance ledger 动态生成，也不改变 package Check 的公共默认 selection。
+
+### 领域范围与局部指标
+
+`runtime/scope-files.ts` 统一声明领域所属文件、Product Check owner 根与指标基础分组。测试 lane、变更依赖和质量配置引用该来源；领域本身不拥有指标阈值、Finding policy、waiver 或额外排除。
+
+显式领域 scope 自动带入适用指标：源码领域使用三项指标；文档领域只用文件指标；JSON/schema 材料领域使用重复检测与文件指标。`material-examples-input` 仍是材料验证输入：其 artifact 目录受原指标排除规则限制，不自动追加永久空范围的指标。`checks/scoped-metrics.ts` 对当前工作树取得原 area 的文件集合，再按领域规则取并集交集，以转义后的 exact patterns 交给普通 Check。不能拼接多组正/负 patterns 假装取并集，也不能把依赖触发路径当作所属文件。空交集保留空输入，不回退全仓；Check 的 not-applicable 仍受严格 aggregate 约束。
+
+原 `codeAreas` ID、比较边界、阈值和排除保持。例如 Markdown 与 JSON 两个 Product 领域同选时，仍在 `product-source` area 内比较重复，不按领域拆成互不比较的 area。局部选择不证明未选领域及与其之间的重复；`--changed`、`--all`、正式发布和 focused preset 均保留完整指标配置。显式指标 input scope 可强制该项完整扫描，具体调用见 [Project Gate](project-gate.md#按任务范围追加检查)。
+
+Markdown lint 和两项链接检查属于默认基础，始终验证完整文档 corpus；不随局部指标裁剪，避免丢失反向链接。lint 继续 non-blocking，不能将默认执行误称为 lint Finding 会阻断。
 
 ### 分析器与环境绑定
 

@@ -2,6 +2,7 @@ import type { Check } from "@zxyycom/vibe-check";
 
 import { isStringArray } from "../../../value-guards.ts";
 import { PROJECT_GATE_PRESETS, type ProjectGatePreset } from "./catalog.ts";
+import { isProjectGateScope, type ProjectGateScope } from "./change-regions.ts";
 
 const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
 const PROJECT_GATE_RELATIONS = ["dependsOn", "observes"] as const;
@@ -24,7 +25,9 @@ const OBSERVED_POLICIES_BY_OBSERVER_POLICY: Readonly<
 export interface ProjectGateEntry {
   readonly check: Check;
   readonly presets: readonly ProjectGatePreset[];
-  readonly fast: boolean;
+  readonly fast: boolean | "always";
+  /** Explicit domain selections in addition to the affected-input region. */
+  readonly scopes?: readonly ProjectGateScope[];
   /** Defaults to routine; non-routine work never joins changed/all fallback. */
   readonly selectionPolicy?: ProjectGateSelectionPolicy;
   /** Routine entries without a region always participate in incremental selections. */
@@ -45,23 +48,25 @@ export function defineProjectGateEntries(
   for (const entry of entries) validateProjectGateEntryMetadata(entry, entriesByCheckId);
   for (const entry of entries) validateProjectGateEntryRelations(entry, entriesByCheckId);
   return Object.freeze(
-    entries.map(({ check, changeRegion, fast, mutex, presets, resourceClaims, selectionPolicy }) =>
-      Object.freeze({
-        check:
-          mutex === undefined && resourceClaims === undefined
-            ? check
-            : Object.freeze({
-                ...check,
-                ...(mutex === undefined ? {} : { mutex: Object.freeze([...mutex]) }),
-                ...(resourceClaims === undefined
-                  ? {}
-                  : { resourceClaims: Object.freeze({ ...resourceClaims }) })
-              }),
-        presets: Object.freeze([...presets]),
-        fast,
-        ...(selectionPolicy === undefined ? {} : { selectionPolicy }),
-        ...(changeRegion === undefined ? {} : { changeRegion })
-      })
+    entries.map(
+      ({ check, changeRegion, fast, mutex, presets, resourceClaims, selectionPolicy, scopes }) =>
+        Object.freeze({
+          check:
+            mutex === undefined && resourceClaims === undefined
+              ? check
+              : Object.freeze({
+                  ...check,
+                  ...(mutex === undefined ? {} : { mutex: Object.freeze([...mutex]) }),
+                  ...(resourceClaims === undefined
+                    ? {}
+                    : { resourceClaims: Object.freeze({ ...resourceClaims }) })
+                }),
+          presets: Object.freeze([...presets]),
+          fast,
+          ...(scopes === undefined ? {} : { scopes: Object.freeze([...scopes]) }),
+          ...(selectionPolicy === undefined ? {} : { selectionPolicy }),
+          ...(changeRegion === undefined ? {} : { changeRegion })
+        })
     )
   );
 }
@@ -127,11 +132,8 @@ function validateRoutineObservationSelection(
   entry: ProjectGateEntry,
   observedEntry: ProjectGateEntry
 ): void {
-  if (entry.fast && !observedEntry.fast) {
-    throw new TypeError(
-      `Project Gate observes relation is not fast-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
-    );
-  }
+  validateFastObservationSelection(entry, observedEntry);
+  validateDomainObservationSelection(entry, observedEntry);
   if (
     observedEntry.changeRegion !== undefined &&
     entry.changeRegion !== observedEntry.changeRegion
@@ -143,10 +145,46 @@ function validateRoutineObservationSelection(
   if (
     entry.changeRegion !== undefined &&
     observedEntry.changeRegion === undefined &&
-    !observedEntry.fast
+    observedEntry.fast === false
   ) {
     throw new TypeError(
       `Project Gate observes relation is not scope-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
+    );
+  }
+}
+
+function isFixedFastEntry(entry: ProjectGateEntry): boolean {
+  return entry.fast === "always" || (entry.fast === true && entry.changeRegion === undefined);
+}
+
+function validateFastObservationSelection(
+  entry: ProjectGateEntry,
+  observedEntry: ProjectGateEntry
+): void {
+  if (entry.fast !== false && observedEntry.fast === false) {
+    throw new TypeError(
+      `Project Gate observes relation is not fast-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
+    );
+  }
+  if (isFixedFastEntry(entry) && !isFixedFastEntry(observedEntry)) {
+    throw new TypeError(
+      `Project Gate observes relation is not baseline-selection closed: ${entry.check.checkId}`
+    );
+  }
+}
+
+function validateDomainObservationSelection(
+  entry: ProjectGateEntry,
+  observedEntry: ProjectGateEntry
+): void {
+  if (entry.scopes === undefined || isFixedFastEntry(observedEntry)) return;
+  const observedScopes = new Set([
+    ...(observedEntry.scopes ?? []),
+    ...(observedEntry.changeRegion === undefined ? [] : [observedEntry.changeRegion])
+  ]);
+  if (entry.scopes.some((scope) => !observedScopes.has(scope))) {
+    throw new TypeError(
+      `Project Gate observes relation is not domain-selection closed: ${entry.check.checkId}`
     );
   }
 }
@@ -174,8 +212,9 @@ function validateProjectGateEntryIdentity(
 
 function validateProjectGateEntrySelection(entry: ProjectGateEntry): void {
   const { check, changeRegion, fast, presets } = entry;
-  if (typeof fast !== "boolean")
+  if (typeof fast !== "boolean" && fast !== "always")
     throw new TypeError(`Project Gate entry fast marker is invalid: ${check.checkId}`);
+  validateProjectGateEntryScopes(entry);
   if (
     changeRegion !== undefined &&
     (typeof changeRegion !== "string" || !CHECK_ID_PATTERN.test(changeRegion))
@@ -190,13 +229,24 @@ function validateProjectGateEntrySelection(entry: ProjectGateEntry): void {
   validateProjectGateEntryPolicy(entry);
 }
 
+function validateProjectGateEntryScopes(entry: ProjectGateEntry): void {
+  if (
+    entry.scopes !== undefined &&
+    (!isStringArray(entry.scopes) ||
+      !entry.scopes.every(isProjectGateScope) ||
+      new Set(entry.scopes).size !== entry.scopes.length)
+  ) {
+    throw new TypeError(`Project Gate entry scopes are invalid: ${entry.check.checkId}`);
+  }
+}
+
 /** Non-routine policies cannot also declare incremental obligations. */
 function validateProjectGateEntryPolicy(entry: ProjectGateEntry): void {
   const { check, selectionPolicy, fast, changeRegion, presets } = entry;
   if (selectionPolicy === undefined || selectionPolicy === "routine") return;
   if (selectionPolicy !== "release-only" && selectionPolicy !== "explicit-only")
     throw new TypeError(`Project Gate entry selection policy is invalid: ${check.checkId}`);
-  if (fast || changeRegion !== undefined)
+  if (fast !== false || changeRegion !== undefined || entry.scopes !== undefined)
     throw new TypeError(
       `Project Gate non-routine entry has routine selection metadata: ${check.checkId}`
     );
