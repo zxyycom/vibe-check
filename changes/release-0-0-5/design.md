@@ -40,4 +40,4 @@
 ## Open Questions
 
 无待决方案：实际 publisher 为 `zxyycom`，版本、latest 与分发 bytes 已核验；Git 收尾按追加授权执行并逐项留证。
-worktree/发布分支清理不属于本轮，保留供审计与恢复，不作为 Change 结项前置。
+Git tag/push 与 main fast-forward/push 已完成，详见 evidence；worktree/发布分支清理不属于本轮，保留供审计与恢复，不作为 Change 结项前置。

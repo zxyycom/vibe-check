@@ -1,6 +1,6 @@
 # 0.0.5 发布证据
 
-当前阶段：0.0.5 已发布且公开分发核验通过，正在完成获授权的 Git 交接。固定约定由 [Package release](../../docs/tooling/package-release.md)拥有。
+当前阶段：0.0.5 发布、分发核验及 Git 交接已完成，保存完成态后结项。固定约定由 [Package release](../../docs/tooling/package-release.md)拥有。
 
 ## 当次输入与授权
 
@@ -89,12 +89,15 @@ Manual CR: **通过，无文档发布阻断。** 非实施代理 `/root/release_
 - 已有槽位文件仅 bytes 相同时复用，冲突即停止；本次全部为新增复制，没有覆盖历史产物。
 - 非敏感 evidence 快照按内容 SHA-256 命名保存于槽位 `evidence/`，组合本记录、独立报告与逐项清单，供脱离临时缓存复核。该本地归档不表示跨机器备份。
 - 首份完整审查快照为 `evidence/ec3d4ba546644a86a638c348015065cd1e0bce9ce3e196e041658067d8a834aa.md`，118,644 bytes；摘要与文件名一致，复制 bytes 核对通过。后续记录提交后可新增快照，不覆盖该份。
+- 发布与 Git 交接后新增 `evidence/d15a5a7f63eab0ded561041ed5ac16940e65bbbff892873b8bd2f376536da917.md`，128,364 bytes，摘要/bytes 核对通过；覆盖实际 publisher、分发结果、tag 与 main 交接。最终完成态及结项出口另追加快照，保留各阶段原件。
 
 ## Git 交接
 
 - 已创建并向 origin 显式推送 annotated tag `v0.0.5`，没有 force 或推送其它 tag。
 - Tag object 为 `e98ff7e4a1607d8c65b5594b5c3b11b6e214b584`；本地及远端 peeled target 均为冻结 S `a2737ff47b457e178f32fa1d89b435067c39ddf1`。
-- main 合入、推送及完成态快照将在实际完成后追加；不把后续证据提交当作已发布源码。
+- main 已从 `fba271ec` fast-forward 合入 `release-0-0-5` 至 `fe787ef044c39c268649d70efff8b8b5a8886ba7`，并显式 non-force 推送；远端 main 已核对相等。
+- 合入后的 Change 与链接检查、局部 whitespace 审查通过；S 之后 Product、package scripts、依赖和已发布 changelog 无 drift。没有为纯记录交接重复完整发布 Gate，也不把后续证据提交当作已发布源码。
+- 最终完成态与结项清理提交将继续 fast-forward 到 main 并显式同步；其实际 revision 由归档的最终交接快照记录。
 
 ## 本次人工发布命令与后续边界
 
@@ -107,7 +110,7 @@ npm publish /workspace/vibe-check-release-0-0-5-frozen/build/artifacts/zxyycom-v
 认证由用户交互处理，不归档 OTP/token、登录链接或会话 transcript。已有发布验收依赖本机工作区缓存；
 后续任何新发布输入须使用新的正式身份按 owner 重新构造与验收，不能手改已发布 receipt 或重新使用 0.0.5。
 
-## 待完成事项
+## 结项与留存
 
-交互发布、公开分发与 Git tag/push 已完成；合回 main、推送及完成态归档逐项记录后结项。发布分支记录提交不改变已验收 S。
+交互发布、公开分发、Git tag/push 与合回/推送 main 均已完成，无未决产品或发布条件。保存完整完成态和最新归档快照后，按授权通过预检及 finalize 退出本 Change。
 两个发布 worktree 与发布分支按用户确认暂留；冻结目录只用于核验，不更新其中的历史 Change 快照。
