@@ -13,15 +13,15 @@ import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts"
 const CACHE_API_VERSION = "caller-keyed-json-v1";
 const CACHE_ENVELOPE_KEYS = ["cacheFormatVersion", "identityDigest", "payload"] as const;
 
+/** 限制 parser 返回同步对象值；`then` 只能缺省或为 `undefined`。 */
+type NonThenable<T extends object> = T & Readonly<{ readonly then?: undefined }>;
+
 /**
  * `cacheJsonByKey` 的 caller-owned identity、payload parser 与 computation。
  *
  * `key` 必须覆盖所有会改变 computation 结果的输入、实现、options、toolchain 与声明的外部状态；
  * 不能放入 secret 或低熵敏感值。`directory` 是调用方信任、可自行删除的本地状态空间。
  */
-type NonThenable<T extends object> = T & Readonly<{ readonly then?: undefined }>;
-
-/** Caller-keyed JSON cache 的 options。 */
 export interface CacheJsonByKeyOptions<T extends object> {
   /** cache miss、读取失败或 payload 无效时执行的 sync/async computation。 */
   readonly compute: () => unknown;

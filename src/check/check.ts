@@ -252,12 +252,11 @@ export type DependencyObservation = Readonly<{
 /** 当前 Check 的已规范化直接 relation outcomes 的 data reader。 */
 export interface CheckDependencies {
   /**
-   * Reads a `handoff: true` provider's accepted invocation-private handoff.
+   * 读取 `handoff: true` 提供方在本次 invocation 中已接受的私有交接引用。
    *
-   * @returns Only an effective direct `dependsOn` provider declared with `handoff: true`, whose
-   * Definition-internal identity has accepted `passed` data, returns canonical data plus its typed
-   * reference. `observes`, string IDs, lookalikes and unavailable handoffs fail closed without
-   * upstream data.
+   * @returns 只有本次有效、声明了 `handoff: true` 的直接 `dependsOn` 提供方，且其 Definition 内部身份
+   * 已接受 `passed` data 时，才返回 canonical data 与类型化引用。仅有 `observes`、字符串 ID、
+   * 外观相同的对象或不可用的 handoff 均返回失败分支，不泄露上游 data。
    */
   get<Id extends string, Handoff extends object>(
     provider: CheckHandoffProvider<Id, Handoff>
@@ -361,7 +360,7 @@ interface CheckBase<AuthoredOptions extends object, _PreparedOptions extends obj
   readonly options?: AuthoredOptions;
   /** 仅当多 flag presence predicate 匹配时启用 executable Check；省略时始终启用。 */
   readonly enabledByFlags?: CheckFlagEnablement;
-  /** `true` declares an invocation-private handoff on this executable Check. */
+  /** `true` 声明此可执行 Check 可交付仅限本次 invocation 的私有 handoff 引用。 */
   readonly handoff?: true;
   /** 继承 scheduling context 的 child Checks，不会单独形成 container result。 */
   readonly checks?: readonly Check[];

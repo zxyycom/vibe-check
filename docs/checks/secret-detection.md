@@ -97,6 +97,10 @@ adapter 固定使用 [Secretlint v13.0.5](https://github.com/secretlint/secretli
 - `coverage-gap`：`{ kind: "coverage-gap", path, reason, blocking: true }`，不可豁免。
 - `finding-waiver-audit`：unused/overmatched authoring 的 identity、reason、matchCount 与 status，不豁免任何 Finding。
 
+`secret-finding.location` 的 `startLine` / `startColumn` / `endLine` / `endColumn` 均从 `1` 开始，
+列按 UTF-16 code unit 计数，结束位置不包含在范围内；坐标相对解码后的检测文本，文件起始的 UTF-8 BOM 不计入。
+`ordinal` 是当前文件内按 detector 返回顺序分配的一基序号，不是全项目序号；文件内容或 detector 版本变化后应重新核对精确 waiver。
+
 Actionable Finding 附 `secret-findings` error，coverage gap 附 `incomplete-coverage` error；applied waiver 附 `finding-waived` info，
 unused/overmatched 附 warning。公开类型为 `SecretDetectionOptions`、`ResolvedSecretDetectionOptions`、`SecretDetectionFinalData`、
 `SecretDetectionRecordData` 与 `SecretDetectionUnavailableReasonCode`。

@@ -120,7 +120,9 @@ resolver throw 或返回非法 policy 时，不启动 child，Check 结算为 `u
 | `{ mode: "discard" }` | 默认。Product 在受 `outputByteLimit` 约束的 invocation memory 中捕获 stdout/stderr，并在结算后释放；它不自动发布 child material。 |
 | `{ mode: "transcript" }` | Product 将 running state 与 final status metadata、raw stdout、raw stderr 原子写入此 Check artifact directory 的固定 `process.log`。 |
 
-transcript 是显式 opt-in artifact capability。没有 `artifactDirectory`，或 running/final write 失败时，Check 为 `unavailable / command-transcript-unavailable`。`process.log` 不包含 executable、arguments、environment 或 native error text。
+transcript 是显式 opt-in artifact capability。除了在 Check 中设置 `output: { mode: "transcript" }`，还需在本次调用中提供目录，例如 `run(definition, { checkArtifactBaseDirectory: "artifacts/checks" })`。该 control 授予 Check 自己的 invocation-local artifact directory；相对 base 从 `projectRoot` 解析，与 machine publication 的目录和开关独立，路径与权限边界见 [RunControls](../api-mechanics.md#runcontrols-与-check-aggregation)。
+
+没有 `artifactDirectory`，或 running/final write 失败时，Check 为 `unavailable / command-transcript-unavailable`。`process.log` 不包含 executable、arguments、environment 或 native error text。
 
 `outputByteLimit` 分别约束 stdout 和 stderr 的内存捕获，沿用底层 `maxBuffer` 的近似文本计量；它不是两条流的合计预算，也不是严格 UTF-8 字节上限，多字节文本的实际字节数可能大于该值。
 任一流超限后，底层进程执行器主动终止 child；POSIX 下不响应软终止的 child 使用默认约 5 秒的强杀升级。
@@ -159,7 +161,11 @@ const reportCommand = commandCheck({
 Product 只在 child 具有数值退出码，且没有取消、超时、输出超限或 signal 标记时调用 `afterCommand.execute`；完整的非零退出也可由此回调解释。若选择 transcript，final write 也必须先成功。
 `callback(input, context)` 的第一参数是冻结 `{ options, command }`，其中 command 是完整 `{ exitCode, stdout, stderr }`；第二参数只含自己声明的 Check execution 字段；它可以返回普通 `CheckResult` 并按 ordinary Check contract 报告 Records。这个返回值取代完整命令的默认 exit-code mapping。
 
-存在 `parseData` 时，返回值是 typed provider Check，parser 负责验证 callback 返回的 data；没有 parser 时，返回值仍是 ordinary Check。`stdout`、`stderr` 仅在 callback 的业务 input 中提供，不会因 callback 存在而自动发布。调用方决定是否把派生数据或 Records 放入自己的结果边界，并负责其中的敏感信息处理。
+上例命令只演示成功输出。接入真实工具时，应按工具协议检查 `command.exitCode`；解析成功不等于检查通过，非零退出也不会在 callback 返回 `passed` 后自动改回 `failed`。保留失败结论并补充结构化诊断的用法见[工具输出转换](building-project-gate.md#9把工具输出转换为结构化诊断)。
+
+存在 `parseData` 时，返回值是 typed provider Check；consumer 读取其 final data 后显式调用 parser，Product 不自动调用。签名与错误边界见[Provider 类型与解析边界](check-dependencies.md#provider-类型与解析边界)。没有 parser 时，返回值仍是 ordinary Check。
+
+`stdout`、`stderr` 仅在 callback 的业务 input 中提供，不会因 callback 存在而自动发布。调用方决定是否把派生数据或 Records 放入自己的结果边界，并负责其中的敏感信息处理。
 
 ## 默认终态与失败边界
 
@@ -196,4 +202,5 @@ package root 提供 `commandCheck` 和以下类型组；精确签名见安装包
 | `AfterCommand`、`AfterCommandInput`、`AfterCommandContext`、`AfterCommandExecution`、`CompletedCommand` | completion 配置、独立业务 input、合法 context 字段与完整命令结果。 |
 | `CommandCheckOutput`、`CommandCheckFinalData`、`CommandCheckUnavailableReasonCode` | output policy、默认终态 data 与 command-owned reason code。 |
 
-command 不提供 shell、pipeline、workflow 或 process-exit adapter，也不保证平台解析的 command 存在。
+调用方负责提供可用的 executable、组织多步骤 workflow，并由项目入口根据 `RunResult` 设置退出码；
+完整接入路径见[构建项目 Gate](building-project-gate.md#1接入已有检查)。

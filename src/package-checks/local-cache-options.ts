@@ -6,7 +6,7 @@ import {
   snapshotExactClosedRecord
 } from "../data-boundary/closed-values.ts";
 
-/** Shared closed grammar for an explicitly owned, deletable local cache directory. */
+/** 本地缓存的封闭配置；启用时由调用方提供自己拥有、可信且可删除的绝对目录，停用时不能声明目录。 */
 export type LocalCacheOptions =
   | Readonly<{ readonly enabled: false }>
   | Readonly<{ readonly enabled: true; readonly directory: string }>;

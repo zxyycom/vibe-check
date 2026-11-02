@@ -70,7 +70,13 @@ export interface AdmissionCoreTransition {
   readonly state: AdmissionCoreState;
 }
 
-/** 在 exact boundary validation 和一次 static compile 后创建 standalone public factory。 */
+/**
+ * 为静态调度图创建独立准入模拟器，不执行真实 Check。
+ * 用 `initialState()` 取得初态，再由 state 的 `select` / `settle` 生成不可变后继，比较假设分支。
+ * 输入必须包含有效的 `SchedulerGraphSnapshot` 和正安全整数 `maxParallel`；无效输入抛错。
+ *
+ * @see [比较假设调度分支](../../../../docs/guides/simulating-admission.md)
+ */
 export function createAdmissionGraph(input: AdmissionGraphInput): AdmissionGraph {
   const compiled = compileAdmissionGraphInput(input);
   return Object.freeze({

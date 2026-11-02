@@ -53,7 +53,7 @@ export interface RunResultFacts {
 /** 一次 Project Run 的可判别结果；output failure 保留已结算 facts。 */
 export type RunResult = Readonly<
   | {
-      /** Definition、RunControls 或 aggregation selection 无效；没有执行任何 Check author callback。 */
+      /** Definition 或 RunControls 无效；没有执行任何 Check author callback。 */
       readonly kind: "configuration";
       /** Definition normalization 时仍可报告、但不单独阻止本 branch 的 warning。 */
       readonly definitionWarnings: readonly DefinitionWarning[];
@@ -116,7 +116,7 @@ export type RunResult = Readonly<
       readonly kind: "output";
       readonly declarativeFingerprint: string;
       readonly definitionWarnings: readonly DefinitionWarning[];
-      /** 失败的 machine、progress、diagnostic 或 scheduler-measurement output 类别。 */
+      /** 失败的 machine、progress、diagnostic 或 terminal effect 类别。 */
       readonly diagnostic: Readonly<{
         readonly code:
           | "machine-publication-failed"

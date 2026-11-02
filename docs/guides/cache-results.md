@@ -55,9 +55,9 @@ detached canonical-object/parser boundary。
 返回的冻结 result envelope 表示本次 helper 调用，而非 Check 结算：hit 为
 `{ value: T, source: "cache", read: "hit", write: "not-attempted" }`；computed 为
 `{ value: T, source: "computed", read: "miss" | "invalid" | "failed", write: "stored" | "failed" }`。
-`value` 是同步 parser 返回的 domain value，类型 `T` 由 parser 推断；调用方从中读取计算结果，而不是从 observation 字段恢复 payload。compute 或
-parser failure 直接传播且不写 entry；storage failure 不改变已接受的 computed value，也不自动创建 Check
-message、Record 或 terminal status。parser owner 决定是否进一步冻结它返回的 domain value。
+`value` 是同步 parser 返回的 domain value，类型 `T` 由 parser 推断；调用方从中读取计算结果，而不是从 observation 字段恢复 payload。
+读取已有缓存时，parser 拒绝 payload 会使本次读取成为 `invalid`，随后重新计算；`compute` 失败或 parser 拒绝新计算的 payload 则直接传播，且不写 entry。
+storage failure 不改变已接受的 computed value，也不自动创建 Check message、Record 或 terminal status。parser owner 决定是否进一步冻结它返回的 domain value。
 
 ## 并发与安全边界
 

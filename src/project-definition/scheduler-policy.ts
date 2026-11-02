@@ -444,9 +444,9 @@ export interface SchedulerMeasurementAdmission {
     /** Task 因 mutex conflict 仍 pending 的累计毫秒数。 */
     readonly mutexBlockedMs: number;
   }>;
-  /** Scheduler monotonic-clock timestamp in milliseconds, or no admission occurred. */
+  /** 准入时的 Scheduler 单调时钟毫秒值；未发生准入时为 `null`。 */
   readonly admittedAtMonotonicMs: number | null;
-  /** Scheduler monotonic-clock timestamp in milliseconds, or no settlement occurred. */
+  /** 结算时的 Scheduler 单调时钟毫秒值；未发生结算时为 `null`。 */
   readonly settledAtMonotonicMs: number | null;
   /** 被测 Task 的稳定 ID。 */
   readonly taskId: string;
@@ -457,7 +457,7 @@ export interface SchedulerRunMeasurementTimingFacts {
   readonly acceptedWaitMs: number;
   /** effective capacity slot 的累计毫秒积分。 */
   readonly effectiveCapacitySlotMs: number;
-  /** Terminal Scheduler monotonic-clock timestamp in milliseconds. */
+  /** Scheduler 到达终态时的单调时钟毫秒值。 */
   readonly endedAtMonotonicMs: number;
   /** root capacity slot 的累计毫秒积分。 */
   readonly rootCapacitySlotMs: number;
@@ -465,7 +465,7 @@ export interface SchedulerRunMeasurementTimingFacts {
   readonly schedulerControlPathMs: number;
   /** decision diagnostic observation work 内累计的毫秒数。 */
   readonly schedulerDecisionObservationMs: number;
-  /** First Scheduler monotonic-clock timestamp in milliseconds. */
+  /** Scheduler 开始测量时的单调时钟毫秒值。 */
   readonly startedAtMonotonicMs: number;
   /** running Task slot 的累计毫秒积分。 */
   readonly taskSlotMs: number;

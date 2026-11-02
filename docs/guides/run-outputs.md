@@ -169,11 +169,13 @@ getter 来寻找更深字段。诊断不回显被拒绝的值；unknown key 诊�
 
 ## 输出状态与失败处理
 
+CI 中若质量汇总和已启用的输出都必须成功，可用 `result.kind === "completed" && result.aggregate === "passed"` 决定是否退出 `0`，其余返回分支退出非零；完整入口见[构建 Gate](building-project-gate.md#先跑通定义检查运行判断结果)。不要只检查 `aggregate`：`kind: "output"` 仍可携带 `aggregate: "passed"`，但本次输出或 terminal effect 已失败，应继续读取 `diagnostic` 和各项 `outputs` 状态定位。
+
 只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。每项 status 使用 `"disabled" | "not-run" | "succeeded" | "failed"`。`RunResult.outputs.progressRendering` 返回 `{ enabled, status }`；预览文本、effective limits 与 formatter 由配置和呈现流程使用，不包含在返回值中。
 
 channel setup、write 或 close failure 只使对应 output failed，不改写已经形成的 Check/Record facts，也不阻断其它 output 结算。
 
-`checkAggregation` 不是 output formatter，也不产生 output status。它在完整 Check settlement 后、正常 final progress summary 与 machine publication 前同步解释有效 Check 列表。若该函数抛错、返回 Promise/thenable 或非法四态值，`run(...)` 直接拒绝：Product 会关闭本次 diagnostic/progress writer，但不呈现正常成功 summary、不发布正常 machine result，也不返回可读取 output status 的 `RunResult`。调用方应处理这个 Promise rejection；它不能靠 `kind: "output"` 恢复。
+`checkAggregation` 不是 output formatter，也不产生 output status。它在完整 Check settlement 后、正常 final progress summary 与 machine publication 前同步解释有效 Check 列表。若该函数抛错、返回 Promise/thenable 或非法四态值，`run(...)` 直接拒绝：Product 会关闭本次 diagnostic/progress writer，但不呈现正常成功 summary、不发布正常 machine result，也不返回可读取 output status 的 `RunResult`。调用方应处理这个 Promise rejection；它不能靠 `kind: "output"` 恢复。项目入口若捕获此错误，应保留非零退出或重新抛出，不能只记录错误后正常退出。
 
 当 primary Run 已正常完成时，output failure 使结果成为 `kind: "output"`。多个 output 失败时，按以下优先级选择第一个 failure 作为 diagnostic，其余状态仍从 `outputs` 读取：
 

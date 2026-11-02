@@ -82,6 +82,8 @@ if (outcome?.status !== "passed" || outcome.data.actualBytes !== 82_000) {
 node quality.ts
 ```
 
+在项目根目录执行；默认 `projectRoot` 是调用时的工作目录，不是 `quality.ts` 所在目录。从其它目录启动时，在 `run` 的第二个参数中显式设置 `projectRoot`。
+
 `RunResult.kind === "completed"` 表示这次 Run 已经完整结算，不等于其中每项 Check 都通过。示例继续读取 `bundle-size` 的 `outcome.status`，并在结果不符合预期时让脚本失败。
 
 ## 运行、配置与读取结果
@@ -95,6 +97,7 @@ node quality.ts
 1. **判别 Run。** `completed` 和 `output` 才同时提供完整 facts 与 `aggregate`；执行阶段取消也有 snapshot，但没有 aggregate。其它分支按各自的 [RunResult](./docs/api-mechanics.md#runresult-分支) 契约处理。
 2. **读取 Check facts。** 按 `checkId` 读取 `snapshot.checks[].outcome` 的 `passed`、`failed`、`not-applicable` 或 `unavailable`；`completed` 本身不代表质量通过。
 3. **解释本次有效列表。** 默认 `aggregate` 仅在有效 Check 列表非空且全部 `passed` 时为 `passed`，否则为 `failed`。CI 可读取这个严格默认值，或提供同步 [`checkAggregation`](./docs/api-mechanics.md#runcontrols-与-check-aggregation) 函数解释同一列表，再决定退出码。
+4. **决定入口是否成功。** 退出码由项目脚本设置。严格 Gate 只接受 `result.kind === "completed" && result.aggregate === "passed"`；`output` 即使汇总通过，也仍有输出失败。完整入口见[构建 Gate](./docs/guides/building-project-gate.md#先跑通定义检查运行判断结果)，输出失败与 Promise rejection 见[失败处理](./docs/guides/run-outputs.md#输出状态与失败处理)。
 
 ## 为随包 Check 声明项目行为
 

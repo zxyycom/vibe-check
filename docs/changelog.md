@@ -2,15 +2,79 @@
 
 本页随包提供版本变化与升级影响，按版本组织；具体行为规范由链接的用户指南拥有。
 
+按版本阅读：[0.0.5](#005) · [0.0.4](#004) · [0.0.3](#003) · [0.0.2](#002)。
+
+## 0.0.5
+
+本节记录 `0.0.5` 相对 `0.0.4`（源码边界为 `v0.0.4` tag `4e3294a9`）的净变化与升级影响。
+
+### 从 0.0.4 升级时检查什么
+
+Node `>=24.18`、包根程序化入口与 [v4 machine schema](./output.md) 保持不变。
+已完成 `0.0.4` 迁移的调用方无需重新迁移 callback context 或文件 selection；从更早版本升级时，仍须先核对下方相应版本的迁移说明。
+
+| 使用的能力 | 升级后的复核动作 |
+| --- | --- |
+| 终端进度输出 | 不再依赖默认逐项列出 flag 未命中的名称；需要名称时显式设置预览数量，完整事实仍读 snapshot 或机器输出。 |
+| `commandCheck` 与 `afterCommand` | 分别验证完整非零退出、超时与输出超限；不再依赖不完整输出触发完成回调。 |
+| 重复检测与 Markdown lint | 更新安装后的依赖锁图，复核 Findings、精确 waiver 与 blocking 结果；不要直接沿用旧计数。 |
+| Markdown 本地链接检查 | 在实际 Node 启动参数及权限环境下运行，复核正常读取、取消与 `unavailable`，特别是限制 Worker 的宿主。 |
+
+升级后运行项目类型检查与代表性 Run，分别确认单项 outcome、`aggregate` 和 CI 退出码；schema 版本不变不代表 API 或检测结果完全兼容。
+
+### Flag 未命中展示
+
+flag 未命中的 Check 改为默认只显示数量与原因摘要。新增 `outputs.progressRendering.flagMismatchPreviewLimit`，
+默认 `0`；正数按 Definition 顺序预览前 N 个名称。它只改变人读呈现，不改变 flags 选择、完整结果或汇总计数。
+配置及 RunControls 覆盖见[Flag 未命中摘要](./guides/run-outputs.md#flag-未命中摘要)。
+
+### 命令完整性与超限回收
+
+[`commandCheck`](./guides/command-check.md) 的执行依赖升级至 Execa `10.2.0`：输出超限主动终止子进程，
+不再依赖执行超时才回收；忽略软终止时沿用底层强杀升级，不承诺任意后代进程树的回收。
+超限与非零退出等标记同时出现时也不会进入 `afterCommand`，因而不发布该回调的派生 data/Records；
+完整非零退出仍可由调用方解释，默认终态优先级保持。
+`outputByteLimit` 名称保留，指南明确它是各流独立的近似文本缓冲限额，不是严格 UTF-8 字节预算。
+
+### 检测依赖与结果复核
+
+检测依赖升级为 `csv-parse@7.0.3`、`markdownlint@0.42.0` 与 `jscpd@^5.4.2`。
+公开规则集合、阈值与 Finding 处理策略保持；重复检测的 Markdown token 计量和 Vue 范围修复可能改变
+Findings/waiver identity，升级时应按实际输入复核。
+
+启用 `reference-links-images` 时，[`markdownLint`](./checks/markdown-lint.md) 另验证实际 backend 的引用识别能力：
+消费者保留旧解析器锁图而导致 MD052 漏报时，以 `unavailable / backend-failed` 阻断，不把空结果当作通过；
+此资格检查也先于 findings cache 命中。遇到该结果时，先核对实际安装的依赖图，而不是关闭规则来获得通过。
+
+### Markdown 本地读取与取消
+
+[`markdownLinkValidation`](./checks/markdown-link-validation.md) 的路径检查与常规文件读取改由私有串行 Worker 执行，
+并合并 source 的路径检查与正文读取，减少深路径检查和线程间往返开销；不新增配置，也不承诺固定加速比例。
+引用图、逐 occurrence 计费、首次目标观察和文件授权边界保持。
+
+Worker 不可用按发生阶段返回 `source-unavailable` 或 `target-unavailable`；已有检查错误保留，单独收束失败返回
+`target-unavailable`，不发布原本的普通成功或 Finding 结果。取消仍等待在途工作尝试关闭文件并退出，
+已进入的系统调用不可抢占，不提供固定取消延迟。完整边界见[协作取消与完整发布](./checks/markdown-link-validation.md#协作取消与完整发布)。
+
+### 使用说明与追溯
+
+文档按使用任务整理了 [Git 变化选择](./guides/selecting-checks-by-git-changes.md)与
+[callback context](./guides/callback-context.md) 的阅读入口，并补全自定义 Check 的运行步骤、Schema 输入前提、
+Finding waiver 结果消费及 flag 条件复用说明。这些是既有能力的说明完善，不是本版新增 API。
+
+| 变更主题 | 提交 |
+| --- | --- |
+| Flag 未命中摘要与预览 | `fe044925` |
+| 命令完整性与超限回收 | `23535dd7` |
+| 检测依赖与引用识别能力 | `c68f42ac` |
+| Markdown 本地读取 | `2e80166a`、`d15cbf6f` |
+| 使用示例与结果消费 | `222627f9`、`154e3d1f`、`6d31f5e4`、`31774b29` |
+| 任务阅读路径 | `4d43454c`、`5ae67acc` |
+
 ## 0.0.4
 
 本节记录 `0.0.4` 相对 `0.0.3`（源码边界为 `v0.0.3` tag `4a830ef3`）的净变化与升级影响。
 Node `>=24.18` 与包根程序化入口保持不变；纯说明补全和不改变公开行为的内部重构不单列为新 API。
-
-### Flag 未命中展示
-
-flag 未命中的 Check 改为默认显示数量与原因摘要。新增 `outputs.progressRendering.flagMismatchPreviewLimit`，
-可按需预览前 N 个名称；完整结果与汇总计数保持。配置及 RunControls 覆盖见[Flag 未命中摘要](./guides/run-outputs.md#flag-未命中摘要)。
 
 ### 声明式 callback context 迁移
 
@@ -116,24 +180,10 @@ Scheduler 以同源增量变化维护成员、选择视图和已请求的统计�
 完整 JSON 语法、UTF-8、解码后重复键与领域结果规则保持；内部实现移除 Momoa 运行依赖。
 文件选择所需的 `fast-glob@3.3.3`、`micromatch@4.0.8` 纳入运行依赖，安装时更新 lockfile。
 
-### 命令完整性与检测依赖
-
-[`commandCheck`](./guides/command-check.md) 升级至 Execa `10.2.0`：输出超限主动终止子进程，
-不再依赖执行超时才回收；忽略软终止时沿用底层强杀升级，不承诺任意后代进程树的回收。
-超限与非零退出等标记同时出现时也不会进入 `afterCommand`，因而不发布该回调的派生成功 data/Records；
-完整非零退出仍可由调用方解释，默认失败原因优先级保持。
-`outputByteLimit` 名称兼容保留，指南现明确它是各流独立的近似文本缓冲限额，不是严格 UTF-8 字节预算。
-
-检测依赖升级为 `csv-parse@7.0.3`、`markdownlint@0.42.0` 与 `jscpd@^5.4.2`。
-公开规则集合、阈值与 Finding 处理策略保持；重复检测的 Markdown token 计量和 Vue 范围修复可能改变
-Findings/waiver identity，升级时应按实际输入复核，而不是只接受旧计数。
-Markdown reference 检查另验证实际 backend 能力：消费者保留旧解析器锁图而导致 MD052 漏报时，
-沿用 `backend-failed` 阻断，不把空结果当作通过；此资格检查也先于 findings cache 命中。
-
 ### 升级验证与追溯
 
 从 `0.0.3` 升级时，先迁移 callback context 和文件 selection，再运行类型检查、实际安装包的 TS/JS consumer 与代表性 Run；
-重点复核函数/重复检测 Finding 与 waiver、调度测量末位、Markdown 首次目标观察、命令完成回调、错误优先级及新增 options 分支。
+重点复核函数 Finding/waiver、调度测量末位、Markdown 首次目标观察、错误优先级及新增 options 分支。
 `run.json` / `records.ndjson` 继续使用 [v4 machine schema](./output.md)，不能仅以 schema 版本判断 API 或 Check Record 兼容性。
 
 | 变更主题 | 提交 |
@@ -143,7 +193,6 @@ Markdown reference 检查另验证实际 backend 能力：消费者保留旧解�
 | 声明式 callback context | `de9cf844` |
 | 调度测量与终态修复 | `14a64e5e` |
 | Markdown 缓存提醒与引用图/预算 | `acc3212d`、`a38a3320` |
-| 命令完整性、检测依赖与工作区工具链 | `23535dd7`、`c68f42ac`、`4b9ca374`、`1b9fcae3` |
 | JSON 文档协作取消与语法实现 | `306a0b25`、`965611cf` |
 
 ## 0.0.3

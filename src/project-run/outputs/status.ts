@@ -1,11 +1,11 @@
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 import { DIAGNOSTIC_CHANNELS, type DiagnosticChannel } from "../diagnostic-logging/logger.ts";
 
-/** 一项 Run-owned terminal output 或 measurement participant 的最终状态 readback。 */
+/** 一项 Run-owned terminal output 或 terminal-effect participant 的最终状态 readback。 */
 export interface RunOutputStatus {
   /** effective configuration 是否启用该 participant；`false` 时 status 必为 `disabled`。 */
   readonly enabled: boolean;
-  /** `disabled` 为未启用；`not-run` 为启用但未到达完成；`succeeded` 为完成，`failed` 为其 own I/O 或 hook failure。 */
+  /** `disabled` 为未启用；`not-run` 为启用但未到达完成；`succeeded` 为完成，`failed` 为其自身的 I/O 或 callback 失败。 */
   readonly status: "disabled" | "failed" | "not-run" | "succeeded";
 }
 

@@ -8,11 +8,11 @@ import { snapshotClosedArray, snapshotClosedPolicyRecord } from "../data-boundar
 import { parseFlagEnablementControl } from "../project-definition/check-tree/check-fields-authoring.ts";
 import { parseCheckScheduling } from "../project-definition/check-tree/scheduling-authoring.ts";
 
-/** 固定身份随包 Check 构造器与领域 policy 并列接收的项目声明字段；Project Definition 保留语义校验所有权。 */
+/** 随包 Check 构造器与领域 policy 并列接收的项目声明字段；Project Definition 保留语义校验所有权。 */
 export interface PackageCheckAuthoringOptions<Id extends string = string> {
-  /** Overrides the constructor's package default identity. */
+  /** 覆盖构造器的默认 Check ID；在同一 Definition 中须唯一。 */
   readonly checkId?: Id;
-  /** Overrides the constructor's package default presentation name. */
+  /** 覆盖构造器默认的人读名称。 */
   readonly displayName?: string;
   readonly enabledByFlags?: CheckFlagEnablement;
   readonly checks?: readonly Check[];
@@ -22,7 +22,7 @@ export interface PackageCheckAuthoringOptions<Id extends string = string> {
   readonly admissionPriority?: number;
   readonly mutex?: InheritableCheckCollection<string>;
   readonly resourceClaims?: CheckResourceClaims;
-  /** `false` explicitly restores the package default of rendering quiet passed rows. */
+  /** `true` 在满足安静通过条件时省略结果行，`false` 明确保留；省略时沿用具体构造器的默认值。 */
   readonly omitQuietPassedRow?: boolean;
 }
 

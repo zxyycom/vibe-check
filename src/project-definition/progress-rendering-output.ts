@@ -51,7 +51,7 @@ type ProgressRenderingFieldSpec = Readonly<{
   readonly expected: ProgressRenderingFieldExpectation;
 }>;
 
-/** Closed expectations shared with invocation diagnostics; never contains authored values. */
+/** invocation 诊断使用的封闭字段期望类型，不包含调用方传入的值。 */
 export type ProgressRenderingFieldExpectation =
   | "plain-data-object"
   | "boolean"

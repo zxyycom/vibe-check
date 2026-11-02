@@ -4,7 +4,7 @@ export type SecretDetectionInputClassification = Readonly<
   | { readonly content: string; readonly kind: "text" }
 >;
 
-/** Deterministic reasons why an explicitly selected file did not receive detector coverage. */
+/** 显式所选文件未取得 detector 覆盖的确定原因。 */
 export type SecretDetectionCoverageGapReason =
   | "contains-nul"
   | "file-count-limit"

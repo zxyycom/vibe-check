@@ -99,7 +99,7 @@ backend 规则名、preset、rule object、rule 参数、parser plugin 和自动
 2. 对未变化的 source 复用已验证的逐文件 findings；内容、所选规则或 backend 版本变化时重新 lint。缓存身份还包含 source path 与内部 adapter 契约版本。
 3. 根据本次完整遍历结算 Finding 总量限制、记录顺序、Finding policy、Records、消息与终态。缓存命中不复用 Check outcome。
 
-只有成功计算的 findings 可写入缓存。损坏或不可用的缓存会重新计算，不会被视为空结果；取消、source 读取失败、backend 失败及超限仍按原有终态结算。
+只有成功计算的 findings 可写入缓存。损坏或不可用的缓存会重新计算，不会被视为空结果；取消、source 读取失败、backend 失败及超限按下文的 [`unavailable` 契约](#not-applicable-与-unavailable)结算。
 
 缓存目录由调用方指定，保存由 source 派生的 findings 和 identity 摘要，不保存原文。调用方应使用可信、可删除的绝对目录并管理容量；该目录不提供防篡改、机密性或自动清理保证。
 
@@ -123,7 +123,7 @@ audit Record data 包含 `kind: "finding-waiver-audit"`、`identity`、`reason`�
 
 完全相同位置、规则和路径的多条 Finding 不会按 ordinal 任挑一条豁免；不同 end range 则是不同 identity。编辑导致路径或位置漂移时，旧 waiver 会变为 unused，应人工更新或删除。reason 会进入公开 Records 和消息，不得包含秘密或敏感原文。
 
-waiver 不改变文件选择、规则、source 读取、`maxFindings` 或缓存 facts：所有原始 Finding 仍计入上限，每次 cache hit 后也按当前 waiver 重新结算。rejected input、source/backend 失败、超限和取消不可豁免；没有 selected path 时继续 N/A，不对账；无法取得完整 lint 时不发布 partial lint 或 waiver audit。省略或传入空数组保持既有输出。
+waiver 不改变文件选择、规则、source 读取、`maxFindings` 或缓存 facts：所有原始 Finding 仍计入上限，每次 cache hit 后也按当前 waiver 重新结算。rejected input、source/backend 失败、超限和取消不可豁免；没有 selected path 时返回 `not-applicable`，不对账；无法取得完整 lint 时不发布 partial lint 或 waiver audit。
 
 ## I/O 与安全边界
 

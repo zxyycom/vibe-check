@@ -25,7 +25,7 @@ export interface FileMetricsLowDecisionTokenAllowanceOptions {
 
 /** 一个区域可省略的文件代码行策略。 */
 export interface FileMetricsCodeLineOptions {
-  /** 省略时为 `360`；只有严格超过此值才产生 finding。 */
+  /** 常规代码行上限，省略时为 `360`；应用 `lowDecisionTokenAllowance` 后，严格超过有效上限才产生 finding。 */
   readonly maximum?: number;
   /** 省略时使用完整默认宽限策略。 */
   readonly lowDecisionTokenAllowance?: FileMetricsLowDecisionTokenAllowanceOptions;

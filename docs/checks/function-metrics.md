@@ -217,7 +217,7 @@ selected union 为空时为 `not-applicable / no-eligible-input`；非空但全 
 | `source-unavailable` | 无法形成 filesystem 候选快照或安全读取 source；检查 project root、权限和 selected files。 |
 | `cancelled` | invocation signal 在可观察工作边界取消；检查调用方取消原因，必要时重试。 |
 | `resource-limit-exceeded` | 单文件超过 `8 MiB` 或 accepted aggregate 超过 `64 MiB`；缩小 selection 或减小 source input。 |
-| `analysis-failed` | 内置 analyzer 无法形成完整可信结果；检查选中的 source 并在修正后重试。 |
+| `analysis-failed` | Analyzer Worker 创建、启动或分析失败，无法形成完整可信结果；检查 Worker 权限、Node 启动参数与选中的 source。 |
 
 `unavailable` 带对应 `reason.code` 的 error message，无 final data，不伪造 waiver audit；已发布的 input-rejected Records 与 warning 保留。
 
@@ -225,6 +225,8 @@ selected union 为空时为 `not-applicable / no-eligible-input`；非空但全 
 
 Check 只读取其 `codeAreas[id].files` 选出的 project-local exact inputs，并将 accepted paths 交给内置 analyzer。
 分析在本地完成，不执行外部 command、不发起网络请求，也不修改 source files。
+分析由 `node:worker_threads` Worker 执行，宿主须允许创建 Worker，启动参数须兼容文件型 Worker；失败不回退到主线程分析。
+建议按最小用法从普通模块文件启动，而不是让 Worker 继承仅适用于 eval/stdin 的 `--input-type` 参数。
 
 ## 适用边界
 

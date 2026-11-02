@@ -9,11 +9,13 @@ import type { SecretDetectionIssue } from "./secretlint/adapter.ts";
 import type { SecretDetectionFindingIdentity } from "./options.ts";
 import { resolveSecretDetectionFindingIdentity } from "./finding-waiver-identity.ts";
 
-/** An actionable or waived high-confidence secret finding. No detector value or message is retained. */
+/** 待处理或已豁免的高置信 secret finding；不保留检测到的值或 detector message。 */
 export interface SecretDetectionFindingRecordData {
   readonly blocking: boolean;
   readonly kind: "secret-finding";
+  /** 相对解码后文本的一基行列范围；列按 UTF-16 code unit 计数，end 不包含，起始 UTF-8 BOM 不计入。 */
   readonly location: SecretDetectionIssue["location"];
+  /** 当前文件内按 detector 返回顺序分配的一基序号；不是跨文件或跨版本的稳定位置。 */
   readonly ordinal: number;
   readonly path: string;
   readonly ruleId: "@secretlint/secretlint-rule-privatekey";
@@ -21,7 +23,7 @@ export interface SecretDetectionFindingRecordData {
   readonly waiver?: Readonly<{ readonly reason: string }>;
 }
 
-/** A deterministic exact-input coverage gap. It is never reconciled through finding waiver policy. */
+/** 明确所选输入中未取得检测覆盖的缺口；不参与 finding waiver 对账，始终阻断。 */
 export interface SecretDetectionCoverageGapRecordData {
   readonly blocking: true;
   readonly kind: "coverage-gap";
@@ -29,7 +31,7 @@ export interface SecretDetectionCoverageGapRecordData {
   readonly reason: SecretDetectionCoverageGapReason;
 }
 
-/** Unused or overmatched safe secret finding waiver evidence. */
+/** 未使用或匹配过宽的 secret finding waiver 审计证据，不含检测到的 secret 值。 */
 export type SecretDetectionFindingWaiverAuditRecordData =
   FindingWaiverAuditRecordData<SecretDetectionFindingIdentity>;
 

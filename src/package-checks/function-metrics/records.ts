@@ -23,7 +23,7 @@ const INPUT_REJECTED_RECORD_ID_PREFIX = "/input-rejected/";
 export type FunctionMetricsFindingRecordData = Readonly<{
   readonly blocking: boolean;
   readonly codeAreas: readonly string[];
-  /** Complete source-ordered CCN contributors; present only for CCN findings. */
+  /** 按源码顺序保留全部 CCN 贡献项；仅在 CCN finding 中提供。 */
   readonly complexityContributors?: readonly Readonly<{
     readonly line: number;
     readonly token: string;

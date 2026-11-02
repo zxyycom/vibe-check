@@ -163,7 +163,7 @@ progress 只呈现这些事实，不修改它们。预览默认值、formatter�
 
 Definition 在展开子树前拒绝循环包含关系或重复的可执行 `checkId`；`run` 返回 `configuration`，
 diagnostic 为 `invalid-project-definition`，定位在 `definition.checks`。
-非循环共享容器按每个声明位置分别处理，包括空容器的 warning；合法树没有新增节点数或深度上限。
+非循环共享容器按每个声明位置分别处理，包括空容器的 warning；合法树不设置额外的节点数或深度上限。
 
 ## 类型化依赖数据
 

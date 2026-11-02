@@ -30,10 +30,9 @@ Check-local parser。
 `invocation.timestamp` 是 Run 创建阶段一次捕获的 UTC instant，不是 machine publication 完成的时间；若 diagnostic logging
 也启用，二者共享该 instant。两项 output 都禁用时，Run 不读取或序列化 wall clock。每个 Check row 包含
 `checkId`、`displayName` 和一种 terminal outcome：`passed` / `failed` 带 object-shaped final `data`；
-`not-applicable` / `unavailable` 带受控 reason，前者可以省略 reason。Aggregation、所有 Run output status 与
-diagnostic channel files、duration、author terminal messages、Product-captured Check console messages、
-`omitQuietPassedRow` 人读呈现策略和 progress presentation 不属于 machine fields。quiet-pass row 的省略、
-无编号格式及 configured/actual 计数都不改变 terminal Check facts 或 v4 publication。
+`not-applicable` / `unavailable` 带受控 reason，前者可以省略 reason。Aggregation、Run output status、diagnostic
+channel files、duration、messages（含捕获的 console）和 progress 呈现均不属于 machine fields；这些结果与配置见
+[Run 输出与诊断](guides/run-outputs.md)。
 
 每个 `records.ndjson` row 的结构是：
 

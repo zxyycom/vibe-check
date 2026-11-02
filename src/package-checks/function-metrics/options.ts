@@ -12,7 +12,7 @@ export type FunctionMetricsFileOptions = ProjectFileSelectionOptions;
 /** `functionMetrics` 构造函数可省略的函数指标上限。 */
 export interface FunctionMetricsLimitOptions {
   readonly codeLines?: Readonly<{
-    /** 省略时为 `60`；函数 NLOC 超过此值时产生 finding。 */
+    /** 常规 NLOC 上限，省略时为 `60`；应用 `lowComplexityAllowance` 后，严格超过有效上限才产生 finding。 */
     readonly maximum?: number;
     readonly lowComplexityAllowance?: Readonly<{
       /** 省略时为 `6`；复杂度小于此值时可使用较高 NLOC 上限。 */

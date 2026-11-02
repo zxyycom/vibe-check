@@ -13,14 +13,14 @@ export interface CoreCheck extends CheckDescriptor {
   readonly outcome: CheckOutcome;
 }
 
-/** A supplemental Record is owned by its structural `{ checkId, id }` identity. */
+/** 补充 Record 以结构化的 `{ checkId, id }` 二元组标识身份。 */
 export interface CoreRecord {
   readonly checkId: string;
   readonly id: string;
   readonly data: import("../data-boundary/canonical-data.ts").CanonicalJsonObject;
 }
 
-/** The complete Product entity projection. Invocation metadata belongs to Run, not Core. */
+/** Product 实体的完整投影；invocation 元数据属于 Run，不属于 Core。 */
 export interface CoreSnapshot {
   readonly checks: readonly CoreCheck[];
   readonly records: readonly CoreRecord[];

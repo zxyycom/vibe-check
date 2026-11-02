@@ -49,7 +49,7 @@ const sourceMetrics = fileMetrics({
 ```
 
 返回值仍是原生 typed Check。项目声明字段不会进入 `sourceMetrics.options` 或执行时的
-execution 的业务 options 参数；完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+业务 options 参数；完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
 
 ## 参数与默认配置
 
@@ -131,10 +131,10 @@ const sourceAndTests = fileMetrics({
 SCC CSV 的 `Complexity` 字段是 file-metrics 使用的 decision-token measurement。Check 按下表为每个文件、
 每个匹配区域计算一次有效代码行上限：
 
-| SCC decision-token measurement             | 区域的有效代码行上限                         |
-| ------------------------------------------ | -------------------------------------------- |
+| SCC decision-token measurement | 区域的有效代码行上限 |
+| --- | --- |
 | 非 `null` 且不大于 `maximumDecisionTokens` | `lowDecisionTokenAllowance.maximumCodeLines` |
-| `null` 或大于 `maximumDecisionTokens`      | `codeLines.maximum`                          |
+| `null` 或大于 `maximumDecisionTokens` | `codeLines.maximum` |
 
 只有实际 `codeLines` **严格大于**有效上限时，该区域策略才判定文件超限。
 
@@ -142,8 +142,8 @@ SCC CSV 的 `Complexity` 字段是 file-metrics 使用的 decision-token measure
 
 1. Check 在本次操作内共享必要的纯磁盘候选，再为每个 area 应用自己的 `patterns` 与默认排除，
    并保存 path 到全部实际 area IDs 的 membership。
-2. Check 对全部路径稳定排序、去重，并把这个 union 作为一次 logical SCC scan。adapter 按私有的 Windows UTF-16 argv 上界传输：安全的小输入仍由一个 process 承载；较大输入按原顺序分成一个或多个非空 exact-path batches。分批不会让 SCC 重新发现路径，也不形成新的 options、Records 或公开结果。
-3. 每个 process batch 都必须先完成 CSV 与该 batch 的 exact-scope 验收；全部 batch 成功后 adapter 才拒绝重复 measurement path、稳定排序并交回统一结果。任一 process、CSV、scope 或汇合失败都会拒绝整个 logical scan，不发布已完成 batch 的部分 measurement。
+2. Check 对全部路径稳定排序、去重，作为一次逻辑 SCC 扫描。内部可拆成多个进程批次，每批只处理分配的精确路径，不让 SCC 重新发现或扩大范围。
+3. 全部批次通过 CSV、精确范围与汇合校验后，才返回去重校验、稳定排序后的统一 measurement。重复 measurement path 或任一进程、解析、范围或汇合失败都会拒绝整次扫描，不发布部分 measurement。
 4. 对属于多个区域的文件，Check 分别计算各区域的有效代码行上限，并使用其中最小的严格上限：
 
    ```text

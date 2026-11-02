@@ -163,6 +163,12 @@ publication 开始前取消不会启动写入；append 开始后会等待完成�
 Check 先验证 options，按本页 suffix 规则完整分类 selected paths，为 rejected paths 发布 Records，再解析 accepted sources。
 对 file、directory 与 GitHub-priority heading anchor 按 policy 做 bounded validation；每个普通链接 Finding 另发 Record。
 
+### 识别的引用
+
+受支持 occurrence 包含 inline link/image、已定义的 full/collapsed/shortcut reference、explicit autolink 和选定的 GFM
+autolink literal。YAML front matter、code/fenced code、HTML attribute、普通 prose URL 与 undefined reference 不进入本
+Check 的 occurrence 集合。HTTP(S)、`mailto:` 与其它非本地 target 只分类后停止，不产生 remote reachability 结论。
+
 ### 执行阶段、计费与首错
 
 Check 先读取全部选中的 Markdown 并登记 occurrences，再分类目的地、按首次引用顺序观察目标，最后按 source / occurrence 顺序判断每条引用。一次 invocation 内相同授权域的目标首次观察固定，包括缺失和目录结果；后续替换或创建留到下次观察，不构成全文件系统原子快照。纯目标的链接不扩展 source selection；不同逻辑别名与授权域独立观察。每条引用仍有独立位置、Finding 和计数。
@@ -174,12 +180,6 @@ Check 先读取全部选中的 Markdown 并登记 occurrences，再分类目的�
 ### 协作取消与完整发布
 
 执行过程中协作检查取消，不提供抢占式实时取消或固定延迟保证；已进入的系统调用须等待返回。取消时等待在途工作尝试关闭文件并退出，不强杀在途读取。收束与最后取消检查完成前，不发布普通链接 Records 或 final data；普通链接 Records 完整发布。已有 traversal unavailable 保留首错；只有收束失败时返回 `target-unavailable`，不发布原本的普通成功或 Finding 结果。
-
-### 识别的引用
-
-受支持 occurrence 包含 inline link/image、已定义的 full/collapsed/shortcut reference、explicit autolink 和选定的 GFM
-autolink literal。YAML front matter、code/fenced code、HTML attribute、普通 prose URL 与 undefined reference 不进入本
-Check 的 occurrence 集合。HTTP(S)、`mailto:` 与其它非本地 target 只分类后停止，不产生 remote reachability 结论。
 
 ## 效果与结果
 

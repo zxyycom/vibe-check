@@ -35,7 +35,7 @@ const result = await run(definition);
 process.exitCode = result.kind === "completed" && result.aggregate === "passed" ? 0 : 1;
 ```
 
-在你安装 package 的项目中执行 `node quality.ts`。把 `actualBytes` 改成 `120_000`，Check 会失败，脚本退出非零。
+在已安装 package 的项目根目录执行 `node quality.ts`。把 `actualBytes` 改成 `120_000`，Check 会失败，脚本退出非零。
 
 这里有三层责任：
 

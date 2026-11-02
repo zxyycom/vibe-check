@@ -150,15 +150,9 @@ descriptor 的 TypeScript 推导、调用和宽化边界见[共同类型规则](
   包含期间 admitted/settled effects 和 occupancy interval；不声明 action 因果、critical path 或 CPU 归因。
 - interval 为 closed timing union：合法零区间仍 available；timing 不可用时只给 reason，不伪造成全零。
 
-已启用 timing 组共享唯一 collector 的 clock、采样边界和 first-fault validity；clock throw/non-finite/backward 或
-已启用计算的 invalid interval/integral 令后续 timing view 不可用，不为关闭组额外计算以寻找故障。
-cumulative/runMeasurement 仍保留离散事实与 peaks；taskTimings 不交付伪造数值，history 保留离散 action/effects。
-每个 reader 固定自己的 availability、数值与 prefix；后续 fault 或 append 不回写旧 view。
-读取统计字段不会额外采样或改变 availability，字段读取顺序不影响结果。统计保留原有单位、采样边界和区间归属，
-不保证与旧版本逐位相同的浮点累加结果；消费方不要依赖最后几位或对独立舍入的分类值做严格相等判断。
-
-在线观察不是完整逐 Task 历史或终态报告。Run 结束后的汇总和逐 Task 表分别通过下面的 terminal effects 请求
-`runMeasurement` / `taskTimings`；交付 effect 本身不要求任一测量需求。
+在线观察适用于本次 decision 的累计统计与前缀，完整终态汇总和逐 Task 表通过
+[terminal effects](#交付终态-measurement) 请求 `runMeasurement` / `taskTimings`；交付 effect 本身不要求任一测量需求。
+两者共享的时钟有效性、冻结与数值比较规则见[测量值的有效性与读取](#测量值的有效性与读取)。
 
 ## 已准备的 custom strategy
 
@@ -267,6 +261,7 @@ effect 适合调用方自己的统计、记录或后续处理，不能修改 Tas
 这里的 admission-viable 指 Task 仍 pending、全部 `dependsOn` 已 completed 且全部 `observes` 已 settled；
 仅仅依赖已终态但未满足，不计入等待统计。available 的时长、等待与积分在交付前已验证为有限且非负；
 无法有效表示所请求结果时返回 unavailable，既有离散事实与 peaks 仍保留。后续执行或其它推演分支不会修改已保存的视图。
+完整的时钟失效与数值比较边界见[测量值的有效性与读取](#测量值的有效性与读取)。
 
 它们不同于 decision 的 `cumulative` / `actionHistory`。逐项业务数据、失败原因或 Records 由 Check 的 `execute` 形成，再从 `RunResult` 读取。
 
@@ -277,6 +272,17 @@ effect 适合调用方自己的统计、记录或后续处理，不能修改 Tas
 3. 只有符合样本条件时，才提交供后续 Run 使用的数据。
 
 `runMeasurement` 或 `taskTimings` 的 `timing.availability === "available"` 只证明终态 timing facts 可读；`settledTasks.kind === "completed"` 只表示 Scheduler settlement，不等于 Check `passed`。`RunResult.kind === "completed"` 同样不表示质量检查全部通过。
+
+## 测量值的有效性与读取
+
+以下规则共同适用于在线 `cumulative` / `actionHistory` 与终态 `runMeasurement` / `taskTimings`。
+
+已启用 timing 组共享唯一 collector 的 clock、采样边界和 first-fault validity；clock throw/non-finite/backward 或
+已启用计算的 invalid interval/integral 令后续 timing view 不可用，不为关闭组额外计算以寻找故障。
+cumulative/runMeasurement 仍保留离散事实与 peaks；taskTimings 不交付伪造数值，history 保留离散 action/effects。
+每个 reader 固定自己的 availability、数值与 prefix；后续 fault 或 append 不回写旧 view。
+读取统计字段不会额外采样或改变 availability，字段读取顺序不影响结果。统计保留既定单位、采样边界和区间归属，
+浮点累加结果不承诺跨版本逐位一致；消费方不要依赖最后几位或对独立舍入的分类值做严格相等判断。
 
 ## 复用本地时长历史
 
