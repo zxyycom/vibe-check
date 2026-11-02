@@ -62,6 +62,9 @@ Worker 不可用按发生阶段返回 `source-unavailable` 或 `target-unavailab
 [callback context](./guides/callback-context.md) 的阅读入口，并补全自定义 Check 的运行步骤、Schema 输入前提、
 Finding waiver 结果消费及 flag 条件复用说明。这些是既有能力的说明完善，不是本版新增 API。
 
+[构建项目 Gate](./guides/building-project-gate.md) 按质量证据、独立判决、执行图、本地与 CI 入口、
+成本演进组织建设过程；完整入口使用真实 JSON 输入，深入示例在对应专题说明共享准备、诊断与失败边界。
+
 | 变更主题 | 提交 |
 | --- | --- |
 | Flag 未命中摘要与预览 | `fe044925` |
@@ -70,6 +73,7 @@ Finding waiver 结果消费及 flag 条件复用说明。这些是既有能力�
 | Markdown 本地读取 | `2e80166a`、`d15cbf6f` |
 | 使用示例与结果消费 | `222627f9`、`154e3d1f`、`6d31f5e4`、`31774b29` |
 | 任务阅读路径 | `4d43454c`、`5ae67acc` |
+| Gate 建设指南与接入示例 | `7df97a9e` |
 
 ## 0.0.4
 
