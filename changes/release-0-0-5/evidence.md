@@ -1,6 +1,6 @@
 # 0.0.5 发布证据
 
-当前阶段：正式发布准备，尚未发布。固定约定由 [Package release](../../docs/tooling/package-release.md)拥有。
+当前阶段：0.0.5 已发布且公开分发核验通过，正在完成获授权的 Git 交接。固定约定由 [Package release](../../docs/tooling/package-release.md)拥有。
 
 ## 当次输入与授权
 
@@ -8,7 +8,18 @@
 - 用户确认开始既定准备流程；main 已从 `fba271ec` 同步到 origin/main。发布实现工作区 `/workspace/vibe-check-release-0-0-5`，分支 `release-0-0-5`。
 - `2026-11-02T09:22:25.472Z` 只读 registry 观察：latest=0.0.4，已有版本 0.0.1–0.0.4，0.0.5 尚不存在。
 - `2026-11-02T09:36:21.679Z` 再次只读观察：latest 仍为 0.0.4，0.0.5 尚不存在；不替代实际发布前的 freshness/authority 核验。
-- npm 认证和发布由用户交互执行；未读取 token/OTP/认证配置，未创建 tag 或执行发布。
+- npm 认证和发布由用户交互执行；agent 未读取 token/OTP/认证配置，也未代为执行 publish。
+- 用户在公开分发核验通过后明确授权：补齐证据，创建并推送 `v0.0.5 -> S`，合回并推送 main，保存完成态并 finalize 本 Change。两个发布 worktree 与 `release-0-0-5` 分支暂时保留。
+
+## 发布与公开分发结果
+
+- 首次交互 publish 返回 E404，随后只读 `whoami` 返回 E401，10:03 UTC registry 仍无 0.0.5。该轮没有发布成功；未将原始认证 transcript 或登录链接写入仓库/归档。
+- 用户之后在交互终端完成认证并收到 `+ @zxyycom/vibe-check@0.0.5`，服务提示异步处理。
+- `2026-11-02T10:12:19.459Z`：独立 version endpoint 可读，实际 publisher=`zxyycom`；匿名下载 tarball 为 1,534,498 bytes，与已验收本地文件逐字一致。
+- `2026-11-02T10:12:42.766Z`：独立 dist-tags endpoint 的 latest 与 latest-version endpoint 均为 0.0.5。此前包总览短暂仍显示 0.0.4，不能据此重复 publish。
+- `2026-11-02T10:22:12.977Z`：收尾前再次确认 name/version/latest/publisher 及匿名分发 bytes 全部相同。该轮初次只读下载遇到 TLS EOF，未产生有效新证明；不改 TLS 信任的随后完整读取通过。
+- 分发 SHA-256=`35578f8abf829dfd934544bf45cbaaaa885e7ce3c45b8a93c64e013e229c5c9f`，SHA-1=`86eeeda06afe3f2e4636d3c05b6072084bd5f3d5`；SHA-512 SRI 与下方 receipt 相同，registry dist.shasum/integrity、本地原件和 receipt 均一致。
+- 只读来源为 canonical registry 的版本、dist-tag 和 tarball endpoints；没有重新 publish、修改 npm dist-tag、变更认证或创建 GitHub Release。
 
 ## 文档审查基线
 
@@ -79,21 +90,24 @@ Manual CR: **通过，无文档发布阻断。** 非实施代理 `/root/release_
 - 非敏感 evidence 快照按内容 SHA-256 命名保存于槽位 `evidence/`，组合本记录、独立报告与逐项清单，供脱离临时缓存复核。该本地归档不表示跨机器备份。
 - 首份完整审查快照为 `evidence/ec3d4ba546644a86a638c348015065cd1e0bce9ce3e196e041658067d8a834aa.md`，118,644 bytes；摘要与文件名一致，复制 bytes 核对通过。后续记录提交后可新增快照，不覆盖该份。
 
-## 人工发布交接
+## Git 交接
 
-当前尚未发布；publisher identity/authority 尚未由实际发布者确认，不能从历史账号或 registry 版本列表推断。
-在发布者本地交互终端先核对版本仍可用、当前账号具备该 package 权限、冻结 HEAD 干净及下列 tarball 摘要不变。
-已有验证依赖本机工作区缓存；若正式输入或产物变动，按 owner 重新冻结、prepare、完整 verify 和语义确认。
+- 已创建并向 origin 显式推送 annotated tag `v0.0.5`，没有 force 或推送其它 tag。
+- Tag object 为 `e98ff7e4a1607d8c65b5594b5c3b11b6e214b584`；本地及远端 peeled target 均为冻结 S `a2737ff47b457e178f32fa1d89b435067c39ddf1`。
+- main 合入、推送及完成态快照将在实际完成后追加；不把后续证据提交当作已发布源码。
 
-确认这些条件且决定实际外部写入后，发布**同一份**正式 tarball，不从源码目录重新打包：
+## 本次人工发布命令与后续边界
+
+下列命令已由用户在交互终端执行，发布的是**同一份**正式 tarball，不从源码目录重新打包；此处为形成时记录，不是重试指令：
 
 ```sh
 npm publish /workspace/vibe-check-release-0-0-5-frozen/build/artifacts/zxyycom-vibe-check-0.0.5.tgz --registry=https://registry.npmjs.org/ --access=public --tag=latest
 ```
 
-2FA 在该交互终端完成，不把 OTP/token 发到对话或写入记录。发布成功后先核验 registry 的版本、latest、摘要和实际下载分发 bytes；
-再按授权将 `v0.0.5` 指向 S，并合回 main、推送、补充 evidence 快照及清理工作区。当前未执行 tag、merge、release branch push 或清理。
+认证由用户交互处理，不归档 OTP/token、登录链接或会话 transcript。已有发布验收依赖本机工作区缓存；
+后续任何新发布输入须使用新的正式身份按 owner 重新构造与验收，不能手改已发布 receipt 或重新使用 0.0.5。
 
 ## 待完成事项
 
-交互发布、公开分发核验及 Git 交接保持未完成，不结项本 Change。main 与冻结工作区保持干净；发布分支中的记录提交不改变已验收 S。
+交互发布、公开分发与 Git tag/push 已完成；合回 main、推送及完成态归档逐项记录后结项。发布分支记录提交不改变已验收 S。
+两个发布 worktree 与发布分支按用户确认暂留；冻结目录只用于核验，不更新其中的历史 Change 快照。
