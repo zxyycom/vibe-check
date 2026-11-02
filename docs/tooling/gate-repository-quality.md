@@ -33,12 +33,6 @@ Gate 对 duplicate/file/function/Markdown Link 四项显式使用 `blocking` fin
 
 `scripts/project/gate/checks/repository-quality.ts` 为这一 Finding 配置精确 waiver，identity 限定路径、函数名、起始行和指标。`functionMetrics` 仍发布原 Finding Record，并标记为非阻断；其它函数和指标继续按 `blocking` policy 结算。起始行变化或 Finding 消失时，Check 会发布 unused-waiver audit Record 和 warning，维护者据此重审 identity 与理由；该 audit 本身不使 Check 失败。
 
-**单页 Gate 指南的文件行数。**
-
-用户确认将[构建项目 Gate](../guides/building-project-gate.md)保留为单页九场景教程；十个独立受管片段与相邻的适用条件、预期结果和安全边界共同承接阅读路径，不为满足行数门限而压缩代码或删减说明。
-
-`fileMetrics` 只为 `docs/guides/building-project-gate.md` 的 `code-lines` 配置一项精确 waiver，不排除该文件，也不提高全仓阈值。Check 继续发布实际行数、上限与原 Finding，并标记为非阻断；其它文件或指标仍按原 policy 结算。该例外不授权其它长文档自动豁免；后续扩展仍需审查是否保持同一任务边界。
-
 ### 仓库选择范围
 
 Markdown lint 保持完整 corpus 与现有 non-blocking policy；Gate 显式启用 Product 的逐文件 findings 缓存，目录为本地可删除的 `.cache/vibe-check/markdown-lint-findings/`。当前 bytes、选择与终态每次重新核对；冷态可能增加缓存写入成本，缓存命中不是跳过 Check 的依据。

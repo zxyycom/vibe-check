@@ -90,7 +90,7 @@ Entities:
 - 仅 Product/scripts 两个 lint Check 共享 type-aware-lint mutex；两者保留独立 identity 与选择，互不声明依赖，其它 Check 不持有该 mutex。
 - Markdown Link 显式使用绝对路径的本地 parse-facts cache 与默认容量提醒；完整 corpus、target work limits 和 blocking policy 保持。
 - Duplicate、file、function metrics 与 Markdown Link 的 normal Finding 使用 blocking policy，未豁免 Finding 经 owning Check 和默认 aggregate 阻断 Gate。Function metrics 保留 `50 + 150/below 5 + CC 10 + parameters 5` 限值，只对 `createProjectGateEntries` 当前起始行的 `function-code-density` 使用一项精确 waiver；其它函数与指标继续阻断。
-- File metrics 保持全仓 `300 + 500/decision tokens ≤ 10` 行数策略；仅对 `docs/guides/building-project-gate.md` 的 `code-lines` 配置用户确认的单页教程 waiver，该文件仍在扫描范围内，其它路径不继承豁免。
+- File metrics 保持全仓 `300 + 500/decision tokens ≤ 10` 行数策略，不配置 finding waiver；`docs/guides/building-project-gate.md` 仍在扫描范围内。
 - Markdown Link 保持完整文档输入和 blocking policy；Gate 将 `maxOccurrences` 与 `maxTargetReads` 设为 `false`，其它资源限制及 root-external 授权边界保持。
 - `markdown-lint` 独立使用八项固定规则、`docs/**/*.md` / `changes/**/*.md` 范围和 non-blocking policy；Gate 显式启用可删除的逐文件 findings 缓存，不缩小检查范围。真实质量组工厂接线保留 advisory Finding 的 Records、final data 和 passed outcome。
 - 三项 metrics 的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；function metrics 额外排除 Product test/test-support，duplicate/file 仍选择这些测试文件。Duplicate detection 不选择 Markdown；duplicate/file metrics 不选择 historical Schemas，但继续选择 current Schemas。两个 Markdown Check 的范围均限于 `docs/**/*.md` 与 `changes/**/*.md`。

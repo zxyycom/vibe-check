@@ -180,16 +180,7 @@ describe("repository quality Checks", () => {
       ),
       false
     );
-    assert.deepEqual(fileMetrics.options.findingWaivers, [
-      {
-        identity: {
-          metric: "code-lines",
-          path: "docs/guides/building-project-gate.md"
-        },
-        reason:
-          "用户确认保留单页九场景与十个独立可执行片段；行数来自同页教学路径，不以压缩代码或删除安全说明满足门限。仅豁免此文件的行数，保留测量与 Finding。"
-      }
-    ]);
+    assert.deepEqual(fileMetrics.options.findingWaivers, []);
     assert.equal(selectsPath(docsSpecs.files, "docs/guides/building-project-gate.md"), true);
     assert.deepEqual(duplicateDetection.options.findingWaivers, []);
     assert.deepEqual(functionMetrics.options.findingWaivers, [
