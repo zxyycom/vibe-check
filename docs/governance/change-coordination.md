@@ -33,9 +33,6 @@ artifacts 决定。
 
 ### 并行与提交边界
 
-0.0.5 已发布并通过分发核验；Git 交接与结项在独立 `release-0-0-5` 分支推进，见 [release-0-0-5](../../changes/release-0-0-5/proposal.md)。
-detached 发布 worktree 保持冻结 S，记录提交按授权合回 main；结项后两个发布 worktree 和发布分支暂留。
-
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享
 owner 时，实施与提交必须串行。
 
