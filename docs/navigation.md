@@ -17,7 +17,7 @@
 | --- | --- |
 | [README](../README.md) | 唯一用户总入口：安装、支持范围、最小路径与专题直链。 |
 | [变更日志](changelog.md) | 版本净变化、升级影响与提交追溯；具体行为规范由对应专题拥有。 |
-| [构建项目 Gate](guides/building-project-gate.md) | 从质量目标选择 Check、关系、选择、缓存与诊断的任务路径；精确规则引用各专题。 |
+| [构建项目 Gate](guides/building-project-gate.md) | 从质量目标设计判决与执行图、建立本地与 CI 入口、按实测成本演进与验收；精确规则引用各专题。 |
 | [API 机制](api-mechanics.md) | Run 生命周期、Definition/Controls、组合、aggregation 和结果分支。 |
 | [按 Git 文件变化选择 Check](guides/selecting-checks-by-git-changes.md) | 真实 Git evidence、change flags 与保守选择。 |
 | [Core 数据工具](guides/data-boundaries.md) | JSON 规范化副本与确定性序列化；另提供可保留回调和嵌套引用的外层结构快照。 |

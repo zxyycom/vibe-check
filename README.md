@@ -14,6 +14,10 @@ npm 负责安装 package；应用代码和质量脚本的最低运行要求是 *
 
 升级前查看随包的[变更日志](./docs/changelog.md)，确认对应版本的变化与必要调整。
 
+## 首次接入项目 Gate
+
+从[构建项目 Gate](./docs/guides/building-project-gate.md)开始：将项目质量目标转成可判定的证据，设计检查与执行关系，再用真实 JSON 校验建立本地和 CI 共用的入口，并按实际成本演进。
+
 ## 随包提供的 Check
 
 如果项目需要的是常见质量检查，可以先从以下函数开始，而不必自己实现 `execute`。除 `maintenanceReminders(entries)` 与 `secretDetection({ files })` 有必填输入外，其余函数都可以无参调用；每份指南都包含最小用法、options、默认值、结果和安全边界。
@@ -97,7 +101,7 @@ node quality.ts
 1. **判别 Run。** `completed` 和 `output` 才同时提供完整 facts 与 `aggregate`；执行阶段取消也有 snapshot，但没有 aggregate。其它分支按各自的 [RunResult](./docs/api-mechanics.md#runresult-分支) 契约处理。
 2. **读取 Check facts。** 按 `checkId` 读取 `snapshot.checks[].outcome` 的 `passed`、`failed`、`not-applicable` 或 `unavailable`；`completed` 本身不代表质量通过。
 3. **解释本次有效列表。** 默认 `aggregate` 仅在有效 Check 列表非空且全部 `passed` 时为 `passed`，否则为 `failed`。CI 可读取这个严格默认值，或提供同步 [`checkAggregation`](./docs/api-mechanics.md#runcontrols-与-check-aggregation) 函数解释同一列表，再决定退出码。
-4. **决定入口是否成功。** 退出码由项目脚本设置。严格 Gate 只接受 `result.kind === "completed" && result.aggregate === "passed"`；`output` 即使汇总通过，也仍有输出失败。完整入口见[构建 Gate](./docs/guides/building-project-gate.md#先跑通定义检查运行判断结果)，输出失败与 Promise rejection 见[失败处理](./docs/guides/run-outputs.md#输出状态与失败处理)。
+4. **决定入口是否成功。** 退出码由项目脚本设置。严格 Gate 只接受 `result.kind === "completed" && result.aggregate === "passed"`；`output` 即使汇总通过，也仍有输出失败。完整入口见[构建 Gate](./docs/guides/building-project-gate.md#建立项目入口)，输出失败与 Promise rejection 见[失败处理](./docs/guides/run-outputs.md#输出状态与失败处理)。
 
 ## 为随包 Check 声明项目行为
 
@@ -130,7 +134,7 @@ Check：项目字段成为 Check 声明，领域字段才形成 `.options` 和 e
 
 只读当前任务需要的专题；精确 overload、泛型推断和字段 JSDoc 以安装包中的 `types/**.d.ts` 为准。
 
-- [从项目质量目标构建 Gate](./docs/guides/building-project-gate.md)：从最小入口出发，按实际问题接入脚本、共享准备、增量选择、自建缓存和诊断。
+- [从项目质量目标构建 Gate](./docs/guides/building-project-gate.md)：从质量目标和证据设计判决与执行图，建立项目入口，再按实测成本演进和验收。
 - [API 机制](./docs/api-mechanics.md)：Run 生命周期、组合继承、结果与 aggregation。
 - [按 Git 文件变化选择 Check](./docs/guides/selecting-checks-by-git-changes.md)：真实 Git evidence、change flags 与保守回退。
 - [选择回调位置](./docs/guides/callbacks.md)：确定执行前、检查中、显示时或结束后的接入点。

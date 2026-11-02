@@ -169,7 +169,7 @@ getter 来寻找更深字段。诊断不回显被拒绝的值；unknown key 诊�
 
 ## 输出状态与失败处理
 
-CI 中若质量汇总和已启用的输出都必须成功，可用 `result.kind === "completed" && result.aggregate === "passed"` 决定是否退出 `0`，其余返回分支退出非零；完整入口见[构建 Gate](building-project-gate.md#先跑通定义检查运行判断结果)。不要只检查 `aggregate`：`kind: "output"` 仍可携带 `aggregate: "passed"`，但本次输出或 terminal effect 已失败，应继续读取 `diagnostic` 和各项 `outputs` 状态定位。
+CI 中若质量汇总和已启用的输出都必须成功，可用 `result.kind === "completed" && result.aggregate === "passed"` 决定是否退出 `0`，其余返回分支退出非零；完整入口见[构建 Gate](building-project-gate.md#建立项目入口)。不要只检查 `aggregate`：`kind: "output"` 仍可携带 `aggregate: "passed"`，但本次输出或 terminal effect 已失败，应继续读取 `diagnostic` 和各项 `outputs` 状态定位。
 
 只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。每项 status 使用 `"disabled" | "not-run" | "succeeded" | "failed"`。`RunResult.outputs.progressRendering` 返回 `{ enabled, status }`；预览文本、effective limits 与 formatter 由配置和呈现流程使用，不包含在返回值中。
 

@@ -161,11 +161,195 @@ const reportCommand = commandCheck({
 Product 只在 child 具有数值退出码，且没有取消、超时、输出超限或 signal 标记时调用 `afterCommand.execute`；完整的非零退出也可由此回调解释。若选择 transcript，final write 也必须先成功。
 `callback(input, context)` 的第一参数是冻结 `{ options, command }`，其中 command 是完整 `{ exitCode, stdout, stderr }`；第二参数只含自己声明的 Check execution 字段；它可以返回普通 `CheckResult` 并按 ordinary Check contract 报告 Records。这个返回值取代完整命令的默认 exit-code mapping。
 
-上例命令只演示成功输出。接入真实工具时，应按工具协议检查 `command.exitCode`；解析成功不等于检查通过，非零退出也不会在 callback 返回 `passed` 后自动改回 `failed`。保留失败结论并补充结构化诊断的用法见[工具输出转换](building-project-gate.md#9把工具输出转换为结构化诊断)。
+上例命令只演示成功输出。接入真实工具时，应按工具协议检查 `command.exitCode`；解析成功不等于检查通过，非零退出也不会在 callback 返回 `passed` 后自动改回 `failed`。保留失败结论并补充结构化诊断的用法见[工具结果映射](#将工具结果映射为诊断)。
 
 存在 `parseData` 时，返回值是 typed provider Check；consumer 读取其 final data 后显式调用 parser，Product 不自动调用。签名与错误边界见[Provider 类型与解析边界](check-dependencies.md#provider-类型与解析边界)。没有 parser 时，返回值仍是 ordinary Check。
 
 `stdout`、`stderr` 仅在 callback 的业务 input 中提供，不会因 callback 存在而自动发布。调用方决定是否把派生数据或 Records 放入自己的结果边界，并负责其中的敏感信息处理。
+
+### 将工具结果映射为诊断
+
+需要展示失败位置或供其它工具消费时，可在 `afterCommand` 中把工具结果映射为 Records。优先使用稳定 JSON 协议；只有文本输出时，为明确的格式写 parser。任意日志无法可靠还原诊断时，保留工具的失败结论，不编造文件、行号或错误码。
+
+#### 运行诊断示例
+
+以下两种转换各自独立。使用 [README 的安装与 Node 环境](../../README.md#安装)，任选一个完整片段保存为项目根目录的 `quality.ts`，在片段后追加：
+
+```ts
+import { run } from "@zxyycom/vibe-check";
+
+const result = await run(definition, { projectRoot: process.cwd() });
+process.exitCode = result.kind === "completed" && result.aggregate === "passed" ? 0 : 1;
+```
+
+在项目根目录执行 `node quality.ts`；CommonJS 项目可将文件命名为 `quality.mts`，并执行 `node quality.mts`。示例通过当前 Node 模拟工具输出，无需创建被报告的配置文件或另装校验工具。两例都应得到一条诊断 Record、`failed` Check 和非零退出；输入、命令与 parser 协议应在真实接入时一起替换。
+
+#### 只有文本：解析明确的格式
+
+假设现有工具约定每行输出 `config/app.json:<行号>: MISSING_NAME`，退出 `0` 表示通过，普通非零退出表示检查失败。下面固定输出一行模拟它；替换成真实命令时，parser 也要遵循真实协议。
+
+```ts
+import {
+  commandCheck,
+  defineConfig,
+  defineContextCallback,
+  type CheckResult
+} from "@zxyycom/vibe-check";
+
+type DiagnosticData = { exitCode: number; diagnosticsAvailable?: boolean };
+
+function parseTextDiagnostics(text: string) {
+  return text
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => {
+      const match = /^config\/app\.json:([1-9][0-9]*): MISSING_NAME$/.exec(line);
+      if (!match) throw new TypeError("Unsupported diagnostic line");
+      const lineNumber = Number(match[1]);
+      if (!Number.isSafeInteger(lineNumber)) throw new TypeError("Invalid line number");
+      return { path: "config/app.json", line: lineNumber, code: "missing-name" };
+    });
+}
+
+const afterCommand = {
+  execute: defineContextCallback("command.complete", {
+    contextNeeds: ["records"],
+    callback: ({ command }, { records }): CheckResult<DiagnosticData> => {
+      if (command.exitCode === 0) return { status: "passed", data: { exitCode: 0 } };
+      let diagnostics;
+      try {
+        diagnostics = parseTextDiagnostics(command.stdout);
+      } catch {
+        return {
+          status: "failed",
+          data: { exitCode: command.exitCode, diagnosticsAvailable: false }
+        };
+      }
+      diagnostics.forEach((data, index) => records.report({ id: "config-" + index }, data));
+      return {
+        status: "failed",
+        data: { exitCode: command.exitCode, diagnosticsAvailable: true }
+      };
+    }
+  })
+};
+
+const check = commandCheck({
+  checkId: "config-text-diagnostics",
+  displayName: "Configuration diagnostics",
+  executable: process.execPath,
+  arguments: [
+    "--eval",
+    'process.stdout.write("config/app.json:3: MISSING_NAME\\n"); process.exit(1);'
+  ],
+  timeoutMs: 5_000,
+  outputByteLimit: 64 * 1024,
+  afterCommand
+});
+
+const definition = defineConfig({
+  checks: [check],
+  outputs: { machinePublication: { enabled: false } }
+});
+```
+
+输出被转换为 `{ path: "config/app.json", line: 3, code: "missing-name" }`。parser 只接受这里声明的格式；混入一行无法识别的日志，整组诊断就不发布，Check 仍保留 `failed`。如果工具把诊断写在 stderr，应读取对应通道，而不是将 stdout/stderr 任意拼接。
+
+#### 已有结构：验证并映射为项目字段
+
+另一个工具输出 `{ errors: [...] }`，使用 `filename`、`location.row` 和工具错误码 `CFG001`；项目则需要 `path`、`line` 和 `missing-name`。先验证源结构，再做字段、错误码和公开范围的转换，而不是把 JSON 原样塞进 Record。下例独立演示这种转换。
+
+```ts
+import {
+  commandCheck,
+  defineConfig,
+  defineContextCallback,
+  type CheckResult
+} from "@zxyycom/vibe-check";
+
+type DiagnosticData = { exitCode: number; diagnosticsAvailable?: boolean };
+
+function projectJsonDiagnostics(text: string) {
+  const value: unknown = JSON.parse(text);
+  if (
+    value === null ||
+    typeof value !== "object" ||
+    !("errors" in value) ||
+    !Array.isArray(value.errors)
+  )
+    throw new TypeError("Expected an errors array");
+  return value.errors.map((item) => {
+    if (
+      item === null ||
+      typeof item !== "object" ||
+      item.filename !== "config/app.json" ||
+      item.rule !== "CFG001" ||
+      item.location === null ||
+      typeof item.location !== "object" ||
+      typeof item.location.row !== "number" ||
+      !Number.isSafeInteger(item.location.row) ||
+      item.location.row < 1
+    )
+      throw new TypeError("Unsupported diagnostic");
+    return { path: "config/app.json", line: item.location.row, code: "missing-name" };
+  });
+}
+
+const afterCommand = {
+  execute: defineContextCallback("command.complete", {
+    contextNeeds: ["records"],
+    callback: ({ command }, { records }): CheckResult<DiagnosticData> => {
+      if (command.exitCode === 0) {
+        return { status: "passed", data: { exitCode: 0 } };
+      }
+      let diagnostics;
+      try {
+        diagnostics = projectJsonDiagnostics(command.stdout);
+      } catch {
+        return {
+          status: "failed",
+          data: { exitCode: command.exitCode, diagnosticsAvailable: false }
+        };
+      }
+      diagnostics.forEach((data, index) => records.report({ id: "config-" + index }, data));
+      return {
+        status: "failed",
+        data: { exitCode: command.exitCode, diagnosticsAvailable: true }
+      };
+    }
+  })
+};
+
+const check = commandCheck({
+  checkId: "config-json-diagnostics",
+  displayName: "Configuration diagnostics",
+  executable: process.execPath,
+  arguments: [
+    "--eval",
+    'process.stdout.write(JSON.stringify({errors:[{filename:"config/app.json",location:{row:3},rule:"CFG001",debug:"internal context"}]})); process.exit(1);'
+  ],
+  timeoutMs: 5_000,
+  outputByteLimit: 64 * 1024,
+  afterCommand
+});
+
+const definition = defineConfig({
+  checks: [check],
+  outputs: { machinePublication: { enabled: false } }
+});
+```
+
+这个例子故意只支持一个已知文件和一种工具错误码，以清楚展示映射；实际 adapter 按协议扩充允许的范围。`debug` 等额外字段被丢弃，不会复制进 Record。Record 的领域 data 由 Check 自己定义，并不存在 Product 强制所有工具遵循的 `path/line/code` 诊断 schema。
+
+#### 验证映射与公开边界
+
+1. 有效工具输出得到 `{ path: "config/app.json", line: 3, code: "missing-name" }`，Check 保持 `failed`。
+2. 加入第二条格式错误、未支持错误码或指向 `../outside.json` 的诊断，整组应拒绝，`diagnosticsAvailable` 为 `false`，保留非零退出所表达的失败。
+3. 确认只有允许公开的字段进入 Records；本例的 `debug` 字段被丢弃，preview 限额不承担脱敏责任。
+
+整组拒绝来自“先 map 验证全部，再 report”，不是 reporter 自带事务。两例按工具“非零退出表示检查失败”的协议映射；工具若区分发现错误与自身崩溃，应分别解释这些退出码。启动失败、超时等不进入 `afterCommand`，由 Product 结算为 `unavailable`。
+
+两例保持默认 `discard`，原始输出不落盘；Records 进入 Run 内存结果和默认进度预览，启用 machine publication 后也会发布。需要排障 transcript 时，按[输出配置](#输出)同时设置 `output: { mode: "transcript" }` 与本次 `checkArtifactBaseDirectory`，由调用方管理敏感内容、访问权限和留存。结果读取与输出失败处理见 [Run 输出](run-outputs.md)。
 
 ## 默认终态与失败边界
 
@@ -203,4 +387,43 @@ package root 提供 `commandCheck` 和以下类型组；精确签名见安装包
 | `CommandCheckOutput`、`CommandCheckFinalData`、`CommandCheckUnavailableReasonCode` | output policy、默认终态 data 与 command-owned reason code。 |
 
 调用方负责提供可用的 executable、组织多步骤 workflow，并由项目入口根据 `RunResult` 设置退出码；
-完整接入路径见[构建项目 Gate](building-project-gate.md#1接入已有检查)。
+完整接入路径见[构建项目 Gate](building-project-gate.md#从质量目标到可判定的证据)。
+
+## 接入项目已有命令
+
+项目已经有 `tools/check-config.mjs`，成功退出 `0`，发现错误退出非零。
+
+先保留脚本拥有的检查逻辑，用 `commandCheck` 接管进程生命周期。以下片段的调用步骤见[运行约定](building-project-gate.md#运行专题片段)：
+
+```ts
+import { commandCheck, defineConfig } from "@zxyycom/vibe-check";
+
+const configCheck = commandCheck({
+  checkId: "config",
+  displayName: "Configuration",
+  executable: process.execPath, // 复用启动 quality.ts 的运行时；本文使用 Node。
+  arguments: ["tools/check-config.mjs"],
+  environment: { mode: "exact" },
+  timeoutMs: 30_000,
+  outputByteLimit: 1024 * 1024
+});
+
+const definition = defineConfig({
+  checks: [configCheck],
+  outputs: { machinePublication: { enabled: false } }
+});
+```
+
+脚本路径和限额由项目选择。`executable` 指定程序，`arguments` 提供独立参数；这里复用当前 Node 的绝对路径，相当于执行 `node tools/check-config.mjs`，无需 child 的 `PATH`。改用 Bun 启动入口时也会复用 Bun；必须使用 Node 的工具应显式提供 Node 绝对路径。
+
+普通非零退出形成 `failed`；启动失败、超时等形成 `unavailable`。Product 管理进程取消、受限输出捕获和结算，调用方负责提供可用运行时。
+
+如果已有可 import 的校验函数，且不需要进程隔离，可在自定义 Check 的 `execute` 中直接 `await` 它并映射领域结果。不要 import 会自动启动 CLI、调用 `process.exit` 或修改全局环境的入口。
+
+函数接入仍需承担原有的超时、取消、失败与隔离义务：可取消工作继续传递 `signal`，资源在完成或取消时清理。需要解析命令输出时，使用[结构化诊断](#将工具结果映射为诊断)。
+
+命令通过 executable 和独立 arguments 表示。默认不继承父进程环境；需要环境变量时显式提供必要值，确需继承时再选 `inherit`。使用独立脚本承接多步骤 workflow，通常比把 shell pipeline 塞进一个参数更清楚。
+
+验证时让脚本分别退出 `0`、退出 `1`、超过 timeout，确认三种结果被区分。先保持原检查覆盖和结果含义，再决定是否拆分。
+
+命令的完整契约见本页前文；函数接入见[自定义 Check](./extending-check-lifecycle.md)。

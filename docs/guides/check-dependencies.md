@@ -15,7 +15,7 @@
 2. callback 请求 `dependencies`，调用 `dependencies.get(provider.checkId)`。
 3. 先检查 `read.ok`，再用 provider 的 `parseData(read.data)` 恢复业务类型。
 
-[构建 Gate 的共享准备示例](building-project-gate.md#2准备一次分别验收)演示这条 canonical-data 路径；不需要保留 reference 时，无需配置 handoff。
+[共享准备与独立判决示例](#共享准备与独立判决示例)演示这条 canonical-data 路径；不需要保留 reference 时，无需配置 handoff。
 
 ## 完整运行示例
 
@@ -178,3 +178,137 @@ consumer 的 execution 通过 `defineContextCallback("check.execute", { contextN
 - `get(provider)` 是 provider-aware read，只接受以 `handoff: true` 定义的 provider object，并且只授权 normalized effective direct `dependsOn`。成功时固定为该 provider literal `checkId`、`status: "passed"`、canonical `data` 与 typed `handoff`；direct `observes`、transitive、未声明、lookalike provider 或本次未接受 handoff 都 fail closed，不泄露 upstream data/reference。它不改变 string `get(checkId)` 或 `list()` 的授权、shape 与四态 observation。
 - string `get(checkId)` 对已声明 provider 的 `passed` / `failed` 返回 `ok: true`、status 与 canonical data；`not-applicable` / `unavailable` 返回 `ok: false`、该 status 与 `upstream-data-unavailable`。TypeScript 类型本身不授予访问权。
 - `list()` 无参返回同一 direct union 的完整四态 observations，按 normalized effective direct ID 稳定排序并去重；数组、每项与 Core-owned outcome 都冻结。不读取传递、未声明或 ambient executed Checks，也不提供 Records、scheduler timing 或全局历史。
+
+## 共享准备与独立判决示例
+
+产物清单需要一次构建才能取得，包大小和文件数量检查都要用它。你希望构建一次，但保留两项验收结果。
+
+把昂贵准备放在 provider，把独立判断留在 consumer。下面用固定清单摘要代替真实构建，按[运行约定](building-project-gate.md#运行专题片段)观察数据与责任关系：
+
+```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
+import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
+
+const manifest = defineCheck({
+  checkId: "artifact-manifest",
+  displayName: "Artifact manifest",
+  omitQuietPassedRow: true,
+  parseData(data) {
+    if (
+      data.version !== 1 ||
+      typeof data.totalBytes !== "number" ||
+      !Number.isSafeInteger(data.totalBytes) ||
+      data.totalBytes < 0 ||
+      typeof data.fileCount !== "number" ||
+      !Number.isSafeInteger(data.fileCount) ||
+      data.fileCount < 0
+    )
+      throw new TypeError("Invalid artifact manifest");
+    return { version: 1, totalBytes: data.totalBytes, fileCount: data.fileCount };
+  },
+  execute: () => ({
+    status: "passed",
+    data: { version: 1, totalBytes: 82_000, fileCount: 3 }
+  })
+});
+
+const size = defineCheck({
+  checkId: "artifact-size",
+  displayName: "Artifact size",
+  dependsOn: [manifest.checkId],
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["dependencies"],
+    callback: (options, { dependencies }) => {
+      const read = dependencies.get(manifest.checkId);
+      if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
+      const data = manifest.parseData(read.data);
+      return data.totalBytes <= 100_000 ? { status: "passed", data } : { status: "failed", data };
+    }
+  })
+});
+
+const contents = defineCheck({
+  checkId: "artifact-contents",
+  displayName: "Artifact contents",
+  dependsOn: [manifest.checkId],
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["dependencies"],
+    callback: (options, { dependencies }) => {
+      const read = dependencies.get(manifest.checkId);
+      if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
+      const data = manifest.parseData(read.data);
+      return data.fileCount > 0 ? { status: "passed", data } : { status: "failed", data };
+    }
+  })
+});
+
+const definition = defineConfig({
+  checks: [manifest, size, contents],
+  outputs: { machinePublication: { enabled: false } }
+});
+```
+
+两条消费者关系都直接指向 provider。parser 恢复领域类型并验证数据；依赖声明提供读取授权，两者职责不同。
+
+provider 成功后，两项消费者各自运行。把 `totalBytes` 改成 `120_000`，大小检查失败，但文件数量检查仍可通过；它们不共享判决。provider 失败则阻断两项消费者。
+
+本例的 provider 只准备材料，安静通过后无需占一行结果，因此设置 `omitQuietPassedRow: true`；失败或带诊断时仍显示。完整条件见[省略安静通过行](./extending-check-lifecycle.md#省略安静通过行)。
+
+真实 provider 若创建临时目录，应由资源 owner 在最后一个消费者结束后清理；例如用 Run 外层的 `try/finally` 管理生命周期。破坏性或失败注入测试使用独立材料，避免污染共享只读输入。
+
+只有确需同 Run 的非 JSON 引用时才另选 handoff；普通清单、路径和摘要用 canonical data 即可。读取与 handoff 的选择见[本页前文](#先选择读取契约)。
+
+## 成功依赖与终态观察示例
+
+配置校验失败后，业务检查应停止，但汇总检查仍要报告发生了什么。
+
+按[运行约定](building-project-gate.md#运行专题片段)执行下面的组合，比较 `dependsOn` 与 `observes` 对上游失败的处理：
+
+```ts
+import { defineContextCallback } from "@zxyycom/vibe-check";
+import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
+
+const config = defineCheck({
+  checkId: "config",
+  displayName: "Configuration",
+  execute: () => ({ status: "failed", data: { valid: false } })
+});
+
+const consumer = defineCheck({
+  checkId: "use-config",
+  displayName: "Use configuration",
+  dependsOn: [config.checkId],
+  execute: () => ({ status: "passed", data: { consumed: true } })
+});
+
+const audit = defineCheck({
+  checkId: "audit-config",
+  displayName: "Audit configuration",
+  observes: [config.checkId],
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["dependencies"],
+    callback: (options, { dependencies }) => {
+      const outcomes = dependencies.list().map(({ checkId, outcome }) => ({
+        checkId,
+        status: outcome.status
+      }));
+      return { status: "passed", data: { outcomes } };
+    }
+  })
+});
+
+const definition = defineConfig({
+  checks: [config, consumer, audit],
+  outputs: { machinePublication: { enabled: false } }
+});
+```
+
+| Check | 预期行为 |
+| --- | --- |
+| `config` | 固定失败，模拟无效配置。 |
+| `use-config` | 不进入 execute，结算为 `unavailable / dependency-not-passed`。 |
+| `audit-config` | 等 config 终态后执行，记录它失败；自身完成审计而通过。 |
+
+审计通过不会把配置失败变成通过，默认 aggregate 仍失败。
+
+两种关系都只授权直接读取。`observes` 可以观察无 data 的终态，因此这里只读取 status；需要 data 时再收窄状态。加入 flags 后，还要确保观察者与被观察者的选择符合你的任务，`observes` 本身不会传播选择。

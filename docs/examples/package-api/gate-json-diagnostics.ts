@@ -37,25 +37,28 @@ function projectJsonDiagnostics(text: string) {
 }
 
 const afterCommand = {
-  execute: defineContextCallback("command.complete", { contextNeeds: ["records"], callback: ({ command }, { records }): CheckResult<DiagnosticData> => {
-    if (command.exitCode === 0) {
-      return { status: "passed", data: { exitCode: 0 } };
-    }
-    let diagnostics;
-    try {
-      diagnostics = projectJsonDiagnostics(command.stdout);
-    } catch {
+  execute: defineContextCallback("command.complete", {
+    contextNeeds: ["records"],
+    callback: ({ command }, { records }): CheckResult<DiagnosticData> => {
+      if (command.exitCode === 0) {
+        return { status: "passed", data: { exitCode: 0 } };
+      }
+      let diagnostics;
+      try {
+        diagnostics = projectJsonDiagnostics(command.stdout);
+      } catch {
+        return {
+          status: "failed",
+          data: { exitCode: command.exitCode, diagnosticsAvailable: false }
+        };
+      }
+      diagnostics.forEach((data, index) => records.report({ id: "config-" + index }, data));
       return {
         status: "failed",
-        data: { exitCode: command.exitCode, diagnosticsAvailable: false }
+        data: { exitCode: command.exitCode, diagnosticsAvailable: true }
       };
     }
-    diagnostics.forEach((data, index) => records.report({ id: "config-" + index }, data));
-    return {
-      status: "failed",
-      data: { exitCode: command.exitCode, diagnosticsAvailable: true }
-    };
-  } })
+  })
 };
 
 const check = commandCheck({

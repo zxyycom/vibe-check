@@ -287,3 +287,52 @@ cumulative/runMeasurement 仍保留离散事实与 peaks；taskTimings 不交付
 ## 复用本地时长历史
 
 同一项目反复运行、希望依据历史时长安排 ready Tasks 时，阅读[用本地时长历史调度 Check](learned-scheduling.md)。该专题说明 `createLearnedCriticalPathStrategy`、caller-owned history 与观察回调。
+
+## 并发约束示例
+
+三组测试各自会启动重工作，你希望同时最多两组运行，但轻量检查仍可使用第三个总任务槽位。
+
+下面的组合按[运行约定](building-project-gate.md#运行专题片段)执行：
+
+```ts
+import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
+
+const runners = ["unit", "integration", "typecheck"].map((checkId) =>
+  defineCheck({
+    checkId,
+    displayName: checkId,
+    resourceClaims: { runner: 1 },
+    async execute() {
+      // 用短等待模拟已等待的异步工作；实际项目在这里调用真实检查。
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      return { status: "passed", data: {} };
+    }
+  })
+);
+
+const metadata = defineCheck({
+  checkId: "metadata",
+  displayName: "Metadata",
+  execute: () => ({ status: "passed", data: {} })
+});
+
+const definition = defineConfig({
+  checks: [...runners, metadata],
+  scheduler: { maxParallel: 3, resourceCapacities: { runner: 2 } },
+  outputs: { machinePublication: { enabled: false } }
+});
+```
+
+三种约束分别回答不同问题：
+
+| 约束 | 表达的意思 |
+| --- | --- |
+| `scheduler.maxParallel: 3` | 同时最多运行三个 Check。 |
+| `runner: 2`，每组 claim 1 | 同时最多运行两组声明了该资源的任务。 |
+| 两项都声明 `mutex: ["shared-fixture"]` | 若它们会改同一份 fixture，同一时刻只能运行其中一项。 |
+
+需要共享 fixture 互斥时，将上表的同名 mutex 分别加入对应 Check；不必让其它独立测试一起串行。所有 claims 在准入时原子取得，结束后释放。
+
+这里的 unit 是逻辑配额，不是 CPU 核或物理内存。第三个槽位可供轻量任务使用，但是否立即被选中取决于调度条件；容量 `2` 也不是性能最优承诺。先表达真实硬约束，再通过配对测量判断是否需要调整策略。
+
+资源容量与准入规则见[限制 named resource 并发](#限制-named-resource-并发)。

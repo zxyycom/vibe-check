@@ -29,13 +29,16 @@ const audit = defineCheck({
   checkId: "audit-config",
   displayName: "Audit configuration",
   observes: [config.checkId],
-  execute: defineContextCallback("check.execute", { contextNeeds: ["dependencies"], callback: (options, { dependencies }) => {
-    const outcomes = dependencies.list().map(({ checkId, outcome }) => ({
-      checkId,
-      status: outcome.status
-    }));
-    return { status: "passed", data: { outcomes } };
-  } })
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["dependencies"],
+    callback: (options, { dependencies }) => {
+      const outcomes = dependencies.list().map(({ checkId, outcome }) => ({
+        checkId,
+        status: outcome.status
+      }));
+      return { status: "passed", data: { outcomes } };
+    }
+  })
 });
 
 const definition = defineConfig({

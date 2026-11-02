@@ -77,3 +77,91 @@ if (outcome?.status !== "passed" && outcome?.status !== "not-applicable") {
 evidence channel。要编写 condition、`prepare` 或 `execute`，继续阅读[Check lifecycle](extending-check-lifecycle.md)。
 
 要审视未变更文件、零命中或重叠范围，可显式调用[change flag 调试工具](debugging-change-flags.md)；它不替代本专题的实际 Git evidence 或 effective flags。
+
+## 按真实输入增量选择示例
+
+日常反馈中，配置 JSON 改动需要语法检查；schema 或实例改动需要 schema 检查；文档链接还可能被其它文件的删除影响。
+
+增量选择分两步：Definition 声明哪些输入变化会生成 flag，Check 声明在什么任务下使用它。
+
+```ts
+import {
+  all,
+  any,
+  changeFlag,
+  defineConfig,
+  run,
+  jsonValidation,
+  jsonSchemaValidation,
+  markdownLinkValidation
+} from "@zxyycom/vibe-check";
+
+const shared = ["quality.ts", "package.json", "pnpm-lock.yaml"];
+const definition = defineConfig({
+  changes: {
+    source: { compareWith: "HEAD" },
+    flags: {
+      config: { patterns: [...shared, "config/**/*.json"] },
+      schema: {
+        patterns: [...shared, "config/**/*.json", "schema/**/*.json", "!config/scratch/**"]
+      }
+    }
+  },
+  checks: [
+    jsonValidation({
+      files: { patterns: ["config/**/*.json"] },
+      enabledByFlags: { when: any(all("daily", changeFlag("config")), "force") }
+    }),
+    jsonSchemaValidation({
+      files: {
+        patterns: ["config/**/*.json", "schema/**/*.json", "!config/scratch/**"]
+      },
+      schemas: [{ id: "urn:example:config", path: "schema/config.json" }],
+      bindings: [
+        {
+          id: "app",
+          instancePath: "config/app.json",
+          schemaId: "urn:example:config"
+        }
+      ],
+      enabledByFlags: { when: any(all("daily", changeFlag("schema")), "force") }
+    }),
+    markdownLinkValidation({
+      files: { patterns: ["handbook/**/*.md"] },
+      findingPolicy: "blocking",
+      enabledByFlags: { when: any("daily", "force") }
+    })
+  ],
+  outputs: { machinePublication: { enabled: false } }
+});
+
+async function runGate() {
+  const result = await run(definition, { flags: ["daily"] });
+  process.exitCode = result.kind === "completed" && result.aggregate === "passed" ? 0 : 1;
+  return result;
+}
+
+if (import.meta.main) await runGate();
+```
+
+上例的日常调用需要 `daily`，改用 `["force"]` 可强制选择三项。schema 文件中的根 `$id` 应为 `urn:example:config`，实例是 `config/app.json`；这是本例显式声明的材料结构。
+
+region 与实际文件选择需要显式同步业务规则；需要扫描默认排除目录时设置 `useDefaultExcludes: false`。完整规则见[本页前文](#按文件变化选择-check)。
+
+本例约定 `config/scratch/**` 是不被正式实例或 schema 引用的草稿，只检查 JSON 语法，不参与 schema 验收。因此 schema 的变化 region 与实际文件选择都排除它；如果草稿后来成为正式输入，两处都需调整。
+
+| 改动 | daily 下选择 |
+| --- | --- |
+| `config/app.json` | JSON、Schema、链接。 |
+| `schema/config.json` | Schema、链接。 |
+| `config/scratch/local.json` | JSON、链接；不选择 Schema。 |
+| 仅删除一张被文档引用的图片 | 链接；即使 Markdown 本身没改。 |
+| `quality.ts` 或 lockfile | 三项全部。 |
+
+这里 `HEAD` 适合查看尚未提交的工作区改动；刚提交的内容需要选择更早的比较基准。整条 PR 应使用项目明确取得的 PR 基准，而不是照抄本地策略。
+
+实际输入还可能包括外部 schema references、生成器、共享读取函数或配置。随着这些来源加入，region 必须同步扩展。尚未建模反向依赖的链接检查保留完整运行，比只匹配 Markdown 更安全。
+
+Git evidence 可信但零命中，与 Git 不可用不同。不可用时会提供所有已声明 change flags；上例使用正向条件，使 daily 保守选择两项材料检查。`changeFlag` 仅生成 token，selection 与 callback 共用 effective flags；证据详情读取 `project.changes`。
+
+更多边界见 [文件变化选择](../api-mechanics.md#按文件变化选择-check)。

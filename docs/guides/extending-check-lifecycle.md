@@ -248,3 +248,44 @@ formatter 返回的文本和终端截断也不会把已有 accepted detail 变�
 - 需要安排多个 Check、编写 admission policy、模拟假设分支或复用本地时长历史时，阅读[调度 Check](scheduling.md)。
 - 需要组合/继承 Check 或理解 dependency data、aggregation、machine outputs 的共同结果模型时，阅读[API 机制](../api-mechanics.md)。
 - 只需使用 package 提供的检查时，从 [README 的 Check 概览](../../README.md#随包提供的-check)进入对应指南。
+
+## 按任务选择检查示例
+
+本地快速检查只跑配置；CI 同时检查配置和文档；开发者还可以单独查文档。
+
+preset 是项目入口的命名，Product 只接收普通 flags：
+
+```ts
+import { any, defineConfig, jsonValidation, markdownLint, run } from "@zxyycom/vibe-check";
+
+const definition = defineConfig({
+  checks: [
+    jsonValidation({
+      checkId: "config",
+      files: { patterns: ["config/**/*.json"] },
+      enabledByFlags: { when: any("local", "ci", "config") }
+    }),
+    markdownLint({
+      checkId: "docs",
+      files: { patterns: ["handbook/**/*.md"] },
+      findingPolicy: "blocking",
+      enabledByFlags: { when: any("ci", "docs") }
+    })
+  ],
+  outputs: { machinePublication: { enabled: false } }
+});
+
+async function runGate() {
+  const result = await run(definition, { flags: ["local"] });
+  process.exitCode = result.kind === "completed" && result.aggregate === "passed" ? 0 : 1;
+  return result;
+}
+
+if (import.meta.main) await runGate();
+```
+
+运行前准备对应的配置与文档文件。换成 `["ci"]` 会选择两项，`["docs"]` 只选择文档。未选项仍保留 `not-applicable` facts，但不参加本次有效列表的默认聚合。
+
+若只选择一个下游 Check，却希望同时启动它的前置项，在下游的 `enabledByFlags` 加 `propagateDependsOn: true`。它补齐传递 `dependsOn`，不是把所有相邻节点都选中，也不保证前置项通过。
+
+argv、help 和未知 preset 的拒绝由项目入口处理。用户输入先验证再映射，避免拼错任务名后静默得到空检查集合。精确规则见[按 flag 选择 Check](./extending-check-lifecycle.md#按-flag-选择-check)。

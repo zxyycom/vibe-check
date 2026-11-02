@@ -31,6 +31,8 @@ artifacts 决定。
 
 当前 Gate 范围改造见 [`unify-gate-domain-scopes`](../../changes/unify-gate-domain-scopes/proposal.md)：与其它任务的 Gate、Case 和 owner 文档写入串行；不依赖 Config packages 的公共抽象。
 
+主指南调整见 [`rework-project-gate-guide`](../../changes/rework-project-gate-guide/proposal.md)：围绕质量证据、检查边界、执行图、入口与成本演进重写；README、指南与示例投影写入串行，不引入 Config packages。移除已无匹配的指南行数 waiver，保留 Gate 限额与扫描范围。
+
 ### 并行与提交边界
 
 调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享

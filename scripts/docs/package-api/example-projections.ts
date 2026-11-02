@@ -90,6 +90,42 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "gate-text-diagnostics",
+    regionId: "gate-text-diagnostics",
+    sourcePath: "docs/examples/package-api/gate-text-diagnostics.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "command-check",
+        headingPath: Object.freeze([
+          "调用方完成阶段",
+          "将工具结果映射为诊断",
+          "只有文本：解析明确的格式"
+        ]),
+        kind: "markdown"
+      })
+    ]),
+    title: "只有文本：解析明确的格式"
+  }),
+  Object.freeze({
+    evidence: "runtime",
+    id: "gate-json-diagnostics",
+    regionId: "gate-json-diagnostics",
+    sourcePath: "docs/examples/package-api/gate-json-diagnostics.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "command-check",
+        headingPath: Object.freeze([
+          "调用方完成阶段",
+          "将工具结果映射为诊断",
+          "已有结构：验证并映射为项目字段"
+        ]),
+        kind: "markdown"
+      })
+    ]),
+    title: "已有结构：验证并映射为项目字段"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "project-changes",
     regionId: "project-changes",
     sourcePath: "docs/examples/package-api/project-changes.ts",

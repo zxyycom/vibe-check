@@ -33,35 +33,41 @@ const gzipSize = defineCheck({
   checkId: "gzip-size",
   displayName: "Gzip size",
   options: { maximumBytes: 100_000 },
-  execute: defineContextCallback("check.execute", { contextNeeds: ["project"], callback: async (options: { readonly maximumBytes: number }, { project }) => {
-    const source = await readFile(resolve(project.root, "dist/app.js"));
-    const level = 9;
-    const key = JSON.stringify({
-      sourceHash: createHash("sha256").update(source).digest("hex"),
-      measurementRevision: "gzip-size-v1",
-      level,
-      nodeVersion: process.versions.node,
-      zlibVersion: process.versions.zlib ?? null,
-      bunVersion: process.versions.bun ?? null
-    });
-    const cached = await cacheJsonByKey({
-      directory: resolve(project.root, ".cache/quality/gzip-size"),
-      namespace: "my-project.gzip-size",
-      version: "1",
-      key,
-      parse: parseMeasurement,
-      compute: () => ({ compressedBytes: gzipSync(source, { level }).byteLength })
-    });
-    const maximumBytes = options.maximumBytes;
-    const data = {
-      compressedBytes: cached.value.compressedBytes,
-      maximumBytes,
-      cacheSource: cached.source
-    };
-    return data.compressedBytes <= maximumBytes
-      ? { status: "passed", data }
-      : { status: "failed", data };
-  } })
+  execute: defineContextCallback("check.execute", {
+    contextNeeds: ["project"],
+    callback: async (
+      options: { readonly maximumBytes: number },
+      { project }
+    ) => {
+      const source = await readFile(resolve(project.root, "dist/app.js"));
+      const level = 9;
+      const key = JSON.stringify({
+        sourceHash: createHash("sha256").update(source).digest("hex"),
+        measurementRevision: "gzip-size-v1",
+        level,
+        nodeVersion: process.versions.node,
+        zlibVersion: process.versions.zlib ?? null,
+        bunVersion: process.versions.bun ?? null
+      });
+      const cached = await cacheJsonByKey({
+        directory: resolve(project.root, ".cache/quality/gzip-size"),
+        namespace: "my-project.gzip-size",
+        version: "1",
+        key,
+        parse: parseMeasurement,
+        compute: () => ({ compressedBytes: gzipSync(source, { level }).byteLength })
+      });
+      const maximumBytes = options.maximumBytes;
+      const data = {
+        compressedBytes: cached.value.compressedBytes,
+        maximumBytes,
+        cacheSource: cached.source
+      };
+      return data.compressedBytes <= maximumBytes
+        ? { status: "passed", data }
+        : { status: "failed", data };
+    }
+  })
 });
 
 const definition = defineConfig({
