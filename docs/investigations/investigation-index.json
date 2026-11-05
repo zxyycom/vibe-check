@@ -3225,6 +3225,21 @@
         "timing"
       ],
       "title": "完整 Gate 中的 Node Worker 宿主测试超时与边界收窄"
+    },
+    "261105-diagnose-markdownlint-cache-module-resolution": {
+      "formedAt": "2026-11-05T07:37:10Z",
+      "name": "diagnose-markdownlint-cache-module-resolution",
+      "question": "为什么显式启用 markdownLint 缓存后在 Node 中持续返回 uncached，而 Bun 测试仍通过？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "261105-diagnose-markdownlint-cache-module-resolution.md",
+      "tags": [
+        "cache-design",
+        "markdown-lint",
+        "module-resolution",
+        "runtime-compatibility"
+      ],
+      "title": "定位 markdownlint findings 缓存的 Node/Bun 模块解析差异"
     }
   },
   "metadata": {},
@@ -3357,7 +3372,8 @@
       "261024-profile-markdown-link-fused-path-loop": "sha256:3025903c3332cdfc1cff6f02436f1233347f1affe2ef64051bfb1d7c301ed827",
       "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf",
       "261024-record-delivery-duplicate-lane-timeout": "sha256:949893b102590be8b31d07dc584b91fa88489463b05c6c1654450bbdad92d5f3",
-      "261024-record-worker-host-test-delivery-timeout": "sha256:a58b023011a180a8a218b397559c07b82191759a502e634f2c12a62df90539a9"
+      "261024-record-worker-host-test-delivery-timeout": "sha256:a58b023011a180a8a218b397559c07b82191759a502e634f2c12a62df90539a9",
+      "261105-diagnose-markdownlint-cache-module-resolution": "sha256:984e7c8a115ed1d94ea0c2ec2c6782bcc8b2c970b42937df23afbacd8a855fd5"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

@@ -1,10 +1,7 @@
 import { createHash } from "node:crypto";
-import { createRequire } from "node:module";
+import { getVersion } from "markdownlint";
 
-import {
-  snapshotClosedRecord,
-  snapshotExactClosedRecord
-} from "../../data-boundary/closed-values.ts";
+import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
 import { cacheJsonByKey } from "../../package-tools/cache/cache-json-by-key.ts";
 import {
   lintMarkdownString,
@@ -134,11 +131,8 @@ function isMarkdownLintRuleName(value: unknown): value is MarkdownLintRuleName {
 
 function installedMarkdownlintVersion(): string | undefined {
   try {
-    const packageJson: unknown = createRequire(import.meta.url)("markdownlint/package.json");
-    const metadata = snapshotClosedRecord(packageJson);
-    return typeof metadata?.version === "string" && metadata.version.length > 0
-      ? metadata.version
-      : undefined;
+    const version: unknown = getVersion();
+    return typeof version === "string" && version.length > 0 ? version : undefined;
   } catch {
     return undefined;
   }

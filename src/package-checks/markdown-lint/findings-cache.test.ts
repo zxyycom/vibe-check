@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -106,6 +106,69 @@ describe("Markdown lint findings cache", () => {
         typeof changedRules === "string" ? changedRules : changedRules.source,
         "computed"
       );
+
+      // Bun accepts the unexported package.json path that Node rejects; cover Node resolution too.
+      const nodeCacheDirectory = join(fixture.root, "node-cache");
+      const child = spawnSync(
+        "node",
+        [
+          "--input-type=module",
+          "--eval",
+          `
+            const { lintMarkdownWithCache } = await import(process.argv[1]);
+            const input = { ...JSON.parse(process.argv[2]), signal: new AbortController().signal };
+            const cold = await lintMarkdownWithCache(input);
+            const warm = await lintMarkdownWithCache(input);
+            console.log(JSON.stringify({ cold, warm }));
+          `,
+          new URL("./findings-cache.ts", import.meta.url).href,
+          JSON.stringify({
+            sourcePath: SOURCE_PATH,
+            sourceText: SOURCE_TEXT,
+            rules,
+            cache: { enabled: true, directory: nodeCacheDirectory }
+          })
+        ],
+        { encoding: "utf8", killSignal: "SIGKILL", timeout: 10_000 }
+      );
+      assert.equal(child.error, undefined, child.error?.message);
+      assert.equal(child.status, 0, child.stderr);
+      const completion: unknown = JSON.parse(child.stdout);
+      const expectedFindings = [{ lineNumber: 1, range: [1, 2], rule: "no-missing-space-atx" }];
+      assert.deepEqual(completion, {
+        cold: { source: "computed", findings: expectedFindings },
+        warm: { source: "cache", findings: expectedFindings }
+      });
+      assert.equal(existsSync(nodeCacheDirectory), true);
+    } finally {
+      rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  it("continues fresh lint without caching when the backend version is unavailable", () => {
+    const fixture = createCacheFixture();
+    try {
+      for (const mode of ["throws", "empty"] as const) {
+        const cacheDirectory = join(fixture.root, `version-${mode}`);
+        const child = spawnSync(
+          process.execPath,
+          [
+            fileURLToPath(new URL("./version-unavailable.test-support.ts", import.meta.url)),
+            mode,
+            cacheDirectory
+          ],
+          { encoding: "utf8", killSignal: "SIGKILL", timeout: 10_000 }
+        );
+        assert.equal(child.error, undefined, child.error?.message);
+        assert.equal(child.status, 0, child.stderr);
+        const observation: unknown = JSON.parse(child.stdout);
+        const expectedFindings = [{ lineNumber: 1, range: [1, 2], rule: "no-missing-space-atx" }];
+        assert.deepEqual(observation, {
+          first: { source: "uncached", findings: expectedFindings },
+          second: { source: "uncached", findings: expectedFindings }
+        });
+        assert.equal(existsSync(cacheDirectory), false);
+      }
     } finally {
       rmSync(fixture.root, { recursive: true, force: true });
     }

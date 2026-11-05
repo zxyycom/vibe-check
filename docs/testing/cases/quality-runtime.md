@@ -417,10 +417,11 @@ Owner: `docs/checks/markdown-lint.md#逐文件-findings-缓存`
 Entities:
 
 - `bun|src/package-checks/markdown-lint/findings-cache.test.ts|Markdown lint findings cache > recomputes invalid or unwritable cache entries and respects cancellation`
+- `bun|src/package-checks/markdown-lint/findings-cache.test.ts|Markdown lint findings cache > continues fresh lint without caching when the backend version is unavailable`
 
 Proves:
 
-- 损坏或不可写的缓存退回实时 lint，取消不会伪装为命中。
+- 损坏或不可写的缓存退回实时 lint，无法取得 backend 版本时不缓存但仍实时 lint；取消不会伪装为命中。
 
 ## Case QUALITY-RUNTIME-MARKDOWN-LINT-WAIVERS: Markdown lint 完整精确对账保留证据
 

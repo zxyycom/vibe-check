@@ -104,6 +104,9 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 维护者必须提升该版本，使旧 findings 不再命中；公开配置、复用与失败语义由
 [Markdown lint 指南](../checks/markdown-lint.md#逐文件-findings-缓存)拥有。
 
+backend 版本通过 markdownlint 公开的 `getVersion()` API 取得并加入 cache identity；
+版本不可用时执行 fresh lint，跳过缓存读写。
+
 同一 markdownlint 版本的不同依赖组合可能遗漏 MD052 undefined-reference 能力，因此 adapter 验证实际行为：
 仅在选择 `reference-links-images` 时，通过公开 `strings` API lint 固定的 full/collapsed/image 引用语料，进程内共享一次 Promise。
 这项资格检查先于 fresh lint 和 cache lookup，避免缓存掩盖已加载 backend 的能力缺失；失败映射为 `backend-failed`，
