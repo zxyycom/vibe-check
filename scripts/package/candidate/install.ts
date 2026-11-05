@@ -7,12 +7,7 @@ import type { PackageMachineMaterial } from "../../docs/machine-artifacts/packag
 import { errorMessage } from "../../error-message.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
-import {
-  AJV_PACKAGE_NAME,
-  JSCPD_PACKAGE_NAME,
-  MARKDOWNLINT_PACKAGE_NAME,
-  PACKAGE_NAME
-} from "../package-contract.ts";
+import { PACKAGE_NAME } from "../package-contract.ts";
 import { runBun, sha256File } from "../pack.ts";
 import { installOfflinePackage } from "../installation.ts";
 import {
@@ -159,24 +154,13 @@ function probeCandidateInstallation(consumerDirectory: string): CandidateInstall
   return parseCandidateInstallationProbe(output, consumerDirectory);
 }
 
-function candidateInstallationProbeCommand(): readonly string[] {
+export function candidateInstallationProbeCommand(): readonly string[] {
   return [
     "-e",
-    `import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+    `import { candidateInstallationProbe } from ${JSON.stringify(new URL("./installation-probe.ts", import.meta.url).href)};
 const candidateEntryUrl = import.meta.resolve(process.argv[1]);
-const candidateEntryPath = fileURLToPath(candidateEntryUrl);
-const requireFromCandidate = createRequire(candidateEntryPath);
-process.stdout.write(JSON.stringify({
-  ajvPackageManifestPath: requireFromCandidate.resolve(process.argv[2] + "/package.json"),
-  candidateEntryUrl,
-  jscpdPackageManifestPath: requireFromCandidate.resolve(process.argv[3] + "/package.json"),
-  markdownlintPackageManifestPath: requireFromCandidate.resolve(process.argv[4] + "/package.json")
-}));`,
-    PACKAGE_NAME,
-    AJV_PACKAGE_NAME,
-    JSCPD_PACKAGE_NAME,
-    MARKDOWNLINT_PACKAGE_NAME
+process.stdout.write(JSON.stringify(candidateInstallationProbe(candidateEntryUrl)));`,
+    PACKAGE_NAME
   ];
 }
 

@@ -2,17 +2,19 @@
 
 ## Case AUX-PACKAGE-CANDIDATE-001: Candidate lifecycle admits only verified local package state
 
-Owner: `docs/tooling/package-lifecycle.md#local-candidate-lifecycle`
+Owner: `docs/tooling/package-lifecycle.md#package-lifecycle`
 Entities:
 
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation contracts > rejects overlapping package build and cache roots`
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation contracts > rejects invalid private consumer manifests`
+- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation contracts > resolves an exports-encapsulated markdownlint from the candidate on Node and Bun`
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation contracts > keeps the explicit cold integration target outside routine discovery with hard timeout`
 - `bun|scripts/package/candidate/receipt.test.ts|rejects malformed and stale receipts before artifact reuse`
 - `bun|scripts/package/command.test.ts|package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance`
   Proves:
 
 - Candidate path contract rejects identical or either-direction parent/child build/cache roots and accepts adjacent non-overlapping roots without preparing a candidate. Installation accepts only a valid private consumer manifest. Receipt contracts reject malformed or stale package state before reuse, while root preparation derives the actual build, artifact, installation and resolved entry used by every Project Gate invocation.
+- The installation probe resolves an exports-encapsulated markdownlint from the candidate on Node and Bun without requiring a manifest subpath export.
 - Routine test discovery keeps only fast decision/input contracts. The separately named `package:candidate:integration` target has a 30-second process boundary and exercises physical cold build/install/reuse plus drift/fallback decisions without becoming a second complete package lifecycle inside the Gate. Build-only staging material remains owned by artifact acceptance.
 - Root package status is read-only and reports `current` or `stale` separately from the required repair action; after build, its current state is reported separately from the performed preparation action. Root verify delegates to the complete package acceptance owner rather than accepting stale material or inventing another acceptance path.
 

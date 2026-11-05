@@ -79,8 +79,10 @@ Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 
 `scripts/package/candidate/**` 只安装并核对这一个精确 tarball，不从 repository source 或祖先依赖补偿残缺 candidate。安装后依次：
 
 1. 完成 [package material audit](package-artifact.md#产物构造与审计)，再按下节审计实际安装的依赖许可声明。
-2. 一个 child 一次解析 candidate 根入口与 Ajv/jscpd 两项功能探针依赖。
-3. parent 核对路径 containment、manifest version 和 jscpd bin。
+2. 一个 child 一次解析 candidate 根入口与 Ajv、jscpd、markdownlint 依赖。
+   markdownlint 从已解析的公开入口向上定位最近的 manifest；仅文件缺失时继续查找，
+   其他读取错误、无效 JSON 或身份不符时立即失败，并报告该文件路径。
+3. parent 核对依赖的路径 containment、manifest name/version 和 jscpd bin。
 4. 随后的 Product / external runtime 消费同一安装，实际执行 jscpd；preparation 不为同一事实重复启动 probe。
 
 `candidate/external-consumer/**` 建立一次隔离安装及 typed material，分别拥有 types、documentation 与 runtime 验收；父级 candidate lifecycle 不吸收这些职责。其 types fixture 用独立的 `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes` profile 验收安装后的公共 declarations，不承接 `noImplicitOverride`、`noImplicitReturns` 或 unreachable-code 等 implementation-only 规则，也不增加 compiler invocation 或重复安装。
