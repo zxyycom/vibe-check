@@ -1,0 +1,381 @@
+{
+  "node": "v24.18.0",
+  "baseline": [
+    {
+      "name": "errorPropagation",
+      "sourceCode": "fn read() -> Result<(), E> { a()?; b()?; c()?; Ok(()) }",
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 4,
+          "nd": 3,
+          "parameters": 0,
+          "contributors": [
+            [
+              "?",
+              1
+            ],
+            [
+              "?",
+              1
+            ],
+            [
+              "?",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "shortCircuit",
+      "sourceCode": "fn ready(a: bool, b: bool) -> bool { a && b }",
+      "functions": [
+        {
+          "name": "ready",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 2,
+          "contributors": [
+            [
+              "&&",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "nestedParameters",
+      "sourceCode": "fn consume(x: Result<i32, E>, y: (i32, i32), z: fn(i32, i32)) {}",
+      "functions": [
+        {
+          "name": "consume",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 1,
+          "nd": 0,
+          "parameters": 5,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "traitDeclaration",
+      "sourceCode": "trait T { fn required(&self); fn defaulted(&self) { if true {} } }",
+      "functions": [
+        {
+          "name": "required",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 1,
+          "contributors": [
+            [
+              "if",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rawString",
+      "sourceCode": "fn raw() { let s = r\"ends with \\\"; if true { println!(\"ok\"); } }",
+      "functions": [
+        {
+          "name": "raw",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 1,
+          "nd": 0,
+          "parameters": 0,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "functionPointer",
+      "sourceCode": "fn outer() { let cb: fn(i32) -> i32 = |x| { if x > 0 { x } else { 0 } }; if true {} }",
+      "functions": [
+        {
+          "name": "",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 1,
+          "contributors": [
+            [
+              "if",
+              1
+            ]
+          ]
+        },
+        {
+          "name": "outer",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 0,
+          "contributors": [
+            [
+              "if",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unicodeName",
+      "sourceCode": "fn 计算(x: i32) { if x > 0 {} }",
+      "functions": [
+        {
+          "name": "计算",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 1,
+          "contributors": [
+            [
+              "if",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rawIdentifier",
+      "sourceCode": "fn r#type(x: i32) { if x > 0 {} }",
+      "functions": []
+    },
+    {
+      "name": "splitDeclaration",
+      "sourceCode": "fn\nactual() { if true {} }",
+      "functions": [
+        {
+          "name": "actual",
+          "startLine": 1,
+          "endLine": 2,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 0,
+          "contributors": [
+            [
+              "if",
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "constComparison",
+      "sourceCode": "fn f(x: [u8; { if 1 < 2 { 1 } else { 2 } }], y: u8) {}",
+      "functions": [
+        {
+          "name": "f",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 2,
+          "contributors": [
+            [
+              "if",
+              1
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "candidate": [
+    {
+      "name": "errorPropagation",
+      "sourceCode": "fn read() -> Result<(), E> { a()?; b()?; c()?; Ok(()) }",
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 4,
+          "nd": 0,
+          "parameters": 0,
+          "contributors": [
+            [
+              "?",
+              1
+            ],
+            [
+              "?",
+              1
+            ],
+            [
+              "?",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "shortCircuit",
+      "sourceCode": "fn ready(a: bool, b: bool) -> bool { a && b }",
+      "functions": [
+        {
+          "name": "ready",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 0,
+          "parameters": 2,
+          "contributors": [
+            [
+              "&&",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "nestedParameters",
+      "sourceCode": "fn consume(x: Result<i32, E>, y: (i32, i32), z: fn(i32, i32)) {}",
+      "functions": [
+        {
+          "name": "consume",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 1,
+          "nd": 0,
+          "parameters": 3,
+          "contributors": []
+        }
+      ]
+    },
+    {
+      "name": "traitDeclaration",
+      "sourceCode": "trait T { fn required(&self); fn defaulted(&self) { if true {} } }",
+      "functions": [
+        {
+          "name": "defaulted",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 1,
+          "contributors": [
+            [
+              "if",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rawString",
+      "sourceCode": "fn raw() { let s = r\"ends with \\\"; if true { println!(\"ok\"); } }",
+      "functions": [
+        {
+          "name": "raw",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 0,
+          "contributors": [
+            [
+              "if",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "functionPointer",
+      "sourceCode": "fn outer() { let cb: fn(i32) -> i32 = |x| { if x > 0 { x } else { 0 } }; if true {} }",
+      "functions": [
+        {
+          "name": "outer",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 3,
+          "nd": 1,
+          "parameters": 0,
+          "contributors": [
+            [
+              "if",
+              1
+            ],
+            [
+              "if",
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unicodeName",
+      "sourceCode": "fn 计算(x: i32) { if x > 0 {} }",
+      "functions": []
+    },
+    {
+      "name": "rawIdentifier",
+      "sourceCode": "fn r#type(x: i32) { if x > 0 {} }",
+      "functions": []
+    },
+    {
+      "name": "splitDeclaration",
+      "sourceCode": "fn\nactual() { if true {} }",
+      "functions": [
+        {
+          "name": "actual",
+          "startLine": 2,
+          "endLine": 2,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 0,
+          "contributors": [
+            [
+              "if",
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "constComparison",
+      "sourceCode": "fn f(x: [u8; { if 1 < 2 { 1 } else { 2 } }], y: u8) {}",
+      "functions": [
+        {
+          "name": "f",
+          "startLine": 1,
+          "endLine": 1,
+          "ccn": 2,
+          "nd": 1,
+          "parameters": 1,
+          "contributors": [
+            [
+              "if",
+              1
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

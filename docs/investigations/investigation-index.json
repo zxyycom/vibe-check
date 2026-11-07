@@ -3240,6 +3240,26 @@
         "runtime-compatibility"
       ],
       "title": "定位 markdownlint findings 缓存的 Node/Bun 模块解析差异"
+    },
+    "261107-assess-rust-analyzer-user-patch": {
+      "formedAt": "2026-11-07T09:47:12Z",
+      "name": "assess-rust-analyzer-user-patch",
+      "question": "用户补丁改善了哪些 Rust 函数指标问题，采用前还需解决什么，Markdown 缓存部分如何处理？",
+      "relations": [],
+      "resourceIds": [
+        "261107-assess-rust-analyzer-user-patch/candidate-rust.patch",
+        "261107-assess-rust-analyzer-user-patch/compare-rust-patch.mjs",
+        "261107-assess-rust-analyzer-user-patch/evidence-notes.md",
+        "261107-assess-rust-analyzer-user-patch/results.json"
+      ],
+      "sourcePath": "261107-assess-rust-analyzer-user-patch.md",
+      "tags": [
+        "bug",
+        "function-metrics",
+        "patch-review",
+        "rust"
+      ],
+      "title": "Rust 函数指标补丁的修复价值与采用条件"
     }
   },
   "metadata": {},
@@ -3373,7 +3393,8 @@
       "261024-recheck-consumer-types-contention": "sha256:9e6ad13ac90c511f959b70385610271a6b7375f2cb6bfdcc0f4d9690a5f014cf",
       "261024-record-delivery-duplicate-lane-timeout": "sha256:949893b102590be8b31d07dc584b91fa88489463b05c6c1654450bbdad92d5f3",
       "261024-record-worker-host-test-delivery-timeout": "sha256:a58b023011a180a8a218b397559c07b82191759a502e634f2c12a62df90539a9",
-      "261105-diagnose-markdownlint-cache-module-resolution": "sha256:984e7c8a115ed1d94ea0c2ec2c6782bcc8b2c970b42937df23afbacd8a855fd5"
+      "261105-diagnose-markdownlint-cache-module-resolution": "sha256:984e7c8a115ed1d94ea0c2ec2c6782bcc8b2c970b42937df23afbacd8a855fd5",
+      "261107-assess-rust-analyzer-user-patch": "sha256:4cc33e2bfc20dc5b5a876e7efdad539922ce59583b1770bcdbaacff9d2ab0802"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

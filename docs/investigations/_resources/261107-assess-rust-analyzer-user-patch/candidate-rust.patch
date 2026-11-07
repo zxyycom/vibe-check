@@ -1,0 +1,111 @@
+diff --git a/src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts b/src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts
+index 0d2cb8c6..a2b8c754 100644
+--- a/src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts
++++ b/src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts
+@@ -71,6 +71,8 @@ export class LizardExtension implements LizardExtensionProtocol {
+           reader.context.set_in_condition(false);
+           reader.context.set_logical_operator_added(false);
+         }
++      } else if ((token === "&&" || token === "||") && reader.languageNames.includes("rust")) {
++        // Rust short-circuit expressions do not introduce a nested block.
+       } else if (
+         token === "&&" ||
+         token === "||" ||
+diff --git a/src/package-checks/function-metrics/analyzer/readers/rust.ts b/src/package-checks/function-metrics/analyzer/readers/rust.ts
+index 7cc8e3e9..6d6766e1 100644
+--- a/src/package-checks/function-metrics/analyzer/readers/rust.ts
++++ b/src/package-checks/function-metrics/analyzer/readers/rust.ts
+@@ -16,6 +16,8 @@ export class RustReader extends CodeReader {
+   public static override logicalOperators = new Set(["&&", "||"]);
+   public static override caseKeywords = new Set<string>();
+   public static override ternaryOperators = new Set(["?"]);
++  // Rust `?` propagates an error; it is not a nested ternary expression.
++  public readonly loops = new Set(["if", "foreach", "for", "while", "&&", "||", "catch", "case", "try", "def"]);
+-
++
+   public constructor(context: FileInfoBuilder) {
+     super(context);
+@@ -27,7 +29,10 @@ export class RustReader extends CodeReader {
+     _addition = "",
+     tokenFactory?: TokenFactory
+   ): Generator<string> {
+-    return CodeReader.generateTokens(sourceCode, String.raw`|(?:'\w+\b)`, tokenFactory);
++    // Rust raw strings do not escape quotes with backslashes. Consume the
++    // matching hash-delimited literal before the shared escaped-string rule.
++    const rawString = String.raw`|(?:b|c)?r(#{0,255})"[\s\S]*?"\1`;
++    return CodeReader.generateTokens(sourceCode, rawString + String.raw`|(?:'\w+\b)`, tokenFactory);
+   }
+-
++
+   public override get_comment_from_token(token: string): string | undefined {
+@@ -40,6 +45,42 @@ class RustStates extends GoLikeStates {
+   private readonly _in_match_arms: boolean;
+   private _seen_match_arm = false;
+   private _match_subject_nesting = 0;
++  private parameterDepth = 0;
++  private genericDepth = 0;
++  private otherDepth = 0;
++
++  protected override readonly addFunctionParameter = (token: string): void => {
++    if (token === "(") { this.parameterDepth++; return; }
++    if (token === ")") { this.parameterDepth--; return; }
++    if (token === "<") this.genericDepth++;
++    if (token === ">" && this.genericDepth > 0) this.genericDepth--;
++    if (token === "[" || token === "{") this.otherDepth++;
++    if ((token === "]" || token === "}") && this.otherDepth > 0) this.otherDepth--;
++    if (token === "," && (this.parameterDepth > 1 || this.genericDepth > 0 || this.otherDepth > 0)) {
++      this.context.parameter(" ");
++    } else {
++      this.context.parameter(token);
++    }
++  };
++
++  protected override _expect_function_impl(token: string): void {
++    if (token === ";") {
++      this.context.forgive = true;
++      this.context.endOfFunction();
++      this.next(this.globalState);
++    } else {
++      super._expect_function_impl(token);
++    }
++  }
++
++  private readonly _rust_function_name = (token: string): void => {
++    if (/^(?:r#)?[a-zA-Z_][a-zA-Z0-9_]*$/.test(token)) {
++      super._state_global("fn");
++      this._function_name(token);
++    } else {
++      this.next(this.globalState, token);
++    }
++  };
+-
++
+   public constructor(context: FileInfoBuilder, inMatchArms = false) {
+     super(context);
+@@ -47,6 +88,10 @@ class RustStates extends GoLikeStates {
+   }
+-
++
+   public override _state_global(token: string): void {
++    if (token === "fn") {
++      this.next(this._rust_function_name);
++      return;
++    }
+     if (token === "=>") {
+       if (this._in_match_arms) {
+         if (this._seen_match_arm) {
+diff --git a/src/package-checks/function-metrics/analyzer/shared/golike.ts b/src/package-checks/function-metrics/analyzer/shared/golike.ts
+index d27cb514..7db111ff 100644
+--- a/src/package-checks/function-metrics/analyzer/shared/golike.ts
++++ b/src/package-checks/function-metrics/analyzer/shared/golike.ts
+@@ -109,7 +109,7 @@ export class GoLikeStates extends CodeStateMachine {
+     this.readInsideBracketsThen("()", token, this.addFunctionParameter, this._expect_function_impl);
+   };
+-
++
+-  private readonly addFunctionParameter = (token: string): void => {
++  protected readonly addFunctionParameter = (token: string): void => {
+     if (!"()".includes(token)) this.context.parameter(token);
+   };
+-
++
